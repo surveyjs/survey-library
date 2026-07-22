@@ -25,7 +25,7 @@
     }
 
     & .sd-paneldynamic__panel-wrapper > .sd-panel {
-        &> .sd-panel__header {
+        & > .sd-panel__header {
             padding-top: var(--sd-base-vertical-padding);
             padding-bottom: 0;
 
@@ -41,14 +41,16 @@
 }
 
 .sd-paneldynamic ~ .sd-question__comment-area {
-  padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500)) var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
-  padding-top: 0;
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500))
+        var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+    padding-top: 0;
 }
 .sd-root-modern--mobile {
-  .sd-paneldynamic ~ .sd-question__comment-area {
-    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-spacing-x300);
-    padding-top: 0;
-  }
+    .sd-paneldynamic ~ .sd-question__comment-area {
+        padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300))
+            var(--sjs2-spacing-x300);
+        padding-top: 0;
+    }
 }
 
 // Commented out: .sd-paneldynamic__footer / .sd-paneldynamic__panel-footer are never
@@ -65,42 +67,43 @@
 // }
 
 .sd-question--paneldynamic {
-    &>.sd-question__container {
-        &>.sd-question__header-and-content-container {
+    & > .sd-question__container {
+        & > .sd-question__header-and-content-container {
             padding: 0;
             gap: 0;
         }
     }
 }
 
-.sd-paneldynamic__header {
-  padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
-  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
-  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
-  gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
-}
+// .sd-paneldynamic__header {
+//     padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
+//     padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
+//     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+//     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
+//     gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
+// }
 
-.sd-paneldynamic__header .sd-question__title {
-  padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical) var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
-}
+// .sd-paneldynamic__header .sd-question__title {
+//     padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical)
+//         var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
+// }
 
-.sd-paneldynamic__header .sd-question__description {
-  padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
-  padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
-}
+// .sd-paneldynamic__header .sd-question__description {
+//     padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
+//     padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
+//     padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
+// }
 
-.sd-paneldynamic__header ~ hr {
-    margin: 0;
-    width: 100%;
-}
+// .sd-paneldynamic__header ~ hr {
+//     margin: 0;
+//     width: 100%;
+// }
 .sd-paneldynamic__header-tab ~ hr {
     display: none;
 }
 .sd-paneldynamic__navigation--top {
-    &>.sd-question__container {
-        &>.sd-question__header-and-content-container {
+    & > .sd-question__container {
+        & > .sd-question__header-and-content-container {
             & > hr {
                 display: none;
             }
@@ -127,18 +130,18 @@
     }
 }
 
-.sd-root-modern--mobile {
-    .sd-paneldynamic__header {
-        padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
-    }
-    .sd-paneldynamic__footer {
-        padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
-    }
-    .sd-paneldynamic__panel-footer {
-        padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
-        margin-top: calc(var(--sjs2-spacing-negative-x400));
-    }
-}
+// .sd-root-modern--mobile {
+//     .sd-paneldynamic__header {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__footer {
+//         padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__panel-footer {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//         margin-top: calc(var(--sjs2-spacing-negative-x400));
+//     }
+// }
 
 .sd-question--readonly,
 .sd-question--preview {
@@ -235,10 +238,12 @@
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    padding: var(--sjs2-layout-component-panel-dynamic-footer-padding-top) var(--sjs2-layout-component-panel-dynamic-footer-padding-right) var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom) var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding: var(--sjs2-layout-component-panel-dynamic-footer-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-right)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     justify-content: flex-end;
     padding-top: 0;
-    margin-top: calc(var(--sjs2-spacing-negative-x300));
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 
     &.sd-action-bar--empty {
@@ -263,7 +268,8 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-right)) 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-left));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-right)) 0
+            calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-left));
     }
 }
 .sd-paneldynamic__tabs-container--with-header {

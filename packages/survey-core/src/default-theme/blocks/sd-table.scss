@@ -332,12 +332,25 @@
 
 .sd-question.sd-question--table {
   position: relative;
-  &>.sd-question__container {
-    &>.sd-question__header-and-content-container {
-      overflow-x: auto;
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
+      padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
+      padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+      padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+      padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+      gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
       .sd-question__header {
         position: sticky;
         left: 0;
+      }
+      & > .sd-question__content {
+        overflow-x: auto;
+        padding-inline-start: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+        padding-inline-end: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+        padding-top: var(--sjs2-layout-component-panel-content-area-padding-top);
+        padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-bottom);
+        row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
+        column-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
       }
     }
   }
@@ -345,42 +358,14 @@
 
 .sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
-  &>.sd-question__container {
-    &>.sd-question__header-and-content-container {
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
       overflow-x: visible;
-      &>.sd-question__content {
+      & > .sd-question__content {
         margin: 0 calc(-1 * var(--sd-base-padding));
         padding: 0 calc(var(--sd-base-padding));
         min-width: auto;
         overflow-x: auto;
-      }
-    }
-  }
-}
-
-// TODO: Discuss with team if we need to keep this or not.
-.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:first-of-type {
-  .sd-question--table.sd-element--nested {
-    &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-of-type {
-          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-            margin-top: var(--sjs2-spacing-negative-x200);
-          }
-        }
-      }
-    }
-  }
-}
-.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:not(:first-of-type) {
-  .sd-question--table.sd-element--nested {
-    &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-of-type {
-          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-            margin-top: var(--sjs2-spacing-negative-x200);
-          }
-        }
       }
     }
   }
@@ -460,12 +445,6 @@
     margin-left: calc(-1 * var(--sd-base-padding));
     box-sizing: content-box;
   }
-
-  &:not(.sd-element--nested)>.sd-question__container {
-    &>.sd-question__header-and-content-container:first-child {
-      padding-top: calc(0.5 * var(--sd-base-vertical-padding));
-    }
-  }
 }
 
 .sd-row--multiple {
@@ -473,7 +452,10 @@
   // .sd-question--table.sd-element--nested > .sd-question__content {
   //   padding-right: calc(var(--sd-base-padding) + 2px);
   // }
-  .sd-question--table.sd-element--nested > .sd-question__container >.sd-question__header-and-content-container > .sd-question__content {
+  .sd-question--table.sd-element--nested
+    > .sd-question__container
+    > .sd-question__header-and-content-container
+    > .sd-question__content {
     padding-right: calc(var(--sd-base-padding) + 2px);
   }
 }
@@ -794,14 +776,15 @@
 
 .sd-question--table {
   &.sd-element--with-frame {
-    &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-        &>.sd-question__content {
+    & > .sd-question__container {
+      & > .sd-question__header-and-content-container {
+        & > .sd-question__content {
           .sd-table-wrapper .sd-table.sd-table--no-header {
           }
           .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
           }
-          &:first-of-type { // No question header
+          &:first-of-type {
+            // No question header
             .sd-table-wrapper .sd-table.sd-table--no-header {
             }
             .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
@@ -812,16 +795,17 @@
     }
   }
   &.sd-element--nested {
-    &>.sd-question__container {
+    & > .sd-question__container {
       padding: 0;
-      &>.sd-question__header-and-content-container {
+      & > .sd-question__header-and-content-container {
         padding: 0;
-        &>.sd-question__content {
+        & > .sd-question__content {
           .sd-table-wrapper .sd-table.sd-table--no-header {
           }
           .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
           }
-          &:first-of-type { // No question header
+          &:first-of-type {
+            // No question header
             .sd-table-wrapper .sd-table.sd-table--no-header {
               padding-top: 0;
             }

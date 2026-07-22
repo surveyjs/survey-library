@@ -1,10 +1,13 @@
 @use "../variables.scss" as *;
-
+//todo: rename page-footer variable to survey-footer
 .sd-body__navigation {
   box-sizing: border-box;
-  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500);
   flex-wrap: wrap;
-  --sd-action-bar-gap: var(--sjs2-spacing-x200);
+  padding-top: var(--sjs2-layout-component-page-footer-padding-top, 0);
+  padding-bottom: var(--sjs2-layout-component-page-footer-padding-bottom, 40px);
+  padding-left: var(--sjs2-layout-component-page-footer-padding-horizontal, 40px);
+  padding-right: var(--sjs2-layout-component-page-footer-padding-horizontal, 40px);
+  --sd-action-bar-gap: var(--sjs2-layout-component-page-footer-action-group-gap);
 }
 
 .sv-components-container-contentTop .sd-body__navigation {

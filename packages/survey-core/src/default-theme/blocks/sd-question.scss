@@ -20,24 +20,13 @@
 .sd-element--with-frame > .sd-question__container {
   gap: 0;
 }
-// TODO: Refactor
+// TODO: Refactor: need to discuss --sv-element-add-padding-left variable existence
 .sd-composite > .sd-question__container > .sd-question__header-and-content-container {
-  padding: 0;
-  &>.sd-question__header {
-    padding-left: calc(var(--sjs2-layout-component-question-header-padding-left) + var(--sv-element-add-padding-left, 0px));
-    padding-right: calc(var(--sjs2-layout-component-question-header-padding-right) + var(--sv-element-add-padding-right, 0px));
-    & ~ hr {
-      width: 100%;
-      left: 0;
-      margin-left: 0;
-    }
-  }
-  &>.sd-question__header ~ .sd-question__content {
-    padding: 0;
-    &>.sd-panel>.sd-panel__content {
-      padding-top: calc(var(--sd-base-padding) - 0.5 * var(--sd-base-vertical-padding));
-    }
-  }
+  padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+  gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
 }
 
 .sd-question__header-and-content-container {
@@ -46,42 +35,25 @@
   flex-direction: column;
   padding-top: var(--sjs2-layout-component-panel-simple-content-area-padding-top);
   padding-bottom: var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
-  padding-left: calc(var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-left, 0px));
-  padding-right: calc(var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-right, 0px));
+  padding-left: calc(
+    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-left, 0px)
+  );
+  padding-right: calc(
+    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-right, 0px)
+  );
   row-gap: var(--sjs2-layout-component-panel-simple-content-area-gap-vertical);
   column-gap: var(--sjs2-layout-component-panel-simple-content-area-gap-horizontal);
 }
 
-// TODO: Remove after new design system is implemented
-.sd-element--with-frame.sd-question--title-top:not(.sd-element--collapsed):not(.sd-question--paneldynamic) > .sd-question__container {
-  &>.sd-question__header-and-content-container {
-    padding-top: var(--sd-base-vertical-padding);
-  }
-}
-.sd-element--with-frame.sd-question--title-top:not(.sd-element--collapsed):not(.sd-element--complex)>div>.sd-element__erbox--above-element {
-  &~.sd-question__header-and-content-container {
-    padding-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
-  }
-}
-
 .sd-question--title-bottom > .sd-question__container {
-  &>.sd-question__header-and-content-container {
+  & > .sd-question__header-and-content-container {
     row-gap: calc(0.375 * var(--sd-base-vertical-padding));
-  }
-}
-// TODO: Remove after new design system is implemented
-.sd-element--nested {
-  &.sd-question--error-top.sd-question--left,
-  &.sd-question--error-bottom:not(.sd-question--left) {
-    &> .sd-question__container {
-      row-gap: var(--sjs2-spacing-x100);
-    }
   }
 }
 
 .sd-question--left {
-  &>.sd-question__container {
-    &>.sd-question__header-and-content-container {
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
       flex-direction: row;
       flex-wrap: wrap;
       column-gap: var(--sjs2-spacing-x300);
@@ -93,20 +65,6 @@
 .sd-element--nested > div > .sd-question__header-and-content-container {
   padding: 0;
 }
-
-.sd-root--compact {
-  .sd-question:not(.sd-question--complex) > .sd-question__container {
-    &>.sd-question__header-and-content-container {
-      padding: 0;
-    }
-  }
-  .sd-question--left {
-    &>.sd-question__container {
-      row-gap: var(--sjs2-spacing-x100);
-    }
-  }
-}
-
 .sd-question:not(.sd-element--with-frame) > .sd-question__container {
   .sd-question__header-and-content-container {
     padding: 0;
@@ -114,14 +72,14 @@
 }
 
 .sd-question--single-input {
-    &>.sd-question__container {
-        &>.sd-question__header-and-content-container {
-            padding: 0;
-            &>.sd-paneldynamic__header {
-                padding: 0;
-            }
-        }
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
+      padding: 0;
+      & > .sd-paneldynamic__header {
+        padding: 0;
+      }
     }
+  }
 }
 
 .sd-question__header {
@@ -149,7 +107,8 @@
 
 .sd-question__title {
   @include sjs2--typography--component--question--title;
-  padding: var(--sjs2-layout-component-question-title-padding-vertical) var(--sjs2-layout-component-question-title-padding-horizontal);
+  padding: var(--sjs2-layout-component-question-title-padding-vertical)
+    var(--sjs2-layout-component-question-title-padding-horizontal);
 }
 
 .sd-question__title--empty {
@@ -181,10 +140,10 @@
   container-type: inline-size;
 }
 
-.sd-element--with-frame>.sd-element__erbox--above-element {
+.sd-element--with-frame > .sd-element__erbox--above-element {
   border-radius: var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel) 0 0;
 }
-.sd-element--with-frame>div>.sd-element__erbox--above-element {
+.sd-element--with-frame > div > .sd-element__erbox--above-element {
   border-radius: var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel) 0 0;
 }
 
@@ -193,7 +152,7 @@
 // .sd-element--with-frame>.sd-question__erbox--below-question {
 //   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 // }
-.sd-element--with-frame>div>.sd-question__erbox--below-question {
+.sd-element--with-frame > div > .sd-question__erbox--below-question {
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
 
@@ -233,8 +192,8 @@
   @include sjs2--typography--component--input--content;
   color: $font-questionplaceholder-color;
 
-  &>div,
-  &>span {
+  & > div,
+  & > span {
     .sv-string-viewer {
       white-space: pre-line;
     }
@@ -245,4 +204,28 @@
   width: max-content;
   overflow: visible;
   max-width: 100%;
+}
+
+.sd-question__header--complex {
+  padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
+  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
+  gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
+}
+
+.sd-question__header--complex .sd-question__title {
+  padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical)
+    var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
+}
+
+.sd-question__header--complex .sd-question__description {
+  padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
+  padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
+}
+
+.sd-question__header.sd-question__header--complex ~ hr {
+  margin: 0;
+  width: 100%;
 }

@@ -1,4 +1,3 @@
-// TODO: Discuss whether we need this file: only 2 CSS variables are differ from ordinary panel
 .sd-panel.sd-element--nested {
   padding-inline-start: var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
   padding-inline-end: var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
@@ -41,7 +40,9 @@
   & > .sd-panel__footer {
     padding-top: var(--sjs2-layout-component-panel-nested-footer-padding-top);
     padding-bottom: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
-    padding-inline-start: calc(var(--sjs2-layout-component-panel-nested-footer-padding-left) - 1.75 * var(--sjs2-spacing-x100));
+    padding-inline-start: calc(
+      var(--sjs2-layout-component-panel-nested-footer-padding-left) - 1.75 * var(--sjs2-spacing-x100)
+    );
     padding-inline-end: var(--sjs2-layout-component-panel-nested-footer-padding-right);
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
   }

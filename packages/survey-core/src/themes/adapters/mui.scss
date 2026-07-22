@@ -2,7 +2,7 @@
   --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
   --sjs2-base-unit-spacing: 8px;
   --sjs2-color-utility-body: var(--mui-palette-background-default);
-  --sjs2-color-utility-sheet: var(--mui-palette-background-default);
+  --sjs2-color-utility-sheet: var(--mui-palette-background-paper);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
   --sjs2-color-utility-toolbox: var(--mui-palette-background-default);
   --sjs2-color-utility-property-grid: var(--mui-palette-background-default);
@@ -177,6 +177,7 @@
 
   /* common and other */
   --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-border-effect-floating-default: var(--mui-shadows-8);
 
   --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
   --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
@@ -217,6 +218,14 @@
 
   --sjs2-radius-component-drop: var(--mui-shape-borderRadius);
   --sjs2-radius-component-panel: var(--mui-shape-borderRadius);
+
+  --sjs2-layout-component-drop-box-padding-horizontal: 0px;
+  --sjs2-layout-component-drop-box-padding-vertical: 8px;
+  --sjs2-radius-component-drop-item: 0;
+  --sjs2-layout-component-drop-item-box-padding-vertical: 6px;
+  --sjs2-layout-component-drop-item-box-padding-right: 16px;
+  --sjs2-layout-component-drop-item-box-padding-left: 16px;
+  --sjs2-layout-component-drop-item-label-padding-horizontal: 0px;
 
   --sjs2-typography-font-family-text: var(--mui-fontFamily, "Roboto", Helvetica, Arial, sans-serif);
   --sjs2-typography-font-size-large: 1.25rem;
@@ -365,6 +374,32 @@
 }
 .sd-dropdown .sd-formbox__group .sd-action--popup-active {
   transform: rotate(180deg);
+}
+
+.sd-selectlist__item {
+  color: var(--mui-palette-text-primary);
+}
+
+.sd-selectlist__item--selected {
+  background-color: rgba(var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-selectedOpacity)));
+  color: var(--mui-palette-text-primary);
+  font-weight: normal;
+}
+
+.sd-selectlist__item--selected.sd-selectlist__item--hovered {
+  background-color: rgba(
+    var(--mui-palette-primary-mainChannel) /
+      calc(var(--mui-palette-action-selectedOpacity) + var(--mui-palette-action-hoverOpacity))
+  );
+}
+
+.sd-selectlist__item--hovered {
+  background: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-primary);
+}
+
+*:where(.dark) .sv-popup--menu-popup > .sv-popup__container {
+  background-image: var(--mui-overlays-8);
 }
 
 /* tagbox */

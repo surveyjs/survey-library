@@ -19,6 +19,27 @@
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: calc(var(--radius) * 0.6); /* rounded-[6px] */
 
+  /* dropdown */
+  --sjs2-radius-component-drop: calc(var(--radius) * 1.8);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 1.4);
+  --sjs2-shadcn-drop-action-radius: calc(var(--radius) * 2.6);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 3);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: color-mix(in oklab, var(--muted-foreground) 10%, transparent);
+  --sjs2-color-component-tagbox-item-hovered-bg: color-mix(in oklab, var(--muted-foreground) 10%, transparent);
+  --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-gap: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.5);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 2);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 2.6);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 2.6);
+
   /* common and other */
   --sjs2-typography-font-size-component-page-title: var(--text-base);
   --sjs2-typography-font-size-component-header-title: var(--text-base);

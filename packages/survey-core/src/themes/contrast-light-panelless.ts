@@ -14,7 +14,6 @@ export default {
     "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
     "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "#3A179E",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-surface-survey": "var(--sjs2-color-component-panel-default-bg)",
     "--sjs2-color-utility-surface-designer": "#F4F2FB",
     "--sjs2-color-utility-shadow-surface-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x015))",

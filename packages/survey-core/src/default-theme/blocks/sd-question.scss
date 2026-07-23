@@ -16,9 +16,13 @@
   row-gap: var(--sjs2-layout-component-panel-simple-box-gap-vertical);
   column-gap: var(--sjs2-layout-component-panel-simple-box-gap-horizontal);
 }
-
-.sd-element--with-frame > .sd-question__container {
-  gap: 0;
+.sd-question--nested > .sd-question__container {
+  padding-top: var(--sjs2-layout-component-panel-simple-nested-box-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-simple-nested-box-padding-bottom);
+  padding-left: var(--sjs2-layout-component-panel-simple-nested-box-padding-horizontal);
+  padding-right: var(--sjs2-layout-component-panel-simple-nested-box-padding-horizontal);
+  row-gap: var(--sjs2-layout-component-panel-simple-nested-box-gap-vertical);
+  column-gap: var(--sjs2-layout-component-panel-simple-nested-box-gap-horizontal);
 }
 // TODO: Refactor: need to discuss --sv-element-add-padding-left variable existence
 .sd-composite > .sd-question__container > .sd-question__header-and-content-container {

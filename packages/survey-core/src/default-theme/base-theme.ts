@@ -283,7 +283,7 @@ export default {
     "--sjs2-layout-component-message-content-gap-horizontal": "var(--sjs2-spacing-x100)",
     "--sjs2-layout-component-page-box-padding-horizontal": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-page-box-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-page-box-padding-bottom": "var(--sjs2-spacing-large-vertical)",
+    "--sjs2-layout-component-page-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-page-box-gap-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-page-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-page-content-area-padding-top": "var(--sjs2-spacing-x500)",
@@ -331,6 +331,13 @@ export default {
     "--sjs2-layout-component-panel-footer-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-footer-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-header-action-group-gap": "var(--sjs2-spacing-x150)",
+
+    "--sjs2-layout-component-panel-simple-nested-box-padding-horizontal": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-nested-box-padding-top": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-nested-box-padding-bottom": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-nested-box-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-simple-nested-box-gap-horizontal": "var(--sjs2-spacing-x300)",
+
     "--sjs2-layout-component-panel-simple-box-padding-horizontal": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-box-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-box-padding-bottom": "var(--sjs2-spacing-x000)",

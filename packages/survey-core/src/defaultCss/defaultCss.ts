@@ -239,7 +239,7 @@ export var defaultCss = {
     expandable: "sd-element--expandable",
     expandableAnimating: "sd-elemenet--expandable--animating",
     expanded: "sd-element--expanded",
-    nested: "sd-element--nested",
+    nested: "sd-element--nested sd-question--nested",
     invisible: "sd-element--invisible",
     composite: "sd-element--complex sd-composite",
     compositeHeader: "sd-question__header--complex",

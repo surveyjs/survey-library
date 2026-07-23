@@ -6,6 +6,7 @@
 
   width: 100%;
   box-sizing: border-box;
+  padding-bottom: var(--sjs2-spacing-large-vertical);
 
   .sd-body__page {
     min-width: min(100%, 300px);

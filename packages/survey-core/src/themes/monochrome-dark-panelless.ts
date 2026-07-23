@@ -14,7 +14,6 @@ export default {
     "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
     "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "#f6f6f6",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-body": "var(--sjs2-palette-gray-999)",
     "--sjs2-color-utility-sheet": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-a11y": "rgba(from var(--sjs2-palette-blue-400) r g b / var(--sjs2-opacity-x040))",

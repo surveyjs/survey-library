@@ -23,12 +23,16 @@
   width: 100%;
   gap: var(--sjs2-layout-component-page-header-gap-vertical);
   margin: 0 0 var(--sjs2-layout-component-page-header-gap-vertical) 0;
+  padding: var(--sjs2-layout-component-page-header-padding-top, 40px)
+    var(--sjs2-layout-component-page-header-padding-horizontal, 40px)
+    var(--sjs2-layout-component-page-header-padding-bottom, 0)
+    var(--sjs2-layout-component-page-header-padding-horizontal, 40px);
 }
 
 .sd-page__title {
   @include sjs2--typography--component--page--title;
   position: static;
-  padding-inline-start:  var(--sjs2-layout-component-page-title-padding-horizontal);
+  padding-inline-start: var(--sjs2-layout-component-page-title-padding-horizontal);
   padding-inline-end: var(--sjs2-layout-component-page-title-padding-horizontal);
   padding-top: var(--sjs2-layout-component-page-title-padding-vertical);
   padding-bottom: var(--sjs2-layout-component-page-title-padding-vertical);
@@ -37,7 +41,7 @@
 .sd-page__description {
   @include sjs2--typography--component--page--description;
   position: static;
-  padding-inline-start:  var(--sjs2-layout-component-page-description-padding-horizontal);
+  padding-inline-start: var(--sjs2-layout-component-page-description-padding-horizontal);
   padding-inline-end: var(--sjs2-layout-component-page-description-padding-horizontal);
   padding-top: var(--sjs2-layout-component-page-description-padding-top);
   padding-bottom: var(--sjs2-layout-component-page-description-padding-bottom);
@@ -46,41 +50,12 @@
 .sd-page__content {
   display: flex;
   flex-direction: column;
-  padding: var(--sjs2-layout-component-page-content-area-padding-vertical) var(--sjs2-layout-component-page-content-area-padding-horizontal);
+  padding-top: var(--sjs2-layout-component-page-content-area-padding-top);
+  padding-bottom: var(--sjs2-layout-component-page-content-area-padding-bottom);
+  padding-left: var(--sjs2-layout-component-page-content-area-padding-horizontal);
+  padding-right: var(--sjs2-layout-component-page-content-area-padding-horizontal);
   row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
   column-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal);
   width: 100%;
   box-sizing: border-box;
-}
-
-// TODO: Remove after new tokens are released, it is a temporary fix to keep screenshot
-.sd-root-modern--mobile {
-  .sd-page {
-    padding: 0;
-  }
-}
-
-.sd-page__errbox {
-  // TODO: Remove after new tokens are released, it is a temporary fix to keep screenshot
-  padding: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100)) var(--sd-base-padding);
-}
-
-.sd-root--compact {
-
-  // TODO: Remove after new tokens are released, it is a temporary fix to keep screenshot
-  .sd-page__header ~ .sd-page__content {
-    .sd-page__errbox {
-      margin-top: var(--sjs2-spacing-negative-x100);
-    }
-  }
-
-  .sd-page {
-    // TODO: Discuss with design team. To remove in favour of compact theme?
-    row-gap: var(--sd-base-vertical-padding);
-  }
-
-  .sd-page__content {
-    // TODO: Discuss with design team. To remove in favour of compact theme?
-    row-gap: var(--sd-base-vertical-padding);
-  }
 }

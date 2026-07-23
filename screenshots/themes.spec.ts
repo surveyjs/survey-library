@@ -498,7 +498,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await applyTheme(page, {
         "cssVariables": {
@@ -520,7 +520,7 @@ frameworks.forEach(framework => {
         ],
       });
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await applyTheme(page, {
         "cssVariables": {

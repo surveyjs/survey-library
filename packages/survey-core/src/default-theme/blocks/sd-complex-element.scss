@@ -40,9 +40,9 @@
   }
 }
 
-.sd-element--nested.sd-element--complex>div>div {
+.sd-element--nested.sd-element--complex > div > div {
   & > .sd-element__header--location-top {
-    &~hr {
+    & ~ hr {
       display: block;
       margin: 0;
       width: 100%;
@@ -59,7 +59,7 @@
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
-  & >div>div> .sd-element__header--location-top {
+  & > div > div > .sd-element__header--location-top {
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
@@ -99,40 +99,17 @@
 }
 
 .sd-question--empty.sd-question--complex {
-
-  &>.sd-question__container {
+  & > .sd-question__container {
+    row-gap: 0;
+    & > .sd-question__header-and-content-container {
       row-gap: 0;
-      &>.sd-question__header-and-content-container {
-          row-gap: 0;
-          padding-bottom: var(--sd-base-padding);
-          &>.sd-element__header {
-              padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-              &~hr {
-                  display: none;
-              }
-          }
+      padding-bottom: var(--sd-base-padding);
+      & > .sd-element__header {
+        padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
+        & ~ hr {
+          display: none;
+        }
       }
-  }
-}
-
-// TODO: remove this after the next release, it is a temporary fix to keep screenshot
-.sd-element--complex.sd-element--with-frame.sd-question--left {
-  &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-          &>.sd-element__header {
-              margin-top: calc(var(--sjs2-size-x300) + var(--sjs2-size-x050));
-              &~hr {
-                  display: none;
-              }
-              &:after {
-                  content: " ";
-                  display: block;
-                  height: 1px;
-                  position: relative;
-                  background: var(--sjs2-color-border-basic-secondary);
-                  bottom: var(--sjs2-size-x050);
-              }              
-          }
-      }
+    }
   }
 }

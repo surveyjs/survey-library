@@ -96,7 +96,6 @@
   --sjs2-color-component-action-brand-secondary-disabled-icon: var(--sjs-bs-on-light);
   --sjs2-color-component-action-brand-secondary-disabled-label: var(--sjs-bs-on-light);
 
-
   --sjs2-color-component-action-neutral-secondary-default-bg: var(--sjs-bs-secondary-bg);
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--sjs-bs-on-secondary);
   --sjs2-color-component-action-neutral-secondary-default-label: var(--sjs-bs-on-secondary);
@@ -357,15 +356,26 @@
 }
 
 /* dropdown */
-.sd-editor-chevron-button button.sd-action {
-  cursor: default;
-  --sd-action-hover-background: transparent;
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: 0.25rem;
+  gap: 0.25rem;
 
-  &:active {
-    background-color: transparent;
+  svg {
+    --sd-action-icon-size: 1.5rem;
   }
 }
 
+.sd-dropdown .sd-action {
+  padding: 0;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* tagbox */
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input  {
+  padding-inline: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+  padding-block: var(--sjs2-layout-component-input-medium-content-padding-vertical);
+}
 /* button pressed state */
 .sd-action--primary:active {
   transform: initial;
@@ -381,7 +391,6 @@
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
 }
-
 
 /* btn-sm */
 .sd-action--small {
@@ -400,7 +409,7 @@
 .sd-table.sd-table.sd-table>tbody>tr {
   &>th, &>td {
     &:where(:not(.sd-table__cell--error)) {
-      border-top: var(--bs-border-width) solid var(--bs-border-color);  
+      border-top: var(--bs-border-width) solid var(--bs-border-color);
       border-bottom: none;
       padding: 0.5rem;
       .sd-radio__decorator {
@@ -461,9 +470,9 @@
 
 /* stepper */
 .sd-progress-buttons__page-title {
-  font-size: 0.875rem;;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--bs-body-color)
+  color: var(--bs-body-color);
 }
 
 .sd-progress-buttons__list li {
@@ -474,7 +483,6 @@
 }
 
 .sd-progress-buttons--numbered {
-
   &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
     top: 0.75rem;
     bottom: unset;
@@ -482,7 +490,7 @@
 
   .sd-progress-buttons__button {
     background-color: var(--bs-secondary-bg);
-    color: var(--bs-secondary-color);;
+    color: var(--bs-secondary-color);
     font-size: 0.75rem;
     font-weight: 400;
     width: 1.5rem;

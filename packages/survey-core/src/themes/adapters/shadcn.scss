@@ -548,9 +548,6 @@
 .sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
   content: initial;
 }
-.sd-theme-root .sd-element--with-frame {
-  --sd-base-padding: calc(var(--spacing) * 4);
-}
 
 /* slider track (h-1.5) */
 .sd-theme-root .sd-slider__track,

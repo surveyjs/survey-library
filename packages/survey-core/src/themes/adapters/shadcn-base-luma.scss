@@ -62,10 +62,6 @@
   display: none;
 }
 
-.sd-theme-root .sd-element--with-frame {
-  --sd-base-padding: calc(var(--spacing) * 5);
-}
-
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;

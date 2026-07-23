@@ -394,7 +394,8 @@ export default {
     "--sjs2-layout-component-question-header-side-gap-horizontal": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-question-header-side-gap-vertical": "var(--sjs2-spacing-x050)",
     "--sjs2-layout-component-question-title-padding-horizontal": "var(--sjs2-spacing-x000)", // +
-    "--sjs2-layout-component-question-title-padding-vertical": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-title-padding-top": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-question-title-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-question-description-padding-horizontal": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-question-description-padding-top": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-question-description-padding-bottom": "var(--sjs2-spacing-x000)", // +

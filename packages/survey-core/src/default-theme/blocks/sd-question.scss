@@ -149,7 +149,10 @@
 
 .sd-question__title {
   @include sjs2--typography--component--question--title;
-  padding: var(--sjs2-layout-component-question-title-padding-vertical) var(--sjs2-layout-component-question-title-padding-horizontal);
+  padding: 
+    var(--sjs2-layout-component-question-title-padding-top)
+    var(--sjs2-layout-component-question-title-padding-horizontal)
+    var(--sjs2-layout-component-question-title-padding-bottom);
 }
 
 .sd-question__title--empty {
@@ -195,10 +198,6 @@
 // }
 .sd-element--with-frame>div>.sd-question__erbox--below-question {
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
-}
-
-.sd-question__description--under-input {
-  padding-top: calc(0.375 * var(--sd-base-vertical-padding));
 }
 
 .sd-scrollable .sd-question__content {

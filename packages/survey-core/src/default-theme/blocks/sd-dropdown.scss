@@ -67,6 +67,8 @@
   display: flex;
   width: 100%;
   span {
+    align-self: center;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }

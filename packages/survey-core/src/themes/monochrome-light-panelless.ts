@@ -13,6 +13,7 @@ export default {
     "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
     "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
     "--sjs2-is-panelless": "true",
+    "--sjs2-color-project-brand-400": "var(--sjs2-color-project-brand-600)",
     "--sjs2-color-project-brand-600": "#1C1B20",
     "--sjs2-color-utility-surface-survey": "var(--sjs2-color-component-panel-default-bg)",
     "--sjs2-color-utility-surface-designer": "#1c1b200d",

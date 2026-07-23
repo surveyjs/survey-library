@@ -7,18 +7,19 @@
   /* $enable-rounded: false -> squared corners everywhere */
   --sjs2-base-unit-radius: 0;
   --sjs2-radius-component-action: 0;
+  --sjs2-radius-component-action-small: 0;
   --sjs2-radius-component-formbox: 0;
   --sjs2-radius-component-checkbox: 0;
   --sjs2-radius-component-drop: 0;
   --sjs2-radius-component-panel: 0;
+  --sjs2-radius-component-toggle: 0;
 
+  /* tagbox */
+  --sjs2-radius-component-tagbox-item-action: 0;
+  
   /* $headings-font-weight: 400. Heading sizes match the base (Cosmo keeps $font-size-base: 1rem,
      so header = h2 = 2rem, page = h3 = 1.75rem, panel = h5 = 1.25rem). */
   --sjs2-typography-font-weight-component-header-title: 400;
   --sjs2-typography-font-weight-component-page-title: 400;
   --sjs2-typography-font-weight-component-panel-title: 400;
-}
-
-.sd-action--small {
-  border-radius: 0;
 }

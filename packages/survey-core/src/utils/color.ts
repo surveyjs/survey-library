@@ -1,16 +1,16 @@
 import { DomDocumentHelper } from "../global_variables_utils";
 
-/** Matches CSS color(srgb r g b) / color(srgb r g b / a) from canvas fillStyle. */
+/* Matches CSS color(srgb r g b) / color(srgb r g b / a) from canvas fillStyle. */
 const SRGB_COLOR_FUNCTION_REGEX =
   /color\s*\(\s*srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*([\d.]+))?\s*\)/i;
 
-/** Matches #RRGGBB or RRGGBB (six hex digits). */
+/* Matches #RRGGBB or RRGGBB (six hex digits). */
 const HEX_RGB_6_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
 
-/** Matches #RGB shorthand (three hex digits). */
+/* Matches #RGB shorthand (three hex digits). */
 const HEX_RGB_3_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
-/** rgba(...) prefix, case-insensitive. */
+/* rgba(...) prefix, case-insensitive. */
 const RGBA_PREFIX_REGEX = /^rgba\s*\(/i;
 
 var canvasElement: HTMLCanvasElement;

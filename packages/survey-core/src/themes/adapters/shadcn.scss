@@ -45,6 +45,32 @@
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2);
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 
+  /* dropdown */
+  --sjs2-shadcn-drop-action-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-drop-action-radius: var(--sjs2-radius-component-action);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: -0.3rem;
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 2);
+
+  /* tagbox input */
+  --sjs2-shadcn-tagbox-input-padding-vertical: var(--spacing);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: var(--spacing);
+  --sjs2-shadcn-tagbox-input-gap: var(--spacing);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: var(--spacing);
+  --sjs2-shadcn-tagbox-empty-input-padding-horizontal: calc(var(--spacing) * 2.5);
+
+  /* tagbox item */
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-gap: var(--spacing);
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 0.6);
+
+  /* tagbox item clean */
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 7);
+  --sjs2-shadcn-tagbox-item-clean-icon-size: calc(var(--spacing) * 3);
+  --sjs2-shadcn-tagbox-item-clean-radius: min(var(--radius-md), 10px);
+  --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -1);
+
   /* buttons */
   --sjs2-radius-component-action: calc(var(--radius) - 2px);
   --sjs2-layout-component-action-large-box-padding-vertical: calc(var(--spacing) * 2);
@@ -118,11 +144,9 @@
   --sjs2-color-component-formbox-default-fg: var(--foreground);
   --sjs2-color-component-formbox-default-border: var(--border);
   --sjs2-color-component-formbox-focused-border: var(--ring);
-  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
-    var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-default: 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-hovered: var(--sjs2-border-effect-component-formbox-default);
-  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px
-    var(--sjs2-color-component-formbox-focused-border);
+  --sjs2-border-effect-component-formbox-focused: 0px 0px 0px 1px var(--sjs2-color-component-formbox-focused-border);
   --sjs2-border-effect-component-formbox-invalid: var(--sjs2-border-effect-component-formbox-default);
   --sjs2-border-effect-component-formbox-invalid-focused: var(--sjs2-border-effect-component-formbox-focused);
   --sjs2-radius-component-formbox: var(--radius);
@@ -190,8 +214,8 @@
   /* tagbox */
   --sjs2-radius-component-tagbox-item: calc(var(--radius) * 0.8);
   --sjs2-radius-component-tagbox-item-action: 0;
-  --sjs2-color-component-tagbox-item-default-bg: var(--background);
-  --sjs2-color-component-tagbox-item-hovered-bg: var(--background);
+  --sjs2-color-component-tagbox-item-default-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--muted);
   --sjs2-color-component-tagbox-item-default-border: var(--border);
   --sjs2-color-component-tagbox-item-hovered-border: var(--border);
   --sjs2-color-component-tagbox-item-default-label: var(--secondary-foreground);
@@ -203,7 +227,7 @@
 
   /* stepper */
   --sjs2-radius-component-stepper-item: 100%;
-  
+
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
@@ -276,68 +300,113 @@
 }
 
 /* dropdown */
-.sd-editor-chevron-button button.sd-action {
-  padding-inline: 0;
-  cursor: default;
-  --sd-action-hover-background: transparent;
+.sd-dropdown .sd-action {
+  padding: 0;
+  box-sizing: border-box;
+  width: var(--sjs2-shadcn-drop-action-size);
+  height: var(--sjs2-shadcn-drop-action-size);
+  border-color: transparent;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-radius: var(--sjs2-shadcn-drop-action-radius);
+  --sd-action-icon-color: var(--muted-foreground);
 
-  &:active {
-    background-color: transparent;
+  &:hover {
+    background: var(--muted);
+    --sd-action-icon-color: var(--foreground);
   }
+}
+
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: var(--sjs2-shadcn-drop-action-bar-margin-inline-end);
+  padding-inline-end: var(--sjs2-shadcn-drop-action-bar-padding-inline-end);
+
+  svg {
+    width: var(--sjs2-shadcn-drop-action-size);
+    height: var(--sjs2-shadcn-drop-action-size);
+  }
+}
+
+.sv-popup--menu-popup > .sv-popup__container {
+  --tw-shadow:
+    0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow);
+  background-color: var(--popover);
 }
 
 /* tagbox */
 .sd-tagbox__input.sd-dropdown__input {
-  padding: calc(var(--spacing) * 1);
-  gap: calc(var(--spacing) * 1);
+  padding-block: var(--sjs2-shadcn-tagbox-input-padding-vertical);
+  padding-inline: var(--sjs2-shadcn-tagbox-input-padding-horizontal);
+  gap: var(--sjs2-shadcn-tagbox-input-gap);
 }
 
 .sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
-  padding-inline: calc(var(--spacing) * 3);
-  padding-block: calc(var(--spacing) * 2);
+  padding-block: var(--sjs2-shadcn-tagbox-empty-input-padding-vertical);
+  padding-inline: var(--sjs2-shadcn-tagbox-empty-input-padding-horizontal);
+}
+
+.sd-formbox.sd-tagbox:focus-within {
+  box-shadow:
+    var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+    var(--sjs2-border-effect-component-formbox-a11y);
 }
 
 .sd-tagbox-item {
-  padding-left: calc(var(--spacing) * 2);
-  padding-right: calc(var(--spacing) * 7);
+  height: var(--sjs2-shadcn-tagbox-item-height);
+  padding-left: var(--sjs2-shadcn-tagbox-item-padding-left);
+  padding-right: var(--sjs2-shadcn-tagbox-item-padding-right);
   padding-block: 0;
-  height: calc(var(--spacing) * 7);
-  background-color: var(--background);
+  gap: var(--sjs2-shadcn-tagbox-item-gap);
+  border-radius: var(--sjs2-shadcn-tagbox-item-radius);
   overflow: visible;
+  box-shadow: none;
+
+  &:hover {
+    box-shadow: none;
+  }
 }
 
 .sd-tagbox-item__text {
-  font-weight: var(--font-weight-medium);
-  font-size: var(--text-xs);
-  line-height: var(--tw-leading, var(--text-xs--line-height));
   padding: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
 }
 
 .sd-tagbox-item__clean {
+  position: static;
   cursor: default;
   opacity: 1;
   background: transparent;
-  width: calc(var(--spacing) * 7);
+  height: var(--sjs2-shadcn-tagbox-item-clean-size);
+  width: var(--sjs2-shadcn-tagbox-item-clean-size);
   padding: 0;
 }
 
 .sd-tagbox-item__clean-button {
   cursor: default;
   background: transparent;
-  width: calc(var(--spacing) * 7);
-  height: calc(var(--spacing) * 7);
+  width: var(--sjs2-shadcn-tagbox-item-clean-size);
+  height: var(--sjs2-shadcn-tagbox-item-clean-size);
   justify-content: center;
   align-items: center;
-}
+  border-color: transparent;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-radius: var(--sjs2-shadcn-tagbox-item-clean-radius);
+  margin-left: var(--sjs2-shadcn-tagbox-item-clean-margin-left);
 
-.sd-tagbox-item__clean-button:focus-visible {
-  border-top-right-radius: calc(var(--radius) * 0.8);
-  border-bottom-right-radius: calc(var(--radius) * 0.8);
+  &:hover {
+    background-color: var(--muted);
+  }
 }
 
 .sd-tagbox-item__clean-button-svg {
-  width: 14px;
-  height: 14px;
+  width: var(--sjs2-shadcn-tagbox-item-clean-icon-size);
+  height: var(--sjs2-shadcn-tagbox-item-clean-icon-size);
 }
 
 /* button pressed state (cannot be expressed via variables) */
@@ -358,7 +427,6 @@
   background-color: var(--accent);
   color: var(--accent-foreground);
 }
-
 
 .sd-formbox,
 .sd-item__decorator,

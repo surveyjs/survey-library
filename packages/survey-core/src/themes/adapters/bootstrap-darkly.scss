@@ -22,6 +22,10 @@
   --sjs2-color-component-toggle-false-default-thumb: rgba(0, 0, 0, 0.25);
   --sjs2-color-component-toggle-false-hovered-thumb: rgba(0, 0, 0, 0.25);
 
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-action-default-icon: currentColor;
+  --sjs2-color-component-tagbox-item-action-hovered-icon: currentColor;
+
   /* cards / panels sit on gray-800, a touch lighter than the gray-900 body */
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, #303030);
   --sjs2-color-bg-basic-primary-dim: #303030;
@@ -35,4 +39,20 @@
   --sjs2-typography-font-weight-component-header-title: 500;
   --sjs2-typography-font-size-component-page-title: 2rem; /* h3 */
   --sjs2-typography-font-weight-component-page-title: 500;
+
+  --sjs2-color-utility-body: #303030;
+}
+
+/* dropdown */
+.sd-dropdown .sd-action {
+  &,
+  &:hover {
+    use {
+      fill: currentColor;
+    }
+  }
+}
+
+.sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {
+  color: currentColor;
 }

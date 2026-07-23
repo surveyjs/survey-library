@@ -13,6 +13,9 @@
   --sjs-bs-secondary-bg: var(--bs-secondary, #6c757d);
   --sjs-bs-on-secondary: #fff;
   --sjs-bs-secondary-hover-bg: color-mix(in srgb, var(--sjs-bs-secondary-bg), #000 15%);
+  --sjs-bs-light-bg: var(--bs-light, #f8f9fa);
+  --sjs-bs-on-light: #000;
+  --sjs-bs-light-hover-bg: color-mix(in srgb, var(--sjs-bs-light-bg), #000 15%);
   --sjs-bs-action-font-weight: var(--bs-body-font-weight, 400);
   --sjs-bs-action-text-transform: none;
   --sjs-bs-action-letter-spacing: normal;
@@ -34,13 +37,15 @@
   /* buttons */
   --sjs2-border-effect-component-action-a11y: var(--sjs2-border-effect-a11y);
   --sjs2-radius-component-action: var(--bs-border-radius);
+  --sjs2-radius-component-action-small: var(--bs-border-radius-sm, 0.25rem); /* $btn-border-radius-sm */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(0.75rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-box-padding-vertical: calc(0.375rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-label-padding-horizontal: 0;
   --sjs2-layout-component-action-large-label-padding-vertical: 0;
 
-  --sjs2-layout-component-action-small-box-padding-horizontal: 0.5rem;
-  --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
+  /* btn-sm: $btn-padding-y-sm / $btn-padding-x-sm / $btn-font-size-sm */
+  --sjs2-layout-component-action-small-box-padding-horizontal: calc(0.5rem + var(--bs-border-width));
+  --sjs2-layout-component-action-small-box-padding-vertical: calc(0.25rem + var(--bs-border-width));
   --sjs2-layout-component-action-small-label-padding-horizontal: 0;
   --sjs2-layout-component-action-small-label-padding-vertical: 0;
   --sjs2-typography-font-size-component-action-large-content: 1rem; /* $btn-font-size */
@@ -78,7 +83,19 @@
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent;
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0px 0px 0px 1px var(--bs-primary);
 
-  /* secondary buttons */
+  /* secondary buttons (Bootstrap btn-light) */
+  --sjs2-color-component-action-brand-secondary-default-bg: var(--sjs-bs-light-bg);
+  --sjs2-color-component-action-brand-secondary-default-icon: var(--sjs-bs-on-light);
+  --sjs2-color-component-action-brand-secondary-default-label: var(--sjs-bs-on-light);
+
+  --sjs2-color-component-action-brand-secondary-hovered-bg: var(--sjs-bs-light-hover-bg);
+  --sjs2-color-component-action-brand-secondary-hovered-icon: var(--sjs-bs-on-light);
+  --sjs2-color-component-action-brand-secondary-hovered-label: var(--sjs-bs-on-light);
+
+  --sjs2-color-component-action-brand-secondary-disabled-bg: rgba(from var(--sjs-bs-light-bg) r g b / 0.65);
+  --sjs2-color-component-action-brand-secondary-disabled-icon: var(--sjs-bs-on-light);
+  --sjs2-color-component-action-brand-secondary-disabled-label: var(--sjs-bs-on-light);
+
   --sjs2-color-component-action-neutral-secondary-default-bg: var(--sjs-bs-secondary-bg);
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--sjs-bs-on-secondary);
   --sjs2-color-component-action-neutral-secondary-default-label: var(--sjs-bs-on-secondary);
@@ -200,19 +217,29 @@
   --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
   --sjs2-color-utility-shadow-trigger-default: transparent;
 
-  --sjs2-radius-component-drop: var(--bs-border-radius);
+  --sjs2-radius-component-drop: 0;
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
+
+  --sjs2-layout-component-drop-box-padding-horizontal: 0px;
+  --sjs2-layout-component-drop-box-padding-vertical: 0px;
+  --sjs2-radius-component-drop-item: 0;
+  --sjs2-layout-component-drop-item-label-padding-horizontal: 6px;
+
   --sjs2-typography-font-family-text: var(--bs-font-sans-serif);
   --sjs2-typography-font-size-component-question-description: 0.875em;
   --sjs2-typography-font-size-default: var(--bs-body-font-size);
   --sjs2-typography-font-size-large: 1.25rem;
-  --sjs2-typography-font-weight-component-question-title: var(--bs-body-font-weight);
+  --sjs2-typography-font-weight-component-question-title: 400;
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
 
   /* headings follow Bootstrap: header = h2, page = h3, panel = h5; weight = $headings-font-weight (500) */
   --sjs2-typography-font-size-component-header-title: 2rem; /* h2 = $font-size-base * 2 */
+  --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-header-description: 1.25rem;
+  --sjs2-typography-font-weight-component-header-description: 300;
+  --sjs2-color-component-header-default-description: ;
   --sjs2-typography-font-weight-component-header-title: 500;
   --sjs2-typography-font-size-component-page-title: 1.75rem; /* h3 = $font-size-base * 1.75 */
   --sjs2-typography-font-weight-component-page-title: 500;
@@ -319,15 +346,26 @@
 }
 
 /* dropdown */
-.sd-editor-chevron-button button.sd-action {
-  cursor: default;
-  --sd-action-hover-background: transparent;
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: 0.25rem;
+  gap: 0.25rem;
 
-  &:active {
-    background-color: transparent;
+  svg {
+    --sd-action-icon-size: 1.5rem;
   }
 }
 
+.sd-dropdown .sd-action {
+  padding: 0;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* tagbox */
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input  {
+  padding-inline: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+  padding-block: var(--sjs2-layout-component-input-medium-content-padding-vertical);
+}
 /* button pressed state */
 .sd-action--primary:active {
   transform: initial;
@@ -344,9 +382,12 @@
   border-color: var(--bs-primary);
 }
 
-
+/* btn-sm */
 .sd-action--small {
-  border-radius: 0.25rem;
+  border-radius: var(--sjs2-radius-component-action-small);
+  padding-block: var(--sjs2-layout-component-action-small-box-padding-vertical);
+  padding-inline: var(--sjs2-layout-component-action-small-box-padding-horizontal);
+  font-size: var(--sjs2-typography-font-size-component-action-small-content);
 }
 
 /* tables */
@@ -358,13 +399,21 @@
 .sd-table.sd-table.sd-table>tbody>tr {
   &>th, &>td {
     &:where(:not(.sd-table__cell--error)) {
-      border-top: var(--bs-border-width) solid var(--bs-border-color);  
+      border-top: var(--bs-border-width) solid var(--bs-border-color);
       border-bottom: none;
       padding: 0.5rem;
       .sd-radio__decorator {
         margin: 0;
       }
     }
+  }
+}
+
+.sd-table.sd-table.sd-table>thead>tr {
+  &>th, &>td {
+    border-top: none;  
+    border-bottom: none;
+    padding: 0.5rem;
   }
 }
 
@@ -412,9 +461,9 @@
 
 /* stepper */
 .sd-progress-buttons__page-title {
-  font-size: 0.875rem;;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--bs-body-color)
+  color: var(--bs-body-color);
 }
 
 .sd-progress-buttons__list li {
@@ -425,7 +474,6 @@
 }
 
 .sd-progress-buttons--numbered {
-
   &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
     top: 0.75rem;
     bottom: unset;
@@ -433,7 +481,7 @@
 
   .sd-progress-buttons__button {
     background-color: var(--bs-secondary-bg);
-    color: var(--bs-secondary-color);;
+    color: var(--bs-secondary-color);
     font-size: 0.75rem;
     font-weight: 400;
     width: 1.5rem;

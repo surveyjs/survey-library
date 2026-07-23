@@ -16,7 +16,7 @@
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "build:translate": "survey-utils translate library --path ../..",
     "test:translate": "survey-utils check-strings library --path ../..",
-    "build:doc": "survey-utils generate-doc library --md --json --json-definition --path ../.. && node -e \"fs.cpSync('docs/surveyjs_definition.json','build/surveyjs_definition.json')\"",
+    "build:doc": "survey-utils generate-doc library-build --path ../.. --out ./packages/survey-core/build",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",

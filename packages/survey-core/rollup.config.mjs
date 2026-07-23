@@ -54,6 +54,7 @@ const buildPlatformJson = {
       "require": "./survey.core.js"
     },
     "./*.css": "./*.css",
+    "./base-theme.json": "./base-theme.json",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
@@ -107,6 +108,13 @@ if (process.env.emitNonSourceFiles === "true") {
     buildPlatformJson,
     { spaces: 2 }
   );
+  // Downstream builds (survey-creator's sjs2-fallbacks PostCSS plugin) read the
+  // base-theme defaults from the installed package, so they must ship with it.
+  const baseThemeText = fs.readFileSync("./src/default-theme/base-theme.ts", "utf8");
+  fs.writeJsonSync(
+    resolve(buildPath, "base-theme.json"),
+    JSON.parse(baseThemeText.slice(baseThemeText.indexOf("{"), baseThemeText.lastIndexOf("}") + 1))
+  );
 }
 
 export default (options = {}) => {
@@ -144,6 +152,7 @@ export default (options = {}) => {
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
       version: pkg.version,
+      cssVariableDefaults: resolve("./src/default-theme/base-theme.ts"),
     }),
     createCssConfig({
       input: {
@@ -152,6 +161,7 @@ export default (options = {}) => {
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
       version: pkg.version,
+      cssVariableDefaults: resolve("./src/default-theme/base-theme.ts"),
     })
   ];
 

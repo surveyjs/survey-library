@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "vitest run",
     "test:watch": "vitest --no-isolate",
-    "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
+    "test:postcss": "node test-postcss.mjs",
     "build:translate": "survey-utils translate library --path ../..",
     "test:translate": "survey-utils check-strings library --path ../..",
     "build:doc": "survey-utils generate-doc library --md --json --json-definition --path ../.. && node -e \"fs.cpSync('docs/surveyjs_definition.json','build/surveyjs_definition.json')\"",

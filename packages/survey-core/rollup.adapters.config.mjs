@@ -53,11 +53,15 @@ export default () => {
 
   return [
     // SCSS adapters -> build/themes/adapters/*.css (+ *.min.css)
+    // cssVariableDefaults also covers adapter values that reference base
+    // variables the adapter does not set itself - without the fallback such
+    // declarations would become invalid when defaults are not injected.
     ...getCssEntries().map(name => createCssConfig({
       input: { [`themes/adapters/${name}`]: resolve(adaptersDir, `${name}.scss`) },
       dir: buildPath,
       emitMinified,
-      version: pkg.version
+      version: pkg.version,
+      cssVariableDefaults: resolve(__dirname, "src", "default-theme", "base-theme.ts")
     })),
 
     // Icon adapters (UMD) -> build/themes/adapters/icons/*.js (+ *.min.js)

@@ -88,7 +88,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createResetVariablesStyle, expandThemeCssVariables } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -8352,6 +8352,10 @@ export class SurveyModel extends SurveyElementCore
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
+    // Theme values are applied as inline styles (survey root, advanced header),
+    // where the fallbacks baked into the compiled CSS do not reach, so var()
+    // references to base variables need their defaults expanded here.
+    expandThemeCssVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

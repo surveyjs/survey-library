@@ -20603,7 +20603,9 @@ describe("Survey", () => {
     const advancedHeaderThemeWithoutOverlapEnabled: any = { headerView: "advanced", "cssVariables": {} };
 
     survey.applyTheme(advancedHeaderThemeWithAccentBackgroundColor);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs2-color-project-brand-600)");
+    // the base-theme default is expanded into the fallback because the value is
+    // applied as an inline style, where the compiled CSS fallbacks do not reach
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs2-color-project-brand-600, #19B394)");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#1 overlapEnabled false").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithOverlapEnabled);

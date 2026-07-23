@@ -94,9 +94,11 @@
 
   .sv-string-viewer {
     max-width: 100%;
-    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    padding-block: 0.35em;
+    margin-block: -0.35em;
   }
 }
 

@@ -305,5 +305,29 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, questionRoot, "question-selectbase-item-comment.png");
     });
+
+    test("Check checkbox question - line height", async ({ page }) => {
+      // Skip initSurvey and wrapVisualTest parts
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "checkbox",
+            title: "Which cities have you visited?",
+            name: "checkbox_question",
+            choices: ["PpYyQqJj"],
+            colCount: 1
+          },
+        ]
+      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-typography-line-height-component-label-content": "1",
+        }
+      });
+      const question = page.locator(".sd-question");
+      await compareScreenshot(page, question, "checkbox-line-height.png");
+    });
   });
 });

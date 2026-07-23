@@ -44,10 +44,12 @@
 }
 
 /* dropdown */
-.sd-dropdown .sd-action,
-&:hover {
-  use {
-    fill: currentColor;
+.sd-dropdown .sd-action {
+  &,
+  &:hover {
+    use {
+      fill: currentColor;
+    }
   }
 }
 

@@ -153,8 +153,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
 
       if (this.model.setWidthByTarget) {
-        this.width = targetElementRect.width + "px";
-        pos.left = targetElementRect.left;
+        const calculatedWidth = this.model.setWidthByTarget == "fit-content" ? Math.max(targetElementRect.width, width) : targetElementRect.width;
+        this.width = calculatedWidth + "px";
+        pos.left = targetElementRect.left - (calculatedWidth - targetElementRect.width) / 2;
       } else {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,

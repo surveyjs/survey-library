@@ -8347,7 +8347,7 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme, baseTheme?: ITheme): void {
     if (!theme && !baseTheme) return;
 
-    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
+    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
     return this._applyTheme(themeToApply);
   }
   private _applyTheme(theme: ITheme): void {

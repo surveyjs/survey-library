@@ -16,7 +16,7 @@
     display: block;
     height: 1px;
     position: relative;
-    background: $border-light;
+    background: var(--sjs2-color-component-panel-default-border);
     bottom: 0;
   }
 }

@@ -434,6 +434,11 @@
   transition: none;
 }
 
+.sd-item__control-label .sv-string-viewer {
+  overflow: visible;
+  overflow-wrap: break-word;
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;

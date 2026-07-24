@@ -918,7 +918,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#fff");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-page-without-title-compact.png");
     });
@@ -964,7 +964,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#fff");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-compact.png");
     });
@@ -1001,7 +1001,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#f3f3f3");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-with-panel-compact.png");
     });
@@ -1308,14 +1308,14 @@ frameworks.forEach(framework => {
 
       await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-with-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-with-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
       await getButtonByText(page, "Complete").click();
       // if (framework !== "vue" && framework !== "knockout") {
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-with-title.png");
       // }
-      await page.evaluate(() => (window as any).survey.isCompact = false);
+      await page.evaluate(() => (window as any).survey.applyTheme({ isPanelless: false, cssVariables: {} }));
       await compareScreenshot(page, ".sd-root-modern", "survey-spm-page-with-error-with-title.png");
     });
 
@@ -1343,12 +1343,12 @@ frameworks.forEach(framework => {
 
       await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-without-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-without-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
       await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-without-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = false);
+      await page.evaluate(() => (window as any).survey.applyTheme({ isPanelless: false, cssVariables: {} }));
       await compareScreenshot(page, ".sd-root-modern", "survey-spm-page-with-error-without-title.png");
     });
 
@@ -1391,7 +1391,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "row-multiple-compact-mode.png");
     });
 
@@ -1514,7 +1514,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await page.evaluate(() => { (window as any).survey.isCompact = true; });
+      await page.evaluate(() => { (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless); });
       await page.setViewportSize({ width: 1920, height: 1080 });
       await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-compact.png");
     });

@@ -231,6 +231,12 @@ export class PageModel extends PanelModel implements IPage {
         !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring))
       .toString();
   }
+  public get cssHeader(): string {
+    return this.cssClasses.page?.header || this.cssClasses.panel?.header;
+  }
+  public get cssContent(): string {
+    return this.cssClasses.page?.content || this.cssClasses.panel?.content;
+  }
   protected getCssError(cssClasses: any): string {
     if (this.isPanel) return super.getCssError(cssClasses);
     return new CssClassBuilder()

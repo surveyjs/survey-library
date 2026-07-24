@@ -24,7 +24,7 @@
     />
     <div
       :id="element.contentId"
-      :style="{ paddingLeft: element.innerPaddingLeft }"
+      :style="panelContentStyle"
       v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
       :role="element.ariaRole"
@@ -47,11 +47,12 @@
           </SvComponent>
         </SvComponent>
       </template>
-      <SvComponent
-        :is="'sv-action-bar'"
-        :model="element.getFooterToolbar()"
-      ></SvComponent>
     </div>
+    <SvComponent
+      :is="'sv-action-bar'"
+      v-if="element.renderedIsExpanded && element.getFooterToolbar().hasActions"
+      :model="element.getFooterToolbar()"
+    ></SvComponent>
   </div>
 </template>
 
@@ -75,6 +76,15 @@ const props = defineProps<{
 }>();
 const root = ref<HTMLElement>(null as any);
 const survey = computed(() => props.element.survey);
+const panelPaddingHorizontal = "var(--sd-base-padding, var(--sjs2-spacing-x500))";
+const panelContentStyle = computed(() => {
+  const innerPaddingLeft = props.element.innerPaddingLeft;
+  return innerPaddingLeft
+    ? {
+        paddingInlineStart: `calc(${panelPaddingHorizontal} + ${innerPaddingLeft})`,
+      }
+    : {};
+});
 
 useBase(() => props.element);
 

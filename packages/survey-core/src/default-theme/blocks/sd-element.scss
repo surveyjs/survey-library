@@ -2,11 +2,6 @@
 @use "../mixins.scss" as mixins;
 @use "../typography-mixins.scss" as *;
 
-.sd-element {
-  padding-left: var(--sv-element-add-padding-left, 0px);
-  padding-right: var(--sv-element-add-padding-right, 0px);
-}
-
 .sd-element__title {
   outline: none;
 }
@@ -125,10 +120,6 @@
 .sd-element--with-frame {
   border-radius: var(--sjs2-radius-component-panel);
   box-sizing: border-box;
-  padding-top: var(--sd-base-padding);
-  padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
-  padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
-  padding-bottom: var(--sd-base-padding);
   background: var(--sjs2-color-component-panel-default-bg);
   box-shadow: $shadow-small;
 }

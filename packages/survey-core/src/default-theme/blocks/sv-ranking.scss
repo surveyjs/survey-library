@@ -397,8 +397,6 @@
 
   .sv-ranking__container--empty {
     &.sv-ranking__container--to {
-      //padding-right: var(--sjs2-spacing-x300);
-
       .sv-ranking-item {
         left: initial;
       }
@@ -409,8 +407,6 @@
     }
 
     &.sv-ranking__container--from {
-      //padding-left: var(--sjs2-spacing-x300);
-
       .sv-ranking__container-placeholder {
         padding-right: var(--sjs2-spacing-x500);
       }
@@ -438,7 +434,6 @@
 }
 
 .sv-ranking__container--empty {
-  //padding: var(--sjs2-spacing-x800);
   box-sizing: border-box;
   text-align: center;
 }

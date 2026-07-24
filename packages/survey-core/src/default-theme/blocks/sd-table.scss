@@ -30,6 +30,7 @@
       )};
   }
 }
+
 .sd-table {
   --sd-table-cell-width: 10000px;
   --sd-table-cell-min-width: var(--sjs2-size-x1500);
@@ -73,85 +74,6 @@
 .sd-table--align-top {
   .sd-table__cell {
     vertical-align: top;
-  }
-}
-
-.sd-table--no-header {
-  padding-top: var(--sjs2-spacing-x300);
-}
-
-.sd-panel:not(.sd-panel--as-page) {
-  & > .sd-panel__content {
-    .sd-table--no-header {
-      padding-top: 0;
-    }
-
-    .sd-question--table {
-      .sd-question__content {
-        padding-bottom: var(--sjs2-spacing-x025);
-        margin-bottom: var(--sjs2-spacing-negative-x025);
-        padding-top: var(--sjs2-spacing-x100);
-        margin-top: var(--sjs2-spacing-negative-x100);
-      }
-
-      & > .sd-question__header {
-        & ~ .sd-question__content {
-          padding-top: var(--sjs2-spacing-x200);
-          --animation-padding-top: #{var(--sjs2-spacing-x200)};
-
-          .sd-table--no-header {
-            padding-top: var(--sjs2-spacing-x400);
-          }
-        }
-      }
-    }
-
-    .sd-question--table > .sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: var(--sjs2-spacing-negative-x300);
-    }
-
-    .sd-question--table.sd-question--error-top
-      > .sd-question__content
-      .sd-table-wrapper
-      .sd-table:not(.sd-table--no-header) {
-      margin-top: 0;
-    }
-
-    &
-      > .sd-row:not(:first-of-type)
-      .sd-question--table
-      > .sd-question__content
-      .sd-table-wrapper
-      .sd-table:not(.sd-table--no-header) {
-      margin-top: var(--sjs2-spacing-negative-x200);
-    }
-
-    &
-      > .sd-row:not(:first-of-type)
-      .sd-question--table.sd-question--error-top
-      > .sd-question__content
-      .sd-table-wrapper
-      .sd-table:not(.sd-table--no-header) {
-      margin-top: var(--sjs2-spacing-x000);
-    }
-
-    .sd-question--table
-      > .sd-question__header
-      ~ .sd-question__content
-      .sd-table-wrapper
-      .sd-table:not(.sd-table--no-header) {
-      margin-top: var(--sjs2-spacing-x100);
-    }
-
-    &
-      > .sd-row:not(:first-of-type)
-      .sd-question--table
-      > .sd-question__header
-      ~ .sd-question__content
-      .sd-table-wrapper
-      .sd-table:not(.sd-table--no-header) {
-      margin-top: var(--sjs2-spacing-x100);
-    }
   }
 }
 
@@ -329,8 +251,11 @@
 
 .sd-table__cell--detail-panel {
   border-top: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
-  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x100) var(--sjs2-spacing-x400);
+  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x100);
   border-bottom: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
+  .sd-panel__content {
+    padding: 0;
+  }
 }
 
 .sd-table__cell--actions,
@@ -403,12 +328,46 @@
 
 .sd-question.sd-question--table {
   position: relative;
-  overflow-x: auto;
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
+      padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
+      padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+      padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+      padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+      gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
+      .sd-question__header {
+        position: sticky;
+        left: 0;
+      }
+      & > .sd-question__content {
+        overflow-x: auto;
+        padding-inline-start: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+        padding-inline-end: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+        padding-top: var(--sjs2-layout-component-panel-content-area-padding-top);
+        padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-bottom);
+        row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
+        column-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
+      }
+    }
+  }
 }
 
 .sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
-  overflow-x: visible;
+  & > .sd-question__container {
+    & > .sd-question__header-and-content-container {
+      overflow-x: visible;
+      & > .sd-question__header {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      & > .sd-question__content {
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+        min-width: auto;
+        overflow-x: auto;
+      }
+    }
+  }
 }
 
 .sd-table-wrapper {
@@ -452,26 +411,32 @@
 }
 
 .sd-question--table {
-  & > .sd-question__header,
+  // Commented out "& > .sd-question__header": the header is no longer a direct child of
+  // the question root (sticky header is handled by the .sd-question.sd-question--table rule above)
+  // & > .sd-question__header,
   .sd-question__description--under-input .sv-string-viewer {
     position: sticky;
     left: 0;
   }
 
-  & > .sd-question__content {
-    padding-top: var(--sjs2-spacing-x200);
-    --animation-padding-top: #{var(--sjs2-spacing-x200)};
-    min-width: min-content;
-  }
+  // Commented out: .sd-question__content is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+  // & > .sd-question__content {
+  //   padding-top: var(--sd-base-vertical-padding);
+  //   --animation-padding-top: #{var(--sd-base-vertical-padding)};
+  //   min-width: min-content;
+  // }
 
-  &.sd-element--nested {
-    & > .sd-question__content {
-      min-width: auto;
-      overflow-x: auto;
-    }
-  }
+  // Commented out: same reason, replaced by the .sd-question--table.sd-element--nested rule above
+  // &.sd-element--nested {
+  //   & > .sd-question__content {
+  //     min-width: auto;
+  //     overflow-x: auto;
+  //   }
+  // }
 
-  &.sd-element--nested > .sd-question__content,
+  // Commented out "&.sd-element--nested > .sd-question__content": content is no longer a direct child of the question root
+  // &.sd-element--nested > .sd-question__content,
   &:not(.sd-element--with-frame):not(.sd-element--nested) {
     padding-right: var(--sd-base-padding);
     margin-right: calc(-1 * var(--sd-base-padding));
@@ -482,7 +447,14 @@
 }
 
 .sd-row--multiple {
-  .sd-question--table.sd-element--nested > .sd-question__content {
+  // Commented out: content is no longer a direct child of the question root, see the updated rule below
+  // .sd-question--table.sd-element--nested > .sd-question__content {
+  //   padding-right: calc(var(--sd-base-padding) + 2px);
+  // }
+  .sd-question--table.sd-element--nested
+    > .sd-question__container
+    > .sd-question__header-and-content-container
+    > .sd-question__content {
     padding-right: calc(var(--sd-base-padding) + 2px);
   }
 }
@@ -500,22 +472,26 @@
 }
 
 @mixin table_responsive {
-  &.sd-question.sd-question--table {
-    & > .sd-question__content {
-      padding-top: 0;
-      --animation-padding-top: 0;
-    }
-  }
+  // Commented out: .sd-question__content is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+  // &.sd-question.sd-question--table {
+  //   & > .sd-question__content {
+  //     padding-top: var(--sjs2-spacing-x100);
+  //     --animation-padding-top: var(--sjs2-spacing-x100);
+  //   }
+  // }
 
   &.sd-question--table,
   &.sd-question--scroll {
     overflow-x: visible;
   }
-  & > .sd-question__content {
-    min-width: auto;
-  }
+  // Commented out: content is no longer a direct child of the question root
+  // & > .sd-question__content {
+  //   min-width: auto;
+  // }
   .sd-table-wrapper {
     width: auto;
+    margin-top: calc(-1 * var(--sjs2-spacing-x100));
   }
   .sd-table {
     display: block;
@@ -618,7 +594,6 @@
       padding-top: var(--sjs2-spacing-x500);
 
       &::before {
-        // top: var(--sjs2-spacing-negative-x200);
         background-color: transparent;
       }
     }
@@ -678,7 +653,6 @@
   }
 
   .sd-table--no-header {
-    padding-top: 0;
     .sd-table__responsive-title {
       display: none;
     }
@@ -763,12 +737,6 @@
   @include table_responsive();
 }
 
-.sd-table__cell--detail-panel {
-  .sd-panel__content {
-    padding-top: var(--sjs2-spacing-x100);
-  }
-}
-
 .sd-table__question-wrapper {
   .sd-boolean-root {
     margin: auto;
@@ -800,4 +768,50 @@
 
 .sd-table.sd-matrixdynamic {
   table-layout: auto;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+.sd-question--table {
+  &.sd-element--with-frame {
+    & > .sd-question__container {
+      & > .sd-question__header-and-content-container {
+        & > .sd-question__content {
+          .sd-table-wrapper .sd-table.sd-table--no-header {
+          }
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+          }
+          &:first-of-type {
+            // No question header
+            .sd-table-wrapper .sd-table.sd-table--no-header {
+            }
+            .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+            }
+          }
+        }
+      }
+    }
+  }
+  &.sd-element--nested {
+    & > .sd-question__container {
+      padding: 0;
+      & > .sd-question__header-and-content-container {
+        padding: 0;
+        & > .sd-question__content {
+          .sd-table-wrapper .sd-table.sd-table--no-header {
+          }
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+          }
+          &:first-of-type {
+            // No question header
+            .sd-table-wrapper .sd-table.sd-table--no-header {
+              padding-top: 0;
+            }
+            .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+            }
+          }
+        }
+      }
+    }
+  }
 }

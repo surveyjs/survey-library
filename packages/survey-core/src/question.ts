@@ -1522,6 +1522,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot, !this.singleInputQuestion)
+      .append(this.cssClasses.rootSingleInput, !!this.singleInputQuestion)
       .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)
@@ -1529,7 +1530,21 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
-
+  public getQuestionContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.questionContainer)
+      .toString();
+  }
+  public getHeaderAndContentContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.headerAndContentContainer)
+      .toString();
+  }
+  public get isComplexQuestion(): boolean {
+    const rootCss = this.getRootCss() || "";
+    return rootCss.indexOf("sd-element--complex") > -1;
+    // return this.isContainer || !!this.singleInputQuestion;
+  }
   public getQuestionRootCss() {
     return new CssClassBuilder()
       .append(this.cssClasses.root)

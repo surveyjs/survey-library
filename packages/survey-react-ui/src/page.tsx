@@ -28,12 +28,22 @@ export class SurveyPage extends SurveyPanelBase {
         creator={this.creator}
       />
     );
+    var header: any = null;
+    if (this.page.hasTitle || this.page._showDescription) {
+      header = (
+        <div className={this.page.cssHeader}>
+          {title}
+          {description}
+        </div>
+      );
+    }
     return (
       <div ref={this.rootRef} className={this.page.cssRoot}>
-        {title}
-        {description}
-        {errors}
-        {rows}
+        {header}
+        <div className={this.page.cssContent}>
+          {errors}
+          {rows}
+        </div >
       </div >
     );
   }

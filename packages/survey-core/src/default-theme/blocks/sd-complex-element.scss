@@ -10,6 +10,17 @@
   margin-bottom: 0;
 }
 
+.sd-element__header ~ hr {
+  margin: 0 calc(-1 * var(--sd-base-padding));
+  margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+  width: calc(100% + 2 * var(--sd-base-padding));
+  border: none;
+  height: 1px;
+  background-color: $border-light;
+  position: sticky;
+  left: calc(-1 * var(--sd-base-padding));
+}
+
 .sd-element--complex > .sd-element__header {
   &:after {
     content: " ";
@@ -21,16 +32,6 @@
   }
 }
 
-.sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-top: var(--sd-base-vertical-padding);
-  padding-bottom: var(--sd-base-vertical-padding);
-}
-
-.sd-element--collapsed.sd-element--complex > .sd-element__header {
-  padding-top: var(--sjs2-spacing-x200);
-  padding-bottom: var(--sjs2-spacing-x200);
-}
-
 .sd-element--nested.sd-element--complex {
   & > .sd-element__header--location-top {
     &:after {
@@ -39,28 +40,36 @@
   }
 }
 
+.sd-element--nested.sd-element--complex > div > div {
+  & > .sd-element__header--location-top {
+    & ~ hr {
+      display: block;
+      margin: 0;
+      width: 100%;
+    }
+  }
+}
+
 .sd-element--nested-with-borders {
   border: 1px solid $border-light;
   border-radius: var(--sjs2-radius-component-panel-nested);
   box-sizing: border-box;
-  padding-left: var(--sd-base-padding);
-  padding-right: var(--sd-base-padding);
 
   & > .sd-element__header--location-top {
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
-
-  & > .sd-element__erbox {
-    margin-left: calc(-1 * var(--sd-base-padding));
-    margin-right: calc(-1 * var(--sd-base-padding));
-    width: calc(100% + 2 * var(--sd-base-padding));
+  & > div > div > .sd-element__header--location-top {
+    padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
 
-  & > .sd-question__erbox--below-question {
-    bottom: 0;
-    margin-top: 0;
-  }
+  // Commented out: question erbox is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container)
+  // & > .sd-question__erbox--below-question {
+  //   bottom: 0;
+  //   margin-top: 0;
+  // }
 
   &.sd-element--collapsed {
     & > .sd-element__header--location-top {
@@ -90,20 +99,17 @@
 }
 
 .sd-question--empty.sd-question--complex {
-  & > .sd-question__content {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  & > .sd-question__content:first-of-type {
-    padding-top: var(--sd-base-padding);
-  }
-
-  & > .sd-question__header--location-top {
-    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-
-    &:after {
-      display: none;
+  & > .sd-question__container {
+    row-gap: 0;
+    & > .sd-question__header-and-content-container {
+      row-gap: 0;
+      padding-bottom: var(--sd-base-padding);
+      & > .sd-element__header {
+        padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
+        & ~ hr {
+          display: none;
+        }
+      }
     }
   }
 }

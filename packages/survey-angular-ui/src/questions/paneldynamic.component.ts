@@ -5,7 +5,8 @@ import { AngularComponentFactory } from "../component-factory";
 
 @Component({
   selector: "sv-ng-paneldynamic-question",
-  templateUrl: "./paneldynamic.component.html"
+  templateUrl: "./paneldynamic.component.html",
+  styleUrls: ["../hide-host.scss"]
 })
 export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanelDynamicModel | any> implements OnInit {
   public trackPanelBy(_: number, panel: PanelModel) {

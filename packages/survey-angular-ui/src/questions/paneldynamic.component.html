@@ -1,30 +1,33 @@
-<div [class]="model.cssClasses.root" #contentElement>
-  <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
-    <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
-  </div>
-  <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
-  <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
-    <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
-    role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
-    ></div>
-  </div>
-  <div [class]="model.cssClasses.panelsContainer">
-    <ng-container *ngFor="let panel of model.renderedPanels; index as index; trackBy: trackPanelBy">
-      <div [class]="model.getPanelWrapperCss(panel)">
-        <ng-template
-          [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
-        <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
+<ng-template #template>
+  <div [class]="model.cssClasses.root" #contentElement>
+    <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
+      <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
+    </div>
+    <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
+    <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
+      <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
+      role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
+      ></div>
+    </div>
+    <div [class]="model.cssClasses.panelsContainer">
+      <ng-container *ngFor="let panel of model.renderedPanels; index as index; trackBy: trackPanelBy">
+        <div [class]="model.getPanelWrapperCss(panel)">
           <ng-template
-            [component]="{ name: 'sv-action', data: { model: model.getRemovePanelAction(panel)}}"></ng-template>
-        </ng-container>
-      </div>
-      <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
-    </ng-container>
+            [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
+          <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
+            <ng-template
+              [component]="{ name: 'sv-action', data: { model: model.getRemovePanelAction(panel)}}"></ng-template>
+          </ng-container>
+        </div>
+        <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
+      </ng-container>
+    </div>
+    <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
   </div>
-  <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
-</div>
+</ng-template>
+
 <ng-template #progress>
-  <div [class]="model.cssClasses.footer" *ngIf="!!model.cssClasses.footer">
+  <div [class]="model.cssClasses.footer" *ngIf="(model.isRangeShowing && model.isProgressBottomShowing) || model.showFooterToolbar">
     <hr [class]="model.cssClasses.separator" />
     <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" 

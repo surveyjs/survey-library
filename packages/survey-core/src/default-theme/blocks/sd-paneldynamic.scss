@@ -1,13 +1,22 @@
 @use "../variables.scss" as *;
 
 .sd-paneldynamic {
+    padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+    gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
+
     .sd-progress {
         position: absolute;
         left: 0;
         right: 0;
         height: 2px;
         z-index: 2;
-        transform: translateY(-1px);
+    }
+
+    .sd-progress ~ .sd-paneldynamic__panels-container {
+        padding-top: 1px;
     }
 
     & > .sd-panel {
@@ -15,32 +24,130 @@
         padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
     }
 
-    & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: var(--sd-base-vertical-padding);
-        padding-bottom: 0;
+    & .sd-paneldynamic__panel-wrapper > .sd-panel {
+        & > .sd-panel__header {
+            padding-top: var(--sd-base-vertical-padding);
+            padding-bottom: 0;
 
-        &:after {
-            display: none;
-        }
+            &:after {
+                display: none;
+            }
 
-        & > .sd-panel__title {
-            color: $foreground-light;
+            & > .sd-panel__title {
+                color: $foreground-light;
+            }
         }
     }
 }
+
+.sd-paneldynamic ~ .sd-question__comment-area {
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500))
+        var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+    padding-top: 0;
+}
+.sd-root-modern--mobile {
+    .sd-paneldynamic ~ .sd-question__comment-area {
+        padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300))
+            var(--sjs2-spacing-x300);
+        padding-top: 0;
+    }
+}
+
+// Commented out: .sd-paneldynamic__footer / .sd-paneldynamic__panel-footer are never
+// direct children of the question root (footer lives inside .sd-paneldynamic,
+// panel footer inside .sd-panel)
+// .sd-question:not(.sd-element--with-frame) {
+//     &>.sd-paneldynamic__footer {
+//         padding: 0;
+//     }
+
+//     &>.sd-paneldynamic__panel-footer {
+//         padding: 0;
+//     }
+// }
+
+.sd-question--paneldynamic {
+    & > .sd-question__container {
+        & > .sd-question__header-and-content-container {
+            padding: 0;
+            gap: 0;
+        }
+    }
+}
+
+// .sd-paneldynamic__header {
+//     padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
+//     padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
+//     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+//     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
+//     gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
+// }
+
+// .sd-paneldynamic__header .sd-question__title {
+//     padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical)
+//         var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
+// }
+
+// .sd-paneldynamic__header .sd-question__description {
+//     padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
+//     padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
+//     padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
+// }
+
+// .sd-paneldynamic__header ~ hr {
+//     margin: 0;
+//     width: 100%;
+// }
+.sd-paneldynamic__header-tab ~ hr {
+    display: none;
+}
+.sd-paneldynamic__navigation--top {
+    & > .sd-question__container {
+        & > .sd-question__header-and-content-container {
+            & > hr {
+                display: none;
+            }
+        }
+    }
+}
+
+.sd-paneldynamic__footer {
+    clear: both;
+    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+    position: relative;
+
+    .sd-progress {
+        top: -1px;
+    }
+
+    .sd-paneldynamic__progress-text,
+    .sd-paneldynamic__progress--bottom {
+        display: initial;
+    }
+}
+
+// .sd-root-modern--mobile {
+//     .sd-paneldynamic__header {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__footer {
+//         padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__panel-footer {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//         margin-top: calc(var(--sjs2-spacing-negative-x400));
+//     }
+// }
 
 .sd-question--readonly,
 .sd-question--preview {
     .sd-paneldynamic .sd-question__placeholder {
         color: $foreground;
     }
-}
-.sd-paneldynamic__separator {
-    display: none;
-}
-.sd-paneldynamic__panel-wrapper {
-    box-sizing: border-box;
-    padding-bottom: calc(1 * var(--sd-base-padding));
 }
 
 .sd-paneldynamic__panel-wrapper:after {
@@ -49,11 +156,15 @@
     content: " ";
 }
 
+.sd-paneldynamic__separator {
+    display: none;
+}
 .sd-paneldynamic__footer .sd-paneldynamic__separator,
 .sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
     content: " ";
     display: block;
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     margin: 0;
@@ -79,19 +190,9 @@
     }
 }
 
-.sd-paneldynamic__footer {
-    clear: both;
-
-    .sd-paneldynamic__progress-text,
-    .sd-paneldynamic__progress--bottom {
-        display: initial;
-    }
-}
-
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
-    padding: calc(var(--sd-base-vertical-padding) - var(--sjs2-spacing-x100)) 0;
 }
 
 .sd-paneldynamic__progress-text {
@@ -108,20 +209,24 @@
     }
 }
 
-.sd-question--empty.sd-question--paneldynamic {
-    & > .sd-question__content {
-        padding-bottom: var(--sd-base-padding);
-        --animation-padding-bottom: var(--sd-base-padding);
-    }
-}
+// Commented out: .sd-question__content is no longer a direct child of the question root
+// (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+// .sd-question--empty.sd-question--paneldynamic {
+//     & > .sd-question__content {
+//         padding-bottom: var(--sd-base-padding);
+//         --animation-padding-bottom: var(--sd-base-padding);
+//     }
+// }
 
-.sd-question--paneldynamic:not(.sd-question--empty) {
-    & > .sd-question__content {
-        & > .sd-question__comment-area {
-            padding-bottom: var(--sd-base-padding);
-        }
-    }
-}
+// .sd-question--paneldynamic:not(.sd-question--empty) {
+//     & > .sd-question__content {
+//         padding: 0;
+//         --animation-padding-bottom: 0;
+//         & > .sd-question__comment-area {
+//             padding-bottom: var(--sd-base-padding);
+//         }
+//     }
+// }
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
@@ -133,18 +238,26 @@
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    top: calc(0.5 * var(--sd-base-vertical-padding));
+    padding: var(--sjs2-layout-component-panel-dynamic-footer-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-right)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     justify-content: flex-end;
+    padding-top: 0;
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
-}
 
-.sd-paneldynamic__panel-footer {
+    &.sd-action-bar--empty {
+        display: none;
+    }
     .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
         margin-bottom: var(--sjs2-spacing-negative-x100);
     }
 }
+
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
+    padding-left: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+    padding-right: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
     .sd-tabs-toolbar {
         margin-bottom: -1px;
     }
@@ -155,13 +268,21 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        inset-inline-start: calc(-1 * var(--sd-base-padding));
-        width: calc(100% + 2 * var(--sd-base-padding));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-right)) 0
+            calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-left));
     }
 }
 .sd-paneldynamic__tabs-container--with-header {
     padding-top: var(--sjs2-spacing-x300);
 }
+.sd-root-modern--mobile {
+    .sd-paneldynamic__tabs-container--with-header {
+        &:after {
+            margin: 0 var(--sjs2-spacing-negative-x300);
+        }
+    }
+}
+
 .sd-tabs-toolbar.sd-action-bar {
     align-items: flex-start;
     z-index: 1;
@@ -270,20 +391,20 @@
     content: none;
 }
 
-.sd-question--paneldynamic.sd-element--with-frame {
-    padding-bottom: 0;
-}
-
 .sd-paneldynamic__panels-container {
     position: relative;
     overflow: hidden;
-    margin-left: calc(-1 * var(--sd-base-padding));
-    padding-left: var(--sd-base-padding);
-    margin-right: calc(-1 * var(--sd-base-padding));
-    padding-right: var(--sd-base-padding);
+    padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-content-area-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    row-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-vertical);
+    column-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-horizontal);
 }
+
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
+    position: relative;
 }
 
 @keyframes movePanel {

@@ -3855,6 +3855,35 @@ describe("Survey", () => {
     expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = undefined && showNavigationButtons = top, #top").toBe(true);
   });
 
+  test("isNavigationButtonsShowingCallback makes the final decision in runtime and design mode", () => {
+    const survey = twoPageSimplestSurvey();
+    let receivedShow: string = undefined;
+    survey.isNavigationButtonsShowingCallback = (show: string): string => {
+      receivedShow = show;
+      return show;
+    };
+    expect(survey.isNavigationButtonsShowing, "runtime, callback returns the natural value").toBe("bottom");
+    expect(receivedShow, "runtime, callback receives the natural value").toBe("bottom");
+    survey.setDesignMode(true);
+    receivedShow = undefined;
+    expect(survey.isNavigationButtonsShowing, "design mode, callback overrides the design guard").toBe("bottom");
+    expect(receivedShow, "design mode, callback still receives the natural value").toBe("bottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "design mode, #bottom follows the callback").toBe(true);
+    survey.navigationButtonsLocation = "topBottom";
+    expect(survey.isNavigationButtonsShowing, "design mode, natural location logic still applies").toBe("topBottom");
+    expect(survey.isNavigationButtonsShowingOnTop, "design mode, #top follows the callback").toBe(true);
+    survey.showNavigationButtons = false;
+    expect(survey.isNavigationButtonsShowing, "design mode, showNavigationButtons = false reaches the callback").toBe("none");
+    expect(receivedShow, "design mode, callback receives 'none' when hidden naturally").toBe("none");
+    survey.showNavigationButtons = true;
+    survey.isNavigationButtonsShowingCallback = (show: string): string => "none";
+    expect(survey.isNavigationButtonsShowing, "callback has the final say and can hide the bar").toBe("none");
+    survey.isNavigationButtonsShowingCallback = undefined;
+    expect(survey.isNavigationButtonsShowing, "no callback, design guard applies again").toBe("none");
+    survey.setDesignMode(false);
+    expect(survey.isNavigationButtonsShowing, "no callback, runtime behavior unchanged").toBe("topBottom");
+  });
+
   test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop, navigationButtonsLocation is `topBottom`, Bug#9812", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "question1" }],

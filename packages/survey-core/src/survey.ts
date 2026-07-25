@@ -4109,8 +4109,15 @@ export class SurveyModel extends SurveyElementCore
     var index = visPages.indexOf(this.currentPage);
     return Math.ceil((index * 100) / visPages.length);
   }
+  // When set, receives the naturally-computed location (design-mode guard not applied)
+  // and returns the final decision - in both runtime and design mode.
+  public isNavigationButtonsShowingCallback: (show: string) => string;
   public get isNavigationButtonsShowing(): string {
-    if (this.isDesignMode) return "none";
+    const res = this.calcIsNavigationButtonsShowing();
+    if (!!this.isNavigationButtonsShowingCallback) return this.isNavigationButtonsShowingCallback(res);
+    return this.isDesignMode ? "none" : res;
+  }
+  private calcIsNavigationButtonsShowing(): string {
     var page = this.activePage;
     if (!page) return "none";
     if (page.showNavigationButtons === false) {

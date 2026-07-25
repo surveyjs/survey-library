@@ -41,7 +41,12 @@
       :title="item.tooltip || item.title"
     ></SvComponent>
 
-    <StringViewer v-if="item.hasTitle" :model="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
+    <SvComponent
+      :is="item.locTitle.renderAs"
+      v-if="item.hasTitle"
+      :model="item.locTitle.renderAsData"
+      :textClass="item.getActionBarItemTitleCss()"
+    />
   </button>
 </template>
 <script lang="ts">
@@ -54,7 +59,6 @@ import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { Action } from "survey-core";
-import StringViewer from "@/StringViewer.vue";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 const props = defineProps<{ item: Action }>();
 const root = ref<HTMLElement>();

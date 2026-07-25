@@ -902,9 +902,9 @@ describe("QuestionExpression", () => {
     }
   });
   test("survey.onExpressionRunning, expressionQuestionTrackDependencies = true, #10258", () => {
-    // With dependency tracking on, onExpressionRunning fires twice per evaluation
-    // (once for the skip-check that may rewrite the expression, once for the run),
-    // so the counter increases roughly twice as fast as with tracking off.
+    // An onExpressionRunning subscriber can rewrite expressions, so dependency
+    // tracking is disabled while the event has subscribers: the event fires once
+    // per evaluation and the behavior matches expressionQuestionTrackDependencies = false.
     const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
     settings.expressionQuestionTrackDependencies = true;
     try {
@@ -930,16 +930,16 @@ describe("QuestionExpression", () => {
       expect(counter, "counter #1").toBe(0);
       survey.setValue("q2", 2);
       expect(q1.value, "q1.value #2").toBe(3);
-      expect(counter, "counter #2").toBe(4);
+      expect(counter, "counter #2").toBe(2);
       allow = false;
       survey.setValue("q2", 3);
       expect(q1.value, "q1.value #3").toBe(3);
-      expect(counter, "counter #3").toBe(6);
+      expect(counter, "counter #3").toBe(3);
       allow = true;
       expression = "{q2} + 2";
       survey.setValue("q2", 4);
       expect(q1.value, "q1.value #4").toBe(6);
-      expect(counter, "counter #4").toBe(10);
+      expect(counter, "counter #4").toBe(5);
     } finally {
       settings.expressionQuestionTrackDependencies = prevTrackDependencies;
     }

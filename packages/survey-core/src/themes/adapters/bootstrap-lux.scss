@@ -79,6 +79,9 @@
 
   --sjs2-typography-font-weight-basic: 300;
   --sjs2-typography-font-weight-component-question-title: 300;
+
+  /* inherited letter-spacing on the survey root */
+  letter-spacing: 1px;
 }
 
 /* dropdown */
@@ -110,12 +113,9 @@
 }
 
 /* uppercase, letter-spaced titles */
-.sd-theme-root {
-  letter-spacing: 1px;
-}
-.sd-theme-root .sv-header__title,
-.sd-theme-root .sd-page__title,
-.sd-theme-root .sd-panel__title {
+.sv-header__title,
+.sd-page__title,
+.sd-panel__title {
   text-transform: uppercase;
   letter-spacing: 3px;
 }

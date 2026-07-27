@@ -1,3 +1,16 @@
+/* MUI -> SurveyJS bridge.
+
+   Scope: this file only reproduces how STOCK MUI components look — outlined TextField
+   (including the floating label), Select, Checkbox, Radio, Switch, Button (with the
+   TouchRipple), Stepper, Table, Chip, Menu — expressed through the --mui-* CSS variables
+   the app's theme emits, so any palette / color scheme re-skins the survey automatically.
+
+   Out of scope (belongs to the host app, not here): anything that imitates markup or
+   layout the APP defines rather than MUI — per-instance `sx` spacing, the padding the
+   survey needs because the app dropped it into a <Card> without <CardContent>, and the
+   breakpoint at which the app's own responsive Stacks/Grids collapse. Those live in the
+   app's own stylesheet; in the demo app that is /survey-overrides/mui.css and
+   /survey-overrides/<palette-id>.css, loaded after this file. */
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
   --sjs2-base-unit-spacing: 8px;
@@ -790,12 +803,6 @@
   }
 }
 
-.sd-body.sd-body--responsive,
-.sd-progress-buttons,
-.sv-header__content {
-  padding: 16px;
-}
-
 .sd-question__header {
   display: flex;
   flex-direction: column;
@@ -829,23 +836,4 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 /* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
 .sd-row.sd-row--multiple > * {
   min-width: 0 !important;
-}
-
-/* xs — phones */
-@media (width < 600px) {
-  .sd-row.sd-row--multiple {
-    flex-direction: column;
-  }
-}
-
-/* sm and down — tablets */
-@media (width < 900px) {
-}
-
-/* md and down — small desktops */
-@media (width < 1200px) {
-}
-
-/* xl and up — large desktops */
-@media (width >= 1536px) {
 }

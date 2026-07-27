@@ -4291,6 +4291,7 @@ export class SurveyModel extends SurveyElementCore
     || !doComplete && (this.validationAllowSwitchPages || this.isValidateOnComplete) || isPreview && this.isValidateOnComplete;
     const doFunc = (): void => {
       if (isPreview) {
+        if (!this.isValidateOnComplete && this.doServerValidation(true, true)) return;
         this.showPreviewCore();
       } else {
         this.doCurrentPageCompleteCore(doComplete);
@@ -4618,8 +4619,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
-    if (!this.isValidateOnComplete && this.doServerValidation(true, true)) return false;
-    if (!this.validateOnNavigate(true, true)) return false;
+    if (this.validateOnNavigate(true, true) === false) return false;
     return this.isShowingPreview;
   }
   private showPreviewCore(): void {

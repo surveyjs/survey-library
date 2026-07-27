@@ -45,7 +45,7 @@
   padding-right: calc(
     var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-right, 0px)
   );
-  row-gap: var(--sjs2-layout-component-panel-simple-content-area-gap-vertical);
+  row-gap: var(--sjs2-layout-component-question-box-gap-vertical);
   column-gap: var(--sjs2-layout-component-panel-simple-content-area-gap-horizontal);
 }
 
@@ -111,7 +111,10 @@
 
 .sd-question__title {
   @include sjs2--typography--component--question--title;
-  padding: var(--sjs2-layout-component-question-title-padding-vertical)
+  padding:
+    var(--sjs2-layout-component-question-title-padding-top),
+    var(--sjs2-layout-component-question-title-padding-horizontal),
+    var(--sjs2-layout-component-question-title-padding-bottom),
     var(--sjs2-layout-component-question-title-padding-horizontal);
 }
 

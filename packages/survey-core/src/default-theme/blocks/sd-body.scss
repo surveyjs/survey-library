@@ -6,7 +6,14 @@
 
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: var(--sjs2-spacing-large-vertical);
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--sjs2-layout-component-survey-box-padding-top, 40px);
+  padding-bottom: var(--sjs2-layout-component-survey-box-padding-bottom, 40px);
+  row-gap: var(--sjs2-layout-component-survey-box-gap-vertical);
+  & > .sv-components-column {
+    row-gap: var(--sjs2-layout-component-survey-box-gap-vertical);
+  }
 
   .sd-body__page {
     min-width: min(100%, 300px);

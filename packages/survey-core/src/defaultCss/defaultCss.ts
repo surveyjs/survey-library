@@ -112,7 +112,7 @@ export var defaultCss = {
     separator: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
-    panelFooter: "sd-paneldynamic__panel-footer",
+    panelFooter: "sd-panel__footer sd-paneldynamic__panel-footer",
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelsContainer: "sd-paneldynamic__panels-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",

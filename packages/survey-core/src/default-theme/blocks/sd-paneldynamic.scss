@@ -238,19 +238,11 @@
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    padding: var(--sjs2-layout-component-panel-dynamic-footer-padding-top)
-        var(--sjs2-layout-component-panel-dynamic-footer-padding-right)
-        var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom)
-        var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     justify-content: flex-end;
     padding-top: 0;
-    --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 
     &.sd-action-bar--empty {
         display: none;
-    }
-    .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
-        margin-bottom: var(--sjs2-spacing-negative-x100);
     }
 }
 

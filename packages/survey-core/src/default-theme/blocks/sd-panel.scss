@@ -136,10 +136,9 @@
 
 .sd-panel__footer {
   box-sizing: border-box;
-  border-top: 1px solid $border-light;
   padding-top: var(--sjs2-layout-component-panel-footer-padding-top);
   padding-bottom: var(--sjs2-layout-component-panel-footer-padding-bottom);
-  padding-inline-start: calc(var(--sjs2-layout-component-panel-footer-padding-left) - 1.75 * var(--sjs2-spacing-x100));
+  padding-inline-start: var(--sjs2-layout-component-panel-footer-padding-left);
   padding-inline-end: var(--sjs2-layout-component-panel-footer-padding-right);
   --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }

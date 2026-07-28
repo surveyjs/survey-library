@@ -64,12 +64,6 @@
 
 /* classic outlined radio: transparent disc + primary dot */
 .sd-item--checked .sd-radio__decorator {
-  background-color: transparent;
-  box-shadow: inset 0 0 0 1px var(--primary);
-}
-
-/* classic outlined radio: transparent disc + primary dot */
-.sd-theme-root .sd-item--checked .sd-radio__decorator {
   background-color: var(--background);
   box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
@@ -79,7 +73,7 @@
   box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
-.sd-theme-root .sd-radio--checked .sd-radio__svg use {
+.sd-radio--checked .sd-radio__svg use {
   fill: var(--primary);
 }
 
@@ -89,12 +83,12 @@
 .sd-action:active {
   translate: none;
 }
-.sd-theme-root .sd-panel__title {
+.sd-panel__title {
   --sjs2-typography-font-size-component-question-title: var(--text-2xl);
   --sjs2-typography-font-weight-component-question-title: var(--font-weight-semibold);
 }
 
-.sd-theme-root .sd-element--with-frame {
+.sd-element--with-frame {
   --sd-base-vertical-padding: calc(var(--spacing) * 7);
 }
 

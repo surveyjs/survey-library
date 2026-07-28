@@ -6,13 +6,13 @@
   position: relative;
 }
 .sd-dropdown--select {
+  justify-content: end;
   &:before {
     pointer-events: none;
     content: "";
     @include sjs2--typography--component--input--content;
     min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
   }
-  justify-content: end;
   select.sd-dropdown__input {
     position: absolute;
     padding: 

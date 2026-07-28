@@ -97,7 +97,7 @@ frameworks.forEach(framework => {
       await expect(page.locator("input[type=radio]").first()).toBeChecked();
       await compareScreenshot(page, questionRoot, "boolean-radio-question-clicked.png");
 
-      await page.click("body", { position: { x: 0, y: 400 } });
+      await page.click("body", { position: { x: 0, y: 0 } });
       await expect(page.locator("input[type=radio]").first()).not.toBeFocused();
       await compareScreenshot(page, questionRoot, "boolean-radio-question-unfocused.png");
     });

@@ -20,79 +20,84 @@
       :model="element.singleInputActions"
       :css="element.cssClasses"
     />
-    <SvComponent
-      :is="'survey-errors'"
-      v-if="element.showErrorsAboveQuestion"
-      :element="element"
-      :location="'top'"
-    />
-    <SvComponent
-      :is="'survey-element-header'"
-      v-if="element.hasTitleOnLeftTop"
-      :element="element"
-      :css="element.cssClasses"
-    />
-    <SvComponent
-      :is="'sv-single-input-summary'"
-      v-if="element.singleInputSummary"
-      :css="element.cssClasses"
-      :summary="element.singleInputSummary"
-    ></SvComponent>
-    <SvComponent
-      :is="'survey-question'"
-      v-else-if="singleQuestion"
-      :css="css"
-      :element="singleQuestion"
-      :survey="survey"
-      :key="(singleQuestion as any).id"
-    ></SvComponent>
-    <SvComponent
-      v-else
-      :is="contentComponentName"
-      v-bind="contentComponentData"
-    >
-      <div
-        :class="getContentClass(element) || undefined"
-        :aria-hidden="element.contentAriaHidden"
-        :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
-        role="presentation"
-        :data-sv-drop-target-matrix="element.dragDropMatrixAttribute"
-        :data-sv-drop-target-matrix-row="element.dragDropMatrixAttribute"
-      >
-        <SvComponent :is="componentName" :question="element" />
-        <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
-          <div>
-            <SvComponent
-              :is="'survey-string'"
-              :locString="element.locCommentText"
-            />
-          </div>
-          <SvComponent :is="'survey-question-comment'" :question="element" />
-        </div>
-        <div
-          v-if="element.hasDescriptionUnderInput"
-          :class="element.cssDescription"
-          :id="element.ariaDescriptionId"
+    <div :class="element.getQuestionContainerCss()">
+      <SvComponent
+        :is="'survey-errors'"
+        v-if="element.showErrorsAboveQuestion"
+        :element="element"
+        :location="'top'"
+      />
+      <div :class="element.getHeaderAndContentContainerCss()">
+        <SvComponent
+          :is="'survey-element-header'"
+          v-if="element.hasTitleOnLeftTop"
+          :element="element"
+          :css="element.cssClasses"
+        />
+        <hr v-if="element.hasTitleOnLeftTop && element.isComplexQuestion" />
+        <SvComponent
+          :is="'sv-single-input-summary'"
+          v-if="element.singleInputSummary"
+          :css="element.cssClasses"
+          :summary="element.singleInputSummary"
+        ></SvComponent>
+        <SvComponent
+          :is="'survey-question'"
+          v-else-if="singleQuestion"
+          :css="css"
+          :element="singleQuestion"
+          :survey="survey"
+          :key="(singleQuestion as any).id"
+        ></SvComponent>
+        <SvComponent
+          v-else
+          :is="contentComponentName"
+          v-bind="contentComponentData"
         >
-          <SvComponent
-            :is="'survey-string'"
-            :locString="element.locDescription"
-          />
-        </div>
+          <div
+            :class="getContentClass(element) || undefined"
+            :aria-hidden="element.contentAriaHidden"
+            :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
+            role="presentation"
+            :data-sv-drop-target-matrix="element.dragDropMatrixAttribute"
+            :data-sv-drop-target-matrix-row="element.dragDropMatrixAttribute"
+          >
+            <SvComponent :is="componentName" :question="element" />
+            <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
+              <div>
+                <SvComponent
+                  :is="'survey-string'"
+                  :locString="element.locCommentText"
+                />
+              </div>
+              <SvComponent :is="'survey-question-comment'" :question="element" />
+            </div>
+            <div
+              v-if="element.hasDescriptionUnderInput"
+              :class="element.cssDescription"
+              :id="element.ariaDescriptionId"
+            >
+              <SvComponent
+                :is="'survey-string'"
+                :locString="element.locDescription"
+              />
+            </div>
+          </div>
+        </SvComponent>
+        <SvComponent
+          :is="'survey-element-header'"
+          v-if="element.hasTitleOnBottom"
+          :element="element"
+          :css="css"
+        />
       </div>
-    </SvComponent>
-    <SvComponent
-      :is="'survey-element-header'"
-      v-if="element.hasTitleOnBottom"
-      :element="element"
-      :css="css"
-    />
-    <SvComponent
-      :is="'survey-errors'"
-      v-if="element.showErrorsBelowQuestion"
-      :element="element"
-      :location="'bottom'"
-    />
+      <SvComponent
+        :is="'survey-errors'"
+        v-if="element.showErrorsBelowQuestion"
+        :element="element"
+        :location="'bottom'"
+      />
+    </div>
   </div>
 </template>
 

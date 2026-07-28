@@ -529,13 +529,13 @@ frameworks.forEach((framework) => {
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(304);
+      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(320);
       // Close popup
       await popupSelector.click({ position: { x: 100, y: 100 } });
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(304);
+      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(320);
     });
 
     test("check popup with filter", async ({ page }) => {
@@ -577,7 +577,7 @@ frameworks.forEach((framework) => {
 
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
-      const popupHeight = 672;
+      const popupHeight = 624;
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();

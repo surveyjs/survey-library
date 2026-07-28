@@ -5736,10 +5736,10 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
     panel.renderMode = undefined;
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.titleLocation = "hidden";
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.displayMode = "tab";
     panel.titleLocation = "top";

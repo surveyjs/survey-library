@@ -21,7 +21,17 @@
 
    The variable map lives on .sjs-theme-overrides (the SurveyJS theme root, same element as
    .sd-theme-root); state-based looks that cannot be expressed via variables (button / check
-   pressed states, radio dot) are written as CSS overrides on .sd-theme-root descendants. */
+   pressed states, radio dot) are written as CSS overrides on survey descendants.
+
+   Scope: only the look of the components the shadcn CLI generates (button, input, textarea,
+   checkbox, radio-group, switch, label, card, table, combobox, badge) for the selected style.
+
+   Out of scope (belongs to the host app, not here): anything that imitates markup the APP
+   defines rather than the registry — widgets shadcn has no component for (e.g. a wizard
+   stepper), extra Tailwind utilities the app puts on components, and the app's own layout
+   choices (container padding, at which breakpoint its `sm:grid-cols-2` rows collapse). Those
+   live in the app's own stylesheet; in the demo app that is /survey-overrides/shadcn.css and
+   /survey-overrides/<style-id>.css, loaded after this file. */
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--radius);
   --sjs2-base-unit-spacing: var(--spacing);
@@ -225,9 +235,6 @@
   --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
   --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
 
-  /* stepper */
-  --sjs2-radius-component-stepper-item: 100%;
-
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
@@ -255,7 +262,6 @@
   --sjs2-color-bg-alert-primary-dim: color-mix(in oklch, var(--destructive) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--muted);
   --sjs2-color-border-alert-primary: var(--destructive);
-  --sjs2-color-fg-alert-on-primary: var(--destructive-foreground);
   --sjs2-color-bg-alert-secondary: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x010));
   --sjs2-color-bg-alert-secondary-dim: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x015));
 
@@ -301,7 +307,6 @@
 
 /* dropdown */
 .sd-dropdown .sd-action {
-  cursor: default;
   padding: 0;
   box-sizing: border-box;
   width: var(--sjs2-shadcn-drop-action-size);
@@ -435,6 +440,11 @@
   transition: none;
 }
 
+.sd-item__control-label .sv-string-viewer {
+  overflow: visible;
+  overflow-wrap: break-word;
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;
@@ -492,95 +502,34 @@
   align-items: flex-start;
 }
 
-/* stepper */
-.sd-progress-buttons__page-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--muted-foreground);
-}
-
-.sd-progress-buttons__list li {
-  &:first-child,
-  &:last-child {
-    align-items: center;
-  }
-}
-
-.sd-progress-buttons--numbered {
-
-  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
-    top: 1.125rem;
-    bottom: unset;
-  }
-
-  .sd-progress-buttons__button {
-    color: var(--muted-foreground);
-    font-size: var(--text-xs);
-    width: 2.25rem;
-    height: 2.25rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
-
-  .sd-progress-buttons__list li {
-    &::after,
-    &:nth-child(2):not(:last-child)::after,
-    &:nth-child(n + 3):last-child::after {
-      width: calc(100% - 2.25em);
-      right: calc(50% + 1.125em);
-    }
-  }
-}
-
 /* panel / question titles */
-.sd-theme-root .sd-panel__title {
+.sd-panel__title {
   --sjs2-typography-font-size-component-question-title: var(--text-base);
 }
-.sd-theme-root .sd-question__header {
+.sd-question__header {
   display: flex;
   flex-direction: column;
   gap: var(--sjs2-spacing-x100);
 }
 
 /* frames / complex headers */
-.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {
+.sd-element--complex.sd-element--with-frame > .sd-element__header {
   padding-bottom: 0;
   border: none;
 }
-.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
+.sd-element--complex.sd-element--with-frame > .sd-element__header:after {
   content: initial;
-}
-.sd-theme-root .sd-element--with-frame {
-  --sd-base-padding: calc(var(--spacing) * 4);
 }
 
 /* slider track (h-1.5) */
-.sd-theme-root .sd-slider__track,
-.sd-theme-root .sd-slider__track:before,
-.sd-theme-root .sd-slider__track:after,
-.sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
+.sd-slider__track,
+.sd-slider__track:before,
+.sd-slider__track:after,
+input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
 }
 
 /* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
 .sd-row.sd-row--multiple > * {
   min-width: 0 !important;
-}
-
-/* below sm — phones */
-@media (width < 640px) {
-  .sd-row.sd-row--multiple {
-    flex-direction: column;
-  }
-}
-
-/* below md — tablets */
-@media (width < 768px) {
-}
-
-/* below lg — small desktops */
-@media (width < 1024px) {
-}
-
-/* 2xl and up — large desktops */
-@media (width >= 1536px) {
 }

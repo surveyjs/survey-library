@@ -16,7 +16,7 @@
      + content, so content = target - 0.125rem. */
   --sjs2-layout-component-action-large-box-padding-vertical: calc(0.5rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(1rem + var(--bs-border-width));
-  
+
   --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
   --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1rem;
@@ -54,6 +54,17 @@
   --sjs2-typography-font-weight-component-question-title: 500;
 
   --sjs2-typography-font-weight-component-label-content: 400;
+}
+
+/* dropdown */
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: 0.5rem;
+  gap: 0.5rem;
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding-inline: 0.25rem;
 }
 
 .sd-action--brand.sd-action--secondary {

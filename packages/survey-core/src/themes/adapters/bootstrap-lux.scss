@@ -11,6 +11,7 @@
   --sjs2-radius-component-drop: 0;
   --sjs2-radius-component-panel: 0;
   --sjs2-radius-component-toggle: 0;
+  --sjs2-radius-component-tagbox-item-action: 0;
 
   /* uppercase, semibold buttons */
   --sjs-bs-action-text-transform: uppercase;
@@ -78,6 +79,20 @@
 
   --sjs2-typography-font-weight-basic: 300;
   --sjs2-typography-font-weight-component-question-title: 300;
+
+  /* inherited letter-spacing on the survey root */
+  letter-spacing: 1px;
+}
+
+/* dropdown */
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: 1.25rem;
+  gap: 0.5rem;
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding-inline: 0.5rem;
 }
 
 .sd-table.sd-table.sd-table>tbody>tr {
@@ -97,14 +112,10 @@
   }
 }
 
-
 /* uppercase, letter-spaced titles */
-.sd-theme-root {
-  letter-spacing: 1px;
-}
-.sd-theme-root .sv-header__title,
-.sd-theme-root .sd-page__title,
-.sd-theme-root .sd-panel__title {
+.sv-header__title,
+.sd-page__title,
+.sd-panel__title {
   text-transform: uppercase;
   letter-spacing: 3px;
 }

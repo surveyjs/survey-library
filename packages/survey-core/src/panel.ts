@@ -391,10 +391,10 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
       (obj: Base) => { return !this.areInvisibleElementsShowing; },
-      undefined,
+      true,
       () => { this.visible = true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, true, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, true, () => { this.isRequired = false; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);

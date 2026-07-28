@@ -92,16 +92,43 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   protected getItemVariableNames(): Array<string> {
     return [];
   }
-  public getContextKeys(): { [key: string]: any } {
+  public getContextKeys(keys?: any): { [key: string]: any } {
     const res: { [key: string]: any } = {};
-    const names = [this.variableName, this.questionName, this.getPrevName(), this.getNextName()]
-      .concat(this.getItemVariableNames());
+    let names = this.getItemVariableNames();
+    if (!keys || !this.isItemDependenciesTrackable() || this.isContainerValueChanged(keys)) {
+      names = names.concat([this.variableName, this.questionName, this.getPrevName(), this.getNextName()])
+        .concat(this.getRelatedItemNames());
+    }
     names.forEach((name) => {
       if (name) {
         res[name] = this.item;
       }
     });
     return res;
+  }
+  protected getRelatedItemNames(): Array<string> {
+    return [];
+  }
+  /* An item whose expressions calculate over filtered (visible) data - a matrix total row -
+     can change on any value change (e.g. row visibility), so its dependencies cannot be
+     analyzed statically and its context names are always reported as changed */
+  protected isItemDependenciesTrackable(): boolean {
+    return true;
+  }
+  private isContainerValueChanged(keys: any): boolean {
+    let container: any = this.item.data;
+    while(!!container) {
+      const valueName = typeof container.getValueName === "function" ? container.getValueName() : container.name;
+      if (!!valueName && keys.hasOwnProperty(valueName)) return true;
+      let itemData = container.data;
+      if (itemData instanceof DynamicItemModelBase) {
+        itemData = itemData.data;
+      }
+      /* Walk up through container questions that store the data (nested matrices/panels via
+         their item, custom questions directly) until the survey level is reached */
+      container = !!itemData && itemData !== container && typeof itemData.getValueName === "function" ? itemData : undefined;
+    }
+    return false;
   }
 }
 

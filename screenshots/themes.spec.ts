@@ -408,6 +408,8 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, jsonWithInputs);
+      // Wait for React to finish re-rendering all 10 questions after fromJSON
+      await expect(page.locator(".sd-question").nth(9)).toBeVisible();
       await applyTheme(page, {
         "cssVariables": {
           "--sjs-font-editorfont-size": "12px",

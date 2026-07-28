@@ -1156,6 +1156,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder().append(super.getCssRoot(cssClasses)).append(cssClasses.composite).toString();
   }
+  protected getCssHeader(cssClasses: any): string {
+    return new CssClassBuilder().append(super.getCssHeader(cssClasses)).append(cssClasses.compositeHeader).toString();
+  }
+
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }

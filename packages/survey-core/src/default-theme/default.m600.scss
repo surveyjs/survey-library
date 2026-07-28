@@ -7,6 +7,10 @@
   --sd-base-padding: var(--sjs2-spacing-x500);
   --sd-base-vertical-padding: var(--sjs2-spacing-x400);
   --sd-page-vertical-padding: var(--sjs2-spacing-x300);
+  --sjs2-spacing-large-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-spacing-large-vertical: var(--sjs2-spacing-x500);
+  --sjs2-spacing-medium-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-spacing-medium-vertical: var(--sjs2-spacing-x300);
 }
 
 .sd-root-modern.sd-root-modern--mobile,
@@ -14,6 +18,10 @@
   --sd-base-padding: var(--sjs2-spacing-x300);
   --sd-base-vertical-padding: var(--sjs2-spacing-x200);
   --sd-page-vertical-padding: var(--sjs2-spacing-x200);
+  --sjs2-spacing-large-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-spacing-large-vertical: var(--sjs2-spacing-x500);
+  --sjs2-spacing-medium-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-spacing-medium-vertical: var(--sjs2-spacing-x200);
 }
 
 .sd-root-modern {
@@ -21,10 +29,6 @@
     .sd-element__num {
       @include mixins.num_inline();
     }
-
-    // .sd-element__title--expandable:before {
-    //   inset-inline-start: var(--sjs2-spacing-negative-x250);
-    // }
 
     .sd-element__title-expandable-svg {
       inset-inline-start: var(--sjs2-spacing-negative-x250);

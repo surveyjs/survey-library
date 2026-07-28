@@ -1,5 +1,11 @@
 <template>
-  <div :class="question.cssClasses.footer" v-if="!!question.cssClasses.footer">
+  <div
+    :class="question.cssClasses.footer"
+    v-if="
+      (question.isRangeShowing && question.isProgressBottomShowing) ||
+      question.showFooterToolbar
+    "
+  >
     <hr :class="question.cssClasses.separator" />
     <div
       :class="question.cssClasses.progress"

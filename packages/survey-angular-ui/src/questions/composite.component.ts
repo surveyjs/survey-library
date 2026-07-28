@@ -6,7 +6,8 @@ import { PanelModel, QuestionCompositeModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-composite-question",
-  template: "<sv-ng-panel [model]='contentPanel'></sv-ng-panel>"
+  template: "<ng-template #template><sv-ng-panel [model]='contentPanel'></sv-ng-panel></ng-template>",
+  styles: [":host { display: none } "]
 })
 export class CompositeQuestionComponent extends QuestionAngular<QuestionCompositeModel> {
   get contentPanel(): PanelModel {

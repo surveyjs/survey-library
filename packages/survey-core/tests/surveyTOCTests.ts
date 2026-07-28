@@ -1180,3 +1180,76 @@ describe("TOC", () => {
     expect(!!survey.findLayoutElement("toc-navigation")).toBe(true);
   });
 });
+
+describe("TOC custom item component", () => {
+  test("tocItemComponent sets listModel.itemComponent", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true,
+      tocItemComponent: "sv-custom-toc-item"
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
+
+  test("tocItemComponent updates listModel.itemComponent dynamically", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.itemComponent).toBe("sv-list-item-content");
+
+    survey.tocItemComponent = "sv-custom-toc-item";
+
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
+
+  test("TOC items have page and survey in data", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.actions[0].data).toBeTruthy();
+    expect(tocListModel.actions[0].data.page).toBe(survey.pages[0]);
+    expect(tocListModel.actions[0].data.survey).toBe(survey);
+
+    expect(tocListModel.actions[1].data.page).toBe(survey.pages[1]);
+    expect(tocListModel.actions[1].data.survey).toBe(survey);
+  });
+
+});

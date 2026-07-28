@@ -6553,11 +6553,21 @@ export class SurveyModel extends SurveyElementCore
       trigger.checkExpression(options);
     }
   }
-  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
+  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any, relatedName?: string): void {
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
+    if (relatedName) {
+      // A comment change can affect expressions that reference the main question value
+      // ('other' choice workflows), so include the related name into the changed keys
+      const relatedValue = this.getValue(relatedName);
+      triggerKeys[relatedName] = { newValue: relatedValue, oldValue: relatedValue };
+      if (!this.questionTriggersKeys) {
+        this.questionTriggersKeys = {};
+      }
+      this.questionTriggersKeys[relatedName] = relatedValue;
+    }
     this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false, false, false, name);
+    this.checkTriggers(triggerKeys, false, false, false, relatedName || name);
   }
   private get hasRequiredValidQuestionTrigger(): boolean {
     for (let i = 0; i < this.triggers.length; i++) {
@@ -6622,7 +6632,11 @@ export class SurveyModel extends SurveyElementCore
   private questionTriggersKeys: any;
   private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
-    return this.isRunningConditionOnValueChanged ? this.questionTriggersKeys : undefined;
+    if (!this.isRunningConditionOnValueChanged) return undefined;
+    // An onExpressionRunning subscriber can rewrite expressions on the fly, so static
+    // dependency analysis of the original expressions is unreliable - run everything
+    if (!this.onExpressionRunning.isEmpty) return undefined;
+    return this.questionTriggersKeys;
   }
   private runConditionOnValueChanged(name: string, value: any) {
     if (!this.questionTriggersKeys) {
@@ -7203,7 +7217,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     const commentName = name + this.commentSuffix;
     newValue = this.questionOnValueChanging(commentName, newValue, name);
-    locNotification = this.getLocNotification(locNotification, newValue, this.getComment(name));
+    const oldValue = this.getComment(name);
+    locNotification = this.getLocNotification(locNotification, newValue, oldValue);
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
@@ -7217,7 +7232,8 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (!locNotification) {
-      this.checkTriggersAndRunConditions(name, this.getValue(name), undefined);
+      // The changed data key is the comment key; the main name is passed as related
+      this.checkTriggersAndRunConditions(commentName, newValue, oldValue, name);
     }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);

@@ -21210,4 +21210,124 @@ describe("Survey", () => {
     expect(q1.errors.length, "q1 has error, value=5 < min=10").toBe(1);
     expect(panel1.isVisible, "panel1 is invisible, q1=5 contains errors").toBe(false);
   });
+  test("Do not run visibleIf/enableIf/requiredIf expressions on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        { type: "text", name: "question2", visibleIf: "customFunc({question1})", enableIf: "customFunc({question1})", requiredIf: "customFunc({question1})" },
+        { type: "text", name: "question3", enableIf: "customFunc({question1})", requiredIf: "customFunc({question1})" }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc").toBe(0);
+    survey.setValue("question1", true);
+    expect(counter, "changing question1 runs all 5 expressions").toBe(5);
+    const question2 = survey.getQuestionByName("question2");
+    expect(question2.isVisible, "question2 is visible").toBe(true);
+    expect(question2.isRequired, "question2 is required").toBe(true);
+    expect(question2.isReadOnly, "question2 is enabled").toBe(false);
+    counter = 0;
+    survey.setValue("dummy", "def");
+    expect(counter, "changing dummy again should not run customFunc").toBe(0);
+    survey.runExpressions();
+    expect(counter, "survey.runExpressions() runs all expressions").toBe(5);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Run visibleIf expression with a parameterless custom function on any value change", () => {
+    let counter = 0;
+    let funcRes = false;
+    FunctionFactory.Instance.register("customNoParamsFunc", (params: any): boolean => {
+      counter++;
+      return funcRes;
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "text", name: "question1", visibleIf: "customNoParamsFunc()" }
+      ]
+    });
+    counter = 0;
+    funcRes = true;
+    survey.setValue("dummy", "abc");
+    expect(counter, "the function dependencies are unknown, run it on any change").toBe(1);
+    expect(survey.getQuestionByName("question1").isVisible, "question1 is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customNoParamsFunc");
+  });
+  test("Do not run panel visibleIf/enableIf/requiredIf expressions on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        {
+          type: "panel", name: "panel1",
+          visibleIf: "customFunc({question1})",
+          enableIf: "customFunc({question1})",
+          requiredIf: "customFunc({question1})",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc").toBe(0);
+    survey.setValue("question1", true);
+    expect(counter, "changing question1 runs all 3 panel expressions").toBe(3);
+    expect(survey.getPanelByName("panel1").isVisible, "panel1 is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Do not run visibleIf expressions in dynamic panel on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        {
+          type: "paneldynamic", name: "panel1", panelCount: 2,
+          templateElements: [
+            { type: "boolean", name: "q1" },
+            { type: "text", name: "q2", visibleIf: "customFunc({panel.q1})" }
+          ]
+        }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc in panels").toBe(0);
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel1")).panels[0];
+    panel.getQuestionByName("q1").value = true;
+    expect(counter > 0, "changing q1 inside the panel runs customFunc").toBeTruthy();
+    expect(panel.getQuestionByName("q2").isVisible, "q2 in the first panel is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Run visibleIf expressions on changing a calculated value it depends on", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        { type: "text", name: "question2", visibleIf: "{calcVal} = true" }
+      ],
+      calculatedValues: [{ name: "calcVal", expression: "{question1} = true" }]
+    });
+    const question2 = survey.getQuestionByName("question2");
+    expect(question2.isVisible, "question2 is invisible initially").toBe(false);
+    survey.setValue("question1", true);
+    expect(question2.isVisible, "question2 is visible, calcVal is true").toBe(true);
+    survey.setValue("question1", false);
+    expect(question2.isVisible, "question2 is invisible, calcVal is false").toBe(false);
+  });
 });

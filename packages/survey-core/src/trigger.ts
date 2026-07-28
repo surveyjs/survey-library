@@ -153,18 +153,9 @@ export class Trigger extends Base {
     return !this.canSkipExpressionByKeys(runner, keys, this.getUsedVariables(runner));
   }
   protected getUsedVariables(runner: ExpressionRunner): string[] {
+    // The "-unwrapped" postfix is handled in ValueGetter.isAnyKeyChanged
     if (!runner) return [];
-    const res = runner.getVariables();
-    if (Array.isArray(res)) {
-      const unw = settings.expressionVariables.unwrapPostfix;
-      for (let i = res.length - 1; i >= 0; i--) {
-        const s = res[i];
-        if (s.endsWith(unw)) {
-          res.push(s.substring(0, s.length - unw.length));
-        }
-      }
-    }
-    return res;
+    return runner.getVariables();
   }
   private get isRequireValue(): boolean {
     return this.operator !== "empty" && this.operator != "notempty";

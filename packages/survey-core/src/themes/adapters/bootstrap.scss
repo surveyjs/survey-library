@@ -150,7 +150,7 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--bs-form-invalid-color);
   --sjs2-color-component-message-error-icon: var(--bs-form-invalid-color);
-  //--sjs2-layout-component-message-box-padding-horizontal: 0;
+  --sjs2-layout-component-message-box-padding-horizontal: 0;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--bs-form-invalid-color);
@@ -210,7 +210,7 @@
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
   --sjs2-color-fg-basic-primary-disabled: rgba(from var(--bs-body-color) r g b / 0.5);
 
-  --sjs2-color-border-basic-primary: var(--bs-border-color);
+  --sjs2-color-border-basic-primary: var(--bs-emphasis-color, var(--bs-body-color));
   --sjs2-color-border-basic-secondary: var(--bs-border-color);
 
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
@@ -307,6 +307,10 @@
   filter: brightness(90%);
 }
 
+.sd-item--error .sd-item__control-label {
+  color: var(--bs-form-invalid-color);
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;
@@ -371,7 +375,7 @@
 }
 
 /* tagbox */
-.sd-tagbox.sd-tagbox--empty .sd-tagbox__input  {
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
   padding-inline: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
   padding-block: var(--sjs2-layout-component-input-medium-content-padding-vertical);
 }
@@ -442,6 +446,12 @@
 
 .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
   content: initial;
+}
+
+.sd-error__item {
+  font-size: 0.875em;
+  font-weight: var(--bs-body-font-weight);
+  line-height: var(--bs-body-line-height);
 }
 
 .sd-action {

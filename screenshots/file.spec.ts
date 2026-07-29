@@ -328,7 +328,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.setViewportSize({ width: 1920, height: 1080 });
+      await page.setViewportSize({ width: 1936, height: 1080 });
       const questionRoot = page.locator(".sd-question");
       const button = page.locator("button").filter({ hasText: "Photo" });
 

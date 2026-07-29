@@ -406,9 +406,7 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "800"
       });
-      await applyTheme(page, {
-        "isPanelless": true
-      });
+      await applyTheme(page, (window as any).SurveyTheme.DefaultLightPanelless);
       const panelRoot = page.locator(".sd-panel--as-page");
       await compareScreenshot(page, panelRoot, "panel-multi-panelless.png");
       await resetFocusToBody(page);

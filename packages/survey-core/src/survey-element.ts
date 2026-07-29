@@ -1058,21 +1058,21 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   /**
    * Gets or sets minimum survey element width in CSS values.
    *
-   * Default value: "300px" (taken from [`settings.minWidth`](https://surveyjs.io/form-library/documentation/settings#minWidth))
+   * Default value: "" (the element uses the theme's `--sjs-element-min-width` value)
    * @see maxWidth
    * @see renderWidth
    * @see width
    */
-  @property() minWidth: string;
+  @property({ defaultValue: "" }) minWidth: string;
   /**
    * Gets or sets maximum survey element width in CSS values.
    *
-   * Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form-library/documentation/settings#maxWidth))
+   * Default value: "" (the element width is not limited)
    * @see minWidth
    * @see renderWidth
    * @see width
    */
-  @property() maxWidth: string;
+  @property({ defaultValue: "" }) maxWidth: string;
 
   /**
    * Returns a calculated width of the rendered survey element in CSS values.
@@ -1128,38 +1128,74 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private setRootStyle() {
     this.rootStyle = this.calcRootStyle();
   }
-  protected calcRootStyle(): any {
-    const style: { [index: string]: any } = {};
-    let _width;
-    if (!!this.parent) {
-      const columns = this.parent.getColumsForElement(this as any);
-      _width = columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
-      if (!!_width && _width !== 100) {
-        style["flexGrow"] = 1;
-        style["flexShrink"] = 0;
-        style["flexBasis"] = _width + "%";
-        style["minWidth"] = undefined;
-        style["maxWidth"] = this.maxWidth;
+  /**
+   * A total width, in percent, of the grid layout columns this element occupies, or 0 when the grid layout is disabled.
+   */
+  private get gridColumnsWidth(): number {
+    if (!this.parent) return 0;
+    const columns = this.parent.getColumsForElement(this as any);
+    return columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
+  }
+  /**
+   * Returns `true` if the element occupies a part of a grid layout row. Such elements are sized by their columns.
+   */
+  public get isInGridColumn(): boolean {
+    const width = this.gridColumnsWidth;
+    return !!width && width !== 100;
+  }
+  /**
+   * Returns `false` for elements that shrink to their content instead of getting the default element min-width.
+   */
+  protected get hasMinWidth(): boolean { return true; }
+  /**
+   * The default element min-width, which makes an element wrap onto its own row when the row gets too narrow,
+   * applies only to elements sized by the flex basis. Grid columns and panels shrink to their content instead.
+   * An element with its own minWidth replaces the default with an inline style.
+   */
+  private get hasDefaultMinWidth(): boolean {
+    return this.hasMinWidth && !this.minWidth && !this.isInGridColumn && this.allowRootStyle && !!this.renderWidth;
+  }
+  public getWrapperCss(): string {
+    const css = this.survey?.getCss() || {};
+    return new CssClassBuilder()
+      .append(css.elementWrapper)
+      .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
+      .append(this.cssClasses.questionWrapper)
+      .toString();
+  }
+  /**
+   * Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
+   */
+  private calcMinWidth(): string {
+    if (!this.minWidth) return "";
+    let minWidth = "" + this.minWidth;
+    if (minWidth === "auto") return "";
+    if (minWidth.indexOf("px") > -1 && !!this.survey) {
+      const minWidthNum = parseFloat(minWidth.replace("px", ""));
+      if (!isNaN(minWidthNum)) {
+        minWidth = minWidthNum * (this.survey as any).widthScale / 100 + "px";
       }
     }
-    if (Object.keys(style).length == 0) {
-      let minWidth: string | number = "" + this.minWidth;
-      if (!!minWidth && minWidth != "auto") {
-        if (minWidth.indexOf("px") != -1 && this.survey) {
-          minWidth = minWidth.replace("px", "");
-          let minWidthNum = parseFloat(minWidth);
-          if (!isNaN(minWidthNum)) {
-            minWidth = minWidthNum * (this.survey as any).widthScale / 100;
-            minWidth = "" + minWidth + "px";
-          }
-        }
-        minWidth = "min(100%, " + minWidth + ")";
-      }
-      if (this.allowRootStyle && this.renderWidth) {
-        style["flexGrow"] = 1;
-        style["flexShrink"] = 1;
-        style["flexBasis"] = this.renderWidth;
+    return "min(100%, " + minWidth + ")";
+  }
+  protected calcRootStyle(): any {
+    const style: { [index: string]: any } = {};
+    const gridWidth = this.gridColumnsWidth;
+    if (!!gridWidth && gridWidth !== 100) {
+      style["flexGrow"] = 1;
+      style["flexShrink"] = 0;
+      style["flexBasis"] = gridWidth + "%";
+    } else if (this.allowRootStyle && this.renderWidth) {
+      style["flexGrow"] = 1;
+      style["flexShrink"] = 1;
+      style["flexBasis"] = this.renderWidth;
+    }
+    if (Object.keys(style).length > 0) {
+      const minWidth = this.calcMinWidth();
+      if (!!minWidth) {
         style["minWidth"] = minWidth;
+      }
+      if (!!this.maxWidth) {
         style["maxWidth"] = this.maxWidth;
       }
     }

@@ -37,6 +37,9 @@
   --sjs2-base-unit-radius: var(--bs-border-radius);
   --sjs2-base-unit-spacing: 0.25rem;
 
+  /* Let Bootstrap size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 0;
+
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);
   --sjs2-color-utility-a11y: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.25);
@@ -282,7 +285,8 @@
 
 /* check focus and pressed state */
 .sd-item:not(.sd-item--checked) {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
 }
 .sd-item__control:focus + .sd-item__decorator::before,
 .sd-item__control:active + .sd-item__decorator::before {
@@ -320,7 +324,8 @@
 }
 
 .sd-boolean-switch__button {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 
   &:focus {
@@ -371,7 +376,7 @@
 }
 
 /* tagbox */
-.sd-tagbox.sd-tagbox--empty .sd-tagbox__input  {
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
   padding-inline: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
   padding-block: var(--sjs2-layout-component-input-medium-content-padding-vertical);
 }
@@ -405,8 +410,9 @@
   --sd-table-cell-min-width: initial;
 }
 
-.sd-table.sd-table.sd-table>tbody>tr {
-  &>th, &>td {
+.sd-table.sd-table.sd-table > tbody > tr {
+  & > th,
+  & > td {
     &:where(:not(.sd-table__cell--error)) {
       border-top: var(--bs-border-width) solid var(--bs-border-color);
       border-bottom: none;
@@ -418,9 +424,10 @@
   }
 }
 
-.sd-table.sd-table.sd-table>thead>tr {
-  &>th, &>td {
-    border-top: none;  
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+    border-top: none;
     border-bottom: none;
     padding: 0.5rem;
   }

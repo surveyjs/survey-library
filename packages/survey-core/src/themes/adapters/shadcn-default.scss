@@ -12,7 +12,7 @@
   --sjs2-border-effect-component-formbox-focused: var(--sjs2-border-effect-component-formbox-default), var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* checkboxes and radio */
-  --sjs2-color-component-check-false-default-border: var(--border);
+  --sjs2-color-component-check-false-default-border: var(--primary);
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
   --sjs2-border-effect-component-check-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
@@ -104,4 +104,12 @@
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(100%);
+}
+
+.sd-formbox--error {
+  box-shadow: var(--sjs2-border-effect-component-formbox-invalid);
+}
+
+.sd-formbox--error:where(:focus-within) {
+  box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused);
 }

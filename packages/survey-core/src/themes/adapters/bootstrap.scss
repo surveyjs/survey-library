@@ -157,6 +157,7 @@
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 0.25em;
+  --sjs2-color-component-check-false-invalid-border: var(--bs-form-invalid-border-color);
   --sjs2-color-component-check-false-focused-border: var(--bs-primary);
   --sjs2-size-component-checkbox-box: 1em;
   --sjs2-size-component-checkbox-icon: 0.75em;
@@ -307,6 +308,10 @@
   filter: brightness(90%);
 }
 
+.sd-question__erbox--below-question {
+  margin-top: 0.25rem;
+}
+
 .sd-item--error .sd-item__control-label {
   color: var(--bs-form-invalid-color);
 }
@@ -452,6 +457,10 @@
   font-size: 0.875em;
   font-weight: var(--bs-body-font-weight);
   line-height: var(--bs-body-line-height);
+}
+
+.sd-question--boolean .sd-error__item {
+  padding-left: 1.75em;
 }
 
 .sd-action {

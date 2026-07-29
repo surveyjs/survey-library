@@ -61,3 +61,11 @@
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
+.sd-error__item {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+}
+
+.sd-formbox--error {
+  --tw-ring-shadow: 0 0 0 1px transparent;
+}

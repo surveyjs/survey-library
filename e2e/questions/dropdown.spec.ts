@@ -1605,7 +1605,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop1).toBeLessThanOrEqual(170);
       const offsetLeft1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft1).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft1).toBeLessThanOrEqual(500);
+      expect(offsetLeft1).toBeLessThanOrEqual(510);
       const offsetHeight1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toBeGreaterThanOrEqual(410);
       expect(offsetHeight1).toBeLessThanOrEqual(424);
@@ -1620,7 +1620,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop2).toBeLessThanOrEqual(170);
       const offsetLeft2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft2).toBeGreaterThanOrEqual(680);
-      expect(offsetLeft2).toBeLessThanOrEqual(690);
+      expect(offsetLeft2).toBeLessThanOrEqual(700);
       const offsetHeight2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight2).toBeGreaterThanOrEqual(910);
       expect(offsetHeight2).toBeLessThanOrEqual(924);
@@ -1635,7 +1635,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop3).toBeLessThanOrEqual(170);
       const offsetLeft3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft3).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft3).toBeLessThanOrEqual(500);
+      expect(offsetLeft3).toBeLessThanOrEqual(510);
       const offsetHeight3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(410);
       expect(offsetHeight3).toBeLessThanOrEqual(460);

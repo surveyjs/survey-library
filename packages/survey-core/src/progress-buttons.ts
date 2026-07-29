@@ -30,7 +30,7 @@ export class ProgressButtons extends Base {
   }
   public isListElementPassed(index: number): boolean {
     const page = this.survey.visiblePages[index];
-    return page.wasShown || page.hasValueAnyQuestion();
+    return page.wasShown || page.hasValueAnyQuestion(false, false);
   }
   public getRootCss(container: string = "center"): string {
     let result = this.survey.css.progressButtonsContainerCenter;
@@ -39,6 +39,9 @@ export class ProgressButtons extends Base {
       result += " " + this.survey.css.progressButtonsRoot + "--" + (this.showItemTitles ? "with-titles" : "no-titles");
       if (this.pageTitleLocation === "bottom" && this.survey.css.progressButtonsTitlesBottom) {
         result += " " + this.survey.css.progressButtonsTitlesBottom;
+      }
+      if (this.pageTitleLocation === "inline" && this.survey.css.progressButtonsTitlesInline) {
+        result += " " + this.survey.css.progressButtonsTitlesInline;
       }
     }
     if (this.showItemNumbers && this.survey.css.progressButtonsNumbered) {
@@ -94,7 +97,7 @@ export class ProgressButtons extends Base {
   public get showItemDescriptions(): boolean {
     return this.showItemTitles;
   }
-  public get pageTitleLocation(): "top" | "bottom" {
+  public get pageTitleLocation(): "top" | "bottom" | "inline" {
     return this.survey.progressBarNavigationTextLocation || "top";
   }
   public getItemNumber(page: PageModel): string {

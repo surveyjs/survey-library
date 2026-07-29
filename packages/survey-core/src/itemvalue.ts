@@ -47,11 +47,6 @@ export class ItemValueGetterContext implements IValueGetterContext {
   }
 }
 
-/**
- * Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
- * It has two main properties: value and text. If text is empty, value is used for displaying.
- * The text property is localizable and support markdown.
- */
 export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 

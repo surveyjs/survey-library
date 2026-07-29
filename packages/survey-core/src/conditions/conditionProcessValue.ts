@@ -16,7 +16,7 @@ export interface IValueGetterInfo {
   value?: any;
 }
 export interface IObjectValueContext {
-  getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
+  getValueGetterContext(): IValueGetterContext;
 }
 export interface IValueGetterContextGetValueParams {
   path: Array<IValueGetterItem>;
@@ -24,6 +24,7 @@ export interface IValueGetterContextGetValueParams {
   index: number;
   createObjects?: boolean;
   isProperty?: boolean;
+  isOriginalValue?: boolean;
 }
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
@@ -31,7 +32,7 @@ export interface IValueGetterContext {
   getObj?(): any;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
-  getContextKeys?(): { [key: string]: any };
+  getContextKeys?(keys?: any): { [key: string]: any };
 }
 export interface IValueInfoParams {
   name: string;
@@ -39,6 +40,7 @@ export interface IValueInfoParams {
   isText?: boolean;
   isDisplayValue?: boolean;
   createObjects?: boolean;
+  isOriginalValue?: boolean;
 }
 export interface IReturnValue {
   isFound: boolean;
@@ -62,7 +64,7 @@ export class ValueGetter {
   private getValueInfoCore(params: IValueInfoParams): IReturnValue {
     const name = params.name;
     const cxt = params.context;
-    let info = this.run(params.name, cxt, params.createObjects);
+    let info = this.run(params.name, cxt, params.createObjects, params.isOriginalValue);
     if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
       const obj = cxt.getRootObj();
       if (!!obj) {
@@ -95,12 +97,16 @@ export class ValueGetter {
     return this.getValue(name, context, true, isDisplayValue);
   }
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+    const propPrefix = settings.expressionElementPropertyPrefix;
     for (var i = 0; i < usedNames.length; i++) {
       const name = usedNames[i];
       if (!name) continue;
+      // An element property reference ({$q1.isVisible}) can change without any value key change
+      if (!!propPrefix && name[0] === propPrefix) return true;
       const lowerName = name.toLowerCase();
       if (keys.hasOwnProperty(name)) return true;
       if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
+      if (this.isUnwrappedNameChanged(keys, name)) return true;
       const firstName = this.getFirstNameByKeys(keys, name);
       if (!firstName) continue;
       if (name === firstName) return true;
@@ -120,6 +126,14 @@ export class ValueGetter {
     }
     return false;
   }
+  private isUnwrappedNameChanged(keys: any, name: string): boolean {
+    const postfix = settings.expressionVariables.unwrapPostfix;
+    if (!postfix) return false;
+    const first = this.getPath(name)[0].name;
+    if (!first.endsWith(postfix)) return false;
+    const baseName = first.substring(0, first.length - postfix.length);
+    return keys.hasOwnProperty(baseName) || keys.hasOwnProperty(baseName.toLowerCase());
+  }
   private getFirstNameByKeys(keys: any, name: string): string {
     const path = this.getPath(name);
     let res = "";
@@ -133,7 +147,7 @@ export class ValueGetter {
     const res = this.getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });
     return res.isFound ? res.value : undefined;
   }
-  private run(name: string, context: IValueGetterContext, createObjects: boolean): any {
+  private run(name: string, context: IValueGetterContext, createObjects: boolean, isOriginalValue?: boolean): any {
     if (!context) return undefined;
     let path = this.getPath(name);
     const propPrefix = settings.expressionElementPropertyPrefix;
@@ -141,7 +155,7 @@ export class ValueGetter {
     if (isProperty) {
       path[0].name = path[0].name.substring(1);
     }
-    const info = context.getValue({ path, isRoot: true, index: -1, createObjects, isProperty });
+    const info = context.getValue({ path, isRoot: true, index: -1, createObjects, isProperty, isOriginalValue });
     return info?.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
@@ -190,7 +204,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {
-        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty });
+        return res.context.getValue({ path: path.slice(pIndex), isRoot: false, index: item.index, createObjects: params.createObjects, isProperty: params.isProperty, isOriginalValue: params.isOriginalValue });
       }
       if (item.index !== undefined) {
         this.updateItemByIndex(item.index, res);
@@ -337,14 +351,14 @@ export class ProcessValue {
     if (!!this.context) return this.getValueInfoByContext(text).value;
     return undefined;
   }
-  private getValueInfoByContext(text: string): any {
+  private getValueInfoByContext(text: string, isOriginalValue?: boolean): any {
     return new ValueGetter().getValueInfo(
-      { name: text, context: this.context, isText: false }
+      { name: text, context: this.context, isText: false, isOriginalValue: isOriginalValue }
     );
   }
   public getValueInfo(valueInfo: any) {
     if (!!this.context) {
-      const cRes = this.getValueInfoByContext(valueInfo.name);
+      const cRes = this.getValueInfoByContext(valueInfo.name, valueInfo.isOriginalValue);
       if (cRes.isFound) {
         const obj = this.context.getObj ? this.context.getObj() : null;
         if (!!obj && !!cRes.propObj) {

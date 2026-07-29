@@ -3588,6 +3588,39 @@ describe("Survey_QuestionMatrixDynamic", () => {
     FunctionFactory.Instance.unregister("asyncFunc");
   });
 
+  test("visibleIndex should not throw when matrix rows are update-locked, async function in cell expression, Bug#11466", () => {
+    const returnResults = new Array<any>();
+    function asyncFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            { name: "col1", cellType: "expression", expression: "asyncFunc() + {visibleRowIndex}" },
+          ],
+        },
+      ],
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    matrix.visibleRows; // generate rows and trigger the cell expression (async pending)
+    expect(returnResults.length, "asyncFunc has been called").toBe(1);
+
+    // Simulate the matrix being update-locked while the async callback resolves,
+    // so that question.visibleRows returns null inside MatrixRowGetterContext.visibleIndex
+    matrix.beginUpdate();
+    expect(() => returnResults[0](5)).not.toThrow();
+    matrix.endUpdate();
+
+    FunctionFactory.Instance.unregister("asyncFunc");
+  });
+
   test("onValueChanged doesn't called on adding new row with calculated column, #1845", () => {
     var rowCount = 0;
     function newIndexFor(params) {

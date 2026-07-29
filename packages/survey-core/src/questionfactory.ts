@@ -78,6 +78,13 @@ export class ElementFactory {
     if (!!item && !!item.creator) return item.creator(name);
     const compJSON = ComponentCollection.Instance.getCustomQuestionByName(elementType);
     if (!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
+    if (!!Serializer.getTypeByAlias(elementType)) {
+      const el = Serializer.createClass(elementType);
+      if (!!el) {
+        el.name = name;
+        return el;
+      }
+    }
     return null;
   }
   private getAllTypesCore(showInToolboxOnly: boolean): Array<string> {

@@ -4,9 +4,6 @@ import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 
-/**
- * Base class for HtmlConditionItem and UrlConditionItem classes.
- */
 export class ExpressionItem extends Base implements ILocalizableOwner {
   public locOwner: ILocalizableOwner;
   constructor(expression: string = null) {
@@ -53,12 +50,6 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   }
 }
 
-/**
- * A class that contains expression and html propeties. It uses in survey.completedHtmlOnCondition array.
- * If the expression returns true then html of this item uses instead of survey.completedHtml property
- * @see SurveyModel.completedHtmlOnCondition
- * @see SurveyModel.completedHtml
- */
 export class HtmlConditionItem extends ExpressionItem {
   constructor(expression: string = null, html: string = null) {
     super(expression);
@@ -76,11 +67,6 @@ export class HtmlConditionItem extends ExpressionItem {
   @property({ localizable: { markdown: true } }) html: string;
 }
 
-/**
- * A class that contains expression and url propeties. It uses in survey.navigateToUrlOnCondition array.
- * If the expression returns true then url of this item uses instead of survey.navigateToUrl property
- * @see SurveyModel.navigateToUrl
- */
 export class UrlConditionItem extends ExpressionItem {
   constructor(expression: string = null, url: string = null) {
     super(expression);

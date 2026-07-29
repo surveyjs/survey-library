@@ -198,6 +198,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * [View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
    *
    * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @since 2.0.4
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
@@ -211,6 +212,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
    *
    * Default value: `"Create \"{0}\" item..."`
+   * @since 2.5.17
    */
   @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
 
@@ -349,6 +351,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public get inputActionBar() {
     if (!this.inputActionBarValue) {
       this.inputActionBarValue = new ActionContainer();
+      this.inputActionBarValue.locOwner = this;
       this.inputActionBarValue.containerCss = this.cssClasses.group;
       this.inputActionBarValue.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 

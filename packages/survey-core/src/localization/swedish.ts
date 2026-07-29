@@ -161,8 +161,6 @@ export var swedishSurveyStrings = {
   savingDataError: "Ett fel inträffade och vi kunde inte spara resultaten.",
   // "The results were saved successfully!"
   savingDataSuccess: "Resultaten lyckades sparas!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Ditt svar överstiger 64 kB. Minska storleken på dina filer och försök igen eller kontakta undersökningens ägare.",
   // "Try again"
   saveAgainButton: "Försök igen",
   // [Auto-translated] "min"

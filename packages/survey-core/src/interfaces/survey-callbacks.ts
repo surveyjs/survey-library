@@ -10,9 +10,6 @@ import type {
   IValueItemCustomPropValues,
 } from "../base-interfaces";
 
-/**
- * Callbacks for element lifecycle events (question/panel/page add, remove, rename, visibility).
- */
 export interface ISurveyElementLifecycle {
   questionCreated(question: IQuestion): any;
   questionAdded(
@@ -38,11 +35,9 @@ export interface ISurveyElementLifecycle {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  // MERGE(V3): keep `pageShown`; master (V2) names this callback `pagePassed`. Keep V3 on merge.
   pageShown(page: IPage): void;
 }
-/**
- * Callbacks for file upload, download, removal, and file chooser operations.
- */
 export interface ISurveyFileCallbacks {
   uploadFiles(
     question: IQuestion,
@@ -66,9 +61,6 @@ export interface ISurveyFileCallbacks {
   ): any;
   chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
 }
-/**
- * Callbacks for matrix question events (row/cell add, remove, validate, render).
- */
 export interface ISurveyMatrixCallbacks {
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
@@ -88,9 +80,6 @@ export interface ISurveyMatrixCallbacks {
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
   matrixDragHandleArea: string;
 }
-/**
- * Callbacks for dynamic panel events (add, remove, tab title, index change).
- */
 export interface ISurveyDynamicPanelCallbacks {
   dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
@@ -98,10 +87,6 @@ export interface ISurveyDynamicPanelCallbacks {
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 }
-/**
- * Callbacks and settings for choice/select-based questions (choice visibility, display values,
- * server-populated choices, custom items).
- */
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;
   /**
@@ -121,18 +106,12 @@ export interface ISurveyChoiceCallbacks {
   loadedChoicesFromServer(question: IQuestion): void;
   createCustomChoiceItem(options: CreateCustomChoiceItemEvent);
 }
-/**
- * Callbacks for CSS class updates on questions, panels, pages, and choice items.
- */
 export interface ISurveyCssCallbacks {
   updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
   updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
   updatePageCssClasses(panel: IPanel, cssClasses: any): any;
   updateChoiceItemCss(question: IQuestion, options: any): any;
 }
-/**
- * Callbacks fired after rendering questions, panels, and pages.
- */
 export interface ISurveyAfterRenderCallbacks {
   afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement): any;
   afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement): any;

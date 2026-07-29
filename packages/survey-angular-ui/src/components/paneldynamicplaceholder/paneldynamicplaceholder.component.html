@@ -2,7 +2,5 @@
   <span>
     <sv-ng-string [model]="question.locNoEntriesText"></sv-ng-string>
   </span>
-  <ng-container *ngIf="question.canAddPanel">
-    <ng-template [component]="{ name: 'sv-action-bar', data: { model: question.footerToolbar } }"></ng-template>
-  </ng-container>
+  <ng-template [component]="{ name: 'sv-action-bar', data: { model: question.footerToolbar } }"></ng-template>
 </div> 

@@ -39,7 +39,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <div className={itemClass} id={"" + this.item.uniqueId} ref={this.ref}>
+      <div className={itemClass} id={this.item.renderedId} ref={this.ref}>
         <div className={this.item.getActionRootContentCss()}>
           {separator}
           {itemComponent}

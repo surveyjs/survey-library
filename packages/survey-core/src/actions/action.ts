@@ -1,5 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -175,11 +176,12 @@ export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, p
 
 export abstract class BaseAction extends Base implements IAction {
   items?: IAction[];
-  private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
-  private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const owner: any = this.owner;
+    return owner && owner.getSurvey ? owner.getSurvey(isLive) : null;
+  }
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -220,7 +222,10 @@ export abstract class BaseAction extends Base implements IAction {
   maxDimension: number;
   public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public get renderedId(): number { return this.rendredIdValue; }
+  public get renderedId(): string {
+    const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
+    return this.composeElementId(raw);
+  }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
     if (val !== this.owner) {

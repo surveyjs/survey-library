@@ -161,8 +161,6 @@ export var estonianSurveyStrings = {
   savingDataError: "Tekkis viga ning me ei saanud vastuseid salvestada.",
   // "The results were saved successfully!"
   savingDataSuccess: "Vastuste salvestamine õnnestus!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Teie vastus ületab 64 KB. Vähendage oma faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga.",
   // "Try again"
   saveAgainButton: "Proovi uuesti",
   // [Auto-translated] "min"

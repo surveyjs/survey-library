@@ -161,8 +161,6 @@ export var russianSurveyStrings = {
   savingDataError: "Произошла ошибка, результат не был сохранён.",
   // "The results were saved successfully!"
   savingDataSuccess: "Результат успешно сохранён!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса.",
   // "Try again"
   saveAgainButton: "Попробовать снова",
   // "min"

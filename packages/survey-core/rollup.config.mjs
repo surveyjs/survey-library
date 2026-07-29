@@ -4,7 +4,6 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
-import { isNotEmittedStatement } from "typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -76,6 +75,11 @@ const buildPlatformJson = {
       "types": "./themes/index.d.ts",
       "import": "./fesm/themes/index.mjs",
       "require": "./themes/index.js"
+    },
+    "./themes/adapters/*.css": "./themes/adapters/*.css",
+    "./themes/adapters/icons/*": {
+      "import": "./fesm/themes/adapters/icons/*.mjs",
+      "require": "./themes/adapters/icons/*.js"
     },
     "./themes/*": {
       "types": "./themes/*.d.ts",

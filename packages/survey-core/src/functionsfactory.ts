@@ -8,10 +8,11 @@ export interface IFunctionCachedResult {
   result: any;
 }
 interface IFunctionInfo {
-  func: (params: any[], originalParams?: any[]) => any;
+  func: (params: any[], originalParams: any[]) => any;
   name: string;
   isAsync: boolean;
   useCache: boolean;
+  originalValueParams?: Array<number>;
 }
 interface IFunctionCachedSurveyValue {
   name: string;
@@ -34,12 +35,21 @@ export class FunctionFactory {
   private functionHash: HashTable<IFunctionInfo> = {};
   private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
 
-  public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
-    if (isAsync && useCache === undefined) {
-      useCache = true;
+  public register(info: IFunctionRegistration): void;
+  public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void;
+  public register(nameOrInfo: string | IFunctionRegistration, func?: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    const info: IFunctionRegistration = typeof nameOrInfo === "object" ? nameOrInfo : { name: nameOrInfo, func: func!, isAsync: isAsync, useCache: useCache };
+    let useCacheValue = info.useCache;
+    if (info.isAsync && useCacheValue === undefined) {
+      useCacheValue = true;
     }
-    this.clearCache(name);
-    this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
+    this.clearCache(info.name);
+    this.functionHash[info.name] = { name: info.name, func: info.func, isAsync: !!info.isAsync, useCache: !!useCacheValue, originalValueParams: info.originalValueParams };
+  }
+  // Returns the indexes of the parameters that must receive the original (unfiltered) value.
+  public getOriginalValueParams(name: string): Array<number> {
+    const funcInfo = this.functionHash[name];
+    return !!funcInfo && Array.isArray(funcInfo.originalValueParams) ? funcInfo.originalValueParams : [];
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
@@ -195,12 +205,15 @@ export class FunctionFactory {
 }
 export interface IFunctionRegistration {
   name: string;
-  func: (params: any[], originalParams?: any[]) => any;
+  func: (params: any[], originalParams: any[]) => any;
   isAsync?: boolean;
   useCache?: boolean;
+  // Indexes of the parameters that must receive the original (unfiltered) value instead of the
+  // default unwrapped value - e.g. the *InArray functions operate on the array of objects.
+  originalValueParams?: Array<number>;
 }
 export function registerFunction(info: IFunctionRegistration): void {
-  FunctionFactory.Instance.register(info.name, info.func, info.isAsync, info.useCache);
+  FunctionFactory.Instance.register(info);
 }
 export function unregisterFunction(name: string): void {
   FunctionFactory.Instance.unregister(name);
@@ -385,7 +398,7 @@ function sumInArray(params: any[], originalParams: any[]): any {
   });
   return res !== undefined ? res : 0;
 }
-FunctionFactory.Instance.register("sumInArray", sumInArray);
+FunctionFactory.Instance.register({ name: "sumInArray", func: sumInArray, originalValueParams: [0] });
 
 function calcMinMaxInArray(properties: any, params: any[], originalParams: any[],
   isMin: boolean
@@ -418,12 +431,12 @@ function calcMinMaxInArray(properties: any, params: any[], originalParams: any[]
 function minInArray(params: any[], originalParams: any[]): any {
   return calcMinMaxInArray(getProperties(this), params, originalParams, true);
 }
-FunctionFactory.Instance.register("minInArray", minInArray);
+FunctionFactory.Instance.register({ name: "minInArray", func: minInArray, originalValueParams: [0] });
 
 function maxInArray(params: any[], originalParams: any[]): any {
   return calcMinMaxInArray(getProperties(this), params, originalParams, false);
 }
-FunctionFactory.Instance.register("maxInArray", maxInArray);
+FunctionFactory.Instance.register({ name: "maxInArray", func: maxInArray, originalValueParams: [0] });
 
 function countInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
@@ -433,7 +446,7 @@ function countInArray(params: any[], originalParams: any[]): any {
   }, false);
   return res !== undefined ? res : 0;
 }
-FunctionFactory.Instance.register("countInArray", countInArray);
+FunctionFactory.Instance.register({ name: "countInArray", func: countInArray, originalValueParams: [0] });
 
 function avgInArray(params: any[], originalParams: any[]): any {
   const properties = getProperties(this);
@@ -442,7 +455,7 @@ function avgInArray(params: any[], originalParams: any[]): any {
   if (count == 0) return 0;
   return funcCall("sumInArray") / count;
 }
-FunctionFactory.Instance.register("avgInArray", avgInArray);
+FunctionFactory.Instance.register({ name: "avgInArray", func: avgInArray, originalValueParams: [0] });
 
 function iif(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2) return null;

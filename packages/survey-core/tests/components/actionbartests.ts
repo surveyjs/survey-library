@@ -484,13 +484,27 @@ class TestAdaptiveActionContainer extends AdaptiveActionContainer {
     this.callback && this.callback(options);
   }
 }
-test("Check actions container update called only once", () => {
+test("Check actions container update called only once (sync before mount)", () => {
+  const container = new TestAdaptiveActionContainer();
+  const results:Array<AdaptiveContainerUpdateOptions> = [];
+  container.callback = (options) => {
+    results.push(options);
+  };
+  container["raiseUpdate"]({ needUpdateActions: true });
+  container["raiseUpdate"]({ needUpdateIsEmpty: true });
+  container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  // sync mode: each raiseUpdate fires immediately
+  expect(results.length).toBe(3);
+});
+
+test("Check actions container update batches after initResponsivityManager", () => {
   return new Promise(function(resolve) {
     let __remaining = 1;
     const __done = function() { if (--__remaining <= 0) resolve(); };
 
     const done = __done;
     const container = new TestAdaptiveActionContainer();
+    container.initResponsivityManager(document.createElement("div"));
     const results:Array<AdaptiveContainerUpdateOptions> = [];
     container.callback = (options) => {
       results.push(options);
@@ -506,8 +520,9 @@ test("Check actions container update called only once", () => {
   });
 });
 
-test("Check actions container flushUpdates", () => {
+test("Check actions container flushUpdates after initResponsivityManager", () => {
   const container = new TestAdaptiveActionContainer();
+  container.initResponsivityManager(document.createElement("div"));
   const results:Array<AdaptiveContainerUpdateOptions> = [];
   container.callback = (options) => {
     results.push(options);
@@ -537,10 +552,11 @@ class Test2AdaptiveActionContainer extends AdaptiveActionContainer {
 
 test("Check actions container update method", () => {
   const container = new Test2AdaptiveActionContainer();
-  container.actions.push(new Action({ id: "test" }));
   let responsivityLog = "";
   container.initResponsivityManager(document.createElement("div"), (forceUpdate: boolean) => responsivityLog += `->called:${forceUpdate}`);
+  container.actions.push(new Action({ id: "test" }));
 
+  // async mode after initResponsivityManager: push is deferred
   expect(container.visibleActions.length).toBe(0);
   expect(container.isEmpty).toBe(true);
   expect(responsivityLog).toBe("");

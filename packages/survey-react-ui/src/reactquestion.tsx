@@ -162,11 +162,16 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-expanded={question.ariaExpanded}
         >
           {singleBreadcrumbs}
-          {errorsAboveQuestion}
-          {headerTop}
-          {questionContent}
-          {headerBottom}
-          {errorsBelowQuestion}
+          <div className={question.getQuestionContainerCss()}>
+            {errorsAboveQuestion}
+            <div className={question.getHeaderAndContentContainerCss()}>
+              {headerTop}
+              {headerTop && question.isComplexQuestion ? <hr /> : null}
+              {questionContent}
+              {headerBottom}
+            </div>
+            {errorsBelowQuestion}
+          </div>
         </div>
       </>
     );
@@ -230,7 +235,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         cssClasses={cssClasses}
         creator={this.creator}
         location={location}
-        id={this.question.id + "_errors"}
+        id={this.question.renderedId + "_errors"}
       />
     );
   }
@@ -246,7 +251,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     this.state = this.getState();
   }
   protected get id(): string {
-    return this.props.element.id + "_errors";
+    return this.props.element.renderedId + "_errors";
   }
   protected get element(): SurveyElement {
     return this.props.element;
@@ -275,6 +280,9 @@ export class SurveyElementErrors extends ReactSurveyElement {
       <div
         className={this.element.cssError}
         id={this.id}
+        role="alert"
+        aria-live="polite"
+        aria-atomic="true"
       >
         {errors}
       </div>

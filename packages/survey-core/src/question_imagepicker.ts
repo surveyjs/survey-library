@@ -106,7 +106,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public supportDontKnow(): boolean { return false; }
   public isAnswerCorrect(): boolean {
     if (!this.multiSelect) return super.isAnswerCorrect();
-    return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
+    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue());
   }
   /**
    * Specifies whether users can select multiple images or videos.

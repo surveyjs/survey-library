@@ -5,10 +5,10 @@
   display: flex;
   padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
 
-  &:where(:first-child) {
+  &:where(:first-child:not(.sd-selectbase__item--inline)) {
     padding-top: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
   }
-  &:where(:last-child) {
+  &:where(:last-child:not(.sd-selectbase__item--inline)) {
     padding-bottom: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
   }
 }

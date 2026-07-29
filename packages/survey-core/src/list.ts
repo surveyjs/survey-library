@@ -414,6 +414,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public initListContainerHtmlElement(htmlElement: HTMLElement): void {
     this.listContainerHtmlElement = htmlElement;
+    // A list has no responsivity manager, so use the mount/unmount signal to batch updates:
+    // synchronous while unmounted (SSR/initial render), debounced once mounted in the browser.
+    // Without this, filtering a large list runs an O(n^2) update as each item's visibility change
+    // triggers a synchronous getVisibleActions() pass.
+    this.setUpdatesAsync(!!htmlElement);
   }
   public onItemRended(item: T, element: HTMLElement): void {
     if (this.isAllDataLoaded) return;

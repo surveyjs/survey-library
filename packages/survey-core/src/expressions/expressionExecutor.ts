@@ -20,9 +20,6 @@ export interface IExpressionExecutorBase {
   validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
 }
 
-/**
- * Base interface for expression execution
- */
 export interface IExpressionExecutor {
   /**
    * This call back runs on executing expression if there is at least one async function

@@ -3,6 +3,7 @@ export default {
   "themeName": "soft",
   "colorPalette": "light",
   "cssVariables": {
+    "--sjs2-color-project-brand-600": "#FF9814",
     "--sjs2-color-utility-surface-survey": "#1c1b200d",
     "--sjs2-color-utility-surface-designer": "#1c1b200d",
     "--sjs2-color-utility-shadow-trigger-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
@@ -17,7 +18,10 @@ export default {
     "--sjs2-color-component-message-error-text": "var(--sjs2-color-fg-alert-primary)",
     "--sjs2-color-component-message-info-text": "var(--sjs2-color-fg-note-primary)",
     "--sjs2-color-component-message-warning-text": "var(--sjs2-color-fg-warning-primary)",
+    "--sjs2-color-component-panel-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-color-component-boolean-invalid-bg": "var(--sjs2-color-bg-alert-secondary)",
+    "--sjs2-color-component-panel-simple-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
+    "--sjs2-color-component-panel-dynamic-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-spread-form-default": "0px",

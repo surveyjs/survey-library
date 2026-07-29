@@ -29,6 +29,7 @@
 @use "blocks/sd-formbox.scss";
 @use "blocks/sd-comment.scss";
 @use "blocks/sd-panel.scss";
+@use "blocks/sd-panel-nested.scss";
 @use "blocks/sd-signaturepad.scss";
 @use "blocks/sd-matrixdynamic.scss";
 @use "blocks/sd-table.scss";
@@ -40,6 +41,7 @@
 @use "blocks/sd-selectbase.scss";
 @use "blocks/sd-checkbox.scss";
 @use "blocks/sd-radio.scss";
+@use "blocks/sd-switch.scss";
 @use "blocks/sd-visuallyhidden.scss";
 @use "blocks/sd-matrix.scss";
 @use "blocks/sd-rating.scss";

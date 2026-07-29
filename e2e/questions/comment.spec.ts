@@ -124,6 +124,8 @@ frameworks.forEach((framework) => {
         //survey.readOnly = false;
       });
 
+      // A question's comment id is `renderedId + "_comment"`, and here every question's id is set to
+      // its name, so the DOM id is `<name>_comment`.
       await expect(page.locator("#radiogroup_comment")).toBeVisible();
       await expect(page.locator("#checkbox_comment")).toBeVisible();
       await expect(page.locator("#dropdown_comment")).toBeVisible();

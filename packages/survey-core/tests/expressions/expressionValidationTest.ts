@@ -1,5 +1,6 @@
 import { IExpressionValidationResult } from "../../src/base";
 import { ExpressionErrorType } from "../../src/expressions/expressionError";
+import { Helpers } from "../../src/helpers";
 import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -765,6 +766,76 @@ describe("Expression Validation", () => {
     expect(q1.panelCount, "panelCount is 1 after validateExpressions").toBe(1);
   });
 
+  test("validateExpressions() should not mutate survey data for paneldynamic with shared valueName and defaultValueExpression", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "panelCountQuestion",
+              inputType: "number",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic1",
+              valueName: "sharedItems",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "itemName",
+                  defaultValueExpression: "iif({panelIndex} == 0, 'You', 'Person ' + {panelIndex})",
+                },
+                {
+                  type: "expression",
+                  name: "itemLabel",
+                  expression: "iif({panelIndex} == 0, 'your', {panel.itemName} + 's')",
+                  visibleIf: "false",
+                },
+              ],
+              templateTabTitle: "{panel.itemName}",
+              bindings: {
+                panelCount: "panelCountQuestion",
+              },
+              displayMode: "tab",
+            },
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic2",
+              templateElements: [],
+              valueName: "sharedItems",
+              panelCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    survey.setValue("panelCountQuestion", 4);
+    const dynamic1 = survey.getQuestionByName("dynamic1");
+    const dynamic2 = survey.getQuestionByName("dynamic2");
+    const dataBefore = Helpers.getUnbindValue(survey.data);
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion before").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount before").toBe(4);
+
+    survey.validateExpressions();
+
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion after").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount after").toBe(4);
+    expect(dynamic2.panelCount, "dynamic2 panelCount after").toBe(1);
+    expect(survey.data, "survey.data after").toEqual(dataBefore);
+  });
+
   test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", () => {
 
     const survey = new SurveyModel({
@@ -834,5 +905,24 @@ describe("Expression Validation", () => {
 
     expect(result.length, "There are 5 invalid expressions").toBe(5);
     expect(result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(), "Errors are correct").toBe("q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo");
+  });
+  test("validateExpressions() incorrectly reports UnknownVariable for {item} in choicesEnableIf/choicesVisibleIf, Bug#11457", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["a", "b"],
+          choicesEnableIf: "{item} != 'a' or {undefinedVar} != 'yes'",
+          choicesVisibleIf: "{item} != 'b'",
+        },
+      ],
+    });
+    const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "Only the unknown variable is reported, not {item}").toBe(1);
+    expect(result[0].propertyName, "choicesEnableIf has the error").toBe("choicesEnableIf");
+    expect(result[0].errors.length, "There is 1 error").toBe(1);
+    expect(result[0].errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
+    expect(result[0].errors[0].variableName, "The unknown variable is reported").toBe("undefinedVar");
   });
 });

@@ -161,8 +161,6 @@ export var slovenianStrings = {
   savingDataError: "Prišlo je do napake in rezultatov ni bilo mogoče shraniti.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultati so bili uspešno shranjeni!",
-  // "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vaš odgovor presega 64 KB. Zmanjšajte velikost datotek in poskusite znova ali se obrnite na lastnika ankete.",
   // "Try again"
   saveAgainButton: "Poskusite znova",
   // [Auto-translated] "min"

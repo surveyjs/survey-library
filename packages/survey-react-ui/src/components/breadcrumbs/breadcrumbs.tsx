@@ -44,13 +44,13 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
       (item: Action, itemIndex: number) => {
         if (itemIndex) {
           result.push(<SvgIcon
-            key={item.renderedId + "_separator"}
+            key={item.uniqueId + "_separator"}
             className={this.css.breadcrumbsSeparator}
             iconName={"arrowright-16x16"}
             size={"auto"}
           ></SvgIcon >);
         }
-        result.push(<SurveyAction key={item.renderedId} item={item}></SurveyAction>);
+        result.push(<SurveyAction key={item.uniqueId} item={item}></SurveyAction>);
       }
     );
     return result;

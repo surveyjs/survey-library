@@ -62,6 +62,7 @@ import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/r
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
 import { BooleanRadioComponent } from "./components/renderAs/boolean-radio/boolean-radio.component";
 import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/boolean-radio-item.component";
+import { BooleanSwitchComponent } from "./components/renderAs/boolean-switch/boolean-switch.component";
 import { ButtonGroupDropdownComponent } from "./components/renderAs/buttongroup-dropdown/button-group-dropdown.component";
 import { ProgressDefaultComponent } from "./components/progress/default/progress.component";
 import { ProgressButtonsComponent } from "./components/progress/buttons/progress.component";
@@ -144,7 +145,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
@@ -168,7 +169,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,

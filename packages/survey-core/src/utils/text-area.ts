@@ -86,6 +86,10 @@ export class TextAreaModel {
   public setElement(element: HTMLTextAreaElement | null): void {
     if (!!element) {
       this.element = element;
+      const textValue = this.getTextValue();
+      if (this.element.value !== textValue) {
+        this.element.value = textValue;
+      }
       this.updateElement();
     }
   }

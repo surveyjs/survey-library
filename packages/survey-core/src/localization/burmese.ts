@@ -139,8 +139,6 @@ export var burmeseStrings = {
   savingDataError: "အမှားတစ်ခုဖြစ်ပြီး ရလဒ်များကိုသိမ်းဆည်း၍မရနိုင်ပါ။",
   // "The results were saved successfully!"
   savingDataSuccess: "ရလဒ်များကိုအောင်မြင်စွာသိမ်းဆည်းပြီးပါပြီ။",
-  // "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "သင့်ဖြေဆိုမှုသည် 64KB ကျော်နေပါသည်။",
   // "Try again"
   saveAgainButton: "ထပ်ကြိုးစားရန်",
   // "min"

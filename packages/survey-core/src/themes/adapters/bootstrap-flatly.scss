@@ -1,0 +1,15 @@
+@use "./bootstrap.scss";
+
+/* Bootswatch "Flatly": flat, no shadows, navy primary (#2c3e50) + teal accents (Lato).
+   Its palette, radius and fonts all arrive through the --bs-* variables that the shared base
+   maps, so Flatly needs no further deltas — this file only provides a self-contained
+   bootstrap-flatly.css entry. */
+
+.sjs-theme-overrides {
+  /* Flatly enlarges headings ($h1: 3rem, $h2: 2.5rem, $h3: 2rem); weight stays default 500.
+     header = h2, page = h3. panel (h5) keeps the base 1.25rem / 500. */
+  --sjs2-typography-font-size-component-header-title: 2.5rem; /* h2 */
+  --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-page-title: 2rem; /* h3 */
+  --sjs2-typography-font-weight-component-page-title: 500;
+}

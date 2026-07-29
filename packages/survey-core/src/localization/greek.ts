@@ -161,8 +161,6 @@ export var greekSurveyStrings = {
   savingDataError: "Παρουσιάστηκε σφάλμα και δεν ήταν δυνατή η αποθήκευση των αποτελεσμάτων.",
   // "The results were saved successfully!"
   savingDataSuccess: "Τα αποτελέσματα αποθηκεύτηκαν με επιτυχία!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με τον κάτοχο της έρευνας.",
   // "Try again"
   saveAgainButton: "Προσπάθησε ξανά",
   // "min"

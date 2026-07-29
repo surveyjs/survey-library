@@ -40,6 +40,7 @@
   left: var(--sjs2-spacing-x000);
   width: 100%;
   height: 100%;
+  gap: var(--sjs2-spacing-x200);
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
@@ -110,7 +111,7 @@
 .sd-file__actions-container {
   margin-top: var(--sjs2-spacing-x050);
   flex-wrap: wrap;
-  --sd-action-bar-gap: 0;
+  --sd-action-bar-gap: var(--sjs2-layout-component-upload-action-group-gap);
   justify-content: center;
 
   .sv-action--hidden {
@@ -121,7 +122,6 @@
 .sd-file--answered .sd-file__actions-container {
   z-index: 2;
   margin-top: 0;
-  --sd-action-bar-gap: var(--sjs2-spacing-x100);
 }
 
 .sd-file--answered .sd-file__actions-container {
@@ -296,7 +296,10 @@
   .sd-file__remove-file-button {
     left: 50%;
     top: 50%;
-    transform: translate(calc(0.5 * 7 * var(--sjs2-base-unit-spacing) - 50% - 1.5px), calc(-0.5 * 8.5 * var(--sjs2-base-unit-spacing) - 50% + 1.5px));
+    transform: translate(
+      calc(0.5 * 7 * var(--sjs2-base-unit-spacing) - 50% - 1.5px),
+      calc(-0.5 * 8.5 * var(--sjs2-base-unit-spacing) - 50% + 1.5px)
+    );
   }
 }
 

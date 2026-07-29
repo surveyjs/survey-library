@@ -28,7 +28,7 @@
     cursor: pointer;
     text-align: start;
     color: var(--sjs2-color-fg-basic-primary);
-    border-radius: var(--sjs2-radius-component-drop-item);
+    border-radius: var(--sjs2-radius-component-menu-item);
     @include sjs2--typography--default;
     transition: box-shadow $transition-duration;
 
@@ -42,18 +42,23 @@
 }
 
 .sd-menu-item__body {
-    --thm-list-item-padding-left: calc(var(--sjs-list-item-level) * var(--sjs2-spacing-x150));
+    --thm-list-item-padding-left: calc(
+        var(--sjs-list-item-level) * var(--sjs2-layout-component-menu-item-box-padding-left)
+    );
 
     display: flex;
-    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100)
-        var(--thm-list-item-padding-left, 12px);
+    padding: var(--sjs2-layout-component-menu-item-box-padding-vertical)
+        var(--sjs2-layout-component-menu-item-box-padding-right)
+        var(--sjs2-layout-component-menu-item-box-padding-vertical)
+        var(--thm-list-item-padding-left, var(--sjs2-layout-component-menu-item-box-padding-left));
     align-items: center;
-    border-radius: var(--sjs2-radius-component-drop-item);
-    gap: var(--sjs2-spacing-x100);
+    border-radius: var(--sjs2-radius-component-menu-item);
+    gap: var(--sjs2-layout-component-menu-item-box-gap);
     width: 100%;
     box-sizing: border-box;
 
     .sv-string-viewer {
+        padding: 0 var(--sjs2-layout-component-menu-item-label-padding-horizontal);
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 1;
@@ -134,7 +139,7 @@
     &.sd-menu-item--hovered,
     &.sd-menu-item--group-selected {
         & > .sd-menu-item__body {
-            border-radius: var(--sjs2-radius-component-drop-item);
+            border-radius: var(--sjs2-radius-component-menu-item);
             background: var(--sjs2-color-bg-alert-tertiary-dim);
         }
     }

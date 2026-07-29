@@ -58,7 +58,7 @@ export class TaskManger {
   }
 }
 
-export function debounce<T extends (...args: any[]) => void>(func: T): { run: T, cancel: () => void, getLastArguments: () => any[], flushSync: () => void } {
+export function debounce<T extends (...args: any[]) => void>(func: T): { run: T, cancel: () => void, getLastArguments: () => any[], flushSync: () => void, async: boolean } {
   let isSheduled = false;
   let isCanceled = false;
   let funcArgs: any;
@@ -66,19 +66,24 @@ export function debounce<T extends (...args: any[]) => void>(func: T): { run: T,
     isCanceled = true;
     funcArgs = undefined;
   };
-  return { run: ((...args: any) => {
+  const executeFunc = () => {
+    if (!isCanceled) {
+      func.apply(this, funcArgs);
+    }
+    funcArgs = undefined;
+    isCanceled = false;
+    isSheduled = false;
+  };
+  const result = { run: ((...args: any) => {
     isCanceled = false;
     funcArgs = args;
     if (!isSheduled) {
       isSheduled = true;
-      queueMicrotask(() => {
-        if (!isCanceled) {
-          func.apply(this, funcArgs);
-        }
-        funcArgs = undefined;
-        isCanceled = false;
-        isSheduled = false;
-      });
+      if (result.async) {
+        queueMicrotask(executeFunc);
+      } else {
+        executeFunc();
+      }
     }
   }) as T,
   cancel: cancelCallback,
@@ -88,6 +93,8 @@ export function debounce<T extends (...args: any[]) => void>(func: T): { run: T,
       func.apply(this, funcArgs);
       cancelCallback();
     }
-  }
+  },
+  async: false
   };
+  return result;
 }

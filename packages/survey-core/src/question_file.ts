@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
+import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -159,15 +159,13 @@ export class QuestionFileModelBase extends Question {
 }
 
 export class QuestionFilePage extends Base {
-  private static pageCounter = 0;
-  private static getId() {
-    return "sv_sfp_" + QuestionFilePage.pageCounter++;
-  }
   @propertyArray({}) public items: Array<any>;
-  public id: string;
   constructor(private question: QuestionFileModel, private index: number) {
     super();
-    this.id = QuestionFilePage.getId();
+  }
+  protected getIdPrefix(): string { return "sv_sfp"; }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return this.question ? this.question.getSurvey(isLive) : null;
   }
   get css(): string {
     return this.question.cssClasses.page;
@@ -290,7 +288,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.chooseFile).append(this.cssClasses.chooseFileDisabled, this.isInputReadOnly).toString()) as any),
       data: { question: this },
       locTitle: this.locChooseButtonText,
-      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
+      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "secondary", size: "small" }; }) as any,
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => { return !this.isAnswered; }) as any),
       enabledIf: () => !this.isInputReadOnly,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
@@ -305,7 +303,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "sv-file-start-camera",
       iconSize: "auto",
       locTitle: this.locTakePhotoCaption,
-      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
+      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "secondary", size: "small" }; }) as any,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
         const isDesignMode = this.isDesignMode;
         const isFile = this.sourceType === "file";
@@ -419,7 +417,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.changeCameraActionValue;
   }
 
-  public get videoId(): string { return this.id + "_video"; }
+  public get videoId(): string { return this.renderedId + "_video"; }
   public get hasVideoUI(): boolean { return this.currentMode !== "file"; }
   public get hasFileUI(): boolean { return this.currentMode !== "camera"; }
   private videoStream: MediaStream;
@@ -618,6 +616,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * To allow specific file extensions, use the [`acceptedTypes`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedTypes) property. This property can be used together with `acceptedCategories` to define a combined set of allowed files.
    *
    * To add or remove file extensions within a category, modify the [`acceptedFileCategories`](https://surveyjs.io/form-library/documentation/api-reference/settings#acceptedFileCategories) object in the global settings.
+   * @since 2.3.16
    */
   @property() acceptedCategories: Array<string>;
 
@@ -674,6 +673,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Default value: 1000
    * @see maxSize
+   * @since 2.3.14
    */
   @property() maxFiles: number;
 
@@ -697,6 +697,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Specifies whether users should confirm file deletion.
    *
    * Default value: `true`
+   * @since 3.0.0
    */
   @property() confirmDelete: boolean = true;
 

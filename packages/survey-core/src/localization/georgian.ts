@@ -161,8 +161,6 @@ export var georgianSurveyStrings = {
   savingDataError: "დაფიქსირდა შეცდომა და შედეგი ვერ შევინახავდით.",
   // [Auto-translated] "The results were saved successfully!"
   savingDataSuccess: "შედეგები წარმატებით გადაარჩინეს!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს.",
   // [Auto-translated] "Try again"
   saveAgainButton: "კიდევ სცადე",
   // [Auto-translated] "min"

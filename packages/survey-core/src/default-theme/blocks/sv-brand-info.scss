@@ -1,9 +1,6 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-sv-brand-info {}
-
-sv-brand-info,
 .sv-brand-info {
   z-index: 1;
   position: relative;

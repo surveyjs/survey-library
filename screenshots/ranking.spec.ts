@@ -148,6 +148,13 @@ frameworks.forEach(framework => {
         document.querySelector("#surveyElement")!.style.margin = "50px";
       });
 
+      // Wait for web fonts to fully settle (load or fail) before the drag so that
+      // element positions which depend on font metrics are stable when we compute
+      // the hover/grab coordinates.  Without this, the "." text span can be at a
+      // slightly different pixel position depending on whether Open Sans has loaded,
+      // causing the drag shortcut to land 1-2 px off and exceed maxDiffPixels.
+      await page.evaluate(() => document.fonts.ready);
+
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });

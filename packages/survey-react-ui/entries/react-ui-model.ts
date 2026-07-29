@@ -62,6 +62,7 @@ export { SurveyQuestionText } from "../src/reactquestion_text";
 export { SurveyQuestionBoolean } from "../src/boolean";
 export { SurveyQuestionBooleanCheckbox } from "../src/boolean-checkbox";
 export { SurveyQuestionBooleanRadio } from "../src/boolean-radio";
+export { SurveyQuestionBooleanSwitch } from "../src/boolean-switch";
 export { SurveyQuestionEmpty } from "../src/reactquestion_empty";
 export { SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase } from "../src/reactquestion_matrixdropdownbase";
 export { SurveyQuestionMatrixDropdown } from "../src/reactquestion_matrixdropdown";

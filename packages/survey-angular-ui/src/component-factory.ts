@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, ComponentRef, Type, ViewContainerRef } from "@angular/core";
+import { Component, ComponentRef, Type, ViewContainerRef } from "@angular/core";
 
 export class AngularComponentFactory {
   public static Instance: AngularComponentFactory = new AngularComponentFactory();
@@ -20,9 +20,13 @@ export class AngularComponentFactory {
   public isComponentRegistered(elementType: string): boolean {
     return !!this.creatorHash[elementType];
   }
-  public create(containerRef: ViewContainerRef, elementType: string, resolver: ComponentFactoryResolver): ComponentRef<Component> {
+  public create(containerRef: ViewContainerRef, elementType: string, resolver: any): ComponentRef<Component> {
     var componentType = this.creatorHash[elementType];
     if (!componentType) return (null as any);
-    return containerRef.createComponent(resolver.resolveComponentFactory(componentType));
+    try {
+      return containerRef.createComponent(componentType as any);
+    } catch(e) {
+      return containerRef.createComponent(resolver.resolveComponentFactory(componentType));
+    }
   }
 }

@@ -16,6 +16,7 @@ import { icons as iconsV2 } from "survey-core/icons/iconsV2";
 import { Scroll } from "./components/scroll";
 addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
+
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
   private previousJSON = {};

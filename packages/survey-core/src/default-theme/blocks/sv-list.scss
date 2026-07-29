@@ -55,7 +55,6 @@
   width: 100%;
   align-items: center;
   box-sizing: border-box;
-  // padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x800) var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   padding-block: var(--sjs2-spacing-x100);
   padding-inline-end: var(--sjs2-spacing-x800);
   padding-inline-start: var(--sjs2-spacing-x200);
@@ -223,7 +222,6 @@ li:focus .sv-list__item.sv-list__item--selected {
 
 .sv-list__filter {
   border-bottom: 1px solid $border-inside;
-  // padding-bottom: var(--sjs2-spacing-x100);
 }
 
 .sv-list__filter-icon {

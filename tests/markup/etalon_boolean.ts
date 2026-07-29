@@ -85,7 +85,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           defaultValue: "true",
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -102,7 +102,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           isRequired: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         },
       ]
     },
@@ -119,7 +119,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           defaultValue: "true",
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -136,7 +136,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -152,7 +152,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -167,7 +167,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -187,7 +187,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -203,7 +203,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -222,7 +222,7 @@ registerMarkupTests(
           titleLocation: "hidden",
           "valueTrue": "true_val",
           "valueFalse": "false_val",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -238,7 +238,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -254,7 +254,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -268,9 +268,9 @@ registerMarkupTests(
         {
           type: "boolean",
           name: "q1",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: true,
-          renderAs: "switch"
+          displayMode: "switch"
         }
       ]
     },
@@ -283,9 +283,9 @@ registerMarkupTests(
         {
           type: "boolean",
           name: "q1",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: false,
-          renderAs: "switch"
+          displayMode: "switch"
         }
       ]
     },
@@ -298,10 +298,10 @@ registerMarkupTests(
         {
           type: "boolean",
           name: "q1",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: true,
           readOnly: true,
-          renderAs: "switch"
+          displayMode: "switch"
         }
       ]
     },
@@ -314,10 +314,10 @@ registerMarkupTests(
         {
           type: "boolean",
           name: "q1",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: false,
           readOnly: true,
-          renderAs: "switch"
+          displayMode: "switch"
         }
       ]
     },

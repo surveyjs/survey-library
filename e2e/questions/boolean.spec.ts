@@ -16,7 +16,7 @@ const jsonCheckbox = {
     {
       type: "boolean",
       name: "q",
-      renderAs: "checkbox",
+      displayMode: "checkbox",
     },
   ],
 };
@@ -27,7 +27,7 @@ const jsonCheckbox2 = {
       type: "boolean",
       name: "q",
       title: "Are you 21 or older?",
-      renderAs: "checkbox",
+      displayMode: "checkbox",
     },
   ],
 };
@@ -37,7 +37,7 @@ const jsonRadio = {
     {
       type: "boolean",
       name: "q",
-      renderAs: "radio",
+      displayMode: "radio",
     },
   ],
 };
@@ -52,7 +52,7 @@ const jsonRadioInDynamicPanel = {
         {
           type: "boolean",
           name: "booleanAsRadio",
-          renderAs: "radio",
+          displayMode: "radio",
         },
       ],
     },
@@ -262,7 +262,7 @@ frameworks.forEach((framework) => {
           {
             type: "boolean",
             name: "q",
-            renderAs: "radio",
+            displayMode: "radio",
             readOnly: true,
             defaultValue: "true",
           },
@@ -290,7 +290,7 @@ frameworks.forEach((framework) => {
             title: "Are you 21 or older?",
             valueTrue: "Yes",
             valueFalse: "No",
-            renderAs: "radio",
+            displayMode: "radio",
           },
         ],
         showQuestionNumbers: false,

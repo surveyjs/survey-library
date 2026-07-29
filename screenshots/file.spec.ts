@@ -297,21 +297,21 @@ frameworks.forEach(framework => {
           {
             type: "file",
             name: "q1",
-            minWidth: "616px",
-            maxWidth: "616px"
+            minWidth: "624px",
+            maxWidth: "624px"
           },
           {
             type: "file",
             name: "q2",
-            minWidth: "300px",
-            maxWidth: "300px",
+            minWidth: "308px",
+            maxWidth: "308px",
             startWithNewLine: false
           },
           {
             type: "file",
             name: "q3",
-            minWidth: "200px",
-            maxWidth: "200px",
+            minWidth: "208px",
+            maxWidth: "208px",
             startWithNewLine: false
           }
         ]
@@ -328,7 +328,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.setViewportSize({ width: 1936, height: 1080 });
+      await page.setViewportSize({ width: 1920, height: 1080 });
       const questionRoot = page.locator(".sd-question");
       const button = page.locator("button").filter({ hasText: "Photo" });
 

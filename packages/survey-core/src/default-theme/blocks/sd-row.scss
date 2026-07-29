@@ -8,9 +8,9 @@
 }
 
 .sd-row--multiple {
-  row-gap: var(--sjs2-spacing-x200);
-  margin-left: calc(-1 * var(--sd-base-padding));
-  width: calc(100% + var(--sd-base-padding));
+  row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
+  margin-left: calc(-1 * var(--sjs2-layout-component-page-content-area-gap-horizontal));
+  width: calc(100% + var(--sjs2-layout-component-page-content-area-gap-horizontal));
   flex-wrap: wrap;
 
   & > div {
@@ -24,18 +24,13 @@
 
 .sd-panel:not(.sd-panel--as-page) {
   .sd-row--multiple {
-    row-gap: var(--sd-base-vertical-padding);
+    row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
 
     & > div {
       --animation-padding-left: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
       padding-left: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
     }
   }
-}
-
-.sd-page__row.sd-row--multiple {
-  margin-left: calc(-1 * var(--sjs2-layout-component-page-content-area-gap-horizontal));
-  width: calc(100% + var(--sjs2-layout-component-page-content-area-gap-horizontal));
 }
 
 .sd-row__panel {

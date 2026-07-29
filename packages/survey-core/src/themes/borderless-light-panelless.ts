@@ -11,6 +11,7 @@ export default {
     "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
+    "--sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
     "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
     "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "rgba(35, 101, 200, 1)",

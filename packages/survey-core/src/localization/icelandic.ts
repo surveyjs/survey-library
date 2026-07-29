@@ -161,8 +161,6 @@ export var icelandicSurveyStrings = {
   savingDataError: "Villa kom upp og við gátum ekki vistað niðurstöðurnar.",
   // "The results were saved successfully!"
   savingDataSuccess: "Árangurinn var vistaður með góðum árangri!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar.",
   // "Try again"
   saveAgainButton: "Reyndu aftur",
   // "min"

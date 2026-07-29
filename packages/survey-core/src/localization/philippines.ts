@@ -161,8 +161,6 @@ export var philippinesStrings = {
   savingDataError: "May naganap na error at hindi namin mai-save ang mga resulta.",
   // "The results were saved successfully!"
   savingDataSuccess: "Matagumpay na na-save ang mga resulta!",
-  // "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Ang iyong tugon ay lumampas sa 64KB. Mangyaring bawasan ang laki ng iyong (mga) file at subukang muli o makipag-ugnayan sa may-ari ng survey.",
   // "Try again"
   saveAgainButton: "Subukan muli",
   // [Auto-translated] "min"

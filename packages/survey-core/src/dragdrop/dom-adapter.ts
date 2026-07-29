@@ -6,20 +6,18 @@ import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
-if (DomWindowHelper.getWindow()) {
-  DomWindowHelper.getWindow().addEventListener(
-    "touchmove",
-    (event) => {
-      if (!DragDropDOMAdapter.PreventScrolling) {
-        return;
-      }
+DomWindowHelper.addEventListener(
+  "touchmove",
+  (event) => {
+    if (!DragDropDOMAdapter.PreventScrolling) {
+      return;
+    }
 
-      // Prevent scrolling
-      event.preventDefault();
-    },
-    { passive: false }
-  );
-}
+    // Prevent scrolling
+    event.preventDefault();
+  },
+  { passive: false }
+);
 
 export interface IDragDropDOMAdapter {
   startDrag(event: PointerEvent, draggedElement: any, parentElement: any, draggedElementNode: HTMLElement, preventSaveTargetNode: boolean): void;

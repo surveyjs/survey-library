@@ -7,16 +7,6 @@ import * as SurveyUI from "../entries/index";
 import fs from "fs";
 import path from "path";
 
-beforeAll(() => {
-  (window as any).ResizeObserver = function () {
-    return {
-      observe: () => {},
-      disconnect: () => {},
-      unobserve: () => {},
-    };
-  };
-});
-
 const platformDescriptor = {
   // NOTE: kept as "React" because the existing snapshot ids and any tests in
   // the shared helper depend on `platform.name`. The framework-free js-ui
@@ -57,21 +47,37 @@ class ExpectAssertAdapter {
 
 const whiteList = [/.*/];
 
-describe("markup tests", () => {
-  markupTests.forEach((markupTest) => {
-    if (whiteList.some((item) => markupTest.snapshot?.search(item) > -1)) {
-      it(
-        markupTest.name,
-        () =>
-          new Promise<void>((done, reject) => {
-            testQuestionMarkup(
-              new ExpectAssertAdapter(expect, done, reject),
-              markupTest,
-              platformDescriptor
-            );
-          }),
-        1000
-      );
-    }
+// Markup tests are sharded into generated spec files (tests/shards/markup.<N>.spec.ts,
+// see tests/markup/gen-shards.js in the repository root) so that vitest can run
+// them in parallel worker threads. `shard` is 1-based.
+export function runMarkupTests(shard: number, shardCount: number): void {
+  beforeAll(() => {
+    (window as any).ResizeObserver = function () {
+      return {
+        observe: () => {},
+        disconnect: () => {},
+        unobserve: () => {},
+      };
+    };
   });
-});
+
+  describe(`markup tests (shard ${shard}/${shardCount})`, () => {
+    markupTests.forEach((markupTest, index) => {
+      if (index % shardCount !== shard - 1) return;
+      if (whiteList.some((item) => markupTest.snapshot?.search(item) > -1)) {
+        it(
+          markupTest.name,
+          () =>
+            new Promise<void>((done, reject) => {
+              testQuestionMarkup(
+                new ExpectAssertAdapter(expect, done, reject),
+                markupTest,
+                platformDescriptor
+              );
+            }),
+          3000
+        );
+      }
+    });
+  });
+}

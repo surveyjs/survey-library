@@ -791,6 +791,7 @@ export class DropdownListModel extends Base {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
+      // MERGE(V3): keep `afterScrollToItem()`; master (V2) renamed it `afterScrollToFocusedItem()`. Keep V3 on merge.
       this.afterScrollToItem();
     }
   }

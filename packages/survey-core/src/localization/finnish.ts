@@ -161,8 +161,6 @@ export var finnishSurveyStrings = {
   savingDataError: "Tapahtui virhe, emmekä voineet tallentaa kyselyn tietoja.",
   // "The results were saved successfully!"
   savingDataSuccess: "Tiedot tallennettiin onnistuneesti!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan.",
   // "Try again"
   saveAgainButton: "Yritä uudelleen",
   // [Auto-translated] "min"

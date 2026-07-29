@@ -391,10 +391,10 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
       (obj: Base) => { return !this.areInvisibleElementsShowing; },
-      undefined,
+      true,
       () => { this.visible = true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, true, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, true, () => { this.isRequired = false; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -487,10 +487,19 @@ export class PanelModelBase extends SurveyElement<Question>
 
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
-    if (!this.hasTitle && this.isDesignMode) return false;
-    return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
-      (this.showDescription && this.isDesignMode &&
-        settings.designMode.showEmptyDescriptions);
+    const survey: any = this.survey;
+    const showInRuntime = survey && survey.showPageTitles && this.hasDescription;
+    if (this.isDesignMode) {
+      const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
+      let show = this.hasTitle &&
+        (hasEnteredDescription ||
+          (this.showDescription && settings.designMode.showEmptyDescriptions));
+      if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
+        show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
+      }
+      return !!show;
+    }
+    return showInRuntime;
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -536,6 +545,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Returns a character or text string that indicates a required panel/page.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired

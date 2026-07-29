@@ -1,14 +1,17 @@
-import { test } from "@playwright/test";
+// MERGE(V3): this import conflicts every merge. Keep BOTH sides' additions: `expect` from
+// @playwright/test (used by master-merged assertions) AND `applyTheme` from ../e2e/helper
+// (V3-only helper). i.e. take the union, not one side.
+import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "Survey themes Screenshot";
 
 frameworks.forEach(framework => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto(`${url}${framework}`);
-  });
-
   test.describe(`${framework} ${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
     test("Check question title font size", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
@@ -405,6 +408,8 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, jsonWithInputs);
+      // Wait for React to finish re-rendering all 10 questions after fromJSON
+      await expect(page.locator(".sd-question").nth(9)).toBeVisible();
       await applyTheme(page, {
         "cssVariables": {
           "--sjs-font-editorfont-size": "12px",
@@ -415,8 +420,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });
-      await page.waitForTimeout(500);
       const tagboxDropdownButton = page.locator(".sd-editor-chevron-button").first();
+      await expect(tagboxDropdownButton).toBeVisible();
       await tagboxDropdownButton.scrollIntoViewIfNeeded();
       await tagboxDropdownButton.click();
       await compareScreenshot(page, ".sv-popup__container .sv-popup__content", "survey-theme-mobile-popup-input-size.png");
@@ -495,7 +500,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await applyTheme(page, {
         "cssVariables": {
@@ -517,7 +522,7 @@ frameworks.forEach(framework => {
         ],
       });
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await applyTheme(page, {
         "cssVariables": {

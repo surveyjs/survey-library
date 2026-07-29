@@ -77,6 +77,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   protected getItemVariableNames(): Array<string> {
     return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
   }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.parentPanel];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
@@ -237,6 +240,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.template.removeElementCallback = () => {
       this.rebuildPanels();
     };
+    this.template.onPropertyChanged.add((sender: Base, options: any) => {
+      if (options.name === "title") {
+        this.propertyValueChanged("templateTitle", options.oldValue, options.newValue);
+      }
+      if (options.name === "description") {
+        this.propertyValueChanged("templateDescription", options.oldValue, options.newValue);
+      }
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -268,6 +279,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.tabbedMenu.containerCss = this.getTabbedMenuCss();
     }
   }
+  public dispose(): void {
+    super.dispose();
+    this.templateValue.dispose();
+  }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
       new QuestionPanelDynamicItem(this, this.template);
@@ -277,6 +292,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.setTemplatePanelSurveyImpl();
     }
     return res;
+  }
+  private get isValidatingExpressions(): boolean {
+    return !this.useTemplatePanel && this.template.data instanceof QuestionPanelDynamicItem;
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get isContainer(): boolean { return true; }
@@ -818,6 +836,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isPrevButtonVisible
+   * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pagePrevText" } }) prevPanelText: string;
   /**
@@ -830,6 +849,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isNextButtonVisible
+   * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pageNextText" } }) nextPanelText: string;
   /**
@@ -1150,6 +1170,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * This property is not serialized.
    * @see allowAddPanel
+   * @since 2.5.25
    */
   @property({ defaultValue: true }) enableAddPanel: boolean;
   /**
@@ -1159,6 +1180,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * This property is not serialized.
    * @see allowRemovePanel
+   * @since 2.5.25
    */
   @property({ defaultValue: true }) enableRemovePanel: boolean;
   /**
@@ -1170,6 +1192,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * - `"left"` - Displays question titles to the left of input fields.
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
+   * @since 2.0.0
    */
   @property() templateQuestionTitleLocation: string;
   /**
@@ -1186,6 +1209,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
    *
    * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   * @since 2.0.4
    */
   @property() templateQuestionTitleWidth: string;
   /**
@@ -1247,6 +1271,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * - `"bottom"` (default) - Displays the Remove Panel button below panel content.
    * - `"right"` - Displays the Remove Panel button to the right of panel content.
    * @see removePanelText
+   * @since 2.0.0
    */
   @property() removePanelButtonLocation: string;
   /**
@@ -1463,6 +1488,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
+   * @since 2.0.0
    */
   @property() copyDefaultValueFromLastEntry: boolean;
   /**
@@ -2263,7 +2289,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
-    if (this.isValueChangingInternally || this.useTemplatePanel) return;
+    if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
@@ -2274,7 +2300,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.settingPanelCountBasedOnValue = false;
   }
   public setQuestionValue(newValue: any): void {
-    if (this.settingPanelCountBasedOnValue) return;
+    if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
@@ -2385,7 +2411,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private isSetPanelItemData: HashTable<number> = {};
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
-    if (item === this.template.data) return;
+    if (this.isValidatingExpressions || item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {
@@ -2478,12 +2504,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return getLocaleString("progressbar", this.getLocale());
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder())
+      .append(this.cssClasses.navigation + "--top", this.isRangeShowing && this.isProgressTopShowing).append(this.cssClasses.navigation + "--bottom", this.isRangeShowing && this.isProgressBottomShowing).toString();
   }
   public get cssHeader(): string {
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
     return new CssClassBuilder()
       .append(super.getCssHeader(this.cssClasses))
+      .append(this.cssClasses.root + "__header-" + this.displayMode, this.displayMode !== "tab")
       .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
       .toString();
   }

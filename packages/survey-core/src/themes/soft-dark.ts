@@ -3,8 +3,8 @@ export default {
   "themeName": "soft",
   "colorPalette": "dark",
   "cssVariables": {
+    "--sjs2-color-project-brand-400": "var(--sjs2-color-project-brand-600)",
     "--sjs2-color-project-brand-600": "#FF9814",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-body": "var(--sjs2-palette-gray-999)",
     "--sjs2-color-utility-sheet": "var(--sjs2-palette-gray-850)",
     "--sjs2-color-utility-a11y": "rgba(from var(--sjs2-palette-blue-400) r g b / var(--sjs2-opacity-x040))",

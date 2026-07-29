@@ -300,6 +300,69 @@ describe("Survey_Questions", () => {
     expect(question1.hasDescriptionUnderTitle, "survey hidden - underTitle").toBe(false);
     expect(question1.hasDescriptionUnderInput, "survey hidden - underInput").toBe(false);
   });
+  test("Question: beforeShowInplaceDescriptionEditorCallback is called on every title/description change", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("Page 1");
+    const question = new QuestionTextModel("q1");
+    page.addQuestion(question);
+    survey.setDesignMode(true);
+    // A question title falls back to the question name, so the callback checks the title
+    // localizable string to tell an explicitly titled question from an untitled one.
+    const calls: Array<any> = [];
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => {
+      const show = !!el.locTitle.text && !!el.description;
+      if (el === question) calls.push({ title: el.locTitle.text, description: el.description, show: show });
+      return show;
+    };
+    // The first render calculates the visibility.
+    expect(question.hasDescriptionUnderTitle, "no title, no description -> hidden").toBe(false);
+    calls.length = 0;
+
+    // Nothing below reads the visibility: each change must call the callback by itself.
+    question.description = "My description";
+    expect(calls.length, "called after the description is set").toBe(1);
+    expect(calls[0], "the callback sees the new description").toStrictEqual(
+      { title: "", description: "My description", show: false });
+
+    question.title = "My question";
+    expect(calls.length, "called after the title is set").toBe(2);
+    expect(calls[1], "the callback sees the new title").toStrictEqual(
+      { title: "My question", description: "My description", show: true });
+    expect(question.hasDescriptionUnderTitle, "title set -> shown").toBe(true);
+
+    question.title = "";
+    expect(calls.length, "called after the title is cleared").toBe(3);
+    expect(calls[2], "the callback sees the cleared title").toStrictEqual(
+      { title: "", description: "My description", show: false });
+    expect(question.hasDescriptionUnderTitle, "title cleared -> hidden").toBe(false);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("Question: hasDescription is recalculated when the title/description localizable string changes", () => {
+    // The property grid and the in-place editor modify the localizable strings directly, and the
+    // property setters are not called in this case.
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("Page 1");
+    const question = new QuestionTextModel("q1");
+    page.addQuestion(question);
+    question.description = "My description";
+    survey.setDesignMode(true);
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.locTitle.text && !!el.description;
+
+    expect(question.hasDescriptionUnderTitle, "no title -> hidden").toBe(false);
+    question.locTitle.text = "My question";
+    expect(question.hasDescriptionUnderTitle, "title set via locString -> shown").toBe(true);
+    question.locTitle.text = "";
+    expect(question.hasDescriptionUnderTitle, "title cleared via locString -> hidden").toBe(false);
+
+    question.locTitle.text = "My question";
+    question.locDescription.text = "";
+    expect(question.hasDescriptionUnderTitle, "description cleared via locString -> hidden").toBe(false);
+    question.locDescription.text = "My description";
+    expect(question.hasDescriptionUnderTitle, "description set via locString -> shown").toBe(true);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
   test("Use value of checkbox question as an array", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

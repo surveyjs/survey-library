@@ -287,7 +287,7 @@ frameworks.forEach(framework => {
     });
 
     test("Do not scroll the window if question has a large title text", async ({ page }) => {
-      await page.setViewportSize({ width: 375, height: 667 });
+      await page.setViewportSize({ width: 350, height: 667 });
       await initSurvey(page, framework, {
         "pages": [
           {

@@ -161,8 +161,6 @@ export var czechSurveyStrings = {
   savingDataError: "Došlo k chybě a výsledky jsme nemohli uložit.",
   // "The results were saved successfully!"
   savingDataSuccess: "Výsledky byly úspěšně uloženy!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vaše odpověď přesahuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu.",
   // "Try again"
   saveAgainButton: "Zkuste to znovu",
   // [Auto-translated] "min"

@@ -354,6 +354,7 @@ export class QuestionBooleanModel extends Question {
    * - `"checkbox"` - Displays a single checkbox.
    * - `"switch"` - Displays a switch control with the question title.
    * - `"custom"` - Set automatically when the `renderAs` property contains a custom renderer name.
+   * @since 3.0.0
    */
   @property() displayMode: "segmented" | "radio" | "checkbox" | "switch" | "custom";
   private customRenderAs: string;

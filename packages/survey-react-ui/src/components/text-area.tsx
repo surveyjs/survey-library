@@ -36,6 +36,13 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
       this.viewModel.setElement(el);
     }
   }
+  componentDidUpdate(prevProps: ITextAreaProps, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    if (prevProps.viewModel !== this.viewModel) {
+      prevProps.viewModel?.resetElement();
+      this.viewModel.setElement(this.textareaRef.current);
+    }
+  }
   componentWillUnmount() {
     super.componentWillUnmount();
     this.resizeManager?.dispose();

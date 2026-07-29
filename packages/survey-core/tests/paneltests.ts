@@ -740,6 +740,205 @@ describe("Panel", () => {
     expect(page.hasTitle, "No title").toBeFalsy();
     expect(page._showDescription, "No description").toBeFalsy();
   });
+  test("PageModel: _showDescription honors beforeShowInplaceDescriptionEditorCallback, empty & non-empty", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    page.title = "My page";
+    survey.setDesignMode(true);
+    // Shown by default in design mode
+    expect(page._showDescription, "empty description shown by default").toBeTruthy();
+
+    let show = true;
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (_el: any, defaultShow: boolean): boolean => show;
+
+    // Empty description
+    show = false;
+    expect(page._showDescription, "empty description hidden by the callback").toBeFalsy();
+    show = true;
+    expect(page._showDescription, "empty description shown by the callback").toBeTruthy();
+
+    // Non-empty description
+    page.description = "My description";
+    show = false;
+    expect(page._showDescription, "non-empty description hidden by the callback").toBeFalsy();
+    show = true;
+    expect(page._showDescription, "non-empty description shown by the callback").toBeTruthy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PageModel: setting/clearing the description resets hasDescription so the design surface re-renders", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    page.title = "My page";
+    survey.setDesignMode(true);
+    // Show the description only while it is not empty (a dynamic decision).
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.description;
+
+    const changedProps: Array<string> = [];
+    page.onPropertyChanged.add((_, opt) => changedProps.push(opt.name));
+
+    // Reading _showDescription primes hasDescription (its reset drives the re-render).
+    expect(page._showDescription, "empty -> hidden").toBeFalsy();
+
+    changedProps.length = 0;
+    page.description = "Hello";
+    // hasDescription notification must fire so the page re-renders.
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on set").toBeTruthy();
+    expect(page._showDescription, "non-empty -> shown").toBeTruthy();
+
+    changedProps.length = 0;
+    page.description = "";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on clear").toBeTruthy();
+    expect(page._showDescription, "cleared -> hidden").toBeFalsy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PageModel: _showDescription passes the default visibility to the callback, not the callback's own result", () => {
+    const oldShowEmpty = settings.designMode.showEmptyDescriptions;
+    settings.designMode.showEmptyDescriptions = false;
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    page.title = "My page";
+    page.description = "My description";
+    survey.setDesignMode(true);
+    // A callback that hides the description. Its result must not become its own default afterwards.
+    const defaults: Array<boolean> = [];
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any, show: boolean): boolean => {
+      if (el === page) defaults.push(show);
+      return false;
+    };
+
+    expect(page._showDescription, "hidden by the callback").toBeFalsy();
+    defaults.length = 0;
+    expect(page._showDescription, "still hidden by the callback").toBeFalsy();
+    // The page has a description, so the default stays true however the callback voted before.
+    expect(defaults, "the callback gets the default visibility, not its previous result").toStrictEqual([true]);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+    settings.designMode.showEmptyDescriptions = oldShowEmpty;
+  });
+  test("PanelModel: hasDescription is reset when the description is changed via its localizable string", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const panel = page.addNewPanel("panel");
+    panel.title = "My panel";
+    survey.setDesignMode(true);
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.description;
+
+    expect(panel.hasDescription, "empty -> hidden").toBeFalsy();
+    // The property grid and the in-place editor modify the localizable string directly.
+    panel.locDescription.text = "Hello";
+    expect(panel.hasDescription, "non-empty -> shown").toBeTruthy();
+    panel.locDescription.text = "";
+    expect(panel.hasDescription, "cleared -> hidden").toBeFalsy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PanelModel: hasDescription is reset when the title is changed, since the callback depends on it", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const panel = page.addNewPanel("panel");
+    panel.description = "My description";
+    survey.setDesignMode(true);
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.title && !!el.description;
+
+    expect(panel.hasDescription, "no title -> hidden").toBeFalsy();
+    panel.title = "My panel";
+    expect(panel.hasDescription, "title set -> shown").toBeTruthy();
+    panel.locTitle.text = "";
+    expect(panel.hasDescription, "title cleared -> hidden").toBeFalsy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PanelModel: beforeShowInplaceDescriptionEditorCallback is called on every title/description change", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const panel = page.addNewPanel("panel");
+    survey.setDesignMode(true);
+    // The callback decides on both the title and the description.
+    const calls: Array<any> = [];
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => {
+      const show = !!el.title && !!el.description;
+      if (el === panel) calls.push({ title: el.title, description: el.description, show: show });
+      return show;
+    };
+    // The first render calculates the visibility.
+    expect(panel.hasDescription, "no title, no description -> hidden").toBeFalsy();
+    calls.length = 0;
+
+    // Nothing below reads hasDescription: each change must call the callback by itself, otherwise
+    // the UI is never told to re-render the description.
+    panel.description = "My description";
+    expect(calls.length, "called after the description is set").toBe(1);
+    expect(calls[0], "the callback sees the new description").toStrictEqual(
+      { title: "", description: "My description", show: false });
+
+    panel.title = "My panel";
+    expect(calls.length, "called after the title is set").toBe(2);
+    expect(calls[1], "the callback sees the new title").toStrictEqual(
+      { title: "My panel", description: "My description", show: true });
+
+    panel.title = "";
+    expect(calls.length, "called after the title is cleared").toBe(3);
+    expect(calls[2], "the callback sees the cleared title").toStrictEqual(
+      { title: "", description: "My description", show: false });
+
+    // The value is already calculated, so reading it calls the callback no more.
+    expect(panel.hasDescription, "no title -> hidden").toBeFalsy();
+    expect(calls.length, "reading hasDescription calls the callback no more").toBe(3);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PanelModel: a title/description change notifies hasDescription with the new value", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const panel = page.addNewPanel("panel");
+    panel.description = "My description";
+    survey.setDesignMode(true);
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.title && !!el.description;
+
+    const notified: Array<any> = [];
+    panel.onPropertyChanged.add((_, opt) => { if (opt.name === "hasDescription") notified.push(opt.newValue); });
+
+    // The first render calculates the visibility.
+    expect(panel.hasDescription, "no title -> hidden").toBeFalsy();
+    expect(notified.length, "calculating the visibility notifies nothing").toBe(0);
+
+    // The UI re-renders on the notification, so it must carry the new visibility, not undefined.
+    panel.title = "My panel";
+    expect(notified, "hasDescription notified as true when the title is set").toStrictEqual([true]);
+
+    panel.title = "";
+    expect(notified, "hasDescription notified as false when the title is cleared").toStrictEqual([true, false]);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PanelModel: a title change does not calculate the description visibility before it is rendered", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const panel = page.addNewPanel("panel");
+    panel.description = "My description";
+    survey.setDesignMode(true);
+    let callCount = 0;
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => {
+      if (el === panel) callCount++;
+      return !!el.title && !!el.description;
+    };
+
+    const notified: Array<string> = [];
+    panel.onPropertyChanged.add((_, opt) => notified.push(opt.name));
+
+    // hasDescription has never been requested, so nothing recalculates it and nothing is notified.
+    panel.title = "My panel";
+    expect(callCount, "the callback is not called for a panel that is not rendered yet").toBe(0);
+    expect(notified.indexOf("hasDescription"), "hasDescription is not notified").toBe(-1);
+
+    // It is calculated on the first read instead.
+    expect(panel.hasDescription, "title and description are set -> shown").toBeTruthy();
+    expect(callCount, "the callback is called on the first read").toBe(1);
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
 
   test("Page/Panel.getProgressInfo()", () => {
     const page = new PageModel("q1");

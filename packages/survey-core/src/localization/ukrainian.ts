@@ -161,8 +161,6 @@ export var ukrainianSurveyStrings = {
   savingDataError: "Відбулася помилка, результат не був збережений.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резвультат успішно збережений!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір вашого файлу (файлів) і спробуйте ще раз або зверніться до власника опитування.",
   // "Try again"
   saveAgainButton: "Спробувати знову",
   // "min"

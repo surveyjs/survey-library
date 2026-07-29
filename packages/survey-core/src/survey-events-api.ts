@@ -218,11 +218,13 @@ export interface CurrentPageChangedEvent {
   /**
    * The current question.\
    * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   * @since 2.0.0
    */
   oldCurrentQuestion?: Question;
   /**
    * A question that used to be current.\
    * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   * @since 2.0.0
    */
   newCurrentQuestion?: Question;
 }
@@ -1131,7 +1133,9 @@ export interface UIStateChangedEvent {
   element?: ISurveyElement;
   /**
    * The name of the UI state property that changed.
+   * @since 2.4.0
    */
+  // MERGE(V3): keep the `"shown"` member; master (V2) ends this union with `"passed"`. Keep V3 on merge.
   changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {

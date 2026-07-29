@@ -30,6 +30,8 @@ describe("JsonSchemaTests", () => {
     expect(schema.properties.showNavigationButtons.enum, "showNavigationButtons doen't have enum").toEqual(undefined);
     expect(schema.properties.navigationButtonsLocation.type, "navigationButtonsLocation is navigationButtonsLocation").toBe("string");
     expect(schema.properties.navigationButtonsLocation.enum, "navigationButtonsLocation has enum").toEqual(["top", "bottom", "topBottom"]);
+    expect(schema.properties.progressBarInheritWidthFrom.type, "progressBarInheritWidthFrom is string").toBe("string");
+    expect(schema.properties.progressBarInheritWidthFrom.enum, "progressBarInheritWidthFrom has enum").toEqual(["container", "survey"]);
     expect(schema.properties.completedHtmlOnCondition.type, "completedHtmlOnCondition type is array").toEqual("array");
     expect(schema.properties.completedHtmlOnCondition.items.$ref, "completedHtmlOnCondition items.$ref has a link on class").toEqual("#/definitions/htmlconditionitem");
 
@@ -120,6 +122,7 @@ describe("JsonSchemaTests", () => {
     expect(schema.definitions.question.properties.type.type, "question type is string").toBe("string");
     expect(schema.definitions.question.required, "question required").toEqual(["type", "name"]);
     expect(schema.definitions.question.properties.showCommentArea, "question showCommentArea is boolean").toEqual({ "type": "boolean" });
+    expect(schema.definitions.question.properties.defaultValueExpression.type, "question defaultValueExpression is string").toBe("string");
 
     const locString = schema.definitions.locstring;
     expect(locString.type, "locString type").toBe("object");
@@ -137,6 +140,25 @@ describe("JsonSchemaTests", () => {
     expect(customProp2.type, "customProp2.type").toBe("string");
     expect(customProp2.enum, "customProp2.enum").toEqual(["a", "b"]);
     Serializer.removeProperty("survey", "customSurveyProperty2");
+  });
+
+  test("number properties should have type number", () => {
+    const schema = Serializer.generateSchema();
+    // survey root number properties
+    expect(schema.properties.maxTextLength.type, "survey.maxTextLength is number").toBe("number");
+    expect(schema.properties.maxCommentLength.type, "survey.maxCommentLength is number").toBe("number");
+
+    // text question number properties
+    const textProps = schema.definitions.text.allOf[1].properties;
+    expect(textProps.maxLength.type, "text.maxLength is number").toBe("number");
+    expect(textProps.step.type, "text.step is number").toBe("number");
+    expect(textProps.inputSize.type, "text.inputSize is number").toBe("number");
+
+    // paneldynamic question number properties
+    const panelDynamicProps = schema.definitions.paneldynamic.allOf[1].properties;
+    expect(panelDynamicProps.panelCount.type, "paneldynamic.panelCount is number").toBe("number");
+    expect(panelDynamicProps.minPanelCount.type, "paneldynamic.minPanelCount is number").toBe("number");
+    expect(panelDynamicProps.maxPanelCount.type, "paneldynamic.maxPanelCount is number").toBe("number");
   });
 
   test("generate schema with polymorphic single object properties (maskSettings)", () => {

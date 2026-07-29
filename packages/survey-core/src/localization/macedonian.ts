@@ -161,8 +161,6 @@ export var macedonianSurveyStrings = {
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резултатите беа успешно зачувани!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Вашиот одговор надминува 64KB. Молиме намалете ја големината на вашите документи и пробајте повторно или контактирајте го сопственикот на анкетата.",
   // "Try again"
   saveAgainButton: "Обиди се повторно",
   // "min"

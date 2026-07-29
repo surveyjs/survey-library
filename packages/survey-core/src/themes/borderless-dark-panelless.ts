@@ -11,6 +11,7 @@ export default {
     "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
+    "--sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
     "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
     "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "rgba(114, 187, 255, 1)",
@@ -76,6 +77,7 @@ export default {
     "--sjs2-border-effect-component-formbox-focused": "var(--sjs2-border-offset-x-form-focused) var(--sjs2-border-offset-y-form-focused) var(--sjs2-border-blur-form-focused) var(--sjs2-border-spread-form-focused) var(--sjs2-color-component-formbox-focused-border)",
     "--sjs2-border-effect-component-formbox-invalid-focused": "var(--sjs2-border-offset-x-form-invalid-focused) var(--sjs2-border-offset-y-form-invalid-focused) var(--sjs2-border-blur-form-invalid-focused) var(--sjs2-border-spread-form-invalid-focused) var(--sjs2-color-component-formbox-invalid-focused-border)",
     "--sjs2-border-effect-component-formbox-highlighted": "var(--sjs2-border-offset-x-form-highlighted) var(--sjs2-border-offset-y-form-highlighted) var(--sjs2-border-blur-form-highlighted) var(--sjs2-border-spread-form-highlighted) var(--sjs2-color-component-formbox-highlighted-border)",
+    "--sjs2-border-effect-component-formbox-design": "inset var(--sjs2-border-offset-x-form-design) var(--sjs2-border-offset-y-form-design) var(--sjs2-border-blur-form-design) var(--sjs2-border-spread-form-design)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 0px rgba(0, 0, 0, 0.35)",
     "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.2), 0px 8px 16px 0px rgba(0, 0, 0, 0.2)"
   }

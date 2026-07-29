@@ -161,8 +161,6 @@ export var arabicSurveyStrings = {
   savingDataError: "حدث خطأ ولم نتمكن من حفظ النتائج.",
   // "The results were saved successfully!"
   savingDataSuccess: "تم حفظ النتائج بنجاح!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) الخاصة بك والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع.",
   // "Try again"
   saveAgainButton: "حاول مجددا",
   // "min"

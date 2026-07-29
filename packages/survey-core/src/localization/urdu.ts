@@ -161,8 +161,6 @@ export var urduSurveyStrings = {
   savingDataError: "ایک خرابی پیش آگئی اور ہم نتائج کو محفوظ نہیں کر سکے۔",
   // "The results were saved successfully!"
   savingDataSuccess: "نتائج کامیابی سے محفوظ ہو گئے۔",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔",
   // "Try again"
   saveAgainButton: "دوبارہ کوشش کریں",
   // "min"

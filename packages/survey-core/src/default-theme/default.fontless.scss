@@ -106,12 +106,6 @@ body {
   }
 }
 
-.sd-root--compact {
-  &:before {
-    background-color: var(--sjs2-color-utility-surface-survey);
-  }
-}
-
 .sd-root-modern--animation-disabled * {
   -webkit-transition: none !important;
   -moz-transition: none !important;

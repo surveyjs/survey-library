@@ -266,6 +266,26 @@
   --sjs2-typography-font-size-component-header-description: 1.25rem;
   --sjs2-typography-font-weight-component-header-description: 500;
 
+  /* CardHeader / CardContent use theme.spacing(2) = 16px */
+  --sjs2-color-component-header-default-title: var(--mui-palette-text-primary);
+  --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
+
+  --sjs2-layout-component-panel-header-padding-top: 16px;
+  --sjs2-layout-component-panel-header-padding-bottom: 8px;
+  --sjs2-layout-component-panel-header-padding-left: 16px;
+  --sjs2-layout-component-panel-header-padding-right: 16px;
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: 16px;
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: 8px;
+  --sjs2-layout-component-panel-dynamic-header-padding-left: 16px;
+  --sjs2-layout-component-panel-dynamic-header-padding-right: 16px;
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: 16px;
+  --sjs2-layout-component-panel-content-area-padding-horizontal: 16px;
+  --sjs2-layout-component-panel-content-area-gap-vertical: 16px;
+
+  --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
 }
 
@@ -341,7 +361,7 @@
 
   &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
-      transform: translate(8px, 15px) scale(1);
+      transform: translate(8px, 18px) scale(1);
     }
     input,
     textarea {
@@ -827,7 +847,6 @@
 }
 
 .sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
   border: none;
 }
 

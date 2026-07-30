@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "ES6",
+    "target": "ES2019",
+    "module": "ES2020",
     "lib": [
       "DOM",
-      "ES6"
+      "ES2019"
     ],
     "sourceMap": true,
     "noImplicitAny": false,

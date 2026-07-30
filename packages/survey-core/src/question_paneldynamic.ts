@@ -363,6 +363,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getType(): string {
     return "paneldynamic";
   }
+  protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -2887,7 +2888,6 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "minWidth", defaultFunc: () => "auto" },
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },

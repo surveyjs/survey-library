@@ -38,11 +38,28 @@
   --sjs2-layout-component-action-small-box-padding-horizontal: 0.5rem;
   --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
 
+  --sjs2-color-component-action-brand-primary-default-label: #7b8ab8;
+  --sjs2-color-component-action-brand-primary-default-icon: #7b8ab8;
+  --sjs2-color-component-action-brand-primary-default-bg: #d9e3f1;
+  --sjs2-color-component-action-brand-primary-hovered-label: #7b8ab8;
+  --sjs2-color-component-action-brand-primary-hovered-icon: #7b8ab8;
+  --sjs2-color-component-action-brand-primary-hovered-bg: #d9e3f1;
   --sjs2-border-effect-component-action-brand-primary-default: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-primary-hovered: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-primary-disabled: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: var(--sjs-morph-shadow);
+
+  /* [data-bs-theme=dark] .btn-outline-primary */
+  &:is([data-bs-theme="dark"] *) {
+    --sjs2-color-component-action-brand-tertiary-surface-default-bg: #212529;
+    --sjs2-color-component-action-brand-primary-default-label: rgba(255, 255, 255, 0.75);
+    --sjs2-color-component-action-brand-primary-default-icon: rgba(255, 255, 255, 0.75);
+    --sjs2-color-component-action-brand-primary-default-bg: #212529;
+    --sjs2-color-component-action-brand-primary-hovered-label: rgba(255, 255, 255, 0.75);
+    --sjs2-color-component-action-brand-primary-hovered-icon: rgba(255, 255, 255, 0.75);
+    --sjs2-color-component-action-brand-primary-hovered-bg: #212529;
+  }
 
   /* neutral secondary raised button */
   --sjs-bs-secondary-bg: var(--bs-secondary, #d9e3f1);

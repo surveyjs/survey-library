@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
           }
         ],
         "widthMode": "static",
-        "width": "800px"
+        "width": "808px"
       });
 
       await expect(page.locator(".sd-question[data-name=question2]")).toHaveScreenshot("expression-word-breaks.png");

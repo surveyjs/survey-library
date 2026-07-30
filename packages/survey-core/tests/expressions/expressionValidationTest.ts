@@ -1,5 +1,6 @@
 import { IExpressionValidationResult } from "../../src/base";
 import { ExpressionErrorType } from "../../src/expressions/expressionError";
+import { Helpers } from "../../src/helpers";
 import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -763,6 +764,76 @@ describe("Expression Validation", () => {
     const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
     expect(results.length, "There are 0 invalid expressions").toBe(0);
     expect(q1.panelCount, "panelCount is 1 after validateExpressions").toBe(1);
+  });
+
+  test("validateExpressions() should not mutate survey data for paneldynamic with shared valueName and defaultValueExpression", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "panelCountQuestion",
+              inputType: "number",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic1",
+              valueName: "sharedItems",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "itemName",
+                  defaultValueExpression: "iif({panelIndex} == 0, 'You', 'Person ' + {panelIndex})",
+                },
+                {
+                  type: "expression",
+                  name: "itemLabel",
+                  expression: "iif({panelIndex} == 0, 'your', {panel.itemName} + 's')",
+                  visibleIf: "false",
+                },
+              ],
+              templateTabTitle: "{panel.itemName}",
+              bindings: {
+                panelCount: "panelCountQuestion",
+              },
+              displayMode: "tab",
+            },
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic2",
+              templateElements: [],
+              valueName: "sharedItems",
+              panelCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    survey.setValue("panelCountQuestion", 4);
+    const dynamic1 = survey.getQuestionByName("dynamic1");
+    const dynamic2 = survey.getQuestionByName("dynamic2");
+    const dataBefore = Helpers.getUnbindValue(survey.data);
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion before").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount before").toBe(4);
+
+    survey.validateExpressions();
+
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion after").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount after").toBe(4);
+    expect(dynamic2.panelCount, "dynamic2 panelCount after").toBe(1);
+    expect(survey.data, "survey.data after").toEqual(dataBefore);
   });
 
   test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", () => {

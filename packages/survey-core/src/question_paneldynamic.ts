@@ -77,6 +77,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   protected getItemVariableNames(): Array<string> {
     return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
   }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.parentPanel];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
@@ -290,6 +293,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     return res;
   }
+  private get isValidatingExpressions(): boolean {
+    return !this.useTemplatePanel && this.template.data instanceof QuestionPanelDynamicItem;
+  }
   public get isCompositeQuestion(): boolean { return true; }
   public get isContainer(): boolean { return true; }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -357,6 +363,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getType(): string {
     return "paneldynamic";
   }
+  protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -2282,7 +2289,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
-    if (this.isValueChangingInternally || this.useTemplatePanel) return;
+    if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
@@ -2293,7 +2300,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.settingPanelCountBasedOnValue = false;
   }
   public setQuestionValue(newValue: any): void {
-    if (this.settingPanelCountBasedOnValue) return;
+    if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
@@ -2404,7 +2411,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private isSetPanelItemData: HashTable<number> = {};
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
-    if (item === this.template.data) return;
+    if (this.isValidatingExpressions || item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {
@@ -2881,7 +2888,6 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "minWidth", defaultFunc: () => "auto" },
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },

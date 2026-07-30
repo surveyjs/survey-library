@@ -185,6 +185,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
   }
 
+  // MERGE(V3): recurring artifact - merging master (V2) tends to re-add a second copy of
+  // resetListKeyboardHighlightState/resetKeyboardPreviewState below (silent auto-merge, breaks
+  // the build with TS2393). Keep a single copy on merge.
   protected resetListKeyboardHighlightState(): void {
     this.listModel.resetFocusedItem();
     this.ariaActivedescendant = undefined;

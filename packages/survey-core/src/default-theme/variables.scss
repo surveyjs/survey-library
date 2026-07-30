@@ -62,6 +62,9 @@ $font-editorfont-size: var(--sjs2-typography-font-size-component-input-content);
 $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
 
+// Below this width an element wraps onto its own row. Expressed in base units so that it follows the surface scale.
+$sd-element-min-width: var(--sjs-element-min-width, calc(37.5 * var(--sjs2-base-unit-size)));
+
 :root,
 :host {
   --sjs-transition-duration: 150ms;

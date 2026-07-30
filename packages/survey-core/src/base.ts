@@ -1118,6 +1118,7 @@ export class Base implements IObjectValueContext {
   protected canSkipRunningExpression(propName: string): boolean {
     const survey: any = this.getSurvey();
     const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
@@ -1200,11 +1201,11 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
-    // Fire onExpressionRunning here too: a handler may rewrite the expression,
-    // so the skip-check must analyze the same (post-event) expression that will
-    // actually run. This is why the event fires twice when dependency tracking
-    // is enabled - once for the skip-check and once for the run.
-    const expression = this.getExpressionFromSurvey(propName);
+    // Use the raw property value: resolving it via getExpressionFromSurvey would fire
+    // survey.onExpressionRunning for a dependency check without an actual run. When the
+    // event has subscribers that may rewrite expressions, dependency checks are disabled
+    // entirely (see SurveyModel.getValueChangedKeys).
+    const expression = this[propName];
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;
   }

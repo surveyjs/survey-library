@@ -164,7 +164,7 @@
 }
 
 .sd-question__description--under-input {
-  padding-top: calc(0.375 * var(--sd-base-vertical-padding));
+  margin-top: var(--sjs2-layout-component-question-box-gap-vertical);
 }
 
 .sd-scrollable .sd-question__content {

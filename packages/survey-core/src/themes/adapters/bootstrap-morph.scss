@@ -63,9 +63,14 @@
   --sjs2-color-component-formbox-default-bg: #f0f5fa;
   --sjs2-color-component-formbox-hovered-bg: #f0f5fa;
   --sjs2-color-component-formbox-focused-bg: #f0f5fa;
+  --sjs2-color-component-formbox-invalid-bg: #f0f5fa;
+  --sjs2-color-component-formbox-invalid-focused-bg: #f0f5fa;
   --sjs2-border-effect-component-formbox-default: var(--bs-box-shadow-inset);
   --sjs2-border-effect-component-formbox-hovered: var(--bs-box-shadow-inset);
-  --sjs2-border-effect-component-formbox-focused: var(--bs-box-shadow-inset), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  --sjs2-border-effect-component-formbox-focused:
+    var(--bs-box-shadow-inset), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  --sjs2-border-effect-component-formbox-invalid: var(--bs-box-shadow-inset);
+  --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
   --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
   --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1.5rem;
@@ -75,8 +80,10 @@
   --sjs2-color-component-check-false-default-bg: #bed1e6;
   --sjs2-color-component-check-false-hovered-bg: #bed1e6;
   --sjs2-color-component-check-false-focused-bg: #bed1e6;
+  --sjs2-color-component-check-false-invalid-bg: #bed1e6;
   --sjs2-border-effect-component-check-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
   --sjs2-border-effect-component-check-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-check-false-invalid: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
 
   /* recessed toggles */
   --sjs2-color-component-toggle-false-default-bg: #bed1e6;

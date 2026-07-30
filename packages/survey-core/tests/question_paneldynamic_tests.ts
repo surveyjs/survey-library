@@ -2413,6 +2413,56 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question4.visibleChoices.length, "There are two visible choices by now").toBe(2);
   });
 
+  test("visibleIf with lower-case {parentpanel.x} is re-evaluated on value change, dependency-skip is case-insensitive", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "question2",
+              choices: ["item1", "item2", "item3"],
+            },
+            {
+              type: "paneldynamic",
+              name: "question3",
+              panelCount: 1,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question4",
+                  visibleIf: "{parentpanel.question2} contains 'item1'",
+                },
+                {
+                  type: "text",
+                  name: "question5",
+                  visibleIf: "{ParentPanel.question2} contains 'item2'",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    const rootPanelEl1 = rootPanel.panels[0];
+    const question2 = rootPanelEl1.getQuestionByName("question2");
+    const childPanel = <QuestionPanelDynamicModel>rootPanelEl1.getQuestionByName("question3");
+    const question4 = childPanel.panels[0].getQuestionByName("question4");
+    const question5 = childPanel.panels[0].getQuestionByName("question5");
+    expect(question4.isVisible, "question4 is hidden by default").toBeFalsy();
+    expect(question5.isVisible, "question5 is hidden by default").toBeFalsy();
+    question2.value = ["item1"];
+    expect(question4.isVisible, "question4 becomes visible, {parentpanel.x}").toBeTruthy();
+    expect(question5.isVisible, "question5 is still hidden").toBeFalsy();
+    question2.value = ["item2"];
+    expect(question4.isVisible, "question4 is hidden again").toBeFalsy();
+    expect(question5.isVisible, "question5 becomes visible, {ParentPanel.x}").toBeTruthy();
+  });
+
   test("Page.ensureRowsVisibility updates rows in dynamic panel", () => {
     const survey = new SurveyModel({
       pages: [

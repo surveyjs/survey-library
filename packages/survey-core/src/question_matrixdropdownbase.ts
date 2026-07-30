@@ -229,6 +229,14 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     const v = settings.expressionVariables;
     return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
   }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.totalRow];
+  }
+  /* Total row expressions ({matrix} in xxxInArray functions) calculate over visible rows
+     only, and row visibility may depend on any survey value */
+  protected isItemDependenciesTrackable(): boolean {
+    return !(this.row instanceof MatrixDropdownTotalRowModel);
+  }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
     const setVar = settings.expressionVariables;

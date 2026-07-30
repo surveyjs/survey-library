@@ -64,7 +64,6 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   protected renderElement(): React.JSX.Element {
     const element = this.element;
     const innerElement = this.createElement(element, this.index);
-    const css = (element as Question).cssClassesValue;
     const focusIn = () => {
       const el: any = element;
       if (el && el.isQuestion) {
@@ -73,7 +72,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
     };
     return (
       <div
-        className={css.questionWrapper}
+        className={(element as any).getWrapperCss()}
         style={(element as any).rootStyle}
         data-key={element.name + this.index}
         onFocus={focusIn}

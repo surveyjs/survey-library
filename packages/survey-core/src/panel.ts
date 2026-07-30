@@ -391,10 +391,10 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
       (obj: Base) => { return !this.areInvisibleElementsShowing; },
-      undefined,
+      true,
       () => { this.visible = true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, true, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, true, () => { this.isRequired = false; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -704,6 +704,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return classes;
   }
   protected getIdPrefix(): string { return "sp"; }
+  protected get hasMinWidth(): boolean { return false; }
   public get isPanel(): boolean {
     return false;
   }
@@ -2581,8 +2582,8 @@ Serializer.addClass(
     { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     { name: "startWithNewLine:boolean", default: true },
     { name: "width" },
-    { name: "minWidth", defaultFunc: () => "auto" },
-    { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+    { name: "minWidth" },
+    { name: "maxWidth" },
     { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,

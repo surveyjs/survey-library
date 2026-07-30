@@ -220,13 +220,118 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)",
+      "flexShrink": 1
     });
     q1.allowRootStyle = false;
     survey.css = defaultCss;
     expect(q1.rootStyle).toEqual({});
+  });
+  test("getWrapperCss: only questions get the default element min-width", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "q2" },
+        { type: "panel", name: "panel1", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.getWrapperCss(), "a question")
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
+    expect(survey.getQuestionByName("q2").getWrapperCss(), "a dynamic panel shrinks to its content")
+      .toBe("sd-element-wrapper");
+    expect(survey.getPanelByName("panel1").getWrapperCss(), "a panel shrinks to its content")
+      .toBe("sd-element-wrapper");
+
+    // An element the survey does not size gets no width constraints at all, as before.
+    q1.allowRootStyle = false;
+    expect(q1.rootStyle, "no root style").toEqual({});
+    expect(q1.getWrapperCss(), "allowRootStyle is false").toBe("sd-element-wrapper");
+  });
+  test("getWrapperCss: an element can add its own wrapper class", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    q1.onUpdateCssClassesCallback = (css: any): void => {
+      css.questionWrapper = "custom-wrapper";
+    };
+    q1.updateElementCss();
+    expect(q1.getWrapperCss())
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width custom-wrapper");
+  });
+  test("getWrapperCss: an element minWidth replaces the default one", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", minWidth: "200px" },
+        { type: "text", name: "q2", minWidth: "auto" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.getWrapperCss(), "q1 gets its minWidth from the root style")
+      .toBe("sd-element-wrapper");
+    expect(q1.rootStyle.minWidth, "q1 root style").toBe("min(100%, 200px)");
+
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.getWrapperCss(), "q2 shrinks to its content").toBe("sd-element-wrapper");
+    expect(q2.rootStyle.minWidth, "q2 root style").toBeUndefined();
+
+    q2.minWidth = "";
+    expect(q2.getWrapperCss(), "an empty minWidth falls back to the theme")
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
+    expect(q2.rootStyle.minWidth, "q2 root style is empty again").toBeUndefined();
+  });
+  test("minWidth & maxWidth override the default element widths", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", minWidth: "200px", maxWidth: "400px" },
+        { type: "panel", name: "panel1", minWidth: "auto", maxWidth: "500px", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.minWidth, "q1 minWidth is empty by default").toBe("");
+    expect(q1.maxWidth, "q1 maxWidth is empty by default").toBe("");
+    expect(q1.rootStyle, "q1 is sized by the theme").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1
+    });
+
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.rootStyle, "q2 overrides the theme widths").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1,
+      "minWidth": "min(100%, 200px)",
+      "maxWidth": "400px"
+    });
+
+    const panel = survey.getPanelByName("panel1");
+    expect(panel.rootStyle, "the panel keeps shrinking to its content").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1,
+      "maxWidth": "500px"
+    });
+
+    q2.maxWidth = "";
+    expect(q2.rootStyle.maxWidth, "an empty maxWidth falls back to the theme").toBeUndefined();
+  });
+  test("minWidth & maxWidth do not fail on a number, Bug#: composite question", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", minWidth: 100, maxWidth: 300 }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    // A unitless value produces an invalid CSS width that the browser ignores, as it did before.
+    expect(q1.rootStyle["minWidth"]).toBe("min(100%, 100)");
+    expect(q1.rootStyle["maxWidth"]).toBe(300);
+  });
+  test("minWidth is scaled the same way as the theme default", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", minWidth: "300px" }]
+    });
+    survey.widthScale = 200;
+    expect(survey.getQuestionByName("q1").rootStyle["minWidth"]).toBe("min(100%, 600px)");
   });
   test("Do not create rootStyle by default", () => {
     const survey = new SurveyModel({
@@ -251,17 +356,13 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)",
+      "flexShrink": 1
     });
     survey.setIsMobile(true);
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)"
+      "flexShrink": 1
     });
   });
   test("question.errorLocation", () => {

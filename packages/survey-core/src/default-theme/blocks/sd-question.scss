@@ -163,6 +163,10 @@
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
 
+.sd-question__description--under-input {
+  margin-top: var(--sjs2-layout-component-question-box-gap-vertical);
+}
+
 .sd-scrollable .sd-question__content {
   overflow-x: auto;
   padding: var(--sjs2-spacing-x200) 0;

@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. See [commit
 ## 3.0.0-beta.8 (2026-07-01)
 
 ## 3.0.0-beta.7 (2026-06-19)
+## 2.5.36 (2026-07-28)
+
+## 2.5.35 (2026-07-21)
 
 ## 2.5.34 (2026-07-14)
 

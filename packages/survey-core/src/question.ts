@@ -362,9 +362,9 @@ export class Question extends SurveyElement<Question>
     super(name);
     this.onCreating();
 
-    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
+    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, true, () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, true, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, true, () => { this.isRequired = false; });
 
     this.addTriggersInfo();
   }
@@ -3284,8 +3284,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+  { name: "minWidth" },
+  { name: "maxWidth" },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

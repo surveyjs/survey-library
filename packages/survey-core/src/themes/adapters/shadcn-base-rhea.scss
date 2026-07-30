@@ -26,6 +26,7 @@
   --sjs2-radius-component-checkbox: 5px; /* rounded-[5px] */
   --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
   --sjs2-color-component-check-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-check-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
   --sjs2-color-component-check-false-default-border: transparent;
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 0 transparent;
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;

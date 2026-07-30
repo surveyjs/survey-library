@@ -45,17 +45,23 @@
   --sjs-bs-secondary-hover-bg: var(--bs-tertiary-bg);
 
   /* grey filled, borderless inputs ($input-bg: gray-200) */
-  --sjs2-color-component-formbox-default-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-formbox-hovered-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-formbox-focused-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-formbox-default-bg: #f0f1f2;
+  --sjs2-color-component-formbox-hovered-bg: #f0f1f2;
+  --sjs2-color-component-formbox-focused-bg: #f0f1f2;
+  --sjs2-color-component-formbox-invalid-bg: #f0f1f2;
+  --sjs2-color-component-formbox-invalid-focused-bg: #f0f1f2;
   --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px transparent;
   --sjs2-border-effect-component-formbox-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-formbox-invalid: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 
-  --sjs2-color-component-check-false-default-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-check-false-hovered-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-check-false-focused-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-check-false-default-bg: #f0f1f2;
+  --sjs2-color-component-check-false-hovered-bg: #f0f1f2;
+  --sjs2-color-component-check-false-focused-bg: #f0f1f2;
+  --sjs2-color-component-check-false-invalid-bg: #f0f1f2;
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px transparent;
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 1px transparent;
 
   --sjs2-color-component-toggle-false-default-bg: var(--bs-secondary-bg);
   --sjs2-color-component-toggle-false-hovered-bg: var(--bs-secondary-bg);

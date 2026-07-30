@@ -265,6 +265,8 @@
   --sjs2-typography-font-size-component-header-title: 1.5rem;
   --sjs2-typography-font-size-component-header-description: 1.25rem;
   --sjs2-typography-font-weight-component-header-description: 500;
+
+  --sjs2-color-utility-surface-survey: transparent;
 }
 
 /* input */
@@ -846,9 +848,4 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }

@@ -249,10 +249,13 @@
   --sjs2-typography-font-size-component-input-content: 1rem;
   --sjs2-typography-font-size-component-question-description: 0.75rem;
   --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+  --sjs2-layout-component-question-description-padding-horizontal: 14px;
+  --sjs2-layout-component-question-description-padding-top: 3px;
+  --sjs2-layout-component-question-box-gap-vertical: 0;
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
-  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-component-question-title: 1.4375em;
   --sjs2-typography-font-weight-component-question-title: 400;
 
   --sjs2-color-component-panel-default-title: var(--mui-palette-text-primary);

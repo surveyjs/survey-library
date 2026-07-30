@@ -1819,6 +1819,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see visible
    */
   public get isVisible(): boolean {
+    // Track cached isVisible for ComputedUpdater consumers (e.g. TOC)
+    this.getPropertyValueWithoutDefault("isVisible");
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
   }
   getIsContentVisible(exceptionQuestion?: IQuestion) {

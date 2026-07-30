@@ -124,12 +124,6 @@
   box-shadow: $shadow-small;
 }
 
-//compact styles
-.sd-element--with-frame.sd-element--compact {
-  border-radius: var(--sjs2-radius-component-panel);
-  background-color: transparent;
-}
-
 @keyframes elementMoveIn {
   from {
     flex-basis: 0;

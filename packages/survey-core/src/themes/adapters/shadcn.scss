@@ -4,6 +4,9 @@
     --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
     --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
     --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-formbox-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-formbox-invalid-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-check-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
     --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
     --sjs2-color-component-check-false-hovered-bg: var(--sjs2-color-component-check-false-default-bg);
     --sjs2-color-component-check-false-focused-bg: var(--sjs2-color-component-check-false-default-bg);
@@ -153,6 +156,8 @@
   --sjs2-color-component-formbox-default-bg: var(--background);
   --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
   --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+  --sjs2-color-component-formbox-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+  --sjs2-color-component-formbox-invalid-focused-bg: var(--sjs2-color-component-formbox-default-bg);
 
   --sjs2-color-component-formbox-default-fg: var(--foreground);
   --sjs2-color-component-formbox-default-border: var(--border);
@@ -177,6 +182,7 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--destructive);
   --sjs2-color-component-message-error-icon: var(--destructive);
+  --sjs2-layout-component-message-box-padding-horizontal: 0;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--destructive);
@@ -201,6 +207,8 @@
   --sjs2-color-component-check-true-hovered-bg: var(--primary);
   --sjs2-color-component-check-false-default-border: var(--input);
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-check-false-default-border);
+  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 1px
     var(--sjs2-color-component-check-false-default-border);
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
     var(--sjs2-color-component-check-false-default-border);
@@ -268,7 +276,7 @@
   --sjs2-color-bg-alert-secondary: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x010));
   --sjs2-color-bg-alert-secondary-dim: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x015));
 
-  --sjs2-color-border-basic-primary: var(--border);
+  --sjs2-color-border-basic-primary: var(--foreground);
   --sjs2-color-border-basic-secondary: var(--border);
   --sjs2-color-utility-shadow-surface-default: var(--border);
   --sjs2-color-utility-shadow-trigger-default: transparent;
@@ -306,6 +314,40 @@
 .sd-comment__input {
   min-height: var(--sjs2-shadcn-textarea-min-height);
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
+}
+
+.sd-formbox--error {
+  --shadcn-border-color: var(--destructive);
+  --shadcn-formbox-border-error: inset 0 0 0 1px var(--shadcn-border-color);
+  --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent);
+  --tw-ring-shadow: 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--shadcn-formbox-border-error), var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+.dark .sd-formbox--error {
+  --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent);
+  --shadcn-border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+}
+
+.sd-question__title--error {
+  color: var(--destructive);
+}
+
+.sd-question__erbox--below-question {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.sd-error__item {
+  font-weight: var(--font-weight-normal);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+}
+.sd-question--boolean .sd-error__item {
+  padding-left: calc(
+    var(--sjs2-size-component-checkbox-box) + var(--sjs2-layout-component-labeled-item-box-gap-horizontal)
+  );
 }
 
 /* dropdown */
@@ -446,6 +488,10 @@
 .sd-item__control-label .sv-string-viewer {
   overflow: visible;
   overflow-wrap: break-word;
+}
+
+.sd-item--error .sd-item__control-label {
+  color: var(--destructive);
 }
 
 /* toggle */

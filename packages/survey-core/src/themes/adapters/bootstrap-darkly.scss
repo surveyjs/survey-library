@@ -9,12 +9,16 @@
   --sjs2-color-component-formbox-default-bg: #fff;
   --sjs2-color-component-formbox-hovered-bg: #fff;
   --sjs2-color-component-formbox-focused-bg: #fff;
+  --sjs2-color-component-formbox-invalid-bg: #fff;
+  --sjs2-color-component-formbox-invalid-focused-bg: #fff;
   --sjs2-color-component-formbox-default-fg: #212529;
   --sjs2-color-component-input-default-value: #212529;
 
   --sjs2-color-component-check-false-default-bg: #fff;
   --sjs2-color-component-check-false-hovered-bg: #fff;
   --sjs2-color-component-check-false-focused-bg: #fff;
+  --sjs2-color-component-check-false-invalid-bg: #fff;
+  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 1px transparent;
 
   /* switch track stays light with a dark knob */
   --sjs2-color-component-toggle-false-default-bg: #fff;

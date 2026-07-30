@@ -153,13 +153,14 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--bs-form-invalid-color);
   --sjs2-color-component-message-error-icon: var(--bs-form-invalid-color);
-  //--sjs2-layout-component-message-box-padding-horizontal: 0;
+  --sjs2-layout-component-message-box-padding-horizontal: 0;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--bs-form-invalid-color);
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 0.25em;
+  --sjs2-color-component-check-false-invalid-border: var(--bs-form-invalid-border-color);
   --sjs2-color-component-check-false-focused-border: var(--bs-primary);
   --sjs2-size-component-checkbox-box: 1em;
   --sjs2-size-component-checkbox-icon: 0.75em;
@@ -213,7 +214,7 @@
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
   --sjs2-color-fg-basic-primary-disabled: rgba(from var(--bs-body-color) r g b / 0.5);
 
-  --sjs2-color-border-basic-primary: var(--bs-border-color);
+  --sjs2-color-border-basic-primary: var(--bs-emphasis-color, var(--bs-body-color));
   --sjs2-color-border-basic-secondary: var(--bs-border-color);
 
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
@@ -309,6 +310,14 @@
 }
 .sd-item__control:active + .sd-item__decorator {
   filter: brightness(90%);
+}
+
+.sd-question__erbox--below-question {
+  margin-top: 0.25rem;
+}
+
+.sd-item--error .sd-item__control-label {
+  color: var(--bs-form-invalid-color);
 }
 
 /* toggle */
@@ -449,6 +458,16 @@
 
 .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
   content: initial;
+}
+
+.sd-error__item {
+  font-size: 0.875em;
+  font-weight: var(--bs-body-font-weight);
+  line-height: var(--bs-body-line-height);
+}
+
+.sd-question--boolean .sd-error__item {
+  padding-left: 1.75em;
 }
 
 .sd-action {

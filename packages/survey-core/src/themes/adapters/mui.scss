@@ -124,6 +124,7 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--mui-palette-error-main);
   --sjs2-color-component-message-error-icon: var(--mui-palette-error-main);
+  --sjs2-layout-component-message-box-padding-horizontal: 14px;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--mui-palette-error-main);
@@ -153,6 +154,7 @@
   --sjs2-color-component-check-false-focused-bg: var(--mui-palette-background-paper);
 
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
   --sjs2-border-effect-component-check-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
@@ -220,7 +222,7 @@
   --sjs2-color-bg-alert-secondary: color-mix(in srgb, var(--mui-palette-error-main) 10%, transparent);
   --sjs2-color-bg-alert-secondary-dim: color-mix(in srgb, var(--mui-palette-error-main) 15%, transparent);
 
-  --sjs2-color-border-basic-primary: var(--mui-palette-divider);
+  --sjs2-color-border-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
 
   --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
@@ -328,8 +330,8 @@
     }
   }
 
-  &:has(input:focus),
-  &:has(textarea:focus) {
+  &:not(.sd-question--error):has(input:focus),
+  &:not(.sd-question--error):has(textarea:focus) {
     .sd-question__header {
       --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
     }
@@ -354,6 +356,15 @@
       color: var(--mui-palette-error-main);
     }
   }
+}
+
+.sd-question__erbox--below-question {
+  margin-top: 3px;
+}
+
+.sd-error__item {
+  font-size: 0.75rem;
+  line-height: 1.66;
 }
 
 /*

@@ -8,7 +8,7 @@
       <div [class]="model.cssClasses.switchThumbCircle"></div>
     </div>
   </div>
-  <div [class]="model.cssClasses.switchCaption">
+  <div *ngIf="model.isLabelRendered" [class]="model.cssClasses.switchCaption">
     <div [class]="model.cssClasses.switchTitle" [id]="model.labelRenderedAriaID" [model]="model.locTitle" sv-ng-string></div>
   </div>
 </div>

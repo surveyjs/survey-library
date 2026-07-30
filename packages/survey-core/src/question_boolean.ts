@@ -95,12 +95,17 @@ export class QuestionBooleanModel extends Question {
    */
   @property({ localizable: true }) label: string;
 
-  @property({ defaultValue: false, onSet: (val: boolean, target: QuestionBooleanModel) => {
-    if (val) target.setPropertyValue("titleLocation", "hidden");
-  } }) useTitleAsLabel: boolean;
+  @property({ defaultValue: true }) useTitleAsLabel: boolean;
 
   get isLabelRendered(): boolean {
-    return this.titleLocation === "hidden" || this.useTitleAsLabel;
+    if (this.titleLocation === "hidden") return true;
+    if (!this.useTitleAsLabel) return false;
+    const renderAs = this.getRenderAsValue();
+    return renderAs === "checkbox" || renderAs === "switch";
+  }
+  protected getTitleLocationCore(): string {
+    if (this.isLabelRendered) return "hidden";
+    return super.getTitleLocationCore();
   }
   get canRenderLabelDescription(): boolean {
     return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);
@@ -462,7 +467,7 @@ Serializer.addClass(
       visible: false,
       isSerializableFunc: (obj: any) => isCustomRenderAs(obj.renderAs)
     },
-    { name: "useTitleAsLabel", default: false, visible: false },
+    { name: "useTitleAsLabel:boolean", default: true, visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

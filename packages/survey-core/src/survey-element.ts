@@ -298,14 +298,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   @property({ defaultValue: 1 }) colSpan: number;
 
+  private static updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
+
   constructor(name: string) {
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
-    if (updateRootStyleProps.indexOf(name) > -1) {
+    if (SurveyElement.updateRootStyleProps.indexOf(name) > -1) {
       this.updateRootStyle();
     }
     if (name === "state") {

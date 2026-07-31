@@ -667,14 +667,43 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    this.runItemsEnableCondition(properties);
-    this.runItemsCondition(properties);
+    if (!this.canSkipItemsConditions()) {
+      this.runItemsEnableCondition(properties);
+      this.runItemsCondition(properties);
+    }
     this.choices.forEach(item => {
       item.runConditionCore(properties);
     });
     this.doForPanels(undefined, (p) => {
       p.runCondition(properties);
     });
+  }
+  private canSkipItemsConditions(): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys) return false;
+    if (!this.canSkipItemsConditionsCore()) return false;
+    if (this.canSurveyChangeItemVisibility()) return false;
+    if (!!this.choicesFromQuestion || !!this.choiceValuesFromQuestion || this.isUsingRestful || this.waitingChoicesByURL) return false;
+    if (!this.canSkipItemsExpression("choicesVisibleIf", keys)) return false;
+    if (!this.canSkipItemsExpression("choicesEnableIf", keys)) return false;
+    // read raw property values: this loop runs per value change, the default-value
+    // resolution in getPropertyValue is too costly for choice lists with many items
+    const items = this.choices;
+    for (let i = 0; i < items.length; i++) {
+      const item: any = items[i];
+      if (!!item.getPropertyValueWithoutDefault("visibleIf") || !!item.getPropertyValueWithoutDefault("enableIf")) return false;
+    }
+    return true;
+  }
+  // Descendants where item visibility/enablement depends on the question state
+  // rather than on expressions (e.g. maxSelectedChoices) must return false
+  protected canSkipItemsConditionsCore(): boolean {
+    return true;
+  }
+  private canSkipItemsExpression(propName: string, keys: any): boolean {
+    if (!(<any>this)[propName]) return true;
+    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
   protected isTextValue(): boolean {
     return true; //for comments and others
@@ -799,10 +828,21 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return [];
   }
+  private choicesConditionRunners: HashTable<ConditionRunner>;
   private getChoicesCondition(propertyName: string): ConditionRunner {
     const expression = this.getExpressionFromSurvey(propertyName);
     if (expression) {
-      return new ConditionRunner(expression);
+      if (!this.choicesConditionRunners) {
+        this.choicesConditionRunners = {};
+      }
+      let runner = this.choicesConditionRunners[propertyName];
+      if (!runner) {
+        runner = new ConditionRunner(expression);
+        this.choicesConditionRunners[propertyName] = runner;
+      } else {
+        runner.expression = expression;
+      }
+      return runner;
     }
     return null;
   }

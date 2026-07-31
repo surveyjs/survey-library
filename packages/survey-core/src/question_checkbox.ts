@@ -377,6 +377,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
   }
+  // Item enablement depends on the current selection (maxSelectedChoices, select-all),
+  // not only on expressions, so the items conditions cannot be skipped by changed keys
+  protected canSkipItemsConditionsCore(): boolean {
+    return this.maxSelectedChoices < 1 && !this.showSelectAllItem;
+  }
   protected onAfterRunItemsEnableCondition(): void {
     this.updateSelectAllItemProps();
     const isEnabled = this.maxSelectedChoices < 1 || this.isOtherSelected || !this.shouldCheckMaxSelectedChoices();

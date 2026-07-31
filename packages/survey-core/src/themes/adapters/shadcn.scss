@@ -297,9 +297,10 @@
   --sjs2-typography-line-height-component-question-title: calc(var(--leading-snug) * 1em);
   --sjs2-typography-font-weight-component-question-title: var(--font-weight-medium);
 
-  --sjs2-typography-font-size-component-page-title: var(--text-base);
-
-  --sjs2-typography-font-size-component-header-title: var(--text-base);
+  --sjs2-typography-font-size-component-page-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-page-title: 1;
+  --sjs2-typography-font-size-component-header-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-header-title: 1;
   --sjs2-typography-font-size-component-header-description: 1em;
 
   /* Card / CardHeader / CardContent — stock p-6 / px-6 (style files may override) */
@@ -584,6 +585,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--sjs2-spacing-x100);
+}
+
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+  background-color: var(--card);
+}
+
+.sd-element__header ~ hr {
+  background-color: transparent;
 }
 
 /* frames / complex headers */

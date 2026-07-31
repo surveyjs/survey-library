@@ -4,6 +4,7 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 
 import { describe, test, expect } from "vitest";
 describe("boolean", () => {
@@ -315,6 +316,27 @@ describe("boolean", () => {
     q.useTitleAsLabel = true;
     expect(q.isLabelRendered).toBe(true);
     expect(q.getTitleLocation()).toBe("hidden");
+  });
+  test("Boolean: useTitleAsLabel is not applied to matrix cell questions", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            { name: "col1", cellType: "boolean", displayMode: "checkbox", title: "My col1" },
+            { name: "col2", cellType: "boolean", displayMode: "switch", title: "My col2" }
+          ],
+          rows: ["row1"]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    const cells = matrix.visibleRows[0].cells;
+    const questions = <Array<QuestionBooleanModel>>cells.map(cell => cell.question);
+    expect(questions.map(q => q.useTitleAsLabel)).toEqual([true, true]);
+    expect(questions.map(q => q.isLabelRendered)).toEqual([false, false]);
+    expect(questions.map(q => q.locTitle.renderedHtml)).toEqual(["row row1, column My col1", "row row1, column My col2"]);
   });
   test("Boolean in calculation vs not, Bug#10412", () => {
     var survey = new SurveyModel({

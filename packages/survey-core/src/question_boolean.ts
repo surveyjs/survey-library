@@ -100,6 +100,7 @@ export class QuestionBooleanModel extends Question {
   get isLabelRendered(): boolean {
     if (this.titleLocation === "hidden") return true;
     if (!this.useTitleAsLabel) return false;
+    if (this.inMatrixMode && !this.isSingleInputActive) return false;
     const renderAs = this.getRenderAsValue();
     return renderAs === "checkbox" || renderAs === "switch";
   }

@@ -1,7 +1,7 @@
 import { HashTable } from "../helpers";
 import { IValueGetterContext, ProcessValue, VariableGetterContextEx } from "../conditions/conditionProcessValue";
 import { ConsoleWarnings } from "../console-warnings";
-import { Operand, FunctionOperand, AsyncFunctionItem, Variable, Const } from "./expressions";
+import { Operand, FunctionOperand, AsyncFunctionItem, Variable, Const, BinaryOperand, UnaryOperand, ArrayOperand } from "./expressions";
 import { ConditionsParser } from "../conditions/conditionsParser";
 import { FunctionFactory } from "../functionsfactory";
 import { IExpressionValidationOptions } from "../base";
@@ -199,9 +199,21 @@ export class ExpressionExecutor implements IExpressionExecutor {
     const list = new Array<Operand>();
     this.operand.addOperandsToList(list);
 
-    if (options.semantics && isCondition && list.length == 1 && list[0].getType() === "const" && !(<Const>list[0]).isBoolean()) {
-      errors.push({ errorType: ExpressionErrorType.SemanticError });
-      return errors;
+    if (options.semantics && isCondition) {
+      if (this.isConstantOperand(this.operand)) {
+        // a condition that is a single boolean constant ("true"/"false") is allowed
+        if (!(this.operand.getType() === "const" && (<Const>this.operand).isBoolean())) {
+          errors.push({ errorType: ExpressionErrorType.SemanticError });
+          return errors;
+        }
+      } else {
+        this.addConditionSemanticErrors(this.operand, errors);
+        const rootOp = this.operand.getType() === "binary" ? <BinaryOperand>this.operand : undefined;
+        // pure arithmetic at the root ({q1} + 1) never produces a boolean result
+        if (!!rootOp && rootOp.isArithmetic && !rootOp.isConjunction) {
+          errors.push({ errorType: ExpressionErrorType.SemanticError });
+        }
+      }
     }
 
     const operands = list.reduce((acc, operand) => {
@@ -229,6 +241,57 @@ export class ExpressionExecutor implements IExpressionExecutor {
     }
 
     return errors;
+  }
+  // a null operand is the "null"/"undefined" literal
+  private isConstantOperand(op: Operand): boolean {
+    if (!op) return true;
+    const type = op.getType();
+    if (type === "const") return true;
+    if (type === "unary") return this.isConstantOperand((<UnaryOperand>op).expression);
+    if (type === "binary") return this.isConstantOperand((<BinaryOperand>op).leftOperand) && this.isConstantOperand((<BinaryOperand>op).rightOperand);
+    if (type === "array") return (<ArrayOperand>op).values.every((val: Operand) => this.isConstantOperand(val));
+    return false;
+  }
+  // Reports condition fragments whose result is known upfront: a constant branch in and/or,
+  // a comparison of two constants and an operand compared with itself. Function parameters
+  // are not inspected - a constant argument there can be intentional.
+  private addConditionSemanticErrors(op: Operand, errors: IExpressionError[]): void {
+    if (!op) return;
+    const type = op.getType();
+    if (type === "binary") {
+      const left: Operand = (<BinaryOperand>op).leftOperand;
+      const right: Operand = (<BinaryOperand>op).rightOperand;
+      if ((<BinaryOperand>op).isConjunction) {
+        [left, right].forEach((side: Operand) => {
+          if (this.isConstantOperand(side)) {
+            errors.push({ errorType: ExpressionErrorType.SemanticError });
+          } else {
+            this.addConditionSemanticErrors(side, errors);
+          }
+        });
+      } else if (!(<BinaryOperand>op).isArithmetic) {
+        if (this.isConstantOperand(left) && this.isConstantOperand(right)) {
+          errors.push({ errorType: ExpressionErrorType.SemanticError });
+        } else if (!!left && !!right && left.isEqual(right) && !left.hasFunction()) {
+          errors.push({ errorType: ExpressionErrorType.SemanticError });
+        } else {
+          this.addConditionSemanticErrors(left, errors);
+          this.addConditionSemanticErrors(right, errors);
+        }
+      } else {
+        this.addConditionSemanticErrors(left, errors);
+        this.addConditionSemanticErrors(right, errors);
+      }
+    } else if (type === "unary") {
+      const expr = (<UnaryOperand>op).expression;
+      if (this.isConstantOperand(expr)) {
+        errors.push({ errorType: ExpressionErrorType.SemanticError });
+      } else {
+        this.addConditionSemanticErrors(expr, errors);
+      }
+    } else if (type === "array") {
+      (<ArrayOperand>op).values.forEach((val: Operand) => this.addConditionSemanticErrors(val, errors));
+    }
   }
   private getArrayContextVarNames(operands: { [key: string]: Operand[] }, context: IValueGetterContext): Set<string> {
     const result = new Set<string>();

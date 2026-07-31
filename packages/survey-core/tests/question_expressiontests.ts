@@ -2,6 +2,8 @@ import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
+import { ComponentCollection, QuestionCustomModel } from "../src/question_custom";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
 
@@ -769,6 +771,62 @@ describe("QuestionExpression", () => {
       expect(pd.panels[1].getQuestionByName("pIdx").value, "panelIndex is not changed in the second panel").toBe(1);
     } finally {
       settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, matrix totals recalculate on rows visibility change", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          {
+            type: "matrixdynamic", name: "matrix",
+            rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+            columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+          }
+        ]
+      });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+      expect(matrix.visibleRows.length, "all rows are shown").toBe(3);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #1").toBe(30);
+      survey.setValue("q1", "b");
+      expect(matrix.visibleRows.length, "one row is hidden").toBe(2);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #2, the hidden row is excluded").toBe(20);
+      survey.setValue("q1", "a");
+      expect(matrix.visibleRows.length, "two rows are hidden").toBe(1);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #3, two hidden rows are excluded").toBe(10);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression column inside a custom component", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    ComponentCollection.Instance.add({
+      name: "orderitems",
+      questionJSON: {
+        type: "matrixdropdown",
+        columns: [
+          { name: "price", cellType: "text" },
+          { name: "qty", cellType: "text" },
+          { name: "total", cellType: "expression", expression: "{row.price} * {row.qty}" }
+        ],
+        rows: ["Steak"]
+      }
+    });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "orderitems", name: "q1" }] });
+      const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+      const matrix = <QuestionMatrixDropdownModelBase>q.contentQuestion;
+      const row = matrix.visibleRows[0];
+      row.getQuestionByColumnName("price").value = 23;
+      row.getQuestionByColumnName("qty").value = 2;
+      expect(row.getQuestionByColumnName("total").value, "cell expression inside the component is calculated").toBe(46);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      ComponentCollection.Instance.remove("orderitems");
     }
   });
   test("Custom function returns object&array, #7050", () => {

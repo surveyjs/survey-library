@@ -102,6 +102,11 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
     names.forEach((name) => {
       if (name) {
         res[name] = this.item;
+        // expressions may reference variables in any case ({parentpanel.q1} vs "parentPanel")
+        const lowerName = name.toLowerCase();
+        if (lowerName !== name) {
+          res[lowerName] = this.item;
+        }
       }
     });
     return res;

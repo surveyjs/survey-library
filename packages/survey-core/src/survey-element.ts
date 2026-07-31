@@ -574,6 +574,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
+    // a container question value change (matrix, dynamic panel, custom component)
+    // can affect row/panel/composite-scoped variables even when the value getter
+    // context cannot map the changed key onto them (e.g. a matrix inside a custom
+    // component), so never skip in this case
+    if (this.isAnyParentQuestionValueChanged(keys)) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
@@ -582,6 +587,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars);
+  }
+  private isAnyParentQuestionValueChanged(keys: any): boolean {
+    let q: any = SurveyElement.getParentQuestionOrDataOwner(this);
+    while(!!q) {
+      const valueName: string = typeof q.getValueName === "function" ? q.getValueName() : q.name;
+      if (!!valueName && (keys.hasOwnProperty(valueName) || keys.hasOwnProperty(valueName.toLowerCase()))) return true;
+      q = SurveyElement.getParentQuestionOrDataOwner(q);
+    }
+    return false;
+  }
+  // a custom component (ComponentCollection) content question has no parentQuestion,
+  // but its data owner is the wrapper question that stores the value
+  private static getParentQuestionOrDataOwner(el: any): any {
+    if (!!el.parentQuestion) return el.parentQuestion;
+    const data: any = el.data;
+    return !!data && data !== el && data.isQuestion === true ? data : undefined;
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();

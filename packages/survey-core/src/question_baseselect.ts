@@ -703,7 +703,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   private canSkipItemsExpression(propName: string, keys: any): boolean {
     if (!(<any>this)[propName]) return true;
-    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
+    const runner = this.getExpressionByProperty(propName);
+    // function arguments can reference values inside string literals,
+    // invisible to variable analysis
+    if (!!runner && runner.hasFunction()) return false;
+    return this.canSkipExpressionByKeys(runner, keys);
   }
   protected isTextValue(): boolean {
     return true; //for comments and others

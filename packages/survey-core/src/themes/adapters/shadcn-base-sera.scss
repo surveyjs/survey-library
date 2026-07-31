@@ -58,8 +58,6 @@
   --sjs2-shadcn-tagbox-item-clean-radius: 0;
 
   /* common and other */
-  --sjs2-typography-font-size-component-page-title: var(--text-lg);
-  --sjs2-typography-font-size-component-header-title: var(--text-lg);
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 8); /* [--card-spacing:--spacing(8)] */
@@ -122,4 +120,9 @@
 .sd-formbox--error {
   --tw-ring-shadow: 0 0 0 1px transparent;
   --shadcn-formbox-border-error: inset 0 -1px 0 0 var(--shadcn-border-color);
+}
+
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+  border-color: transparent;
 }

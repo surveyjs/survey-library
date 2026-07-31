@@ -471,11 +471,6 @@ Serializer.addClass(
       isSerializableFunc: (obj: any) => obj.displayMode !== "custom"
     },
     {
-      name: "useTitleAsLabel:boolean",
-      default: false,
-      visible: false
-    },
-    {
       name: "renderAs",
       default: "default",
       visible: false,

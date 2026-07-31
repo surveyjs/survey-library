@@ -213,7 +213,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length > 1 && path[0].name === settings.expressionVariables.totalRow) {
+    if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.totalRow.toLocaleLowerCase()) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";

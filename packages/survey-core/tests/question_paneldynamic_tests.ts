@@ -2463,6 +2463,33 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question5.isVisible, "question5 becomes visible, {ParentPanel.x}").toBeTruthy();
   });
 
+  test("panel context variables in expressions are case-insensitive: {PANEL.x}, {prevpanel.x}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2", visibleIf: "{PANEL.q1} = 1" },
+            { type: "text", name: "q3", visibleIf: "{prevpanel.q1} = 1" },
+          ],
+        },
+      ],
+    });
+    const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels;
+    const q = (p: number, name: string) => panels[p].getQuestionByName(name);
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} is hidden by default").toBeFalsy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} is hidden by default").toBeFalsy();
+    q(0, "q1").value = 1;
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} becomes visible").toBeTruthy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} becomes visible").toBeTruthy();
+    q(0, "q1").value = 2;
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} is hidden again").toBeFalsy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} is hidden again").toBeFalsy();
+  });
+
   test("Page.ensureRowsVisibility updates rows in dynamic panel", () => {
     const survey = new SurveyModel({
       pages: [

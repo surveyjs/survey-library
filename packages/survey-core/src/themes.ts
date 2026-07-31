@@ -321,6 +321,8 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
       const referencedMapping = legacyCssVariables[referencedVar];
       if (typeof referencedMapping === "string") {
         return `var(${referencedMapping})`;
+      } else if (Array.isArray(referencedMapping) && referencedMapping.length > 0) {
+        return `var(${referencedMapping[0]})`;
       }
       return match;
     });

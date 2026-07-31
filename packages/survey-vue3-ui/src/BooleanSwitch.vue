@@ -20,7 +20,10 @@
         <div :class="question.cssClasses.switchThumbCircle"></div>
       </div>
     </div>
-    <div :class="question.cssClasses.switchCaption">
+    <div
+      v-if="question.isLabelRendered"
+      :class="question.cssClasses.switchCaption"
+    >
       <div :class="question.cssClasses.switchTitle" :id="question.labelRenderedAriaID">
         <SvComponent :is="'survey-string'" :locString="question.locTitle" />
       </div>

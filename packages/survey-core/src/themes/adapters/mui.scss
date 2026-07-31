@@ -249,10 +249,13 @@
   --sjs2-typography-font-size-component-input-content: 1rem;
   --sjs2-typography-font-size-component-question-description: 0.75rem;
   --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+  --sjs2-layout-component-question-description-padding-horizontal: 14px;
+  --sjs2-layout-component-question-description-padding-top: 3px;
+  --sjs2-layout-component-question-box-gap-vertical: 0;
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
-  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-component-question-title: 1.4375em;
   --sjs2-typography-font-weight-component-question-title: 400;
 
   --sjs2-color-component-panel-default-title: var(--mui-palette-text-primary);
@@ -265,6 +268,28 @@
   --sjs2-typography-font-size-component-header-title: 1.5rem;
   --sjs2-typography-font-size-component-header-description: 1.25rem;
   --sjs2-typography-font-weight-component-header-description: 500;
+
+  /* CardHeader / CardContent use theme.spacing(2) = 16px */
+  --sjs2-color-component-header-default-title: var(--mui-palette-text-primary);
+  --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
+
+  --sjs2-layout-component-panel-header-padding-top: 16px;
+  --sjs2-layout-component-panel-header-padding-bottom: 16px;
+  --sjs2-layout-component-panel-header-padding-left: 16px;
+  --sjs2-layout-component-panel-header-padding-right: 16px;
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: 16px;
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: 8px;
+  --sjs2-layout-component-panel-dynamic-header-padding-left: 16px;
+  --sjs2-layout-component-panel-dynamic-header-padding-right: 16px;
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: 24px;
+  --sjs2-layout-component-panel-content-area-padding-horizontal: 16px;
+  --sjs2-layout-component-panel-content-area-gap-vertical: 16px;
+
+  --sjs2-color-utility-body: transparent;
+  --sjs2-color-utility-surface-survey: transparent;
 }
 
 /* input */
@@ -339,7 +364,7 @@
 
   &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
-      transform: translate(8px, 15px) scale(1);
+      transform: translate(8px, 17px) scale(1);
     }
     input,
     textarea {
@@ -825,7 +850,6 @@
 }
 
 .sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
   border: none;
 }
 
@@ -846,9 +870,4 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }

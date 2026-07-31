@@ -301,6 +301,30 @@
 
   --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-typography-font-size-component-header-description: 1em;
+
+  /* Card / CardHeader / CardContent — stock p-6 / px-6 (style files may override) */
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 6);
+  --sjs2-color-component-header-default-title: var(--card-foreground);
+  --sjs2-color-component-page-default-title: var(--card-foreground);
+  --sjs2-color-component-panel-default-title: var(--card-foreground);
+
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-spacing);
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs2-shadcn-card-spacing);
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
+
+  --sjs2-color-utility-body: transparent;
+  --sjs2-color-utility-surface-survey: transparent;
 }
 
 .sd-action--large {
@@ -564,7 +588,6 @@
 
 /* frames / complex headers */
 .sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
   border: none;
 }
 .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
@@ -577,9 +600,4 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }

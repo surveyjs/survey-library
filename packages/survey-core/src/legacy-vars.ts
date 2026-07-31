@@ -4,6 +4,7 @@ export const legacyCssVariables = {
     "--sjs2-color-utility-property-grid",
     "--sjs2-color-utility-tabs",
     "--sjs2-color-utility-toolbox",
+    "--sjs2-color-utility-sheet",
     "--sjs2-color-component-action-alert-quaternary-surface-default-bg",
     "--sjs2-color-component-action-alert-quaternary-surface-hovered-bg",
     "--sjs2-color-component-action-brand-quaternary-surface-default-bg",
@@ -13,7 +14,6 @@ export const legacyCssVariables = {
   ],
   "--sjs-general-backcolor-dark": "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
   "--sjs-general-backcolor-dim": ["--sjs2-color-bg-neutral-tertiary-dim",
-    "--sjs2-color-utility-surface-survey-panelless",
     "--sjs2-color-utility-surface-survey"], //rgba(243, 243, 243, 1)",
   "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
   "--sjs-general-backcolor-dim-dark": "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
@@ -26,11 +26,25 @@ export const legacyCssVariables = {
   ],
   //"--sjs-general-dim-forecolor": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.91)",
   //"--sjs-general-dim-forecolor-light": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.45)",
-  "--sjs-primary-backcolor": "--sjs2-color-project-brand-600", //"rgba(25, 179, 148, 1)",
+  "--sjs-primary-backcolor": [
+    "--sjs2-color-project-brand-600", //"rgba(25, 179, 148, 1)",
+    "--sjs2-color-component-tagbox-item-default-bg",
+    "--sjs2-color-component-tagbox-item-hovered-bg",
+  ],
   "--sjs-primary-backcolor-light": "--sjs2-color-bg-brand-secondary", //"rgba(25, 179, 148, 0.1)",
   "--sjs-primary-backcolor-dark": "--sjs2-color-bg-brand-primary-dim", //rgba(20, 164, 139, 1)",
-  "--sjs-primary-forecolor": "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
-  "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
+  "--sjs-primary-forecolor": [
+    "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
+    "--sjs2-color-component-tagbox-item-default-label",
+    "--sjs2-color-component-tagbox-item-hovered-label",
+    "--sjs2-color-component-tagbox-item-action-hovered-icon",
+    "--sjs2-color-component-tagbox-item-action-pressed-icon",
+    "--sjs2-color-component-tagbox-item-action-default-icon",
+  ],
+  "--sjs-primary-forecolor-light": [
+    "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
+    "--sjs2-color-component-tagbox-item-action-hovered-bg",
+  ],
   "--sjs-base-unit": ["--sjs2-base-unit-size", "--sjs2-base-unit-spacing"], //"8px"
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
   "--sjs-shadow-small": [
@@ -65,9 +79,15 @@ export const legacyCssVariables = {
   "--sjs-special-yellow-light": "--sjs2-color-bg-warning-secondary", //rgba(255, 152, 20, 0.1)",
   "--sjs-special-yellow-forecolor": "--sjs2-color-fg-warning-on-primary", //rgba(255, 255, 255, 1)",
 
-  "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
+  "--sjs-editorpanel-cornerRadius": [
+    "--sjs2-radius-form",
+    "--sjs2-radius-component-formbox"
+  ],
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
-  "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
+  "--sjs-editorpanel-hovercolor": [
+    "--sjs2-color-component-check-false-hovered-bg",
+    "--sjs2-color-component-boolean-item-false-hovered-bg"
+  ],
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",
   "--sjs-questionpanel-backcolor": [
     "--sjs2-color-component-panel-default-bg",

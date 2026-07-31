@@ -29,11 +29,13 @@ export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
     return (
       <div className={cssClasses.rootSwitch} onClick={() => this.question.booleanValue = !this.question.booleanValue}>
         {button}
-        <div className={cssClasses.switchCaption}>
-          <div className={cssClasses.switchTitle} id={this.question.labelRenderedAriaID}>
-            {SurveyElementBase.renderLocString(this.question.locTitle)}
+        {this.question.isLabelRendered && (
+          <div className={cssClasses.switchCaption}>
+            <div className={cssClasses.switchTitle} id={this.question.labelRenderedAriaID}>
+              {SurveyElementBase.renderLocString(this.question.locTitle)}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }

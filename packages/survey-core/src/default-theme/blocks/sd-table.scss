@@ -26,7 +26,7 @@
 .sd-element--with-frame.sd-element--compact {
   .sd-table-wrapper {
     --sd-table-sticky-background-color: #{table-sticky-background(
-        (var(--sjs2-color-utility-surface-survey-panelless), var(--sjs2-color-utility-body))
+        (var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
       )};
   }
 }
@@ -101,7 +101,7 @@
 
     .sd-table__row:nth-of-type(odd) {
       --sd-table-sticky-background-color: #{table-sticky-background(
-          (#{$background-dark}, var(--sjs2-color-utility-surface-survey-panelless), var(--sjs2-color-utility-body))
+          (#{$background-dark}, var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
         )};
 
       & > td.sd-table__cell:not(.sd-table__cell--actions),

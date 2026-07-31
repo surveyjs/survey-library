@@ -19,6 +19,9 @@
   --sjs2-color-component-formbox-default-border: transparent;
   --sjs2-border-effect-component-formbox-default: inset 0 calc(-1 * 1px) 0 0 var(--input);
   --sjs2-border-effect-component-formbox-focused: inset 0 calc(-1 * 1px) 0 0 var(--ring);
+  --sjs2-border-effect-component-formbox-invalid: 0 0 0 calc(-1 * 1px) var(--destructive);
+  --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 calc(-1 * 1px) var(--destructive);
+
   --sjs2-border-effect-component-formbox-a11y: 0 0 0 0 transparent;
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */
   --sjs2-layout-component-input-medium-content-padding-horizontal: 0; /* px-0 */
@@ -59,6 +62,7 @@
   --sjs2-typography-font-size-component-header-title: var(--text-lg);
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 8); /* [--card-spacing:--spacing(8)] */
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
@@ -113,4 +117,9 @@
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(calc(100% + 2px));
+}
+
+.sd-formbox--error {
+  --tw-ring-shadow: 0 0 0 1px transparent;
+  --shadcn-formbox-border-error: inset 0 -1px 0 0 var(--shadcn-border-color);
 }

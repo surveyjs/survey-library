@@ -62,6 +62,7 @@
   --sjs2-typography-font-size-component-header-title: var(--text-lg);
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 8); /* [--card-spacing:--spacing(8)] */
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */

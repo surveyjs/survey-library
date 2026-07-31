@@ -368,12 +368,46 @@ QUnit.test("Run dateDiff by days", function(assert) {
   (<any>values).d1 = undefined;
   assert.equal(runner.run(values), null, "a value is undefined");
 });
+QUnit.test("Run dateDiff by hours", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'hours')");
+  const d1 = new Date("2021-02-02");
+  const d2 = new Date("2021-02-03");
+  d1.setHours(1, 0, 0, 0);
+  d2.setHours(12, 0, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), 24 + 11, "35 hours");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
+QUnit.test("Run dateDiff by minutes", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'minutes')");
+  const d1 = new Date("2021-02-01");
+  const d2 = new Date("2021-02-02");
+  d1.setHours(1, 10, 0, 0);
+  d2.setHours(12, 25, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), (24 + 11) * 60 + 15, "minutes across days");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
 QUnit.test("Run dateDiff by minutes Bug#10177", function(assert) {
   const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'minutes')");
   const d1 = new Date("2025-07-25T13:00");
   const d2 = new Date("2025-07-25T13:05");
   const values = { d1: d1, d2: d2 };
-  assert.equal(runner.run(values), 5, "minutes");
+  assert.equal(runner.run(values), 5, "minutes same hour");
+});
+QUnit.test("Run dateDiff by minutes across hour boundary", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({start}, {end}, 'minutes')");
+  const values = { start: "2026-07-31T00:58", end: "2026-07-31T01:05" };
+  assert.equal(runner.run(values), 7, "7 minutes from 00:58 to 01:05");
+});
+QUnit.test("Run dateDiff by seconds", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'seconds')");
+  const d1 = new Date("2025-07-25T02:13:48");
+  const d2 = new Date("2025-07-25T02:15:05");
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), 77, "seconds");
 });
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");

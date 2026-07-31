@@ -23,13 +23,6 @@
       )
     )};
 }
-.sd-element--with-frame.sd-element--compact {
-  .sd-table-wrapper {
-    --sd-table-sticky-background-color: #{table-sticky-background(
-        (var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
-      )};
-  }
-}
 
 .sd-table {
   --sd-table-cell-width: 10000px;

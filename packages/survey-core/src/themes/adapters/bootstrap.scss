@@ -436,6 +436,12 @@
   font-size: var(--sjs2-typography-font-size-component-action-small-content);
 }
 
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+	background-color: var(--bs-body-bg);
+	border-color: var(--bs-border-color-translucent)
+}
+
 /* tables */
 .sd-table {
   --sd-table-cell-width: initial;

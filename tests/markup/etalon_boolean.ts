@@ -323,5 +323,34 @@ registerMarkupTests(
     },
     snapshot: "boolean-switch-value-false-readonly",
   },
+  {
+    name: "Test Boolean Switch question markup: useTitleAsLabel is true by default",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          title: "Question title",
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-title-as-label",
+  },
+  {
+    name: "Test Boolean Switch question markup: useTitleAsLabel is false",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          title: "Question title",
+          displayMode: "switch",
+          useTitleAsLabel: false
+        }
+      ]
+    },
+    snapshot: "boolean-switch-no-label",
+  },
   ]
 );

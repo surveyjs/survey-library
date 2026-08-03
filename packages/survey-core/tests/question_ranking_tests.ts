@@ -843,3 +843,115 @@ QUnit.test("Response is reset on changing questionsOnPageMode", (assert) => {
   assert.deepEqual(q1.renderedRankingChoices[0].value, 3, "#4");
 });
 // EO selectToRankEnabled
+
+QUnit.test("Ranking: unranked choices are rendered when defaultValue contains a part of choices, Bug#7919", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        defaultValue: ["Item 3", "Item 2", "Item 1"],
+        choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+      },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.value, ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"], "the value contains all choices");
+  assert.deepEqual(q1.rankingChoices.map(item => item.value), ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"], "ranked choices go first, then the rest");
+  assert.deepEqual(q1.renderedRankingChoices.map(item => item.value), ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"], "renderedRankingChoices");
+});
+
+QUnit.test("Ranking: the new item is rendered in the design mode if defaultValue is set, Bug#7919", (assert) => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        defaultValue: ["Item 3", "Item 2", "Item 1"],
+        choices: ["Item 1", "Item 2", "Item 3"]
+      },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices.indexOf(q1.newItem), 3, "the new item is visible");
+  assert.deepEqual(q1.rankingChoices.map(item => item.value), ["Item 3", "Item 2", "Item 1", "newitem"], "the new item is rendered");
+
+  q1.choices.push(new ItemValue("Item 4"));
+  assert.deepEqual(q1.rankingChoices.map(item => item.value), ["Item 3", "Item 2", "Item 1", "Item 4", "newitem"], "the added choice is rendered");
+  assert.deepEqual(q1.value, ["Item 3", "Item 2", "Item 1", "Item 4"], "the new item is not added into the value");
+});
+
+QUnit.test("Ranking: defaultValue is synchronized with choices in the design mode, Bug#7919", (assert) => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        defaultValue: ["Item 3", "Item 2", "Item 1"],
+        choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+      },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.defaultValue, ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"], "the defaultValue contains all choices on loading");
+
+  q1.choices.push(new ItemValue("Item 6"));
+  assert.deepEqual(q1.defaultValue, ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5", "Item 6"], "the added choice is in the defaultValue");
+
+  q1.choices.splice(0, 1);
+  assert.deepEqual(q1.defaultValue, ["Item 3", "Item 2", "Item 4", "Item 5", "Item 6"], "the removed choice is deleted from the defaultValue");
+});
+
+QUnit.test("Ranking: defaultValue is not created in the design mode if it is empty, Bug#7919", (assert) => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "ranking", name: "q1", choices: ["Item 1", "Item 2", "Item 3"] },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  q1.choices.push(new ItemValue("Item 4"));
+  assert.notOk(q1.defaultValue, "the defaultValue is empty");
+  assert.notOk(survey.toJSON().pages[0].elements[0].defaultValue, "the defaultValue is not serialized");
+});
+
+QUnit.test("Ranking: defaultValue is not changed at run-time, Bug#7919", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        defaultValue: ["Item 3", "Item 2", "Item 1"],
+        choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+      },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.defaultValue, ["Item 3", "Item 2", "Item 1"], "the defaultValue is untouched");
+  assert.deepEqual(survey.data, { q1: ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"] }, "the value contains all choices");
+});
+
+QUnit.test("Ranking: defaultValue is not synchronized if selectToRankEnabled, Bug#7919", (assert) => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        selectToRankEnabled: true,
+        defaultValue: ["Item 3"],
+        choices: ["Item 1", "Item 2", "Item 3"]
+      },
+    ],
+  });
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  q1.choices.push(new ItemValue("Item 4"));
+  assert.deepEqual(q1.defaultValue, ["Item 3"], "the defaultValue is untouched");
+  assert.deepEqual(q1.rankingChoices.map(item => item.value), ["Item 3"], "only the ranked choice is rendered");
+});

@@ -136,7 +136,7 @@
   --sjs2-size-component-checkbox-icon: 18px;
   --sjs2-size-component-radio-icon: 20px;
   --sjs2-size-component-radio-box: 20px;
-  --sjs2-layout-component-labeled-item-box-gap-horizontal: 12px;
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: 11px;
   --sjs2-layout-component-labeled-group-box-gap-vertical: 18px;
   --sjs2-layout-component-labeled-group-box-padding-vertical: 9px;
 
@@ -251,6 +251,7 @@
   --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
   --sjs2-layout-component-question-description-padding-horizontal: 14px;
   --sjs2-layout-component-question-description-padding-top: 3px;
+  --sjs2-typography-line-height-component-question-description: 1.66;
   --sjs2-layout-component-question-box-gap-vertical: 0;
 
   --sjs2-typography-line-height-default: 1.43;
@@ -273,6 +274,8 @@
   --sjs2-color-component-header-default-title: var(--mui-palette-text-primary);
   --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
 
+  --sjs2-typography-line-height-component-panel-title: 1.6;
+  
   --sjs2-layout-component-panel-header-padding-top: 16px;
   --sjs2-layout-component-panel-header-padding-bottom: 16px;
   --sjs2-layout-component-panel-header-padding-left: 16px;
@@ -287,6 +290,7 @@
   --sjs2-layout-component-panel-content-area-padding-bottom: 24px;
   --sjs2-layout-component-panel-content-area-padding-horizontal: 16px;
   --sjs2-layout-component-panel-content-area-gap-vertical: 16px;
+  --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--mui-spacing) * 2);
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
@@ -364,7 +368,7 @@
 
   &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
-      transform: translate(8px, 17px) scale(1);
+      transform: translate(8px, 16px) scale(1);
     }
     input,
     textarea {
@@ -616,6 +620,10 @@
   animation: sd-check-ripple-press calc(var(--mui-to-sjs-animation-speed-slow) * 2) ease-out forwards;
 }
 
+.sd-selectbase--row {
+  column-gap: 16px;
+}
+
 @keyframes sd-check-ripple-press {
   0% {
     opacity: 0.3;
@@ -662,10 +670,13 @@
   --sd-boolean-switch-button-spacing: 0px;
   --sd-boolean-switch-button-width: 34px;
   --sd-boolean-switch-button-heigth: 14px;
+
+  padding-block: 7px;
 }
 
 .sd-boolean-switch__button {
-  margin-inline: 9px;
+  margin-inline-start: 12px;
+  margin-inline-end: 4px;
 }
 
 .sd-boolean-switch__thumb {
@@ -823,9 +834,14 @@
   }
 
   .sd-progress-buttons__page-title {
-    margin-top: 16px;
+    margin-top: 10px;
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 1.43rem;
+  }
+
+  .sd-progress-buttons__list-container {
+    padding-top: 0;
   }
 
   .sd-progress-buttons__list li {

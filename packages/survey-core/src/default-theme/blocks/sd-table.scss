@@ -372,9 +372,9 @@
 
 .sd-table-wrapper {
   display: flex;
-  margin: 0 calc(-1 * var(--sd-base-padding));
+  margin: 0 calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   width: fit-content;
-  min-width: calc(100% + 2 * var(--sd-base-padding));
+  min-width: calc(100% + 2 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
 
   &:before,
   &:after {
@@ -382,18 +382,18 @@
     display: block;
     position: sticky;
     min-height: 100%;
-    width: calc(var(--sd-base-padding) - var(--sjs2-spacing-x100));
+    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal) - var(--sjs2-spacing-x100));
     flex-shrink: 0;
     background: var(--sd-table-sticky-background-color);
     z-index: 11;
   }
 
   &::before {
-    left: calc(-1 * var(--sd-base-padding));
+    left: calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   }
 
   &:after {
-    right: calc(-1 * var(--sd-base-padding));
+    right: calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   }
 
   & > * {
@@ -403,7 +403,7 @@
 
 .sd-table-wrapper--left {
   margin-left: var(--sjs2-spacing-negative-x300);
-  min-width: calc(100% + 1 * var(--sd-base-padding));
+  min-width: calc(100% + 1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   &::before {
     left: var(--sjs2-spacing-negative-x300);
     width: var(--sjs2-size-x200);
@@ -438,10 +438,10 @@
   // Commented out "&.sd-element--nested > .sd-question__content": content is no longer a direct child of the question root
   // &.sd-element--nested > .sd-question__content,
   &:not(.sd-element--with-frame):not(.sd-element--nested) {
-    padding-right: var(--sd-base-padding);
-    margin-right: calc(-1 * var(--sd-base-padding));
-    padding-left: var(--sd-base-padding);
-    margin-left: calc(-1 * var(--sd-base-padding));
+    padding-right: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+    margin-right: calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding-left: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+    margin-left: calc(-1 * var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     box-sizing: content-box;
   }
 }
@@ -449,13 +449,13 @@
 .sd-row--multiple {
   // Commented out: content is no longer a direct child of the question root, see the updated rule below
   // .sd-question--table.sd-element--nested > .sd-question__content {
-  //   padding-right: calc(var(--sd-base-padding) + 2px);
+  //   padding-right: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal) + 2px);
   // }
   .sd-question--table.sd-element--nested
     > .sd-question__container
     > .sd-question__header-and-content-container
     > .sd-question__content {
-    padding-right: calc(var(--sd-base-padding) + 2px);
+    padding-right: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal) + 2px);
   }
 }
 
@@ -495,7 +495,9 @@
   }
   .sd-table {
     display: block;
-    width: calc(100% - 2 * var(--sd-base-padding) + var(--sjs2-spacing-x200));
+    width: calc(
+      100% - 2 * var(--sjs2-layout-component-panel-content-area-padding-horizontal) + var(--sjs2-spacing-x200)
+    );
 
     & > tbody {
       display: block;

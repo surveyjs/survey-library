@@ -81,6 +81,24 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px
     rgba(from var(--mui-palette-primary-main) r g b / 0.5);
 
+  /* text buttons */
+  --sjs2-color-component-action-brand-secondary-default-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-default-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-default-bg: transparent;
+  --sjs2-border-effect-component-action-brand-secondary-default: inset 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-hovered-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-hovered-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-hovered-bg: rgba(
+    var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity)
+  );
+  --sjs2-border-effect-component-action-brand-secondary-hovered: inset 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-disabled-label: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-secondary-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-secondary-disabled-bg: transparent;
+  --sjs2-border-effect-component-action-brand-secondary-disabled: inset 0 0 0 0 transparent;
+
   /* secondary buttons */
   --sjs2-color-component-action-neutral-secondary-default-bg: transparent;
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--mui-palette-primary-main);

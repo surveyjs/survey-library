@@ -101,6 +101,7 @@ export class QuestionBooleanModel extends Question {
    * Default value: `true`
    *
    * Set this property to `false` to display the question title according to the [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#titleLocation) property.
+   * @since 3.0.0
    */
   @property({ defaultValue: true }) useTitleAsLabel: boolean;
 

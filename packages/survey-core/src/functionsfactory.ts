@@ -264,8 +264,8 @@ function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
   if (type === "hours" || type === "minutes" || type === "seconds") {
-    const date1: any = createDate("function-dateDiffMonths", params[0]);
-    const date2: any = createDate("function-dateDiffMonths", params[1]);
+    const date1: any = createDate("function-dateDiff", params[0]);
+    const date2: any = createDate("function-dateDiff", params[1]);
     const diffMs = Math.abs(date2 - date1);
     if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
     if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));

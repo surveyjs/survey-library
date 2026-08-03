@@ -16,20 +16,9 @@
   width: calc(100% + 2 * var(--sd-base-padding));
   border: none;
   height: 1px;
-  background-color: $border-light;
+  background-color: var(--sjs2-color-component-panel-default-border);;
   position: sticky;
   left: calc(-1 * var(--sd-base-padding));
-}
-
-.sd-element--complex > .sd-element__header {
-  &:after {
-    content: " ";
-    display: block;
-    height: 1px;
-    position: relative;
-    background: var(--sjs2-color-component-panel-default-border);
-    bottom: 0;
-  }
 }
 
 .sd-element--nested.sd-element--complex {

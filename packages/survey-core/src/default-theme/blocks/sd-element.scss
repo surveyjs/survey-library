@@ -121,7 +121,7 @@
   border-radius: var(--sjs2-radius-component-panel);
   box-sizing: border-box;
   background: var(--sjs2-color-component-panel-default-bg);
-  box-shadow: $shadow-small;
+  box-shadow: var(--sjs2-color-component-panel-default-border);
 }
 
 // The element is sized by the survey layout, so it must never grow past its row. Without this,

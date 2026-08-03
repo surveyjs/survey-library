@@ -263,23 +263,15 @@ FunctionFactory.Instance.register("age", age);
 function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
-  const isHours = type === "hours" || type === "minutes";
-  const dType = isHours ? "days" : type;
-  let days = dateDiffMonths(params[0], params[1], dType);
-  if (isHours) {
-    const date1 = createDate("function-dateDiffMonths", params[0]);
-    const date2 = createDate("function-dateDiffMonths", params[1]);
-    if (date2.getHours() > date1.getHours() || (type !== "hours" && date2.getHours() === date1.getHours() && date2.getMinutes() > date1.getMinutes())) {
-      days -= 1;
-    }
-    let hours = days * 24 + date2.getHours() - date1.getHours();
-    if (type === "hours") return hours;
-    if (date2.getMinutes() < date1.getMinutes()) {
-      hours -= 1;
-    }
-    return hours * 60 + date2.getMinutes() - date1.getMinutes();
+  if (type === "hours" || type === "minutes" || type === "seconds") {
+    const date1: any = createDate("function-dateDiff", params[0]);
+    const date2: any = createDate("function-dateDiff", params[1]);
+    const diffMs = Math.abs(date2 - date1);
+    if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
+    if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));
+    return Math.ceil(diffMs / 1000);
   }
-  return days;
+  return dateDiffMonths(params[0], params[1], type);
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 

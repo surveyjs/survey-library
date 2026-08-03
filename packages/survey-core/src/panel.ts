@@ -822,7 +822,7 @@ export class PanelModelBase extends SurveyElement<Question>
     for (let i = 0; i < questions.length; i++) {
       const question = questions[i];
       if (question.isEmpty()) continue;
-      if (!includeDefaultValues && question.isValueDefault) continue;
+      if (!includeDefaultValues && (question.isValueDefault || !question.hasInput)) continue;
       return true;
     }
     return false;

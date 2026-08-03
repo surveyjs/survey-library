@@ -35,7 +35,7 @@
   --sjs2-color-bg-basic-primary-dim: #303030;
 
   /* dark themes read better with a slightly stronger contrast on secondary text */
-  --sjs2-color-fg-basic-secondary: var(--bs-secondary-color, rgba(255, 255, 255, 0.75));
+  --sjs2-color-fg-basic-secondary: var(--bs-secondary-text-emphasis);
 
   /* Darkly enlarges headings ($h1: 3rem, $h2: 2.5rem, $h3: 2rem); weight stays default 500.
      header = h2, page = h3. panel (h5) keeps the base 1.25rem / 500. */

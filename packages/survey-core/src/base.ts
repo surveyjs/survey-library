@@ -10,7 +10,7 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ExpressionRunner } from "./expressions/expressionRunner";
+import { ExpressionRunner, ExpressionRunnerBase } from "./expressions/expressionRunner";
 import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
@@ -1144,15 +1144,37 @@ export class Base implements IObjectValueContext {
           doRun();
           return false;
         }
+        const cacheHost: any = this.getConditionResultsCacheHost(runner);
+        if (!!cacheHost) {
+          const cached = cacheHost.getCachedConditionResult(expression);
+          if (!!cached) {
+            onExecute(cached.res);
+            return true;
+          }
+        }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
           onExecute(value);
           info.isRunning = false;
+          // reference results are not shared to avoid aliasing the same object between elements
+          if (!!cacheHost && (value === null || typeof value !== "object")) {
+            cacheHost.setCachedConditionResult(expression, value);
+          }
         };
         doRun();
       }
     }
     return true;
+  }
+  // Overridden by elements that resolve expression variables directly against the survey
+  // data - only they can share results of data-only expressions with each other
+  protected canShareConditionResults(): boolean {
+    return false;
+  }
+  private getConditionResultsCacheHost(runner: ExpressionRunnerBase): any {
+    if (!this.canShareConditionResults() || !runner.isResultShareable()) return undefined;
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getCachedConditionResult === "function" ? survey : undefined;
   }
   protected getPropertiesCopy(properties: HashTable<any>, propName?: string): HashTable<any> {
     const copy: HashTable<any> = {};

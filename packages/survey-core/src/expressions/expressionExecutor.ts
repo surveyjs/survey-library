@@ -144,6 +144,13 @@ export class ExpressionExecutor implements IExpressionExecutor {
   private parser = new ConditionsParser();
   private isAsyncValue: boolean = false;
   private hasFunctionValue: boolean = false;
+  /* Parsed expression trees are shared between executors: identical expression strings are
+     common (the same visibleIf/choicesEnableIf repeated across questions) and parsing is
+     expensive. Operand trees are treated as immutable after parsing. hasFunction is structural
+     and can be cached; isAsync depends on the function registry at the time of creation, so it
+     is recalculated per executor. */
+  private static parsedExpressions = new Map<string, { operand: Operand, hasFunction: boolean }>();
+  private static maxParsedExpressions = 10000;
   constructor(expression: string) {
     this.setExpression(expression);
   }
@@ -153,11 +160,19 @@ export class ExpressionExecutor implements IExpressionExecutor {
   private setExpression(value: string): void {
     if (this.expression === value) return;
     this.expressionValue = value;
-    this.operand = this.parser.parseExpression(value);
-    this.hasFunctionValue = this.canRun() ? this.operand.hasFunction() : false;
-    this.isAsyncValue = this.hasFunction()
-      ? this.operand.hasAsyncFunction()
-      : false;
+    const cache = ExpressionExecutor.parsedExpressions;
+    let parsed = cache.get(value);
+    if (parsed === undefined) {
+      const operand = this.parser.parseExpression(value) || null;
+      parsed = { operand: operand, hasFunction: !!operand ? operand.hasFunction() : false };
+      if (cache.size >= ExpressionExecutor.maxParsedExpressions) {
+        cache.clear();
+      }
+      cache.set(value, parsed);
+    }
+    this.operand = parsed.operand;
+    this.hasFunctionValue = parsed.hasFunction;
+    this.isAsyncValue = parsed.hasFunction ? this.operand.hasAsyncFunction() : false;
   }
   public getVariables(): Array<string> {
     if (!this.operand) return [];

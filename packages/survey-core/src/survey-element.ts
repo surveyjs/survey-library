@@ -604,6 +604,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data: any = el.data;
     return !!data && data !== el && data.isQuestion === true ? data : undefined;
   }
+  // Elements nested into matrices, dynamic panels or custom components resolve expression
+  // variables relative to their parent question value and cannot share condition results
+  protected canShareConditionResults(): boolean {
+    return !SurveyElement.getParentQuestionOrDataOwner(this);
+  }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();
   }

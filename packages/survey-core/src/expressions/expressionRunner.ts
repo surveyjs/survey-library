@@ -3,6 +3,7 @@ import { IValueGetterContext, VariableGetterContextEx } from "../conditions/cond
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
+import { settings } from "../settings";
 
 export { IExpressionExecutorBase };
 
@@ -32,6 +33,7 @@ export class ExpressionRunnerBase {
     this.expressionExecutor.onComplete = (res: any, id: number) => { this.doOnComplete(res, id); };
     this.variables = undefined;
     this.containsFunc = undefined;
+    this.shareableValue = undefined;
   }
 
   public getVariables(): Array<string> {
@@ -39,6 +41,45 @@ export class ExpressionRunnerBase {
       this.variables = this.expressionExecutor.getVariables();
     }
     return this.variables;
+  }
+  private shareableValue: boolean;
+  // The result depends on survey values/variables only: no functions and no variables that are
+  // resolved relative to the evaluation context ({item}, {row}, {panel}, ...) or that bypass
+  // the value storage ({pageno}, $-property references, ...). For such expressions the result
+  // is the same for every element that runs them, so it can be shared (see
+  // SurveyModel.getCachedConditionResult).
+  public isResultShareable(): boolean {
+    if (this.shareableValue === undefined) {
+      this.shareableValue = this.calcIsResultShareable();
+    }
+    return this.shareableValue;
+  }
+  private static builtInVariableNames = ["pageno", "pagecount", "correctedanswers", "correctanswers",
+    "correctedanswercount", "incorrectedanswers", "incorrectanswers", "incorrectedanswercount",
+    "questioncount", "locale", "length"];
+  private calcIsResultShareable(): boolean {
+    if (!this.canRun() || this.hasFunction()) return false;
+    const vars = this.getVariables();
+    if (!Array.isArray(vars)) return false;
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    const expVar: any = settings.expressionVariables;
+    for (let i = 0; i < vars.length; i++) {
+      const v = vars[i];
+      if (!v) return false;
+      if (!!propPrefix && v[0] === propPrefix) return false;
+      let first = v;
+      const dotIndex = first.indexOf(".");
+      if (dotIndex > -1) first = first.substring(0, dotIndex);
+      const bracketIndex = first.indexOf("[");
+      if (bracketIndex > -1) first = first.substring(0, bracketIndex);
+      const firstLower = first.toLowerCase();
+      if (ExpressionRunnerBase.builtInVariableNames.indexOf(firstLower) > -1) return false;
+      for (const key in expVar) {
+        const varName = expVar[key];
+        if (!!varName && typeof varName === "string" && varName.toLowerCase() === firstLower) return false;
+      }
+    }
+    return true;
   }
 
   public hasFunction(noParamsOnly?: boolean): boolean {

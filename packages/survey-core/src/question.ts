@@ -1794,6 +1794,17 @@ export class Question extends SurveyElement<Question>
    */
   @property() enableIf: string;
   public surveyChoiceItemVisibilityChange(): void { }
+  protected canShareConditionResults(): boolean {
+    if (!super.canShareConditionResults()) return false;
+    // question types with a specialized value getter context (multipletext, matrices,
+    // dynamic panels, composite) resolve variables relative to their own structure
+    const context = this.getValueGetterContext();
+    if (!context || context.constructor !== QuestionValueGetterContext) return false;
+    // an unresolved variable is looked up in the question's own value first
+    // (see QuestionValueGetterContext), so an object value can shadow survey-level names
+    const val = this.value;
+    return !val || typeof val !== "object" || Array.isArray(val);
+  }
   public runCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
     if (!properties) properties = {};

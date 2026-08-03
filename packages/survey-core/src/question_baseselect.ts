@@ -788,8 +788,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return hasChanges;
   }
+  // For an expression that does not depend on {item}, evaluate it once (or take the result
+  // shared between questions from the survey cache) instead of running it for every choice item
+  private getSharedItemsCondition(runner: ConditionRunner, properties: HashTable<any>): ConditionRunner {
+    if (!runner || !this.canShareConditionResults() || !runner.isResultShareable()) return runner;
+    const survey: any = this.getSurvey();
+    if (!survey || typeof survey.getCachedConditionResult !== "function") return runner;
+    const expression = runner.expression;
+    let res: any;
+    const cached = survey.getCachedConditionResult(expression);
+    if (!!cached) {
+      res = cached.res;
+    } else {
+      res = runner.runContext(this.getValueGetterContext(), properties);
+      survey.setCachedConditionResult(expression, res);
+    }
+    return <any>{ runContext: (): any => res };
+  }
   protected runItemsEnableCondition(properties: HashTable<any>): any {
-    const condition = this.getChoicesCondition("choicesEnableIf");
+    const condition = this.getSharedItemsCondition(this.getChoicesCondition("choicesEnableIf"), properties);
     const hasChanged = ItemValue.runEnabledConditionsForItems(
       this.activeChoices,
       condition,
@@ -861,7 +878,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private runConditionsForItems(properties: HashTable<any>): boolean {
     this.filteredChoicesValue = [];
     const calcVisibility = this.changeItemVisibility();
-    const condition = this.areInvisibleElementsShowing ? null : this.getChoicesCondition("choicesVisibleIf");
+    const condition = this.areInvisibleElementsShowing ? null :
+      this.getSharedItemsCondition(this.getChoicesCondition("choicesVisibleIf"), properties);
     const choices = this.activeChoices;
     return ItemValue.runConditionsForItems(
       choices,
@@ -2097,7 +2115,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.isOtherValue(this.renderedValue)) {
       this.setRenderedValue(this.rendredValueFromData(this.value), false);
     }
-    this.onVisibleChanged();
+    // choice items affect the question visibility only when hideIfChoicesEmpty is set
+    // (see isVisibleCore); recalculating visibility for every select question is expensive
+    if (this.hideIfChoicesEmpty) {
+      this.onVisibleChanged();
+    }
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();
     }

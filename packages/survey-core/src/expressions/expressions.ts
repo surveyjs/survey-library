@@ -359,15 +359,17 @@ export class Variable extends Const {
     this.returnOriginalValue = val;
   }
   public evaluate(processValue?: ProcessValue): any {
-    this.valueInfo.name = this.variableName;
-    this.valueInfo.isOriginalValue = this.returnOriginalValue;
-    processValue.getValueInfo(this.valueInfo);
-    if (!this.valueInfo.hasValue) {
+    // operand trees are shared between runners (see ExpressionExecutor.parsedExpressions),
+    // so the evaluation scratch object must be local to the call
+    const valueInfo: any = { name: this.variableName, isOriginalValue: this.returnOriginalValue };
+    this.valueInfo = valueInfo;
+    processValue.getValueInfo(valueInfo);
+    if (!valueInfo.hasValue) {
       return this.returnJSONObject(this.variableName);
     }
-    let val = this.valueInfo.value;
-    if (this.valueInfo.onProcessValue) {
-      val = this.valueInfo.onProcessValue(val);
+    let val = valueInfo.value;
+    if (valueInfo.onProcessValue) {
+      val = valueInfo.onProcessValue(val);
     }
     return this.getCorrectValue(val);
   }

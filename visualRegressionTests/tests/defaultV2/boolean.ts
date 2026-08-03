@@ -95,7 +95,7 @@
 //             maxWidth: "768px",
 //             minWidth: "768px",
 //             width: "768px",
-//             renderAs: "radio"
+//             displayMode: "radio"
 //           },
 //         ]
 //       });

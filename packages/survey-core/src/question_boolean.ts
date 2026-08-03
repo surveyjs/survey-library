@@ -95,6 +95,14 @@ export class QuestionBooleanModel extends Question {
    */
   @property({ localizable: true }) label: string;
 
+  /**
+   * Specifies whether to display the question title as a label next to the checkbox or switch control. Applies only when [`displayMode`](#displayMode) is set to `"checkbox"` or `"switch"`.
+   *
+   * Default value: `true`
+   *
+   * Set this property to `false` to display the question title according to the [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#titleLocation) property.
+   * @since 3.0.0
+   */
   @property({ defaultValue: true }) useTitleAsLabel: boolean;
 
   get isLabelRendered(): boolean {
@@ -355,12 +363,13 @@ export class QuestionBooleanModel extends Question {
    *
    * Possible values:
    *
-   * - `"segmented"` (default) - Displays a toggle switch on wide screens and radio buttons on narrow screens.
-   * - `"radio"` - Displays Yes/No answers as radio buttons.
+   * - `"segmented"` (default) - Displays a segmented toggle on wide screens and radio buttons on narrow screens.
+   * - `"radio"` - Displays Yes/No options as radio buttons.
    * - `"checkbox"` - Displays a single checkbox.
    * - `"switch"` - Displays a switch control with the question title.
-   * - `"custom"` - Set automatically when the `renderAs` property contains a custom renderer name.
+   * - `"custom"` - Assigned automatically when the `renderAs` property contains a custom renderer name.
    * @since 3.0.0
+   * @see useTitleAsLabel
    */
   @property() displayMode: "segmented" | "radio" | "checkbox" | "switch" | "custom";
   private customRenderAs: string;

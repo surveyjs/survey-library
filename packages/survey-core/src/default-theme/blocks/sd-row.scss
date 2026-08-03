@@ -25,6 +25,8 @@
 .sd-panel:not(.sd-panel--as-page) {
   .sd-row--multiple {
     row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
+    margin-left:  calc(var(--sjs2-layout-component-panel-content-area-gap-horizontal) * -1);
+    width: calc(100% + var(--sjs2-layout-component-panel-content-area-gap-horizontal));
 
     & > div {
       --animation-padding-left: var(--sjs2-layout-component-panel-content-area-gap-horizontal);

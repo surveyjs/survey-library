@@ -83,7 +83,7 @@
   height: 1lh;
   width: 1lh;
   visibility: hidden;
-  fill: var(--sjs2-color-fg-basic-primary);
+  fill: $primary;
   position: absolute;
   top: var(--sjs2-spacing-x100);
 }
@@ -254,7 +254,7 @@
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  fill: var(--sjs2-color-fg-basic-primary);
+  fill: $primary;
 }
 
 .sv-ranking-shortcut .sv-ranking-item__text {

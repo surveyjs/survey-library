@@ -6937,6 +6937,85 @@ describe("Survey", () => {
     //the 'c' choice still exists, it is only invisible, so correctAnswer is preserved
     expect(q1.correctAnswer, "radiogroup correctAnswer is preserved for invisible choice").toBe("c");
   });
+  test("Quiz, correctQuestions progress for a dynamic panel with several panels, Bug#11656", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dynamicQ1",
+          correctAnswer: [{ subQuestion2: ["Item 1"] }],
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "subQuestion2",
+              correctAnswer: ["Item 2"],
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ],
+      showProgressBar: true,
+      progressBarType: "correctQuestions"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+    //the correctAnswer of the question inside the template is used, one quiz question per panel
+    panel.value = [{ subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, one panel").toBe(1);
+    expect(survey.getQuizQuestionCount(), "survey.getQuizQuestionCount, one panel").toBe(1);
+    expect(panel.correctAnswerCount, "correctAnswerCount, one panel").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "the answer is correct, one panel").toBe(1);
+    expect(survey.progressText, "progressText, one panel").toBe("Answered 1/1 questions");
+    //every new panel adds a new quiz question
+    panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, three panels").toBe(3);
+    expect(survey.getQuizQuestionCount(), "survey.getQuizQuestionCount, three panels").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, three panels").toBe(3);
+    expect(survey.getCorrectAnswerCount(), "all the answers are correct, three panels").toBe(3);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, three panels").toBe(0);
+    expect(survey.progressText, "progressText, three panels").toBe("Answered 3/3 questions");
+    //the second panel is answered incorrectly
+    panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, one incorrect answer").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, one incorrect answer").toBe(2);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, one incorrect answer").toBe(2);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, one incorrect answer").toBe(1);
+    expect(survey.progressText, "progressText, one incorrect answer").toBe("Answered 2/3 questions");
+    //an empty panel is a quiz question, but it is not answered correctly
+    panel.value = [{ subQuestion2: ["Item 2"] }, {}, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, an empty panel").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, an empty panel").toBe(2);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, an empty panel").toBe(2);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, an empty panel").toBe(1);
+    expect(survey.progressText, "progressText, an empty panel").toBe("Answered 2/3 questions");
+  });
+  test("Quiz, correctAnswer in a dynamic panel when its questions have no correctAnswer, Bug#11656", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dynamicQ1",
+          correctAnswer: [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }],
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "subQuestion2",
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+    //there are no quiz questions inside panels, the entire question value is compared with correctAnswer
+    panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 1"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, the answer is incorrect").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, the answer is incorrect").toBe(0);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, the answer is incorrect").toBe(1);
+    panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, the answer is correct").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, the answer is correct").toBe(1);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, the answer is correct").toBe(0);
+  });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
       "elements": [

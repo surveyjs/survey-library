@@ -31,6 +31,7 @@
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 0 transparent;
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 3);
 
   /* dropdown */
   --sjs2-radius-component-drop: calc(var(--radius) * 1.8);
@@ -48,8 +49,9 @@
   --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -0.5);
 
   /* common and other */
-  --sjs2-radius-component-panel: calc(var(--spacing) * 4);
+  --sjs2-radius-component-panel: min(var(--radius-4xl), 24px);
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 5); /* [--card-spacing:--spacing(5)] */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 6);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */

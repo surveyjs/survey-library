@@ -318,6 +318,8 @@
   --sjs2-typography-line-height-component-page-title: 1;
   --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-typography-line-height-component-header-title: 1;
+  --sjs2-typography-font-size-component-panel-title: var(--text-base);
+  --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
   --sjs2-typography-font-size-component-header-description: 1em;
 
   /* Card / CardHeader / CardContent — stock p-6 / px-6 (style files may override) */
@@ -326,8 +328,10 @@
   --sjs2-color-component-page-default-title: var(--card-foreground);
   --sjs2-color-component-panel-default-title: var(--card-foreground);
 
+  --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
+
   --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-header-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-panel-header-padding-bottom: 0;
   --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-spacing);
 
@@ -341,8 +345,14 @@
   --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
 
+  --sjs2-layout-component-question-box-gap-vertical: calc(var(--spacing) * 3);
+
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
+}
+
+.sd-page__title {
+  letter-spacing: var(--tracking-tight);
 }
 
 .sd-action--large {
@@ -536,6 +546,13 @@
   color: var(--destructive);
 }
 
+.sd-item__control-label {
+  align-items: center;
+}
+.sd-radio__decorator {
+  margin: 0;
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;
@@ -544,6 +561,9 @@
   --sd-boolean-switch-button-spacing: 1px;
   --sd-boolean-switch-button-width: 32px;
   --sd-boolean-switch-button-heigth: 18.4px;
+
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
 }
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {

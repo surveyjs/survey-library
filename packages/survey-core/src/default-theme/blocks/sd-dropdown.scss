@@ -15,11 +15,14 @@
   }
   select.sd-dropdown__input {
     position: absolute;
-    padding: 
-      calc(var(--sjs2-layout-component-input-medium-content-padding-vertical) + 
-        var(--sjs2-layout-component-formbox-medium-padding-vertical))
-      calc(var(--sjs2-layout-component-input-medium-content-padding-horizontal) + 
-        var(--sjs2-layout-component-formbox-medium-padding-horizontal));
+    padding: calc(
+        var(--sjs2-layout-component-input-medium-content-padding-vertical) +
+          var(--sjs2-layout-component-formbox-medium-padding-vertical)
+      )
+      calc(
+        var(--sjs2-layout-component-input-medium-content-padding-horizontal) +
+          var(--sjs2-layout-component-formbox-medium-padding-horizontal)
+      );
     top: 0;
     left: 0;
     right: 0;
@@ -72,6 +75,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  & > span {
+    position: absolute;
+  }
 }
 
 .sd-dropdown__filter-string-input {
@@ -95,6 +101,11 @@
   white-space: nowrap;
   display: inline-block;
   appearance: none;
+}
+.sd-dropdown__input-prefix-wrapper {
+  .sd-dropdown__filter-string-input {
+    position: static;
+  }
 }
 
 .sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {
@@ -122,6 +133,9 @@
   span {
     white-space: pre;
   }
+}
+.sd-dropdown__hint-suffix {
+  position: absolute;
 }
 .sd-dropdown__hint-prefix {
   align-items: center;

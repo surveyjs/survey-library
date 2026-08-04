@@ -862,6 +862,7 @@ QUnit.test("Ranking: unranked choices are rendered when defaultValue contains a 
 });
 
 QUnit.test("Ranking: the new item is rendered in the design mode if defaultValue is set, Bug#7919", (assert) => {
+  settings.supportCreatorV2 = true;
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -881,6 +882,7 @@ QUnit.test("Ranking: the new item is rendered in the design mode if defaultValue
   q1.choices.push(new ItemValue("Item 4"));
   assert.deepEqual(q1.rankingChoices.map(item => item.value), ["Item 3", "Item 2", "Item 1", "Item 4", "newitem"], "the added choice is rendered");
   assert.deepEqual(q1.value, ["Item 3", "Item 2", "Item 1", "Item 4"], "the new item is not added into the value");
+  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Ranking: defaultValue is synchronized with choices in the design mode, Bug#7919", (assert) => {

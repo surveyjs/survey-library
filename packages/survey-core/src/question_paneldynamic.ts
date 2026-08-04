@@ -1541,9 +1541,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private calcQuizCountInPanels(getCount: (q: Question) => number, getDefault: () => number): number {
     const questions = this.getQuizQuestionsInPanels();
-return questions.length === 0
-    ? getDefault()
-    : questions.reduce((res, q) => res + getCount(q), 0);
+    return questions.length === 0
+      ? getDefault()
+      : questions.reduce((res, q) => res + getCount(q), 0);
   }
   private getQuizQuestionsInPanels(): Array<Question> {
     const res: Array<Question> = [];

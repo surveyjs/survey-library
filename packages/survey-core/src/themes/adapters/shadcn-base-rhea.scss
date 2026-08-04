@@ -57,6 +57,11 @@
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
+.sd-comment {
+  border-radius: calc(var(--radius) * 1.8);
+}
+
 .sd-comment__grip {
   display: none;
 }
+

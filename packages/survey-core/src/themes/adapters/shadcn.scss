@@ -92,7 +92,7 @@
   --sjs2-layout-component-action-large-box-padding-vertical: calc(var(--spacing) * 2);
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 4);
   --sjs2-layout-component-action-large-box-gap: calc(var(--spacing) * 2); /* gap-2 */
-  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-large-label-padding-horizontal: 1px;
   --sjs2-layout-component-action-large-label-padding-vertical: 0;
   --sjs2-border-effect-component-action-large-default: 0px 0px 0px 0px transparent;
 
@@ -327,6 +327,7 @@
   --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--spacing) * 4);
 
   --sjs2-layout-component-question-box-gap-vertical: calc(var(--spacing) * 3);
 

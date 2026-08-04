@@ -42,7 +42,7 @@
     "lint-staged": "^15.4.3",
     "node-uuid": "1.4.7",
     "playwright": "1.60.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.25",
     "postcss-banner": "^4.0.1",
     "postcss-discard-comments": "^7.0.7",
     "postcss-url": "^10.1.3",

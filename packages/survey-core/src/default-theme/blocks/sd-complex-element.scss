@@ -16,7 +16,7 @@
   width: calc(100% + 2 * var(--sd-base-padding));
   border: none;
   height: 1px;
-  background-color: var(--sjs2-color-component-panel-default-border);;
+  background-color: $border-light;
   position: sticky;
   left: calc(-1 * var(--sd-base-padding));
 }

@@ -75,9 +75,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  & > span {
-    position: absolute;
-  }
 }
 
 .sd-dropdown__filter-string-input {
@@ -102,9 +99,17 @@
   display: inline-block;
   appearance: none;
 }
-.sd-dropdown__input-prefix-wrapper {
+.sd-dropdown:where(:not(.sd-dropdown__input-field-component, .sd-tagbox)) {
   .sd-dropdown__filter-string-input {
     position: static;
+  }
+  .sd-dropdown__input-prefix-wrapper {
+    & > span {
+      position: absolute;
+    }
+  }
+  .sd-dropdown__hint-suffix {
+    position: absolute;
   }
 }
 
@@ -133,9 +138,6 @@
   span {
     white-space: pre;
   }
-}
-.sd-dropdown__hint-suffix {
-  position: absolute;
 }
 .sd-dropdown__hint-prefix {
   align-items: center;

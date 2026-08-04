@@ -2220,18 +2220,17 @@ export class Question extends SurveyElement<Question>
    * @see SurveyModel.getQuizQuestions
    */
   public get quizQuestionCount(): number {
-    if (
-      this.isVisible &&
-      this.hasInput &&
-      !this.isValueEmpty(this.getCorrectAnswerValue())
-    )
+    if (this.isVisible && this.hasInput && this.hasCorrectAnswerValue())
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
+    if (!this.isEmpty() && this.hasCorrectAnswerValue())
       return this.getCorrectAnswerCount();
     return 0;
+  }
+  protected hasCorrectAnswerValue(): boolean {
+    return !this.isValueEmpty(this.getCorrectAnswerValue());
   }
   protected getQuizQuestionCount(): number {
     return 1;

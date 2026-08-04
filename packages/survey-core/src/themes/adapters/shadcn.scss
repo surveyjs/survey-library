@@ -135,6 +135,23 @@
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: var(--background);
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px var(--input);
 
+  /* secondary buttons (variant=secondary: bg-secondary text-secondary-foreground hover:bg-secondary/80) */
+  --sjs2-color-component-action-brand-secondary-default-label: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-default-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-default-bg: var(--secondary);
+  --sjs2-border-effect-component-action-brand-secondary-default: 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-hovered-label: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-hovered-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-hovered-bg: color-mix(in oklab, var(--secondary) 80%, transparent);
+  --sjs2-border-effect-component-action-brand-secondary-hovered: 0 0 0 0 transparent;
+
+  /* disabled:opacity-50 applies to the whole button, so every part is halved */
+  --sjs2-color-component-action-brand-secondary-disabled-label: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-brand-secondary-disabled-icon: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-brand-secondary-disabled-bg: rgba(from var(--secondary) r g b / 0.5);
+  --sjs2-border-effect-component-action-brand-secondary-disabled: 0 0 0 0 transparent;
+
   /* secondary buttons */
   --sjs2-color-component-action-neutral-secondary-default-bg: --secondary;
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--secondary-foreground);

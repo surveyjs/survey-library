@@ -29,7 +29,9 @@
   --sjs-bs-secondary-hover-bg: color-mix(in srgb, var(--sjs-bs-secondary-bg), #000 15%);
   --sjs-bs-light-bg: var(--bs-light, #f8f9fa);
   --sjs-bs-on-light: #000;
+  --sjs-bs-light-border: var(--sjs-bs-light-bg);
   --sjs-bs-light-hover-bg: color-mix(in srgb, var(--sjs-bs-light-bg), #000 15%);
+  --sjs-bs-light-hover-border: color-mix(in srgb, var(--sjs-bs-light-bg), #000 20%);
   --sjs-bs-action-font-weight: var(--bs-body-font-weight, 400);
   --sjs-bs-action-text-transform: none;
   --sjs-bs-action-letter-spacing: normal;
@@ -104,14 +106,20 @@
   --sjs2-color-component-action-brand-secondary-default-bg: var(--sjs-bs-light-bg);
   --sjs2-color-component-action-brand-secondary-default-icon: var(--sjs-bs-on-light);
   --sjs2-color-component-action-brand-secondary-default-label: var(--sjs-bs-on-light);
+  --sjs2-border-effect-component-action-brand-secondary-default: inset 0px 0px 0px 1px var(--sjs-bs-light-border);
 
   --sjs2-color-component-action-brand-secondary-hovered-bg: var(--sjs-bs-light-hover-bg);
   --sjs2-color-component-action-brand-secondary-hovered-icon: var(--sjs-bs-on-light);
   --sjs2-color-component-action-brand-secondary-hovered-label: var(--sjs-bs-on-light);
+  --sjs2-border-effect-component-action-brand-secondary-hovered: inset 0px 0px 0px 1px
+    var(--sjs-bs-light-hover-border);
 
+  /* .btn:disabled keeps the enabled palette and fades the whole button (opacity: .65) */
   --sjs2-color-component-action-brand-secondary-disabled-bg: rgba(from var(--sjs-bs-light-bg) r g b / 0.65);
   --sjs2-color-component-action-brand-secondary-disabled-icon: var(--sjs-bs-on-light);
   --sjs2-color-component-action-brand-secondary-disabled-label: var(--sjs-bs-on-light);
+  --sjs2-border-effect-component-action-brand-secondary-disabled: inset 0px 0px 0px 1px
+    rgba(from var(--sjs-bs-light-border) r g b / 0.65);
 
   --sjs2-color-component-action-neutral-secondary-default-bg: var(--sjs-bs-secondary-bg);
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--sjs-bs-on-secondary);

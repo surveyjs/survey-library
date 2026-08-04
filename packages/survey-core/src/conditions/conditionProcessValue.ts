@@ -140,6 +140,8 @@ export class ValueGetter {
     for (let i = 0; i < path.length; i++) {
       res += (i > 0 ? "." : "") + path[i].name;
       if (keys.hasOwnProperty(res)) return res;
+      const lowerRes = res.toLowerCase();
+      if (lowerRes !== res && keys.hasOwnProperty(lowerRes)) return lowerRes;
     }
     return "";
   }

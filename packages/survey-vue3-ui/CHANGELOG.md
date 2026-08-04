@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.66](https://github.com/surveyjs/survey-library/compare/v1.12.65...v1.12.66) (2026-08-04)
+
+
+### Bug Fixes
+
+* compute dateDiff hours/minutes/seconds from millisecond delta ([b9b1fee](https://github.com/surveyjs/survey-library/commit/b9b1feeb37b7d19bf9906c971b3751ad1f01c3c0))
+
 ## [1.12.65](https://github.com/surveyjs/survey-library/compare/v1.12.64...v1.12.65) (2026-07-29)
 
 ## [1.12.64](https://github.com/surveyjs/survey-library/compare/v1.12.63...v1.12.64) (2026-07-20)

@@ -57,10 +57,15 @@
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 7);
   --sjs2-shadcn-tagbox-item-clean-radius: 0;
 
-  /* common and other */
+  /* panel = Card (CardTitle text-lg font-semibold uppercase), question = Field (FieldContent gap-1) */
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 8); /* [--card-spacing:--spacing(8)] */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 10);
+  --sjs2-typography-font-size-component-panel-title: var(--text-lg);
+  --sjs2-typography-line-height-component-panel-title: var(--text-lg--line-height);
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-semibold);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
@@ -94,6 +99,10 @@
 .sd-element__title, .sd-page__title {
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
+}
+
+.sd-panel__title {
+  letter-spacing: var(--tracking-wider);
 }
 
 /* toggle */

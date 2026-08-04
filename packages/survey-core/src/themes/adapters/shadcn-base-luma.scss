@@ -50,11 +50,17 @@
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
   --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 2.6);
 
-  /* common and other */
-  --sjs2-radius-component-panel: calc(var(--spacing) * 6);
+  /* panel = Card (rounded-4xl), question = Field (FieldContent gap-1) */
+  --sjs2-radius-component-panel: calc(var(--radius) * 2.6);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
+}
+
+/* textarea is rounded-2xl while the input is a pill */
+.sd-comment {
+  border-radius: calc(var(--radius) * 1.8);
 }
 
 .sd-comment__grip {

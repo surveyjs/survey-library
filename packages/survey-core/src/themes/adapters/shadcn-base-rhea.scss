@@ -48,10 +48,11 @@
   --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 1.8);
   --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -0.5);
 
-  /* common and other */
+  /* panel = Card, question = Field (FieldContent gap-1) */
   --sjs2-radius-component-panel: min(var(--radius-4xl), 24px);
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 5); /* [--card-spacing:--spacing(5)] */
   --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 6);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */

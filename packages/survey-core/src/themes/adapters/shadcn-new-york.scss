@@ -29,6 +29,12 @@
   --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 7);
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
 
+  /* panel = Card (rounded-xl, gap-6 / py-6 / px-6, CardHeader gap-2, CardTitle leading-none font-semibold) */
+  --sjs2-radius-component-panel: calc(var(--radius) * 1.4);
+  --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 2);
+  --sjs2-typography-line-height-component-panel-title: 1;
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-semibold);
+
   /* common and other */
   --sjs2-border-effect-surface-default: 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 

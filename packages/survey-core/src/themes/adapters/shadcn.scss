@@ -212,7 +212,8 @@
   --sjs2-size-component-checkbox-icon: calc(var(--spacing) * 3.5);
   --sjs2-size-component-radio-box: calc(var(--spacing) * 4);
   --sjs2-size-component-radio-icon: calc(var(--spacing) * 4);
-  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 2);
+  /* a check item is <Field orientation="horizontal">, a check group is <RadioGroup> / <CheckboxGroup> */
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 3);
   --sjs2-layout-component-labeled-group-box-gap-vertical: calc(var(--spacing) * 3);
   --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
   --sjs2-typography-font-weight-component-label-content: var(--font-weight-medium);
@@ -318,15 +319,20 @@
   --sjs2-typography-line-height-component-page-title: 1;
   --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-typography-line-height-component-header-title: 1;
-  --sjs2-typography-font-size-component-panel-title: var(--text-base);
-  --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
   --sjs2-typography-font-size-component-header-description: 1em;
 
-  /* Card / CardHeader / CardContent — stock p-6 / px-6 (style files may override) */
+  /* A panel is a Card: the panel box is <Card> (flex-col, gap-(--card-spacing), py-(--card-spacing)),
+     the panel header is <CardHeader> (px only, gap between title and description), the panel
+     content is <CardContent> (px only) and the panel title is <CardTitle>. Values below are the
+     stock ones; each style file overrides the deltas of its own vendored card.tsx. */
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 6);
   --sjs2-color-component-header-default-title: var(--card-foreground);
   --sjs2-color-component-page-default-title: var(--card-foreground);
   --sjs2-color-component-panel-default-title: var(--card-foreground);
+
+  --sjs2-typography-font-size-component-panel-title: var(--text-base);
+  --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-medium);
 
   --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
 
@@ -334,6 +340,7 @@
   --sjs2-layout-component-panel-header-padding-bottom: 0;
   --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1.5);
 
   --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-dynamic-header-padding-bottom: calc(var(--spacing) * 2);
@@ -343,10 +350,15 @@
   --sjs2-layout-component-panel-content-area-padding-top: 0;
   --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
+  /* rows of questions inside a panel are a <FieldGroup>; the horizontal gap is the one the demo
+     app puts on its two-column FieldGroup (grid gap-4 sm:grid-cols-2) */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 7);
   --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--spacing) * 4);
 
+  /* A question is a Field: the question box is <Field> (gap between header and input), the
+     question header is <FieldContent> (gap between title and description). */
   --sjs2-layout-component-question-box-gap-vertical: calc(var(--spacing) * 3);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1.5);
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
@@ -563,7 +575,7 @@
   --sd-boolean-switch-button-width: 32px;
   --sd-boolean-switch-button-heigth: 18.4px;
 
-  gap: calc(var(--spacing) * 3);
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
   align-items: center;
 }
 
@@ -613,16 +625,6 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
-}
-
-/* panel / question titles */
-.sd-panel__title {
-  --sjs2-typography-font-size-component-question-title: var(--text-base);
-}
-.sd-question__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
 }
 
 /* panel */

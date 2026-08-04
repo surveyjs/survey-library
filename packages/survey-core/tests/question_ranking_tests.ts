@@ -818,6 +818,127 @@ describe("question ranking", () => {
   });
   // EO selectToRankEnabled
 
+  test("Ranking: unranked choices are rendered when defaultValue contains a part of choices, Bug#7919", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+          defaultValue: ["Item 3", "Item 2", "Item 1"],
+          choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+        },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    expect(q1.value, "the value contains all choices").toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"]);
+    expect(q1.rankingChoices.map(item => item.value), "ranked choices go first, then the rest")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"]);
+    expect(q1.renderedRankingChoices.map(item => item.value), "renderedRankingChoices")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"]);
+  });
+
+  test("Ranking: the new item is rendered in the design mode if defaultValue is set, Bug#7919", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+          defaultValue: ["Item 3", "Item 2", "Item 1"],
+          choices: ["Item 1", "Item 2", "Item 3"]
+        },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    expect(q1.visibleChoices.indexOf(q1.newItem), "the new item is visible").toBe(3);
+    expect(q1.rankingChoices.map(item => item.value), "the new item is rendered")
+      .toEqual(["Item 3", "Item 2", "Item 1", "newitem"]);
+
+    q1.choices.push(new ItemValue("Item 4"));
+    expect(q1.rankingChoices.map(item => item.value), "the added choice is rendered")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "newitem"]);
+    expect(q1.value, "the new item is not added into the value")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4"]);
+  });
+
+  test("Ranking: defaultValue is synchronized with choices in the design mode, Bug#7919", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+          defaultValue: ["Item 3", "Item 2", "Item 1"],
+          choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+        },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    expect(q1.defaultValue, "the defaultValue contains all choices on loading")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"]);
+
+    q1.choices.push(new ItemValue("Item 6"));
+    expect(q1.defaultValue, "the added choice is in the defaultValue")
+      .toEqual(["Item 3", "Item 2", "Item 1", "Item 4", "Item 5", "Item 6"]);
+
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "the removed choice is deleted from the defaultValue")
+      .toEqual(["Item 3", "Item 2", "Item 4", "Item 5", "Item 6"]);
+  });
+
+  test("Ranking: defaultValue is not created in the design mode if it is empty, Bug#7919", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "ranking", name: "q1", choices: ["Item 1", "Item 2", "Item 3"] },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    q1.choices.push(new ItemValue("Item 4"));
+    expect(q1.defaultValue).toBeFalsy();
+    expect(survey.toJSON().pages[0].elements[0].defaultValue).toBeFalsy();
+  });
+
+  test("Ranking: defaultValue is not changed at run-time, Bug#7919", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+          defaultValue: ["Item 3", "Item 2", "Item 1"],
+          choices: ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"]
+        },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    expect(q1.defaultValue, "the defaultValue is untouched").toEqual(["Item 3", "Item 2", "Item 1"]);
+    expect(survey.data, "the value contains all choices")
+      .toEqual({ q1: ["Item 3", "Item 2", "Item 1", "Item 4", "Item 5"] });
+  });
+
+  test("Ranking: defaultValue is not synchronized if selectToRankEnabled, Bug#7919", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "ranking",
+          name: "q1",
+          selectToRankEnabled: true,
+          defaultValue: ["Item 3"],
+          choices: ["Item 1", "Item 2", "Item 3"]
+        },
+      ],
+    });
+    const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+    q1.choices.push(new ItemValue("Item 4"));
+    expect(q1.defaultValue).toEqual(["Item 3"]);
+    expect(q1.rankingChoices.map(item => item.value)).toEqual(["Item 3"]);
+  });
+
   test("A11Y", () => {
     expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });

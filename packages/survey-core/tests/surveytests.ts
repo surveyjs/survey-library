@@ -8230,6 +8230,85 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
+QUnit.test("Quiz, correctQuestions progress for a dynamic panel with several panels, Bug#11656", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "dynamicQ1",
+        correctAnswer: [{ subQuestion2: ["Item 1"] }],
+        templateElements: [
+          {
+            type: "checkbox",
+            name: "subQuestion2",
+            correctAnswer: ["Item 2"],
+            choices: ["Item 1", "Item 2", "Item 3"]
+          }
+        ]
+      }
+    ],
+    showProgressBar: "aboveheader",
+    progressBarType: "correctQuestions"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+  //the correctAnswer of the question inside the template is used, one quiz question per panel
+  panel.value = [{ subQuestion2: ["Item 2"] }];
+  assert.equal(panel.quizQuestionCount, 1, "quizQuestionCount, one panel");
+  assert.equal(survey.getQuizQuestionCount(), 1, "survey.getQuizQuestionCount, one panel");
+  assert.equal(panel.correctAnswerCount, 1, "correctAnswerCount, one panel");
+  assert.equal(survey.getCorrectAnswerCount(), 1, "the answer is correct, one panel");
+  assert.equal(survey.progressText, "Answered 1/1 questions", "progressText, one panel");
+  //every new panel adds a new quiz question
+  panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }];
+  assert.equal(panel.quizQuestionCount, 3, "quizQuestionCount, three panels");
+  assert.equal(survey.getQuizQuestionCount(), 3, "survey.getQuizQuestionCount, three panels");
+  assert.equal(panel.correctAnswerCount, 3, "correctAnswerCount, three panels");
+  assert.equal(survey.getCorrectAnswerCount(), 3, "all the answers are correct, three panels");
+  assert.equal(survey.getIncorrectAnswerCount(), 0, "getIncorrectAnswerCount, three panels");
+  assert.equal(survey.progressText, "Answered 3/3 questions", "progressText, three panels");
+  //the second panel is answered incorrectly
+  panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+  assert.equal(panel.quizQuestionCount, 3, "quizQuestionCount, one incorrect answer");
+  assert.equal(panel.correctAnswerCount, 2, "correctAnswerCount, one incorrect answer");
+  assert.equal(survey.getCorrectAnswerCount(), 2, "getCorrectAnswerCount, one incorrect answer");
+  assert.equal(survey.getIncorrectAnswerCount(), 1, "getIncorrectAnswerCount, one incorrect answer");
+  assert.equal(survey.progressText, "Answered 2/3 questions", "progressText, one incorrect answer");
+  //an empty panel is a quiz question, but it is not answered correctly
+  panel.value = [{ subQuestion2: ["Item 2"] }, {}, { subQuestion2: ["Item 2"] }];
+  assert.equal(panel.quizQuestionCount, 3, "quizQuestionCount, an empty panel");
+  assert.equal(panel.correctAnswerCount, 2, "correctAnswerCount, an empty panel");
+  assert.equal(survey.getCorrectAnswerCount(), 2, "getCorrectAnswerCount, an empty panel");
+  assert.equal(survey.getIncorrectAnswerCount(), 1, "getIncorrectAnswerCount, an empty panel");
+  assert.equal(survey.progressText, "Answered 2/3 questions", "progressText, an empty panel");
+});
+QUnit.test("Quiz, correctAnswer in a dynamic panel when its questions have no correctAnswer, Bug#11656", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "dynamicQ1",
+        correctAnswer: [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }],
+        templateElements: [
+          {
+            type: "checkbox",
+            name: "subQuestion2",
+            choices: ["Item 1", "Item 2", "Item 3"]
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+  //there are no quiz questions inside panels, the entire question value is compared with correctAnswer
+  panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 1"] }];
+  assert.equal(panel.quizQuestionCount, 1, "quizQuestionCount, the answer is incorrect");
+  assert.equal(survey.getCorrectAnswerCount(), 0, "getCorrectAnswerCount, the answer is incorrect");
+  assert.equal(survey.getIncorrectAnswerCount(), 1, "getIncorrectAnswerCount, the answer is incorrect");
+  panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+  assert.equal(panel.quizQuestionCount, 1, "quizQuestionCount, the answer is correct");
+  assert.equal(survey.getCorrectAnswerCount(), 1, "getCorrectAnswerCount, the answer is correct");
+  assert.equal(survey.getIncorrectAnswerCount(), 0, "getIncorrectAnswerCount, the answer is correct");
+});
 QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (assert) {
   const survey = new SurveyModel({
     elements: [

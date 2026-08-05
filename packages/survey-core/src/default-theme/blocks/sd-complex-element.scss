@@ -21,6 +21,17 @@
   left: calc(-1 * var(--sd-base-padding));
 }
 
+.sd-element--complex > .sd-element__header {
+  &:after {
+    content: " ";
+    display: block;
+    height: 1px;
+    position: relative;
+    background: $border-light;
+    bottom: 0;
+  }
+}
+
 .sd-element--nested.sd-element--complex {
   & > .sd-element__header--location-top {
     &:after {

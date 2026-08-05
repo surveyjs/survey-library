@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
             name: "satisfaction",
             title: "Rating",
             rateMax: 30,
-            width: "708px"
+            width: "732px"
           }
         ]
       });

@@ -42,7 +42,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-single-select-alt-rows.png");
 
       await page.evaluate(() => { window["survey"].getQuestionByName("q").showHeader = false; });
@@ -94,7 +94,7 @@ frameworks.forEach(framework => {
       await expect(page.locator(".sd-checkbox__control").nth(0)).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Shift+Tab");
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-checkboxes-alt-rows-focused.png");
     });
 
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
         "width": "1136"
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-single-select-in-panel.png");
 
       await page.evaluate(() => { window["survey"].getAllQuestions().map(q => q.showHeader = false); });
@@ -195,7 +195,7 @@ frameworks.forEach(framework => {
           ]
         });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-single-select-in-panel-many-columns.png");
     });
 
@@ -258,7 +258,7 @@ frameworks.forEach(framework => {
         "width": "1136"
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-multi-select-in-panel.png");
 
       await page.evaluate(() => { window["survey"].getAllQuestions().map(q => q.showHeader = false); });
@@ -305,7 +305,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-multi-select.png");
 
       await page.evaluate(() => { window["survey"].getQuestionByName("q").showHeader = false; });
@@ -353,7 +353,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-multi-select-col-width.png");
     });
 
@@ -387,7 +387,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dynamic.png");
 
       await page.evaluate(() => { window["survey"].getQuestionByName("q").showHeader = false; });
@@ -448,7 +448,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dynamic-detail.png");
 
       await page.click(".sd-table__cell--detail-button >> nth=1");
@@ -503,7 +503,7 @@ frameworks.forEach(framework => {
         autoFocusFirstQuestion: false
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown-detail.png");
 
       await page.click(".sd-table__cell--detail-button >> nth=1");
@@ -544,7 +544,7 @@ frameworks.forEach(framework => {
       });
 
       await page.click(".sd-dropdown");
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown.png");
     });
 
@@ -562,7 +562,7 @@ frameworks.forEach(framework => {
             detailElements: [{ type: "text", name: "q1" }],
             minWidth: "800px",
             maxWidth: "800px",
-            width: "800px"
+            width: "824px"
           },
         ],
       });
@@ -596,7 +596,7 @@ frameworks.forEach(framework => {
             detailElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false }],
             minWidth: "800px",
             maxWidth: "800px",
-            width: "800px"
+            width: "824px"
           },
         ],
       });
@@ -643,7 +643,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown-columns.png");
     });
 
@@ -675,7 +675,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-top-align.png");
     });
 
@@ -709,7 +709,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const rowElement = page.locator(".sd-row");
+      const rowElement = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, rowElement, "question-matrix-alternate-rows.png");
 
       await page.click(".sd-navigation__complete-btn");
@@ -758,7 +758,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown-top-align.png");
     });
 
@@ -815,7 +815,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-columns-rows-width.png");
     });
 
@@ -841,7 +841,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "question-matrix-description-under-input.png");
     });
 
@@ -943,7 +943,7 @@ frameworks.forEach(framework => {
         "widthMode": "static"
       });
 
-      const rowElement = page.locator(".sd-row");
+      const rowElement = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, rowElement, "question-matrix-rubric-alternate-rows.png");
     });
 
@@ -1103,7 +1103,7 @@ frameworks.forEach(framework => {
         "autoFocusFirstQuestion": true
       });
 
-      const questionRoot = page.locator(".sd-row");
+      const questionRoot = page.locator(".sd-row .sd-element");
       await compareScreenshot(page, questionRoot, "matrix-focus-frame-in-one-line.png");
     });
   });

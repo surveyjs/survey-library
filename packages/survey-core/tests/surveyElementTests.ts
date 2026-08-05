@@ -345,7 +345,7 @@ describe("SurveyElement", () => {
     expect(survey.pages[0].rootStyle, "page rootStyle directly").toBeTruthy();
     expect(survey.getQuestionByName("q1").rootStyle, "q1 rootStyle directly").toBeTruthy();
   });
-  test("rootStyle on mobile", () => {
+  test("rootStyle flexGrow depends on width and mobile", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "text",
@@ -358,9 +358,15 @@ describe("SurveyElement", () => {
       "flexGrow": 1,
       "flexShrink": 1
     });
+    q1.width = "300px";
+    expect(q1.rootStyle).toEqual({
+      "flexBasis": "300px",
+      "flexGrow": 0,
+      "flexShrink": 1
+    });
     survey.setIsMobile(true);
     expect(q1.rootStyle).toEqual({
-      "flexBasis": "100%",
+      "flexBasis": "300px",
       "flexGrow": 1,
       "flexShrink": 1
     });

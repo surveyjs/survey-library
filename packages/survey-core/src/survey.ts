@@ -2573,6 +2573,7 @@ export class SurveyModel extends SurveyElementCore
       this._isMobile = newVal;
       this.updateCss();
       this.getAllQuestions().forEach(q => q.setIsMobile(newVal));
+      this.pages.forEach(p => p.updateRootStyle());
     }
   }
   public get isMobile() {

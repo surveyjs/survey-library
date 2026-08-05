@@ -11,7 +11,7 @@ const json = {
     title: "Upload everything what you'd like to.",
     name: "file_question",
     minWidth: "704px",
-    width: "704px",
+    width: "728px",
     maxWidth: "704px",
   }]
 };
@@ -308,21 +308,21 @@ frameworks.forEach(framework => {
           {
             type: "file",
             name: "q1",
-            minWidth: "624px",
-            maxWidth: "624px"
+            minWidth: "600px",
+            maxWidth: "600px"
           },
           {
             type: "file",
             name: "q2",
-            minWidth: "308px",
-            maxWidth: "308px",
+            minWidth: "284px",
+            maxWidth: "284px",
             startWithNewLine: false
           },
           {
             type: "file",
             name: "q3",
-            minWidth: "208px",
-            maxWidth: "208px",
+            minWidth: "184px",
+            maxWidth: "184px",
             startWithNewLine: false
           }
         ]
@@ -372,7 +372,7 @@ frameworks.forEach(framework => {
           title: "Question With Camera",
           allowMultiple: true,
           minWidth: "704px",
-          width: "704px",
+          width: "728px",
           maxWidth: "704px",
           name: "file_question",
         }]

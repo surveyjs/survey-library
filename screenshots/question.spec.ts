@@ -23,7 +23,7 @@ frameworks.forEach(framework => {
             name: "question",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
           },
         ]
       });
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
             name: "question",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
           },
         ]
       });
@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
             name: "question_with_num",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
         ]
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
             name: "question_color",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             title: "Color question"
           },
         ]
@@ -107,7 +107,7 @@ frameworks.forEach(framework => {
             name: "question_with_num",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             state: "collapsed",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
@@ -138,7 +138,7 @@ frameworks.forEach(framework => {
             title: "Rate the importance of this scenario for your enterprise (assuming you've encountered it in the past).",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             choices: ["High", "Medium", "Low"],
             visible: false,
           },
@@ -161,7 +161,7 @@ frameworks.forEach(framework => {
             name: "question_with_num",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             state: "collapsed",
             title: "Personal information"
           },
@@ -192,7 +192,7 @@ frameworks.forEach(framework => {
             isRequired: true,
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
         ]
@@ -235,6 +235,36 @@ frameworks.forEach(framework => {
         window["survey"].render();
       });
       await compareScreenshot(page, rowSelector, "multiple-row-title-left.png");
+    });
+
+    test("Check questions width", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false
+              },
+              {
+                "type": "text",
+                "name": "question3",
+                "width": "50%"
+              }
+            ]
+          }
+        ]
+      });
+      const rowSelector = page.locator(".sd-row");
+      await resetFocusToBody(page);
+      await compareScreenshot(page, rowSelector, "multiple-and-single-row.png");
     });
 
     test("Check questions in one row with different default heights", async ({ page }) => {
@@ -505,8 +535,8 @@ frameworks.forEach(framework => {
             name: "q1",
             title: "State",
             titleLocation: "left",
-            maxWidth: "120px",
-            minWidth: "120px"
+            maxWidth: "96px",
+            minWidth: "96px"
           }
         ]
       });
@@ -950,11 +980,11 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRows = page.locator(".sd-row");
-      await compareScreenshot(page, questionRows.nth(0), "question-descriptionLocation-underTitle.png");
-      await compareScreenshot(page, questionRows.nth(1), "question-descriptionLocation-underTitle.png");
-      await compareScreenshot(page, questionRows.nth(2), "question-description-empty.png");
-      await compareScreenshot(page, questionRows.nth(4), "question-description-empty.png");
-      await compareScreenshot(page, questionRows.nth(3), "question-descriptionLocation-underInput.png");
+      await compareScreenshot(page, questionRows.nth(0).locator(".sd-element"), "question-descriptionLocation-underTitle.png");
+      await compareScreenshot(page, questionRows.nth(1).locator(".sd-element"), "question-descriptionLocation-underTitle.png");
+      await compareScreenshot(page, questionRows.nth(2).locator(".sd-element"), "question-description-empty.png");
+      await compareScreenshot(page, questionRows.nth(4).locator(".sd-element"), "question-description-empty.png");
+      await compareScreenshot(page, questionRows.nth(3).locator(".sd-element"), "question-descriptionLocation-underInput.png");
     });
 
     test("Question empty title height", async ({ page }) => {

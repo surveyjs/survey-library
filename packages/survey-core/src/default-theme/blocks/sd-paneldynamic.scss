@@ -19,19 +19,11 @@
         padding-top: 1px;
     }
 
-    & > .sd-panel {
-        padding-top: 1px;
-        padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-    }
-
     & .sd-paneldynamic__panel-wrapper > .sd-panel {
         & > .sd-panel__header {
             padding-top: var(--sd-base-vertical-padding);
             padding-bottom: 0;
-
-            &:after {
-                display: none;
-            }
+            border-bottom: none;
 
             & > .sd-panel__title {
                 color: $foreground-light;

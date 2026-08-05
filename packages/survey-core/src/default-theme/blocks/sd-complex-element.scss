@@ -21,25 +21,6 @@
   left: calc(-1 * var(--sd-base-padding));
 }
 
-.sd-element--complex > .sd-element__header {
-  &:after {
-    content: " ";
-    display: block;
-    height: 1px;
-    position: relative;
-    background: $border-light;
-    bottom: 0;
-  }
-}
-
-.sd-element--nested.sd-element--complex {
-  & > .sd-element__header--location-top {
-    &:after {
-      bottom: calc(-0.5 * var(--sd-base-vertical-padding));
-    }
-  }
-}
-
 .sd-element--nested.sd-element--complex > div > div {
   & > .sd-element__header--location-top {
     & ~ hr {
@@ -79,23 +60,6 @@
         box-shadow: none;
       }
     }
-  }
-}
-
-.sd-element--nested-with-borders,
-.sd-element--complex.sd-element--with-frame {
-  & > .sd-element__header--location-top {
-    &:after {
-      bottom: calc(-1 * var(--sd-base-vertical-padding));
-      inset-inline-start: calc(-1 * var(--sd-base-padding));
-      width: calc(100% + 2 * var(--sd-base-padding));
-    }
-  }
-}
-
-.sd-element--collapsed.sd-element--complex > .sd-element__header--location-top {
-  &:after {
-    display: none;
   }
 }
 

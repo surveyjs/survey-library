@@ -34,7 +34,6 @@
           :element="element"
           :css="element.cssClasses"
         />
-        <hr v-if="element.hasTitleOnLeftTop && element.isComplexQuestion" />
         <SvComponent
           :is="'sv-single-input-summary'"
           v-if="element.singleInputSummary"

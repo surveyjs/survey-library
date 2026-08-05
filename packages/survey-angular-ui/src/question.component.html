@@ -13,7 +13,6 @@
       <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
       <div [class]="model.getHeaderAndContentContainerCss()">
         <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
-        <hr *ngIf="model.hasTitleOnLeftTop && model.isComplexQuestion" />
         <sv-single-input-summary
           *ngIf="!!model.singleInputSummary"
           [model]="model.singleInputSummary"

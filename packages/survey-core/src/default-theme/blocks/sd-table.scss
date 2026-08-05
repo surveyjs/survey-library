@@ -325,9 +325,6 @@
   --sd-question-container-padding-inline: var(--sjs2-layout-component-panel-box-padding-horizontal);
   --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-box-gap-vertical);
   --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-box-gap-horizontal);
-  --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
-  --sd-question-container-background: var(--sjs2-color-component-panel-default-bg);
-  --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-default);
 
   //header-content-container
   --sd-question-header-content-container-padding-block: var(--sjs2-layout-component-panel-box-padding-top)
@@ -344,8 +341,6 @@
   --sd-question-header-padding-inline: var(--sjs2-layout-component-panel-header-padding-left)
     var(--sjs2-layout-component-panel-header-padding-right);
   --sd-question-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
-  --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
-    var(--sjs2-color-component-panel-default-separator);
 
   //title
   --sd-question-title-padding-block: var(--sjs2-layout-component-panel-title-padding-vertical);
@@ -356,10 +351,17 @@
   --sd-question-description-padding-block: var(--sjs2-layout-component-panel-description-padding-top)
     var(--sjs2-layout-component-panel-description-padding-bottom);
 }
-.sd-question--table.sd-question--nested {
-  --sd-question-container-border-radius: none;
-  --sd-question-container-background: none;
-  --sd-question-container-box-shadow: none;
+.sd-question--table,
+.sd-composite {
+  &:where(.sd-question--with-frame) {
+    --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+    --sd-question-container-background: var(--sjs2-color-component-panel-default-bg);
+    --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-default);
+  }
+  &:where(.sd-question--with-frame, .sd-question--nested) {
+    --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
+      var(--sjs2-color-component-panel-default-separator);
+  }
 }
 
 .sd-question.sd-question--table {

@@ -107,7 +107,7 @@ export var defaultCss = {
     buttonAdd: "sd-paneldynamic__add-btn",
     progress: "sd-progress",
     progressBar: "sd-progress__bar",
-    nested: "sd-element--nested sd-element--nested-with-borders",
+    nested: "sd-element--nested sd-element--nested-with-borders sd-question--nested",
     progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
@@ -121,7 +121,7 @@ export var defaultCss = {
     panelWrapperList: "sd-paneldynamic__panel-wrapper--list",
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
-    compact: "sd-element--with-frame sd-element--compact",
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
     tabsContainer: "sd-paneldynamic__tabs-container",
     tabsContainerWithHeader: "sd-paneldynamic__tabs-container--with-header",
     tabsRoot: "sd-tabs-toolbar",
@@ -556,7 +556,7 @@ export var defaultCss = {
     cellTextSelected: "sd-matrix__text--checked",
     cellTextDisabled: "sd-matrix__text--disabled",
     cellResponsiveTitle: "sd-matrix__responsive-title",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -604,7 +604,7 @@ export var defaultCss = {
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
     cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -663,7 +663,7 @@ export var defaultCss = {
     errorsCell: "sd-table__cell--error",
     errorsCellTop: "sd-table__cell--error-top",
     errorsCellBottom: "sd-table__cell--error-bottom",
-    compact: "sd-element--with-frame sd-element--compact",
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",

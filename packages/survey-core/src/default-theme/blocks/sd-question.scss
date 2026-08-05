@@ -43,23 +43,6 @@
     var(--sjs2-layout-component-question-description-padding-bottom);
   --sd-question-description-padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
 }
-.sd-question--with-frame {
-  //container
-  --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
-  --sd-question-container-background: var(--sjs2-color-component-panel-simple-default-bg);
-  --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-simple-default);
-
-  //header-content-container
-  --sd-question-header-content-container-padding-block: var(
-      --sjs2-layout-component-panel-simple-content-area-padding-top
-    )
-    var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
-  --sd-question-header-content-container-padding-inline: calc(
-      var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) +
-        var(--sv-element-add-padding-left, 0px)
-    )
-    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal);
-}
 .sd-question--nested {
   //container
   --sd-question-container-padding-block: var(--sjs2-layout-component-panel-simple-nested-box-padding-top)
@@ -84,6 +67,23 @@
   --sd-question-header-content-container-column-gap: var(
     --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal
   );
+}
+.sd-question--with-frame {
+  //container
+  --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+  --sd-question-container-background: var(--sjs2-color-component-panel-simple-default-bg);
+  --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-simple-default);
+
+  //header-content-container
+  --sd-question-header-content-container-padding-block: var(
+      --sjs2-layout-component-panel-simple-content-area-padding-top
+    )
+    var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
+  --sd-question-header-content-container-padding-inline: calc(
+      var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) +
+        var(--sv-element-add-padding-left, 0px)
+    )
+    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal);
 }
 //todo: remove this style after review empty complex question design
 .sd-question--empty.sd-question--complex {

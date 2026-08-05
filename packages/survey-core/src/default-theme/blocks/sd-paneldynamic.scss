@@ -6,9 +6,6 @@
     --sd-question-container-padding-inline: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
     --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
     --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-dynamic-box-gap-horizontal);
-    --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
-    --sd-question-container-background: var(--sjs2-color-component-panel-dynamic-default-bg);
-    --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-dynamic-default);
 
     //header-content-container
     --sd-question-header-content-container-padding-block: 0;
@@ -23,8 +20,6 @@
     --sd-question-header-padding-inline: var(--sjs2-layout-component-panel-dynamic-header-padding-left)
         var(--sjs2-layout-component-panel-dynamic-header-padding-right);
     --sd-question-header-gap-vertical: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
-    --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
-        var(--sjs2-color-component-panel-dynamic-default-separator);
 
     //title
     --sd-question-title-padding-block: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical);
@@ -34,6 +29,13 @@
     --sd-question-description-padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
     --sd-question-description-padding-block: var(--sjs2-layout-component-panel-dynamic-description-padding-top)
         var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
+}
+.sd-question--paneldynamic:where(.sd-question--with-frame, .sd-question--nested) {
+    --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+    --sd-question-container-background: var(--sjs2-color-component-panel-dynamic-default-bg);
+    --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-dynamic-default);
+    --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
+        var(--sjs2-color-component-panel-dynamic-default-separator);
 }
 //todo: remove this style after review design
 .sd-question--paneldynamic.sd-question--empty {

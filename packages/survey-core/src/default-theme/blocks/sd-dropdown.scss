@@ -104,6 +104,7 @@
     position: static;
   }
   .sd-dropdown__input-prefix-wrapper {
+    & > sv-ng-string span,
     & > span {
       position: absolute;
       width: 100%;

@@ -44,7 +44,7 @@
 .sv-header__without-background {
   .sv-header--mobile,
   .sv-header__content {
-    padding-bottom: 0;
+    padding-bottom: var(--sjs2-layout-component-survey-header-padding-bottom);
   }
 }
 
@@ -57,7 +57,7 @@
 
 .sv-header__content {
   padding-top: calc(var(--sjs2-layout-component-survey-header-padding-top) + var(--sjs2-layout-component-survey-box-padding-top)); 
-  padding-bottom: var(--sjs2-layout-component-survey-header-padding-bottom); 
+  padding-bottom: var(--sjs2-spacing-x500); 
   padding-inline: var(--sjs2-layout-component-survey-header-padding-horizontal);
   box-sizing: border-box;
   height: 100%;
@@ -154,7 +154,7 @@
 
 .sv-header__title {
   display: flex;
-  padding-block: var(--sjs2-layout-component-survey-title-padding-block);
+  padding-block: var(--sjs2-layout-component-survey-title-padding-vertical);
   padding-inline: var(--sjs2-layout-component-survey-title-padding-horizontal);
 }
 

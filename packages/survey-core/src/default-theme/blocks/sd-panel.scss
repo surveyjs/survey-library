@@ -16,9 +16,8 @@
     var(--sjs2-layout-component-panel-header-padding-bottom);
   --sd-panel-header-padding-inline: var(--sjs2-layout-component-panel-header-padding-left)
     var(--sjs2-layout-component-panel-header-padding-right);
-  --sd-panel-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
-    var(--sjs2-color-component-panel-default-separator);
   --sd-panel-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sd-panel-header-border-bottom: none;
 
   //title
   --sd-panel-title-padding-block: var(--sjs2-layout-component-panel-title-padding-vertical);
@@ -47,6 +46,10 @@
   --sd-panel-border-radius: var(--sjs2-radius-component-panel);
   --sd-panel-background: var(--sjs2-color-component-panel-default-bg);
   --sd-panel-box-shadow: var(--sjs2-border-effect-component-panel-default);
+}
+.sd-panel:where(.sd-panel--with-frame, .sd-panel--nested) {
+  --sd-panel-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
+    var(--sjs2-color-component-panel-default-separator);
 }
 .sd-panel--nested {
   //box

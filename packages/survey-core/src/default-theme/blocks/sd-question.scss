@@ -5,48 +5,121 @@
   position: relative;
 }
 
+.sd-question {
+  //container
+  --sd-question-container-padding-block: var(--sjs2-layout-component-panel-simple-box-padding-top)
+    var(--sjs2-layout-component-panel-simple-box-padding-bottom);
+  --sd-question-container-padding-inline: var(--sjs2-layout-component-panel-simple-box-padding-horizontal);
+  --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-simple-box-gap-vertical);
+  --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-simple-box-gap-horizontal);
+  --sd-question-container-border-radius: none;
+  --sd-question-container-background: none;
+  --sd-question-container-box-shadow: none;
+
+  //header-content-container
+  --sd-question-header-content-container-padding-block: 0;
+  --sd-question-header-content-container-padding-inline: 0;
+  --sd-question-header-content-container-row-gap: var(--sjs2-layout-component-question-box-gap-vertical);
+  --sd-question-header-content-container-column-gap: var(
+    --sjs2-layout-component-panel-simple-content-area-gap-horizontal
+  );
+
+  //header
+  --sd-question-header-padding-block: var(--sjs2-layout-component-question-header-padding-top)
+    var(--sjs2-layout-component-question-header-padding-bottom);
+  --sd-question-header-padding-inline: var(--sjs2-layout-component-question-header-padding-left)
+    var(--sjs2-layout-component-question-header-padding-right);
+  --sd-question-header-row-gap: var(--sjs2-layout-component-question-header-gap-vertical);
+  --sd-question-header-column-gap: var(--sjs2-layout-component-question-header-gap-horizontal);
+  --sd-question-header-border-bottom: none;
+
+  //title
+  --sd-question-title-padding-block: var(--sjs2-layout-component-question-title-padding-top)
+    var(--sjs2-layout-component-question-title-padding-bottom);
+  --sd-question-title-padding-inline: var(--sjs2-layout-component-question-title-padding-horizontal);
+
+  //description
+  --sd-question-description-padding-block: var(--sjs2-layout-component-question-description-padding-top)
+    var(--sjs2-layout-component-question-description-padding-bottom);
+  --sd-question-description-padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
+}
+.sd-question--with-frame {
+  //container
+  --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+  --sd-question-container-background: var(--sjs2-color-component-panel-simple-default-bg);
+  --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-simple-default);
+
+  //header-content-container
+  --sd-question-header-content-container-padding-block: var(
+      --sjs2-layout-component-panel-simple-content-area-padding-top
+    )
+    var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
+  --sd-question-header-content-container-padding-inline: calc(
+      var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) +
+        var(--sv-element-add-padding-left, 0px)
+    )
+    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal);
+}
+.sd-question--nested {
+  //container
+  --sd-question-container-padding-block: var(--sjs2-layout-component-panel-simple-nested-box-padding-top)
+    var(--sjs2-layout-component-panel-simple-nested-box-padding-bottom);
+  --sd-question-container-padding-inline: var(--sjs2-layout-component-panel-simple-nested-box-padding-horizontal);
+  --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-simple-nested-box-gap-vertical);
+  --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-simple-nested-box-gap-horizontal);
+  --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+  --sd-question-container-background: var(--sjs2-color-component-panel-simple-nested-default-bg);
+  --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-simple-nested-default);
+
+  //header-content-container
+  --sd-question-header-content-container-padding-block: var(
+      --sjs2-layout-component-panel-simple-nested-content-area-padding-top
+    )
+    var(--sjs2-layout-component-panel-simple-nested-content-area-padding-bottom);
+  --sd-question-header-content-container-padding-inline: calc(
+    var(--sjs2-layout-component-panel-simple-nested-content-area-padding-horizontal) +
+      var(--sv-element-add-padding-left, 0px)
+  );
+  --sd-question-header-content-container-row-gap: var(--sjs2-layout-component-question-box-gap-vertical);
+  --sd-question-header-content-container-column-gap: var(
+    --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal
+  );
+}
+//todo: remove this style after review empty complex question design
+.sd-question--empty.sd-question--complex {
+  //container
+  --sd-question-container-gap-row-gap: 0;
+  //header-content-container
+  --sd-question-header-content-container-row-gap: 0;
+  //header
+  --sd-question-header-border-bottom: none;
+  --sd-question-header-padding-block: var(--sjs2-layout-component-panel-header-padding-top)
+    calc(var(--sd-base-vertical-padding) * 0.5);
+}
+.sd-question {
+  border-radius: var(--sd-question-container-border-radius);
+  background: var(--sd-question-container-background);
+  box-shadow: var(--sd-question-container-box-shadow);
+}
+
 .sd-question__container {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: var(--sjs2-layout-component-panel-simple-box-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-simple-box-padding-bottom);
-  padding-left: var(--sjs2-layout-component-panel-simple-box-padding-horizontal);
-  padding-right: var(--sjs2-layout-component-panel-simple-box-padding-horizontal);
-  row-gap: var(--sjs2-layout-component-panel-simple-box-gap-vertical);
-  column-gap: var(--sjs2-layout-component-panel-simple-box-gap-horizontal);
-}
-.sd-question--nested > .sd-question__container {
-  padding-top: var(--sjs2-layout-component-panel-simple-nested-box-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-simple-nested-box-padding-bottom);
-  padding-left: var(--sjs2-layout-component-panel-simple-nested-box-padding-horizontal);
-  padding-right: var(--sjs2-layout-component-panel-simple-nested-box-padding-horizontal);
-  row-gap: var(--sjs2-layout-component-panel-simple-nested-box-gap-vertical);
-  column-gap: var(--sjs2-layout-component-panel-simple-nested-box-gap-horizontal);
-}
-// TODO: Refactor: need to discuss --sv-element-add-padding-left variable existence
-.sd-composite > .sd-question__container > .sd-question__header-and-content-container {
-  padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
-  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
-  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
-  gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
+  padding-block: var(--sd-question-container-padding-block);
+  padding-inline: var(--sd-question-container-padding-inline);
+  row-gap: var(--sd-question-container-gap-vertical);
+  column-gap: var(--sd-question-container-gap-horizontal);
 }
 
 .sd-question__header-and-content-container {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-top: var(--sjs2-layout-component-panel-simple-content-area-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
-  padding-left: calc(
-    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-left, 0px)
-  );
-  padding-right: calc(
-    var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal) + var(--sv-element-add-padding-right, 0px)
-  );
-  row-gap: var(--sjs2-layout-component-question-box-gap-vertical);
-  column-gap: var(--sjs2-layout-component-panel-simple-content-area-gap-horizontal);
+  padding-block: var(--sd-question-header-content-container-padding-block);
+  padding-inline: var(--sd-question-header-content-container-padding-inline);
+  row-gap: var(--sd-question-header-content-container-row-gap);
+  column-gap: var(--sd-question-header-content-container-column-gap);
 }
 
 .sd-question--title-bottom > .sd-question__container {
@@ -69,11 +142,6 @@
 .sd-element--nested > div > .sd-question__header-and-content-container {
   padding: 0;
 }
-.sd-question:not(.sd-element--with-frame) > .sd-question__container {
-  .sd-question__header-and-content-container {
-    padding: 0;
-  }
-}
 
 .sd-question--single-input {
   & > .sd-question__container {
@@ -89,10 +157,13 @@
 .sd-question__header {
   display: flex;
   flex-direction: column;
-  padding-top: var(--sjs2-layout-component-question-header-padding-top);
-  padding-bottom: var(--sjs2-layout-component-question-header-padding-bottom);
-  row-gap: var(--sjs2-layout-component-question-header-gap-vertical);
-  column-gap: var(--sjs2-layout-component-question-header-gap-horizontal);
+  padding-block: var(--sd-question-header-padding-block);
+  padding-inline: var(--sd-question-header-padding-inline);
+  row-gap: var(--sd-question-header-row-gap);
+  column-gap: var(--sd-question-header-column-gap);
+}
+.sd-question__header--location-top {
+  border-bottom: var(--sd-question-header-border-bottom);
 }
 
 .sd-question__header--location--left {
@@ -111,11 +182,8 @@
 
 .sd-question__title {
   @include sjs2--typography--component--question--title;
-  padding:
-    var(--sjs2-layout-component-question-title-padding-top),
-    var(--sjs2-layout-component-question-title-padding-horizontal),
-    var(--sjs2-layout-component-question-title-padding-bottom),
-    var(--sjs2-layout-component-question-title-padding-horizontal);
+  padding-block: var(--sd-question-title-padding-block);
+  padding-inline: var(--sd-question-title-padding-inline);
 }
 
 .sd-question__title--empty {
@@ -129,9 +197,8 @@
   @include sjs2--typography--component--question--description;
   color: $font-questiondescription-color;
   white-space: normal;
-  padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
-  padding-top: var(--sjs2-layout-component-question-description-padding-top);
-  padding-bottom: var(--sjs2-layout-component-question-description-padding-bottom);
+  padding-block: var(--sd-question-description-padding-block);
+  padding-inline: var(--sd-question-description-padding-inline);
 }
 
 .sd-question--no-pointer-events {
@@ -153,12 +220,6 @@
 .sd-element--with-frame > div > .sd-element__erbox--above-element {
   border-radius: var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel) 0 0;
 }
-
-// Commented out: question erbox is no longer a direct child of the question root
-// (it is nested inside .sd-question__container), see the >div> variant below
-// .sd-element--with-frame>.sd-question__erbox--below-question {
-//   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
-// }
 .sd-element--with-frame > div > .sd-question__erbox--below-question {
   border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
@@ -211,28 +272,4 @@
   width: max-content;
   overflow: visible;
   max-width: 100%;
-}
-
-.sd-question__header--complex {
-  padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
-  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
-  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
-  gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
-}
-
-.sd-question__header--complex .sd-question__title {
-  padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical)
-    var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
-}
-
-.sd-question__header--complex .sd-question__description {
-  padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
-  padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
-}
-
-.sd-question__header.sd-question__header--complex ~ hr {
-  margin: 0;
-  width: 100%;
 }

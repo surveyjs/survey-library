@@ -115,13 +115,12 @@
 // .sd-element__title--expandable.sd-element__title--expanded:before {
 //   transform: rotate(90deg);
 // }
-
 //with borders styles
 .sd-element--with-frame {
   border-radius: var(--sjs2-radius-component-panel);
   box-sizing: border-box;
   background: var(--sjs2-color-component-panel-default-bg);
-  box-shadow: $shadow-small;
+  box-shadow: var(--sjs2-border-effect-component-panel-default);
 }
 
 // The element is sized by the survey layout, so it must never grow past its row. Without this,

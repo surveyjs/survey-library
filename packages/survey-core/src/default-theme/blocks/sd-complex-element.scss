@@ -51,9 +51,10 @@
 }
 
 .sd-element--nested-with-borders {
-  border: 1px solid $border-light;
   border-radius: var(--sjs2-radius-component-panel-nested);
   box-sizing: border-box;
+  background: var(--sjs2-color-component-panel-nested-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-panel-nested-default);
 
   & > .sd-element__header--location-top {
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));

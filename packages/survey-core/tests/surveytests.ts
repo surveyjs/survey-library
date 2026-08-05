@@ -17855,11 +17855,11 @@ describe("Survey", () => {
       expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
       expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
       expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
-      expect(vars["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
-      expect(vars["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-title"]).toBe("32px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-title"]).toBe("40px");
       expect(typeof vars["--sjs-font-headertitle-size"]).toBe("undefined");
-      expect(vars["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
-      expect(vars["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-description"]).toBe("20px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-description"]).toBe("30px");
       expect(typeof vars["--sjs-font-headerdescription-size"]).toBe("undefined");
     } finally {
       DefaultTheme.cssVariables = cssVariables;

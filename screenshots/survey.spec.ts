@@ -61,7 +61,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
           "cssVariables": {
-            "--sjs2-color-component-header-default-title": ""
+            "--sjs2-color-component-survey-header-default-title": ""
           }
         });
       });
@@ -91,7 +91,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
           "cssVariables": {
-            "--sjs2-color-component-header-default-title": ""
+            "--sjs2-color-component-survey-header-default-title": ""
           }
         });
       });
@@ -127,7 +127,7 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({
           cssVariables: {
             "--sjs-header-backcolor": "green",
-            "--sjs2-color-component-header-default-title": ""
+            "--sjs2-color-component-survey-header-default-title": ""
           },
           header: {}
         });

@@ -8,8 +8,8 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding-top: var(--sjs2-layout-component-survey-box-padding-top, 40px);
-  padding-bottom: var(--sjs2-layout-component-survey-box-padding-bottom, 40px);
+  padding-top: var(--sjs2-layout-component-survey-box-gap-vertical);
+  padding-bottom: var(--sjs2-layout-component-survey-box-padding-bottom);
   row-gap: var(--sjs2-layout-component-survey-box-gap-vertical);
   & > .sv-components-column {
     row-gap: var(--sjs2-layout-component-survey-box-gap-vertical);

@@ -124,14 +124,6 @@
   box-shadow: $shadow-small;
 }
 
-//compact styles
-.sd-element--with-frame.sd-element--compact {
-  border: 1px solid $border;
-  border-radius: var(--sjs2-radius-component-panel);
-  box-shadow: none;
-  background-color: transparent;
-}
-
 // The element is sized by the survey layout, so it must never grow past its row. Without this,
 // a flex item's automatic minimum size is its content size, and wide content (a dynamic panel tab
 // strip, for one) makes the element overflow the row instead of letting the content collapse.

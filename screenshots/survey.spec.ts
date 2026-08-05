@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
 import { backgroundImage } from "../visualRegressionTests/constants";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 
@@ -58,11 +58,14 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs2-color-component-header-default-title": ""
-        }
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-header-default-title": ""
+          }
+        });
       });
+
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
       });
@@ -85,10 +88,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs2-color-component-header-default-title": ""
-        }
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-header-default-title": ""
+          }
+        });
       });
 
       await page.evaluate(() => {
@@ -118,13 +123,16 @@ frameworks.forEach(framework => {
         (window as any).survey.headerView = "advanced";
         (window as any).survey.setIsMobile(true);
       });
-      await applyTheme(page, {
-        cssVariables: {
-          "--sjs-header-backcolor": "green",
-          "--sjs2-color-component-header-default-title": ""
-        },
-        header: {}
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          cssVariables: {
+            "--sjs-header-backcolor": "green",
+            "--sjs2-color-component-header-default-title": ""
+          },
+          header: {}
+        });
       });
+
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-mobile-background.png");
     });
 

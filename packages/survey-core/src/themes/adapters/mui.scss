@@ -288,27 +288,151 @@
   --sjs2-typography-font-size-component-survey-header-description: 1.25rem;
   --sjs2-typography-font-weight-component-survey-header-description: 500;
 
-  /* CardHeader / CardContent use theme.spacing(2) = 16px */
   --sjs2-color-component-survey-header-default-title: var(--mui-palette-text-primary);
   --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
 
   --sjs2-typography-line-height-component-panel-title: 1.6;
-  
-  --sjs2-layout-component-panel-header-padding-top: 16px;
-  --sjs2-layout-component-panel-header-padding-bottom: 16px;
-  --sjs2-layout-component-panel-header-padding-left: 16px;
-  --sjs2-layout-component-panel-header-padding-right: 16px;
 
-  --sjs2-layout-component-panel-dynamic-header-padding-top: 16px;
-  --sjs2-layout-component-panel-dynamic-header-padding-bottom: 8px;
-  --sjs2-layout-component-panel-dynamic-header-padding-left: 16px;
-  --sjs2-layout-component-panel-dynamic-header-padding-right: 16px;
+  /* panels = cards.
+     A panel is a <Card>: the panel header is <CardHeader> (padding: spacing(2), no gap between
+     its title and subheader), the panel content is <CardContent> (padding: spacing(2), but
+     spacing(3) at the bottom when it is the last child) and the panel footer is <CardActions>
+     (padding: spacing(1), spacing(1) between the buttons). A nested panel is a card inside a
+     card and a dynamic panel is a card whose content stacks the entries above its actions. */
+  --sjs-mui-spacing: var(--mui-spacing, 8px);
+  --sjs-mui-card-padding: calc(var(--sjs-mui-spacing) * 2);
+  --sjs-mui-card-content-padding-bottom: calc(var(--sjs-mui-spacing) * 3);
+  --sjs-mui-card-actions-padding: var(--sjs-mui-spacing);
+  --sjs-mui-card-actions-gap: var(--sjs-mui-spacing);
+  /* the gap of the <Stack spacing={2}> / <Grid spacing={2}> the app lays the fields out with */
+  --sjs-mui-field-gap: calc(var(--sjs-mui-spacing) * 2);
+
+  --sjs2-color-component-panel-default-border: var(--mui-palette-divider);
+  --sjs2-color-component-panel-default-separator: var(--mui-palette-divider);
+  --sjs2-color-component-panel-default-description: var(--mui-palette-text-secondary);
+
+  --sjs2-layout-component-panel-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-box-padding-top: 0;
+  --sjs2-layout-component-panel-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-padding-bottom: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-description-padding-top: 0;
+  --sjs2-layout-component-panel-description-padding-bottom: 0;
 
   --sjs2-layout-component-panel-content-area-padding-top: 0;
-  --sjs2-layout-component-panel-content-area-padding-bottom: 24px;
-  --sjs2-layout-component-panel-content-area-padding-horizontal: 16px;
-  --sjs2-layout-component-panel-content-area-gap-vertical: 16px;
-  --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--mui-spacing) * 2);
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs-mui-card-content-padding-bottom);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-footer-padding-top: 0;
+  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  /* a framed question is a card with a <CardContent> only */
+  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
+
+  --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-simple-box-padding-top: 0;
+  --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-mui-card-content-padding-bottom);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  /* a nested panel is an outlined card whose <CardHeader> keeps a divider above the content */
+  --sjs2-radius-component-panel-nested: var(--sjs2-radius-component-panel);
+  --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
+
+  --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-box-padding-top: 0;
+  --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-nested-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-nested-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-description-padding-top: 0;
+  --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs-mui-card-content-padding-bottom);
+  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-nested-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-nested-footer-padding-top: 0;
+  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-nested-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  /* a dynamic panel is a card whose content stacks the entries above its <CardActions> */
+  --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-dynamic-default-separator: var(--sjs2-color-component-panel-default-separator);
+
+  --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(--sjs-mui-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;

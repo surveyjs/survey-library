@@ -8,7 +8,8 @@
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
   --sjs2-layout-component-action-large-box-padding-vertical: 0;
-
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+  
   /* formboxes */
   --sjs2-shadcn-input-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */

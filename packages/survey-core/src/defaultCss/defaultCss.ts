@@ -77,21 +77,21 @@ export var defaultCss = {
     titleBar: "sd-action-title-bar",
     description: "sd-description sd-panel__description",
     container: "sd-element sd-element--complex sd-panel sd-row__panel",
-    withFrame: "sd-element--with-frame",
+    withFrame: "sd-element--with-frame sd-panel--with-frame",
     content: "sd-element__content sd-panel__content",
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
     footer: "sd-panel__footer",
     requiredMark: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
-    collapsed: "sd-element--collapsed",
+    collapsed: "sd-panel--collapsed sd-element--collapsed",
     expanded: "sd-element--expanded",
     expandable: "sd-element--expandable",
     expandableAnimating: "sd-elemenet--expandable--animating",
-    nested: "sd-element--nested sd-element--nested-with-borders",
+    nested: "sd-element--nested sd-element--nested-with-borders sd-panel--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
-    compact: "sd-element--with-frame sd-element--compact",
+    compact: "sd-element--with-frame sd-element--compact sd-panel--with-frame",
     errorsContainer: "sd-panel__errbox sd-element__erbox sd-element__erbox--above-element"
   },
   paneldynamic: {
@@ -107,7 +107,7 @@ export var defaultCss = {
     buttonAdd: "sd-paneldynamic__add-btn",
     progress: "sd-progress",
     progressBar: "sd-progress__bar",
-    nested: "sd-element--nested sd-element--nested-with-borders",
+    nested: "sd-element--nested sd-element--nested-with-borders sd-question--nested",
     progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
@@ -121,7 +121,7 @@ export var defaultCss = {
     panelWrapperList: "sd-paneldynamic__panel-wrapper--list",
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
-    compact: "sd-element--with-frame sd-element--compact",
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
     tabsContainer: "sd-paneldynamic__tabs-container",
     tabsContainerWithHeader: "sd-paneldynamic__tabs-container--with-header",
     tabsRoot: "sd-tabs-toolbar",
@@ -192,9 +192,9 @@ export var defaultCss = {
     leave: "sd-element-wrapper--leave",
     mobile: "sd-question--mobile",
     mainRoot: "sd-element sd-question sd-row__question",
-    rootSingleInput: "sd-element sd-question--single-input",
+    rootSingleInput: "sd-element sd-question sd-question--single-input",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
-    withFrame: "sd-element--with-frame",
+    withFrame: "sd-element--with-frame sd-question--with-frame",
     asCell: "sd-table__cell",
     answered: "sd-question--answered",
     header: "sd-question__header sd-element__header",
@@ -556,7 +556,7 @@ export var defaultCss = {
     cellTextSelected: "sd-matrix__text--checked",
     cellTextDisabled: "sd-matrix__text--disabled",
     cellResponsiveTitle: "sd-matrix__responsive-title",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -604,7 +604,7 @@ export var defaultCss = {
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
     cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -663,7 +663,7 @@ export var defaultCss = {
     errorsCell: "sd-table__cell--error",
     errorsCellTop: "sd-table__cell--error-top",
     errorsCellBottom: "sd-table__cell--error-bottom",
-    compact: "sd-element--with-frame sd-element--compact",
+    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",

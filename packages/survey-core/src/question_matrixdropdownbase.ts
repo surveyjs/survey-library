@@ -216,7 +216,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length > 1 && path[0].name === settings.expressionVariables.totalRow) {
+    if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.totalRow.toLocaleLowerCase()) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
@@ -234,6 +234,11 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getRelatedItemNames(): Array<string> {
     return [settings.expressionVariables.totalRow];
+  }
+  /* Total row expressions ({matrix} in xxxInArray functions) calculate over visible rows
+     only, and row visibility may depend on any survey value */
+  protected isItemDependenciesTrackable(): boolean {
+    return !(this.row instanceof MatrixDropdownTotalRowModel);
   }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {

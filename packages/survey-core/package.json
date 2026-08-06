@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "2.5.36",
+  "version": "2.5.37",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
@@ -39,7 +39,7 @@
     "merge-files": "^0.1.2",
     "nano-css": "^5.6.2",
     "peggy": "^5.0.6",
-    "postcss": "8.4.31",
+    "postcss": "^8.5.25",
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",
     "postcss-fail-on-warn": "0.2.1",

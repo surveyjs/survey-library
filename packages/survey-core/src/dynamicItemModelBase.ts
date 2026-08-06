@@ -36,6 +36,8 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 0) return undefined;
+    // context variables ({row.col1}, {PANEL.q1}, {prevRow.col1}, ...) are case-insensitive
+    const firstName = path[0].name.toLocaleLowerCase();
 
     if (path.length === 1) {
       const val = this.getItemValue(path[0].name);
@@ -43,14 +45,14 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
         return { isFound: true, value: val, context: this };
       }
 
-      if (this.questionName && path[0].name === this.questionName) {
+      if (this.questionName && firstName === this.questionName.toLocaleLowerCase()) {
         const matrix = this.item.data;
         return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
       }
     }
 
     if (path.length > 1) {
-      const dIndex = path[0].name === this.getPrevName() ? -1 : path[0].name === this.getNextName() ? 1 : 0;
+      const dIndex = firstName === this.getPrevName().toLocaleLowerCase() ? -1 : firstName === this.getNextName().toLocaleLowerCase() ? 1 : 0;
       if (dIndex !== 0) {
         const index = this.visibleIndex + dIndex;
         const item = this.getVisibleItem(index);
@@ -63,7 +65,7 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
     const res = this.getSpecificValue(params);
     if (res) return res;
 
-    const isVarPrefix = path[0].name === this.variableName;
+    const isVarPrefix = firstName === this.variableName.toLocaleLowerCase();
     if (isVarPrefix || !params.isRoot) {
       if (isVarPrefix) {
         path.shift();
@@ -95,7 +97,7 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   public getContextKeys(keys?: any): { [key: string]: any } {
     const res: { [key: string]: any } = {};
     let names = this.getItemVariableNames();
-    if (!keys || this.isContainerValueChanged(keys)) {
+    if (!keys || !this.isItemDependenciesTrackable() || this.isContainerValueChanged(keys)) {
       names = names.concat([this.variableName, this.questionName, this.getPrevName(), this.getNextName()])
         .concat(this.getRelatedItemNames());
     }
@@ -114,13 +116,24 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   protected getRelatedItemNames(): Array<string> {
     return [];
   }
+  /* An item whose expressions calculate over filtered (visible) data - a matrix total row -
+     can change on any value change (e.g. row visibility), so its dependencies cannot be
+     analyzed statically and its context names are always reported as changed */
+  protected isItemDependenciesTrackable(): boolean {
+    return true;
+  }
   private isContainerValueChanged(keys: any): boolean {
     let container: any = this.item.data;
     while(!!container) {
       const valueName = typeof container.getValueName === "function" ? container.getValueName() : container.name;
       if (!!valueName && keys.hasOwnProperty(valueName)) return true;
-      const itemData = container.data;
-      container = itemData instanceof DynamicItemModelBase ? itemData.data : undefined;
+      let itemData = container.data;
+      if (itemData instanceof DynamicItemModelBase) {
+        itemData = itemData.data;
+      }
+      /* Walk up through container questions that store the data (nested matrices/panels via
+         their item, custom questions directly) until the survey level is reached */
+      container = !!itemData && itemData !== container && typeof itemData.getValueName === "function" ? itemData : undefined;
     }
     return false;
   }

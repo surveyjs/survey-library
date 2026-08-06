@@ -1,7 +1,7 @@
 import { HashTable } from "../helpers";
 import { IValueGetterContext, ProcessValue, VariableGetterContextEx } from "../conditions/conditionProcessValue";
 import { ConsoleWarnings } from "../console-warnings";
-import { Operand, FunctionOperand, AsyncFunctionItem, Variable, Const } from "./expressions";
+import { Operand, FunctionOperand, AsyncFunctionItem, Variable } from "./expressions";
 import { ConditionsParser } from "../conditions/conditionsParser";
 import { FunctionFactory } from "../functionsfactory";
 import { IExpressionValidationOptions } from "../base";
@@ -214,9 +214,8 @@ export class ExpressionExecutor implements IExpressionExecutor {
     const list = new Array<Operand>();
     this.operand.addOperandsToList(list);
 
-    if (options.semantics && isCondition && list.length == 1 && list[0].getType() === "const" && !(<Const>list[0]).isBoolean()) {
-      errors.push({ errorType: ExpressionErrorType.SemanticError });
-      return errors;
+    if (options.semantics && isCondition) {
+      this.operand.addConditionSemanticErrors(errors);
     }
 
     const operands = list.reduce((acc, operand) => {

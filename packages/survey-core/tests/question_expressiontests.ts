@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { ComponentCollection, QuestionCustomModel } from "../src/question_custom";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
@@ -1000,6 +1000,130 @@ describe("QuestionExpression", () => {
       expect(counter, "counter #4").toBe(5);
     } finally {
       settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, total row recalculates when row visibility depends on another question, Bug#11636", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          {
+            type: "matrixdynamic", name: "matrix",
+            rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+            columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+          }
+        ]
+      });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+      expect(matrix.visibleRows.length, "all rows are visible").toBe(3);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #1, all rows are visible").toBe(30);
+      survey.setValue("q1", "b");
+      expect(matrix.visibleRows.length, "row2 is hidden").toBe(2);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #2, row2 is hidden").toBe(20);
+      survey.setValue("q1", "a");
+      expect(matrix.visibleRows.length, "row1 and row3 are hidden").toBe(1);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #3, row1 and row3 are hidden").toBe(10);
+      survey.setValue("q1", "c");
+      expect(matrix.visibleRows.length, "all rows are visible again").toBe(3);
+      expect(matrix.visibleTotalRow.cells[1].value, "total sum #4, all rows are visible again").toBe(30);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, totalExpression with a condition that references another question, Bug#11636", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1", defaultValue: 0 },
+          {
+            type: "matrixdynamic", name: "q2",
+            columns: [
+              { cellType: "text", name: "col1", totalExpression: "sumInArray({matrix}, 'col1', '{col2} > {q1}')" },
+              { cellType: "text", name: "col2" }
+            ]
+          }
+        ]
+      });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+      matrix.value = [
+        { col1: 1, col2: 10 },
+        { col1: 2, col2: 20 },
+        { col1: 3, col2: 30 },
+        { col1: 4, col2: 40 },
+      ];
+      expect(matrix.totalValue, "Total value #1").toEqual({ col1: 10 });
+      survey.setValue("q1", 15);
+      expect(matrix.totalValue, "Total value #2").toEqual({ col1: 9 });
+      survey.setValue("q1", 35);
+      expect(matrix.totalValue, "Total value #3").toEqual({ col1: 4 });
+      survey.setValue("q1", 1);
+      expect(matrix.totalValue, "Total value #4").toEqual({ col1: 10 });
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, total value recalculates on a value change after totalType is changed, Bug#11636", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel();
+      const page = survey.addNewPage("p1");
+      const matrix = new QuestionMatrixDynamicModel("q1");
+      page.addElement(matrix);
+      matrix.addColumn("col1");
+      matrix.columns[0].totalType = "count";
+      matrix.value = [{ col1: 1 }, { col1: 2 }, {}, { col1: 3 }];
+      matrix.visibleRows;
+      const question = matrix.visibleTotalRow.cells[0].question;
+      expect(question.value, "There are 3 values").toBe(3);
+      matrix.columns[0].totalType = "min";
+      survey.setValue("q2", 1);
+      expect(question.value, "Min is 1").toBe(1);
+      matrix.columns[0].totalType = "max";
+      survey.setValue("q2", 2);
+      expect(question.value, "Max is 3").toBe(3);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, cell and total expressions inside a custom question, Bug#11636", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    ComponentCollection.Instance.add(<any>{
+      name: "order",
+      questionJSON: {
+        type: "matrixdropdown",
+        columns: [
+          { name: "price", cellType: "expression" },
+          { name: "qty", cellType: "dropdown", choices: [1, 2, 3, 4, 5] },
+          { name: "total", cellType: "expression", expression: "{row.qty} * {row.price}", totalType: "sum" },
+        ],
+        rows: ["Steak", "Salmon"],
+        defaultValue: { Steak: { price: 23 }, Salmon: { price: 19 } },
+      },
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "order", name: "q1" }],
+      });
+      const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+      const matrix = <QuestionMatrixDropdownModel>q.contentQuestion;
+      matrix.visibleRows[0].getQuestionByColumnName("qty").value = 2;
+      expect(survey.data, "cell and total expressions are recalculated").toEqual({
+        q1: {
+          Steak: { price: 23, qty: 2, total: 46 },
+          Salmon: { price: 19, total: 0 },
+        },
+        "q1-total": { total: 46 },
+      });
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      ComponentCollection.Instance.clear();
     }
   });
 

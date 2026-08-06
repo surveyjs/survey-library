@@ -85,17 +85,6 @@
     )
     var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal);
 }
-//todo: remove this style after review empty complex question design
-.sd-question--empty.sd-question--complex {
-  //container
-  --sd-question-container-gap-row-gap: 0;
-  //header-content-container
-  --sd-question-header-content-container-row-gap: 0;
-  //header
-  --sd-question-header-border-bottom: none;
-  --sd-question-header-padding-block: var(--sjs2-layout-component-panel-header-padding-top)
-    calc(var(--sd-base-vertical-padding) * 0.5);
-}
 .sd-question {
   border-radius: var(--sd-question-container-border-radius);
   background: var(--sd-question-container-background);

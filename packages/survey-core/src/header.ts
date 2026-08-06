@@ -147,9 +147,9 @@ export class Cover extends Base implements ILayoutElementModel {
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header || {});
     if (!!theme.cssVariables) {
-      this.backgroundColor = theme.cssVariables["--sjs2-color-component-header-default-bg"];
-      this.titleColor = theme.cssVariables["--sjs2-color-component-header-default-title"];
-      this.descriptionColor = theme.cssVariables["--sjs2-color-component-header-default-description"];
+      this.backgroundColor = theme.cssVariables["--sjs2-color-component-survey-header-default-bg"];
+      this.titleColor = theme.cssVariables["--sjs2-color-component-survey-header-default-title"];
+      this.descriptionColor = theme.cssVariables["--sjs2-color-component-survey-header-default-description"];
     }
     this.init();
   }

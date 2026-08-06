@@ -284,12 +284,12 @@
   --sjs2-typography-font-size-component-page-title: 1.25rem;
   --sjs2-typography-font-weight-component-page-title: 500;
 
-  --sjs2-typography-font-size-component-header-title: 1.5rem;
-  --sjs2-typography-font-size-component-header-description: 1.25rem;
-  --sjs2-typography-font-weight-component-header-description: 500;
+  --sjs2-typography-font-size-component-survey-header-title: 1.5rem;
+  --sjs2-typography-font-size-component-survey-header-description: 1.25rem;
+  --sjs2-typography-font-weight-component-survey-header-description: 500;
 
   /* CardHeader / CardContent use theme.spacing(2) = 16px */
-  --sjs2-color-component-header-default-title: var(--mui-palette-text-primary);
+  --sjs2-color-component-survey-header-default-title: var(--mui-palette-text-primary);
   --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
 
   --sjs2-typography-line-height-component-panel-title: 1.6;

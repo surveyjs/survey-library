@@ -227,8 +227,8 @@ export interface IHeader {
 }
 
 const typographyComponentLineHeightCoefficients: { component: string, coefficient: number }[] = [
-  { component: "header-title", coefficient: 1.25 },
-  { component: "header-description", coefficient: 1.5 },
+  { component: "survey-header-title", coefficient: 1.25 },
+  { component: "survey-header-description", coefficient: 1.5 },
   { component: "page-title", coefficient: 1.33 },
   { component: "page-description", coefficient: 1.5 },
   { component: "question-title", coefficient: 1.5 },

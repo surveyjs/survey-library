@@ -317,16 +317,16 @@
 
   --sjs2-typography-font-size-component-page-title: var(--text-2xl);
   --sjs2-typography-line-height-component-page-title: 1;
-  --sjs2-typography-font-size-component-header-title: var(--text-2xl);
-  --sjs2-typography-line-height-component-header-title: 1;
-  --sjs2-typography-font-size-component-header-description: 1em;
+  --sjs2-typography-font-size-component-survey-header-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-survey-header-title: 1;
+  --sjs2-typography-font-size-component-survey-header-description: 1em;
 
   /* A panel is a Card: the panel box is <Card> (flex-col, gap-(--card-spacing), py-(--card-spacing)),
      the panel header is <CardHeader> (px only, gap between title and description), the panel
      content is <CardContent> (px only) and the panel title is <CardTitle>. Values below are the
      stock ones; each style file overrides the deltas of its own vendored card.tsx. */
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 6);
-  --sjs2-color-component-header-default-title: var(--card-foreground);
+  --sjs2-color-component-survey-header-default-title: var(--card-foreground);
   --sjs2-color-component-page-default-title: var(--card-foreground);
   --sjs2-color-component-panel-default-title: var(--card-foreground);
 

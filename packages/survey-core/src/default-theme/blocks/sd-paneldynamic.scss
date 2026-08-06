@@ -37,10 +37,6 @@
     --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
         var(--sjs2-color-component-panel-dynamic-default-separator);
 }
-//todo: remove this style after review design
-.sd-question--paneldynamic.sd-question--empty {
-    --sd-question-header-content-container-padding-block: 0 var(--sd-base-padding);
-}
 
 .sd-paneldynamic {
     padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);

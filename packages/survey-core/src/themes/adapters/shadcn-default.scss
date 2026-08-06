@@ -28,7 +28,12 @@
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
 
   /* panel = Card. The default style still ships the legacy card: no gap on the card itself,
-     CardHeader is p-6 (so it keeps its bottom padding) and CardContent is p-6 pt-0. */
+     CardHeader is p-6 (so it keeps its bottom padding) and CardContent is p-6 pt-0. Its outline is
+     a real border plus shadow-sm instead of a ring. */
+  --sjs2-shadcn-card-ring: inset 0 0 0 1px;
+  --sjs2-shadcn-card-border-width: 1px;
+  --sjs2-shadcn-card-shadow: var(--shadow-sm);
+  --sjs2-color-component-panel-default-border: var(--border);
   --sjs2-layout-component-panel-box-gap-vertical: 0;
   --sjs2-layout-component-panel-header-padding-bottom: var(--sjs2-shadcn-card-spacing);
   --sjs2-typography-font-size-component-panel-title: var(--text-2xl);

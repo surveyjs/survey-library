@@ -54,6 +54,8 @@
   --sjs2-border-effect-a11y: 0 0 0 3px var(--sjs2-color-utility-a11y);
 
   --shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+  --shadow-md: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
 
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 10);
   --sjs2-shadcn-input-height: calc(var(--spacing) * 10);
@@ -328,12 +330,27 @@
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 6);
   /* gap-2, the spacing the registry puts between the buttons of a <CardAction> / <CardFooter> */
   --sjs2-shadcn-card-action-gap: calc(var(--spacing) * 2);
+  /* <Card> is outlined with ring-1 ring-foreground/10 — a ring is drawn outside the card box, so
+     the card paddings stay exactly the card spacing — and carries no shadow. The styles that add a
+     shadow, tint the ring differently or replace it with a real border override these. */
+  --sjs2-shadcn-card-ring: 0 0 0 1px;
+  --sjs2-shadcn-card-shadow: 0 0 #0000;
+  /* A ring takes no room in the layout, so with one the card paddings are the card spacing exactly.
+     A style that outlines the card with a real border sets its width here instead: the border is
+     painted as an inset ring, which takes no room either, so every padding that sits against a card
+     edge grows by that width and the card stays as large as the real one with the same content. */
+  --sjs2-shadcn-card-border-width: 0px;
+  --sjs2-shadcn-card-edge-spacing: calc(var(--sjs2-shadcn-card-spacing) + var(--sjs2-shadcn-card-border-width));
+
   --sjs2-color-component-survey-header-default-title: var(--card-foreground);
   --sjs2-color-component-page-default-title: var(--card-foreground);
   --sjs2-color-component-panel-default-title: var(--card-foreground);
   --sjs2-color-component-panel-default-description: var(--muted-foreground);
-  --sjs2-color-component-panel-default-border: var(--border);
-  --sjs2-color-component-panel-default-separator: var(--border);
+  /* the ring color; panel separators are off (transparent) across adapters */
+  --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --sjs2-color-component-panel-default-separator: transparent;
+  --sjs2-border-effect-component-panel-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-typography-font-size-component-panel-title: var(--text-base);
   --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
@@ -347,10 +364,10 @@
   --sjs2-layout-component-panel-box-padding-bottom: 0;
   --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
 
-  --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-padding-bottom: 0;
-  --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1.5);
   --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
@@ -362,17 +379,17 @@
   --sjs2-layout-component-panel-description-padding-bottom: 0;
 
   --sjs2-layout-component-panel-content-area-padding-top: 0;
-  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
   /* rows of questions inside a panel are a <FieldGroup>; the horizontal gap is the one the demo
      app puts on its two-column FieldGroup (grid gap-4 sm:grid-cols-2) */
   --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 7);
   --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--spacing) * 4);
 
   --sjs2-layout-component-panel-footer-padding-top: 0;
-  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-footer-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-footer-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-footer-gap: var(--sjs2-shadcn-card-action-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
 
@@ -380,15 +397,17 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-simple-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(
     --sjs2-layout-component-panel-content-area-gap-vertical
   );
@@ -402,16 +421,18 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-nested-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
   --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
   --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-nested-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
   --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
@@ -423,8 +444,8 @@
   --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
 
   --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(
     --sjs2-layout-component-panel-content-area-gap-vertical
   );
@@ -433,9 +454,9 @@
   );
 
   --sjs2-layout-component-panel-nested-footer-padding-top: 0;
-  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-nested-footer-gap: var(--sjs2-shadcn-card-action-gap);
   --sjs2-layout-component-panel-nested-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
 
@@ -443,17 +464,19 @@
      the add/remove buttons */
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-dynamic-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-color-component-panel-dynamic-default-separator: transparent;
+  --sjs2-border-effect-component-panel-dynamic-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0;
   --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-dynamic-header-padding-bottom: calc(var(--spacing) * 2);
-  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-dynamic-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
   --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
@@ -466,16 +489,16 @@
 
   --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
   --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
-  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
   --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(
     --sjs2-layout-component-panel-content-area-gap-horizontal
   );
 
   --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs2-shadcn-card-spacing);
-  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs2-shadcn-card-action-gap);
   --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
 
@@ -708,6 +731,12 @@
 }
 
 /* tables */
+.sd-table-wrapper {
+  &::before,
+  &::after {
+    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+}
 .sd-table {
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;

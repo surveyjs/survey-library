@@ -280,6 +280,18 @@
   --sjs-bs-card-title-spacer-y: var(--bs-card-title-spacer-y, 0.5rem);
   --sjs-bs-card-cap-padding-y: var(--bs-card-cap-padding-y, calc(var(--sjs-bs-card-spacer-y) * 0.5));
   --sjs-bs-card-cap-padding-x: var(--bs-card-cap-padding-x, var(--sjs-bs-card-spacer-x));
+  --sjs-bs-card-border-width: var(--bs-card-border-width, var(--bs-border-width));
+  /* $card-box-shadow is null in stock Bootstrap; the Bootswatch themes that ship one
+     ($enable-shadows) override this */
+  --sjs-bs-card-shadow: 0 0 #0000;
+  /* The card border is painted as an inset ring, which takes no room in the layout the way a real
+     border does. Every padding that sits against a card edge therefore carries the border width on
+     top of the Bootstrap padding, so a panel is exactly as large as a .card with the same content
+     and the clear space left inside the ring is still the full $card-spacer. */
+  --sjs-bs-card-edge-spacer-y: calc(var(--sjs-bs-card-spacer-y) + var(--sjs-bs-card-border-width));
+  --sjs-bs-card-edge-spacer-x: calc(var(--sjs-bs-card-spacer-x) + var(--sjs-bs-card-border-width));
+  --sjs-bs-card-edge-cap-padding-y: calc(var(--sjs-bs-card-cap-padding-y) + var(--sjs-bs-card-border-width));
+  --sjs-bs-card-edge-cap-padding-x: calc(var(--sjs-bs-card-cap-padding-x) + var(--sjs-bs-card-border-width));
   /* .card-subtitle pulls itself up by half of $card-title-spacer-y, so title -> description
      ends up being half of the spacer while title -> body stays the full spacer */
   --sjs-bs-card-title-gap: calc(var(--sjs-bs-card-title-spacer-y) * 0.5);
@@ -292,18 +304,22 @@
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
   --sjs2-color-component-panel-default-border: var(--bs-card-border-color, var(--bs-border-color-translucent));
-  --sjs2-color-component-panel-default-separator: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-default-separator: transparent;
   --sjs2-color-component-panel-default-description: var(--bs-card-subtitle-color, var(--bs-secondary-color));
+  /* a .card is a border plus the theme's card shadow, and that border is drawn inside the card
+     box, so the effect is an inset ring of the card border width */
+  --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-bs-card-border-width)
+    var(--sjs2-color-component-panel-default-border), var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-box-padding-top: 0;
   --sjs2-layout-component-panel-box-padding-bottom: 0;
   --sjs2-layout-component-panel-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-header-padding-top: var(--sjs-bs-card-spacer-y);
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-header-padding-bottom: var(--sjs-bs-card-title-spacer-y);
-  --sjs2-layout-component-panel-header-padding-left: var(--sjs-bs-card-spacer-x);
-  --sjs2-layout-component-panel-header-padding-right: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-header-gap-vertical: var(--sjs-bs-card-title-gap);
   --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs-bs-card-spacer-x);
   --sjs2-layout-component-panel-header-action-group-gap: var(--sjs-bs-card-action-gap);
@@ -315,15 +331,15 @@
   --sjs2-layout-component-panel-description-padding-bottom: 0;
 
   --sjs2-layout-component-panel-content-area-padding-top: 0;
-  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
   --sjs2-layout-component-panel-footer-padding-top: 0;
-  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-bs-card-spacer-x);
-  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-footer-gap: var(--sjs-bs-card-action-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs-bs-card-action-gap);
 
@@ -331,15 +347,17 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-bs-card-border-width)
+    var(--sjs2-color-component-panel-simple-default-border), var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
@@ -349,16 +367,18 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-bs-card-border-width)
+    var(--sjs2-color-component-panel-nested-default-border), var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
   --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
   --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs-bs-card-cap-padding-y);
+  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs-bs-card-edge-cap-padding-y);
   --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs-bs-card-cap-padding-y);
-  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs-bs-card-cap-padding-x);
-  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs-bs-card-cap-padding-x);
+  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs-bs-card-edge-cap-padding-x);
+  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs-bs-card-edge-cap-padding-x);
   --sjs2-layout-component-panel-nested-header-gap-vertical: var(--sjs-bs-card-title-gap);
   --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs-bs-card-spacer-x);
   --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs-bs-card-action-gap);
@@ -370,22 +390,24 @@
   --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
 
   --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-nested-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
   --sjs2-layout-component-panel-nested-footer-padding-top: 0;
-  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs-bs-card-spacer-x);
-  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-nested-footer-gap: var(--sjs-bs-card-action-gap);
   --sjs2-layout-component-panel-nested-footer-action-group-gap: var(--sjs-bs-card-action-gap);
 
   /* a dynamic panel is a card whose body stacks the entries and ends with a .card-footer */
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-dynamic-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-color-component-panel-dynamic-default-separator: transparent;
+  --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-bs-card-border-width)
+    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -412,14 +434,14 @@
 
   --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
   --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
-  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
   --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs-bs-card-spacer-y);
-  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs-bs-card-spacer-x);
-  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs-bs-card-spacer-x);
+  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs-bs-card-action-gap);
   --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs-bs-card-action-gap);
 
@@ -582,13 +604,21 @@
   font-size: var(--sjs2-typography-font-size-component-action-small-content);
 }
 
-/* panel */
-.sd-element--with-frame.sd-element--compact {
-	background-color: var(--bs-body-bg);
-	border-color: var(--bs-border-color-translucent)
+/* tables */
+.sd-table-wrapper {
+  &::before,
+  &::after {
+    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+  &::before {
+    left: calc(var(--bs-border-width) - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+
+  &:after {
+    right: calc(var(--bs-border-width) - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
 }
 
-/* tables */
 .sd-table {
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
@@ -628,14 +658,6 @@
 .sd-question__placeholder {
   min-height: unset;
   align-items: flex-start;
-}
-
-.sd-element--complex.sd-element--with-frame > .sd-element__header {
-  border: none;
-}
-
-.sd-element--complex.sd-element--with-frame > .sd-element__header:after {
-  content: initial;
 }
 
 .sd-error__item {

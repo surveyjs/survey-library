@@ -800,10 +800,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!!cached) {
       res = cached.res;
     } else {
-      res = runner.runContext(this.getValueGetterContext(), properties);
-      survey.setCachedConditionResult(expression, res);
+      // the cache stores the raw expression result: the same expression can be executed for
+      // another element by an ExpressionRunner, which does not convert the result into a boolean
+      res = runner.runContextCore(this.getValueGetterContext(), properties);
+      if (res === null || typeof res !== "object") {
+        survey.setCachedConditionResult(expression, res);
+      }
     }
-    return <any>{ runContext: (): any => res };
+    const val = res == true;
+    return <any>{ runContext: (): any => val };
   }
   protected runItemsEnableCondition(properties: HashTable<any>): any {
     const condition = this.getSharedItemsCondition(this.getChoicesCondition("choicesEnableIf"), properties);

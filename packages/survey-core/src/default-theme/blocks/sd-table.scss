@@ -364,7 +364,7 @@
   }
 }
 
-.sd-question.sd-question--table:where(:not(.sd-question--empty)) {
+.sd-question.sd-question--table {
   position: relative;
   & > .sd-question__container {
     & > .sd-question__header-and-content-container {

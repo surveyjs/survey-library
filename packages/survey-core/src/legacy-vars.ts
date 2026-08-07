@@ -62,8 +62,10 @@ export const legacyCssVariables = {
   "--sjs-shadow-large": { var: "--sjs2-border-effect-floating-default", join: "," }, //0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
   "--sjs-shadow-inner": [
     "--sjs2-border-effect-component-formbox-default", //inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-component-check-true-default",
-    "--sjs2-border-effect-component-check-false-default",
+    "--sjs2-border-effect-component-checkbox-true-default",
+    "--sjs2-border-effect-component-checkbox-false-default",
+    "--sjs2-border-effect-component-radio-true-default",
+    "--sjs2-border-effect-component-radio-false-default",
   ],
   "--sjs-border-light": "--sjs2-color-border-basic-secondary", //rgba(0, 0, 0, 0.09)",
   "--sjs-border-default": "--sjs2-color-component-input-default-line", //rgba(0, 0, 0, 0.16)",
@@ -87,7 +89,8 @@ export const legacyCssVariables = {
   ],
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
   "--sjs-editorpanel-hovercolor": [
-    "--sjs2-color-component-check-false-hovered-bg",
+    "--sjs2-color-component-checkbox-false-hovered-bg",
+    "--sjs2-color-component-radio-false-hovered-bg",
     "--sjs2-color-component-boolean-item-false-hovered-bg"
   ],
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",

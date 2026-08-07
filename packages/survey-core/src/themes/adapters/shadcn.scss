@@ -6,10 +6,14 @@
     --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
     --sjs2-color-component-formbox-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
     --sjs2-color-component-formbox-invalid-focused-bg: var(--sjs2-color-component-formbox-default-bg);
-    --sjs2-color-component-check-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
-    --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
-    --sjs2-color-component-check-false-hovered-bg: var(--sjs2-color-component-check-false-default-bg);
-    --sjs2-color-component-check-false-focused-bg: var(--sjs2-color-component-check-false-default-bg);
+    --sjs2-color-component-checkbox-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-radio-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-checkbox-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-radio-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-checkbox-false-hovered-bg: var(--sjs2-color-component-checkbox-false-default-bg);
+    --sjs2-color-component-radio-false-hovered-bg: var(--sjs2-color-component-radio-false-default-bg);
+    --sjs2-color-component-checkbox-false-focused-bg: var(--sjs2-color-component-checkbox-false-default-bg);
+    --sjs2-color-component-radio-false-focused-bg: var(--sjs2-color-component-radio-false-default-bg);
   }
 }
 
@@ -220,18 +224,30 @@
   --sjs2-typography-line-height-component-label-content: 1;
   --sjs2-color-component-label-default-text: var(--foreground);
 
-  --sjs2-color-component-check-false-default-bg: transparent;
-  --sjs2-color-component-check-false-hovered-bg: transparent;
-  --sjs2-color-component-check-true-hovered-bg: var(--primary);
-  --sjs2-color-component-check-false-default-border: var(--input);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px
-    var(--sjs2-color-component-check-false-default-border);
-  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 1px
-    var(--sjs2-color-component-check-false-default-border);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
-    var(--sjs2-color-component-check-false-default-border);
+  --sjs2-color-component-checkbox-false-default-bg: transparent;
+  --sjs2-color-component-radio-false-default-bg: transparent;
+  --sjs2-color-component-checkbox-false-hovered-bg: transparent;
+  --sjs2-color-component-radio-false-hovered-bg: transparent;
+  --sjs2-color-component-checkbox-true-hovered-bg: var(--primary);
+  --sjs2-color-component-radio-true-hovered-bg: var(--primary);
+  --sjs2-color-component-checkbox-false-default-border: var(--input);
+  --sjs2-color-component-radio-false-default-border: var(--input);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
 
-  --sjs2-border-effect-component-check-a11y:
+  --sjs2-border-effect-component-checkbox-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-radio-a11y:
     inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* toggle */

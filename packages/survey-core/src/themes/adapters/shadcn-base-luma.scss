@@ -21,13 +21,20 @@
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 5px; /* rounded-[5px] */
-  --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
-  --sjs2-color-component-check-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
-  --sjs2-color-component-check-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
-  --sjs2-color-component-check-false-default-border: transparent;
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 0 transparent;
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;
-  --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
+  --sjs2-color-component-checkbox-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-default-border: transparent;
+  --sjs2-color-component-radio-false-default-border: transparent;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-true-default: inset 0 0 0 1px var(--primary);
+  --sjs2-border-effect-component-radio-true-default: inset 0 0 0 1px var(--primary);
 
   /* dropdown */
   --sjs2-radius-component-drop: calc(var(--radius) * 2.2);

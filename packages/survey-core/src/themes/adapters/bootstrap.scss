@@ -168,8 +168,10 @@
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 0.25em;
-  --sjs2-color-component-check-false-invalid-border: var(--bs-form-invalid-border-color);
-  --sjs2-color-component-check-false-focused-border: var(--bs-primary);
+  --sjs2-color-component-checkbox-false-invalid-border: var(--bs-form-invalid-border-color);
+  --sjs2-color-component-radio-false-invalid-border: var(--bs-form-invalid-border-color);
+  --sjs2-color-component-checkbox-false-focused-border: var(--bs-primary);
+  --sjs2-color-component-radio-false-focused-border: var(--bs-primary);
   --sjs2-size-component-checkbox-box: 1em;
   --sjs2-size-component-checkbox-icon: 0.75em;
   --sjs2-size-component-radio-icon: 0.75em;
@@ -180,14 +182,21 @@
   --sjs2-typography-font-weight-component-label-content: var(--bs-body-font-weight);
   --sjs2-typography-line-height-component-label-content: var(--bs-body-line-height);
 
-  --sjs2-color-component-check-false-default-bg: var(--bs-body-bg);
-  --sjs2-color-component-check-false-hovered-bg: var(--bs-body-bg);
-  --sjs2-color-component-check-false-focused-bg: var(--bs-body-bg);
-  --sjs2-color-component-check-true-hovered-bg: var(--bs-primary);
-  --sjs2-color-component-check-true-hovered-icon: var(--bs-body-bg);
+  --sjs2-color-component-checkbox-false-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-radio-false-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-checkbox-false-hovered-bg: var(--bs-body-bg);
+  --sjs2-color-component-radio-false-hovered-bg: var(--bs-body-bg);
+  --sjs2-color-component-checkbox-false-focused-bg: var(--bs-body-bg);
+  --sjs2-color-component-radio-false-focused-bg: var(--bs-body-bg);
+  --sjs2-color-component-checkbox-true-hovered-bg: var(--bs-primary);
+  --sjs2-color-component-radio-true-hovered-bg: var(--bs-primary);
+  --sjs2-color-component-checkbox-true-hovered-icon: var(--bs-body-bg);
+  --sjs2-color-component-radio-true-hovered-icon: var(--bs-body-bg);
 
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--bs-border-color);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--bs-border-color);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px var(--bs-border-color);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px var(--bs-border-color);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px var(--bs-border-color);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px var(--bs-border-color);
 
   /* toggle */
   --sjs2-color-component-toggle-true-default-thumb: rgb(255, 255, 255);
@@ -317,7 +326,9 @@
 
 /* check focus and pressed state */
 .sd-item:not(.sd-item--checked) {
-  --sjs2-border-effect-component-check-a11y:
+  --sjs2-border-effect-component-checkbox-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-radio-a11y:
     inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
 }
 .sd-item__control:focus + .sd-item__decorator::before,
@@ -329,7 +340,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  box-shadow: var(--sjs2-border-effect-component-check-a11y);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-a11y);
 }
 .sd-item__control:focus + .sd-checkbox__decorator::before,
 .sd-item__control:active + .sd-checkbox__decorator::before {
@@ -364,13 +375,15 @@
 }
 
 .sd-boolean-switch__button {
-  --sjs2-border-effect-component-check-a11y:
+  --sjs2-border-effect-component-checkbox-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-radio-a11y:
     inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 
   &:focus {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e");
-    box-shadow: var(--sjs2-border-effect-component-check-a11y);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-a11y);
   }
 
   &.sd-boolean-switch__button--checked {

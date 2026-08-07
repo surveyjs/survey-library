@@ -149,7 +149,8 @@
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 2px;
-  --sjs2-color-component-check-false-focused-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-false-focused-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-false-focused-border: var(--mui-palette-primary-main);
   --sjs2-size-component-checkbox-box: 18px;
   --sjs2-size-component-checkbox-icon: 18px;
   --sjs2-size-component-radio-icon: 20px;
@@ -166,21 +167,34 @@
     var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity))
   );
 
-  --sjs2-color-component-check-false-default-bg: var(--mui-palette-background-paper);
-  --sjs2-color-component-check-false-hovered-bg: transparent;
-  --sjs2-color-component-check-true-hovered-bg: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-false-focused-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-checkbox-false-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-radio-false-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-checkbox-false-hovered-bg: transparent;
+  --sjs2-color-component-radio-false-hovered-bg: transparent;
+  --sjs2-color-component-checkbox-true-hovered-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-hovered-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-false-focused-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-radio-false-focused-bg: var(--mui-palette-background-paper);
 
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-check-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-check-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
-  --sjs2-border-effect-component-check-a11y: 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-radio-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-radio-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-checkbox-a11y: 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-a11y: 0 0 0 0 transparent;
 
-  --sjs2-color-component-check-true-default-bg: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-true-default-border: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-true-default-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-checkbox-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-true-default-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-default-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-true-default-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-radio-true-default-icon: var(--mui-palette-primary-contrastText);
 
   /* toggle */
   --sjs2-color-component-toggle-true-default-thumb: var(--mui-palette-primary-main);

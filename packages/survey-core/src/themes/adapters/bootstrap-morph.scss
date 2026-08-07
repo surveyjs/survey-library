@@ -104,13 +104,20 @@
   --sjs2-layout-component-input-medium-content-padding-vertical: 1rem;
 
   /* recessed checkboxes / radios */
-  --sjs2-color-component-check-false-default-bg: #bed1e6;
-  --sjs2-color-component-check-false-hovered-bg: #bed1e6;
-  --sjs2-color-component-check-false-focused-bg: #bed1e6;
-  --sjs2-color-component-check-false-invalid-bg: #bed1e6;
-  --sjs2-border-effect-component-check-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
-  --sjs2-border-effect-component-check-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
-  --sjs2-border-effect-component-check-false-invalid: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-color-component-checkbox-false-default-bg: #bed1e6;
+  --sjs2-color-component-radio-false-default-bg: #bed1e6;
+  --sjs2-color-component-checkbox-false-hovered-bg: #bed1e6;
+  --sjs2-color-component-radio-false-hovered-bg: #bed1e6;
+  --sjs2-color-component-checkbox-false-focused-bg: #bed1e6;
+  --sjs2-color-component-radio-false-focused-bg: #bed1e6;
+  --sjs2-color-component-checkbox-false-invalid-bg: #bed1e6;
+  --sjs2-color-component-radio-false-invalid-bg: #bed1e6;
+  --sjs2-border-effect-component-checkbox-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-radio-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-radio-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-radio-false-invalid: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
 
   /* recessed toggles */
   --sjs2-color-component-toggle-false-default-bg: #bed1e6;

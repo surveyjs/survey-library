@@ -55,14 +55,20 @@
   --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 1.8);
   --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -0.5);
 
-  /* panel = Card, question = Field (FieldContent gap-1) */
+  /* panel = Card (shadow-sm over a lighter ring-foreground/5), question = Field (FieldContent gap-1) */
   --sjs2-radius-component-panel: min(var(--radius-4xl), 24px);
+  --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --sjs2-shadcn-card-shadow: var(--shadow-sm);
   --sjs2-shadcn-card-spacing: calc(var(--spacing) * 5); /* [--card-spacing:--spacing(5)] */
   --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 6);
   --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
+
+  &:is(.dark *) {
+    --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
 }
 
 .sd-comment {

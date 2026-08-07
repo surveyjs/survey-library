@@ -37,8 +37,9 @@
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
   --sjs2-shadcn-tagbox-item-clean-radius: min(var(--radius-md), 8px);
 
-  /* panel = Card (rounded-xl, CardHeader gap-1, CardTitle leading-normal), question = Field */
+  /* panel = Card (rounded-xl, shadow-xs, CardHeader gap-1, CardTitle leading-normal), question = Field */
   --sjs2-radius-component-panel: calc(var(--radius) * 1.4);
+  --sjs2-shadcn-card-shadow: var(--shadow-xs);
   --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1);
   --sjs2-typography-line-height-component-panel-title: calc(var(--leading-normal) * 1em);
   --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);

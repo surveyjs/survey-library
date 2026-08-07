@@ -36,11 +36,6 @@
     background-color: var(--sjs2-color-component-check-false-disabled-bg);
     box-shadow: var(--sjs2-border-effect-component-check-false-disabled);
   }
-
-  &.sd-item--checked .sd-item__decorator {
-    background-color: var(--sjs2-color-component-check-true-disabled-bg);
-    box-shadow: var(--sjs2-border-effect-component-check-true-disabled);
-  }
 }
 
 .sd-item--readonly.sd-item--readonly {
@@ -113,7 +108,7 @@
   color: $font-questiontitle-color;
 }
 
-.sd-item--error:not(.sd-item--checked) .sd-item__decorator {
+.sd-item--error .sd-item__decorator {
   background-color: var(--sjs2-color-component-check-false-invalid-bg);
   box-shadow: var(--sjs2-border-effect-component-check-false-invalid);
 }

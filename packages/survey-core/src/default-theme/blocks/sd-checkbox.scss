@@ -43,6 +43,11 @@
     background-color: var(--sjs2-color-component-checkbox-false-disabled-bg);
     box-shadow: var(--sjs2-border-effect-component-checkbox-false-disabled);
   }
+
+  &.sd-checkbox--checked .sd-checkbox__decorator {
+    background-color: var(--sjs2-color-component-checkbox-true-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-true-disabled);
+  }
 }
 
 .sd-checkbox--readonly.sd-checkbox--readonly {
@@ -87,7 +92,7 @@
   outline: none;
 }
 
-.sd-item--error.sd-checkbox .sd-checkbox__decorator {
+.sd-item--error.sd-checkbox:not(.sd-checkbox--checked) .sd-checkbox__decorator {
   background-color: var(--sjs2-color-component-checkbox-false-invalid-bg);
   box-shadow: var(--sjs2-border-effect-component-checkbox-false-invalid);
 }

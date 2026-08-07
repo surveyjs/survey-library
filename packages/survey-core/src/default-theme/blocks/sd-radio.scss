@@ -43,6 +43,11 @@
     background-color: var(--sjs2-color-component-radio-false-disabled-bg);
     box-shadow: var(--sjs2-border-effect-component-radio-false-disabled);
   }
+
+  &.sd-radio--checked .sd-radio__decorator {
+    background-color: var(--sjs2-color-component-radio-true-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-radio-true-disabled);
+  }
 }
 
 .sd-radio--readonly.sd-radio--readonly {
@@ -87,7 +92,7 @@
   outline: none;
 }
 
-.sd-item--error.sd-radio .sd-radio__decorator {
+.sd-item--error.sd-radio:not(.sd-radio--checked) .sd-radio__decorator {
   background-color: var(--sjs2-color-component-radio-false-invalid-bg);
   box-shadow: var(--sjs2-border-effect-component-radio-false-invalid);
 }

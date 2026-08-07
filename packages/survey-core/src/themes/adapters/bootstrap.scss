@@ -622,28 +622,25 @@
 .sd-table {
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
+
+  margin-bottom: 1rem;
 }
 
-.sd-table.sd-table.sd-table > tbody > tr {
-  & > th,
-  & > td {
-    &:where(:not(.sd-table__cell--error)) {
-      border-top: var(--bs-border-width) solid var(--bs-border-color);
-      border-bottom: none;
-      padding: 0.5rem;
-      .sd-radio__decorator {
-        margin: 0;
+.sd-table.sd-table.sd-table {
+  &> tbody, &> thead {
+    &> tr {
+      & > th,
+      & > td {
+        &:where(:not(.sd-table__cell--error)) {
+          border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+          border-top: none;
+          padding: 0.5rem;
+          .sd-radio__decorator {
+            margin: 0;
+          }
+        }
       }
     }
-  }
-}
-
-.sd-table.sd-table.sd-table > thead > tr {
-  & > th,
-  & > td {
-    border-top: none;
-    border-bottom: none;
-    padding: 0.5rem;
   }
 }
 

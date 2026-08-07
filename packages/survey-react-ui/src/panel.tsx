@@ -54,6 +54,7 @@ export class SurveyPanel extends SurveyPanelBase {
         className={(this.panelBase as PanelModel).getContainerCss()}
         onFocus={focusIn}
         id={this.panelBase.id}
+        onClick={(e) => this.panelBase.clickRootFunction && this.panelBase.clickRootFunction(e.nativeEvent)}
 
       >
         {this.panel.showErrorsAbovePanel ? errors : null}

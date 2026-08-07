@@ -14,11 +14,11 @@ export class TitleElement extends React.Component<any, any> {
     if (!this.element.getCssTitleExpandableSvg()) return null;
     let iconName = this.element.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
 
-    return <SvgIcon
+    return <span className={this.element.getCssTitleExpandableSvgContainer()}><SvgIcon
       className={this.element.getCssTitleExpandableSvg()}
       iconName={iconName}
       size={"auto"}
-    ></SvgIcon>;
+    ></SvgIcon></span>;
   }
   render(): React.JSX.Element | any {
     const element = this.element;

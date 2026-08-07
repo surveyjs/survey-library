@@ -1419,7 +1419,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssHeader(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.header)
+      .append(super.getCssHeader(cssClasses))
       .append(cssClasses.headerTop, this.hasTitleOnTop)
       .append(cssClasses.headerLeft, this.hasTitleOnLeft)
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)

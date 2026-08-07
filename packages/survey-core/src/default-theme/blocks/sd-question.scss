@@ -37,11 +37,14 @@
   --sd-question-title-padding-block: var(--sjs2-layout-component-question-title-padding-top)
     var(--sjs2-layout-component-question-title-padding-bottom);
   --sd-question-title-padding-inline: var(--sjs2-layout-component-question-title-padding-horizontal);
+  --sd-question-title-color: var(--sjs2-color-component-question-default-title);
+  --sd-question-title-hovered-color: var(--sjs2-color-component-question-hovered-title);
 
   //description
   --sd-question-description-padding-block: var(--sjs2-layout-component-question-description-padding-top)
     var(--sjs2-layout-component-question-description-padding-bottom);
   --sd-question-description-padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
+  --sd-question-description-color: var(--sjs2-color-component-question-default-description);
 }
 .sd-question--nested {
   //container
@@ -90,7 +93,6 @@
   background: var(--sd-question-container-background);
   box-shadow: var(--sd-question-container-box-shadow);
 }
-
 .sd-question__container {
   height: 100%;
   display: flex;
@@ -173,6 +175,20 @@
   @include sjs2--typography--component--question--title;
   padding-block: var(--sd-question-title-padding-block);
   padding-inline: var(--sd-question-title-padding-inline);
+  transition: color $transition-duration;
+  color: var(--sd-question-title-color);
+}
+.sd-question__title-expandable-svg {
+  fill: var(--sd-question-title-color);
+}
+.sd-question--collapsed:hover,
+.sd-question__header--expandable:hover {
+  .sd-question__title {
+    color: var(--sd-question-title-hovered-color);
+  }
+  .sd-question__title-expandable-svg {
+    fill: var(--sd-question-title-hovered-color);
+  }
 }
 
 .sd-question__title--empty {
@@ -184,7 +200,7 @@
 
 .sd-question__description {
   @include sjs2--typography--component--question--description;
-  color: $font-questiondescription-color;
+  color: var(--sd-question-description-color);
   white-space: normal;
   padding-block: var(--sd-question-description-padding-block);
   padding-inline: var(--sd-question-description-padding-inline);

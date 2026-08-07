@@ -348,11 +348,14 @@
   //title
   --sd-question-title-padding-block: var(--sjs2-layout-component-panel-title-padding-vertical);
   --sd-question-title-padding-inline: var(--sjs2-layout-component-panel-title-padding-horizontal);
+  --sd-question-title-color: var(--sjs2-color-component-panel-default-title);
+  --sd-question-title-hovered-color: var(--sjs2-color-component-panel-hovered-title);
 
   //description
   --sd-question-description-padding-inline: var(--sjs2-layout-component-panel-description-padding-horizontal);
   --sd-question-description-padding-block: var(--sjs2-layout-component-panel-description-padding-top)
     var(--sjs2-layout-component-panel-description-padding-bottom);
+  --sd-question-description-color: var(--sjs2-color-component-panel-default-description);
 }
 .sd-question--table,
 .sd-composite {
@@ -364,6 +367,12 @@
   &:where(.sd-question--with-frame, .sd-question--nested) {
     --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
       var(--sjs2-color-component-panel-default-separator);
+  }
+}
+.sd-question--table,
+.sd-composite {
+  &:where(.sd-question--collapsed) {
+    --sd-question-header-border-bottom: none;
   }
 }
 
@@ -384,7 +393,6 @@
   }
 }
 
-.sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
   & > .sd-question__container {
     & > .sd-question__header-and-content-container {

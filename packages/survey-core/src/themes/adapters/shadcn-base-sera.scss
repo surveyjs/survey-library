@@ -108,6 +108,26 @@
   letter-spacing: var(--tracking-wider);
 }
 
+
+.sd-table.sd-table.sd-table {
+  &> tbody, &> thead {
+    &> tr {
+      & > th,
+      & > td {
+        &.sd-table__cell--row-text span,
+        &.sd-table__cell--header span {
+          color: var(--muted-foreground);
+          font-size: var(--text-xs);
+          line-height: var(--tw-leading, var(--text-xs--line-height));
+          font-weight: var(--font-weight-medium);
+          letter-spacing: var(--tracking-wider);
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sjs2-radius-component-toggle: 0px;

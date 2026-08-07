@@ -757,6 +757,14 @@
     }
   }
 }
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+      border-top: none;
+      border-bottom: none;
+      padding: calc(var(--spacing) * 2);
+  }
+}
 .sd-table__cell--header,
 .sd-table__cell--row-text {
   height: var(--sjs2-shadcn-table-header-height);

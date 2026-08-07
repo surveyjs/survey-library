@@ -122,6 +122,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => { (window as any).survey.rootElement.getRootNode().querySelector(".sd-question__title")?.focus(); });
       await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
       await questionRoot.click();
+      await page.hover("body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, questionRoot, "question-expand.png");
     });
 
@@ -673,6 +674,7 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
       await page.waitForTimeout(500);
+      await page.hover("body", { position: { x: 0, y: 0 } });
       //await page.keyboard.press("Tab"); We do not focus readonly question on expand after fixing #10434 bug. So we do not need press tab to leave the comment, since it was not focused.
       await compareScreenshot(page, questionRoot, "question-comment-ajust-height.png");
     });

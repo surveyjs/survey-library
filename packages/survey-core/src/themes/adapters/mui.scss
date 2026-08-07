@@ -960,8 +960,8 @@
   & > th,
   & > td {
     &:where(:not(.sd-table__cell--error)) {
-      border-top: 1px solid var(--mui-palette-TableCell-border);
-      border-bottom: none;
+      border-bottom: 1px solid var(--mui-palette-TableCell-border);
+      border-top: none;
       padding: 16px;
       font-weight: 400;
       font-size: 0.875rem;
@@ -978,6 +978,27 @@
       .sd-radio__decorator {
         margin: 0;
       }
+    }
+  }
+}
+
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+    border-bottom: 1px solid var(--mui-palette-TableCell-border);
+    border-top: none;
+    padding: 16px;
+    &.sd-table__cell--header span {
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+      font-weight: 500;
+      color: var(--mui-palette-text-primary);
+    }
+    .sd-radio {
+      padding: 0;
+    }
+    .sd-radio__decorator {
+      margin: 0;
     }
   }
 }

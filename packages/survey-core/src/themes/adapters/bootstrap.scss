@@ -153,6 +153,7 @@
   --sjs2-layout-component-input-medium-content-padding-vertical: 0.25rem;
 
   /* buttongroup */
+  --sjs2-radius-component-buttongroup-item: var(--sjs2-radius-component-formbox);
   --sjs2-color-component-buttongroup-item-true-default-bg: var(--bs-primary);
   --sjs2-color-component-buttongroup-item-true-default-value: var(--sjs-bs-on-primary);
   --sjs2-color-component-buttongroup-item-true-default-border: var(--bs-primary);

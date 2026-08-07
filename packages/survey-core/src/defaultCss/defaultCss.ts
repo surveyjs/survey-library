@@ -381,7 +381,7 @@ export var defaultCss = {
     slider: "sd-boolean__thumb",
     sliderGhost: "sd-boolean__thumb-ghost",
     //radio
-    radioItem: "sd-item",
+    radioItem: "sd-item sd-radio",
     radioItemChecked: "sd-item--checked sd-radio--checked",
     radioItemDisabled: "sd-item--disabled sd-radio--disabled",
     radioItemReadOnly: "sd-item--readonly sd-radio--readonly",
@@ -549,7 +549,7 @@ export var defaultCss = {
     itemSvgIconId: "#icon-radio-16x16",
     itemPreview: "sd-item--preview sd-{type}--preview",
     itemPreviewSvgIconId: "#icon-check-16x16",
-    itemHover: "sd-{type}--allowhover",
+    itemHover: "sd-item--allowhover sd-{type}--allowhover",
     materialDecorator: "sd-item__decorator sd-{type}__decorator",
     itemDecorator: "sd-item__svg sd-{type}__svg",
     cellText: "sd-matrix__text",

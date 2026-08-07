@@ -115,8 +115,11 @@
             background-color: var(--sjs2-color-bg-basic-primary);
           }
 
-          &.sd-item--checked .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-default-bg);
+          &.sd-checkbox--checked .sd-checkbox__decorator {
+            background-color: var(--sjs2-color-component-checkbox-true-default-bg);
+          }
+          &.sd-radio--checked .sd-radio__decorator {
+            background-color: var(--sjs2-color-component-radio-true-default-bg);
           }
           &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
             background-color: transparent;

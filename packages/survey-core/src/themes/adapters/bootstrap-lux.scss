@@ -57,7 +57,8 @@
   /* [data-bs-theme=dark] .btn-outline-primary { color: #fff; border-color: #080808; --bs-btn-hover-bg: #000 } */
   &:is([data-bs-theme="dark"] *) {
     --sjs2-color-component-input-default-value: #55595c;
-    --sjs2-color-component-check-true-default-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-checkbox-true-default-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-radio-true-default-bg: rgba(85, 89, 92, 0.75);
     --sjs2-color-component-toggle-false-default-bg: #f0f1f2;
     --sjs2-color-component-toggle-false-hovered-bg: #f0f1f2;
     --sjs2-color-component-toggle-true-default-bg: rgba(85, 89, 92, 0.75);
@@ -100,13 +101,20 @@
   --sjs2-border-effect-component-formbox-invalid: inset 0 0 0 1px transparent;
   --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 
-  --sjs2-color-component-check-false-default-bg: #f0f1f2;
-  --sjs2-color-component-check-false-hovered-bg: #f0f1f2;
-  --sjs2-color-component-check-false-focused-bg: #f0f1f2;
-  --sjs2-color-component-check-false-invalid-bg: #f0f1f2;
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px transparent;
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px transparent;
-  --sjs2-border-effect-component-check-false-invalid: inset 0 0 0 1px transparent;
+  --sjs2-color-component-checkbox-false-default-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-default-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-hovered-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-hovered-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-focused-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-focused-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-invalid-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-invalid-bg: #f0f1f2;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 1px transparent;
 
   --sjs2-color-component-toggle-false-default-bg: var(--bs-secondary-bg);
   --sjs2-color-component-toggle-false-hovered-bg: var(--bs-secondary-bg);

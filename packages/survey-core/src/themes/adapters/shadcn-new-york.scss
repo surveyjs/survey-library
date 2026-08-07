@@ -15,8 +15,10 @@
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 4px;
   --sjs2-size-component-radio-icon: calc(var(--spacing) * 3.5);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
 
   /* dropdown */
   --sjs2-radius-component-drop: var(--radius);

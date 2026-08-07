@@ -12,10 +12,14 @@
   --sjs2-border-effect-component-formbox-focused: var(--sjs2-border-effect-component-formbox-default), var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* checkboxes and radio */
-  --sjs2-color-component-check-false-default-border: var(--primary);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
-  --sjs2-border-effect-component-check-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
+  --sjs2-color-component-checkbox-false-default-border: var(--primary);
+  --sjs2-color-component-radio-false-default-border: var(--primary);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
+  --sjs2-border-effect-component-radio-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* dropdown */
   --sjs2-radius-component-drop: var(--radius);

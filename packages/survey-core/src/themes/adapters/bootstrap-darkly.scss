@@ -49,8 +49,6 @@
   --sjs2-typography-font-weight-component-survey-header-title: 500;
   --sjs2-typography-font-size-component-page-title: 2rem; /* h3 */
   --sjs2-typography-font-weight-component-page-title: 500;
-
-  --sjs2-color-utility-body: #303030;
 }
 
 /* dropdown */
@@ -59,6 +57,17 @@
   &:hover {
     use {
       fill: currentColor;
+    }
+  }
+}
+
+.sd-table.sd-table.sd-table {
+  &> tbody, &> thead {
+    &> tr {
+      & > th,
+      & > td {
+        background: var(--bs-body-bg);
+      }
     }
   }
 }

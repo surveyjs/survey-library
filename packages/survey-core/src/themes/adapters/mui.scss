@@ -134,10 +134,7 @@
   --sjs2-layout-component-input-medium-content-padding-vertical: 8.5px;
 
   /* buttongroup */
-  --sjs2-radius-component-buttongroup-item: max(
-    0px,
-    calc(var(--sjs2-radius-component-formbox) - var(--sjs2-layout-component-formbox-medium-padding-horizontal))
-  );
+  --sjs2-radius-component-buttongroup-item: var(--sjs2-radius-component-formbox);
   --sjs2-color-component-buttongroup-item-true-default-bg: var(--mui-palette-primary-main);
   --sjs2-color-component-buttongroup-item-true-default-value: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-buttongroup-item-true-default-border: var(--mui-palette-primary-main);

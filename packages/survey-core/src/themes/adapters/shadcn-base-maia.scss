@@ -4,7 +4,7 @@
 .sjs-theme-overrides {
   @include shadcn.shadcn-dark-input-bg;
   /* buttons */
-  --sjs2-radius-component-action: calc(var(--spacing) * 8);
+  --sjs2-radius-component-action: calc(var(--radius) * 2.6);
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
   --sjs2-layout-component-action-large-box-padding-vertical: 0;

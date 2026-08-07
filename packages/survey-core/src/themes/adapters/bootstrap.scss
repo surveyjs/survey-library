@@ -40,7 +40,7 @@
   --sjs2-base-unit-spacing: 0.25rem;
 
   /* Let Bootstrap size the elements in a row instead of the default element min-width. */
-  --sjs-element-min-width: 0;
+  --sjs-element-min-width: 0px;
 
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);
@@ -59,14 +59,14 @@
   --sjs2-radius-component-action-small: var(--bs-border-radius-sm, 0.25rem); /* $btn-border-radius-sm */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(0.75rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-box-padding-vertical: calc(0.375rem + var(--bs-border-width));
-  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
-  --sjs2-layout-component-action-large-label-padding-vertical: 0;
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0px;
+  --sjs2-layout-component-action-large-label-padding-vertical: 0px;
 
   /* btn-sm: $btn-padding-y-sm / $btn-padding-x-sm / $btn-font-size-sm */
   --sjs2-layout-component-action-small-box-padding-horizontal: calc(0.5rem + var(--bs-border-width));
   --sjs2-layout-component-action-small-box-padding-vertical: calc(0.25rem + var(--bs-border-width));
-  --sjs2-layout-component-action-small-label-padding-horizontal: 0;
-  --sjs2-layout-component-action-small-label-padding-vertical: 0;
+  --sjs2-layout-component-action-small-label-padding-horizontal: 0px;
+  --sjs2-layout-component-action-small-label-padding-vertical: 0px;
   --sjs2-typography-font-size-component-action-large-content: 1rem; /* $btn-font-size */
   --sjs2-typography-font-size-component-action-small-content: 0.875rem; /* $btn-font-size-sm */
 
@@ -161,8 +161,8 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--bs-form-invalid-color);
   --sjs2-color-component-message-error-icon: var(--bs-form-invalid-color);
-  --sjs2-layout-component-message-box-padding-horizontal: 0;
-  --sjs2-layout-component-message-box-padding-vertical: 0;
+  --sjs2-layout-component-message-box-padding-horizontal: 0px;
+  --sjs2-layout-component-message-box-padding-vertical: 0px;
 
   --sjs2-color-component-boolean-invalid-border: var(--bs-form-invalid-color);
 
@@ -176,7 +176,7 @@
   --sjs2-size-component-radio-box: 1em;
   --sjs2-layout-component-labeled-item-box-gap-horizontal: 0.5em;
   --sjs2-layout-component-labeled-group-box-gap-vertical: 0.125rem;
-  --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
+  --sjs2-layout-component-labeled-group-box-padding-vertical: 0px;
   --sjs2-typography-font-weight-component-label-content: var(--bs-body-font-weight);
   --sjs2-typography-line-height-component-label-content: var(--bs-body-line-height);
 
@@ -239,11 +239,11 @@
   --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
   --sjs2-color-utility-shadow-trigger-default: transparent;
 
-  --sjs2-radius-component-drop: 0;
+  --sjs2-radius-component-drop: 0px;
 
   --sjs2-layout-component-drop-box-padding-horizontal: 0px;
   --sjs2-layout-component-drop-box-padding-vertical: 0px;
-  --sjs2-radius-component-drop-item: 0;
+  --sjs2-radius-component-drop-item: 0px;
   --sjs2-layout-component-drop-item-label-padding-horizontal: 6px;
 
   --sjs2-typography-font-family-text: var(--bs-font-sans-serif);
@@ -311,10 +311,10 @@
   --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-bs-card-border-width)
     var(--sjs2-color-component-panel-default-border), var(--sjs-bs-card-shadow);
 
-  --sjs2-layout-component-panel-box-padding-horizontal: 0;
-  --sjs2-layout-component-panel-box-padding-top: 0;
-  --sjs2-layout-component-panel-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-box-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-box-padding-top: 0px;
+  --sjs2-layout-component-panel-box-padding-bottom: 0px;
+  --sjs2-layout-component-panel-box-gap-vertical: 0px;
 
   --sjs2-layout-component-panel-header-padding-top: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-header-padding-bottom: var(--sjs-bs-card-title-spacer-y);
@@ -324,19 +324,19 @@
   --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs-bs-card-spacer-x);
   --sjs2-layout-component-panel-header-action-group-gap: var(--sjs-bs-card-action-gap);
 
-  --sjs2-layout-component-panel-title-padding-horizontal: 0;
-  --sjs2-layout-component-panel-title-padding-vertical: 0;
-  --sjs2-layout-component-panel-description-padding-horizontal: 0;
-  --sjs2-layout-component-panel-description-padding-top: 0;
-  --sjs2-layout-component-panel-description-padding-bottom: 0;
+  --sjs2-layout-component-panel-title-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-title-padding-vertical: 0px;
+  --sjs2-layout-component-panel-description-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-description-padding-top: 0px;
+  --sjs2-layout-component-panel-description-padding-bottom: 0px;
 
-  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-top: 0px;
   --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
-  --sjs2-layout-component-panel-footer-padding-top: 0;
+  --sjs2-layout-component-panel-footer-padding-top: 0px;
   --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
@@ -350,10 +350,10 @@
   --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-bs-card-border-width)
     var(--sjs2-color-component-panel-simple-default-border), var(--sjs-bs-card-shadow);
 
-  --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
-  --sjs2-layout-component-panel-simple-box-padding-top: 0;
-  --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-simple-box-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-simple-box-padding-top: 0px;
+  --sjs2-layout-component-panel-simple-box-padding-bottom: 0px;
+  --sjs2-layout-component-panel-simple-box-gap-vertical: 0px;
 
   --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
@@ -370,10 +370,10 @@
   --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-bs-card-border-width)
     var(--sjs2-color-component-panel-nested-default-border), var(--sjs-bs-card-shadow);
 
-  --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
-  --sjs2-layout-component-panel-nested-box-padding-top: 0;
-  --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-nested-box-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-nested-box-padding-top: 0px;
+  --sjs2-layout-component-panel-nested-box-padding-bottom: 0px;
+  --sjs2-layout-component-panel-nested-box-gap-vertical: 0px;
 
   --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs-bs-card-edge-cap-padding-y);
   --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs-bs-card-cap-padding-y);
@@ -383,11 +383,11 @@
   --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs-bs-card-spacer-x);
   --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs-bs-card-action-gap);
 
-  --sjs2-layout-component-panel-nested-title-padding-horizontal: 0;
-  --sjs2-layout-component-panel-nested-title-padding-vertical: 0;
-  --sjs2-layout-component-panel-nested-description-padding-horizontal: 0;
-  --sjs2-layout-component-panel-nested-description-padding-top: 0;
-  --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
+  --sjs2-layout-component-panel-nested-title-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-nested-title-padding-vertical: 0px;
+  --sjs2-layout-component-panel-nested-description-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-nested-description-padding-top: 0px;
+  --sjs2-layout-component-panel-nested-description-padding-bottom: 0px;
 
   --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs-bs-card-spacer-y);
   --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
@@ -395,7 +395,7 @@
   --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-nested-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
 
-  --sjs2-layout-component-panel-nested-footer-padding-top: 0;
+  --sjs2-layout-component-panel-nested-footer-padding-top: 0px;
   --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
   --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs-bs-card-edge-spacer-x);
@@ -409,10 +409,10 @@
   --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-bs-card-border-width)
     var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-bs-card-shadow);
 
-  --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
-  --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
-  --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-dynamic-box-padding-top: 0px;
+  --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0px;
+  --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0px;
 
   --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-layout-component-panel-header-padding-top);
   --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(
@@ -426,14 +426,14 @@
   );
   --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs-bs-card-action-gap);
 
-  --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0;
-  --sjs2-layout-component-panel-dynamic-title-padding-vertical: 0;
-  --sjs2-layout-component-panel-dynamic-description-padding-horizontal: 0;
-  --sjs2-layout-component-panel-dynamic-description-padding-top: 0;
-  --sjs2-layout-component-panel-dynamic-description-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-dynamic-title-padding-vertical: 0px;
+  --sjs2-layout-component-panel-dynamic-description-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-dynamic-description-padding-top: 0px;
+  --sjs2-layout-component-panel-dynamic-description-padding-bottom: 0px;
 
-  --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
-  --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0px;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0px;
   --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs-bs-card-edge-spacer-x);
   --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs-bs-form-group-gap);
   --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(--sjs-bs-row-gutter-x);
@@ -483,8 +483,8 @@
 .sd-item__control:focus + .sd-item__decorator::before,
 .sd-item__control:active + .sd-item__decorator::before {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   content: "";
   display: block;
   width: 100%;
@@ -570,7 +570,7 @@
 }
 
 .sd-dropdown .sd-action {
-  padding: 0;
+  padding: 0px;
   height: 1.5rem;
   width: 1.5rem;
 }
@@ -636,7 +636,7 @@
           border-top: none;
           padding: 0.5rem;
           .sd-radio__decorator {
-            margin: 0;
+            margin: 0px;
           }
         }
       }
@@ -645,7 +645,7 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
+  margin: 0px;
 }
 
 .sd-question__description--under-input {

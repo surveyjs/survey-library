@@ -117,10 +117,10 @@ frameworks.forEach(framework => {
 
       await compareScreenshot(page, questionRoot, "question-collapse.png");
       await page.hover(".sd-element__header");
-      await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
+      await compareScreenshot(page, questionRoot, "question-collapse-hover.png");
       await page.hover("body");
       await page.evaluate(() => { (window as any).survey.rootElement.getRootNode().querySelector(".sd-question__title")?.focus(); });
-      await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
+      await compareScreenshot(page, questionRoot, "question-collapse-focus.png");
       await questionRoot.click();
       await page.hover("body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, questionRoot, "question-expand.png");

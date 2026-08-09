@@ -13,6 +13,7 @@
     :aria-describedby="element.ariaDescribedBy"
     :aria-expanded="element.ariaExpanded"
     :data-name="element.name"
+     @click="(event) => element.clickRootFunction && element.clickRootFunction(event)"
   >
     <SvComponent
       :is="'sv-breadcrumbs'"

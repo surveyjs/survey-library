@@ -4,6 +4,7 @@
     :class="element.getContainerCss()"
     :id="element.id"
     @focusin="element.focusIn()"
+    @click="(event) => element.clickRootFunction && element.clickRootFunction(event)"
     ref="root"
   >
     <SvComponent

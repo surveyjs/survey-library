@@ -736,12 +736,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const css = this.cssClasses;
     return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
+  public get showTitleExpandableSvg(): boolean {
+    return this.state !== "default" && !this.isSingleInputMode;
+  }
+  public get titleExpandableSvgIconName(): string {
+    return this.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
+  }
   public getCssTitleExpandableSvgContainer(): string {
-    if (this.state === "default" || this.isSingleInputMode) return null;
     return this.cssClasses.titleExpandableSvgContainer;
   }
   public getCssTitleExpandableSvg(): string {
-    if (this.state === "default" || this.isSingleInputMode) return null;
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }

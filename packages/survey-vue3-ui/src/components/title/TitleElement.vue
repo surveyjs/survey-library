@@ -17,7 +17,6 @@
    <span :class="element.getCssTitleExpandableSvgContainer()" v-if="element.showTitleExpandableSvg">
     <SvComponent
       :is="'sv-svg-icon'"
-      v-if="!element.isExpanded"
       :class="element.getCssTitleExpandableSvg()"
       :iconName="element.titleExpandableSvgIconName"
       size="'auto'"

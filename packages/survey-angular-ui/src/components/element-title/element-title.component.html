@@ -1,7 +1,7 @@
 <ng-template #template>
   <sv-ng-dynamic-head [tagName]="element.titleTagName" [element]="element" *ngIf="element.hasTitle">
     <span [class]="element.getCssTitleExpandableSvgContainer()" *ngIf="element.showTitleExpandableSvg">
-      <svg *ngIf="!element.isExpanded" [iconName]="element.titleExpandableSvgIconName" [partCss]="element.getCssTitleExpandableSvg()" [size]="'auto'" sv-ng-svg-icon></svg>
+      <svg [iconName]="element.titleExpandableSvgIconName" [partCss]="element.getCssTitleExpandableSvg()" [size]="'auto'" sv-ng-svg-icon></svg>
     </span>
     <sv-ng-element-title-actions [element]="element" [renderActions]="renderActions"></sv-ng-element-title-actions>
   </sv-ng-dynamic-head>

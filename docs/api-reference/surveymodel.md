@@ -1096,7 +1096,7 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Related APIs:** [`tocLocation`](#tocLocation)
+**Related APIs:** [`tocLocation`](#tocLocation), [`tocItemComponent`](#tocItemComponent)
 
 ### `startPage`
 
@@ -1229,6 +1229,16 @@ You can also find out how many seconds a respondent has spent on an individual s
 
 **Related APIs:** [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`startTimer`](#startTimer)
 
+### `tocItemComponent`
+
+**Type**: `string`
+
+The name of a component used to render items in the Table of Contents. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true`.
+
+You can set this property in code or in a survey JSON schema.
+
+**Related APIs:** [`showTOC`](#showTOC), [`tocLocation`](#tocLocation)
+
 ### `tocLocation`
 
 **Type**: `"left" | "right"`
@@ -1242,7 +1252,7 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Related APIs:** [`showTOC`](#showTOC)
+**Related APIs:** [`showTOC`](#showTOC), [`tocItemComponent`](#tocItemComponent)
 
 ### `triggers`
 

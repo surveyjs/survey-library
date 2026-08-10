@@ -378,6 +378,9 @@
         "right"
       ]
     },
+    "tocItemComponent": {
+      "type": "string"
+    },
     "readOnly": {
       "type": "boolean"
     },

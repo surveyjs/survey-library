@@ -31,7 +31,7 @@ SurveyJS Form Library is a free and open-source JavaScript library that renders 
 
 The library supports React, Angular, Vue, and plain JavaScript. Use it to build complex multi-step forms, pop-up surveys, quizzes, scored surveys, calculator forms, and other data-entry tools. Form content and structure, validation, conditional logic, navigation, and appearance are defined through a SurveyJS JSON form definition.
 
-You can create form definitions manually or generate them with [SurveyJS Creator](https://surveyjs.io/survey-creator/documentation/overview), an embeddable drag-and-drop form builder.
+You can create form definitions manually, generate them with AI, or build them visually with [SurveyJS Creator](https://surveyjs.io/survey-creator/documentation/overview), an embeddable drag-and-drop form builder.
 
 </div>
 <br>

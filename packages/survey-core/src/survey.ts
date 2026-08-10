@@ -3500,7 +3500,8 @@ export class SurveyModel extends SurveyElementCore
      the result is evaluated once per data version. Any value/variable change invalidates the
      cache by bumping the version. */
   private conditionResultsVersion: number = 1;
-  private conditionResultsCache: HashTable<{ ver: number, res: any }> = {};
+  // A null-prototype hash so an expression like "constructor" never resolves through Object.prototype
+  private conditionResultsCache: HashTable<{ ver: number, res: any }> = Object.create(null);
   // In the editingObj mode expression values are read directly from the edited object's
   // properties and change without notifying the survey, so results cannot be cached
   private get isConditionResultsCacheEnabled(): boolean {

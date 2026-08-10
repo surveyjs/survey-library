@@ -7,6 +7,7 @@ import { FunctionFactory } from "../functionsfactory";
 import { IExpressionValidationOptions } from "../base";
 import { ExpressionErrorType, IExpressionError, getQuestionErrorText } from "./expressionError";
 import { setCreateExpressionExecutor } from "./expressionRunner";
+import { settings } from "../settings";
 
 export interface IExpressionExecutorBase {
   onComplete: (res: any, id: number) => void;
@@ -148,9 +149,14 @@ export class ExpressionExecutor implements IExpressionExecutor {
      common (the same visibleIf/choicesEnableIf repeated across questions) and parsing is
      expensive. Operand trees are treated as immutable after parsing. hasFunction is structural
      and can be cached; isAsync depends on the function registry at the time of creation, so it
-     is recalculated per executor. */
-  private static parsedExpressions = new Map<string, { operand: Operand, hasFunction: boolean }>();
+     is recalculated per executor. The settings below are read while parsing, so a cached tree
+     becomes obsolete when any of them is changed. */
+  private static parsedExpressions = new Map<string, { operand: Operand, hasFunction: boolean, settingsKey: string }>();
   private static maxParsedExpressions = 10000;
+  private static getParseSettingsKey(): string {
+    const delimiters = settings.expressionVariableDelimiters;
+    return settings.expressionDisableConversionChar + "\n" + delimiters.start + "\n" + delimiters.end;
+  }
   constructor(expression: string) {
     this.setExpression(expression);
   }
@@ -161,10 +167,11 @@ export class ExpressionExecutor implements IExpressionExecutor {
     if (this.expression === value) return;
     this.expressionValue = value;
     const cache = ExpressionExecutor.parsedExpressions;
+    const settingsKey = ExpressionExecutor.getParseSettingsKey();
     let parsed = cache.get(value);
-    if (parsed === undefined) {
+    if (parsed === undefined || parsed.settingsKey !== settingsKey) {
       const operand = this.parser.parseExpression(value) || null;
-      parsed = { operand: operand, hasFunction: !!operand ? operand.hasFunction() : false };
+      parsed = { operand: operand, hasFunction: !!operand ? operand.hasFunction() : false, settingsKey: settingsKey };
       if (cache.size >= ExpressionExecutor.maxParsedExpressions) {
         cache.clear();
       }

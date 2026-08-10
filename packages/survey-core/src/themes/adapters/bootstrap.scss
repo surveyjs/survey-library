@@ -37,7 +37,7 @@
   --sjs-bs-action-letter-spacing: normal;
 
   --sjs2-base-unit-radius: var(--bs-border-radius);
-  --sjs2-base-unit-spacing: 0.25rem;
+  --sjs2-base-unit-spacing: 8px;
 
   /* Let Bootstrap size the elements in a row instead of the default element min-width. */
   --sjs-element-min-width: 0px;
@@ -310,6 +310,8 @@
   --sjs-bs-form-group-gap: 1rem;
   --sjs-bs-row-gutter-x: var(--bs-gutter-x, 1.5rem);
   --sjs-bs-card-action-gap: 0.5rem;
+
+  --sjs2-layout-component-question-box-gap-vertical: 0.5rem;
 
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));

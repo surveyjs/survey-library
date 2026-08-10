@@ -25,7 +25,6 @@
 @use "blocks/sd-question.scss";
 @use "blocks/sd-error.scss";
 @use "blocks/sd-collapsed-element.scss";
-@use "blocks/sd-complex-element.scss";
 @use "blocks/sd-formbox.scss";
 @use "blocks/sd-comment.scss";
 @use "blocks/sd-panel.scss";
@@ -108,7 +107,7 @@ body {
 
 .sd-root--compact {
   &:before {
-    background-color: var(--sjs2-color-utility-surface-survey-panelless);
+    background-color: var(--sjs2-color-utility-surface-survey);
   }
 }
 

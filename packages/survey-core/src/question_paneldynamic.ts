@@ -363,6 +363,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getType(): string {
     return "paneldynamic";
   }
+  protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -1522,6 +1523,32 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.visiblePanelsCore,
       this.isRequired
     );
+  }
+  protected hasCorrectAnswerValue(): boolean {
+    return this.getQuizQuestionsInPanels().length > 0 || super.hasCorrectAnswerValue();
+  }
+  protected getQuizQuestionCount(): number {
+    return this.calcQuizCountInPanels(q => q.quizQuestionCount, () => super.getQuizQuestionCount());
+  }
+  protected getCorrectAnswerCount(): number {
+    return this.calcQuizCountInPanels(q => q.correctAnswerCount, () => super.getCorrectAnswerCount());
+  }
+  private calcQuizCountInPanels(getCount: (q: Question) => number, getDefault: () => number): number {
+    const questions = this.getQuizQuestionsInPanels();
+    return questions.length === 0
+      ? getDefault()
+      : questions.reduce((res, q) => res + getCount(q), 0);
+  }
+  private getQuizQuestionsInPanels(): Array<Question> {
+    const res: Array<Question> = [];
+    this.visiblePanels.forEach(panel => {
+      panel.questions.forEach(q => {
+        if (q.quizQuestionCount > 0) {
+          res.push(q);
+        }
+      });
+    });
+    return res;
   }
   private isRowEmpty(val: any) {
     for (var prop in val) {
@@ -2887,7 +2914,6 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "minWidth", defaultFunc: () => "auto" },
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },

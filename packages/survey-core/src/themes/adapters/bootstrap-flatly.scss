@@ -8,8 +8,19 @@
 .sjs-theme-overrides {
   /* Flatly enlarges headings ($h1: 3rem, $h2: 2.5rem, $h3: 2rem); weight stays default 500.
      header = h2, page = h3. panel (h5) keeps the base 1.25rem / 500. */
-  --sjs2-typography-font-size-component-header-title: 2.5rem; /* h2 */
-  --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-survey-header-title: 2.5rem; /* h2 */
+  --sjs2-typography-font-weight-component-survey-header-title: 500;
   --sjs2-typography-font-size-component-page-title: 2rem; /* h3 */
   --sjs2-typography-font-weight-component-page-title: 500;
+}
+
+[data-bs-theme="dark"] {
+   .sv-ranking-shortcut .sv-ranking-item__icon,
+   .sv-ranking-item__icon.sv-ranking-item__icon {
+      fill: var(--bs-body-color);
+   }
+
+   .sv-ranking-item__index.sv-ranking-item__index {
+      background-color: var(--bs-primary);
+   }
 }

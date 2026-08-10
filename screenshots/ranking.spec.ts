@@ -176,12 +176,15 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs2-color-fg-basic-primary": "red",
-          "--sjs-font-editorfont-size": "32px"
-        }
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-fg-basic-primary": "red",
+            "--sjs-font-editorfont-size": "32px"
+          }
+        });
       });
+
       await compareScreenshot(page, ".sv-ranking-item", "question-ranking-item-theme.png");
     });
 

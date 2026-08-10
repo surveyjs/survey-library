@@ -12,10 +12,14 @@
   --sjs2-border-effect-component-formbox-focused: var(--sjs2-border-effect-component-formbox-default), var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* checkboxes and radio */
-  --sjs2-color-component-check-false-default-border: var(--border);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
-  --sjs2-border-effect-component-check-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
+  --sjs2-color-component-checkbox-false-default-border: var(--primary);
+  --sjs2-color-component-radio-false-default-border: var(--primary);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-checkbox-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-radio-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-checkbox-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
+  --sjs2-border-effect-component-radio-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* dropdown */
   --sjs2-radius-component-drop: var(--radius);
@@ -27,9 +31,23 @@
   --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 7);
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
 
+  /* panel = Card. The default style still ships the legacy card: no gap on the card itself,
+     CardHeader is p-6 (so it keeps its bottom padding) and CardContent is p-6 pt-0. Its outline is
+     a real border plus shadow-sm instead of a ring. */
+  --sjs2-shadcn-card-ring: inset 0 0 0 1px;
+  --sjs2-shadcn-card-border-width: 1px;
+  --sjs2-shadcn-card-shadow: var(--shadow-sm);
+  --sjs2-color-component-panel-default-border: var(--border);
+  --sjs2-layout-component-panel-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-header-padding-bottom: var(--sjs2-shadcn-card-spacing);
+  --sjs2-typography-font-size-component-panel-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-panel-title: 1;
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-semibold);
+
+  /* check group = RadioGroup (grid gap-2) */
+  --sjs2-layout-component-labeled-group-box-gap-vertical: calc(var(--spacing) * 2);
+
   /* common and other */
-  --sjs2-typography-font-size-component-page-title: var(--text-2xl);
-  --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-color-bg-basic-primary-dim: var(--accent);
   --sjs2-border-effect-surface-default: inset 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 
@@ -84,8 +102,7 @@
   translate: none;
 }
 .sd-panel__title {
-  --sjs2-typography-font-size-component-question-title: var(--text-2xl);
-  --sjs2-typography-font-weight-component-question-title: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .sd-element--with-frame {
@@ -104,4 +121,12 @@
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(100%);
+}
+
+.sd-formbox--error {
+  box-shadow: var(--sjs2-border-effect-component-formbox-invalid);
+}
+
+.sd-formbox--error:where(:focus-within) {
+  box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused);
 }

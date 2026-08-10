@@ -455,14 +455,17 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs-special-red": "orange",
-          "--sjs-special-yellow": "magenta",
-          "--sjs-special-green": "blue"
-        },
-        "isPanelless": false
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-special-red": "orange",
+            "--sjs-special-yellow": "magenta",
+            "--sjs-special-green": "blue"
+          },
+          "isPanelless": false
+        });
       });
+
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-theme.png");
     });
 
@@ -473,13 +476,16 @@ frameworks.forEach(framework => {
         width: "900px",
         elements: [{ type: "rating", name: "q1" }]
       });
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
-          "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
-        },
-        "isPanelless": false
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+            "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
+          },
+          "isPanelless": false
+        });
       });
+
       await compareScreenshot(page, ".sd-rating", "rating-inner-shadow.png");
     });
 

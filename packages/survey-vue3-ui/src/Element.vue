@@ -2,7 +2,7 @@
   <div
     ref="root"
     :style="getRootStyle(element)"
-    :class="element.cssClasses.questionWrapper"
+    :class="element.getWrapperCss()"
   >
     <SvComponent
       :is="componentName"

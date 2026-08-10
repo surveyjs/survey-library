@@ -157,10 +157,10 @@ describe("patchLegacyCSSVariables", () => {
     };
     patchLegacyCSSVariables(cssVariables);
 
-    expect(cssVariables["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
-    expect(cssVariables["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
-    expect(cssVariables["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
-    expect(cssVariables["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+    expect(cssVariables["--sjs2-typography-font-size-component-survey-header-title"]).toBe("32px");
+    expect(cssVariables["--sjs2-typography-line-height-component-survey-header-title"]).toBe("40px");
+    expect(cssVariables["--sjs2-typography-font-size-component-survey-header-description"]).toBe("20px");
+    expect(cssVariables["--sjs2-typography-line-height-component-survey-header-description"]).toBe("30px");
     expect(cssVariables["--sjs2-typography-font-size-component-page-title"]).toBe("24px");
     expect(cssVariables["--sjs2-typography-line-height-component-page-title"]).toBe("32px");
   });

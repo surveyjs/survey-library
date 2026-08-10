@@ -2239,18 +2239,17 @@ export class Question extends SurveyElement<Question>
    * @see SurveyModel.getQuizQuestions
    */
   public get quizQuestionCount(): number {
-    if (
-      this.isVisible &&
-      this.hasInput &&
-      !this.isValueEmpty(this.getCorrectAnswerValue())
-    )
+    if (this.isVisible && this.hasInput && this.hasCorrectAnswerValue())
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
+    if (!this.isEmpty() && this.hasCorrectAnswerValue())
       return this.getCorrectAnswerCount();
     return 0;
+  }
+  protected hasCorrectAnswerValue(): boolean {
+    return !this.isValueEmpty(this.getCorrectAnswerValue());
   }
   protected getQuizQuestionCount(): number {
     return 1;
@@ -3284,8 +3283,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+  { name: "minWidth" },
+  { name: "maxWidth" },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

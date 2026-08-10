@@ -320,6 +320,17 @@ describe("ProgressButtons", () => {
     expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
     expect(progress.isListElementPassed(1), "the unvisited page with a default value is not passed").toBe(false);
   });
+  test("Progress bar does not mark an unvisited page as passed because of a calculated expression value", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "expression", name: "date", expression: "currentDate()" }, { type: "html", name: "info", html: "<p>text</p>" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(1), "the unvisited page with an expression question is not passed").toBe(false);
+  });
   test("ProgressButtons restores the actually active page, not the furthest visited", () => {
     const json: any = {
       pages: [

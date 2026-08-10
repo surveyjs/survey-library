@@ -227,8 +227,8 @@ export interface IHeader {
 }
 
 const typographyComponentLineHeightCoefficients: { component: string, coefficient: number }[] = [
-  { component: "header-title", coefficient: 1.25 },
-  { component: "header-description", coefficient: 1.5 },
+  { component: "survey-header-title", coefficient: 1.25 },
+  { component: "survey-header-description", coefficient: 1.5 },
   { component: "page-title", coefficient: 1.33 },
   { component: "page-description", coefficient: 1.5 },
   { component: "question-title", coefficient: 1.5 },
@@ -321,6 +321,8 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
       const referencedMapping = legacyCssVariables[referencedVar];
       if (typeof referencedMapping === "string") {
         return `var(${referencedMapping})`;
+      } else if (Array.isArray(referencedMapping) && referencedMapping.length > 0) {
+        return `var(${referencedMapping[0]})`;
       }
       return match;
     });

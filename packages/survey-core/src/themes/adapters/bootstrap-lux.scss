@@ -21,6 +21,8 @@
 
   --sjs-bs-primary-focus-border: transparent;
 
+  --sjs-bs-card-border-width: 0px;
+
   /* $input-btn-padding: .75rem 1.5rem (buttons + inputs; $border-width: 0). Input total = formbox
      (0.125rem) + content, so content = target - 0.125rem.
      btn-sm: $input-btn-padding-y-sm / $input-btn-padding-x-sm */
@@ -30,13 +32,59 @@
   --sjs2-layout-component-action-small-box-padding-horizontal: calc(1rem + var(--bs-border-width));
   --sjs2-layout-component-input-medium-content-padding-vertical: 0.75rem;
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1.5rem;
+  --sjs2-layout-component-input-medium-label-padding-vertical: 0.75rem;
+  --sjs2-layout-component-input-medium-label-padding-horizontal: 1.5rem;
+
   --sjs2-typography-line-height-component-action-small-content: 1.5rem;
 
   --sjs2-layout-component-action-small-box-padding-horizontal: 1rem;
   --sjs2-layout-component-action-small-box-padding-vertical: 0.5rem;
 
-  --sjs2-border-effect-component-action-brand-tertiary-surface-default: 0px 0px 0px 2px var(--bs-primary);
-  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: 0px 0px 0px 2px var(--bs-primary);
+  /* tertiary buttons = .btn-outline-primary. Lux draws its outline outside the box
+     ([class*="btn-outline-"] { border-width: 2px } over a borderless $btn-border-width: 0 base),
+     so the border effect is an outer 2px ring that keeps the button padding intact. */
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: #1a1a1a;
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: #1a1a1a;
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: 0px 0px 0px 2px #1a1a1a;
+
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: #fff;
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: #fff;
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: #1a1a1a;
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: 0px 0px 0px 2px #1a1a1a;
+
+  --sjs2-border-effect-component-action-brand-primary-default: 0px 0px 0px 2px #080808;
+  --sjs2-border-effect-component-action-brand-primary-hovered: 0px 0px 0px 2px #080808;
+
+  /* [data-bs-theme=dark] .btn-outline-primary { color: #fff; border-color: #080808; --bs-btn-hover-bg: #000 } */
+  &:is([data-bs-theme="dark"] *) {
+    --sjs2-color-component-input-default-value: #55595c;
+    --sjs2-color-component-checkbox-true-default-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-radio-true-default-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-toggle-false-default-bg: #f0f1f2;
+    --sjs2-color-component-toggle-false-hovered-bg: #f0f1f2;
+    --sjs2-color-component-toggle-true-default-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-toggle-true-hovered-bg: rgba(85, 89, 92, 0.75);
+    --sjs2-color-component-toggle-false-default-border: transparent;
+    --sjs2-color-component-toggle-false-hovered-border: transparent;
+    --sjs2-color-component-toggle-true-default-border: transparent;
+    --sjs2-color-component-toggle-true-hovered-border: transparent;
+
+    --sjs2-color-component-action-brand-primary-default-label: #fff;
+    --sjs2-color-component-action-brand-primary-default-icon: #fff;
+    --sjs2-color-component-action-brand-primary-default-bg: #080808;
+
+    --sjs2-color-component-action-brand-tertiary-surface-default-label: #fff;
+    --sjs2-color-component-action-brand-tertiary-surface-default-icon: #fff;
+    --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
+    --sjs2-border-effect-component-action-brand-tertiary-surface-default: 0px 0px 0px 2px #080808;
+
+    --sjs2-color-component-action-brand-tertiary-surface-hovered-label: #fff;
+    --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: #fff;
+    --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: #000;
+    --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: 0px 0px 0px 2px #080808;
+  }
+
   --sjs2-typography-line-height-component-action-large-content: 1.5rem;
 
   /* white secondary button with dark text */
@@ -45,17 +93,30 @@
   --sjs-bs-secondary-hover-bg: var(--bs-tertiary-bg);
 
   /* grey filled, borderless inputs ($input-bg: gray-200) */
-  --sjs2-color-component-formbox-default-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-formbox-hovered-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-formbox-focused-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-formbox-default-bg: #f0f1f2;
+  --sjs2-color-component-formbox-hovered-bg: #f0f1f2;
+  --sjs2-color-component-formbox-focused-bg: #f0f1f2;
+  --sjs2-color-component-formbox-invalid-bg: #f0f1f2;
+  --sjs2-color-component-formbox-invalid-focused-bg: #f0f1f2;
   --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px transparent;
   --sjs2-border-effect-component-formbox-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-formbox-invalid: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
 
-  --sjs2-color-component-check-false-default-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-check-false-hovered-bg: var(--bs-secondary-bg);
-  --sjs2-color-component-check-false-focused-bg: var(--bs-secondary-bg);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px transparent;
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-color-component-checkbox-false-default-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-default-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-hovered-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-hovered-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-focused-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-focused-bg: #f0f1f2;
+  --sjs2-color-component-checkbox-false-invalid-bg: #f0f1f2;
+  --sjs2-color-component-radio-false-invalid-bg: #f0f1f2;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 1px transparent;
 
   --sjs2-color-component-toggle-false-default-bg: var(--bs-secondary-bg);
   --sjs2-color-component-toggle-false-hovered-bg: var(--bs-secondary-bg);
@@ -70,8 +131,8 @@
 
   /* Lux shrinks headings ($h1: 2rem, $h2: 1.75rem, $h3: 1.5rem, $h5: 1rem), $headings-font-weight: 600.
      header = h2, page = h3, panel = h5. */
-  --sjs2-typography-font-size-component-header-title: 1.75rem; /* h2 */
-  --sjs2-typography-font-weight-component-header-title: 600;
+  --sjs2-typography-font-size-component-survey-header-title: 1.75rem; /* h2 */
+  --sjs2-typography-font-weight-component-survey-header-title: 600;
   --sjs2-typography-font-size-component-page-title: 1.5rem; /* h3 */
   --sjs2-typography-font-weight-component-page-title: 600;
   --sjs2-typography-font-size-component-panel-title: 1rem; /* h5 */
@@ -82,6 +143,21 @@
 
   /* inherited letter-spacing on the survey root */
   letter-spacing: 1px;
+}
+
+[data-bs-theme="dark"] .sd-boolean-switch__button.sd-boolean-switch__button:not(:focus) {
+  --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='rgba(0, 0, 0, 0.25)'/></svg>");
+}
+
+[data-bs-theme="dark"] {
+  .sv-ranking-shortcut .sv-ranking-item__icon,
+  .sv-ranking-item__icon.sv-ranking-item__icon {
+    fill: var(--bs-body-color);
+  }
+
+  .sv-ranking-item__index.sv-ranking-item__index {
+    background-color: var(--bs-primary);
+  }
 }
 
 /* dropdown */
@@ -110,6 +186,15 @@
     padding: 1.5rem;
     font-size: 0.875rem;
   }
+}
+
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+  border-color: transparent;
+}
+
+.sd-element__header~hr {
+  background-color: transparent;
 }
 
 /* uppercase, letter-spaced titles */

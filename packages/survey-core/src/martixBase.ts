@@ -247,6 +247,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     if (this.displayMode == "auto") return super.getIsMobile();
     return this.displayMode === "list";
   }
+  public get isAllowTitleLeft(): boolean {
+    return false;
+  }
 }
 
 Serializer.addClass(

@@ -21,6 +21,8 @@
   --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1rem;
   --sjs2-layout-component-input-medium-content-padding-vertical: 0.5rem;
+  --sjs2-layout-component-input-medium-label-padding-horizontal: 1rem;
+  --sjs2-layout-component-input-medium-label-padding-vertical: 0.5rem;
 
   --sjs2-typography-font-size-component-input-content: 0.875rem;
 
@@ -50,6 +52,13 @@
 
   /* $headings-color: primary */
   --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+
+  /* $enable-shadows -> .card carries a soft shadow on top of its border, and Zephyr widens the
+     card ($card-spacer-x: 1.5rem, $card-cap-padding: 1rem 1.5rem) */
+  --sjs-bs-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --sjs-bs-card-spacer-x: var(--bs-card-spacer-x, 1.5rem);
+  --sjs-bs-card-cap-padding-y: var(--bs-card-cap-padding-y, 1rem);
+  --sjs-bs-card-cap-padding-x: var(--bs-card-cap-padding-x, 1.5rem);
 
   --sjs2-typography-font-weight-component-question-title: 500;
 

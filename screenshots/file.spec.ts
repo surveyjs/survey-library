@@ -92,12 +92,14 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
       });
-      await applyTheme(page, {
-        cssVariables: {
-          "--sjs-base-unit": "16px"
-        },
-        header: {
-        }
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          cssVariables: {
+            "--sjs-base-unit": "16px"
+          },
+          header: {
+          }
+        });
       });
 
       await compareScreenshot(page, questionRoot, "file-question-single-file-scaled.png");
@@ -169,11 +171,14 @@ frameworks.forEach(framework => {
 
     test("Check file question - long names large font", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await applyTheme(page, {
-        cssVariables: {
-          "--sjs-font-size": "20px"
-        }
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          cssVariables: {
+            "--sjs-font-size": "20px"
+          }
+        });
       });
+
       await page.evaluate(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
@@ -297,21 +302,21 @@ frameworks.forEach(framework => {
           {
             type: "file",
             name: "q1",
-            minWidth: "616px",
-            maxWidth: "616px"
+            minWidth: "624px",
+            maxWidth: "624px"
           },
           {
             type: "file",
             name: "q2",
-            minWidth: "300px",
-            maxWidth: "300px",
+            minWidth: "308px",
+            maxWidth: "308px",
             startWithNewLine: false
           },
           {
             type: "file",
             name: "q3",
-            minWidth: "200px",
-            maxWidth: "200px",
+            minWidth: "208px",
+            maxWidth: "208px",
             startWithNewLine: false
           }
         ]

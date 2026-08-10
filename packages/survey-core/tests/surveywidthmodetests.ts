@@ -254,21 +254,4 @@ describe("Survey", () => {
     expect(survey.renderedWidth).toBe("900px");
   });
 
-  test("Question min width scaling", () => {
-    var survey = new SurveyModel({
-      "elements": [
-        {
-          "type": "text",
-          "name": "question1",
-        },
-      ]
-    });
-    const q = survey.getAllQuestions()[0];
-    expect(survey.widthScale).toBe(100);
-    expect(q.rootStyle["minWidth"]).toBe("min(100%, 300px)");
-
-    survey.widthScale = 50;
-    expect(survey.widthScale).toBe(50);
-    expect(q.rootStyle["minWidth"]).toBe("min(100%, 150px)");
-  });
 });

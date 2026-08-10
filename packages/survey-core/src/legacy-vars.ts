@@ -12,9 +12,11 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-bg",
   ],
   "--sjs-general-backcolor-dark": "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
-  "--sjs-general-backcolor-dim": ["--sjs2-color-bg-neutral-tertiary-dim",
-    "--sjs2-color-utility-surface-survey-panelless",
-    "--sjs2-color-utility-surface-survey"], //rgba(243, 243, 243, 1)",
+  "--sjs-general-backcolor-dim": [
+    "--sjs2-color-bg-neutral-tertiary-dim",
+    "--sjs2-color-utility-sheet",
+    "--sjs2-color-utility-surface-survey"//rgba(243, 243, 243, 1)",
+  ],
   "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
   "--sjs-general-backcolor-dim-dark": "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
   "--sjs-general-forecolor": "--sjs2-color-fg-basic-primary", //rgba(0, 0, 0, 0.91)",
@@ -26,11 +28,25 @@ export const legacyCssVariables = {
   ],
   //"--sjs-general-dim-forecolor": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.91)",
   //"--sjs-general-dim-forecolor-light": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.45)",
-  "--sjs-primary-backcolor": "--sjs2-color-project-brand-600", //"rgba(25, 179, 148, 1)",
+  "--sjs-primary-backcolor": [
+    "--sjs2-color-project-brand-600", //"rgba(25, 179, 148, 1)",
+    "--sjs2-color-component-tagbox-item-default-bg",
+    "--sjs2-color-component-tagbox-item-hovered-bg",
+  ],
   "--sjs-primary-backcolor-light": "--sjs2-color-bg-brand-secondary", //"rgba(25, 179, 148, 0.1)",
   "--sjs-primary-backcolor-dark": "--sjs2-color-bg-brand-primary-dim", //rgba(20, 164, 139, 1)",
-  "--sjs-primary-forecolor": "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
-  "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
+  "--sjs-primary-forecolor": [
+    "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
+    "--sjs2-color-component-tagbox-item-default-label",
+    "--sjs2-color-component-tagbox-item-hovered-label",
+    "--sjs2-color-component-tagbox-item-action-hovered-icon",
+    "--sjs2-color-component-tagbox-item-action-pressed-icon",
+    "--sjs2-color-component-tagbox-item-action-default-icon",
+  ],
+  "--sjs-primary-forecolor-light": [
+    "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
+    "--sjs2-color-component-tagbox-item-action-hovered-bg",
+  ],
   "--sjs-base-unit": ["--sjs2-base-unit-size", "--sjs2-base-unit-spacing"], //"8px"
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
   "--sjs-shadow-small": [
@@ -46,8 +62,10 @@ export const legacyCssVariables = {
   "--sjs-shadow-large": { var: "--sjs2-border-effect-floating-default", join: "," }, //0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
   "--sjs-shadow-inner": [
     "--sjs2-border-effect-component-formbox-default", //inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-component-check-true-default",
-    "--sjs2-border-effect-component-check-false-default",
+    "--sjs2-border-effect-component-checkbox-true-default",
+    "--sjs2-border-effect-component-checkbox-false-default",
+    "--sjs2-border-effect-component-radio-true-default",
+    "--sjs2-border-effect-component-radio-false-default",
   ],
   "--sjs-border-light": "--sjs2-color-border-basic-secondary", //rgba(0, 0, 0, 0.09)",
   "--sjs-border-default": "--sjs2-color-component-input-default-line", //rgba(0, 0, 0, 0.16)",
@@ -65,9 +83,16 @@ export const legacyCssVariables = {
   "--sjs-special-yellow-light": "--sjs2-color-bg-warning-secondary", //rgba(255, 152, 20, 0.1)",
   "--sjs-special-yellow-forecolor": "--sjs2-color-fg-warning-on-primary", //rgba(255, 255, 255, 1)",
 
-  "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
+  "--sjs-editorpanel-cornerRadius": [
+    "--sjs2-radius-form",
+    "--sjs2-radius-component-formbox"
+  ],
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
-  "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
+  "--sjs-editorpanel-hovercolor": [
+    "--sjs2-color-component-checkbox-false-hovered-bg",
+    "--sjs2-color-component-radio-false-hovered-bg",
+    "--sjs2-color-component-boolean-item-false-hovered-bg"
+  ],
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",
   "--sjs-questionpanel-backcolor": [
     "--sjs2-color-component-panel-default-bg",
@@ -108,21 +133,21 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-neutral-quaternary-surface-default-icon",
   ],
 
-  "--sjs-font-surveytitle-family": "--sjs2-typography-font-family-component-header-title",
-  "--sjs-font-surveytitle-weight": "--sjs2-typography-font-weight-component-header-title",
-  "--sjs-font-surveytitle-size": "--sjs2-typography-font-size-component-header-title",
-  "--sjs-font-surveydescription-family": "--sjs2-typography-font-family-component-header-description",
-  "--sjs-font-surveydescription-weight": "--sjs2-typography-font-weight-component-header-description",
-  "--sjs-font-surveydescription-size": "--sjs2-typography-font-size-component-header-description",
-  "--sjs-font-headertitle-family": "--sjs2-typography-font-family-component-header-title",
-  "--sjs-font-headertitle-weight": "--sjs2-typography-font-weight-component-header-title",
-  "--sjs-font-headertitle-size": "--sjs2-typography-font-size-component-header-title",
-  "--sjs-font-headertitle-color": "--sjs2-color-component-header-default-title",
-  "--sjs-font-headerdescription-family": "--sjs2-typography-font-family-component-header-description",
-  "--sjs-font-headerdescription-weight": "--sjs2-typography-font-weight-component-header-description",
-  "--sjs-font-headerdescription-size": "--sjs2-typography-font-size-component-header-description",
-  "--sjs-font-headerdescription-color": "--sjs2-color-component-header-default-description",
-  "--sjs-header-backcolor": "--sjs2-color-component-header-default-bg",
+  "--sjs-font-surveytitle-family": "--sjs2-typography-font-family-component-survey-header-title",
+  "--sjs-font-surveytitle-weight": "--sjs2-typography-font-weight-component-survey-header-title",
+  "--sjs-font-surveytitle-size": "--sjs2-typography-font-size-component-survey-header-title",
+  "--sjs-font-surveydescription-family": "--sjs2-typography-font-family-component-survey-header-description",
+  "--sjs-font-surveydescription-weight": "--sjs2-typography-font-weight-component-survey-header-description",
+  "--sjs-font-surveydescription-size": "--sjs2-typography-font-size-component-survey-header-description",
+  "--sjs-font-headertitle-family": "--sjs2-typography-font-family-component-survey-header-title",
+  "--sjs-font-headertitle-weight": "--sjs2-typography-font-weight-component-survey-header-title",
+  "--sjs-font-headertitle-size": "--sjs2-typography-font-size-component-survey-header-title",
+  "--sjs-font-headertitle-color": "--sjs2-color-component-survey-header-default-title",
+  "--sjs-font-headerdescription-family": "--sjs2-typography-font-family-component-survey-header-description",
+  "--sjs-font-headerdescription-weight": "--sjs2-typography-font-weight-component-survey-header-description",
+  "--sjs-font-headerdescription-size": "--sjs2-typography-font-size-component-survey-header-description",
+  "--sjs-font-headerdescription-color": "--sjs2-color-component-survey-header-default-description",
+  "--sjs-header-backcolor": "--sjs2-color-component-survey-header-default-bg",
 
   "--sjs-font-editorfont-family": [
     "--sjs2-typography-font-family-component-input-content",

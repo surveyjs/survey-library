@@ -4,9 +4,16 @@
     --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
     --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
     --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
-    --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
-    --sjs2-color-component-check-false-hovered-bg: var(--sjs2-color-component-check-false-default-bg);
-    --sjs2-color-component-check-false-focused-bg: var(--sjs2-color-component-check-false-default-bg);
+    --sjs2-color-component-formbox-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-formbox-invalid-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-checkbox-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-radio-false-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-checkbox-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-radio-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-checkbox-false-hovered-bg: var(--sjs2-color-component-checkbox-false-default-bg);
+    --sjs2-color-component-radio-false-hovered-bg: var(--sjs2-color-component-radio-false-default-bg);
+    --sjs2-color-component-checkbox-false-focused-bg: var(--sjs2-color-component-checkbox-false-default-bg);
+    --sjs2-color-component-radio-false-focused-bg: var(--sjs2-color-component-radio-false-default-bg);
   }
 }
 
@@ -36,6 +43,9 @@
   --sjs2-base-unit-radius: var(--radius);
   --sjs2-base-unit-spacing: var(--spacing);
 
+  /* Let shadcn size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 0;
+
   --sjs2-color-utility-body: var(--card);
   --sjs2-color-utility-sheet: var(--background);
   --sjs2-color-utility-a11y: color-mix(in oklab, var(--ring) 50%, transparent);
@@ -48,6 +58,8 @@
   --sjs2-border-effect-a11y: 0 0 0 3px var(--sjs2-color-utility-a11y);
 
   --shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+  --shadow-md: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.1) 0px 2px 4px -2px;
 
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 10);
   --sjs2-shadcn-input-height: calc(var(--spacing) * 10);
@@ -86,7 +98,7 @@
   --sjs2-layout-component-action-large-box-padding-vertical: calc(var(--spacing) * 2);
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 4);
   --sjs2-layout-component-action-large-box-gap: calc(var(--spacing) * 2); /* gap-2 */
-  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-large-label-padding-horizontal: 1px;
   --sjs2-layout-component-action-large-label-padding-vertical: 0;
   --sjs2-border-effect-component-action-large-default: 0px 0px 0px 0px transparent;
 
@@ -129,6 +141,23 @@
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: var(--background);
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px var(--input);
 
+  /* secondary buttons (variant=secondary: bg-secondary text-secondary-foreground hover:bg-secondary/80) */
+  --sjs2-color-component-action-brand-secondary-default-label: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-default-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-default-bg: var(--secondary);
+  --sjs2-border-effect-component-action-brand-secondary-default: 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-hovered-label: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-hovered-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-brand-secondary-hovered-bg: color-mix(in oklab, var(--secondary) 80%, transparent);
+  --sjs2-border-effect-component-action-brand-secondary-hovered: 0 0 0 0 transparent;
+
+  /* disabled:opacity-50 applies to the whole button, so every part is halved */
+  --sjs2-color-component-action-brand-secondary-disabled-label: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-brand-secondary-disabled-icon: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-brand-secondary-disabled-bg: rgba(from var(--secondary) r g b / 0.5);
+  --sjs2-border-effect-component-action-brand-secondary-disabled: 0 0 0 0 transparent;
+
   /* secondary buttons */
   --sjs2-color-component-action-neutral-secondary-default-bg: --secondary;
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--secondary-foreground);
@@ -150,6 +179,8 @@
   --sjs2-color-component-formbox-default-bg: var(--background);
   --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
   --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+  --sjs2-color-component-formbox-invalid-bg: var(--sjs2-color-component-formbox-default-bg);
+  --sjs2-color-component-formbox-invalid-focused-bg: var(--sjs2-color-component-formbox-default-bg);
 
   --sjs2-color-component-formbox-default-fg: var(--foreground);
   --sjs2-color-component-formbox-default-border: var(--border);
@@ -160,6 +191,7 @@
   --sjs2-border-effect-component-formbox-invalid: var(--sjs2-border-effect-component-formbox-default);
   --sjs2-border-effect-component-formbox-invalid-focused: var(--sjs2-border-effect-component-formbox-focused);
   --sjs2-radius-component-formbox: var(--radius);
+  --sjs2-radius-component-buttongroup-item: var(--sjs2-radius-component-formbox);
   --sjs2-layout-component-formbox-medium-padding-vertical: 0;
   --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
   --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 3);
@@ -174,6 +206,7 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--destructive);
   --sjs2-color-component-message-error-icon: var(--destructive);
+  --sjs2-layout-component-message-box-padding-horizontal: 0;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--destructive);
@@ -186,23 +219,38 @@
   --sjs2-size-component-checkbox-icon: calc(var(--spacing) * 3.5);
   --sjs2-size-component-radio-box: calc(var(--spacing) * 4);
   --sjs2-size-component-radio-icon: calc(var(--spacing) * 4);
-  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 2);
+  /* a check item is <Field orientation="horizontal">, a check group is <RadioGroup> / <CheckboxGroup> */
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 3);
   --sjs2-layout-component-labeled-group-box-gap-vertical: calc(var(--spacing) * 3);
   --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
   --sjs2-typography-font-weight-component-label-content: var(--font-weight-medium);
   --sjs2-typography-line-height-component-label-content: 1;
   --sjs2-color-component-label-default-text: var(--foreground);
 
-  --sjs2-color-component-check-false-default-bg: transparent;
-  --sjs2-color-component-check-false-hovered-bg: transparent;
-  --sjs2-color-component-check-true-hovered-bg: var(--primary);
-  --sjs2-color-component-check-false-default-border: var(--input);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px
-    var(--sjs2-color-component-check-false-default-border);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
-    var(--sjs2-color-component-check-false-default-border);
+  --sjs2-color-component-checkbox-false-default-bg: transparent;
+  --sjs2-color-component-radio-false-default-bg: transparent;
+  --sjs2-color-component-checkbox-false-hovered-bg: transparent;
+  --sjs2-color-component-radio-false-hovered-bg: transparent;
+  --sjs2-color-component-checkbox-true-hovered-bg: var(--primary);
+  --sjs2-color-component-radio-true-hovered-bg: var(--primary);
+  --sjs2-color-component-checkbox-false-default-border: var(--input);
+  --sjs2-color-component-radio-false-default-border: var(--input);
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-checkbox-false-default-border);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-radio-false-default-border);
 
-  --sjs2-border-effect-component-check-a11y:
+  --sjs2-border-effect-component-checkbox-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-radio-a11y:
     inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* toggle */
@@ -265,7 +313,7 @@
   --sjs2-color-bg-alert-secondary: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x010));
   --sjs2-color-bg-alert-secondary-dim: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x015));
 
-  --sjs2-color-border-basic-primary: var(--border);
+  --sjs2-color-border-basic-primary: var(--foreground);
   --sjs2-color-border-basic-secondary: var(--border);
   --sjs2-color-utility-shadow-surface-default: var(--border);
   --sjs2-color-utility-shadow-trigger-default: transparent;
@@ -286,10 +334,202 @@
   --sjs2-typography-line-height-component-question-title: calc(var(--leading-snug) * 1em);
   --sjs2-typography-font-weight-component-question-title: var(--font-weight-medium);
 
-  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-page-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-page-title: 1;
+  --sjs2-typography-font-size-component-survey-header-title: var(--text-2xl);
+  --sjs2-typography-line-height-component-survey-header-title: 1;
+  --sjs2-typography-font-size-component-survey-header-description: 1em;
 
-  --sjs2-typography-font-size-component-header-title: var(--text-base);
-  --sjs2-typography-font-size-component-header-description: 1em;
+  /* A panel is a Card: the panel box is <Card> (flex-col, gap-(--card-spacing), py-(--card-spacing)),
+     the panel header is <CardHeader> (px only, gap between title and description), the panel
+     content is <CardContent> (px only) and the panel title is <CardTitle>. Values below are the
+     stock ones; each style file overrides the deltas of its own vendored card.tsx. */
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 6);
+  /* gap-2, the spacing the registry puts between the buttons of a <CardAction> / <CardFooter> */
+  --sjs2-shadcn-card-action-gap: calc(var(--spacing) * 2);
+  /* <Card> is outlined with ring-1 ring-foreground/10 — a ring is drawn outside the card box, so
+     the card paddings stay exactly the card spacing — and carries no shadow. The styles that add a
+     shadow, tint the ring differently or replace it with a real border override these. */
+  --sjs2-shadcn-card-ring: 0 0 0 1px;
+  --sjs2-shadcn-card-shadow: 0 0 #0000;
+  /* A ring takes no room in the layout, so with one the card paddings are the card spacing exactly.
+     A style that outlines the card with a real border sets its width here instead: the border is
+     painted as an inset ring, which takes no room either, so every padding that sits against a card
+     edge grows by that width and the card stays as large as the real one with the same content. */
+  --sjs2-shadcn-card-border-width: 0px;
+  --sjs2-shadcn-card-edge-spacing: calc(var(--sjs2-shadcn-card-spacing) + var(--sjs2-shadcn-card-border-width));
+
+  --sjs2-color-component-survey-header-default-title: var(--card-foreground);
+  --sjs2-color-component-page-default-title: var(--card-foreground);
+  --sjs2-color-component-panel-default-title: var(--card-foreground);
+  --sjs2-color-component-panel-default-description: var(--muted-foreground);
+  /* the ring color; panel separators are off (transparent) across adapters */
+  --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --sjs2-color-component-panel-default-separator: transparent;
+  --sjs2-border-effect-component-panel-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
+
+  --sjs2-typography-font-size-component-panel-title: var(--text-base);
+  --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-medium);
+
+  /* <Card> is py-(--card-spacing) with gap-(--card-spacing) between its slots, so the card's
+     own vertical padding is folded into the first and the last slot and the box gap keeps the
+     slots apart. <CardAction> sits in the header grid, <CardFooter> is px-only like the rest. */
+  --sjs2-layout-component-panel-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-box-padding-top: 0;
+  --sjs2-layout-component-panel-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-box-gap-vertical: var(--sjs2-shadcn-card-spacing);
+
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-header-padding-bottom: 0;
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  --sjs2-layout-component-panel-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-description-padding-top: 0;
+  --sjs2-layout-component-panel-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
+  /* rows of questions inside a panel are a <FieldGroup>; the horizontal gap is the one the demo
+     app puts on its two-column FieldGroup (grid gap-4 sm:grid-cols-2) */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 7);
+  --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--spacing) * 4);
+
+  --sjs2-layout-component-panel-footer-padding-top: 0;
+  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-footer-gap: var(--sjs2-shadcn-card-action-gap);
+  --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  /* a framed question is a <Card> with a <CardContent> only, so the card's py lands there */
+  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-simple-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
+
+  --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-simple-box-padding-top: 0;
+  --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(
+    --sjs2-layout-component-panel-content-area-gap-vertical
+  );
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(
+    --sjs2-layout-component-panel-content-area-gap-horizontal
+  );
+
+  /* a nested panel is a <Card> that keeps a bordered <CardHeader>: [.border-b]:pb-6 restores the
+     header's bottom padding and the content below it starts with the full card spacing again */
+  --sjs2-radius-component-panel-nested: var(--sjs2-radius-component-panel);
+  --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-nested-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
+
+  --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-box-padding-top: 0;
+  --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  --sjs2-layout-component-panel-nested-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-nested-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-description-padding-top: 0;
+  --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(
+    --sjs2-layout-component-panel-content-area-gap-vertical
+  );
+  --sjs2-layout-component-panel-nested-content-area-gap-horizontal: var(
+    --sjs2-layout-component-panel-content-area-gap-horizontal
+  );
+
+  --sjs2-layout-component-panel-nested-footer-padding-top: 0;
+  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-nested-footer-gap: var(--sjs2-shadcn-card-action-gap);
+  --sjs2-layout-component-panel-nested-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  /* a dynamic panel is a <Card> whose content stacks the entries above a <CardFooter> that holds
+     the add/remove buttons */
+  --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-dynamic-default-separator: transparent;
+  --sjs2-border-effect-component-panel-dynamic-default: var(--sjs2-shadcn-card-ring)
+    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs2-shadcn-card-shadow);
+
+  --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(
+    --sjs2-layout-component-panel-content-area-gap-horizontal
+  );
+
+  --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs2-shadcn-card-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs2-shadcn-card-action-gap);
+  --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
+
+  /* A question is a Field: the question box is <Field> (gap between header and input), the
+     question header is <FieldContent> (gap between title and description). */
+  --sjs2-layout-component-question-box-gap-vertical: calc(var(--spacing) * 3);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1.5);
+
+  --sjs2-color-utility-body: transparent;
+  --sjs2-color-utility-surface-survey: transparent;
+}
+
+.sd-page__title {
+  letter-spacing: var(--tracking-tight);
 }
 
 .sd-action--large {
@@ -303,6 +543,40 @@
 .sd-comment__input {
   min-height: var(--sjs2-shadcn-textarea-min-height);
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
+}
+
+.sd-formbox--error {
+  --shadcn-border-color: var(--destructive);
+  --shadcn-formbox-border-error: inset 0 0 0 1px var(--shadcn-border-color);
+  --tw-ring-color: color-mix(in oklab, var(--destructive) 20%, transparent);
+  --tw-ring-shadow: 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--shadcn-formbox-border-error), var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+.dark .sd-formbox--error {
+  --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent);
+  --shadcn-border-color: color-mix(in oklab, var(--destructive) 50%, transparent);
+}
+
+.sd-question__title--error {
+  color: var(--destructive);
+}
+
+.sd-question__erbox--below-question {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.sd-error__item {
+  font-weight: var(--font-weight-normal);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+}
+.sd-question--boolean .sd-error__item {
+  padding-left: calc(
+    var(--sjs2-size-component-checkbox-box) + var(--sjs2-layout-component-labeled-item-box-gap-horizontal)
+  );
 }
 
 /* dropdown */
@@ -445,6 +719,17 @@
   overflow-wrap: break-word;
 }
 
+.sd-item--error .sd-item__control-label {
+  color: var(--destructive);
+}
+
+.sd-item__control-label {
+  align-items: center;
+}
+.sd-radio__decorator {
+  margin: 0;
+}
+
 /* toggle */
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: 0px;
@@ -453,6 +738,9 @@
   --sd-boolean-switch-button-spacing: 1px;
   --sd-boolean-switch-button-width: 32px;
   --sd-boolean-switch-button-heigth: 18.4px;
+
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
+  align-items: center;
 }
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
@@ -460,12 +748,19 @@
 }
 
 /* tables */
+.sd-table-wrapper {
+  &::before,
+  &::after {
+    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+}
 .sd-table {
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
 }
-.sd-table.sd-table.sd-table>tbody>tr {
-  &>th, &>td {
+.sd-table.sd-table.sd-table > tbody > tr {
+  & > th,
+  & > td {
     &:where(:not(.sd-table__cell--error)) {
       border-top: 1px solid var(--border);
       border-bottom: none;
@@ -479,13 +774,21 @@
     }
   }
 }
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+      border-top: none;
+      border-bottom: none;
+      padding: calc(var(--spacing) * 2);
+  }
+}
 .sd-table__cell--header,
 .sd-table__cell--row-text {
   height: var(--sjs2-shadcn-table-header-height);
   box-sizing: border-box;
 }
 
-.sd-table>tbody>tr:hover {
+.sd-table > tbody > tr:hover {
   background-color: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
@@ -502,19 +805,17 @@
   align-items: flex-start;
 }
 
-/* panel / question titles */
-.sd-panel__title {
-  --sjs2-typography-font-size-component-question-title: var(--text-base);
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+  background-color: var(--card);
 }
-.sd-question__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
+
+.sd-element__header ~ hr {
+  background-color: transparent;
 }
 
 /* frames / complex headers */
 .sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
   border: none;
 }
 .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
@@ -527,9 +828,4 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }

@@ -4,11 +4,12 @@
 .sjs-theme-overrides {
   @include shadcn.shadcn-dark-input-bg;
   /* buttons */
-  --sjs2-radius-component-action: calc(var(--spacing) * 8);
+  --sjs2-radius-component-action: calc(var(--radius) * 2.6);
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
   --sjs2-layout-component-action-large-box-padding-vertical: 0;
-
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+  
   /* formboxes */
   --sjs2-shadcn-input-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */
@@ -40,10 +41,10 @@
   --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
   --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 2.6);
 
-  /* common and other */
-  --sjs2-typography-font-size-component-page-title: var(--text-base);
-  --sjs2-typography-font-size-component-header-title: var(--text-base);
+  /* panel = Card (rounded-2xl, CardHeader gap-2), question = Field (FieldContent gap-1) */
   --sjs2-radius-component-panel: calc(var(--radius) * 1.8);
+  --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 2);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
 
   /* tables */
   --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */

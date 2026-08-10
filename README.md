@@ -37,7 +37,7 @@ You can create form definitions manually, generate them with AI, or build them v
 <br>
 
 <p align="center">
-    <a href="https://surveyjs.io/survey-creator/documentation/overview">Documentation</a>
+    <a href="https://surveyjs.io/form-library/documentation/overview">Documentation</a>
     ·
     <a href="https://surveyjs.io/find-surveyjs-guides-for-my-stack">Setup Guides for My Stack</a>
     ·
@@ -45,7 +45,7 @@ You can create form definitions manually, generate them with AI, or build them v
     ·
     <a href="https://github.com/surveyjs/theme-adapter-demos">Theme Adapters</a>
     ·
-    <a href="https://surveyjs.io/form-library/documentation/how-to-store-survey-results">Store survey results</a>
+    <a href="https://surveyjs.io/form-library/documentation/how-to-store-survey-results">Store Survey Results</a>
     ·
     <a href="https://github.com/surveyjs/survey-library/issues/new">Report Bug</a>
   </p>

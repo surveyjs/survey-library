@@ -1357,7 +1357,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    */
-  @property({ isLowerCase: true, defaultValue: settings.matrix.defaultCellType }) cellType: string;
+  // The default value is not set here on purpose. It is resolved via the serializer property,
+  // so that settings.matrix.defaultCellType is read on every access and not frozen at load time.
+  @property({ isLowerCase: true }) cellType: string;
   isSelectCellType(): boolean {
     return Serializer.isDescendantOf(this.cellType, "selectbase");
   }
@@ -2930,7 +2932,7 @@ Serializer.addClass(
     },
     {
       name: "cellType",
-      default: "dropdown",
+      defaultFunc: () => settings.matrix.defaultCellType,
       choices: () => {
         return MatrixDropdownColumn.getColumnTypes();
       },

@@ -394,13 +394,13 @@ export var defaultCss = {
     itemPreviewSvgIconId: "#icon-check-16x16",
     radioLabel: "sd-selectbase__label",
     radioControlLabel: "sd-item__control-label",
-    radioFieldset: "sd-selectbase",
+    radioFieldset: "sd-selectbase sd-boolean-fieldset",
     itemRadioDecorator: "sd-item__svg sd-radio__svg",
     materialRadioDecorator: "sd-item__decorator sd-radio__decorator",
     itemRadioControl: "sd-visuallyhidden sd-item__control sd-radio__control",
     //end radio
     //checkbox
-    rootCheckbox: "sd-selectbase",
+    rootCheckbox: "sd-selectbase sd-boolean-fieldset",
     checkboxItem: "sd-item sd-selectbase__item sd-checkbox",
     checkboxLabel: "sd-selectbase__label",
     checkboxItemOnError: "sd-item--error",

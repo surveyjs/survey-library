@@ -2084,7 +2084,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.hasDescription;
   }
   public get cssHeader(): string {
-    return this.cssClasses.panel.header;
+    return this.getCssHeader(this.cssClasses.panel);
   }
   public get cssDescription(): string {
     return this.cssClasses.panel.description;
@@ -2442,6 +2442,10 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected getCssPanelTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
+  }
+  public getCssTitleExpandableSvgContainer(): string {
+    if (this.state === "default") return null;
+    return this.cssClasses.panel.titleExpandableSvgContainer;
   }
   public getCssTitleExpandableSvg(): string {
     if (this.state === "default") return null;

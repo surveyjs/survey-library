@@ -81,10 +81,6 @@
   .sd-element__num {
     float: right;
   }
-
-  .sd-element__title--collapsed .sd-element__title-expandable-svg {
-    transform: rotate(180deg);
-  }
 }
 
 .sd-element__title--num-inline {
@@ -98,17 +94,56 @@
   display: block;
 }
 
-.sd-element__title-expandable-svg {
-  display: inline-block;
-  width: var(--sjs2-size-x200);
-  height: var(--sjs2-size-x200);
-
+.sd-element__title-expandable-svg-container {
+  display: block;
   position: absolute;
   inset-inline-start: var(--sjs2-spacing-negative-x300);
-  top: var(--sjs2-spacing-x050);
-
-  use {
-    fill: $foreground-light;
+  padding-inline-end: var(--sjs2-spacing-x100);
+  width: var(--sjs2-size-x200);
+  height: 1lh;
+}
+.sd-element__title-expandable-svg {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
+  border-radius: var(--sjs2-radius-form-item, 4px);
+  transition:
+    background $transition-duration,
+    fill $transition-duration;
+}
+.sd-element--collapsed,
+.sd-element__header--expandable {
+  cursor: pointer;
+}
+.sd-element--collapsed:hover,
+.sd-element__header--expandable:hover {
+  .sd-element__title-expandable-svg {
+    background: var(--sjs2-color-bg-basic-secondary-dim);
+  }
+}
+.sd-element__header--expandable:has(:focus-visible) {
+  .sd-element__title-expandable-svg {
+    box-shadow: var(--sjs2-border-effect-a11y);
+  }
+}
+.sd-root-modern--mobile {
+  .sd-element__title--expandable {
+    display: flex;
+    sv-ng-string,
+    .sv-string-viewer {
+      flex-grow: 1;
+    }
+  }
+  .sd-element__title-expandable-svg-container {
+    position: relative;
+    inset-inline-start: 0;
+    padding-inline-end: 0;
+    order: 1;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 }
 
@@ -197,50 +232,4 @@
   animation-timing-function: $reverse-ease-out;
   animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration;
   animation-delay: 0s, $collapse-move-out-delay, $collapse-move-out-delay;
-}
-
-.sd-element--expandable.sd-elemenet--expandable--animating {
-  & > .sd-element__header:focus-within,
-  & > .sd-element__header:hover {
-    background-color: transparent;
-  }
-}
-
-.sd-elemenet--expandable--animating.sd-element--expandable {
-  transition-property: padding-top, padding-bottom;
-
-  & > .sd-element__header {
-    transition-property: padding-top, padding-bottom;
-  }
-
-  &.sd-element--expanded {
-    transition-timing-function: $ease-out;
-    transition-duration: $expand-move-in-duration;
-
-    & > .sd-element__header {
-      transition-timing-function: $ease-out;
-      transition-duration: $expand-move-in-duration;
-
-      .sd-element__title:before {
-        transition-duration: $expand-move-in-duration;
-      }
-    }
-  }
-
-  &.sd-element--collapsed {
-    transition-timing-function: $ease-out;
-    transition-duration: $collapse-move-out-duration;
-    transition-delay: $collapse-move-out-delay;
-
-    & > .sd-element__header {
-      transition-timing-function: $ease-out;
-      transition-duration: $collapse-move-out-duration;
-      transition-delay: $collapse-move-out-delay;
-
-      .sd-element__title:before {
-        transition-duration: $collapse-move-out-duration;
-        transition-delay: $collapse-move-out-delay;
-      }
-    }
-  }
 }

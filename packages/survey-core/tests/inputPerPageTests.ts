@@ -2607,9 +2607,9 @@ describe("Input Per Page Tests", () => {
     expect(matrix1.state, "matrix1.state is collapsed").toBe("collapsed");
     expect(matrix1.isExpanded, "matrix1.isExpanded is false").toBe(false);
     expect(matrix1.isCollapsed, "matrix1.isCollapsed is false").toBe(false);
-    expect(matrix1.getCssTitleExpandableSvg(), "matrix1.getCssTitleExpandableSvg()").toBeNull();
+    expect(matrix1.showTitleExpandableSvg, "matrix1.showTitleExpandableSvg").toBe(false);
     expect(radio.isExpanded, "radio.isExpanded is false").toBe(false);
     expect(radio.isCollapsed, "radio.isCollapsed is false").toBe(false);
-    expect(radio.getCssTitleExpandableSvg(), "radio.getCssTitleExpandableSvg()").toBeNull();
+    expect(radio.showTitleExpandableSvg, "radio.showTitleExpandableSvg").toBe(false);
   });
 });

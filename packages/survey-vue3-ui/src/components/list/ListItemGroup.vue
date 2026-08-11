@@ -12,6 +12,7 @@ import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel, Action } from "survey-core";
 
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ model: ListModel; item: Action }>();
 
 useBase(() => props.item);

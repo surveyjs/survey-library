@@ -44,6 +44,7 @@ export default {
     "--sjs2-color-fg-basic-primary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-secondary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-tertiary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
+    "--sjs2-color-fg-basic-primary-dim": "var(--sjs2-color-fg-basic-primary)",
     "--sjs2-color-fg-neutral-on-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-fg-neutral-primary-disabled": "rgba(from var(--sjs2-color-fg-neutral-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-brand-primary": "var(--sjs2-color-project-brand-400)",

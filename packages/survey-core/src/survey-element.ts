@@ -736,8 +736,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const css = this.cssClasses;
     return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
+  public get showTitleExpandableSvg(): boolean {
+    return this.state !== "default" && !this.isSingleInputMode;
+  }
+  public get titleExpandableSvgIconName(): string {
+    return this.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
+  }
+  public getCssTitleExpandableSvgContainer(): string {
+    return this.cssClasses.titleExpandableSvgContainer;
+  }
   public getCssTitleExpandableSvg(): string {
-    if (this.state === "default" || this.isSingleInputMode) return null;
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
@@ -1220,6 +1228,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get clickTitleFunction(): any {
     if (this.needClickTitleFunction()) {
       return (event?: MouseEvent) => {
+        (event as any).isHandledByTitle = true;
         if (!!event && this.isContainsSelection(event.target)) {
           return;
         }
@@ -1229,12 +1238,30 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return undefined;
   }
   protected needClickTitleFunction(): boolean {
-    return this.state !== "default";
+    return this.state !== "default" && this.state !== "collapsed";
+  }
+  protected needClickRootFunction(): boolean {
+    return this.state == "collapsed";
   }
   protected processTitleClick() {
     if (this.state !== "default") {
       this.toggleState();
     }
+  }
+  public get clickRootFunction(): any {
+    if (this.needClickRootFunction()) {
+      return (event?: MouseEvent) => {
+        if ((event as any).isHandledByTitle) {
+          delete (event as any).isHandledByTitle;
+          return;
+        }
+        if (!!event && this.isContainsSelection(event.target)) {
+          return;
+        }
+        return this.processTitleClick();
+      };
+    }
+    return undefined;
   }
   public get hasAdditionalTitleToolbar(): boolean {
     return false;
@@ -1244,6 +1271,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getAdditionalTitleToolbar(): ActionContainer | null {
     return null;
+  }
+  protected getCssHeader(cssClasses: any): string {
+    const isExpandable = this.state !== "default";
+    return new CssClassBuilder()
+      .append(cssClasses.header)
+      .append(cssClasses.headerExpandable, isExpandable)
+      .toString();
   }
   protected getCssTitle(cssClasses: any): string {
     if (!cssClasses) return "";

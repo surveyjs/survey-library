@@ -414,25 +414,23 @@ frameworks.forEach(framework => {
         (window as any).Survey.ListModel.MINELEMENTCOUNT = 2;
       });
       await page.setViewportSize({ width: 400, height: 2000 });
-      await initSurvey(page, framework, {});
-      await page.evaluate((json) => {
-        window["survey"].onOpenDropdownMenu.add((sender, options) => {
-          if (options.menuType === "popup") options.menuType = "overlay";
-        });
-        window["survey"].fromJSON(json);
-      }, jsonWithInputs);
-      // Wait for React to finish re-rendering all 10 questions after fromJSON
-      await expect(page.locator(".sd-question").nth(9)).toBeVisible();
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-editorfont-size": "12px",
-            "--sjs-font-size": "20px"
-          }
+      // Register the event handler and apply the theme via afterInitializeModelCallback so
+      // they are set on the model BEFORE React's initial root.render() call. This avoids
+      // the previous double-render race (initSurvey({}) -> fromJSON -> applyTheme) that
+      // caused a 1-pixel flaky difference in the screenshot.
+      await initSurvey(page, framework, jsonWithInputs, false, undefined, async () => {
+        await page.evaluate(() => {
+          window["survey"].onOpenDropdownMenu.add((sender, options) => {
+            if (options.menuType === "popup") options.menuType = "overlay";
+          });
+          window["survey"].applyTheme({
+            "cssVariables": {
+              "--sjs-font-editorfont-size": "12px",
+              "--sjs-font-size": "20px"
+            }
+          });
         });
       });
-
-      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });

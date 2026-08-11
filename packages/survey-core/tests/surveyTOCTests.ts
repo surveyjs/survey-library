@@ -1318,5 +1318,4 @@ describe("TOC custom item component", () => {
     expect(tocListModel.actions[1].data.page).toBe(survey.pages[1]);
     expect(tocListModel.actions[1].data.survey).toBe(survey);
   });
-
 });

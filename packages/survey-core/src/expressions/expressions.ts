@@ -2,6 +2,7 @@ import { HashTable, Helpers, createDate } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditions/conditionProcessValue";
 import { settings } from "../settings";
+import { ExpressionErrorType, IExpressionError } from "./expressionError";
 
 export interface AsyncFunctionItem {
   operand?: FunctionOperand;
@@ -31,11 +32,39 @@ export abstract class Operand {
   public isEqual(op: Operand): boolean {
     return !!op && op.getType() === this.getType() && this.isContentEqual(op);
   }
+  public isConstant(): boolean {
+    return false;
+  }
+  // Validates the operand as the entire condition. The result of a condition built from constants only
+  // is known upfront, a single boolean constant ("true"/"false") is the one meaningful case.
+  public addConditionSemanticErrors(errors: Array<IExpressionError>): void {
+    if (this.isConstant()) {
+      if (!this.isBooleanConstant()) {
+        this.addSemanticError(errors);
+      }
+    } else {
+      this.addConditionErrors(errors);
+    }
+  }
+  // Validates the operand as a part of a condition. Reports fragments whose result is known upfront:
+  // a constant branch in and/or, a comparison of two constants and an operand compared with itself.
+  // Function parameters are not inspected - a constant argument there can be intentional.
+  public addConditionErrors(errors: Array<IExpressionError>): void {}
   protected abstract isContentEqual(op: Operand): boolean;
   protected areOperatorsEquals(op1: Operand, op2: Operand): boolean {
     return !op1 && !op2 || !!op1 && op1.isEqual(op2);
   }
   protected addChildrenToList(list: Array<Operand>): void {}
+  protected isBooleanConstant(): boolean {
+    return false;
+  }
+  protected isOperandConstant(op: Operand): boolean {
+    // a null operand is the "null"/"undefined" literal
+    return !op || op.isConstant();
+  }
+  protected addSemanticError(errors: Array<IExpressionError>): void {
+    errors.push({ errorType: ExpressionErrorType.SemanticError });
+  }
 }
 
 export class BinaryOperand extends Operand {
@@ -148,6 +177,43 @@ export class BinaryOperand extends Operand {
     if (!!this.left)this.left.addToAsyncList(list);
     if (!!this.right)this.right.addToAsyncList(list);
   }
+  public isConstant(): boolean {
+    return this.isOperandConstant(this.left) && this.isOperandConstant(this.right);
+  }
+  public addConditionSemanticErrors(errors: Array<IExpressionError>): void {
+    super.addConditionSemanticErrors(errors);
+    // pure arithmetic at the root ({q1} + 1) never produces a boolean result
+    if (this.isArithmetic && !this.isConjunction && !this.isConstant()) {
+      this.addSemanticError(errors);
+    }
+  }
+  public addConditionErrors(errors: Array<IExpressionError>): void {
+    const left: Operand = this.left;
+    const right: Operand = this.right;
+    if (this.isConjunction) {
+      [left, right].forEach((side: Operand) => {
+        if (this.isOperandConstant(side)) {
+          this.addSemanticError(errors);
+        } else {
+          side.addConditionErrors(errors);
+        }
+      });
+    } else if (!this.isArithmetic) {
+      if (this.isOperandConstant(left) && this.isOperandConstant(right)) {
+        this.addSemanticError(errors);
+      } else if (!!left && !!right && left.isEqual(right) && !left.hasFunction()) {
+        this.addSemanticError(errors);
+      } else {
+        this.addOperandsConditionErrors(errors);
+      }
+    } else {
+      this.addOperandsConditionErrors(errors);
+    }
+  }
+  private addOperandsConditionErrors(errors: Array<IExpressionError>): void {
+    if (!!this.left)this.left.addConditionErrors(errors);
+    if (!!this.right)this.right.addConditionErrors(errors);
+  }
 }
 
 export class UnaryOperand extends Operand {
@@ -203,6 +269,16 @@ export class UnaryOperand extends Operand {
   }
   public setVariables(variables: Array<string>) {
     this.expression.setVariables(variables);
+  }
+  public isConstant(): boolean {
+    return this.isOperandConstant(this.expression);
+  }
+  public addConditionErrors(errors: Array<IExpressionError>): void {
+    if (this.isOperandConstant(this.expression)) {
+      this.addSemanticError(errors);
+    } else {
+      this.expression.addConditionErrors(errors);
+    }
   }
 }
 
@@ -262,6 +338,16 @@ export class ArrayOperand extends Operand {
     }
     return true;
   }
+  public isConstant(): boolean {
+    return this.values.every((val: Operand) => this.isOperandConstant(val));
+  }
+  public addConditionErrors(errors: Array<IExpressionError>): void {
+    this.values.forEach((val: Operand) => {
+      if (!!val) {
+        val.addConditionErrors(errors);
+      }
+    });
+  }
 }
 
 export class Const extends Operand {
@@ -309,6 +395,12 @@ export class Const extends Operand {
   public isBoolean(): boolean {
     if (!this.value || typeof this.value != "string") return this.value === true || this.value === false;
     return OperandMaker.isBooleanValue(this.value);
+  }
+  public isConstant(): boolean {
+    return true;
+  }
+  protected isBooleanConstant(): boolean {
+    return this.isBoolean();
   }
   protected isContentEqual(op: Operand): boolean {
     const cOp = <Const>op;
@@ -373,6 +465,12 @@ export class Variable extends Const {
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
+  }
+  public isConstant(): boolean {
+    return false;
+  }
+  protected isBooleanConstant(): boolean {
+    return false;
   }
   protected getCorrectValue(value: any): any {
     if (this.useValueAsItIs) return value;

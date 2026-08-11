@@ -41,7 +41,7 @@
    /survey-overrides/<style-id>.css, loaded after this file. */
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--radius);
-  --sjs2-base-unit-spacing: var(--spacing);
+  --sjs2-base-unit-spacing: calc(var(--spacing) * 2);
 
   /* Let shadcn size the elements in a row instead of the default element min-width. */
   --sjs-element-min-width: 0;

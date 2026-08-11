@@ -312,10 +312,17 @@ function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: 
   });
 }
 
+function initDefaultCssVariables(convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
+  if (isPanelless) {
+    convertedCssVariable["--sjs2-color-component-panel-default-bg"] = "transparent";
+  }
+}
+
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
   const convertedCssVariable: { [index: string]: string } = {};
   patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
+  initDefaultCssVariables(convertedCssVariable, isPanelless);
   const patchLegacyVarReferencesInValue = (value: string): string => {
     return value.replace(/var\(\s*(--[\w-]+)\s*\)/g, (match, referencedVar) => {
       const referencedMapping = legacyCssVariables[referencedVar];

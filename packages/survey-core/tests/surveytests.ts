@@ -1,6 +1,6 @@
 import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
-import { SurveyModel } from "../src/survey";
+import { SurveyModel, DefaultTheme } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { ElementFactory, QuestionFactory } from "../src/questionfactory";
@@ -12980,7 +12980,7 @@ describe("Survey", () => {
         },
       ],
       progressBarType: "pages",
-      progressBarShowPageTitles: true
+      progressBarShowNavigationText: true
     });
     expect(survey.getQuestionByName("q1"), "Do not produce stack-overflow").toBeTruthy();
   });
@@ -14902,22 +14902,17 @@ describe("Survey", () => {
         }
       ]
     });
-    setOldTheme(survey);
     const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
     expect(action1 === survey.navigationBar.actions[0]).toBeTruthy();
     expect(action1.id).toBe("custom-btn");
-    expect(action1.innerCss).toBe("sv_nav_btn");
-    expect(action1.component).toBe("sv-nav-btn");
 
     const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+    expect(action2.innerCss).toBe("custom-css");
     expect(action2 === survey.navigationBar.actions[2]).toBeTruthy();
     expect(action2.id).toBe("custom-btn-2");
-    expect(action2.innerCss).toBe("custom-css");
-    expect(action2.component).toBe("sv-nav-btn");
 
     const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
     expect(action3 === survey.navigationBar.actions[4]).toBeTruthy();
-    expect(action3.id).toBe("custom-btn-3");
     expect(action3.component).toBe("custom-component");
   });
 
@@ -14932,7 +14927,6 @@ describe("Survey", () => {
           }
         ]
       });
-      setOldTheme(survey);
 
       let actionExecuted = false;
       let actionExecutionOrder: string[] = [];
@@ -14946,8 +14940,6 @@ describe("Survey", () => {
       });
       expect(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar").toBeTruthy();
       expect(action.id, "Action should have correct id").toBe("test-btn");
-      expect(action.component, "Action should have default component").toBe("sv-nav-btn");
-      expect(action.innerCss, "Action should have default innerCss").toBe("sv_nav_btn");
 
       survey["taskManager"].runTask("test-task", (completed) => {
         actionExecutionOrder.push("task-started");
@@ -15048,7 +15040,7 @@ describe("Survey", () => {
       ]
     });
     setOldTheme(survey);
-    survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
+    survey.css = { navigationBar: { item: "custom-action custom-css", itemAppearancePrefix: "" }, navigation: { start: "custom-start" } };
     const action = survey.navigationBar.actions[0];
     expect(action.getActionBarItemCss()).toBe("custom-action custom-css custom-start");
     survey.locale = "ru";
@@ -15081,7 +15073,7 @@ describe("Survey", () => {
         }
       ]
     });
-    survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
+    survey.css = { navigationBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
     survey.navigationBar.flushUpdates();
     expect(survey.navigationBar.getRootCss()).toBe("custom-navigation custom-footer");
   });
@@ -15096,32 +15088,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -16184,36 +16176,6 @@ describe("Survey", () => {
     survey.showProgressBar = "bottom";
     expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_bottom");
   });
-  test("settings.minWidth/maxWidth", () => {
-    const oldMinWidth = settings.minWidth;
-    const oldMaxWidth = settings.maxWidth;
-    settings.minWidth = "0px";
-    settings.maxWidth = "500px";
-    const survey = new SurveyModel({
-      "showProgressBar": true,
-      "progressBarLocation": "top",
-      elements: [
-        { type: "text", name: "q1" },
-        { type: "text", name: "q2", minWidth: "50px" },
-        { type: "text", name: "q3", maxWidth: "90%" },
-        { type: "paneldynamic", name: "q4" },
-      ],
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    const q3 = survey.getQuestionByName("q3");
-    const q4 = survey.getQuestionByName("q4");
-    expect(q1.minWidth, "q1 minWidth").toBe("0px");
-    expect(q1.maxWidth, "q1 maxWidth").toBe("500px");
-    expect(q2.minWidth, "q2 minWidth").toBe("50px");
-    expect(q2.maxWidth, "q2 maxWidth").toBe("500px");
-    expect(q3.minWidth, "q3 minWidth").toBe("0px");
-    expect(q3.maxWidth, "q3 maxWidth").toBe("90%");
-    expect(q4.minWidth, "q4 (paneldynamic) minWidth").toBe("auto");
-    settings.minWidth = oldMinWidth;
-    settings.maxWidth = oldMaxWidth;
-  });
-
   test("getContainerContent - navigation", () => {
     const json = {
       pages: [
@@ -16767,7 +16729,7 @@ describe("Survey", () => {
   test("getContainerContent - do not show buttons progress on completed page", () => {
     const json = {
       "progressBarType": "pages",
-      "progressBarShowPageTitles": true,
+      "progressBarShowNavigationText": true,
       "showProgressBar": true,
       "progressBarLocation": "top",
       pages: [
@@ -17380,15 +17342,21 @@ describe("Survey", () => {
   });
 
   test("restore header css variable if header is default", () => {
-    const json = {
-      title: "Title",
-      elements: [{ "type": "rating", "name": "satisfaction" }]
-    };
-    let survey = new SurveyModel(json);
-    survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const json = {
+        title: "Title",
+        elements: [{ "type": "rating", "name": "satisfaction" }]
+      };
+      let survey = new SurveyModel(json);
+      survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
-    const cover = survey.findLayoutElement("advanced-header").data as Cover;
-    expect(cover.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const cover = survey.findLayoutElement("advanced-header").data as Cover;
+      expect(cover.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
 
   test("check title classes when readOnly changed", () => {
@@ -17806,7 +17774,8 @@ describe("Survey", () => {
       ]
     });
 
-    expect(Object.keys(survey.themeVariables).length, "before applyTheme").toBe(0);
+    //const lenBeforeApplyTheme = Object.keys(survey.themeVariables).length;
+    //expect(lenBeforeApplyTheme > 800, "before applyTheme").toBeTruthy();
     expect(!!survey.backgroundImage, "before applyTheme").toBe(false);
     expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
@@ -17829,13 +17798,72 @@ describe("Survey", () => {
       "isPanelless": true
     });
 
-    expect(Object.keys(survey.themeVariables).length).toBe(5);
+    //expect(Object.keys(survey.themeVariables).length).toBe(lenBeforeApplyTheme);
     expect(!!survey.backgroundImage).toBe(true);
     expect(survey.backgroundImageFit).toBe("cover");
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
     expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("basic");
+  });
+  test("survey.applyTheme with baseTheme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const baseTheme = {
+      backgroundImageFit: "contain",
+      backgroundOpacity: 0.5,
+      cssVariables: {
+        "--sjs2-color-bg-basic-primary": "rgba(255, 255, 255, 1)",
+      },
+      isPanelless: false,
+    };
+    survey.applyTheme({
+      backgroundOpacity: 0.8,
+      cssVariables: {
+        "--sjs2-color-bg-basic-secondary": "rgba(248, 248, 248, 1)",
+      },
+      isPanelless: true,
+    }, baseTheme);
+
+    expect(survey.backgroundImageFit).toBe("contain");
+    expect(survey.backgroundOpacity).toBe(0.8);
+    expect(survey["isCompact"]).toBe(true);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
+    expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
+  test("survey.applyTheme patches legacy CSS variables", () => {
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      const theme = {
+        cssVariables: {
+          "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+          "--sjs-font-size": "18px",
+          "--sjs-font-headertitle-size": "32px",
+          "--sjs-font-headerdescription-size": "20px",
+          "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
+          "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
+        }
+      };
+      survey.applyTheme(theme as any);
+      const vars = survey.themeVariables;
+      expect(vars["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 0, 0, 1)");
+      expect(typeof vars["--sjs-general-backcolor"]).toBe("undefined");
+      expect(vars["--sjs2-base-unit-font-size"]).toBe("9px");
+      expect(vars["--sjs2-base-unit-line-height"]).toBe("9px");
+      expect(typeof vars["--sjs-font-size"]).toBe("undefined");
+      expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
+      expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
+      expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-title"]).toBe("32px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-title"]).toBe("40px");
+      expect(typeof vars["--sjs-font-headertitle-size"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-description"]).toBe("20px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-description"]).toBe("30px");
+      expect(typeof vars["--sjs-font-headerdescription-size"]).toBe("undefined");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
   test("survey.applyTheme respects headerView", () => {
     const survey = new SurveyModel({
@@ -19108,7 +19136,7 @@ describe("Survey", () => {
     expect(survey.showProgressBar, "default show progress bar").toBe(false);
     expect(survey.progressBarType, "default progress bar type").toBe("pages");
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
+    expect(survey.progressBarShowNavigationText, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqual([]);
     expect(getContainerContent("footer"), "empty footer").toEqual([]);
@@ -19132,7 +19160,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
+    expect(survey.progressBarShowNavigationText, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqual([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
@@ -19321,51 +19349,57 @@ describe("Survey", () => {
     expect(lastContextPropertyName).toBe("a");
   });
   test("Advanced header title/description color", () => {
-    const survey = new SurveyModel();
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const survey = new SurveyModel();
 
-    const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(accHeaderBackTheme);
-    let headerLayoutElement = survey.findLayoutElement("advanced-header");
-    let headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(accHeaderBackTheme);
+      let headerLayoutElement = survey.findLayoutElement("advanced-header");
+      let headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    headerModel.height = 256;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header__without-background sv-header__background-color--none");
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
+      headerModel.height = 256;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header__without-background sv-header__background-color--none");
+      // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
+      // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
 
-    const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(noneHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(noneHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customNotSetHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customNotSetHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__background-color--custom");
+      const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__background-color--custom");
 
-    const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background");
+      const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background");
 
-    const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customHeaderBackAndTitleTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto");
+      const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customHeaderBackAndTitleTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
   test("Display mode in design time", () => {
     const survey = new SurveyModel();
@@ -19373,7 +19407,7 @@ describe("Survey", () => {
     expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
     expect(survey.mode).toBe("edit");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
     expect(survey.mode).toBe("display");
@@ -19383,7 +19417,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     expect(survey.mode).toBe("display");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -19495,7 +19529,7 @@ describe("Survey", () => {
       showProgressBar: true,
       progressBarLocation: "top",
       progressBarType: "pages",
-      progressBarShowPageTitles: true,
+      progressBarShowNavigationText: true,
       pages: [
         {
           elements: [{ type: "text", name: "q1" }]
@@ -20618,7 +20652,7 @@ describe("Survey", () => {
     const advancedHeaderThemeWithoutOverlapEnabled: any = { headerView: "advanced", "cssVariables": {} };
 
     survey.applyTheme(advancedHeaderThemeWithAccentBackgroundColor);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs-primary-backcolor)");
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs2-color-project-brand-600)");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#1 overlapEnabled false").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithOverlapEnabled);

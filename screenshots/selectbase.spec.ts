@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, test, applyTheme } from "../e2e/helper";
 
 const title = "Selectbase Screenshot";
 
@@ -60,8 +60,9 @@ frameworks.forEach(framework => {
       const question = page.locator(".sd-question");
       await question.waitFor();
 
-      await page.locator(".sd-item__control-label").filter({ hasText: "Moscow" }).click();
       await page.locator(".sd-item__control-label").filter({ hasText: "Paris" }).click();
+      await page.locator(".sd-item__control-label").filter({ hasText: "Moscow" }).click();
+      await page.keyboard.press("Tab");
       await page.locator(".sd-item__control-label").filter({ hasText: "Madrid" }).hover();
 
       await compareScreenshot(page, question, "checkbox-state.png");
@@ -172,7 +173,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, question, "checkbox-with-long-comment-text.png");
     });
 
-    test("Check rating smileys scale colored question themes", async ({ page }) => {
+    test("Check selectbase zero column panelless themes", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -203,7 +204,7 @@ frameworks.forEach(framework => {
       await questionRoot.waitFor();
 
       await page.evaluate(() => {
-        const themeJson = {
+        (window as any).survey.applyTheme({
           "themeName": "default",
           "colorPalette": "light",
           "isPanelless": true,
@@ -241,8 +242,7 @@ frameworks.forEach(framework => {
             "--sjs-special-red": "rgba(229, 10, 62, 1)",
             "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)"
           },
-        };
-        (window as any).survey.applyTheme(themeJson);
+        });
       });
 
       await resetFocusToBody(page);

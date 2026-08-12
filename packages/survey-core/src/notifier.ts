@@ -3,7 +3,6 @@ import { settings } from "./settings";
 import { property } from "./decorators";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
-import { defaultActionBarCss } from "./actions/actionBarCss";
 import { IAction } from "./actions/action";
 
 interface INotifierCssClasses {
@@ -30,11 +29,7 @@ export class Notifier extends Base {
   constructor(private cssClasses: INotifierCssClasses) {
     super();
     this.actionBar = new ActionContainer();
-    this.actionBar.setCssClasses({
-      root: defaultActionBarCss.root,
-      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
-      smallSizeMode: defaultActionBarCss.smallSizeMode,
-    }, false);
+    this.actionBar.setActionsAppearance({ mode: "primary", style: "neutral", size: "medium" });
     this.css = this.cssClasses.root;
   }
 
@@ -49,15 +44,18 @@ export class Notifier extends Base {
       .toString();
   }
 
-  updateActionsVisibility(type: string): void {
-    this.actionBar.actions.forEach(action => action.visible = this.showActions && (this.actionsVisibility[action.id] === type));
+  updateActions(type: string): void {
+    this.actionBar.actions.forEach(action => {
+      action.visible = this.showActions && (this.actionsVisibility[action.id] === type);
+      action.appearance.style = type === "error" ? "alert" : (type === "success" ? "brand" : "neutral");
+    });
   }
 
   notify(message: string, type: string = "info", waitUserAction = false): void {
     this.isDisplayed = true;
     setTimeout(() => {
 
-      this.updateActionsVisibility(type);
+      this.updateActions(type);
       this.message = message;
       this.active = true;
       this.css = this.getCssClass(type);

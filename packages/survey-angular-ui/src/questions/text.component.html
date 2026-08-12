@@ -1,20 +1,15 @@
-  <ng-container [ngTemplateOutlet]="input" *ngIf="!model.dataListId && !model.isReadOnlyRenderDiv()"></ng-container>
-  <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()">
-    <ng-container [ngTemplateOutlet]="input"></ng-container>
-    <datalist [id]="model.dataListId">
-      <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
-    </datalist>
-  </div>
-  <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ value }}</div>
-  <ng-template #input>
+<div [class]="model.getRootClass()" (click)="model.onContainerClick($event);" #contentElement>
+  <ng-container *ngIf="!model.isReadOnlyRenderDiv()">
     <input #inputElement [style]="model.inputStyle" [class]="model.getControlClass()" [attr.list]="model.dataListId" (click)="model.readOnlyBlocker($event)" (pointerdown)="model.readOnlyBlocker($event)" 
     (change)="model.onChange($event)" [value]="value" [disabled]="model.isDisabledAttr" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder"
     (keyup)="model.onKeyUp($event)" (keydown)="model.onKeyDown($event)" (blur)="blur($event)" (focus)="model.onFocus($event)" (compositionupdate)="model.onCompositionUpdate($event)" 
     [attr.size] = "model.renderedInputSize" [attr.maxlength]= "model.getMaxLength()" [attr.min]="model.renderedMin" [readonly]="model.isReadOnlyAttr"
     [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.a11y_input_ariaRequired"
-    [attr.aria-label]="model.a11y_input_ariaLabel" [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"[attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" [attr.autocomplete]="model.autocomplete" #contentElement/>
-    <sv-ng-character-counter *ngIf="model.getMaxLength()" 
-    [counter]="model.characterCounter"
-    [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">
-  </sv-ng-character-counter>
-  </ng-template>
+    [attr.aria-label]="model.a11y_input_ariaLabel" [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"[attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" [attr.autocomplete]="model.autocomplete"/>
+    <datalist *ngIf="model.dataListId" [id]="model.dataListId">
+      <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
+    </datalist>
+    <sv-ng-action-bar *ngIf="model.hasVisibleInputActions"  [model]="model.inputActionsContainer"></sv-ng-action-bar>
+  </ng-container> 
+  <div *ngIf="model.isReadOnlyRenderDiv()">{{ value }}</div>
+</div>

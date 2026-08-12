@@ -10,7 +10,6 @@ import StringEditor from "./StringEditor.vue";
 import Skeleton from "./components/Skeleton.vue";
 import Scroll from "./components/Scroll.vue";
 import QuestionText from "./Text.vue";
-import QuestionTextInput from "./TextInput.vue";
 import Checkbox from "./Checkbox.vue";
 import CheckboxItem from "./CheckboxItem.vue";
 import Radiogroup from "./Radiogroup.vue";
@@ -41,10 +40,11 @@ import RatingItemSmiley from "./components/rating/RatingItemSmiley.vue";
 import RatingItemStar from "./components/rating/RatingItemStar.vue";
 import RatingDropdownItem from "./components/rating/RatingDropdownItem.vue";
 import RatingDropdown from "./RatingDropdown.vue";
-import BooleanSwitch from "./BooleanSwitch.vue";
+import Boolean from "./Boolean.vue";
 import BooleanRadio from "./BooleanRadio.vue";
 import BooleanRadioItem from "./BooleanRadioItem.vue";
 import BooleanCheckbox from "./BooleanCheckbox.vue";
+import BooleanSwitch from "./BooleanSwitch.vue";
 import MultipleText from "./Multipletext.vue";
 import MultipleTextRow from "./MultipleTextRow.vue";
 import MultipletextItem from "./MultipletextItem.vue";
@@ -62,18 +62,11 @@ import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
-import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
 import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
-import DetailButton from "./components/matrix-actions/detail-button/DetailButton.vue";
 
 import PanelDynamic from "./PanelDynamic.vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
-import PanelDynamicProgressV2 from "./PanelDynamicProgressV2.vue";
 import PanelDynamicPlaceholder from "./PanelDynamicPlaceholder.vue";
-import PaneldynamicAddBtn from "./components/paneldynamic-actions/PaneldynamicAddBtn.vue";
-import PaneldynamicNextBtn from "./components/paneldynamic-actions/PaneldynamicNextBtn.vue";
-import PaneldynamicPrevBtn from "./components/paneldynamic-actions/PaneldynamicPrevBtn.vue";
-import PaneldynamicRemoveBtn from "./components/paneldynamic-actions/PaneldynamicRemoveBtn.vue";
 import PaneldynamicProgressText from "./components/paneldynamic-actions/PaneldynamicProgressText.vue";
 
 import Errors from "./Errors.vue";
@@ -109,7 +102,6 @@ import ProgressToc from "./components/progress/ProgressToc.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
-import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
@@ -184,7 +176,6 @@ function registerComponents(
   registerComponent("sv-skeleton", Skeleton);
   registerComponent("sv-scroll", Scroll);
   registerComponent("survey-text", QuestionText);
-  registerComponent("survey-text-input", QuestionTextInput);
   registerComponent("survey-checkbox", Checkbox);
   registerComponent("survey-checkbox-item", CheckboxItem);
   registerComponent("survey-radiogroup", Radiogroup);
@@ -221,10 +212,11 @@ function registerComponents(
   registerComponent("sv-rating-item-star", RatingItemStar);
   registerComponent("sv-rating-dropdown", RatingDropdown);
   registerComponent("sv-rating-dropdown-item", RatingDropdownItem);
-  registerComponent("survey-boolean", BooleanSwitch);
+  registerComponent("survey-boolean", Boolean);
   registerComponent("sv-boolean-radio", BooleanRadio);
   registerComponent("sv-boolean-radio-item", BooleanRadioItem);
   registerComponent("sv-boolean-checkbox", BooleanCheckbox);
+  registerComponent("sv-boolean-switch", BooleanSwitch);
   registerComponent("survey-multipletext", MultipleText);
   registerComponent("sv-multipletext-row", MultipleTextRow);
   registerComponent("survey-multipletext-item", MultipletextItem);
@@ -243,18 +235,11 @@ function registerComponents(
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
   registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);
-  registerComponent("sv-matrix-remove-button", RemoveButton);
   registerComponent("sv-matrix-drag-drop-icon", DragDropIcon);
-  registerComponent("sv-matrix-detail-button", DetailButton);
 
   registerComponent("survey-paneldynamic", PanelDynamic);
   registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);
-  registerComponent("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
   registerComponent("survey-placeholder-paneldynamic", PanelDynamicPlaceholder);
-  registerComponent("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
-  registerComponent("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
-  registerComponent("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);
-  registerComponent("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
   registerComponent("sv-paneldynamic-progress-text", PaneldynamicProgressText);
   registerComponent("sv-components-container", Container);
 
@@ -292,7 +277,6 @@ function registerComponents(
 
   registerComponent("sv-notifier", Notifier);
   registerComponent("survey-other-choice", OtherChoice);
-  registerComponent("sv-nav-btn", SurveyNavigationButton);
   registerComponent("survey-customwidget", CustomWidget);
   registerComponent("survey-popup-modal", PopupModal);
 

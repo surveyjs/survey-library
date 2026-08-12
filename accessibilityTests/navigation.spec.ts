@@ -76,7 +76,7 @@ frameworks.forEach((framework) => {
     });
     test("progress bar", async ({ page }) => {
       await initSurvey(page, framework, json);
-      await expect(page.locator("[role='progressbar']")).toHaveAttribute(
+      await expect(page.locator("[role='tablist']")).toHaveAttribute(
         "aria-label"
       );
       await checkA11y(page, ".sd-progress-buttons", { axeOptions });

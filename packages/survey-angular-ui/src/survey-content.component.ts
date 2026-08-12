@@ -38,12 +38,18 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     this.isSurveyUpdated = true;
   }
   override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
     if (!!this.model && this.isSurveyUpdated) {
       this.isSurveyUpdated = false;
       this.model.afterRenderSurvey(this.rootEl.nativeElement);
       this.model.startTimerFromUI();
     }
-    super.ngAfterViewChecked();
+  }
+  get themeStyle(): string {
+    return this.model ? `<style>${this.model.themeStyle}</style>` : "";
+  }
+  get resetVariablesStyle(): string {
+    return this.model ? `<style>${this.model.resetVariablesStyle}</style>` : "";
   }
 }
 

@@ -1,18 +1,18 @@
 <template>
     <div :class="question.getLabelCss(item.locText)"
-    :style="{ left: question.getPercent(item.value) + '%' }" @pointerup="(e)=>{question.handleLabelPointerUp(e, item.value )}">
+    :style="{ left: question.getPercent(item.value) + '%', maxWidth: question.getLabelMaxWidth(item) }" @pointerup="(e)=>{question.handleLabelPointerUp(e, item.value )}">
         <div :class="question.cssClasses.labelTick"></div>
         <div :class="question.cssClasses.labelTextContainer">
-            <div :class="question.cssClasses.labelText" v-if="!item.showValue">
+            <div :class="question.cssClasses.labelText" :title="item.locText.renderedHtml" v-if="!item.showValue">
                 <SvComponent
                 :is="'survey-string'"
                 :locString="item.locText"
                 />
             </div>
-            <div :class="question.cssClasses.labelText" v-if="item.showValue">
+            <div :class="question.cssClasses.labelText" :title="''+item.value" v-if="item.showValue">
                 {{item.value}}
             </div>
-            <div :class="question.cssClasses.labelTextSecondaryMode" v-if="item.showValue">
+            <div :class="question.cssClasses.labelTextSecondaryMode" :title="item.locText.renderedHtml" v-if="item.showValue">
                 <SvComponent
                 :is="'survey-string'"
                 :locString="item.locText"

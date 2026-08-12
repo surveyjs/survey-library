@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { frameworks, url, initSurvey, getData, setData, test, expect, doDragDrop, getQuestionValue } from "../helper";
+import { frameworks, url, initSurvey, getData, setData, test, expect, doDragDrop, getQuestionValue, getButtonByText } from "../helper";
 
 const title = "ranking";
 
@@ -174,7 +174,7 @@ frameworks.forEach((framework) => {
       const checkboxMerscedesItem = page.getByLabel("What cars have you being drived?").getByText("Mercedes-Benz");
       const checkboxToyotaItem = page.getByLabel("What cars have you being drived?").getByText("Toyota");
 
-      await page.locator("input[value='Next']").click();
+      await getButtonByText(page, "Next").click();
       await checkboxAudiItem.click();
       await checkboxMerscedesItem.click();
       await checkboxToyotaItem.click();
@@ -530,7 +530,7 @@ frameworks.forEach((framework) => {
         ],
       };
       await initSurvey(page, framework, json);
-      await page.locator("input[value=Next]").click();
+      await getButtonByText(page, "Next").click();
       await page.waitForTimeout(500);
       await expect(page.locator(".sv-ranking-item").first()).toBeFocused();
     });

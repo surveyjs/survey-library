@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "File Screenshot";
 
@@ -69,14 +69,14 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
-      await page.hover(".sd-file .sd-file__preview-item .sd-context-btn");
+      await page.hover(".sd-file .sd-file__preview-item .sd-action");
       await compareScreenshot(page, questionRoot, "file-question-multiple-remove-hovered.png");
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
       await page.waitForTimeout(1000);
 
-      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").filter({ visible: true }).first();
+      const prevButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").filter({ visible: true }).first();
       await prevButton.click({ force: true });
       //await page.click(".sd-file #prevPage");
       await page.waitForTimeout(1000);
@@ -91,6 +91,8 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
+      });
+      await page.evaluate(() => {
         (window as any).survey.applyTheme({
           cssVariables: {
             "--sjs-base-unit": "16px"
@@ -170,14 +172,16 @@ frameworks.forEach(framework => {
     test("Check file question - long names large font", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.evaluate(() => {
-        const question = (window as any).survey.getQuestionByName("file_question");
-        question.allowMultiple = true;
-
         (window as any).survey.applyTheme({
           cssVariables: {
             "--sjs-font-size": "20px"
           }
         });
+      });
+
+      await page.evaluate(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.allowMultiple = true;
 
         question.value = [
           {
@@ -228,9 +232,8 @@ frameworks.forEach(framework => {
         question.fileIndexAction.title = question.getFileIndexCaption();
       });
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile.png");
-
-      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").first();
-      const nextButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").last();
+      const prevButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").first();
+      const nextButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").last();
 
       await nextButton.click();
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile-next.png");
@@ -299,21 +302,21 @@ frameworks.forEach(framework => {
           {
             type: "file",
             name: "q1",
-            minWidth: "616px",
-            maxWidth: "616px"
+            minWidth: "624px",
+            maxWidth: "624px"
           },
           {
             type: "file",
             name: "q2",
-            minWidth: "300px",
-            maxWidth: "300px",
+            minWidth: "308px",
+            maxWidth: "308px",
             startWithNewLine: false
           },
           {
             type: "file",
             name: "q3",
-            minWidth: "200px",
-            maxWidth: "200px",
+            minWidth: "208px",
+            maxWidth: "208px",
             startWithNewLine: false
           }
         ]

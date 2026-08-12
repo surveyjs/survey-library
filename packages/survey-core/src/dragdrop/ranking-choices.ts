@@ -24,7 +24,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementShortcut.appendChild(clone);
 
     const rect = draggedElementNode.getBoundingClientRect();
-    const isRTL = DomDocumentHelper.getComputedStyle(this.survey.rootElement).direction === "rtl";
+    const isRTL = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
 
     if (isRTL) {
       draggedElementShortcut.style.right = rect.right;

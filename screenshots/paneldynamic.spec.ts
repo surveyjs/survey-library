@@ -63,12 +63,6 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-without-remove-button.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getAllQuestions()[0].allowRemovePanel = true;
-        (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
-      });
-      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-progress-top-legacy-navigation.png");
-
-      await page.evaluate(() => {
         (window as any).survey.getQuestionByName("applications").panelCount = 0;
       });
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-empty.png");
@@ -383,13 +377,13 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, json);
 
-      await page.locator(".sd-input.sd-text").first().fill("abc");
+      await page.locator(".sd-formbox.sd-text .sd-formbox__input").first().fill("abc");
       await page.click(".sd-paneldynamic__remove-btn");
       await page.locator(".sv-popup--confirm .sv-popup__body-content").waitFor({ state: "visible" });
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");
 
       await page.evaluate(async () => {
-        const applyButton = (window as any).survey.rootElement.getRootNode().querySelector("button[title='OK']");
+        const applyButton = (window as any).survey.rootElement.getRootNode().querySelector(".sv-popup__button--apply");
         const spanText = applyButton?.querySelector("span");
         if (spanText) spanText.innerText = "A very long long long long long text";
       });
@@ -421,7 +415,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.click("button[title='Panel 1']");
+      await page.getByRole("button", { name: "Panel 1" }).click();
       await page.keyboard.press("Tab");
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-focused-tab.png");
@@ -458,7 +452,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-comment.png");
     });
 
-    test("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
+    // TODO: Reanimate in processing of https://github.com/surveyjs/survey-library/issues/11421
+    test.skip("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         "elements": [

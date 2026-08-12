@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText } from "../helper";
 
 const title = "Input mask";
 
@@ -22,10 +22,10 @@ frameworks.forEach((framework) => {
           }]
       });
 
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       await page.keyboard.type("1234");
       expect(await page.locator("input").first().inputValue()).toBe("+12-34");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -62,11 +62,11 @@ frameworks.forEach((framework) => {
         });
       };
 
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       expect(await getCursor()).toBe(0);
-      await page.locator(".sd-text").nth(0).click();
+      await page.locator(".sd-formbox__input").nth(0).click();
       expect(await getCursor()).toBe(0);
-      await page.locator(".sd-text").nth(1).click();
+      await page.locator(".sd-formbox__input").nth(1).click();
       expect(await getCursor()).toBe(6);
     });
 
@@ -221,7 +221,7 @@ frameworks.forEach((framework) => {
 
       await page.keyboard.type("1234");
       expect(await inputElement.inputValue()).toBe("");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ });

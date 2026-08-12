@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "visibleIf";
 
@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
       // Select age for first kid and complete
       await questionDropdownSelect.nth(1).click();
       await page.getByText("2", { exact: true }).filter({ visible: true }).click();
-      await page.locator("input[value='Complete']").click();
+      await getButtonByText(page, "Complete").click();
 
       // Check survey results
       const surveyResult = await getSurveyResult(page);

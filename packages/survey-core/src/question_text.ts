@@ -40,6 +40,11 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maskInputAdapter = undefined;
     }
   }
+  public updateInputValueFromMask() {
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.updateInputValue();
+    }
+  }
   private updateMaskAdapter() {
     this.deleteMaskAdapter();
     this.createMaskAdapter();
@@ -220,6 +225,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
+   * @hidden
    */
   public get size(): number {
     return this.inputSize;
@@ -654,7 +660,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.locDataListValue;
   }
   public get dataListId(): string {
-    return this.locDataListValue?.hasValue() ? this.id + "_datalist" : undefined;
+    return this.locDataListValue?.hasValue() ? this.renderedId + "_datalist" : undefined;
   }
   protected isPropertyStoredInHash(name: string): boolean {
     if (name === "dataList") return !this.locDataListValue;
@@ -699,12 +705,11 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    const maxLength = this.getMaxLength();
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99)
-      .append(this.cssClasses.isValueChanged, this._isValueChanged);
+  public getControlClass(): string {
+    return new CssClassBuilder()
+      .append(super.getControlClass())
+      .append(this.cssClasses.isValueChanged, this._isValueChanged)
+      .toString();
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -777,8 +782,11 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
+  private isClickBlocked() {
+    return this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1;
+  }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
+    if (this.isClickBlocked()) {
       event.preventDefault();
       return true;
     }
@@ -850,6 +858,11 @@ export class QuestionTextModel extends QuestionTextBase {
   public beforeDestroyQuestionElement(el: HTMLElement) {
     this.deleteMaskAdapter();
     this.input = undefined;
+  }
+  public onContainerClick(event: Event) {
+    if (event.target == event.currentTarget && !this.isClickBlocked()) {
+      this.input?.focus();
+    }
   }
 }
 

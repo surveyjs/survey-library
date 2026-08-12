@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -67,11 +67,11 @@ frameworks.forEach((framework) => {
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      await expect(clickButton).toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).toHaveClass(/sd-action--popup-active/);
 
       await page.keyboard.press("Escape");
       await expect(popupSelector).not.toBeVisible();
-      await expect(clickButton).not.toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).not.toHaveClass(/sd-action--popup-active/);
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
@@ -88,7 +88,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -111,7 +111,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -143,7 +143,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -320,13 +320,13 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const inputInPopup = page.locator(".sv-popup .sd-text");
+      const inputInPopup = page.locator(".sv-popup .sd-formbox__input");
       const clickButton = page.locator(".sd-action").first();
 
       await clickButton.click();
       await expect(inputInPopup).toBeFocused();
       await page.keyboard.press("Tab");
-      await expect(page.locator(".sv-popup .sd-navigation__complete-btn")).toBeFocused();
+      await expect(page.locator(".sv-popup").getByRole("button", { name: "Complete" })).toBeFocused();
       await page.keyboard.press("Tab");
       await expect(page.locator(".sv-popup__button--cancel")).toBeFocused();
       await page.keyboard.press("Tab");
@@ -363,7 +363,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const inputInPopup = page.locator(".sv-popup .sd-text");
+      const inputInPopup = page.locator(".sv-popup .sd-formbox__input");
       const clickButton = page.locator(".sd-action").first();
       const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup");
 
@@ -390,7 +390,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -460,14 +460,14 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
         window["survey"].fromJSON(json);
       }, json);
 
-      const listItems = page.locator(".sv-list__item").filter({ visible: true });
+      const listItems = page.locator(".sd-menu-item").filter({ visible: true });
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
 
@@ -517,7 +517,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -529,13 +529,13 @@ frameworks.forEach((framework) => {
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(304);
+      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(320);
       // Close popup
       await popupSelector.click({ position: { x: 100, y: 100 } });
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(304);
+      expect(await popupSelector.evaluate(el => el.offsetHeight)).toBe(320);
     });
 
     test("check popup with filter", async ({ page }) => {
@@ -568,7 +568,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -577,7 +577,7 @@ frameworks.forEach((framework) => {
 
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
-      const popupHeight = 672;
+      const popupHeight = 624;
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
@@ -585,7 +585,7 @@ frameworks.forEach((framework) => {
       let actualPopupHeight = await popupSelector.evaluate(el => el.offsetHeight);
       expect(Math.abs(actualPopupHeight - popupHeight)).toBeLessThanOrEqual(1.0);
 
-      await page.locator(".sv-list__input").fill("2");
+      await page.locator(".sd-menu-filter__input").fill("2");
       actualPopupHeight = await popupSelector.evaluate(el => el.offsetHeight);
       expect(Math.abs(actualPopupHeight - popupHeight)).toBeLessThanOrEqual(1.0);
       // Close popup
@@ -617,10 +617,10 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const listItems = page.locator(".sv-list__item").filter({ visible: true });
+      const listItems = page.locator(".sd-menu-item").filter({ visible: true });
 
       await page.locator(".sd-action").first().click();
-      await expect(page.locator(".sv-list__input")).toBeFocused();
+      await expect(page.locator(".sd-menu-filter__input")).toBeFocused();
       await expect(listItems).toHaveCount(40);
 
       await page.keyboard.press("1");
@@ -670,10 +670,10 @@ frameworks.forEach((framework) => {
       }, json);
 
       const titlePopup = page.locator(".sv-popup.sv-popup--show-pointer .sv-popup__container").first();
-      const item5 = page.locator(".sv-list__item-body").getByText("item5 has items");
-      const item6 = page.locator(".sv-list__item-body").getByText("item6 has items");
-      const item5Subitems = page.locator(".sv-list__item--group .sv-popup .sv-popup__container").first();
-      const item6Subitems = page.locator(".sv-list__item--group .sv-popup .sv-popup__container").nth(1);
+      const item5 = page.locator(".sd-menu-item__body").getByText("item5 has items");
+      const item6 = page.locator(".sd-menu-item__body").getByText("item6 has items");
+      const item5Subitems = page.locator(".sd-menu-item--group .sv-popup .sv-popup__container").first();
+      const item6Subitems = page.locator(".sd-menu-item--group .sv-popup .sv-popup__container").nth(1);
 
       await expect(titlePopup).not.toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
@@ -696,21 +696,21 @@ frameworks.forEach((framework) => {
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).toBeVisible();
 
-      await titlePopup.locator(".sv-list").first().evaluate(el => el.scrollBy(0, 1000));
+      await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, 1000));
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
-      await titlePopup.locator(".sv-list").first().evaluate(el => el.scrollBy(0, -1000));
+      await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, -1000));
       await item5.hover();
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
-      await expect(page.locator(".sv-list__item").getByText("inner item1")).toHaveCount(2);
-      await page.locator(".sv-list__item").getByText("inner item1").first().click();
+      await expect(page.locator(".sd-menu-item").getByText("inner item1")).toHaveCount(2);
+      await page.locator(".sd-menu-item").getByText("inner item1").first().click();
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
@@ -754,10 +754,10 @@ frameworks.forEach((framework) => {
           });
         });
       });
-      const showActionBarLocator = page.locator("button[title='Show Action Bar']");
-      const showMessageLocator = page.locator("button[title='Show Message']");
+      const showActionBarLocator = page.getByRole("button", { name: "Show Action Bar" });
+      const showMessageLocator = page.getByRole("button", { name: "Show Message" });
       const popupModalLocator = page.locator("body > div > .sv-popup--modal-popup, body > div > sv-ng-popup-container > .sv-popup--modal-popup");
-      const cancelLocator = page.locator("button[title='Cancel']");
+      const cancelLocator = page.getByRole("button", { name: "Cancel" });
       const messageLocator = page.locator("span").getByText("message", { exact: true });
       await showActionBarLocator.click();
       expect(await popupModalLocator.count()).toBe(1);

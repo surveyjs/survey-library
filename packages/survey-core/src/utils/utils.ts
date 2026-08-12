@@ -1,3 +1,6 @@
+import { DomDocumentHelper } from "../global_variables_utils";
+import { settings } from "../settings";
+
 export function compareVersions(a: any, b: any): number {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -53,6 +56,13 @@ export function mergeValues(src: any, dest: any): void {
       dest[key] = value;
     }
   }
+}
+
+export function mergeObjects(dest: any, ...sources: Array<any>): any {
+  sources.forEach(source => {
+    mergeValues(source, dest);
+  });
+  return dest;
 }
 
 export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey: (item: T) => any): { addedItems: Array<T>, deletedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean }>, mergedItems: Array<T> } {
@@ -152,6 +162,14 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
 
 export function floorTo2Decimals(number: number): number {
   return Math.floor(number * 100) / 100;
+}
+
+export function getColorFromProperty(varName: string, element?: HTMLElement) {
+  if ("function" === typeof getComputedStyle) {
+    const style = getComputedStyle(element || DomDocumentHelper.getDocumentElement());
+    return style.getPropertyValue && style.getPropertyValue(varName);
+  }
+  return "";
 }
 
 export function mulberry32(seed: number): () => number {

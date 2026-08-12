@@ -1,6 +1,6 @@
 <template>
   <div v-if="model.actions && model.actions.length" :class="css.breadcrumbsRoot">
-    <template v-for="(item, itemIndex) in model.actions" :key="item.renderedId">
+    <template v-for="(item, itemIndex) in model.actions" :key="item.uniqueId">
       <SvComponent
         v-if="itemIndex"
         :is="'sv-svg-icon'"

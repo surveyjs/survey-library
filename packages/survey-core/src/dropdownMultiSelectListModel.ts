@@ -91,7 +91,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       opt.actions.push(<IAction>{
         id: "sv-dropdown-done-button",
         title: this.doneButtonCaption,
-        innerCss: "sv-popup__button--done",
+        innerCss: "sv-popup__button sv-popup__button--done",
         needSpace: true,
         action: () => { this.popupModel.isVisible = false; },
         enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))
@@ -185,9 +185,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
   }
 
-  protected focusItemOnClickAndPopup() {
-    return;
-  }
+  // MERGE(V3): recurring artifact - merging master (V2) tends to re-add a second copy of
+  // resetListKeyboardHighlightState/resetKeyboardPreviewState below (silent auto-merge, breaks
+  // the build with TS2393). Keep a single copy on merge.
   protected resetListKeyboardHighlightState(): void {
     this.listModel.resetFocusedItem();
     this.ariaActivedescendant = undefined;
@@ -202,7 +202,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return;
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (!this.listModel.focusedItem?.selected) {
       this.applyHintString();
     } else {

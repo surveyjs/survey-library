@@ -1,21 +1,185 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-panel {
+  //box
+  --sd-panel-padding-inline: var(--sjs2-layout-component-panel-box-padding-horizontal);
+  --sd-panel-padding-block: var(--sjs2-layout-component-panel-box-padding-top)
+    var(--sjs2-layout-component-panel-box-padding-bottom);
+  --sd-panel-gap-vertical: var(--sjs2-layout-component-panel-box-gap-vertical);
+  --sd-panel-border-radius: none;
+  --sd-panel-background: none;
+  --sd-panel-box-shadow: none;
+
+  //header
+  --sd-panel-header-padding-block: var(--sjs2-layout-component-panel-header-padding-top)
+    var(--sjs2-layout-component-panel-header-padding-bottom);
+  --sd-panel-header-padding-inline: var(--sjs2-layout-component-panel-header-padding-left)
+    var(--sjs2-layout-component-panel-header-padding-right);
+  --sd-panel-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sd-panel-header-border-bottom: none;
+
+  //title
+  --sd-panel-title-padding-block: var(--sjs2-layout-component-panel-title-padding-vertical);
+  --sd-panel-title-padding-inline: var(--sjs2-layout-component-panel-title-padding-horizontal);
+  --sd-panel-title-color: var(--sjs2-color-component-panel-default-title);
+  --sd-panel-title-hovered-color: var(--sjs2-color-component-panel-hovered-title);
+
+  //description
+  --sd-panel-description-padding-inline: var(--sjs2-layout-component-panel-description-padding-horizontal);
+  --sd-panel-description-padding-block: var(--sjs2-layout-component-panel-description-padding-top)
+    var(--sjs2-layout-component-panel-description-padding-bottom);
+  --sd-panel-description-color: var(--sjs2-color-component-panel-default-description);
+
+  //content
+  --sd-panel-content-padding-inline: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
+  --sd-panel-content-padding-block: var(--sjs2-layout-component-panel-content-area-padding-top)
+    var(--sjs2-layout-component-panel-content-area-padding-bottom);
+  --sd-panel-content-row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
+  --sd-panel-content-column-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
+
+  //footer
+  --sd-panel-footer-padding-block: var(--sjs2-layout-component-panel-footer-padding-top)
+    var(--sjs2-layout-component-panel-footer-padding-bottom);
+  --sd-panel-footer-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
+    var(--sjs2-layout-component-panel-footer-padding-right);
+  --sd-panel-footer-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
+}
+.sd-panel--with-frame {
+  --sd-panel-border-radius: var(--sjs2-radius-component-panel);
+  --sd-panel-background: var(--sjs2-color-component-panel-default-bg);
+  --sd-panel-box-shadow: var(--sjs2-border-effect-component-panel-default);
+}
+.sd-panel:where(.sd-panel--with-frame, .sd-panel--nested) {
+  --sd-panel-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
+    var(--sjs2-color-component-panel-default-separator);
+}
+.sd-panel--nested {
+  //box
+  --sd-panel-border-radius: var(--sjs2-radius-component-panel-nested);
+  --sd-panel-background: var(--sjs2-color-component-panel-nested-default-bg);
+  --sd-panel-box-shadow: var(--sjs2-border-effect-component-panel-nested-default);
+  --sd-panel-padding-inline: var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
+  --sd-panel-padding-block: var(--sjs2-layout-component-panel-nested-box-padding-top)
+    var(--sjs2-layout-component-panel-nested-box-padding-bottom);
+  --sd-panel-gap-vertical: var(--sjs2-layout-component-panel-nested-box-gap-vertical);
+
+  //header
+  --sd-panel-header-padding-block: var(--sjs2-layout-component-panel-nested-header-padding-top)
+    var(--sjs2-layout-component-panel-nested-header-padding-bottom);
+  --sd-panel-header-padding-inline: var(--sjs2-layout-component-panel-nested-header-padding-left)
+    var(--sjs2-layout-component-panel-nested-header-padding-right);
+  --sd-panel-header-gap-vertical: var(--sjs2-layout-component-panel-nested-header-gap-vertical);
+
+  //title
+  --sd-panel-title-padding-block: var(--sjs2-layout-component-panel-nested-title-padding-vertical);
+  --sd-panel-title-padding-inline: var(--sjs2-layout-component-panel-nested-title-padding-horizontal);
+  --sd-panel-title-color: var(--sjs2-color-component-panel-nested-default-title);
+  --sd-panel-title-hovered-color: var(--sjs2-color-component-panel-nested-hovered-title);
+
+  //description
+  --sd-panel-description-padding-inline: var(--sjs2-layout-component-panel-nested-description-padding-horizontal);
+  --sd-panel-description-padding-block: var(--sjs2-layout-component-panel-nested-description-padding-top)
+    var(--sjs2-layout-component-panel-nested-description-padding-bottom);
+  --sd-panel-description-color: var(--sjs2-color-component-panel-nested-default-description);
+
+  //content
+  --sd-panel-content-padding-inline: var(--sjs2-layout-component-panel-nested-content-area-padding-horizontal);
+  --sd-panel-content-padding-block: var(--sjs2-layout-component-panel-nested-content-area-padding-top)
+    var(--sjs2-layout-component-panel-nested-content-area-padding-bottom);
+  --sd-panel-content-row-gap: var(--sjs2-layout-component-panel-nested-content-area-gap-vertical);
+  --sd-panel-content-column-gap: var(--sjs2-layout-component-panel-nested-content-area-gap-horizontal);
+
+  //footer
+  --sd-panel-footer-padding-block: var(--sjs2-layout-component-panel-nested-footer-padding-top)
+    var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
+  --sd-panel-footer-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
+    var(--sjs2-layout-component-panel-nested-footer-padding-right);
+  --sd-panel-footer-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
+}
+.sd-panel--collapsed {
+  --sd-panel-header-border-bottom: none;
+}
+
+.sd-panel {
+  display: flex;
+  flex-direction: column;
   position: relative;
+  border-radius: var(--sd-panel-border-radius);
+  background: var(--sd-panel-background);
+  box-shadow: var(--sd-panel-box-shadow);
+  padding-inline: var(--sd-panel-padding-inline);
+  padding-block: var(--sd-panel-padding-block);
+  gap: var(--sd-panel-gap-vertical);
+  transition: background $transition-duration;
+}
+
+.sd-panel__header {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--sd-panel-header-padding-block);
+  padding-inline: var(--sd-panel-header-padding-inline);
+  border-bottom: var(--sd-panel-header-border-bottom);
+  gap: var(--sd-panel-header-gap-vertical);
+}
+
+.sd-panel__title {
+  @include sjs2--typography--component--panel--title;
+  padding-block: var(--sd-panel-title-padding-block);
+  padding-inline: var(--sd-panel-title-padding-inline);
+  color: var(--sd-panel-title-color);
+}
+
+.sd-panel__title-expandable-svg {
+  fill: var(--sd-panel-title-color);
+}
+.sd-panel--collapsed:hover,
+.sd-panel__header--expandable:hover {
+  .sd-panel__title {
+    color: var(--sd-panel-title-hovered-color);
+  }
+  .sd-panel__title-expandable-svg {
+    fill: var(--sd-panel-title-hovered-color);
+  }
+}
+
+.sd-panel__required-text {
+  color: $red;
+}
+
+.sd-panel__description {
+  @include sjs2--typography--component--panel--description;
+  color: $font-questiondescription-color;
+  padding-block: var(--sd-panel-description-padding-block);
+  padding-inline: var(--sd-panel-description-padding-inline);
+  color: var(--sd-panel-description-color);
+}
+
+.sd-panel__content {
+  padding-inline: var(--sd-panel-content-padding-inline);
+  padding-block: var(--sd-panel-content-padding-block);
+  row-gap: var(--sd-panel-content-row-gap);
+  column-gap: var(--sd-panel-content-column-gap);
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-panel__footer {
+  box-sizing: border-box;
+  padding-block: var(--sd-panel-footer-padding-block);
+  padding-inline: var(--sd-panel-footer-padding-inline);
+  --sd-action-bar-gap: var(--sd-panel-footer-gap);
 }
 
 .sd-panel.sd-panel--as-page {
   & > .sd-panel__header.sd-panel__header {
-    padding-top: 0;
-    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
-
-    &:after {
-      content: none;
-    }
+    padding: 0;
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x150));
+    border-bottom: none;
 
     .sd-panel__title {
-      @include mixins.page_title();
+      @include sjs2--typography--component--page--title;
+      position: static;
 
       span {
         font-family: inherit;
@@ -34,7 +198,8 @@
     }
 
     .sd-panel__description {
-      @include mixins.page_description();
+      @include sjs2--typography--component--page--description;
+      position: static;
     }
 
     .sd-panel__required-text {
@@ -43,60 +208,23 @@
   }
 
   & > .sd-panel__errbox {
-    margin: 0 0 calcSize(2) 0;
-    padding: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit}) var(--sd-base-padding);
+    margin: 0 0 var(--sjs2-layout-component-page-content-area-gap-vertical) 0;
   }
 
   & > .sd-panel__content {
-    padding-top: 0;
+    padding: 0;
+    row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
   }
-}
-
-.sd-root--compact {
-  .sd-panel--as-page {
-    & > .sd-panel__errbox {
-      margin: 0 0 var(--sd-base-vertical-padding) 0;
-    }
+  .sd-panel__footer {
+    padding: var(--sjs2-spacing-x400) 0 0;
+    margin: 0;
+    border: none;
+    width: initial;
   }
 }
 
 .sd-row ~ .sd-row {
   .sd-panel--as-page {
-    padding-top: calcSize(4);
+    padding-top: var(--sjs2-spacing-x400);
   }
-}
-
-.sd-panel__required-text {
-  color: $red;
-}
-
-.sd-panel__footer {
-  box-sizing: border-box;
-  padding-left: calc(var(--sd-base-padding) - 3 * #{$base-unit});
-  margin-left: calc(-1 * var(--sd-base-padding));
-  width: calc(100% + 2 * var(--sd-base-padding));
-  margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));
-  margin-top: calc(0.5 * var(--sd-base-vertical-padding));
-  border-top: 1px solid $border-light;
-  padding-top: calc(0.5 * var(--sd-base-vertical-padding));
-}
-.sd-panel--as-page .sd-panel__footer {
-  padding: calcSize(4) 0 0;
-  margin: 0;
-  border: none;
-  width: initial;
-}
-.sd-panel__content {
-  padding-top: var(--sd-base-padding);
-}
-
-.sd-panel.sd-element--nested {
-  & > .sd-panel__content {
-    padding-bottom: var(--sd-base-padding);
-    --animation-padding-top: var(--sd-base-padding);
-  }
-}
-
-.sd-panel__content {
-  --animation-padding-top: var(--sd-base-padding);
 }

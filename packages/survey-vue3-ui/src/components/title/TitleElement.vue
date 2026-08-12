@@ -14,20 +14,14 @@
       }
     "
   >
+   <span :class="element.getCssTitleExpandableSvgContainer()" v-if="element.showTitleExpandableSvg">
     <SvComponent
       :is="'sv-svg-icon'"
-      v-if="!element.isExpanded && element.getCssTitleExpandableSvg()"
       :class="element.getCssTitleExpandableSvg()"
-      :iconName="'icon-expand-16x16'"
+      :iconName="element.titleExpandableSvgIconName"
       size="'auto'"
     ></SvComponent>
-    <SvComponent
-      :is="'sv-svg-icon'"
-      v-if="element.isExpanded && element.getCssTitleExpandableSvg()"
-      :class="element.getCssTitleExpandableSvg()"
-      :iconName="'icon-collapse-16x16'"
-      size="'auto'"
-    ></SvComponent>
+   </span>
     <SvComponent
       :is="'survey-element-title-content'"
       v-if="!element.hasTitleActions"

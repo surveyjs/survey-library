@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "visibleTrigger";
 
@@ -177,7 +177,7 @@ frameworks.forEach((framework) => {
     });
 
     test("check visibility", async ({ page }) => {
-      const completeSelector = page.locator("input[value=\"Complete\"]").filter({ visible: true });
+      const completeSelector = getButtonByText(page, "Complete").filter({ visible: true });
       // Click Hot hatch option
       await page.locator("label").filter({ hasText: "Hot hatch" }).locator("span").first().click();
 

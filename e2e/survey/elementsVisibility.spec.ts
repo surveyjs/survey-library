@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "Elements Visibility";
 
@@ -30,8 +30,8 @@ frameworks.forEach((framework) => {
         showInvisibleElements: true,
       });
 
-      await expect(page.locator('input[value="Complete"]')).not.toBeVisible();
-      await expect(page.locator('input[value="Next"]')).toBeVisible();
+      await expect(getButtonByText(page, "Complete")).not.toBeVisible();
+      await expect(getButtonByText(page, "Next")).toBeVisible();
       await expect(page.locator('span:has-text("2.")')).toBeVisible();
     });
 
@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
 
-      await expect(page.locator('input[value="Complete"]')).toBeVisible();
+      await expect(getButtonByText(page, "Complete")).toBeVisible();
 
       const yesChoiceSelector = page.locator("label").filter({ hasText: "Yes" }).locator("span").first();
       const noChoiceSelector = page.locator("label").filter({ hasText: "No" }).locator("span").first();
@@ -48,12 +48,12 @@ frameworks.forEach((framework) => {
 
       await yesChoiceSelector.click();
       await expect(yesChoice).toBeChecked();
-      await expect(page.locator('input[value="Complete"]')).not.toBeVisible();
-      await expect(page.locator('input[value="Next"]')).toBeVisible();
+      await expect(getButtonByText(page, "Complete")).not.toBeVisible();
+      await expect(getButtonByText(page, "Next")).toBeVisible();
 
       await noChoiceSelector.click();
       await expect(noChoice).toBeChecked();
-      await expect(page.locator('input[value="Complete"]')).toBeVisible();
+      await expect(getButtonByText(page, "Complete")).toBeVisible();
     });
 
     test("test focus after visibility change", async ({ page }) => {

@@ -1,36 +1,29 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-file {
   position: relative;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
-  min-height: calcSize(36);
+  @include sjs2--typography--default;
+  min-height: calc(var(--sjs2-base-unit-size) * 36);
   box-sizing: border-box;
-  padding: 0 calcSize(6);
+  padding: 0 var(--sjs2-spacing-x600);
 
-  .sv-action-bar {
-    padding: calcSize(1) 0;
+  .sd-action-bar:not(.sd-file__actions-container) {
+    padding: var(--sjs2-spacing-x100) 0;
     justify-content: center;
     position: absolute;
     width: 100%;
     left: 0;
     bottom: 0;
 
-    .sv-action-bar-item {
-      height: calcSize(4);
-      color: $foreground-light;
-      border-radius: calcSize(2);
-    }
-
     .sv-action--file-index {
-      .sv-action-bar-item {
-        padding: calcSize(0.5) 0;
+      .sd-action {
+        padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
-
-        &:hover {
-          background-color: $background;
+        background-color: transparent;
+        .sd-action__title {
+          color: var(--sd-action-title-color);
         }
-
         &:disabled {
           opacity: initial;
         }
@@ -44,9 +37,10 @@
   flex-direction: column;
   position: absolute;
   position: absolute;
-  left: calcSize(0);
+  left: var(--sjs2-spacing-x000);
   width: 100%;
   height: 100%;
+  gap: var(--sjs2-spacing-x200);
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
@@ -63,7 +57,7 @@
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
-  background: $primary-light;
+  background: var(--sjs2-color-bg-brand-secondary);
   box-shadow: inset 0 0 0 1px $primary;
 }
 
@@ -73,12 +67,12 @@
   color: $font-questionplaceholder-color;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  padding: 0 calcSize(8);
+  padding: 0 var(--sjs2-spacing-x800);
 }
 
 @container (max-width: #{$sd-panel-normal-min-width}) {
   .sd-file__drag-area-placeholder {
-    padding: 0 calcSize(1);
+    padding: 0 var(--sjs2-spacing-x100);
   }
 }
 
@@ -88,7 +82,7 @@
   }
 
   .sd-file__decorator .sd-action {
-    padding: calcSize(1);
+    padding: var(--sjs2-spacing-x100);
 
     .sv-svg-icon {
       margin-left: 0;
@@ -106,27 +100,7 @@
 
 .sd-root-modern--mobile {
   .sd-file__decorator {
-    padding: 0 calcSize(4);
-  }
-}
-
-.sd-file__choose-btn--text {
-  display: block;
-  font-weight: 600;
-  color: $primary;
-  cursor: pointer;
-
-  .sv-svg-icon {
-    margin-left: calcSize(-1);
-    width: calcSize(3);
-    height: calcSize(3);
-    fill: $primary;
-  }
-}
-
-.sd-file__choose-btn--icon {
-  & > span {
-    display: none;
+    padding: 0 var(--sjs2-spacing-x400);
   }
 }
 
@@ -135,8 +109,9 @@
   max-width: 100%;
 }
 .sd-file__actions-container {
-  margin-top: calcSize(0.5);
+  margin-top: var(--sjs2-spacing-x050);
   flex-wrap: wrap;
+  --sd-action-bar-gap: var(--sjs2-layout-component-upload-action-group-gap);
   justify-content: center;
 
   .sv-action--hidden {
@@ -147,17 +122,16 @@
 .sd-file--answered .sd-file__actions-container {
   z-index: 2;
   margin-top: 0;
-  gap: calcSize(1);
 }
 
 .sd-file--answered .sd-file__actions-container {
-  top: calcSize(1);
-  right: calcSize(1);
+  top: var(--sjs2-spacing-x150);
+  right: var(--sjs2-spacing-x150);
   position: absolute;
 }
 
 .sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
-  inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
+  inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + var(--sjs2-spacing-x500));
 }
 
 .sd-file__list {
@@ -166,9 +140,9 @@
   overflow: hidden;
   box-sizing: content-box;
   flex-direction: row;
-  padding: calcSize(10.5) 0;
-  min-height: calcSize(15);
-  max-height: calcSize(15);
+  padding: calc(var(--sjs2-base-unit-spacing) * 10.5) 0;
+  min-height: var(--sjs2-size-x1500);
+  max-height: var(--sjs2-size-x1500);
   width: 100%;
 }
 
@@ -177,8 +151,8 @@
   left: 0;
   align-items: stretch;
   justify-content: center;
-  gap: calcSize(4);
-  height: calc(100% - 21 * #{$base-unit});
+  gap: var(--sjs2-spacing-x400);
+  height: calc(100% - 21 * var(--sjs2-base-unit-size));
   width: 100%;
   position: absolute;
 }
@@ -261,13 +235,13 @@
   align-items: stretch;
   flex-direction: column;
   min-height: 100%;
-  width: calcSize(12);
+  width: var(--sjs2-size-x1200);
   margin: 0;
   cursor: pointer;
 
   .sd-file__default-image {
-    width: calcSize(9);
-    height: calcSize(9);
+    width: var(--sjs2-size-x900);
+    height: var(--sjs2-size-x900);
 
     use {
       fill: $font-questionplaceholder-color;
@@ -286,10 +260,9 @@
 }
 
 .sd-file__sign {
-  margin-top: calcSize(1);
+  margin-top: var(--sjs2-spacing-x100);
   text-align: center;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
+  @include sjs2--typography--small;
 
   a {
     display: block;
@@ -297,13 +270,13 @@
     color: $font-questiontitle-color;
     white-space: normal;
     word-break: break-all;
-    width: calcSize(12);
+    width: var(--sjs2-size-x1200);
     min-width: 100%;
     max-width: 100%;
     overflow: hidden;
-    max-height: calcLineHeight(3);
+    max-height: var(--sjs2-line-height-x600);
     text-overflow: ellipsis;
-    line-height: calcLineHeight(1);
+    line-height: var(--sjs2-line-height-x200);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -311,7 +284,6 @@
 }
 
 .sd-file__remove-file-button {
-  display: block;
   opacity: 0;
   position: absolute;
   left: 100%;
@@ -324,7 +296,10 @@
   .sd-file__remove-file-button {
     left: 50%;
     top: 50%;
-    transform: translate(calc(0.5 * 7 * #{$base-unit} - 50% - 1.5px), calc(-0.5 * 8.5 * #{$base-unit} - 50% + 1.5px));
+    transform: translate(
+      calc(0.5 * 7 * var(--sjs2-base-unit-spacing) - 50% - 1.5px),
+      calc(-0.5 * 8.5 * var(--sjs2-base-unit-spacing) - 50% + 1.5px)
+    );
   }
 }
 
@@ -338,17 +313,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calcSize(12);
-  min-height: calcSize(12);
-  height: calcSize(12);
+  width: var(--sjs2-size-x1200);
+  min-height: var(--sjs2-size-x1200);
+  height: var(--sjs2-size-x1200);
   background: $background-dim;
 
   img:not(.sd-file__default-image) {
     display: block;
     max-width: 100%;
     max-height: 100%;
-    width: calcSize(12);
-    height: calcSize(12);
+    width: var(--sjs2-size-x1200);
+    height: var(--sjs2-size-x1200);
     object-fit: contain;
   }
 }
@@ -362,7 +337,7 @@
 }
 
 .sd-file--single-image {
-  height: calc(36 * #{$base-unit});
+  height: calc(36 * var(--sjs2-base-unit-size));
 
   .sd-file__page {
     height: 100%;
@@ -417,18 +392,6 @@
   background: transparent;
 }
 
-.sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
-  &.sd-file__choose-btn--icon {
-    use {
-      fill: $primary;
-    }
-  }
-
-  &:not(.sd-file__choose-btn--icon) {
-    background-color: $primary-light;
-  }
-}
-
 .sd-file__drag-area {
   position: static;
   width: 100%;
@@ -437,37 +400,26 @@
 .sd-file__change-camera-button {
   position: absolute;
   z-index: 2;
-  left: calcSize(1);
-  top: calcSize(1);
+  left: var(--sjs2-spacing-x100);
+  top: var(--sjs2-spacing-x100);
 }
 
 .sd-file__close-camera-button {
   position: absolute;
   z-index: 2;
-  right: calcSize(1);
-  top: calcSize(1);
+  right: var(--sjs2-spacing-x100);
+  top: var(--sjs2-spacing-x100);
 }
 
-.sd-context-btn.sd-file__take-picture-button {
-  background-color: $red;
+.sd-action.sd-file__take-picture-button {
   position: absolute;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: calcSize(2);
-
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 0 2px $red;
-  }
 
   .sv-svg-icon {
-    height: calcSize(4);
-    width: calcSize(4);
-
-    use {
-      fill: $background;
-    }
+    height: var(--sjs2-size-x400);
+    width: var(--sjs2-size-x400);
   }
 }
 
@@ -502,10 +454,6 @@
 }
 
 .sd-file--readonly {
-  .sd-context-btn {
-    display: none;
-  }
-
   .sd-file__decorator {
     border-color: transparent;
   }
@@ -524,10 +472,6 @@
 }
 
 .sd-file--preview {
-  .sd-context-btn {
-    display: none;
-  }
-
   .sd-file__decorator {
     border-color: transparent;
   }

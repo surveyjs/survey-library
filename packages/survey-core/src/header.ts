@@ -112,15 +112,12 @@ export class Cover extends Base implements ILayoutElementModel {
   }
   private updateHeaderClasses(): void {
     const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
-    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
-    const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
       .append("sv-header--height-auto", !this.renderedHeight)
       .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
       .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--accent", backgroundColorAccent && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", backgroundColorCustom && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", !backgroundColorNone && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -150,9 +147,9 @@ export class Cover extends Base implements ILayoutElementModel {
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header || {});
     if (!!theme.cssVariables) {
-      this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
-      this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];
-      this.descriptionColor = theme.cssVariables["--sjs-font-headerdescription-color"];
+      this.backgroundColor = theme.cssVariables["--sjs2-color-component-survey-header-default-bg"];
+      this.titleColor = theme.cssVariables["--sjs2-color-component-survey-header-default-title"];
+      this.descriptionColor = theme.cssVariables["--sjs2-color-component-survey-header-default-description"];
     }
     this.init();
   }

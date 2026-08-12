@@ -1,5 +1,6 @@
 import type { Page, Locator } from "@playwright/test";
 import { expect } from "@playwright/test";
+import { getButtonByText } from "./helper";
 
 export class Survey {
   public readonly completeButtonValue = "Complete";
@@ -43,7 +44,7 @@ export class Survey {
     }
   }
   public getNavigatorButton(value: string): Locator {
-    return this.page.locator("input[value='" + value + "']").last();
+    return getButtonByText(this.page, "" + value + "").last();
   }
   public async clicNavigatorButton(btnName: string): Promise<void> {
     const btn = this.getNavigatorButton(btnName);

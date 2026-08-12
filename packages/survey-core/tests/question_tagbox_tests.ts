@@ -948,13 +948,13 @@ describe("Tagbox question", () => {
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true && hideSelectedItems = false").toBe(".sv-list__item");
+    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true && hideSelectedItems = false").toBe(".sd-selectlist__item");
 
     list.onItemClick(list.actions[0]);
     popupModel.isVisible = false;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1' && hideSelectedItems = false").toBe(".sv-list__item--selected");
+    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1' && hideSelectedItems = false").toBe(".sd-selectlist__item--selected");
 
     list.onItemClick(list.actions[0]);
     question.hideSelectedItems = true;
@@ -962,13 +962,13 @@ describe("Tagbox question", () => {
     popupModel.isVisible = false;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true && hideSelectedItems = true").toBe(".sv-list__item");
+    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true && hideSelectedItems = true").toBe(".sd-selectlist__item");
 
     list.onItemClick(list.actions[0]);
     popupModel.isVisible = false;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1' && hideSelectedItems = true").toBe(".sv-list__item");
+    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1' && hideSelectedItems = true").toBe(".sd-selectlist__item");
     _setIsTouch(false);
   });
 

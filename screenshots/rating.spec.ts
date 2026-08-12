@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme } from "../e2e/helper";
 
 frameworks.forEach(framework => {
   test.beforeEach(async ({ page }) => {
@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-question", "question-rating-dropdown.png");
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "question-rating-dropdown-popup.png");
     });
@@ -301,9 +301,6 @@ frameworks.forEach(framework => {
 
     test("Check rating stars question - baseunit", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.style.setProperty("--base-unit", "4px");
-      });
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         width: "900px",
@@ -322,6 +319,10 @@ frameworks.forEach(framework => {
             width: "708px"
           }
         ]
+      });
+      await page.evaluate(() => {
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
       });
       await compareScreenshot(page, ".sd-question", "question-rating-stars-baseunit.png");
     });
@@ -455,16 +456,16 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        const themeJson = {
+        (window as any).survey.applyTheme({
           "cssVariables": {
             "--sjs-special-red": "orange",
             "--sjs-special-yellow": "magenta",
             "--sjs-special-green": "blue"
           },
           "isPanelless": false
-        };
-        window["survey"].applyTheme(themeJson);
+        });
       });
+
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-theme.png");
     });
 
@@ -475,17 +476,16 @@ frameworks.forEach(framework => {
         width: "900px",
         elements: [{ type: "rating", name: "q1" }]
       });
-
       await page.evaluate(() => {
-        const themeJson = {
+        (window as any).survey.applyTheme({
           "cssVariables": {
             "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
             "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
           },
           "isPanelless": false
-        };
-        window["survey"].applyTheme(themeJson);
+        });
       });
+
       await compareScreenshot(page, ".sd-rating", "rating-inner-shadow.png");
     });
 
@@ -551,7 +551,7 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = page.locator(".sd-question");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-required.png");
       await questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1).hover();

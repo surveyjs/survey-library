@@ -1,21 +1,11 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
-
-.sd-title {
-  display: block;
-  font-family: $font-family;
-  font-style: normal;
-  color: $foreground;
-  flex-direction: row;
-  white-space: normal;
-}
+@use "../typography-mixins.scss" as *;
 
 .sd-title.sd-container-modern__title {
   display: flex;
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
-  font-family: $font-family;
-  gap: calcSize(4);
+  gap: var(--sjs2-spacing-x400);
   box-shadow: 0px 2px 0px $primary;
 
   .sd-logo.sv-logo--right {
@@ -23,78 +13,62 @@
   }
 
   .sd-logo__image {
-    margin-top: calcSize(1);
+    margin-top: var(--sjs2-spacing-x100);
   }
 }
 
 .sd-header__text {
   display: flex;
   flex-direction: column;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
   flex-grow: 1;
 
   .sd-title {
-    @include mixins.survey_title;
-    color: $font-surveytitle-color;
-    font-family: $font-surveytitle-family;
-    font-weight: $font-surveytitle-weight;
+    @include sjs2--typography--component--header--title;
   }
 
   h3 {
-    line-height: calcLineHeight(2.5);
+    line-height: var(--sjs2-line-height-x500);
   }
 
   h5 {
-    font-size: calcFontSize(1);
-    font-weight: 400;
-    line-height: calcLineHeight(1.5);
+    @include sjs2--typography--default;
   }
 
   .sd-description {
-    @include mixins.survey_description;
-    color: $font-surveydescription-color;
-    font-family: $font-surveydescription-family;
-    font-weight: $font-surveydescription-weight;
-  }
-}
-
-//todo: add ability to customize class sv-title-actions in library
-.sd-title {
-  .sv-title-actions {
-    width: 100%;
-    justify-content: space-between;
+    @include sjs2--typography--component--header--description;
   }
 }
 
 .sd-root-modern {
   .sd-container-modern__title {
     background-color: $background;
-  }
-}
 
-.sd-root-modern {
-  .sd-container-modern__title {
     .sd-header__text h3 {
       margin: 0;
     }
 
     .sd-description {
       margin: 0;
-      color: $foreground-light;
     }
   }
 }
 
 .sd-title .sv-title-actions {
   align-items: flex-start;
-  width: calc(100% + 3 * #{$base-unit});
+  width: 100%;
 
   .sv-title-actions__title {
     flex-wrap: wrap;
     flex: 0 1 auto;
-    max-width: calc(100% - 3 * #{$base-unit});
+    max-width: calc(100% - var(--sjs2-spacing-x300));
     white-space: initial;
     min-width: unset;
+  }
+}
+.sv-title-actions:has(.sd-action-bar--empty) {
+  .sv-title-actions__title {
+    max-width: 100%;
   }
 }
 
@@ -104,12 +78,23 @@
 
 .sd-action-title-bar {
   flex: 1 9 auto;
-  min-width: calcSize(6);
+  min-width: var(--sjs2-size-x600);
   justify-content: flex-end;
-  margin: calcSize(-1) 0;
-
-  .sv-action {
+  margin: var(--sjs2-spacing-negative-x100) 0;
+  --sd-action-bar-gap: var(--sjs2-layout-component-question-header-action-group-gap);
+  .sd-action-bar__item {
     flex: 0 0 auto;
+  }
+}
+
+.sd-element--complex {
+  & > .sd-element__header .sd-action-title-bar {
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
+  }
+  &.sd-question--paneldynamic {
+    & > .sd-element__header .sd-action-title-bar {
+      --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-header-action-group-gap);
+    }
   }
 }
 

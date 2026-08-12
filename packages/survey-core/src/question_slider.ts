@@ -339,6 +339,20 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .toString();
   };
 
+  public getLabelMaxWidth = (item: ItemValue): string => {
+    const labels = this.renderedLabels;
+    const range = this.renderedMax - this.renderedMin;
+    if (range <= 0 || labels.length <= 1) return "none";
+    let nearest = Number.POSITIVE_INFINITY;
+    for (let i = 0; i < labels.length; i++) {
+      if (labels[i] === item) continue;
+      const distance = Math.abs(labels[i].value - item.value);
+      if (distance < nearest) nearest = distance;
+    }
+    if (!isFinite(nearest) || nearest <= 0) return "none";
+    return (nearest / range) * 100 + "%";
+  };
+
   public get renderedLabelCount(): number {
     return this.labelCount < 0 ? 6 : this.labelCount;
   }
@@ -580,7 +594,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public setValueByClickOnPath = (event: PointerEvent, rootNode: HTMLElement) => {
     const { renderedMax: max, renderedMin: min } = this;
-    let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
+    let isRtl = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
 
     let percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
     if (isRtl) percent = 100 - percent;
@@ -661,6 +675,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         input.step = 0.01;
       }
     }
+    this.isAllowFocusThumb = false;
+    this.focusedThumb = null;
     this.oldValue = this.renderedValue;
     this.animatedThumb = false;
   };
@@ -696,7 +712,11 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.oldValue = null;
   };
 
-  public handleKeyDown = (event: KeyboardEvent) => {
+  public handleKeyDown = (event: KeyboardEvent, inputNumber?: number) => {
+    if (inputNumber !== undefined) {
+      this.isAllowFocusThumb = true;
+      this.focusedThumb = inputNumber;
+    }
     this.oldValue = this.renderedValue;
     this.animatedThumb = true;
   };
@@ -707,10 +727,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handleOnFocus = (inputNumber: number): void => {
+    if (!this.isAllowFocusThumb) return;
     this.focusedThumb = inputNumber;
   };
 
   public handleOnBlur = (): void => {
+    this.isAllowFocusThumb = true;
     this.focusedThumb = null;
   };
 
@@ -852,6 +874,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
 
   private isRangeMoving = false;
+  private isAllowFocusThumb = true;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
 

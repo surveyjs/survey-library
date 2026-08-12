@@ -44,26 +44,32 @@ describe("Notifier model", () => {
     const testAction = notifier.actionBar.actions[0];
     expect(testAction.visible).toBe(false);
 
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(testAction.visible).toBe(true);
+    expect(testAction.appearance.style).toBe("alert");
 
-    notifier.updateActionsVisibility("info");
+    notifier.updateActions("info");
     expect(testAction.visible).toBe(false);
+    expect(testAction.appearance.style).toBe("neutral");
 
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(testAction.visible).toBe(true);
+    expect(testAction.appearance.style).toBe("alert");
 
-    notifier.updateActionsVisibility("success");
+    notifier.updateActions("success");
     expect(testAction.visible).toBe(false);
+    expect(testAction.appearance.style).toBe("brand");
 
     expect(notifier.showActions, "showActions default is true").toBe(true);
     notifier.showActions = false;
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(testAction.visible).toBe(false);
+    expect(testAction.appearance.style).toBe("alert");
 
     notifier.showActions = true;
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(testAction.visible).toBe(true);
+    expect(testAction.appearance.style).toBe("alert");
 
   });
 
@@ -101,10 +107,10 @@ describe("Notifier model", () => {
     const notifier = new Notifier(testCssClasses);
     notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
     notifier.showActions = true;
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(notifier.getCssClass("error")).toBe("alert alert--with-buttons alert-error");
     notifier.showActions = false;
-    notifier.updateActionsVisibility("error");
+    notifier.updateActions("error");
     expect(notifier.getCssClass("error")).toBe("alert alert-error");
   });
 });

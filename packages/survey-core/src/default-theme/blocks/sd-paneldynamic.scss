@@ -1,46 +1,144 @@
 @use "../variables.scss" as *;
 
+.sd-question--paneldynamic {
+    --sd-question-container-padding-block: var(--sjs2-layout-component-panel-dynamic-box-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+    --sd-question-container-padding-inline: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+    --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
+    --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-dynamic-box-gap-horizontal);
+
+    //header-content-container
+    --sd-question-header-content-container-padding-block: 0;
+    --sd-question-header-content-container-padding-inline: 0;
+    --sd-question-header-content-container-row-gap: 0;
+    --sd-question-header-content-container-column-gap: 0;
+    //
+
+    //header
+    --sd-question-header-padding-block: var(--sjs2-layout-component-panel-dynamic-header-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
+    --sd-question-header-padding-inline: var(--sjs2-layout-component-panel-dynamic-header-padding-left)
+        var(--sjs2-layout-component-panel-dynamic-header-padding-right);
+    --sd-question-header-gap-vertical: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
+
+    //title
+    --sd-question-title-padding-block: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical);
+    --sd-question-title-padding-inline: var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
+    --sd-question-title-color: var(--sjs2-color-component-panel-dynamic-default-title);
+    --sd-question-title-hovered-color: var(--sjs2-color-component-panel-dynamic-hovered-title);
+
+    //description
+    --sd-question-description-padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
+    --sd-question-description-padding-block: var(--sjs2-layout-component-panel-dynamic-description-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
+    --sd-question-description-color: var(--sjs2-color-component-panel-dynamic-default-description);
+}
+.sd-question--paneldynamic:where(.sd-question--with-frame, .sd-question--nested) {
+    --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
+    --sd-question-container-background: var(--sjs2-color-component-panel-dynamic-default-bg);
+    --sd-question-container-box-shadow: var(--sjs2-border-effect-component-panel-dynamic-default);
+    --sd-question-header-border-bottom: var(--sjs2-border-width-x100, 1px) solid
+        var(--sjs2-color-component-panel-dynamic-default-separator);
+}
+.sd-question--paneldynamic:where(.sd-question--collapsed) {
+    --sd-question-header-border-bottom: none;
+}
+
 .sd-paneldynamic {
+    padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-content-area-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-vertical);
+
     .sd-progress {
         position: absolute;
         left: 0;
         right: 0;
         height: 2px;
         z-index: 2;
-        transform: translateY(-1px);
     }
 
-    & > .sd-panel {
+    .sd-progress ~ .sd-paneldynamic__panels-container {
         padding-top: 1px;
-        padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
     }
 
-    & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: var(--sd-base-vertical-padding);
-        padding-bottom: 0;
+    & .sd-paneldynamic__panel-wrapper > .sd-panel {
+        & > .sd-panel__header {
+            padding-top: var(--sd-base-vertical-padding);
+            padding-bottom: 0;
+            border-bottom: none;
 
-        &:after {
-            display: none;
-        }
-
-        & > .sd-panel__title {
-            color: $foreground-light;
+            & > .sd-panel__title {
+                color: $foreground-light;
+            }
         }
     }
 }
+
+.sd-paneldynamic ~ .sd-question__comment-area {
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500))
+        var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+    padding-top: 0;
+}
+.sd-root-modern--mobile {
+    .sd-paneldynamic ~ .sd-question__comment-area {
+        padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300))
+            var(--sjs2-spacing-x300);
+        padding-top: 0;
+    }
+}
+
+.sd-paneldynamic__header-tab {
+    border-bottom: none;
+}
+.sd-paneldynamic__navigation--top {
+    & > .sd-question__container {
+        & > .sd-question__header-and-content-container {
+            & > .sd-question__header {
+                border-bottom: none;
+            }
+        }
+    }
+}
+
+.sd-paneldynamic__footer {
+    clear: both;
+    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+    position: relative;
+
+    .sd-progress {
+        top: -1px;
+    }
+
+    .sd-paneldynamic__progress-text,
+    .sd-paneldynamic__progress--bottom {
+        display: initial;
+    }
+}
+
+// .sd-root-modern--mobile {
+//     .sd-paneldynamic__header {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__footer {
+//         padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
+//     }
+//     .sd-paneldynamic__panel-footer {
+//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+//         margin-top: calc(var(--sjs2-spacing-negative-x400));
+//     }
+// }
 
 .sd-question--readonly,
 .sd-question--preview {
     .sd-paneldynamic .sd-question__placeholder {
         color: $foreground;
     }
-}
-.sd-paneldynamic__separator {
-    display: none;
-}
-.sd-paneldynamic__panel-wrapper {
-    box-sizing: border-box;
-    padding-bottom: calc(1 * var(--sd-base-padding));
 }
 
 .sd-paneldynamic__panel-wrapper:after {
@@ -49,11 +147,15 @@
     content: " ";
 }
 
+.sd-paneldynamic__separator {
+    display: none;
+}
 .sd-paneldynamic__footer .sd-paneldynamic__separator,
 .sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
     content: " ";
     display: block;
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     margin: 0;
@@ -79,37 +181,9 @@
     }
 }
 
-.sd-paneldynamic__footer {
-    clear: both;
-
-    .sd-paneldynamic__prev-btn,
-    .sd-paneldynamic__next-btn {
-        display: block;
-
-        svg {
-            width: calcSize(2);
-            height: calcSize(2);
-        }
-    }
-
-    .sd-paneldynamic__add-btn,
-    .sd-paneldynamic__progress-text,
-    .sd-paneldynamic__progress--bottom {
-        display: initial;
-    }
-}
-
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
-    padding: calc(var(--sd-base-vertical-padding) - #{$base-unit}) 0;
-}
-
-.sd-paneldynamic__progress-container {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-    margin-right: calcSize(-1);
 }
 
 .sd-paneldynamic__progress-text {
@@ -117,75 +191,39 @@
     line-height: multiply(1.5, $font-questiontitle-size);
     color: $font-questiondescription-color;
     margin: 0;
-    margin-right: calcSize(3);
-}
-
-.sd-paneldynamic__prev-btn,
-.sd-paneldynamic__next-btn {
-    width: calcSize(2);
-    height: calcSize(2);
-
-    .sv-svg-icon {
-        display: block;
-    }
-}
-
-.sd-paneldynamic__prev-btn {
-    margin-right: calcSize(2);
-}
-
-.sd-paneldynamic__next-btn {
-    margin-left: calcSize(-1);
-    margin-right: calcSize(2);
-    transform: rotate(180deg);
+    margin-right: calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x025));
 }
 
 .sd-paneldynamic__placeholder {
-    .sd-paneldynamic__add-btn {
-        display: initial;
-        margin-left: 0;
-    }
-}
-
-.sd-question--empty.sd-question--paneldynamic {
-    & > .sd-question__content {
-        padding-bottom: var(--sd-base-padding);
-        --animation-padding-bottom: var(--sd-base-padding);
-    }
-}
-
-.sd-question--paneldynamic:not(.sd-question--empty) {
-    & > .sd-question__content {
-        & > .sd-question__comment-area {
-            padding-bottom: var(--sd-base-padding);
-        }
+    .sd-action-bar--empty {
+        margin-top: var(--sjs2-spacing-negative-x200);
     }
 }
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin: 0 calcSize(-3);
-    width: calc(100% + 6 * #{$base-unit});
+    margin: 0;
+    width: calc(100% + var(--sjs2-spacing-x600));
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
 }
 
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    top: calc(0.5 * var(--sd-base-vertical-padding));
-    margin-right: calcSize(-3);
     justify-content: flex-end;
-}
+    padding-top: 0;
 
-.sd-paneldynamic__panel-footer {
-    .sv-action:not(.sv-action--hidden) {
-        margin-bottom: calcSize(-1);
+    &.sd-action-bar--empty {
+        display: none;
     }
 }
+
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
+    padding-left: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+    padding-right: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
     .sd-tabs-toolbar {
-        margin: 0 0 -1px calcSize(-2);
-        width: calc(100% + 4 * #{$base-unit});
+        margin-bottom: -1px;
     }
     &:after {
         content: " ";
@@ -194,16 +232,25 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        inset-inline-start: calc(-1 * var(--sd-base-padding));
-        width: calc(100% + 2 * var(--sd-base-padding));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-right)) 0
+            calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-left));
     }
 }
 .sd-paneldynamic__tabs-container--with-header {
-    padding-top: calcSize(3);
+    padding-top: var(--sjs2-spacing-x300);
 }
-.sd-tabs-toolbar.sv-action-bar {
+.sd-root-modern--mobile {
+    .sd-paneldynamic__tabs-container--with-header {
+        &:after {
+            margin: 0 var(--sjs2-spacing-negative-x300);
+        }
+    }
+}
+
+.sd-tabs-toolbar.sd-action-bar {
     align-items: flex-start;
     z-index: 1;
+    --sd-action-bar-gap: var(--sjs2-spacing-x400);
 }
 
 .sd-tabs-toolbar.sd-tabs-toolbar--left {
@@ -219,11 +266,7 @@
 }
 
 .sd-tab-item {
-    margin: 0 calcSize(2);
-}
-
-.sd-tab-item {
-    padding: calcSize(1) 0 calcSize(2);
+    padding: var(--sjs2-spacing-x100) 0 var(--sjs2-spacing-x200);
     display: flex;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -250,15 +293,15 @@
     }
 }
 
-.sd-tab-item.sd-tab-item--pressed {
+.sd-tab-item.sd-tab-item--active {
     color: $font-questiontitle-color;
     box-shadow: inset 0px -2px 0px $primary;
 }
 
 .sd-tab-item--icon {
-    padding: calcSize(1);
+    padding: var(--sjs2-spacing-x100);
     width: auto;
-    border-radius: calcSize(12.5);
+    border-radius: var(--sjs2-radius-component-action);
 
     use {
         fill: $foreground-light;
@@ -267,12 +310,12 @@
 }
 
 .sd-tab-item--icon:hover,
-.sd-tab-item--icon.sd-tab-item--pressed {
-    background-color: $primary-light;
+.sd-tab-item--icon.sd-tab-item--active {
+    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg);
     box-shadow: none;
 
     use {
-        fill: $primary;
+        fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon);
     }
 }
 
@@ -286,46 +329,46 @@
     width: auto;
 }
 
-.sd-tabs-toolbar .sv-dots.sv-action--hidden {
+.sd-tabs-toolbar .sv-dots.sd-action-bar__item--hidden {
     width: 0;
 }
 
 .sd-tab-item__title {
-    line-height: calcLineHeight(1.5);
-    height: calcSize(3);
+    line-height: var(--sjs2-line-height-x300);
+    height: var(--sjs2-size-x300);
     display: flex;
     align-items: center;
 }
 
 .sd-question__title ~ .sd-tabs-toolbar {
-    margin-top: calcSize(3);
+    margin-top: var(--sjs2-spacing-x300);
 }
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {
     padding-bottom: 0;
 }
 
 .sd-element--collapsed .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {
-    padding-bottom: calcSize(2);
+    padding-bottom: var(--sjs2-spacing-x200);
 }
 
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab::after {
     content: none;
 }
 
-.sd-question--paneldynamic.sd-element--with-frame {
-    padding-bottom: 0;
-}
-
 .sd-paneldynamic__panels-container {
     position: relative;
     overflow: hidden;
-    margin-left: calc(-1 * var(--sd-base-padding));
-    padding-left: var(--sd-base-padding);
-    margin-right: calc(-1 * var(--sd-base-padding));
-    padding-right: var(--sd-base-padding);
+    padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-content-area-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    row-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-vertical);
+    column-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-horizontal);
 }
+
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
+    position: relative;
 }
 
 @keyframes movePanel {
@@ -341,9 +384,11 @@
 .sd-paneldynamic__panel-wrapper--enter.sv-pd-animation-right {
     --sjs-pd-tab-animation-delay: 0ms;
     animation-name: movePanel, changeHeight, paddingFadeIn, fadeIn;
-    animation-duration: $pd-tab-move-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration,
+    animation-duration:
+        $pd-tab-move-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration,
         $pd-tab-fade-in-duration;
-    animation-delay: calc(#{$pd-tab-move-in-delay} + var(--sjs-pd-tab-animation-delay)),
+    animation-delay:
+        calc(#{$pd-tab-move-in-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-fade-in-delay} + var(--sjs-pd-tab-animation-delay));
@@ -385,7 +430,8 @@
 .sd-paneldynamic__panel-wrapper--enter.sv-pd-animation-adding {
     animation-name: fadeIn, changeHeight, paddingFadeIn;
     animation-duration: $pd-tab-add-fade-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration;
-    animation-delay: calc(#{$pd-tab-add-fade-in-delay} + var(--sjs-pd-tab-animation-delay)),
+    animation-delay:
+        calc(#{$pd-tab-add-fade-in-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay));
     animation-timing-function: $ease-out;

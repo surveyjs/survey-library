@@ -76,8 +76,14 @@ const buildPlatformJson = {
       "import": "./fesm/themes/index.mjs",
       "require": "./themes/index.js"
     },
+    "./themes/adapters/*.css": "./themes/adapters/*.css",
+    "./themes/adapters/icons/*": {
+      "import": "./fesm/themes/adapters/icons/*.mjs",
+      "require": "./themes/adapters/icons/*.js"
+    },
     "./themes/*": {
       "types": "./themes/*.d.ts",
+      "import": "./themes/*.js",
       "require": "./themes/*.js"
     },
     "./icons/*": {

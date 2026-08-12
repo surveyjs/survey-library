@@ -2,6 +2,7 @@ import * as React from "react";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { Base, QuestionTagboxModel, ItemValue } from "survey-core";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { attachKey2click } from "./reactSurvey";
 
 export class SurveyQuestionTagboxItem extends ReactSurveyElement {
   constructor(props: any) {
@@ -25,19 +26,26 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
     };
 
     return (
-      <div className="sv-tagbox__item">
-        <div className="sv-tagbox__item-text">{text}</div>
-        <div
-          className={this.question.cssClasses.cleanItemButton}
-          onClick={removeItem}
-        >
-          <SvgIcon
-            className={this.question.cssClasses.cleanItemButtonSvg}
-            iconName={this.question.cssClasses.cleanItemButtonIconId}
-            size={"auto"}
-          ></SvgIcon>
+      <div className={this.question.cssClasses.tagItem}>
+        <div className={this.question.cssClasses.tagItemText}>{text}</div>
+        <div className={this.question.cssClasses.cleanItem}>
+          {this.renderRemoveButton(removeItem)}
         </div>
       </div>
     );
+  }
+
+  private renderRemoveButton(removeItem: (event: any) => void) {
+    return attachKey2click(<div
+      tabIndex={0}
+      className={this.question.cssClasses.cleanItemButton}
+      onClick={removeItem}
+    >
+      <SvgIcon
+        className={this.question.cssClasses.cleanItemButtonSvg}
+        iconName={this.question.cssClasses.cleanItemButtonIconId}
+        size={"auto"}
+      ></SvgIcon>
+    </div>);
   }
 }

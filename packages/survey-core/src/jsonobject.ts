@@ -86,7 +86,6 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public isSerializableFunc: (obj: any) => boolean;
   public isLightSerializable: boolean = true;
   public isCustom: boolean = false;
-  public isDynamicChoices: boolean = false; //TODO obsolete, use dependsOn attribute
   public isBindable: boolean = false;
   public className: string;
   public alternativeName: string;
@@ -762,9 +761,6 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.dataList)) {
         prop.dataList = propInfo.dataList;
       }
-      if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
-        prop.isDynamicChoices = propInfo.isDynamicChoices;
-      }
       if (!Helpers.isValueEmpty(propInfo.isBindable)) {
         prop.isBindable = propInfo.isBindable;
       }
@@ -1314,6 +1310,9 @@ export class JsonMetadata {
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
+  // MERGE(V3): the alias methods below (setAlias / getTypeByAlias / getAliasByType / removeAlias)
+  // each conflict on their doc block - master (V2) adds `@since 2.5.34`, V3 omits it (these are
+  // 3.0.0 API in V3). On merge keep the V3 (no `@since`) doc for all four.
   /**
    * Registers an alias for an existing element type.
    *
@@ -1327,7 +1326,6 @@ export class JsonMetadata {
    * @see getTypeByAlias
    * @see getAliasByType
    * @see removeAlias
-   * @since 2.5.34
    */
   public setAlias(type: string, alias: string): void {
     if (!type || !alias) return;
@@ -1343,7 +1341,6 @@ export class JsonMetadata {
    * @see getAliasByType
    * @see setAlias
    * @see removeAlias
-   * @since 2.5.34
    */
   public getTypeByAlias(alias: string): string {
     if (!alias) return undefined;
@@ -1357,7 +1354,6 @@ export class JsonMetadata {
    * @see getTypeByAlias
    * @see setAlias
    * @see removeAlias
-   * @since 2.5.34
    */
   public getAliasByType(type: string): string {
     if (!type) return undefined;
@@ -1368,7 +1364,6 @@ export class JsonMetadata {
    * @param alias The alias to remove.
    * @see getAliasByType
    * @see getTypeByAlias
-   * @since 2.5.34
    */
   public removeAlias(alias: string): void {
     if (!alias) return;

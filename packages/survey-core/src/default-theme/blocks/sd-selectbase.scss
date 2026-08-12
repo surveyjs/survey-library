@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-selectbase {
   border: none;
@@ -15,7 +16,7 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  column-gap: calcSize(4);
+  column-gap: var(--sjs2-spacing-x400);
 }
 
 .sd-selectbase--multi-column {
@@ -23,16 +24,18 @@
   flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
-  padding: 2px;
-  margin: -2px;
+  padding: var(--sjs2-border-width-a11y);
+  margin: calc(var(--sjs2-border-width-a11y) * -1);
 }
 
 .sd-selectbase__label {
+  @include sjs2--typography--component--label--content;
   display: inline-flex;
   position: relative;
-  gap: calcSize(1);
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
   vertical-align: top;
   max-width: 100%;
+  cursor: pointer;
 }
 
 .sd-selectbase__column {
@@ -47,7 +50,7 @@
 }
 
 .sd-selectbase__column:not(:last-child) {
-  padding-right: calcSize(2);
+  padding-right: var(--sjs2-layout-component-labeled-group-box-gap-horizontal);
 }
 
 // Copied from stylesmanager
@@ -100,5 +103,64 @@ div[class*="sv-q-column-"] {
   margin-top: 0;
 }
 .sd-selectbase__other:not(:last-of-type) {
-  margin-bottom: calcSize(2);
+  margin-bottom: var(--sjs2-spacing-x200);
+}
+.sd-selectbase__item-panel--leave,
+.sd-selectbase__item-panel--enter {
+  animation-name: fadeIn, moveInWithOverflow;
+  animation-fill-mode: forwards;
+  animation-timing-function: var(--animation-timing-function);
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
+  min-height: 0 !important;
+}
+.sd-selectbase__item-panel--enter {
+  opacity: 0;
+  height: 0;
+  --animation-direction: normal;
+  --animation-timing-function: #{$ease-out};
+  --move-animation-duration: #{$item-panel-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-panel-fade-in-duration};
+  --fade-animation-delay: #{$item-panel-fade-in-delay};
+}
+
+.sd-selectbase__item-panel--leave {
+  --animation-direction: reverse;
+  --animation-timing-function: #{$reverse-ease-out};
+  --move-animation-duration: #{$item-panel-move-out-duration};
+  --move-animation-delay: #{$item-panel-move-out-delay};
+  --fade-animation-duration: #{$item-panel-fade-out-duration};
+  --fade-animation-delay: 0s;
+}
+
+.sd-selectbase__item-comment--leave,
+.sd-selectbase__item-comment--enter {
+  animation-name: fadeIn, moveInWithOverflow;
+  animation-fill-mode: forwards;
+  animation-timing-function: var(--animation-timing-function);
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
+  min-height: 0 !important;
+}
+.sd-selectbase__item-comment--enter {
+  opacity: 0;
+  height: 0;
+  --animation-direction: normal;
+  --animation-timing-function: #{$ease-out};
+  --move-animation-duration: #{$item-comment-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-comment-fade-in-duration};
+  --fade-animation-delay: #{$item-comment-fade-in-delay};
+}
+
+.sd-selectbase__item-comment--leave {
+  --animation-direction: reverse;
+  --animation-timing-function: #{$reverse-ease-out};
+  --move-animation-duration: #{$item-comment-move-out-duration};
+  --move-animation-delay: #{$item-comment-move-out-delay};
+  --fade-animation-duration: #{$item-comment-fade-out-duration};
+  --fade-animation-delay: 0s;
 }

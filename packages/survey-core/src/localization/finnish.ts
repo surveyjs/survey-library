@@ -244,7 +244,9 @@ export var finnishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sisällysluettelo",
   // [Auto-translated] "Progress bar"
-  progressbar: "Edistymispalkki"
+  progressbar: "Edistymispalkki",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Sivu {0}"
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });

@@ -244,7 +244,9 @@ export var danishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Indholdsfortegnelse",
   // [Auto-translated] "Progress bar"
-  progressbar: "Statuslinje"
+  progressbar: "Statuslinje",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Side {0}"
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });

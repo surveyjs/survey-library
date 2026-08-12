@@ -244,7 +244,9 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Obsah",
   // [Auto-translated] "Progress bar"
-  progressbar: "Indikátor průběhu"
+  progressbar: "Indikátor průběhu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Stránka {0}"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

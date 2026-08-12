@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleListItemByText, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleListItemByText, test, expect, getButtonByText } from "../helper";
 import type { Page } from "@playwright/test";
 
 const title = "allTypes";
@@ -196,6 +196,9 @@ frameworks.forEach(framework => {
       await page.getByLabel("file_question").getByRole("button", { name: "Clear" })
         .click();
 
+      await page.getByRole("button", { name: "OK" })
+        .click();
+
       await page.getByRole("radiogroup", { name: "matrix_question" }).locator("label span")
         .click();
 
@@ -218,7 +221,7 @@ frameworks.forEach(framework => {
       await findQuestion(page, "paneldynamic").getByRole("button", { name: "Remove" })
         .click();
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.text_question).toEqual("test text");

@@ -5,7 +5,7 @@
   let survey = new Model({
         elements: [
           {
-            type: "boolean",
+            type: "signaturepad",
             name: "slider1",
            // swapOrder: true,
           },

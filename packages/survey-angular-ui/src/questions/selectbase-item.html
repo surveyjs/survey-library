@@ -21,6 +21,6 @@
       </span>
     </ng-template>
   </div>
-  <sv-ng-panel *ngIf="model.isPanelShowing" [model]='model.panel'></sv-ng-panel>
-  <div *ngIf="model.isCommentShowing" [class]="question.getCommentAreaCss(true)" [question]="question" [item]="model" sv-ng-comment-choice></div>
+  <sv-ng-panel *ngIf="model.renderedIsPanelShowing" [model]='model.panel'></sv-ng-panel>
+  <div *ngIf="model.renderedIsCommentShowing" [class]="question.getCommentAreaCss(true)" [question]="question" [item]="model" sv-ng-comment-choice></div>
 </ng-template>

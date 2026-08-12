@@ -1,0 +1,197 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+.sd-formbox {
+    position: static;
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--sjs2-layout-component-formbox-medium-padding-vertical)
+        var(--sjs2-layout-component-formbox-medium-padding-horizontal);
+    display: flex;
+    gap: var(--sjs2-layout-component-formbox-medium-gap);
+    align-items: center;
+    background: var(--sjs2-color-component-formbox-default-bg);
+    border: none;
+    border-radius: var(--sjs2-radius-component-formbox);
+    text-align: start;
+    box-shadow:
+        var(--sjs2-border-effect-component-formbox-default), var(--sjs2-border-effect-component-formbox-focused-reset);
+    transition: box-shadow $transition-duration;
+}
+.sd-formbox:where(:hover) {
+    background: var(--sjs2-color-component-formbox-hovered-bg);
+    box-shadow:
+        var(--sjs2-border-effect-component-formbox-hovered), var(--sjs2-border-effect-component-formbox-focused-reset);
+}
+.sd-formbox:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-focused-bg);
+    box-shadow:
+        var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+        var(--sjs2-border-effect-component-formbox-a11y);
+
+    .sd-formbox__character-counter {
+        display: block;
+    }
+}
+.sd-formbox--readonly {
+    border-radius: var(--sjs2-radius-component-formbox);
+    background: var(--sjs2-color-component-formbox-readonly-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-readonly);
+
+    .sd-formbox__input {
+        cursor: default;
+    }
+}
+.sd-formbox--preview {
+    background: none;
+    box-shadow: none;
+    transition: none;
+    border-bottom: 1px solid $foreground;
+    border-radius: 0;
+    &,
+    .sd-formbox__input {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .sd-formbox__label {
+        border: none;
+    }
+}
+.sd-formbox--error {
+    background: var(--sjs2-color-component-formbox-invalid-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid);
+}
+.sd-formbox--error:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-invalid-focused-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused);
+}
+
+.sd-formbox {
+    .sd-formbox {
+        display: contents;
+    }
+}
+.sd-formbox__group {
+    align-items: stretch;
+    align-self: stretch;
+    justify-content: flex-end;
+    --sd-action-bar-gap: var(--sjs2-layout-component-input-medium-action-group-gap);
+    .sd-action {
+        --sd-action-border-radius: var(--sjs2-radius-component-formbox-action);
+        --sd-action-icon-size: var(--sjs2-typography-line-height-component-input-content);
+    }
+    .sd-action-bar__item {
+        height: 100%;
+    }
+    .sd-action-bar__item-content {
+        height: 100%;
+    }
+}
+.sd-formbox__input {
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    width: 100%;
+    min-width: 0;
+    color: var(--sjs2-color-component-input-default-value);
+    text-overflow: ellipsis;
+
+    @include sjs2--typography--component--input--content;
+
+    min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+    padding: var(--sjs2-layout-component-input-medium-content-padding-vertical)
+        var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+
+    margin: 0;
+    &::placeholder {
+        color: var(--sjs2-color-component-input-default-placeholder);
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    &:disabled {
+        opacity: 1;
+    }
+    &:focus {
+        outline: none;
+    }
+    &::-webkit-datetime-edit-fields-wrapper {
+        padding: 0;
+    }
+}
+.sd-formbox__label {
+    height: calc(100% - var(--sjs2-spacing-x300));
+    padding: var(--sjs2-layout-component-input-medium-label-padding-vertical)
+        calc(
+            var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
+                var(--sjs2-layout-component-formbox-medium-gap)
+        )
+        var(--sjs2-layout-component-input-medium-label-padding-vertical)
+        var(--sjs2-layout-component-input-medium-label-padding-horizontal);
+    max-width: 30%;
+    border-right: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
+    box-sizing: content-box;
+    white-space: normal;
+    color: var(--sjs2-color-component-input-default-label);
+    @include sjs2--typography--component--input--content;
+}
+
+.sd-formbox__character-counter {
+    display: none;
+    padding: var(--sjs2-layout-component-input-medium-limit-padding-vertical)
+        var(--sjs2-layout-component-input-medium-limit-padding-right)
+        var(--sjs2-layout-component-input-medium-limit-padding-vertical)
+        var(--sjs2-layout-component-input-medium-limit-padding-left);
+
+    color: var(--sjs2-color-component-input-default-limit);
+    @include sjs2--typography--small;
+    align-self: center;
+}
+
+@mixin runnable-track {
+    background-color: $primary;
+    border-radius: var(--sjs2-radius-x100);
+    height: var(--sjs2-size-x150);
+}
+
+@mixin slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: var(--sjs2-spacing-negative-x075);
+    border-radius: 100%;
+    border: 2px solid $primary;
+    box-shadow: inset 0 0 0 2px var(--sjs2-color-bg-basic-primary);
+    background-color: $primary;
+    height: var(--sjs2-size-x300);
+    width: var(--sjs2-size-x300);
+}
+
+.sd-formbox__input[type="range"]::-webkit-slider-runnable-track {
+    @include runnable-track;
+}
+
+.sd-formbox__input[type="range"]::-webkit-slider-thumb {
+    @include slider-thumb;
+}
+
+//mozilla
+.sd-formbox__input[type="range"]::-moz-range-track {
+    @include runnable-track;
+}
+
+.sd-formbox__input[type="range"]::-moz-range-thumb {
+    @include slider-thumb;
+}
+
+// TODO: refactor
+.sd-formbox__input[type="time"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="date"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="datetime-local"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="week"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="month"]:not(.sd-formbox__input--value-changed) {
+    color: var(--sjs2-color-component-input-default-placeholder);
+}

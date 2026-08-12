@@ -55,12 +55,7 @@ export class SvgIconRegistry {
     }
 
   }
-  // TODO: remove in V2
-  public registerIconsFromFolder(r: any): void {
-    r.keys().forEach((key: string) => {
-      this.registerIconFromSvg(key.substring(2, key.length - 4).toLowerCase(), r(key));
-    });
-  }
+
   public registerIcons(icons: SvgIconData): void {
     for (const iconId in icons) {
       this.registerIconFromSvg(iconId, icons[iconId]);

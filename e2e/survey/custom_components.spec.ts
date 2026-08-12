@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "Custom Components";
 
@@ -35,7 +35,7 @@ frameworks.forEach((framework) => {
       await registerNPSComponent(page);
       await initSurvey(page, framework, json);
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -43,7 +43,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
 
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe(3);

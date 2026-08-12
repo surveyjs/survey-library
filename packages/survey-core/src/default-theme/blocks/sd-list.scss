@@ -1,25 +1,22 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-list {
-  // padding-right: calcSize(0.5);
-  // padding-left: calcSize(0.5);
 }
 
 .sd-list__item {
-  // padding: 0;
 }
 
 .sd-list__item-body {
-  padding-block: calcSize(1.5);
-  border-radius: calcCornerRadius(1);
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  padding-block: var(--sjs2-spacing-x150);
+  border-radius: var(--sjs2-radius-component-drop-item);
+  @include sjs2--typography--component--input--content;
 }
 
 .sd-list__item.sd-list__item--focused:not(.sd-list__item--selected) {
   outline: none;
 
   .sd-list__item-body {
-    padding-block: calcSize(1.25);
+    padding-block: calc(var(--sjs2-base-unit-spacing) * 1.25);
   }
 }

@@ -258,11 +258,6 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
 }
 
 export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
-  private static idCounter: number = 1;
-  private static getId(): string {
-    return "srow_" + MatrixDropdownRowModelBase.idCounter++;
-  }
-
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -280,10 +275,18 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
-    this.idValue = MatrixDropdownRowModelBase.getId();
   }
   public get id(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("srow");
+    }
     return this.idValue;
+  }
+  // This class does not extend Base, so it cannot inherit Base.renderedId / composeElementId; it
+  // delegates the DOM-id namespacing to the owner survey directly (raw id when detached).
+  public get renderedId(): string {
+    const survey = this.getSurvey();
+    return survey ? survey.getElementId(this.id) : this.id;
   }
   public get rowName(): any {
     return null;
@@ -1073,6 +1076,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   @property() transposeData: boolean;
   /**
    * @deprecated Use the [`transposeData`](#transposeData) property instead.
+   * @hidden
    */
   public get columnLayout(): string {
     return this.transposeData ? "vertical" : "horizontal";
@@ -1141,6 +1145,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   /**
    * @deprecated Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
+   * @hidden
    */
   public get isUniqueCaseSensitive(): boolean {
     return this.useCaseSensitiveComparison;
@@ -1487,9 +1492,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getShowColumnsIfEmpty(): boolean {
     return false;
   }
-  protected updateShowTableAndAddRow() {
+  protected updateShowTable() {
     if (!!this.renderedTable) {
-      this.renderedTable.updateShowTableAndAddRow();
+      this.renderedTable.updateShowTable();
     }
   }
   protected updateHasFooter() {
@@ -1594,7 +1599,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!rows) {
       rows.forEach(row => row.updateElementVisibility());
     }
-    this.updateShowTableAndAddRow();
+    this.updateShowTable();
   }
   protected shouldRunColumnExpression(): boolean {
     return false;
@@ -1886,13 +1891,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private runTriggersOnNewRows(): void {
     const val = this.value;
-    this.generatedVisibleRows.forEach((row) => {
-      const rowValue = this.getRowValueCore(row, val);
-      if (!Helpers.isValueEmpty(rowValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(rowValue, settings.expressionVariables.row + ".");
-        row.runTriggers("", undefined, triggeredValue);
-      }
-    });
+    DynamicItemModelBase.runTriggersOnItems(
+      this.generatedVisibleRows,
+      row => this.getRowValueCore(row as MatrixDropdownRowModelBase, val),
+      settings.expressionVariables.row
+    );
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
     const res: Array<MatrixDropdownRowModelBase> = [];
@@ -2146,10 +2149,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (!Array.isArray(rows)) return;
-    rows.forEach(row => {
-      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-    });
+    DynamicItemModelBase.collectNestedQuestionsInItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";
@@ -2436,11 +2436,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(false);
     return question ? question.inputId : super.getFirstInputElementId();
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }
@@ -2685,36 +2685,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
     this.setPropertyValue("isRowShowing" + row.id, val);
-    this.updateDetailPanelButtonCss(row);
     if (!!this.renderedTable) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
       this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
     }
-  }
-  public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailButtonCss" + row.id));
-    return builder.append(this.cssClasses.detailButton, builder.toString() === "").toString();
-  }
-  public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
-    return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
-  }
-  public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
-    return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
-  }
-  private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
-    const classes = this.cssClasses;
-    const isPanelShowing = this.getIsDetailPanelShowing(row);
-
-    const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
-      .append(classes.detailIconExpanded, isPanelShowing);
-    this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());
-
-    const buttonBuilder = new CssClassBuilder().append(classes.detailButton)
-      .append(classes.detailButtonExpanded, isPanelShowing);
-    this.setPropertyValue("detailButtonCss" + row.id, buttonBuilder.toString());
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;

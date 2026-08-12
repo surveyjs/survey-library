@@ -1,9 +1,10 @@
 <ng-template #template>
-    <label tabindex="0" [class]="question.getChooseFileCss()"
+    <label tabindex="0" [class]="model.getActionBarItemCss()"
         [attr.for]="question.inputId" [attr.aria-label]="question.chooseButtonText" [key2click]
         (click)="question.chooseFile($event)">
-        <svg *ngIf="question.cssClasses.chooseFileIconId" [title]="question.chooseButtonText"
+        <svg *ngIf="model.iconName" [title]="question.chooseButtonText"
+            [class]="model.cssClasses.itemIcon"
             [iconName]="question.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
-        <span>{{ question.chooseButtonText }}</span>
+        <sv-ng-string-viewer style="display:contents" *ngIf="model.hasTitle" [model]="model.locTitle" [textClass]="model.getActionBarItemTitleCss()"></sv-ng-string-viewer>
 </label>
 </ng-template>

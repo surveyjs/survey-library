@@ -33,6 +33,36 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "dropdown-question-answered.png");
     });
 
+    test("Check dropdown select themed", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            renderAs: "select",
+            placeholder: "Select country here...",
+            choices: ["Greece"]
+          },
+        ]
+      });
+      await page.evaluate(() => {
+        window["survey"].applyTheme({
+          "cssVariables": {
+            "--sjs2-layout-component-input-medium-content-padding-vertical": "30px",
+            "--sjs2-layout-component-input-medium-content-padding-horizontal": "40px",
+            "--sjs2-layout-component-formbox-medium-padding-vertical": "10px",
+            "--sjs2-layout-component-formbox-medium-padding-horizontal": "20px",
+          }
+        });
+      });
+
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-question", "dropdown-select-themed.png");
+    });
+
     test("Check dropdown question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
@@ -127,7 +157,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-select-question-popup.png");
     });
@@ -148,7 +178,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await compareScreenshot(page, ".sd-input.sd-dropdown", "dropdown-select-question-with-clear-button.png");
+      await compareScreenshot(page, ".sd-formbox.sd-dropdown", "dropdown-select-question-with-clear-button.png");
     });
 
     test("Check dropdown select question with long text", async ({ page }) => {
@@ -188,9 +218,9 @@ frameworks.forEach(framework => {
       });
 
       await resetFocusToBody(page);
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await compareScreenshot(page, questionDropdownSelect.nth(1), "dropdown-select-question-and-long-text.png");
-      await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-with-clear-button-and-long-text.png");
+      await compareScreenshot(page, questionDropdownSelect.nth(0), "dropdown-select-question-with-clear-button-and-long-text.png");
 
       await questionDropdownSelect.first().click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-list-item-with-long-text.png");
@@ -217,7 +247,7 @@ frameworks.forEach(framework => {
         const selectQuestion = window["survey"].getQuestionByName("DropdownRenderAsSelect");
         selectQuestion.onOpened.add(updateChoiceEnabled);
       });
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
 
       await page.keyboard.press("Escape");
       await questionDropdownSelect.click();
@@ -237,7 +267,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-question-empty-value.png");
       await page.locator("text=item7").click();
@@ -262,12 +292,12 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.locator(".sd-dropdown__filter-string-input").fill("test");
       await page.waitForTimeout(100);
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-empty-list.png");
       await page.locator(".sd-dropdown__filter-string-input").click();
       await page.setViewportSize({ width: 300, height: 500 });
       await page.waitForTimeout(500);
       await page.locator(".sd-dropdown__filter-string-input").pressSequentially("1");
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-small-window-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-small-window-empty-list.png");
     });
 
     test("Check dropdown with markdown", async ({ page }) => {
@@ -308,7 +338,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
       await waitUntilAllImagesLoad(page);
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await compareScreenshot(page, questionDropdownSelect, "dropdown-with-markdown.png");
       await questionDropdownSelect.click();
       await waitUntilAllImagesLoad(page);
@@ -437,7 +467,7 @@ frameworks.forEach(framework => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
       });
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await page.getByText("item1", { exact: true }).click();
       await questionDropdownSelect.click();
@@ -490,7 +520,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await compareScreenshot(page, ".sd-dropdown--empty.sd-input--readonly", "dropdown-readonly-empty-placeholder.png");
+      await compareScreenshot(page, ".sd-dropdown--empty.sd-formbox--readonly", "dropdown-readonly-empty-placeholder.png");
     });
 
     test("Check dropdown custom item styles", async ({ page }) => {
@@ -507,7 +537,7 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.type("test");
       await page.waitForTimeout(500);
-      await compareScreenshot(page, page.getByTitle('Create "test" item...'), "dropdown-custom-list-item.png");
+      await compareScreenshot(page, page.getByRole("option", { name: 'Create "test" item...' }).locator("div"), "dropdown-custom-list-item.png");
     });
   });
 });

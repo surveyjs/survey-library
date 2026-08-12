@@ -184,7 +184,7 @@ export class PopupDropdownContainer extends PopupContainer {
 
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     const popupDropdownModel = popupModel as PopupDropdownViewModel;
-    if (!popupDropdownModel) return null;
+    if (!popupDropdownModel || !popupDropdownModel.showHeader) return null;
 
     return (
       <span

@@ -52,7 +52,7 @@ export class SurveyValidator extends Base {
   public owner: ISurveyValidatorOwner;
   public get errorOwner(): ISurveyValidatorOwner { return this.owner; }
   public set errorOwner(val: ISurveyValidatorOwner) { this.owner = val; }
-  public get id(): string { return "svd" + this.uniqueId; }
+  protected getIdPrefix(): string { return "svd"; }
   public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner && !!(<any>this.owner)["getSurvey"]

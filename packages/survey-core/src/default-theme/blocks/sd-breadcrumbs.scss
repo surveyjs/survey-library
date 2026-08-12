@@ -1,19 +1,20 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-breadcrumbs {
   display: flex;
   align-items: center;
   align-content: center;
-  gap: var(--lbr-breadcrumbs-gap, calcSize(1));
+  gap: var(--sjs2-spacing-x100);
   align-self: stretch;
   flex-wrap: wrap;
-  padding-bottom: var(--lbr-page-header-breadcrumbs-margin-bottom, 20px);
+  padding-bottom: var(--sjs2-spacing-x250);
 }
 
 .sd-breadcrumbs-item {
-  color: var(--lbr-breadcrumbs-item-text-color, $foreground-dim-light);
-  @include mixins.defaultFont;
+  color: var(--sjs2-color-fg-basic-secondary);
+  @include sjs2--typography--default;
 }
 
 .sd-breadcrumbs-item__button {
@@ -31,15 +32,22 @@
   font-family: unset;
   overflow-x: hidden;
   white-space: nowrap;
+  .sd-action__title {
+    font-size: unset;
+    padding: 0;
+    font-weight: 400;
+    line-height: unset;
+    color: unset;
+  }
 }
 
 .sd-breadcrumbs-separator {
   display: flex;
-  width: var(--lbr-breadcrumbs-item-separator-icon-width, calcSize(1.5));
-  height: var(--lbr-breadcrumbs-item-separator-icon-height, calcSize(1.5));
+  width: var(--sjs2-size-x150);
+  height: var(--sjs2-size-x150);
   justify-content: center;
   align-items: center;
   use {
-    fill: var(--lbr-breadcrumbs-item-separator-color, $foreground-dim-light);
+    fill: var(--sjs2-color-fg-basic-secondary);
   }
 }

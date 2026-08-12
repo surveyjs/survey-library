@@ -140,7 +140,7 @@ describe("DropdownListModel", () => {
     expect(question.value, "question.value").toBe("item1");
     expect(list.showFilter, "list.showFilter").toBe(false);
     expect(popupModel.isVisible, "popupModel.isVisible").toBe(true);
-    expect(popupModel.focusFirstInputSelector, "showFilter=false && value = 'item1'").toBe(".sv-list__item--selected");
+    expect(popupModel.focusFirstInputSelector, "showFilter=false && value = 'item1'").toBe(".sd-selectlist__item--selected");
   });
   test("DropdownListModel focusFirstInputSelector mobile", () => {
     _setIsTouch(true);
@@ -151,13 +151,13 @@ describe("DropdownListModel", () => {
     const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true").toBe(".sv-list__item");
+    expect(popupModel.focusFirstInputSelector, "value = undefined && isTouch = true").toBe(".sd-selectlist__item");
 
     list.onItemClick(list.actions[0]);
     popupModel.isVisible = false;
 
     popupModel.isVisible = true;
-    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1'").toBe(".sv-list__item--selected");
+    expect(popupModel.focusFirstInputSelector, "isTouch=true && value = 'item1'").toBe(".sd-selectlist__item--selected");
     _setIsTouch(false);
   });
   test("DropdownListModel with ListModel & searchEnabled false", () => {
@@ -307,12 +307,10 @@ describe("DropdownListModel", () => {
   test("Check list classes with onUpdateQuestionCssClasses", () => {
     const survey = new SurveyModel(jsonDropdown);
     survey.css = {
-      list: {
-        itemSelected: "original-class-selected"
-      },
       dropdown: {
         list: {
-          item: "original-class"
+          item: "original-class",
+          itemSelected: "original-class-selected",
         }
       }
     };
@@ -792,11 +790,13 @@ describe("DropdownListModel", () => {
     const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
     const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
+    const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
     dropdownListModel.onClick(null);
     expect(list.actions.filter(a => (a as any).selected).length, "no selected items when no value").toBe(0);
     expect(question.selectedItemLocText, "no selected text when no value").toBeFalsy();
 
-    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.keyHandler(arrowDownEvent);
     expect(list.actions.filter(a => (a as any).selected).length, "still no selected items when no value").toBe(0);
     expect(question.selectedItemLocText, "still no selected text when no value").toBeFalsy();
     dropdownListModel.onClick(null);
@@ -807,12 +807,12 @@ describe("DropdownListModel", () => {
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item1");
     expect(question.selectedItemLocText.calculatedText).toBe("item1");
 
-    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.keyHandler(arrowDownEvent);
     expect(question.value).toBe("item1");
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item2");
     expect(question.selectedItemLocText.calculatedText, "selected item is changed too on DOWN one more time").toBe("item2");
 
-    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.keyHandler(arrowDownEvent);
     expect(question.value).toBe("item1");
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item3");
     expect(question.selectedItemLocText.calculatedText, "selected item is changed too on DOWN one more time").toBe("item3");
@@ -941,17 +941,19 @@ describe("DropdownListModel", () => {
 
     question.value = "item1";
 
+    const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
     dropdownListModel.onClick(null);
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item1");
     expect(dropdownListModel.inputStringRendered, "input string is set to value").toBe("item1");
-    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.keyHandler(arrowDownEvent);
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value, "selected item changed").toBe("item2");
     expect(dropdownListModel.inputStringRendered, "input string rendered changed").toBe("item2");
 
     dropdownListModel.inputStringRendered = "i";
     expect(list.actions.filter(a => (a as any).selected).length, "no selected items when filtering").toBe(0);
 
-    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.keyHandler(arrowDownEvent);
     expect(list.actions.filter(a => (a as any).selected).length, "no selected items when filtering and move key").toBe(0);
 
   });

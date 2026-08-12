@@ -97,13 +97,14 @@ export class PageModel extends PanelModel implements IPage {
     return settings.titleTags.page;
   }
   /**
-   * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.
+   * Specifies the title text displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](#showTOC) is `true` or when [`showProgressBar`](#showProgressBar) is `true`, [`progressBarType`](#progressBarType) is set to `"pages"`, and [`progressBarShowNavigationText`](#progressBarShowNavigationText) is `true`.
+   *
+   * If `navigationTitle` is not specified, the navigation button displays the page [`title`](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [`name`](https://surveyjs.io/form-library/documentation/pagemodel#name).
    *
    * [Table of Contents Demo](https://surveyjs.io/form-library/examples/table-of-contents/ (linkStyle))
    *
    * [Progress Bar Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
-   *
-   * > If navigation titles are unspecified, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
+   * @see navigationDescription
    */
   public get navigationTitle(): string {
     return this.getLocStringText(this.locNavigationTitle);
@@ -111,6 +112,10 @@ export class PageModel extends PanelModel implements IPage {
   public set navigationTitle(val: string) {
     this.setLocStringText(this.locNavigationTitle, val);
   }
+  /**
+   * Specifies the description text displayed on a navigation button in the progress bar. Applies when [`showProgressBar`](#showProgressBar) is `true`, [`progressBarType`](#progressBarType) is set to `"pages"`, and [`progressBarShowNavigationText`](#progressBarShowNavigationText) is `true`.
+   * @see navigationTitle
+   */
   @property({ localizable: true }) navigationDescription: string;
   public navigationLocStrChanged(): void {
     if (this.isLocStrEmpty("navigationTitle")) {
@@ -226,6 +231,12 @@ export class PageModel extends PanelModel implements IPage {
         !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring))
       .toString();
   }
+  public get cssHeader(): string {
+    return this.cssClasses.page?.header || this.cssClasses.panel?.header;
+  }
+  public get cssContent(): string {
+    return this.cssClasses.page?.content || this.cssClasses.panel?.content;
+  }
   protected getCssError(cssClasses: any): string {
     if (this.isPanel) return super.getCssError(cssClasses);
     return new CssClassBuilder()
@@ -235,6 +246,7 @@ export class PageModel extends PanelModel implements IPage {
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
    * @deprecated Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
+   * @hidden
    */
   public get navigationButtonsVisibility(): string {
     const result = this.showNavigationButtons;
@@ -278,43 +290,47 @@ export class PageModel extends PanelModel implements IPage {
   public get isActive(): boolean {
     return !!this.survey && <PageModel>this.survey.currentPage === this;
   }
+  private wasShownValue: boolean = false;
   /**
-   * Returns `true` if the respondent has already seen this page during the current session.
+   * Returns `true` if the respondent has already seen this page (it was rendered during the current session or its visited state was restored via [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState)).
    */
   public get wasShown(): boolean {
-    return this.wasRendered;
+    return this.wasRendered || this.wasShownValue;
   }
   get hasShown(): boolean {
-    return this.wasRendered;
+    return this.wasShown;
   }
   public setWasShown(val: boolean): void {
+    this.wasShownValue = val;
     if (!val) {
       this.resetWasRendered();
     }
   }
+  // MERGE(V3): recurring conflict vs master (V2). V3 tracks the page's progress state as
+  // `shown`/`wasShown`; V2 uses `passed`/`this.passed` + a `pagePassed` lifecycle callback.
+  // On merge, KEEP THIS V3 VERSION (drop master's `passed`/`pagePassed` block).
   protected getUIState(): IElementUIState {
     let result = super.getUIState();
-    if (this.passed) {
+    if (this.wasShown) {
       result = result || {};
-      result.passed = true;
+      result.shown = true;
     }
     return result;
   }
+  // MERGE(V3): keep `shown`/`setWasShown` here; discard master's `state.passed`/`this.passed`
+  // and its `onPropertyValueChanged("passed", ...) => pagePassed(this)` override.
   protected setUIState(state: IElementUIState): void {
     super.setUIState(state);
-    if (state.passed) {
-      this.passed = true;
-    }
-  }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "passed" && newValue && !!this.survey) {
-      this.lifecycleCallbacks.pagePassed(this);
+    if (state.shown) {
+      this.setWasShown(true);
     }
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
     if (this.isDesignMode) return;
+    if (this.survey) {
+      this.lifecycleCallbacks.pageShown(this);
+    }
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
       if (els[i].isPanel) {
@@ -368,6 +384,7 @@ export class PageModel extends PanelModel implements IPage {
   @property({ defaultValue: 0 }) timeLimit: number;
   /**
    * @deprecated Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
+   * @hidden
    */
   public get maxTimeToFinish(): number {
     return this.timeLimit;
@@ -442,9 +459,6 @@ Serializer.addClass(
     },
     {
       name: "navigationDescription",
-      visibleIf: function (obj: any) {
-        return !!obj.survey && obj.survey.progressBarType === "buttons";
-      },
       serializationProperty: "locNavigationDescription",
     },
     { name: "title:text", serializationProperty: "locTitle" },

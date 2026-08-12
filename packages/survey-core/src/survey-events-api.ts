@@ -1135,7 +1135,8 @@ export interface UIStateChangedEvent {
    * The name of the UI state property that changed.
    * @since 2.4.0
    */
-  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "passed";
+  // MERGE(V3): keep the `"shown"` member; master (V2) ends this union with `"passed"`. Keep V3 on merge.
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

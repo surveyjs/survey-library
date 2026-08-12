@@ -17,6 +17,7 @@ import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
+import { SurveyIdGenerator } from "./survey-id-generator";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -237,7 +238,14 @@ export class ComputedUpdater<T = any> {
  */
 export class Base implements IObjectValueContext {
   private static UniqueId = 0;
-  private uniqueIdValue: number = (Base.UniqueId++);
+  private uniqueIdValue: number = Base.UniqueId++;
+  private static defaultIdGeneratorValue: SurveyIdGenerator;
+  public static get defaultIdGenerator(): SurveyIdGenerator {
+    if (!Base.defaultIdGeneratorValue) {
+      Base.defaultIdGeneratorValue = new SurveyIdGenerator();
+    }
+    return Base.defaultIdGeneratorValue;
+  }
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -398,7 +406,30 @@ export class Base implements IObjectValueContext {
   public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
-  public get uniqueId(): number { return this.uniqueIdValue; }
+  public get uniqueId(): number {
+    return this.uniqueIdValue;
+  }
+  public static getIdGeneratorBySurvey(survey: any): SurveyIdGenerator {
+    return (survey && survey.idGenerator) || Base.defaultIdGenerator;
+  }
+  protected getIdGenerator(): SurveyIdGenerator {
+    return Base.getIdGeneratorBySurvey(this.getSurvey());
+  }
+  protected getIdPrefix(): string { return this.getType(); }
+  public get id(): string {
+    return this.getPropertyValue("id", undefined, () => this.generateElementId());
+  }
+  public set id(val: string) { this.setPropertyValue("id", val); }
+  protected generateElementId(): string {
+    return this.getIdGenerator().next(this.getIdPrefix());
+  }
+  protected composeElementId(id: string): string {
+    const survey = this.getSurvey();
+    return survey ? survey.getElementId(id) : id;
+  }
+  public get renderedId(): string {
+    return this.composeElementId(this.id);
+  }
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
@@ -1118,8 +1149,13 @@ export class Base implements IObjectValueContext {
   public get isAsyncExpressionRunning(): boolean {
     return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
   }
+  private asyncRunIdCounter: number = 0;
   protected createExpressionRunner(expression: string): ExpressionRunner {
     const res = new ExpressionRunner(expression);
+    // The run id correlates async start/complete callbacks within this object's asynExpressionHash.
+    // Source it from a per-owner counter so it is unique across all of this object's runners without
+    // relying on a module-level static.
+    res.getRunId = (): number => ++this.asyncRunIdCounter;
     res.onBeforeAsyncRun = (id: number): void => { this.doBeforeAsynRun(id); };
     res.onAfterAsyncRun = (id: number): void => { this.doAfterAsynRun(id); };
     return res;

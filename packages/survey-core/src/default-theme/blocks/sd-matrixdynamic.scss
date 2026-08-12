@@ -2,58 +2,36 @@
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
-  left: calcSize(-3);
-  margin-left: calcSize(-3);
+  left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
   z-index: 12;
 }
 
-.sd-question--mobile .sd-matrixdynamic__footer::before
-{
+.sd-question--mobile .sd-matrixdynamic__footer::before {
   z-index: 12;
   content: " ";
   display: block;
   position: relative;
   height: 1px;
   background-color: $border-light;
-  left: calcSize(-3);
-  top: calcSize(-1);
-  width: calc(100% + 6 * #{$base-unit});
+  left: var(--sjs2-spacing-negative-x300);
+  top: var(--sjs2-spacing-negative-x100);
+  width: calc(100% + var(--sjs2-spacing-x600));
   z-index: 12;
 }
 
 .sd-matrixdynamic__footer:first-child {
-  padding-bottom: calcSize(2);
+  padding-bottom: var(--sjs2-spacing-x200);
   &::before {
     display: none;
   }
 }
 
 .sd-matrixdynamic__footer {
-  padding-top: calcSize(2);
-}
-
-.sd-action.sd-matrixdynamic__remove-btn {
-  opacity: 0.5;
-}
-
-.sd-action.sd-matrixdynamic__remove-btn .sd-action__icon {
-  width: multiply(1.5, $font-editorfont-size);
-  height: multiply(1.5, $font-editorfont-size);
-}
-
-.sd-matrixdynamic__btn {
-  appearance: none;
-  background: transparent;
-  border: none;
-  line-height: calcLineHeight(1.5);
-  font-size: calcFontSize(1);
-  font-family: $font-family;
-  font-weight: 600;
-  padding: calcSize(1) 0;
+  padding-top: var(--sjs2-spacing-x200);
 }
 
 .sd-matrixdynamic__drag-element {
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
 
   &:hover {
     background-color: $background;
@@ -62,11 +40,11 @@
   &:after {
     content: " ";
     display: block;
-    height: calcSize(0.5);
-    width: calcSize(2);
+    height: var(--sjs2-size-x050);
+    width: var(--sjs2-size-x200);
     border: 1px solid $border;
     box-sizing: border-box;
-    border-radius: calcSize(1.25);
+    border-radius: calc(var(--sjs2-base-unit-radius) * 1.25);
   }
 }
 
@@ -83,26 +61,26 @@
 }
 
 .sd-table__cell.sd-table__cell--drag {
-  >div {
+  > div {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-left: calcSize(-4);
-    width: calcSize(4);
-    background-color: $question-background;
-    min-height: calcSize(6);
+    margin-left: var(--sjs2-spacing-negative-x400);
+    width: var(--sjs2-size-x400);
+    background-color: var(--sjs2-color-component-panel-default-bg);
+    min-height: var(--sjs2-size-x600);
   }
 }
 
 .sd-drag-element__svg {
-  width: calcSize(3);
-  height: calcSize(3);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
   display: block;
   cursor: pointer;
   visibility: hidden;
 
   use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon);
   }
 }
 
@@ -129,9 +107,11 @@
 }
 
 @keyframes empty {
-  from {}
+  from {
+  }
 
-  to {}
+  to {
+  }
 }
 
 .sd-table__row--leave,
@@ -141,7 +121,7 @@
   --fade-whole-animation-duration: calc(var(--fade-animation-duration) + var(--fade-animation-delay));
   animation-duration: max(var(--fade-whole-animation-duration), var(--move-whole-animation-duration));
 
-  &>td {
+  & > td {
     animation-name: borderAnimation;
     animation-direction: var(--animation-direction);
     animation-timing-function: var(--animation-timing-function);
@@ -149,7 +129,7 @@
     animation-fill-mode: forwards;
     animation-delay: var(--move-animation-delay);
 
-    &>div {
+    & > div {
       animation-name: fadeIn, moveInWithOverflow;
       opacity: 0;
       animation-direction: var(--animation-direction);
@@ -180,10 +160,9 @@
 }
 
 .sd-table__row--detail {
-
   &.sd-table__row--enter,
   &.sd-table__row--leave {
-    &>td {
+    & > td {
       animation-name: borderAnimation, paddingAnimation;
       animation-duration: var(--move-animation-duration);
       animation-fill-mode: forwards;

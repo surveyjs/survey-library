@@ -35,8 +35,12 @@ export class DropdownListModel extends Base {
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
-  protected readonly selectedItemSelector = ".sv-list__item--selected";
-  protected readonly itemSelector = ".sv-list__item";
+  protected get selectedItemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.itemSelected);
+  }
+  protected get itemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.item);
+  }
   protected getFocusFirstInputSelector(): string {
     if (IsTouch) {
       return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
@@ -164,7 +168,9 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
-    this.editorButtons.containerCss = "sd-dropdown-action-bar";
+    this.editorButtons.locOwner = this.question;
+    this.editorButtons.containerCss = this.question.cssClasses?.group;
+    this.editorButtons.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 
     this.chevronButton = new Action({
       id: "chevron",
@@ -197,11 +203,6 @@ export class DropdownListModel extends Base {
     });
 
     this.editorButtons.setItems([this.clearButton, this.chevronButton]);
-    this.editorButtons.actions.forEach(action => action.cssClasses = {
-      item: "sd-editor-button-item",
-      itemIcon: "sv-editor-button-item__icon",
-      itemPressed: "sd-editor-button-item--pressed",
-    });
   }
   private get isClearButtonVisible(): boolean {
     return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
@@ -233,7 +234,7 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       this.popupVisibilityChanged(option.isVisible);
-      this.chevronButton.pressed = option.isVisible;
+      this.chevronButton.popupActive = option.isVisible;
     });
   }
 
@@ -504,7 +505,7 @@ export class DropdownListModel extends Base {
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
       this._customItemValue = new ItemValue("newCustomItem", this.getCustomItemText(this.customValue));
-      this._customItemValue.css = "sv-list-item--custom-value";
+      this._customItemValue.css = this.listModel.cssClasses.itemCustomValue;
     }
     return this._customItemValue;
   }
@@ -790,7 +791,8 @@ export class DropdownListModel extends Base {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
-      this.afterScrollToFocusedItem();
+      // MERGE(V3): keep `afterScrollToItem()`; master (V2) renamed it `afterScrollToFocusedItem()`. Keep V3 on merge.
+      this.afterScrollToItem();
     }
   }
   public onClear(event?: any): void {
@@ -824,7 +826,7 @@ export class DropdownListModel extends Base {
 
     this.beforeScrollToFocusedItem(focusedItem);
     this.scrollToFocusedItem();
-    this.afterScrollToFocusedItem();
+    this.afterScrollToItem();
 
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
@@ -837,7 +839,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     } else {

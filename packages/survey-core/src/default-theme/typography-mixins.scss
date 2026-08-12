@@ -60,3 +60,91 @@
   font-size: var(--sjs2-typography-font-size-small);
   line-height: var(--sjs2-typography-line-height-small);
 }
+
+@mixin sjs2--typography--component--input--content {
+  font-family: var(--sjs2-typography-font-family-component-input-content);
+  font-size: var(--sjs2-typography-font-size-component-input-content);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-input-content);
+  line-height: var(--sjs2-typography-line-height-component-input-content);
+}
+
+@mixin sjs2--typography--component--label--content {
+  font-family: var(--sjs2-typography-font-family-component-label-content);
+  font-size: var(--sjs2-typography-font-size-component-label-content);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-label-content);
+  line-height: var(--sjs2-typography-line-height-component-label-content);
+}
+
+@mixin sjs2--typography--component--question--title {
+  font-family: var(--sjs2-typography-font-family-component-question-title);
+  font-size: var(--sjs2-typography-font-size-component-question-title);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-question-title);
+  line-height: var(--sjs2-typography-line-height-component-question-title);
+  color: var(--sjs2-color-component-question-default-title);
+}
+
+@mixin sjs2--typography--component--question--description {
+  font-family: var(--sjs2-typography-font-family-component-question-description);
+  font-size: var(--sjs2-typography-font-size-component-question-description);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-question-description);
+  line-height: var(--sjs2-typography-line-height-component-question-description);
+  color: var(--sjs2-color-component-question-default-description);
+}
+
+@mixin sjs2--typography--component--panel--title {
+  font-family: var(--sjs2-typography-font-family-component-panel-title);
+  font-size: var(--sjs2-typography-font-size-component-panel-title);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-panel-title);
+  line-height: var(--sjs2-typography-line-height-component-panel-title);
+  color: var(--sjs2-color-component-panel-default-title);
+}
+
+@mixin sjs2--typography--component--panel--description {
+  font-family: var(--sjs2-typography-font-family-component-panel-description);
+  font-size: var(--sjs2-typography-font-size-component-panel-description);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-panel-description);
+  line-height: var(--sjs2-typography-line-height-component-panel-description);
+  color: var(--sjs2-color-component-panel-default-description);
+}
+
+@mixin sjs2--typography--component--page--title {
+  font-family: var(--sjs2-typography-font-family-component-page-title);
+  font-size: var(--sjs2-typography-font-size-component-page-title);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-page-title);
+  line-height: var(--sjs2-typography-line-height-component-page-title);
+  color: var(--sjs2-color-component-page-default-title);
+}
+
+@mixin sjs2--typography--component--page--description {
+  font-family: var(--sjs2-typography-font-family-component-page-description);
+  font-size: var(--sjs2-typography-font-size-component-page-description);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-page-description);
+  line-height: var(--sjs2-typography-line-height-component-page-description);
+  color: var(--sjs2-color-component-page-default-description);
+}
+
+@mixin sjs2--typography--component--header--title {
+  font-family: var(--sjs2-typography-font-family-component-survey-header-title);
+  font-size: var(--sjs2-typography-font-size-component-survey-header-title);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-survey-header-title);
+  line-height: var(--sjs2-typography-line-height-component-survey-header-title);
+  color: var(--sjs2-color-component-survey-header-default-title);
+}
+
+@mixin sjs2--typography--component--header--description {
+  font-family: var(--sjs2-typography-font-family-component-survey-header-description);
+  font-size: var(--sjs2-typography-font-size-component-survey-header-description);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-survey-header-description);
+  line-height: var(--sjs2-typography-line-height-component-survey-header-description);
+  color: var(--sjs2-color-component-survey-header-default-description);
+}

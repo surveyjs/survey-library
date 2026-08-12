@@ -1,33 +1,32 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-item {
   display: flex;
-  padding: calcSize(1.5) 0;
+  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
+
+  &:where(:first-child:not(.sd-selectbase__item--inline)) {
+    padding-top: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
+  }
+  &:where(:last-child:not(.sd-selectbase__item--inline)) {
+    padding-bottom: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
+  }
 }
 
-.sd-item--disabled.sd-item--disabled .sd-item__decorator,
 .sd-item__decorator {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calcSize(3);
-  height: calcSize(3);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
   box-sizing: border-box;
-  background-color: $editor-background;
   border: none;
   flex-shrink: 0;
-  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
-  box-shadow: $shadow-inner, 0 0 0 0px $primary;
-  transition: box-shadow $transition-duration, background $transition-duration;
-}
-
-.sd-item--readonly.sd-item--readonly {
-  &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
-  .sd-item__decorator {
-    background-color: $background-dark;
-    box-shadow: none;
-    transition: none;
-  }
+  margin-bottom: var(--sjs2-layout-component-labeled-item-box-padding-vertical);
+  transition:
+    box-shadow $transition-duration,
+    background $transition-duration;
 }
 
 .sd-item--preview.sd-item--preview .sd-item__decorator {
@@ -36,32 +35,9 @@
   transition: none;
 }
 
-.sd-item--checked .sd-item__decorator {
-  box-shadow: none;
-}
-
-.sd-item__control:focus+.sd-item__decorator {
-  background: $question-background;
-  outline: none;
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
-}
-
-.sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
-  background: $background-dim-dark;
-  outline: none;
-}
-
-.sd-item--checked .sd-item__decorator {
-  background: $primary;
-}
-
 .sd-item__control-label {
-  font-family: $font-editorfont-family;
-  font-style: normal;
-  font-weight: $font-editorfont-weight;
-  line-height: multiply(1.5, $font-editorfont-size);
-  font-size: $font-editorfont-size;
-  color: $font-questiontitle-color;
+  @include sjs2--typography--component--label--content;
+  color: var(--sjs2-color-component-label-default-text);
   white-space: normal;
   width: 100%;
   text-align: start;
@@ -76,14 +52,9 @@
 }
 
 .sd-item--disabled .sd-item__control-label {
-  color: $font-questiontitle-color;
-  opacity: 0.25;
+  color: var(--sjs2-color-component-label-disabled-text);
 }
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {
   color: $font-questiontitle-color;
-}
-
-.sd-item--error .sd-item__decorator {
-  background: $red-light;
 }

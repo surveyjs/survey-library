@@ -83,7 +83,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question"), "imagepicker-responsive-max.png");
       await page.setViewportSize({ width: 700, height: 1500 });
       await compareScreenshot(page, page.locator(".sd-question"), "imagepicker-responsive-medium.png");
-      await page.setViewportSize({ width: 500, height: 1500 });
+      await page.setViewportSize({ width: 400, height: 1500 });
       await compareScreenshot(page, page.locator(".sd-question"), "imagepicker-responsive-min.png");
     });
 

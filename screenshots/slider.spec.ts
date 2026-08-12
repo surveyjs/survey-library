@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, getVisibleListItemByText, applyTheme } from "../e2e/helper";
 import { Question } from "../e2e/questionHelper";
 import { Survey } from "../e2e/surveyHelper";
 
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
 
       await page.evaluate(() => {
-        const themeJson = {
+        (window as any).survey.applyTheme({
           "cssVariables": {
             "--sjs-general-backcolor": "rgba(255, 216, 77, 1)",
             "--sjs-general-backcolor-dark": "rgba(255, 255, 255, 1)",
@@ -175,8 +175,7 @@ frameworks.forEach(framework => {
           "isPanelless": false,
           "themeName": "contrast",
           "colorPalette": "dark"
-        };
-        (window as any).survey.applyTheme(themeJson);
+        });
       });
 
       await compareScreenshot(page, ".sd-slider", "slider-theme.png");
@@ -258,6 +257,60 @@ frameworks.forEach(framework => {
 
       await new Survey(page).showPreview();
       await compareScreenshot(page, ".sd-question", "slider-custom-labels-secondary--preview.png");
+    });
+
+    test("Slider: Long labels", async ({ page }) => {
+      const json = {
+        elements: [
+          {
+            type: "slider",
+            name: "q1",
+            customLabels: [
+              { value: 0, text: "long longlong longlong longlong longlong long" },
+              { value: 20, text: "two two two two two two two" },
+              { value: 40, text: "ThreeeThreeeThreeeThreeeThreeeThreee" },
+              60,
+              80,
+              100,
+            ],
+          },
+        ],
+      };
+      const question = new Question(page, "q1");
+
+      await page.setViewportSize({ width: 900, height: 600 });
+      await initSurvey(page, framework, json);
+      await compareScreenshot(page, ".sd-question", "slider-long-labels.png");
+
+      await page.setViewportSize({ width: 420, height: 600 });
+      await compareScreenshot(page, ".sd-question", "slider-long-labels-narrow.png");
+
+      await question.setPropertyValue("customLabels", [
+        { value: 0, text: "long longlong longlong longlong longlong long", showValue: true },
+        20,
+        40,
+        60,
+        80,
+        { value: 100, text: "ThreeeThreeeThreeeThreeeThreeeThreee", showValue: true },
+      ]);
+      await page.setViewportSize({ width: 900, height: 600 });
+      await compareScreenshot(page, ".sd-question", "slider-long-labels-show-value.png");
+    });
+
+    test("Slider: Focused thumb", async ({ page }) => {
+      const json = {
+        elements: [{
+          type: "slider",
+          sliderType: "single",
+          name: "q1",
+          defaultValue: 50
+        }],
+      };
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, ".sd-slider", "slider-single-focused.png");
     });
 
   });

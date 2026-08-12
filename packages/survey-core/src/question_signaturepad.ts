@@ -7,8 +7,12 @@ import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
+import { getColorFromProperty } from "./utils/utils";
 import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
+import { ActionContainer } from "./actions/container";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -30,12 +34,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     }
   }
-  private getPenColorFromTheme(): string {
-    const _survey = this.survey as SurveyModel;
-    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
+  private getPenColorFromTheme(element: HTMLElement): string {
+    const cssVariable = "--sjs2-color-bg-brand-primary";
+    return getColorFromProperty(cssVariable, element);
   }
-  private updateColors(signaturePad: SignaturePad) {
-    const penColorFromTheme = this.getPenColorFromTheme();
+  private updateColors(signaturePad: SignaturePad, element?: HTMLElement) {
+    const penColorFromTheme = this.getPenColorFromTheme(element);
     const penColorProperty = this.getPropertyByName("penColor");
     signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 
@@ -90,7 +94,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public themeChanged(theme: ITheme): void {
     if (!!this.signaturePad) {
-      this.updateColors(this.signaturePad);
+      this.updateColors(this.signaturePad, this.element);
     }
   }
   private canvas: any;
@@ -242,7 +246,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     };
 
-    this.updateColors(signaturePad);
+    this.updateColors(signaturePad, el);
 
     (signaturePad as any).addEventListener("beginStroke", () => {
       this.scaleCanvas();
@@ -449,6 +453,33 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.signatureHeight = this.height;
       this.height = undefined;
     }
+  }
+  protected createActions(): Array<Action> {
+    return [new Action({
+      id: "clear",
+      title: this.clearButtonCaption,
+      visible: new ComputedUpdater(() => this.canShowClearButton) as unknown as boolean,
+      iconName: new ComputedUpdater(() => this.cssClasses.clearButtonIconId) as unknown as string,
+      locTitle: this.locClearButtonCaption,
+      showTitle: false,
+      appearance: { style: "alert" },
+      action: () => this.clearValueFromUI(),
+      innerCss: new ComputedUpdater(() => this.cssClasses.clearButton) as unknown as string
+    })];
+  }
+  protected createToolbar(): ActionContainer {
+    const toolbar = new ActionContainer();
+    toolbar.containerCss = new ComputedUpdater(() => this.cssClasses.controls) as unknown as string;
+    toolbar.setActionsAppearance({ style: "neutral", mode: "quaternary-surface", size: "small" });
+    toolbar.setItems(this.createActions());
+    return toolbar;
+  }
+  private toolbarValue: ActionContainer<Action>;
+  public get toolbar(): ActionContainer<Action> {
+    if (!this.toolbarValue) {
+      this.toolbarValue = this.createToolbar();
+    }
+    return this.toolbarValue;
   }
 }
 

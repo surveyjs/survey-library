@@ -1,8 +1,6 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
-sv-brand-info {}
-
-sv-brand-info,
 .sv-brand-info {
   z-index: 1;
   position: relative;
@@ -44,9 +42,7 @@ sv-brand-info,
 }
 
 .sv-brand-info__text {
-  font-weight: 600;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default-strong;
   color: #161616;
 }
 
@@ -59,9 +55,7 @@ sv-brand-info,
 }
 
 .sv-brand-info__terms {
-  font-weight: 400;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
+  @include sjs2--typography--small;
   padding-top: 4px;
 
   a {

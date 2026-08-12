@@ -1,5 +1,5 @@
 <template>
-  <div class="sv-action-bar-separator" :class="innerCss"></div>
+  <div class="sd-action-bar__separator" :class="innerCss"></div>
 </template>
 
 <script lang="ts" setup>

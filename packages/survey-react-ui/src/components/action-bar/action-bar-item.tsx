@@ -39,8 +39,8 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <div className={itemClass} id={"" + this.item.uniqueId} ref={this.ref}>
-        <div className="sv-action__content">
+      <div className={itemClass} id={this.item.renderedId} ref={this.ref}>
+        <div className={this.item.getActionRootContentCss()}>
           {separator}
           {itemComponent}
         </div>
@@ -75,6 +75,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   IActionBarItemProps,
   any
 > {
+  private ref: React.RefObject<any> = React.createRef();
   get item(): Action {
     return this.props.item;
   }
@@ -109,21 +110,22 @@ export class SurveyActionBarItem extends SurveyElementBase<
 
   renderInnerButton() {
     const className = this.item.getActionBarItemCss();
-    const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;
     const button = attachKey2click(
       <button
+        ref={this.ref}
         className={className}
         type="button"
         disabled={this.item.disabled}
         onMouseDown={(args) => this.item.doMouseDown(args)}
         onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
-        title={title}
+        title={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}
+        aria-controls={this.item.ariaControls}
         aria-labelledby={this.item.ariaLabelledBy}
         role={this.item.ariaRole}
       >
@@ -131,6 +133,14 @@ export class SurveyActionBarItem extends SurveyElementBase<
       </button>, this.item, { processEsc: false });
 
     return button;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.props.item.setInputElement(this.ref.current);
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.props.item.setInputElement(undefined);
   }
 }
 

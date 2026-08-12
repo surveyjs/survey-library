@@ -6,7 +6,7 @@ export class SurveyActionBarSeparator extends React.Component<any, any> {
     super(props);
   }
   render() {
-    var className = `sv-action-bar-separator ${this.props.cssClasses}`;
+    var className = `sd-action-bar__separator ${this.props.cssClasses}`;
     return <div className={className}></div>;
   }
 }

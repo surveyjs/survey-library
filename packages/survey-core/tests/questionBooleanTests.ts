@@ -4,6 +4,7 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 
 import { describe, test, expect } from "vitest";
 describe("boolean", () => {
@@ -258,7 +259,84 @@ describe("boolean", () => {
     q1.renderAs = "checkbox";
     q1.useTitleAsLabel = true;
     expect(q1.isLabelRendered).toBe(true);
-    expect(q1.titleLocation).toBe("hidden");
+    expect(q1.getTitleLocation()).toBe("hidden");
+    expect(q1.hasTitle).toBe(false);
+  });
+  test("Boolean: useTitleAsLabel is true by default & is applied in the checkbox and switch display modes only", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "q1" },
+        { type: "boolean", name: "q2", displayMode: "radio" },
+        { type: "boolean", name: "q3", displayMode: "checkbox" },
+        { type: "boolean", name: "q4", displayMode: "switch" }
+      ]
+    });
+    const questions = <Array<QuestionBooleanModel>>survey.getAllQuestions();
+    expect(questions.map(q => q.useTitleAsLabel)).toEqual([true, true, true, true]);
+    expect(questions.map(q => q.isLabelRendered)).toEqual([false, false, true, true]);
+    expect(questions.map(q => q.getTitleLocation())).toEqual(["top", "top", "hidden", "hidden"]);
+    expect(survey.toJSON().pages[0].elements).toEqual([
+      { type: "boolean", name: "q1" },
+      { type: "boolean", name: "q2", displayMode: "radio" },
+      { type: "boolean", name: "q3", displayMode: "checkbox" },
+      { type: "boolean", name: "q4", displayMode: "switch" }
+    ]);
+  });
+  test("Boolean: set useTitleAsLabel to false in the checkbox & switch display modes", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "q1", displayMode: "checkbox", useTitleAsLabel: false },
+        { type: "boolean", name: "q2", displayMode: "switch", useTitleAsLabel: false }
+      ]
+    });
+    const questions = <Array<QuestionBooleanModel>>survey.getAllQuestions();
+    expect(questions.map(q => q.useTitleAsLabel)).toEqual([false, false]);
+    expect(questions.map(q => q.isLabelRendered)).toEqual([false, false]);
+    expect(questions.map(q => q.getTitleLocation())).toEqual(["top", "top"]);
+    expect(survey.toJSON().pages[0].elements).toEqual([
+      { type: "boolean", name: "q1", displayMode: "checkbox", useTitleAsLabel: false },
+      { type: "boolean", name: "q2", displayMode: "switch", useTitleAsLabel: false }
+    ]);
+  });
+  test("Boolean: useTitleAsLabel is re-applied on the displayMode change", () => {
+    const q = new QuestionBooleanModel("q1");
+    expect(q.useTitleAsLabel).toBe(true);
+    expect(q.isLabelRendered).toBe(false);
+    expect(q.getTitleLocation()).toBe("top");
+    q.displayMode = "switch";
+    expect(q.isLabelRendered).toBe(true);
+    expect(q.getTitleLocation()).toBe("hidden");
+    q.displayMode = "radio";
+    expect(q.isLabelRendered).toBe(false);
+    expect(q.getTitleLocation()).toBe("top");
+    q.displayMode = "checkbox";
+    q.useTitleAsLabel = false;
+    expect(q.isLabelRendered).toBe(false);
+    expect(q.getTitleLocation()).toBe("top");
+    q.useTitleAsLabel = true;
+    expect(q.isLabelRendered).toBe(true);
+    expect(q.getTitleLocation()).toBe("hidden");
+  });
+  test("Boolean: useTitleAsLabel is not applied to matrix cell questions", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [
+            { name: "col1", cellType: "boolean", displayMode: "checkbox", title: "My col1" },
+            { name: "col2", cellType: "boolean", displayMode: "switch", title: "My col2" }
+          ],
+          rows: ["row1"]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    const cells = matrix.visibleRows[0].cells;
+    const questions = <Array<QuestionBooleanModel>>cells.map(cell => cell.question);
+    expect(questions.map(q => q.useTitleAsLabel)).toEqual([true, true]);
+    expect(questions.map(q => q.isLabelRendered)).toEqual([false, false]);
+    expect(questions.map(q => q.locTitle.renderedHtml)).toEqual(["row row1, column My col1", "row row1, column My col2"]);
   });
   test("Boolean in calculation vs not, Bug#10412", () => {
     var survey = new SurveyModel({
@@ -326,4 +404,91 @@ describe("boolean", () => {
     expect(question.booleanValue).toBe(true);
     expect(spCount).toBe(2);
   });
+
+  test("check boolean displayMode", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", displayMode: "radio" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("radio");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "radio" });
+
+    q1.displayMode = "checkbox";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+
+    q1.displayMode = "switch";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "switch" });
+
+    q1.displayMode = "segmented";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1" });
+  });
+
+  test("check boolean displayMode responsiveness", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    q1["processResponsiveness"](500, 600);
+    expect(q1.renderAs).toBe("default");
+    q1["processResponsiveness"](600, 500);
+    expect(q1.renderAs).toBe("radio");
+
+    q1.displayMode = "radio";
+    q1["processResponsiveness"](500, 600);
+    expect(q1.renderAs).toBe("radio");
+    q1["processResponsiveness"](600, 500);
+    expect(q1.renderAs).toBe("radio");
+  });
+
+  test("displayMode and legacy renderAs migration", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "checkbox" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("checkbox");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+  });
+
+  test("displayMode is custom for a custom renderAs value", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "my-custom-renderer" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("custom");
+    expect(q1.renderAs).toBe("my-custom-renderer");
+    expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
+  });
+
+  test("legacy renderAs set in JSON has higher priority than displayMode", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", displayMode: "radio", renderAs: "checkbox" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("checkbox");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+  });
+
+  test("custom renderAs is restored when switching displayMode custom -> radio -> custom", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "my-custom-renderer" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("custom");
+    expect(q1.renderAs).toBe("my-custom-renderer");
+
+    q1.displayMode = "radio";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.getComponentName()).not.toBe("my-custom-renderer");
+
+    q1.displayMode = "custom";
+    expect(q1.renderAs).toBe("my-custom-renderer");
+    expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
+  });
+
 });

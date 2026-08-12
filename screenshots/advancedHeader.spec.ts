@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, applyTheme } from "../e2e/helper";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 
 const title = "Advanced header screenshot";
@@ -31,13 +31,15 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: "500px",
             inheritWidthFrom: "survey",
             "logoPositionX": "right",
             "logoPositionY": "top"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-width-by-survey.png");
     });
@@ -70,9 +72,9 @@ frameworks.forEach(framework => {
             "overlapEnabled": true,
           },
           "cssVariables": {
-            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
-          }
-        });
+            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)",
+            "--sjs2-color-component-survey-header-default-title": ""
+          } });
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-with-overlap.png");
 
@@ -112,9 +114,9 @@ frameworks.forEach(framework => {
             "overlapEnabled": true,
           },
           "cssVariables": {
-            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
-          }
-        });
+            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)",
+            "--sjs2-color-component-survey-header-default-title": ""
+          } });
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-toc-advanced-header-with-overlap.png");
 
@@ -143,13 +145,15 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({ "cssVariables": {}, "header": {}, "headerView": "advanced" });
       });
+
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
 
       await page.evaluate(() => {
-        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }, "header": {}, "headerView": "advanced" });
+        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-survey-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-survey-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }, "header": {}, "headerView": "advanced" });
       });
+
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");
@@ -157,6 +161,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
       });
+
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-none.png");
@@ -164,6 +169,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({ "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
       });
+
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-set.png");
@@ -195,14 +201,14 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
           "cssVariables": {
-            "--sjs-header-backcolor": "transparent"
+            "--sjs-header-backcolor": "transparent",
+            "--sjs2-color-component-survey-header-default-title": ""
           },
           "header": {
             "inheritWidthFrom": "survey",
             "height": 256
           },
-          "headerView": "advanced"
-        });
+          "headerView": "advanced" });
       });
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-text-alignment.png");
@@ -232,6 +238,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -241,9 +250,9 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
+
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-1-one-row.png");
 
       /**
@@ -257,6 +266,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -266,9 +278,9 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "bottom"
-          }
-        });
+          } });
       });
+
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-2-one-first-column.png");
 
       /**
@@ -282,6 +294,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -291,8 +306,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-3-different-rows-1.png");
 
@@ -307,6 +321,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -316,8 +333,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "center",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-4-different-rows-2.png");
 
@@ -332,6 +348,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -341,8 +360,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "center",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-5-one-row-close-columns-1.png");
 
@@ -357,6 +375,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             height: 300,
             inheritWidthFrom: "survey",
@@ -366,8 +387,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-6-one-row-close-columns-2.png");
     });
@@ -396,6 +416,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "right",
@@ -404,8 +427,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-1-one-row.png");
 
@@ -420,6 +442,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "left",
@@ -428,8 +453,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "bottom"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-2-one-first-column.png");
 
@@ -444,6 +468,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "right",
@@ -452,8 +479,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-3-different-rows-1.png");
 
@@ -468,6 +494,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "right",
@@ -476,8 +505,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "center",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-4-different-rows-2.png");
 
@@ -492,6 +520,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "left",
@@ -500,8 +531,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "center",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-5-one-row-close-columns-1.png");
 
@@ -516,6 +546,9 @@ frameworks.forEach(framework => {
        */
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "center",
@@ -524,8 +557,7 @@ frameworks.forEach(framework => {
             "titlePositionY": "middle",
             "descriptionPositionX": "left",
             "descriptionPositionY": "middle"
-          }
-        });
+          } });
       });
       await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-6-one-row-close-columns-2.png");
     });
@@ -559,6 +591,9 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          },
           "header": {
             inheritWidthFrom: "survey",
             "logoPositionX": "left",
@@ -567,9 +602,9 @@ frameworks.forEach(framework => {
             "titlePositionY": "bottom",
             "descriptionPositionX": "left",
             "descriptionPositionY": "bottom"
-          }
-        });
+          } });
       });
+
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-correct-height.png");
     });
   });

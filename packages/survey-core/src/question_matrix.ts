@@ -430,6 +430,7 @@ export class QuestionMatrixModel
   @property() eachRowRequired: boolean;
   /**
    * @deprecated Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   * @hidden
    */
   public get isAllRowRequired(): boolean {
     return this.eachRowRequired;
@@ -459,6 +460,7 @@ export class QuestionMatrixModel
   @property({ isLowerCase: true }) rowOrder: string;
   /**
    * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   * @hidden
    */
   public get rowsOrder(): string {
     return this.rowOrder;
@@ -490,7 +492,7 @@ export class QuestionMatrixModel
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;
-    const allowHover = !isChecked && !isDisabled;
+    const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
     return new CssClassBuilder()
@@ -587,7 +589,7 @@ export class QuestionMatrixModel
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (this.isValueEmpty(row.value)) continue;
-      const rowId = this.id + "_" + row.value.toString().replace(/\s/g, "_");
+      const rowId = this.renderedId + "_" + row.value.toString().replace(/\s/g, "_");
       result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }
     this.generatedVisibleRows = result;
@@ -973,7 +975,7 @@ export class QuestionMatrixModel
     const col = ItemValue.getItemByValue(this.columns, val);
     return !!col && col.isVisible ? col : null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (rows.length > 0 && this.visibleColumns.length > 0) {

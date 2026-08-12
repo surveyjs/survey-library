@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getSurveyData, getQuestionValue, getQuestionJson, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getSurveyData, getQuestionValue, getQuestionJson, test, expect, getButtonByText } from "../helper";
 
 const title = "text";
 
@@ -98,7 +98,7 @@ frameworks.forEach((framework) => {
       let surveyResult;
 
       await page.locator("input[type=email]").fill("stub@gmail.com");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -179,7 +179,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Remaining character counter", async ({ page }) => {
-      const characterCounter = page.locator(".sd-remaining-character-counter");
+      const characterCounter = page.locator(".sd-formbox__character-counter");
 
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
@@ -222,9 +222,9 @@ frameworks.forEach((framework) => {
         window["survey"].getQuestionByName("name").allowSpaceAsAnswer = true;
       });
 
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox .sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Space");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -261,7 +261,7 @@ frameworks.forEach((framework) => {
         autoFocusFirstQuestion: true
       });
 
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox .sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("ArrowUp");

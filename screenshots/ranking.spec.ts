@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, doDrag } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
 const title = "Ranking Screenshot";
@@ -177,13 +177,14 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        window["survey"].applyTheme({
+        (window as any).survey.applyTheme({
           "cssVariables": {
-            "--sjs-font-questiontitle-color": "red",
+            "--sjs2-color-fg-basic-primary": "red",
             "--sjs-font-editorfont-size": "32px"
           }
         });
       });
+
       await compareScreenshot(page, ".sv-ranking-item", "question-ranking-item-theme.png");
     });
 

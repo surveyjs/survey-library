@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getData, setOptions, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getData, setOptions, test, expect, getButtonByText } from "../helper";
 
 const title = "file";
 const folderPath = "../../resources/";
@@ -16,7 +16,6 @@ frameworks.forEach((framework) => {
             storeDataAsText: true,
             allowMultiple: true,
             showPreview: true,
-            needConfirmRemoveFile: true,
             imageWidth: 150,
             maxSize: 102400
           }
@@ -39,7 +38,7 @@ frameworks.forEach((framework) => {
     test("choose file", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -71,7 +70,7 @@ frameworks.forEach((framework) => {
     test("choose multiple files", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg"]);
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image.length).toBe(2);
@@ -81,7 +80,7 @@ frameworks.forEach((framework) => {
 
     test("check clean button", async ({ page }) => {
       await page.evaluate(() => {
-        window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
+        window.survey.getAllQuestions()[0].confirmDelete = false;
       });
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg"]);
       await page.locator("input[type=file] + div label").click();
@@ -94,7 +93,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
       await page.locator("img").hover();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
@@ -106,7 +105,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file] + div label").click();
       await expect(page.locator("img")).not.toBeVisible();
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
     });
@@ -115,7 +114,7 @@ frameworks.forEach((framework) => {
       await setOptions(page, "image", { storeDataAsText: false });
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({});
@@ -138,14 +137,14 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
       await page.waitForTimeout(500);
-      await page.locator(".sd-context-btn--negative").first().click();
-      await page.locator(".sv-popup--confirm .sd-btn").first().click();
+      await page.locator(".sd-action--alert").first().click();
+      await page.locator(".sv-popup--confirm .sv-popup__button--cancel").first().click();
 
       let data = await getData(page);
       expect(data["image"][0].name).toBe("logo.jpg");
       await page.waitForTimeout(100);
-      await page.locator(".sd-context-btn--negative").first().click();
-      await page.locator(".sv-popup--confirm .sd-btn--danger").first().click();
+      await page.locator(".sd-action--alert").first().click();
+      await page.locator(".sv-popup--confirm .sv-popup__button--apply").first().click();
 
       data = await getData(page);
       expect(data["image"]).toBe(undefined);
@@ -192,7 +191,7 @@ frameworks.forEach((framework) => {
     //     assert(await getImageExistance());
 
     //     await t
-    //         .click(`input[value=Complete]`);
+    //         .click(`button[title=Complete]`);
 
     //     surveyResult = await getSurveyResult();
     //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);
@@ -231,13 +230,13 @@ frameworks.forEach((framework) => {
     });
 
     test("Check file navigator appear on smaller screen", async ({ page }) => {
-      const fileNavigatorSelector = page.locator(".sd-file .sv-action-bar");
+      const fileNavigatorSelector = page.locator(".sd-file .sd-action-bar:not(.sd-file__actions-container)");
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg", folderPath + "starry-sky.jpg"]);
       await page.locator("input[type=file] + div label").click();
       await expect(fileNavigatorSelector).not.toBeVisible();
       await page.setViewportSize({ width: 620, height: 1080 });
       await expect(fileNavigatorSelector).toBeVisible();
-      await expect(fileNavigatorSelector.locator(".sv-action-bar-item__title").filter({ hasText: "1 of 2" })).toBeVisible();
+      await expect(fileNavigatorSelector.locator(".sd-action__title").filter({ hasText: "1 of 2" })).toBeVisible();
       await page.setViewportSize({ width: 1920, height: 1080 });
       await expect(fileNavigatorSelector).not.toBeVisible();
     });
@@ -263,11 +262,11 @@ frameworks.forEach((framework) => {
     test("choose file actions readOnly are reactive", async ({ page }) => {
       await page.locator(".sd-file input[type=file] + div label").click();
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
-      await expect(page.locator("button[title='Clear']")).not.toHaveAttribute("disabled");
+      await expect(getButtonByText(page, "Clear")).not.toHaveAttribute("disabled");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].readOnly = true;
       });
-      await expect(page.locator("button[title='Clear']")).toHaveAttribute("disabled");
+      await expect(getButtonByText(page, "Clear")).toHaveAttribute("disabled");
     });
   });
 });

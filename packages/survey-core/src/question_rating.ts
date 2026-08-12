@@ -12,8 +12,8 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
-import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
+import { getComputedCssVariableValue } from "./utils/css-variables";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
@@ -23,7 +23,7 @@ const RGBA_BLACK = "rgba(0, 0, 0, 1)";
 
 function getRGBColor(themeVariables: any, colorName: string, varName: string, rootElement: HTMLElement): number[] | null {
   let str: string = !!themeVariables && themeVariables[colorName] as any;
-  const fallback = getColorFromProperty(varName, rootElement);
+  const fallback = getComputedCssVariableValue(varName, rootElement);
   if (!str) str = fallback;
   if (!str) return null;
 

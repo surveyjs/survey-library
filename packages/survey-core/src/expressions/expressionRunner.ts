@@ -43,14 +43,27 @@ export class ExpressionRunnerBase {
     return this.variables;
   }
   private shareableValue: boolean;
+  private shareableSettingsKey: string;
+  // The settings calcIsResultShareable() is calculated from are mutable, so the memoized verdict
+  // is kept together with their key, the way ExpressionExecutor keeps its parsed trees
+  private static getShareableSettingsKey(): string {
+    const expVar: any = settings.expressionVariables;
+    let res = settings.expressionElementPropertyPrefix;
+    for (const key in expVar) {
+      res += "\n" + expVar[key];
+    }
+    return res;
+  }
   // The result depends on survey values/variables only: no functions and no variables that are
   // resolved relative to the evaluation context ({item}, {row}, {panel}, ...) or that bypass
   // the value storage ({pageno}, $-property references, ...). For such expressions the result
   // is the same for every element that runs them, so it can be shared (see
   // SurveyModel.getCachedConditionResult).
   public isResultShareable(): boolean {
-    if (this.shareableValue === undefined) {
+    const settingsKey = ExpressionRunnerBase.getShareableSettingsKey();
+    if (this.shareableValue === undefined || this.shareableSettingsKey !== settingsKey) {
       this.shareableValue = this.calcIsResultShareable();
+      this.shareableSettingsKey = settingsKey;
     }
     return this.shareableValue;
   }

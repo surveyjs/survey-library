@@ -607,7 +607,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   // Elements nested into matrices, dynamic panels or custom components resolve expression
   // variables relative to their parent question value and cannot share condition results
   protected canShareConditionResults(): boolean {
-    return !SurveyElement.getParentQuestionOrDataOwner(this);
+    if (!!SurveyElement.getParentQuestionOrDataOwner(this)) return false;
+    // the data owner of an element nested into a matrix row is the row itself, not a question:
+    // a matrix row detail panel resolves {row1} against the row value while a survey-level
+    // element resolves the same name against the survey data
+    const data: any = this.data;
+    return !!data && data === this.getSurvey();
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();

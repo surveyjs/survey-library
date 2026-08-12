@@ -3502,19 +3502,31 @@ export class SurveyModel extends SurveyElementCore
   private conditionResultsVersion: number = 1;
   // A null-prototype hash so an expression like "constructor" never resolves through Object.prototype
   private conditionResultsCache: HashTable<{ ver: number, res: any }> = Object.create(null);
+  private conditionResultsCacheVersion: number = 0;
   // In the editingObj mode expression values are read directly from the edited object's
   // properties and change without notifying the survey, so results cannot be cached
   private get isConditionResultsCacheEnabled(): boolean {
     return !this.editingObj;
   }
+  /* Entries of an older version can never be read again, so the whole hash is thrown away as soon
+     as the version moves on. Without it the hash grows for the lifetime of the survey: its key is
+     the expression after onExpressionRunning, and a subscriber is free to produce a new string on
+     every run. The hash is recreated lazily, so a survey that shares no results allocates none. */
+  private getConditionResultsCache(): HashTable<{ ver: number, res: any }> {
+    if (this.conditionResultsCacheVersion !== this.conditionResultsVersion) {
+      this.conditionResultsCache = Object.create(null);
+      this.conditionResultsCacheVersion = this.conditionResultsVersion;
+    }
+    return this.conditionResultsCache;
+  }
   public getCachedConditionResult(expression: string): { res: any } {
     if (!this.isConditionResultsCacheEnabled) return undefined;
-    const item = this.conditionResultsCache[expression];
+    const item = this.getConditionResultsCache()[expression];
     return !!item && item.ver === this.conditionResultsVersion ? item : undefined;
   }
   public setCachedConditionResult(expression: string, res: any): void {
     if (!this.isConditionResultsCacheEnabled) return;
-    this.conditionResultsCache[expression] = { ver: this.conditionResultsVersion, res: res };
+    this.getConditionResultsCache()[expression] = { ver: this.conditionResultsVersion, res: res };
   }
   private invalidateConditionResults(): void {
     this.conditionResultsVersion++;
@@ -6684,6 +6696,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private runConditionsCore(properties: any) {
+    // A shared result is valid for one pass only: it is a pure function of the survey data as far
+    // as the expression analysis can tell, but a value reaches an expression through
+    // Question.getFilteredValue, which a question can change on its own (a text question strips
+    // its input mask there). Such a change does not touch the survey data and cannot invalidate
+    // the cache, so the pass boundary does it instead - elements still share results within a
+    // single pass, which is what the cache is for.
+    this.invalidateConditionResults();
     var pages = this.pages;
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].resetCalculation();

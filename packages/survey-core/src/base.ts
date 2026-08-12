@@ -1148,18 +1148,26 @@ export class Base implements IObjectValueContext {
         if (!!cacheHost) {
           const cached = cacheHost.getCachedConditionResult(expression);
           if (!!cached) {
+            // onExecute can put the element into a state that makes it run this expression
+            // again, so it has to hold the same guard as on the regular path
+            info.isRunning = true;
             onExecute(cached.res);
+            info.isRunning = false;
             return true;
           }
         }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
-          onExecute(value);
-          info.isRunning = false;
+          // the result is published before onExecute: onExecute can write into the survey and
+          // every write invalidates the cache, so afterwards this result is no longer valid for
+          // the current data version. A shareable expression contains no functions and is always
+          // executed synchronously, so this callback runs before doRun() returns.
           // reference results are not shared to avoid aliasing the same object between elements
           if (!!cacheHost && (value === null || typeof value !== "object")) {
             cacheHost.setCachedConditionResult(expression, value);
           }
+          onExecute(value);
+          info.isRunning = false;
         };
         doRun();
       }

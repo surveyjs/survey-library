@@ -90,10 +90,6 @@ export class BinaryOperand extends Operand {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
   }
-  private get requireStrictCompare(): boolean {
-    return this.getIsOperandRequireStrict(this.left) ||
-    this.getIsOperandRequireStrict(this.right);
-  }
   private getIsOperandRequireStrict(op: any): boolean {
     return !!op && op.requireStrictCompare;
   }
@@ -129,11 +125,18 @@ export class BinaryOperand extends Operand {
   }
 
   public evaluate(processValue?: ProcessValue): any {
+    // requireStrictCompare is state that evaluate() leaves on the operand, and operand trees are
+    // shared between runners (see ExpressionExecutor.parsedExpressions). Evaluating the second
+    // operand can re-enter the same expression - an application function is enough - and reset the
+    // flag of the first one, so every flag is read right after the operand it belongs to.
+    const leftValue = this.evaluateParam(this.left, processValue);
+    const isStrict = this.getIsOperandRequireStrict(this.left);
+    const rightValue = this.evaluateParam(this.right, processValue);
     return this.consumer.call(
       this,
-      this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare
+      leftValue,
+      rightValue,
+      isStrict || this.getIsOperandRequireStrict(this.right)
     );
   }
 

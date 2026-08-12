@@ -675,6 +675,9 @@ export class Question extends SurveyElement<Question>
   }
   private onVisibleChangedCore(): void {
     this.updateIsVisibleProp();
+    this.clearErrorsIfInvisible();
+  }
+  protected clearErrorsIfInvisible(): void {
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }

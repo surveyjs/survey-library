@@ -12,10 +12,8 @@ import { PanelModel } from "../../src/panel";
 
 import { describe, test, expect, afterEach } from "vitest";
 
-// Every test declared with `test.fails` below reproduces a defect that is still open: it asserts
-// the correct behaviour and is expected to fail. Once the defect is fixed the assertions pass,
-// vitest reports the `.fails` marker itself as an error, and the marker has to be removed
-// together with the fix - so a fix cannot land while the test stays disabled.
+// Each test below reproduces a defect found in the condition result caching. The comment above
+// every describe names the file and the mechanism the defect was in.
 //
 // Sharing a condition result between elements is an optimization: a survey must behave exactly as
 // if every element evaluated its own expression. This helper repeats a scenario with the
@@ -36,7 +34,7 @@ function withoutSharedResults<T>(fn: () => T): T {
 // 1. base.ts: the entry is stamped with the data version read after onExecute has already written
 // into the survey, so a result computed for version N is published as valid for version N+1.
 describe("A shared condition result is stamped with the version it was computed for", () => {
-  test.fails("a value cleared inside onExecute does not publish the pre-clear result", () => {
+  test("a value cleared inside onExecute does not publish the pre-clear result", () => {
     // visibleIf -> onExecute sets `visible` -> clearValueIfInvisible deletes the value ->
     // the trigger writes {flag} back. All of it runs before the result reaches the cache.
     const json = {
@@ -66,7 +64,7 @@ describe("A shared condition result is stamped with the version it was computed 
     expect(withCache.q2IsVisible, "{flag} = 1, q2 is visible").toBe(true);
   });
 
-  test.fails("a result published into the cache is valid for the version it is stamped with", () => {
+  test("a result published into the cache is valid for the version it is stamped with", () => {
     // The same defect without relying on a scenario that keeps the wrong result until the end:
     // every entry is checked against a fresh evaluation at the moment it is published.
     const survey = new SurveyModel({
@@ -119,7 +117,7 @@ describe("A cache hit keeps the per-property re-entrancy guard", () => {
     addReentrantHandler(survey);
     expect(() => survey.setValue("q1", 2), "the re-entrant handler does not recurse").not.toThrow();
   });
-  test.fails("two questions sharing one expression string keep the same guard", () => {
+  test("two questions sharing one expression string keep the same guard", () => {
     // q3 reads the result q2 has already published, so it never arms the guard
     const survey = new SurveyModel({
       elements: [
@@ -137,7 +135,7 @@ describe("A cache hit keeps the per-property re-entrancy guard", () => {
 // matrix row, so the panel reports canShareConditionResults() === true and writes a row-scoped
 // result into the survey-wide cache.
 describe("An element nested into a matrix row does not share its result", () => {
-  test.fails("a detail panel resolving a row name does not affect a survey-level question", () => {
+  test("a detail panel resolving a row name does not affect a survey-level question", () => {
     // The nested panel resolves {row1} against the matrix value, a survey-level question
     // resolves the same name against the survey data - one expression string, two meanings
     const json = {
@@ -180,7 +178,7 @@ describe("Strict comparison is not lost on a re-entrant evaluation", () => {
   afterEach(() => {
     FunctionFactory.Instance.unregister("reenterRank");
   });
-  test.fails("a ranking question compares its value with the order taken into account", () => {
+  test("a ranking question compares its value with the order taken into account", () => {
     const expression = "{q} = reenterRank()";
     let depth = 0;
     // BinaryOperand.evaluate runs the whole right operand between writing and reading the flag
@@ -213,7 +211,7 @@ describe("Strict comparison is not lost on a re-entrant evaluation", () => {
 // built-in prefix resolves to a pure function of the survey data, but a question can transform
 // its own value in getFilteredValue - masked text questions do.
 describe("A result is not shared when the question transforms its own value", () => {
-  test.fails("changing the mask of a text question invalidates the shared result", () => {
+  test("changing the mask of a text question invalidates the shared result", () => {
     const survey = new SurveyModel({
       elements: [
         {
@@ -243,7 +241,7 @@ describe("A result is not shared when the question transforms its own value", ()
 // reads the mutable settings with no settings key - unlike the parse cache, which guards itself
 // with getParseSettingsKey().
 describe("isResultShareable follows the settings it is calculated from", () => {
-  test.fails("settings.expressionVariables", () => {
+  test("settings.expressionVariables", () => {
     const prev = settings.expressionVariables.row;
     try {
       const runner = new ExpressionRunner("{myRow.a} = 1");
@@ -254,7 +252,7 @@ describe("isResultShareable follows the settings it is calculated from", () => {
       settings.expressionVariables.row = prev;
     }
   });
-  test.fails("settings.expressionElementPropertyPrefix", () => {
+  test("settings.expressionElementPropertyPrefix", () => {
     const prev = settings.expressionElementPropertyPrefix;
     try {
       const runner = new ExpressionRunner("{%q1.isVisible} = true");
@@ -274,7 +272,7 @@ describe("A cached choices condition runner follows the function registry", () =
   afterEach(() => {
     FunctionFactory.Instance.unregister("choicesFn");
   });
-  test.fails("registering the function as async after the first run", () => {
+  test("registering the function as async after the first run", () => {
     FunctionFactory.Instance.register("choicesFn", (params: any[]): any => params[0] !== 2);
     const survey = new SurveyModel({
       elements: [
@@ -299,7 +297,7 @@ describe("A cached choices condition runner follows the function registry", () =
 // is a full clear(), so transient expression strings accumulate and the 10000th entry drops every
 // live survey's hot trees at once.
 describe("The parsed expression cache is bounded without dropping everything", () => {
-  test.fails("a hot entry survives the eviction of transient ones", () => {
+  test("a hot entry survives the eviction of transient ones", () => {
     const cache: Map<string, any> = (<any>ExpressionExecutor).parsedExpressions;
     const max: number = (<any>ExpressionExecutor).maxParsedExpressions;
     cache.clear();
@@ -321,7 +319,7 @@ describe("The parsed expression cache is bounded without dropping everything", (
 // 9. survey.ts: conditionResultsCache has no size cap and no pruning, while its key is the
 // post-beforeExpressionRunning string, which a supported extension point can vary per run.
 describe("The survey condition results cache is bounded", () => {
-  test.fails("an onExpressionRunning subscriber that rewrites the expression per run", () => {
+  test("an onExpressionRunning subscriber that rewrites the expression per run", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "q1" },
@@ -345,7 +343,7 @@ describe("The survey condition results cache is bounded", () => {
 // choices-independent work in onVisibleChangedCore. Reported as the least certain of the findings:
 // supported validation never reaches an invisible question, so addError below is the direct path.
 describe("A choices change refreshes the question visibility state", () => {
-  test.fails("errors of an invisible question are cleared when its choices change", () => {
+  test("errors of an invisible question are cleared when its choices change", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "q1" },

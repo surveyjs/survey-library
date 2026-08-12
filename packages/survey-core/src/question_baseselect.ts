@@ -2121,9 +2121,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.setRenderedValue(this.rendredValueFromData(this.value), false);
     }
     // choice items affect the question visibility only when hideIfChoicesEmpty is set
-    // (see isVisibleCore); recalculating visibility for every select question is expensive
+    // (see isVisibleCore); recalculating visibility for every select question is expensive.
+    // The rest of the visibility state does not depend on the choices and is refreshed anyway
     if (this.hideIfChoicesEmpty) {
       this.onVisibleChanged();
+    } else {
+      this.clearErrorsIfInvisible();
     }
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();

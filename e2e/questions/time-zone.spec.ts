@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone, getButtonByText } from "../helper";
 
 const title = "Text question in western timezone";
 
@@ -38,7 +38,7 @@ frameworks.forEach((framework) => {
       });
 
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox .sd-formbox__input").first()).toBeFocused();
       await page.keyboard.type("1234");
       await page.keyboard.press("Tab");
       await page.keyboard.type("2022");
@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("12:34");
       expect(await page.locator("input").nth(1).inputValue()).toBe("2022");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

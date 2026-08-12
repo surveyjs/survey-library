@@ -1,0 +1,81 @@
+@use "./shadcn.scss";
+
+/* shadcn/ui "base-rhea" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  --sjs2-border-effect-a11y: 0 0 0 calc(4px + 0px) color-mix(in oklab, var(--ring) 30%, transparent);
+
+  /* buttons */
+  --sjs2-radius-component-action: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-radius-component-formbox: calc(var(--radius) * 1.8);
+  --sjs2-color-component-formbox-default-border: transparent;
+  --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 50%, transparent);
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-formbox-focused: 0px 0px 0px 1px var(--sjs2-color-component-formbox-focused-border);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 5px; /* rounded-[5px] */
+  --sjs2-color-component-checkbox-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-radio-false-invalid-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-checkbox-false-default-border: transparent;
+  --sjs2-color-component-radio-false-default-border: transparent;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-true-default: inset 0 0 0 1px var(--primary);
+  --sjs2-border-effect-component-radio-true-default: inset 0 0 0 1px var(--primary);
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 3);
+
+  /* dropdown */
+  --sjs2-radius-component-drop: calc(var(--radius) * 1.8);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 1.4);
+  --sjs2-shadcn-drop-action-radius: calc(var(--radius) * 1.4);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--input);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--input);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.25);
+  --sjs2-shadcn-tagbox-item-padding-right: calc(var(--spacing) * 0.5);
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 4.5);
+  --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -0.5);
+
+  /* panel = Card (shadow-sm over a lighter ring-foreground/5), question = Field (FieldContent gap-1) */
+  --sjs2-radius-component-panel: min(var(--radius-4xl), 24px);
+  --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --sjs2-shadcn-card-shadow: var(--shadow-sm);
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 5); /* [--card-spacing:--spacing(5)] */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 6);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
+
+  &:is(.dark *) {
+    --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+}
+
+.sd-comment {
+  border-radius: calc(var(--radius) * 1.8);
+}
+
+.sd-comment__grip {
+  display: none;
+}
+

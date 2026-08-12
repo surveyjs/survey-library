@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "Components";
 
@@ -47,7 +47,7 @@ frameworks.forEach((framework) => {
       await item1Input.fill("1");
       await item1Input.press("Tab");
       await expect(item1Input).toHaveValue("100");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

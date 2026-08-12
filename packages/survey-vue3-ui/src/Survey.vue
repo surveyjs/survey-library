@@ -6,6 +6,10 @@
     :dir="vueSurvey.localeDir"
     ref="root"
   >
+    <template v-if="vueSurvey.generateStylesheet">
+      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.themeStyle}}</component>
+      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.resetVariablesStyle}}</component>
+    </template>
     <SvComponent :is="'sv-scroll'" :disabled="vueSurvey.rootScrollDisabled">
       <SvComponent
         :is="'sv-svg-bundle'"
@@ -136,9 +140,7 @@
 
 <script lang="ts">
 import { addIconsToThemeSet, SvgRegistry } from "survey-core";
-import { icons as iconsV1 } from "survey-core/icons/iconsV1";
 import { icons as iconsV2 } from "survey-core/icons/iconsV2";
-addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
 </script>
@@ -155,6 +157,7 @@ import {
   triggerRef
 } from "vue";
 import { useBase } from "./base";
+
 const props = defineProps<
   | {
       model: SurveyModel;

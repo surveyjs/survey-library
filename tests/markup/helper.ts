@@ -11,6 +11,7 @@ export interface MarkupTestDescriptor {
   excludePlatform?: string;
   etalon?: string;
   removeIds?: boolean;
+  removeValues?: boolean;
   initSurvey?: (survey: Model) => void;
   initSurveyAfterIdSetup?: (survey: Model) => void;
   getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
@@ -148,6 +149,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         oldStr = sortInlineStyles(oldStr);
         newstr = removeInputValueAttributeForSlider(newstr);
         oldStr = removeInputValueAttributeForSlider(oldStr);
+        if (test.removeValues) {
+          newstr = removeValueAttributes(newstr);
+          oldStr = removeValueAttributes(oldStr);
+        }
         newstr = removeActionsIdAttribute(newstr);
         oldStr = removeActionsIdAttribute(oldStr);
 
@@ -269,9 +274,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.render(platform.survey, surveyElement);
 }
 
-const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
-  (htmlElement: HTMLElement) => htmlElement.classList.contains("sv-vue-title-additional-div"),
-  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
+const removeExtraElementsConditions: Array<(e: HTMLElement) => boolean> = [
+  (e: HTMLElement) => e.classList.contains("sv-vue-title-additional-div"),
+  (e: HTMLElement) => e.tagName.toLowerCase().search(/^sv-/) > -1,
 ];
 
 function clearExtraElements(innerHTML: string): string {
@@ -428,11 +433,20 @@ function removeInputValueAttributeForSlider(str: string) {
   return div.innerHTML;
 }
 
+function removeValueAttributes(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("[value]").forEach((el) => {
+    el.removeAttribute("value");
+  });
+  return div.innerHTML;
+}
+
 function removeActionsIdAttribute(str: string) {
   const div = document.createElement("div");
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
-    if (el.classList.contains("sv-action")) {
+    if (el.classList.contains("sd-action-bar__item")) {
       el.removeAttribute("id");
     }
   });

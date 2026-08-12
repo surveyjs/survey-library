@@ -978,4 +978,45 @@ describe("question slider", () => {
     expect(q2.customLabels[0].text).toBe("5");
     expect(q2.customLabels[0].value).toBe(5);
   });
+
+  test("Check focusedThumb visibility on pointer vs keyboard interaction", () => {
+    const q1 = new QuestionSliderModel("q1");
+    q1.sliderType = "single";
+    q1.step = 0;
+
+    // Initially no focus
+    expect(q1.focusedThumb).toBeFalsy();
+
+    // Tab focus (onFocus) sets focusedThumb
+    q1.handleOnFocus(0);
+    expect(q1.focusedThumb).toBe(0);
+
+    // Pointer down clears focus and blocks subsequent onFocus
+    q1.handlePointerDown({ } as any);
+    expect(q1.focusedThumb).toBeNull();
+
+    // onFocus fired after pointer down is ignored
+    q1.handleOnFocus(0);
+    expect(q1.focusedThumb).toBeNull();
+
+    // Blur resets the flag
+    q1.handleOnBlur();
+    expect(q1.focusedThumb).toBeNull();
+
+    // After blur, Tab focus works again
+    q1.handleOnFocus(0);
+    expect(q1.focusedThumb).toBe(0);
+
+    // KeyDown also re-enables focus and sets focusedThumb
+    q1.handleOnBlur();
+    q1.handlePointerDown({ } as any);
+    q1.handleKeyDown({ } as any, 0);
+    expect(q1.focusedThumb).toBe(0);
+
+    // Pointer down while keyboard focus is active clears it
+    q1.handleOnFocus(0);
+    expect(q1.focusedThumb).toBe(0);
+    q1.handlePointerDown({ } as any);
+    expect(q1.focusedThumb).toBeNull();
+  });
 });

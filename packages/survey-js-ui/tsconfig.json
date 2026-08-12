@@ -1,12 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "ES6",
+    "target": "ES2019",
+    "module": "ES2020",
     "lib": [
       "DOM",
-      "ES5",
-      "ES6",
-      "ES2015.Promise"
+      "ES2019"
     ],
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,

@@ -49,10 +49,10 @@ frameworks.forEach(framework => {
           {
             type: "signaturepad",
             name: "q1",
-            signatureWidth: 500,
-            signatureHeight: 100,
-            penMinWidth: 5,
-            penMaxWidth: 5,
+            signatureWidth: 2000,
+            signatureHeight: 400,
+            penMinWidth: 20,
+            penMaxWidth: 20,
             signatureAutoScaleEnabled: true
           },
         ]

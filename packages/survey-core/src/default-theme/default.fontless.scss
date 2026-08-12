@@ -3,7 +3,6 @@
 
 @use "animations.scss";
 
-@use "blocks/sv-actionbar.scss";
 @use "blocks/sv-drag-drop.scss";
 @use "blocks/sv-popup.scss";
 @use "blocks/sv-buttongroup.scss";
@@ -17,17 +16,19 @@
 @use "blocks/sv-scroll.scss";
 @use "blocks/sv-save-data.scss";
 @use "blocks/sv-string-viewer.scss";
+@use "blocks/sd-action-bar.scss";
+@use "blocks/sd-action.scss";
+@use "blocks/sd-selectlist.scss";
+@use "blocks/sd-menu-list.scss";
 
 @use "blocks/sd-element.scss";
 @use "blocks/sd-question.scss";
 @use "blocks/sd-error.scss";
-@use "blocks/sd-collapsed-element.scss";
-@use "blocks/sd-complex-element.scss";
-@use "blocks/sd-input.scss";
+@use "blocks/sd-formbox.scss";
 @use "blocks/sd-comment.scss";
 @use "blocks/sd-panel.scss";
+@use "blocks/sd-panel-nested.scss";
 @use "blocks/sd-signaturepad.scss";
-@use "blocks/sd-checkbox.scss";
 @use "blocks/sd-matrixdynamic.scss";
 @use "blocks/sd-table.scss";
 @use "blocks/sd-page.scss";
@@ -36,7 +37,9 @@
 @use "blocks/sd-description.scss";
 @use "blocks/sd-item.scss";
 @use "blocks/sd-selectbase.scss";
+@use "blocks/sd-checkbox.scss";
 @use "blocks/sd-radio.scss";
+@use "blocks/sd-switch.scss";
 @use "blocks/sd-visuallyhidden.scss";
 @use "blocks/sd-matrix.scss";
 @use "blocks/sd-rating.scss";
@@ -54,12 +57,8 @@
 @use "blocks/sd-file.scss";
 @use "blocks/sd-hidden.scss";
 @use "blocks/sd-navigation.scss";
-@use "blocks/sd-button.scss";
 @use "blocks/sd-body.scss";
 @use "blocks/sd-multipletext.scss";
-@use "blocks/sd-action.scss";
-@use "blocks/sd-action-bar.scss";
-@use "blocks/sd-context-btn.scss";
 @use "blocks/sd-completedpage.scss";
 @use "blocks/sd-progress-buttons.scss";
 @use "blocks/sd-progress-toc.scss";
@@ -81,10 +80,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   --sd-mobile-width: 600px;
-  --sd-timer-size: calc(18 * #{$base-unit});
+  --sd-timer-size: calc(18 * var(--sjs2-base-unit-size));
   width: 100%;
   font-family: $font-family;
-  background-color: $background-dim;
+  background-color: var(--sjs2-color-utility-body);
   position: relative;
 
   @include mixins.scrollRules;
@@ -92,6 +91,22 @@ body {
   form {
     // z-index: 1;
     position: relative;
+  }
+  &:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background-color: var(--sjs2-color-utility-surface-survey);
+    content: "";
+  }
+}
+
+.sd-root--compact {
+  &:before {
+    background-color: var(--sjs2-color-utility-surface-survey);
   }
 }
 
@@ -110,7 +125,7 @@ body {
 }
 
 .sd-root-modern--mobile {
-  --sd-timer-size: calc(9 * #{$base-unit});
+  --sd-timer-size: var(--sjs2-size-x900);
 }
 
 .sd-root-modern__wrapper {
@@ -155,8 +170,8 @@ body {
 .sv-root--sticky-top.sd-progress--pages,
 .sv-root--sticky-top.sd-progress--buttons {
   .sv-components-container-center {
-    background-color: $background-dim;
-    box-shadow: $shadow-medium, $shadow-small;
+    background-color: var(--sjs2-color-utility-sheet);
+    box-shadow: var(--sjs2-border-effect-surface-default);
   }
 }
 

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText } from "../helper";
 
 const title = "multiple comments support in select questions";
 
@@ -23,7 +23,7 @@ frameworks.forEach((framework) => {
       const commentArea = page.locator(".sd-question__comment-area");
       expect(await commentArea.count()).toEqual(0);
       const questionDropdownSelect = page.locator(".sd-dropdown");
-      const itemsSelector = page.locator(".sd-list__item");
+      const itemsSelector = page.locator(".sd-selectlist__item");
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(0).click();
       expect(await commentArea.count()).toEqual(1);
@@ -59,7 +59,7 @@ frameworks.forEach((framework) => {
 
       const finalResult = { "q1": { "value": "c", "comment": "Comment for c" } };
       expect(await getData(page)).toEqual(finalResult);
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
     test("multiple comment support in radiogroup", async ({ page }) => {
@@ -100,7 +100,7 @@ frameworks.forEach((framework) => {
 
       const finalResult = { "q1": "other", "q1-Comment": "Comment for d" };
       expect(await getData(page)).toEqual(finalResult);
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
     test("multiple comment support in checkbox", async ({ page }) => {
@@ -145,7 +145,7 @@ frameworks.forEach((framework) => {
         { value: "c", "comment": "Comment for c" }, { value: "Comment for d" }] };
       expect(await getData(page)).toEqual(finalResult);
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
   });

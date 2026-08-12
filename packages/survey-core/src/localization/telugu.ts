@@ -244,7 +244,9 @@ export var teluguStrings = {
   // [Auto-translated] "Table of contents"
   toc: "విషయ పట్టిక[మార్చు]",
   // [Auto-translated] "Progress bar"
-  progressbar: "పురోగతి బార్"
+  progressbar: "పురోగతి బార్",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "పేజీ {0}"
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "తెలుగు", englishName: "Telugu" });

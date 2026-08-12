@@ -244,7 +244,9 @@ export var swahiliStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Jedwali la yaliyomo",
   // [Auto-translated] "Progress bar"
-  progressbar: "Upau wa maendeleo"
+  progressbar: "Upau wa maendeleo",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Ukurasa {0}"
 };
 
 setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });

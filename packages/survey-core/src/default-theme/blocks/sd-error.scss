@@ -1,47 +1,47 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-error {
   display: flex;
   flex-direction: column;
-  gap: calcSize(0.5);
-  padding: calcSize(1) calcSize(1.5);
-  border-radius: calcCornerRadius(1);
-  line-height: calcLineHeight(1);
-  font-size: calcFontSize(0.75);
-  font-weight: 600;
+  gap: var(--sjs2-layout-component-message-box-gap-vertical);
+  padding: var(--sjs2-layout-component-message-box-padding-vertical)
+    var(--sjs2-layout-component-message-box-padding-horizontal);
+  border-radius: var(--sjs2-radius-component-message);
   text-align: left;
-  color: $red;
+  color: var(--sjs2-color-component-message-error-text);
   white-space: normal;
   width: 100%;
-  background-color: $red-light;
-  box-sizing: border-box;
-}
+  background-color: var(--sjs2-color-component-message-error-bg);
 
-.sd-slider__tooltip-value {
-  font-weight: 600;
-  line-height: var(--lbr-font-small-line-height, size(2));
-  color: var(--lbr-tooltip-text-color, $primary);
+  box-sizing: border-box;
+
+  use {
+    fill: var(--sjs2-color-component-message-error-icon);
+  }
 }
 
 .sd-error--warning {
-  background: var(--sjs-semantic-yellow-background-10, $yellow-light);
+  background: var(--sjs2-color-component-message-warning-bg);
+  color: var(--sjs2-color-component-message-warning-text);
 
-  .sd-error__item {
-    color: var(--sjs-semantic-yellow-background-500, $secondary);
+  use {
+    fill: var(--sjs2-color-component-message-warning-icon);
   }
 }
 
 .sd-error--info {
-  background: var(--sjs-semantic-blue-background-10, $blue-light);
-  .sd-error__item {
-    color: var(--sjs-semantic-blue-background-500, $blue);
+  background: var(--sjs2-color-component-message-info-bg);
+  color: var(--sjs2-color-component-message-info-text);
+
+  use {
+    fill: var(--sjs2-color-component-message-info-icon);
   }
 }
 
 .sd-error__item {
-  font-family: var(--lbr-font-family, $font-family);
-  font-size: var(--lbr-font-small-size, calcSize(1.5));
-  font-style: normal;
-  font-weight: 600;
-  line-height: var(--lbr-font-small-line-height, calcSize(2));
+  @include sjs2--typography--default;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-layout-component-message-content-gap-horizontal);
 }

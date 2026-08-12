@@ -1,41 +1,21 @@
 @use "../variables.scss" as *;
-
+//todo: rename page-footer variable to survey-footer
 .sd-body__navigation {
   box-sizing: border-box;
-  padding: calcSize(4) calcSize(5);
   flex-wrap: wrap;
-  gap: calcSize(2);
-
-  .sd-btn {
-    padding: calcSize(2) calcSize(8);
-    font-size: $font-questiontitle-size;
-    line-height: multiply(1.5, $font-questiontitle-size);
-  }
+  padding-top: var(--sjs2-layout-component-survey-footer-padding-top, 0);
+  padding-bottom: var(--sjs2-layout-component-survey-footer-padding-bottom, 40px);
+  padding-left: var(--sjs2-layout-component-survey-footer-padding-horizontal, 40px);
+  padding-right: var(--sjs2-layout-component-survey-footer-padding-horizontal, 40px);
+  --sd-action-bar-gap: var(--sjs2-layout-component-survey-footer-action-group-gap);
 }
-
-.sv-components-container-contentTop .sd-body__navigation {
-  padding-top: 0;
-}
-
-.sd-root--compact .sd-body__navigation {
-  .sd-btn:not(.sd-btn--action) {
-    background-color: $background-dim-light;
-  }
-  .sd-btn:not(.sd-btn--action):hover {
-    background-color: $background-dim-dark;
-  }
-}
-
 .sd-root-modern--mobile .sd-body__navigation {
-  .sv-action:not(.sv-action--hidden),
-  .sd-btn {
+  .sd-action-bar__item:not(.sd-action-bar__item--hidden),
+  .sd-action {
     flex-grow: 1;
   }
 
-  .sd-btn {
-    padding: calcSize(2) calcSize(4);
+  .sd-action {
+    padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x400);
   }
-}
-.sd-body__navigation .sv-action--hidden {
-  display: none;
 }

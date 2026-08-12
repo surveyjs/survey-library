@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { BaseAngular } from "../base-angular";
-import { ItemValue } from "survey-core";
+import { ChoiceItem } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -8,15 +8,15 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./selectbase-item.html",
   styles: [":host { display: none; }"]
 })
-export class SelectBaseItemComponent extends BaseAngular<ItemValue> implements AfterViewInit {
+export class SelectBaseItemComponent extends BaseAngular<ChoiceItem> implements AfterViewInit {
 
   @Input() question!: any;
-  @Input() model!: ItemValue | any;
+  @Input() model!: ChoiceItem | any;
   @Input() inputType!: string;
   @Input() showLabel: boolean = true;
   @Input() ariaLabel?: string;
   @ViewChild("container", { read: ElementRef }) container!: ElementRef<HTMLDivElement>;
-  protected getModel(): ItemValue {
+  protected getModel(): ChoiceItem {
     return this.model;
   }
   protected override onModelChanged(): void {

@@ -1,4 +1,4 @@
-import { frameworks, initSurvey, url, test, expect } from "../helper";
+import { frameworks, initSurvey, url, test, expect, getButtonByText } from "../helper";
 
 const title = "preprocessTitlesAndHtml";
 
@@ -58,9 +58,9 @@ frameworks.forEach((framework) => {
       await expect(await titleLocator.nth(1).textContent()).toBe(text);
 
       // Fill first page
-      await page.locator(".sd-text").nth(0).fill("wombat");
-      await page.locator(".sd-text").nth(1).fill("wombat@mail.mail");
-      await page.locator("input[value='Next']").click();
+      await page.locator(".sd-formbox__input").nth(0).fill("wombat");
+      await page.locator(".sd-formbox__input").nth(1).fill("wombat@mail.mail");
+      await getButtonByText(page, "Next").click();
 
       // Check third title
       text = "C. wombat, please tell us what is on your mind";// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
@@ -69,7 +69,7 @@ frameworks.forEach((framework) => {
 
       // Fill second page
       await page.locator("textarea").fill("fresh grasses");
-      await page.locator("input[value='Complete']").click();
+      await getButtonByText(page, "Complete").click();
 
       // Check completed HTML
       const completedHtml = "Thank you for sharing this information with us.Your name is: wombatYour email is: wombat@mail.mailThis is what is on your mind:fresh grasses";

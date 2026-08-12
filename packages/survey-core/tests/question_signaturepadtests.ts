@@ -234,8 +234,10 @@ describe("question signaturepad", () => {
     const containerEl = document.createElement("div");
     const canvas = document.createElement("canvas");
     containerEl.appendChild(canvas);
+    document.body.appendChild(containerEl);
     let survey = new SurveyModel(json);
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+    signaturepadQuestion["element"] = containerEl;
     signaturepadQuestion.initSignaturePad(containerEl);
 
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
@@ -243,17 +245,21 @@ describe("question signaturepad", () => {
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
 
-    survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
+    containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "rgba(103, 58, 176, 1)");
+    survey.applyTheme({ "cssVariables": { "--sjs2-color-bg-brand-primary": "rgba(103, 58, 176, 1)" } });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
 
+    containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "");
     survey.applyTheme({ "cssVariables": {} });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
+
+    containerEl.remove();
   });
 
   test("check penColor & background color if background image", () => {
@@ -269,8 +275,10 @@ describe("question signaturepad", () => {
     const containerEl = document.createElement("div");
     const canvas = document.createElement("canvas");
     containerEl.appendChild(canvas);
+    document.body.appendChild(containerEl);
     let survey = new SurveyModel(json);
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+    signaturepadQuestion["element"] = containerEl;
     signaturepadQuestion.initSignaturePad(containerEl);
 
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
@@ -278,12 +286,14 @@ describe("question signaturepad", () => {
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
 
-    survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
+    containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "rgba(103, 58, 176, 1)");
+    survey.applyTheme({ "cssVariables": { "--sjs2-color-bg-brand-primary": "rgba(103, 58, 176, 1)" } });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
 
+    containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "");
     survey.applyTheme({ "cssVariables": {} });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
@@ -295,6 +305,8 @@ describe("question signaturepad", () => {
     expect(signaturepadQuestion.backgroundColor, "backgroundColor #dde6db").toBe("#dde6db");
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
+
+    containerEl.remove();
   });
 
   test("check showPlaceholder & placeholder properties", () => {

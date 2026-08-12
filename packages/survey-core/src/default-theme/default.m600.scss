@@ -1,32 +1,33 @@
 @use "variables.scss" as *;
 @use "mixins.scss" as mixins;
+@use "typography-mixins.scss" as *;
 
 .sd-root-modern,
 .sd-container-modern {
-  --sd-base-padding: calc(5 * #{$base-unit});
-  --sd-base-vertical-padding: calc(4 * #{$base-unit});
-  --sd-page-vertical-padding: calc(3 * #{$base-unit});
+  --sd-base-padding: var(--sjs2-spacing-x500);
+  --sd-base-vertical-padding: var(--sjs2-spacing-x400);
+  --sd-page-vertical-padding: var(--sjs2-spacing-x300);
+  --sjs2-spacing-large-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-spacing-large-vertical: var(--sjs2-spacing-x500);
+  --sjs2-spacing-medium-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-spacing-medium-vertical: var(--sjs2-spacing-x300);
 }
 
 .sd-root-modern.sd-root-modern--mobile,
 .sd-root-modern--mobile .sd-container-modern {
-  --sd-base-padding: calc(3 * #{$base-unit});
-  --sd-base-vertical-padding: calc(2 * #{$base-unit});
-  --sd-page-vertical-padding: calc(2 * #{$base-unit});
+  --sd-base-padding: var(--sjs2-spacing-x300);
+  --sd-base-vertical-padding: var(--sjs2-spacing-x200);
+  --sd-page-vertical-padding: var(--sjs2-spacing-x200);
+  --sjs2-spacing-large-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-spacing-large-vertical: var(--sjs2-spacing-x500);
+  --sjs2-spacing-medium-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-spacing-medium-vertical: var(--sjs2-spacing-x200);
 }
 
 .sd-root-modern {
   &.sd-root-modern--mobile {
     .sd-element__num {
       @include mixins.num_inline();
-    }
-
-    // .sd-element__title--expandable:before {
-    //   inset-inline-start: calcSize(-2.5);
-    // }
-
-    .sd-element__title-expandable-svg {
-      inset-inline-start: calcSize(-2.5);
     }
 
     .sd-title.sd-container-modern__title {
@@ -45,24 +46,23 @@
 
     &:not(:first-of-type) {
       padding-left: 0;
-      padding-top: calcSize(1);
+      padding-top: var(--sjs2-spacing-x100);
     }
 
     :not(:last-of-type) {
-      padding-bottom: calcSize(1);
+      padding-bottom: var(--sjs2-spacing-x100);
     }
   }
 
   .sd-multipletext__item-container {
-    padding-top: calcSize(1);
-    padding-bottom: calcSize(1);
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   }
 
   .sd-multipletext__item-title {
     max-width: none;
     border-right: none;
     width: 100%;
-    padding: calcSize(1) 0;
+    padding: var(--sjs2-spacing-x100) 0;
     margin: 0;
   }
 
@@ -70,23 +70,25 @@
     flex-basis: 0;
     min-width: 0;
 
-    .sd-input {
+    .sd-formbox__input {
       padding: 0;
       margin: 0;
+      min-height: multiply(1.5, $font-editorfont-size);
+    }
+    .sd-formbox__character-counter {
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
 
   .sd-multipletext__item-container--answered,
   .sd-multipletext__item-container--allow-focus:focus-within {
     flex-direction: column;
+    gap: 0;
 
     .sd-multipletext__item-title {
       padding: 0;
-
-      span {
-        font-size: calcFontSize(0.75);
-        line-height: calcLineHeight(1);
-      }
+      @include sjs2--typography--small;
     }
 
     .sd-multipletext__item {
@@ -94,7 +96,7 @@
       min-width: auto;
       width: 100%;
 
-      .sd-input {
+      .sd-formbox__input {
         width: 100%;
       }
     }

@@ -243,6 +243,7 @@ registerMarkupTests(
         _setIsTablet(undefined);
         ListModel.MINELEMENTCOUNT = oldMinCount;
       },
+      removeValues: true,
       snapshot: "dropdown-select-mobile",
     },
     {

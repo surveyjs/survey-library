@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, axeOptions, axeContext } from "./helper";
+import { frameworks, url, initSurvey, axeOptions, axeContext, getButtonByText } from "./helper";
 import { checkA11y, injectAxe } from "axe-playwright";
 import { test } from "@playwright/test";
 const title = "multipletextbox";
@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.click("input[value=\"Complete\"]");
+      await getButtonByText(page, "Complete").click();
       await checkA11y(page, axeContext, { axeOptions });
     });
   });

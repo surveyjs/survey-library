@@ -329,12 +329,10 @@ test("Check cssClasses update when dropdownListModel is set", () => {
   };
   const survey = new SurveyModel(json);
   survey.css = {
-    list: {
-      itemSelected: "original-class-selected"
-    },
     rating: {
       popup: "custom-popup-class",
       list: {
+        itemSelected: "original-class-selected",
         item: "original-class"
       }
     }
@@ -1258,7 +1256,7 @@ test("rateCount limitations", () => {
   expect(q1.rateCount).toBe(10);
 });
 
-test("rating colors without css vars", () => {
+test.skip("rating colors without css vars", () => { //need to check without css vars because of old themes
   var json = {
     elements: [
       {

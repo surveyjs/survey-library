@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { QuestionText } from "../e2e/questionHelper";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection, getButtonByText } from "../e2e/helper";
 
 const title = "Question Screenshot";
 
@@ -117,11 +117,12 @@ frameworks.forEach(framework => {
 
       await compareScreenshot(page, questionRoot, "question-collapse.png");
       await page.hover(".sd-element__header");
-      await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
+      await compareScreenshot(page, questionRoot, "question-collapse-hover.png");
       await page.hover("body");
       await page.evaluate(() => { (window as any).survey.rootElement.getRootNode().querySelector(".sd-question__title")?.focus(); });
-      await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
+      await compareScreenshot(page, questionRoot, "question-collapse-focus.png");
       await questionRoot.click();
+      await page.hover("body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, questionRoot, "question-expand.png");
     });
 
@@ -337,7 +338,7 @@ frameworks.forEach(framework => {
 
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.waitForTimeout(500);
-      await page.fill(".sd-input", "some-text");
+      await page.fill(".sd-formbox__input", "some-text");
       await page.click(".sd-navigation__complete-btn");
       await resetFocusToBody(page);
       await compareScreenshot(page, qRoot, "question-with-long-error.png");
@@ -632,11 +633,11 @@ frameworks.forEach(framework => {
           }]
       });
 
-      await compareScreenshot(page, page.locator(".sd-text__content"), "question-text-remaining-character-counter.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter.png");
       await page.keyboard.press("Tab");
-      await compareScreenshot(page, page.locator(".sd-comment__content"), "question-comment-remaining-character-counter.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--comment"), "question-comment-remaining-character-counter.png");
       await page.keyboard.press("Tab");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter.png");
     });
 
     test("Update comment height", async ({ page }) => {
@@ -669,9 +670,11 @@ frameworks.forEach(framework => {
         (window as any).survey.allowResizeComment = false;
         (window as any).survey.autoGrowComment = true;
       });
+      await page.waitForTimeout(500);
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
       await page.waitForTimeout(500);
+      await page.hover("body", { position: { x: 0, y: 0 } });
       //await page.keyboard.press("Tab"); We do not focus readonly question on expand after fixing #10434 bug. So we do not need press tab to leave the comment, since it was not focused.
       await compareScreenshot(page, questionRoot, "question-comment-ajust-height.png");
     });
@@ -708,16 +711,16 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
       await page.keyboard.press("Tab");
 
-      await compareScreenshot(page, page.locator(".sd-text__content"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");
-      await compareScreenshot(page, page.locator(".sd-text__content").nth(1), "question-text-remaining-character-counter-maxLength-100-without-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--text").nth(1), "question-text-remaining-character-counter-maxLength-100-without-focus.png");
 
       await page.keyboard.press("Tab");
-      await compareScreenshot(page, page.locator(".sd-text__content").nth(1), "question-text-remaining-character-counter-maxLength-100-with-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--text").nth(1), "question-text-remaining-character-counter-maxLength-100-with-focus.png");
 
       await page.keyboard.press("Tab");
-      await compareScreenshot(page, page.locator(".sd-text__content"), "question-text-remaining-character-counter-mobile-view-without-focus.png");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-with-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter-mobile-view-without-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter-mobile-view-with-focus.png");
     });
 
     test("Remaining character counter inputType is email - mobile view", async ({ page }) => {
@@ -857,10 +860,6 @@ frameworks.forEach(framework => {
 
     test("Check question - baseunit", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.focus();
-        document.body.style.setProperty("--base-unit", "4px");
-      });
 
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
@@ -873,18 +872,17 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
+      await page.evaluate(() => {
+        document.body.focus();
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
+      });
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "question-baseunit.png");
     });
 
     test("Check question - multiline description", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.focus();
-        document.body.style.setProperty("--base-unit", "4px");
-      });
-
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         elements: [
@@ -895,6 +893,11 @@ frameworks.forEach(framework => {
             description: "First Line\nSecond Line"
           }
         ]
+      });
+      await page.evaluate(() => {
+        document.body.focus();
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
       });
 
       const questionRoot = page.locator(".sd-question");
@@ -976,7 +979,7 @@ frameworks.forEach(framework => {
         "width": "800"
       });
       await page.evaluate(() => {
-        (window as any).survey.rootElement.getRootNode().querySelector("div")!.style.setProperty("--sjs-font-size", "8px");
+        (window as any).survey.rootElement.style.setProperty("--sjs2-base-unit-font-size", "4px");
       });
       const questionRows = page.locator(".sd-row");
       await compareScreenshot(page, questionRows.nth(0), "question-empty-title-height.png");
@@ -1146,15 +1149,15 @@ frameworks.forEach(framework => {
       await new QuestionText(page, "q2").fill("151");
 
       await new QuestionText(page, "q1").fill("151");
-      await page.getByRole("button", { name: "Complete" }).click();
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, page.locator(".sd-error").first(), "question-error-notification-type.png");
 
       await new QuestionText(page, "q1").fill("90");
-      await page.getByRole("button", { name: "Complete" }).click();
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, page.locator(".sd-error--warning").first(), "question-warning-notification-type.png");
 
       await new QuestionText(page, "q1").fill("51");
-      await page.getByRole("button", { name: "Complete" }).click();
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, page.locator(".sd-error--info").first(), "question-info-notification-type.png");
     });
   });

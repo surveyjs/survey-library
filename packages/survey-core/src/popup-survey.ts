@@ -219,6 +219,14 @@ export class PopupSurveyModel extends Base {
     if (width && !isNaN(width)) width = width + "px";
     return width;
   }
+  public get renderedStyle(): { [index: string]: string } {
+    const style: { [index: string]: string } = this.survey.themeVariables;
+    if (!!this.renderedWidth) {
+      style.width = this.renderedWidth;
+      style.maxWidth = this.renderedWidth;
+    }
+    return style;
+  }
   @property() width: string;
 
   private updateCss() {
@@ -241,9 +249,9 @@ export class PopupSurveyModel extends Base {
   private setCssRoot() {
     const cssWindow = this.css.window;
     if (this.isFullScreen) {
-      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootFullScreenMode);
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + this.css.rootTheme + " " + cssWindow.rootFullScreenMode);
     } else {
-      this.setPropertyValue("cssRoot", cssWindow.root);
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + this.css.rootTheme);
     }
   }
   private updateCssButton() {

@@ -1,36 +1,30 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv-header {
   position: relative;
-  background-color: var(--sjs-header-backcolor, transparent);
-}
-
-.sv-header__background-color--accent {
-  background-color: var(--sjs-header-backcolor, #{$primary});
+  background-color: var(--sjs2-color-component-survey-header-default-bg);
 }
 
 .sv-header__overlap {
-  padding-bottom: calcSize(8);
+  padding-bottom: var(--sjs2-spacing-x800);
   box-sizing: content-box;
 
-  &~div {
-
+  & ~ div {
     .sd-body,
     .sv-body {
-      margin-top: calcSize(-14);
+      margin-top: calc(var(--sjs2-base-unit-spacing) * -14);
     }
   }
 }
 
 .sd-root-modern--mobile .sv-header__overlap {
-  padding-bottom: calcSize(2);
+  padding-bottom: var(--sjs2-spacing-x200);
 
-  &~div {
-
+  & ~ div {
     .sd-body,
     .sv-body {
-      margin-top: calcSize(-5);
+      margin-top: var(--sjs2-spacing-negative-x700);
     }
   }
 }
@@ -39,8 +33,7 @@
   margin-bottom: 0;
   padding-bottom: 0;
 
-  &~div {
-
+  & ~ div {
     .sd-body,
     .sv-body {
       margin-top: 0;
@@ -51,19 +44,21 @@
 .sv-header__without-background {
   .sv-header--mobile,
   .sv-header__content {
-    padding-bottom: 0;
+    padding-bottom: var(--sjs2-layout-component-survey-header-padding-bottom);
   }
 }
 
 .sd-body {
   .sv-header__content {
     padding-top: 0;
-    padding-bottom: calcSize(5);
+    padding-bottom: var(--sjs2-spacing-x500);
   }
 }
 
 .sv-header__content {
-  padding: calcSize(5);
+  padding-top: calc(var(--sjs2-layout-component-survey-header-padding-top) + var(--sjs2-layout-component-survey-box-padding-top)); 
+  padding-bottom: var(--sjs2-spacing-x500); 
+  padding-inline: var(--sjs2-layout-component-survey-header-padding-horizontal);
   box-sizing: border-box;
   height: 100%;
   position: relative;
@@ -71,8 +66,8 @@
   // grid-auto-rows: min-content;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
-  row-gap: var(--lbr-cover-row-gap, var(--lbr-spacing-x150, calcSize(1.5)));
-  column-gap: var(--lbr-cover-column-gap, var(--lbr-spacing-x6, calcSize(6)));
+  row-gap: var(--sjs2-spacing-x150);
+  column-gap: var(--sjs2-spacing-x600);
 }
 
 .sv-header--height-auto {
@@ -94,7 +89,7 @@
 }
 
 .sv-header__content--static {
-  max-width: calcSize(90);
+  max-width: calc(var(--sjs2-base-unit-size) * 90);
   margin-left: auto;
   margin-right: auto;
 }
@@ -159,26 +154,28 @@
 
 .sv-header__title {
   display: flex;
+  padding-block: var(--sjs2-layout-component-survey-title-padding-vertical);
+  padding-inline: var(--sjs2-layout-component-survey-title-padding-horizontal);
 }
 
 .sv-header__title .sd-title {
-  @include mixins.header_title;
-  color: var(--sjs-font-headertitle-color, #{$font-pagetitle-color});
-  font-family: $font-headertitle-family;
-  font-weight: $font-headertitle-weight;
+  @include sjs2--typography--component--header--title;
   margin: 0;
 }
 
-.sv-header__logo~.sv-header__title {
-  margin-top: calcSize(3);
+.sv-header__logo ~ .sv-header__title {
+  margin-top: var(--sjs2-spacing-x300);
 }
 
-.sv-header__logo~.sv-header__description {
-  margin-top: calcSize(3);
+.sv-header__logo ~ .sv-header__description {
+  margin-top: var(--sjs2-spacing-x300);
 }
 
-.sv-header__title~.sv-header__description {
-  margin-top: calcSize(1);
+.sv-header__title ~ .sv-header__description {
+  margin-top: var(--sjs2-layout-component-survey-header-gap-vertical);
+  padding-top: var(--sjs2-layout-component-survey-description-padding-top);
+  padding-bottom: var(--sjs2-layout-component-survey-description-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-survey-description-padding-horizontal);
 }
 
 .sv-header__description {
@@ -186,21 +183,8 @@
 }
 
 .sv-header__description .sd-description {
-  @include mixins.header_description;
-  color: var(--sjs-font-headerdescription-color, #{$font-pagedescription-color});
-  font-family: $font-headerdescription-family;
-  font-weight: $font-headerdescription-weight;
+  @include sjs2--typography--component--header--description;
   margin: 0;
-}
-
-.sv-header__background-color--accent {
-  .sv-header__title .sd-title {
-    color: var(--sjs-font-headertitle-color, #{$primary-foreground});
-  }
-
-  .sv-header__description .sd-description {
-    color: $font-headerdescription-color;
-  }
 }
 
 .sv-header__content .sd-header__text h3 {
@@ -208,7 +192,7 @@
 }
 
 .sv-header--mobile {
-  padding: calcSize(3);
+  padding: var(--sjs2-spacing-x300);
   position: relative;
   z-index: 1;
 

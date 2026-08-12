@@ -1,11 +1,13 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
+import { ListModel } from "../list";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -64,11 +66,12 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   action?: (context?: any) => void;
+  onMouseDown?:(event: any) => void;
   onFocus?: (isMouse: boolean, event: any) => void;
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -77,9 +80,9 @@ export interface IAction {
    */
   css?: string;
   /**
-   * One or several CSS classes that you want to apply to the inner `<input>` or `<button>` element.
+   * One or several CSS classes that you want to apply to the inner `<button>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`/`<button>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<button>` element. The button contains a nested `<span>` element that displays the label text. Use the `span` selector to style it.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -101,7 +104,7 @@ export interface IAction {
    * @see visible
    */
   active?: boolean;
-  pressed?: boolean;
+  popupActive?: boolean;
   /**
    * Specifies the name of a template used to render the action item.
    * @see component
@@ -150,9 +153,11 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   visibleIndex?: number;
+  isLabel?: boolean;
   needSpace?: boolean;
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
+  ariaControls?: string;
   ariaLabelledBy?: string;
   ariaRole?: string;
   elementId?: string;
@@ -160,6 +165,8 @@ export interface IAction {
   markerIconName?: string;
   showPopup?: () => void;
   hidePopup?: () => void;
+  appearance?: Partial<IActionAppearance>;
+  activeAppearance?: Partial<IActionAppearance>;
 }
 
 let _createPopupModelWithListModel: (listOptions: IListModel, popupOptions?: IPopupOptionsBase) => PopupModel;
@@ -169,16 +176,17 @@ export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, p
 
 export abstract class BaseAction extends Base implements IAction {
   items?: IAction[];
-  private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
-  private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const owner: any = this.owner;
+    return owner && owner.getSurvey ? owner.getSurvey(isLive) : null;
+  }
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
   @property() active: boolean;
-  @property() pressed: boolean;
+  @property() popupActive: boolean;
   private _data: any;
   public get data() {
     return this._data;
@@ -195,9 +203,11 @@ export abstract class BaseAction extends Base implements IAction {
   @property() disableShrink: boolean;
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
+  @property({ defaultValue: false }) isLabel: boolean;
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
+  @property() ariaControls: string;
   @property({ defaultValue: "button" }) ariaRole: string;
   private idValue: string;
   public get id(): string { return this.getId(); }
@@ -212,7 +222,10 @@ export abstract class BaseAction extends Base implements IAction {
   maxDimension: number;
   public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public get renderedId(): number { return this.rendredIdValue; }
+  public get renderedId(): string {
+    const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
+    return this.composeElementId(raw);
+  }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
     if (val !== this.owner) {
@@ -282,6 +295,10 @@ export abstract class BaseAction extends Base implements IAction {
   public get hasSubItems(): boolean {
     return !!this.items && this.items.length > 0;
   }
+  public get innerListModel(): ListModel | undefined {
+    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
+    return this.popupModel.contentComponentData.model;
+  }
   public getActionBarItemTitleCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemTitle)
@@ -292,23 +309,30 @@ export abstract class BaseAction extends Base implements IAction {
     const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      //TODO: remove itemWithTitle and itemAsIcon, itemIcon classes and replace with modifiers to item class in css
       .append(this.cssClasses.itemWithTitle, hasTitle)
       .append(this.cssClasses.itemAsIcon, !hasTitle)
+      //end of TODO
       .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPressed, !!this.pressed)
+      .append(this.cssClasses.itemPopupActive, !!this.popupActive)
       .append(this.innerCss)
       .toString();
   }
   public getActionRootCss(): string {
     return new CssClassBuilder()
-      .append("sv-action")
+      .append(this.cssClasses.containerItem)
       .append(this.css)
-      .append("sv-action--space", this.needSpace)
-      .append("sv-action--hidden", !this.isVisible)
+      .append(this.cssClasses.containerItemSpace, this.needSpace)
+      .append(this.cssClasses.containerItemHidden, !this.isVisible)
+      .toString();
+  }
+  public getActionRootContentCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.containerItemContent)
       .toString();
   }
   public getTooltip(): string {
-    return this.tooltip || this.title;
+    return this.tooltip || (!this.hasTitle ? this.title : null);
   }
   public getIsTrusted(args: any): boolean {
     if (!!args.originalEvent) {
@@ -363,7 +387,7 @@ export abstract class BaseAction extends Base implements IAction {
       this.isHovered = false;
     }
   }
-
+  public setPredefinedAppearance(_: IActionAppearance) { }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -375,6 +399,13 @@ export abstract class BaseAction extends Base implements IAction {
   protected abstract getComponent(): string;
   protected abstract setComponent(val: string): void;
 }
+
+export interface IActionAppearance {
+  style: "neutral" | "alert" | "brand";
+  mode: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
+  size: "large" | "medium" | "small" | "x-small" | "xx-small";
+  showBorder?: boolean;
+ }
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
@@ -397,16 +428,17 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
     this.locStrChangedInPopupModel();
   }
+  elementId?: string;
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
   public setSubItems(options: IListModel): void {
-    this.markerIconName = "icon-next_16x16";
+    this.markerIconName = "icon-chevronright-24x24";
     this.items = [...options.items];
     if (!this.popupModel) {
       this.createPopupForSubitems(options);
     } else {
-      const list: any = this.popupModel.contentComponentData.model;
+      const list: any = this.innerListModel;
       list.setItems(this.items);
     }
     this.component = this.getGroupComponentName();
@@ -434,7 +466,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() private _enabled: boolean;
   @property() action: (context?: any, isUserAction?: boolean) => void;
   @property() onFocus: (isMouse: boolean, event: any) => void;
+  @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
+  @property({ defaultValue: {} }) appearance: Partial<IActionAppearance>;
+  @property({ defaultValue: { style: "brand", mode: "secondary" } }) activeAppearance: Partial<IActionAppearance>;
+  @property({ defaultValue: { style: "neutral", mode: "tertiary", size: "small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({
     onSet: (val, target) => {
@@ -481,8 +517,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return true;
   }
   private isMouseDown: boolean;
-  public doMouseDown(args: any): void {
+  public doMouseDown(event: any): void {
     this.isMouseDown = true;
+    this.onMouseDown && this.onMouseDown(event);
   }
   public doFocus(args: any): void {
     if (!!this.onFocus) {
@@ -492,8 +529,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.isMouseDown = false;
   }
   private locStrChangedInPopupModel(): void {
-    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
-    const model = this.popupModel.contentComponentData.model;
+    if (!this.innerListModel) return;
+    const model = this.innerListModel;
     if (Array.isArray(model.actions)) {
       const actions: Array<any> = model.actions;
       actions.forEach(item => {
@@ -574,12 +611,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
+    const hiddenClass = this.cssClasses.containerItemHidden;
     if (htmlElement) {
       const actionContainer = htmlElement;
-      if (actionContainer.classList.contains("sv-action--hidden")) {
-        actionContainer.classList.remove("sv-action--hidden");
+      if (hiddenClass && actionContainer.classList.contains(hiddenClass)) {
+        actionContainer.classList.remove(hiddenClass);
         this[property] = calcDimension(htmlElement);
-        actionContainer.classList.add("sv-action--hidden");
+        actionContainer.classList.add(hiddenClass);
       } else {
         this[property] = calcDimension(htmlElement);
       }
@@ -617,6 +655,30 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       }
     });
   }
+  private inputElementValue: HTMLElement;
+  public setInputElement(val: HTMLElement) {
+    this.inputElementValue = val;
+  }
+  public getInputElement() {
+    return this.inputElementValue;
+  }
+  public setPredefinedAppearance(val: IActionAppearance) {
+    this.predefinedAppearance = val;
+  }
+  public getActionBarItemCss(): string {
+    const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {}, this.active ? this.activeAppearance || {} : {});
+    const css = super.getActionBarItemCss();
+    const prefix = this.cssClasses.itemAppearancePrefix;
+    if (!prefix) {
+      return css;
+    }
+    return new CssClassBuilder().append(css)
+      .append(`${prefix}--${appearance.style}`, !!appearance.style)
+      .append(`${prefix}--${appearance.mode}`, !!appearance.mode)
+      .append(`${prefix}--${appearance.size}`, !!appearance.size)
+      .append(`${prefix}--border`, !!appearance.showBorder)
+      .toString();
+  }
 }
 
 export class ActionDropdownViewModel {
@@ -630,9 +692,9 @@ export class ActionDropdownViewModel {
     if (!popupModel) return;
     popupModel.registerPropertyChangedHandlers(["isVisible"], () => {
       if (!popupModel.isVisible) {
-        this.item.pressed = false;
+        this.item.popupActive = false;
       } else {
-        this.item.pressed = true;
+        this.item.popupActive = true;
       }
     }, this.funcKey);
   }

@@ -360,7 +360,6 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, true, () => { this.visible = true; });
@@ -445,7 +444,14 @@ export class Question extends SurveyElement<Question>
       question: this,
       id: () => this.commentId,
       propertyNames: ["comment"],
-      className: () => this.cssClasses.comment,
+      cssClasses: () => {
+        return {
+          root: this.cssClasses.comment,
+          control: this.cssClasses.commentControl,
+          grip: this.cssClasses.commentGrip,
+          gripIconId: this.cssClasses.commentGripIconId
+        };
+      },
       placeholder: () => this.renderedCommentPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,
@@ -771,6 +777,7 @@ export class Question extends SurveyElement<Question>
   @property() showNumber: boolean;
   /**
    * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @hidden
    */
   public get hideNumber(): boolean {
     return !this.showNumber;
@@ -1180,7 +1187,7 @@ export class Question extends SurveyElement<Question>
     return this.hasInput && !this.isContainer;
   }
   public get inputId(): string {
-    return this.id + "i";
+    return this.renderedId + "i";
   }
   protected getDefaultTitleValue(): string { return this.name; }
   protected getDefaultTitleTagName(): string {
@@ -1412,7 +1419,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssHeader(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.header)
+      .append(super.getCssHeader(cssClasses))
       .append(cssClasses.headerTop, this.hasTitleOnTop)
       .append(cssClasses.headerLeft, this.hasTitleOnLeft)
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
@@ -1515,6 +1522,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot, !this.singleInputQuestion)
+      .append(this.cssClasses.rootSingleInput, !!this.singleInputQuestion)
       .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)
@@ -1522,7 +1530,21 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
-
+  public getQuestionContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.questionContainer)
+      .toString();
+  }
+  public getHeaderAndContentContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.headerAndContentContainer)
+      .toString();
+  }
+  public get isComplexQuestion(): boolean {
+    const rootCss = this.getRootCss() || "";
+    return rootCss.indexOf("sd-element--complex") > -1;
+    // return this.isContainer || !!this.singleInputQuestion;
+  }
   public getQuestionRootCss() {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -1677,10 +1699,10 @@ export class Question extends SurveyElement<Question>
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.hasInput && (!withError || this.currentErrorCount > 0) ? this : null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     return this.inputId;
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     return this.getFirstInputElementId();
   }
   public supportComment(): boolean {
@@ -1726,18 +1748,15 @@ export class Question extends SurveyElement<Question>
     this.showCommentArea = val;
   }
 
-  /**
-   * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sq"; }
   public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
+    return this.renderedId + "_ariaTitle";
   }
   public get ariaDescriptionId(): string {
-    return this.id + "_ariaDescription";
+    return this.renderedId + "_ariaDescription";
   }
   public get commentId(): string {
-    return this.id + "_comment";
+    return this.renderedId + "_comment";
   }
   /**
    * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
@@ -2238,11 +2257,12 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  // MERGE(V3): this doc block conflicts every merge - master (V2) adds `@since 2.5.30`, V3 omits
+  // it (3.0.0 API in V3). Keep the V3 (no `@since`) doc on merge.
   /**
    * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
    * classes can override this method to exclude values that cannot be selected (for example,
    * non-existent or invisible choices in select-based questions).
-   * @since 2.5.30
    */
   protected getCorrectAnswerValue(): any {
     return this.correctAnswer;
@@ -2547,6 +2567,7 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @hidden
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -3187,7 +3208,7 @@ export class Question extends SurveyElement<Question>
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.renderedId + "_errors" : null;
   }
   //EO a11y
 
@@ -3219,7 +3240,7 @@ export class Question extends SurveyElement<Question>
     let result = null;
 
     if (this.hasCssError()) {
-      result = this.id + "_errors";
+      result = this.renderedId + "_errors";
     } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }
@@ -3262,8 +3283,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+  { name: "minWidth" },
+  { name: "maxWidth" },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

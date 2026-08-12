@@ -85,7 +85,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           defaultValue: "true",
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -102,7 +102,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           isRequired: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         },
       ]
     },
@@ -119,7 +119,7 @@ registerMarkupTests(
           title: "Question title",
           useTitleAsLabel: true,
           defaultValue: "true",
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -136,7 +136,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -152,7 +152,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -167,7 +167,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           useTitleAsLabel: true,
-          renderAs: "checkbox"
+          displayMode: "checkbox"
         }
       ]
     },
@@ -187,7 +187,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -203,7 +203,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -222,7 +222,7 @@ registerMarkupTests(
           titleLocation: "hidden",
           "valueTrue": "true_val",
           "valueFalse": "false_val",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -238,7 +238,7 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
@@ -254,12 +254,103 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
-          renderAs: "radio"
+          displayMode: "radio"
         }
       ]
     },
     snapshot: "boolean-radio-disabled",
     initSurvey: (survey) => survey.setDesignMode(true),
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue true",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          useTitleAsLabel: true,
+          defaultValue: true,
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-true",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue false",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          useTitleAsLabel: true,
+          defaultValue: false,
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-false",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue true, readOnly",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          useTitleAsLabel: true,
+          defaultValue: true,
+          readOnly: true,
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-true-readonly",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue false, readOnly",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          useTitleAsLabel: true,
+          defaultValue: false,
+          readOnly: true,
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-false-readonly",
+  },
+  {
+    name: "Test Boolean Switch question markup: useTitleAsLabel is true by default",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          title: "Question title",
+          displayMode: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-title-as-label",
+  },
+  {
+    name: "Test Boolean Switch question markup: useTitleAsLabel is false",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          title: "Question title",
+          displayMode: "switch",
+          useTitleAsLabel: false
+        }
+      ]
+    },
+    snapshot: "boolean-switch-no-label",
   },
   ]
 );

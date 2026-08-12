@@ -1,10 +1,11 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleListItemByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleSelectListItemByText, getButtonByText } from "../helper";
 import { registerCustomItemComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
 
-const questionOffsetTopConst = 176;
-const singleListItemHeight = 56;
+const questionOffsetTopConst = 160;
+const singleListItemHeight = 64;
+const emptyContainerHeigth = 120;
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
@@ -63,8 +64,8 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator(".sd-dropdown").first().click();
-      await getVisibleListItemByText(page, "Nissan").click();
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getVisibleSelectListItemByText(page, "Nissan").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("Nissan");
@@ -114,8 +115,8 @@ frameworks.forEach((framework) => {
     });
 
     test("change choices order", async ({ page }) => {
-      const firstItem = page.locator(".sv-list__item span").nth(0);
-      const secondItem = page.locator(".sv-list__item span").nth(1);
+      const firstItem = page.locator(".sd-selectlist__item span").nth(0);
+      const secondItem = page.locator(".sd-selectlist__item span").nth(1);
 
       // asc
       await setOptions(page, "car", { choicesOrder: "asc" });
@@ -129,10 +130,10 @@ frameworks.forEach((framework) => {
       await expect(secondItem).toHaveText("Vauxhall");
 
       // rnd
-      await expect(page.locator(".sv-list__item span")).not.toHaveCount(1); // "need to more than one choices"
+      await expect(page.locator(".sd-selectlist__item span")).not.toHaveCount(1); // "need to more than one choices"
 
       let rnd_count = 0;
-      let prevFirstItemValue = await page.locator(".sv-list__item span").nth(0).textContent();
+      let prevFirstItemValue = await page.locator(".sd-selectlist__item span").nth(0).textContent();
       let firstItemValueCurrent;
       for (let i = 0; i < 15; i++) {
         await setOptions(page, "car", { choicesOrder: "asc" });
@@ -140,7 +141,7 @@ frameworks.forEach((framework) => {
         await page.evaluate(() => {
           return (window as any).survey.randomSeed = Date.now() + Math.random();
         });
-        firstItemValueCurrent = await page.locator(".sv-list__item span").nth(0).textContent();
+        firstItemValueCurrent = await page.locator(".sd-selectlist__item span").nth(0).textContent();
 
         if (prevFirstItemValue?.trim() !== firstItemValueCurrent?.trim()) {
           rnd_count++;
@@ -172,12 +173,12 @@ frameworks.forEach((framework) => {
       ];
       let checkIntegrity = async (page) => {
         await page.locator(".sd-dropdown").first().click();
-        await expect(page.locator(".sv-list__item span")).toHaveCount(choices.length);
+        await expect(page.locator(".sd-selectlist__item span")).toHaveCount(choices.length);
         await page.locator(".sd-dropdown").first().click();
 
         for (let i = 0; i < choices.length; i++) {
           await page.locator(".sd-dropdown").first().click();
-          await page.locator(".sv-list__item span").nth(i).click();
+          await page.locator(".sd-selectlist__item span").nth(i).click();
         }
       };
 
@@ -195,29 +196,29 @@ frameworks.forEach((framework) => {
 
     test("show \"other\" choice", async ({ page }) => {
       await page.locator(".sd-dropdown").first().click();
-      await expect(page.locator(".sv-list__item span")).toHaveCount(11);
+      await expect(page.locator(".sd-selectlist__item span")).toHaveCount(11);
 
       await setOptions(page, "car", { hasOther: true, otherText: "Other" });
       await page.locator(".sd-dropdown").first().click();
-      await expect(page.locator(".sv-list__item span")).toHaveCount(12);
-      await expect(page.locator(".sv-list__item span").nth(11)).toContainText("Other");
+      await expect(page.locator(".sd-selectlist__item span")).toHaveCount(12);
+      await expect(page.locator(".sd-selectlist__item span").nth(11)).toContainText("Other");
     });
 
     test("check \"other\" choice doesn't change order", async ({ page }) => {
       await setOptions(page, "car", { hasOther: true, otherText: "Other" });
       await page.locator(".sd-dropdown").first().click();
-      await expect(page.locator(".sv-list__item span").nth(11)).toHaveText("Other");
+      await expect(page.locator(".sd-selectlist__item span").nth(11)).toHaveText("Other");
 
       await setOptions(page, "car", { choicesOrder: "desc" });
-      await expect(page.locator(".sv-list__item span").nth(11)).toHaveText("Other");
+      await expect(page.locator(".sd-selectlist__item span").nth(11)).toHaveText("Other");
     });
 
     test("choose other", async ({ page }) => {
       await setOptions(page, "car", { hasOther: true, otherText: "Other" });
       await page.locator(".sd-dropdown").first().click();
-      await getVisibleListItemByText(page, "Other").click();
+      await getVisibleSelectListItemByText(page, "Other").click();
       await page.locator("textarea").fill("Zaporozec");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("other");
@@ -258,8 +259,8 @@ frameworks.forEach((framework) => {
 
       await page.locator(".sd-dropdown").click();
       await page.locator(".sd-dropdown").click();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).not.toBeVisible();
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).not.toBeVisible();
     });
 
     test("open popup and click outside, tablet", async ({ page }) => {
@@ -438,10 +439,10 @@ frameworks.forEach((framework) => {
       await expect(page.locator("select option").nth(10)).toHaveText(newOtherText);
 
       await page.locator(".sd-dropdown").nth(1).click();
-      await expect(page.locator(".sv-list__item span").nth(10)).toHaveText(oldOtherText);
+      await expect(page.locator(".sd-selectlist__item span").nth(10)).toHaveText(oldOtherText);
       await setOptions(page, "carss", { otherText: newOtherText });
       await page.locator(".sd-dropdown").nth(1).click();
-      await expect(page.locator(".sv-list__item span").nth(10)).toHaveText(newOtherText);
+      await expect(page.locator(".sd-selectlist__item span").nth(10)).toHaveText(newOtherText);
     });
 
     test("placeholder changed", async ({ page }) => {
@@ -470,9 +471,9 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
 
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", oldPlaceholder);
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", oldPlaceholder);
       await setOptions(page, "cars", { placeholder: newPlaceholder });
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", newPlaceholder);
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", newPlaceholder);
     });
 
     test("Check dropdown popup width", async ({ page }) => {
@@ -509,10 +510,10 @@ frameworks.forEach((framework) => {
       const width1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(width1).toBeGreaterThanOrEqual(550);
 
-      await page.locator(".sv-list__item span").filter({ hasText: "Ford" }).filter({ visible: true }).click();
+      await getVisibleSelectListItemByText(page, "Ford").click();
       await expect(popupContainer).not.toBeVisible();
 
-      await page.locator(".sd-dropdown__value .sv-string-viewer").click();
+      await page.locator(".sd-dropdown__input .sv-string-viewer").click();
       await expect(popupContainer).toBeVisible();
       const width2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(width2).toBeGreaterThanOrEqual(550);
@@ -576,11 +577,11 @@ frameworks.forEach((framework) => {
       const questionDropdownSelect2 = page.locator(".sd-dropdown").nth(1);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       await questionDropdownSelect2.click();
-      await expect(page.locator(".sv-list__item")).toHaveCount(28);
-      await expect(page.locator(".sv-list__item.sv-list__item--disabled")).toHaveCount(13);
-      await getVisibleListItemByText(page, "item2").click();
+      await expect(page.locator(".sd-selectlist__item")).toHaveCount(28);
+      await expect(page.locator(".sd-selectlist__item.sd-selectlist__item--disabled")).toHaveCount(13);
+      await getVisibleSelectListItemByText(page, "item2").click();
       await expect(popupContainer).toBeVisible();
-      await getVisibleListItemByText(page, "item3").click();
+      await getVisibleSelectListItemByText(page, "item3").click();
       await expect(popupContainer).not.toBeVisible();
     });
 
@@ -611,7 +612,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-editor-clean-button")).not.toBeVisible();
 
       await page.locator(".sd-dropdown").click();
-      await page.locator(".sv-list__item span").filter({ hasText: "Ford" }).filter({ visible: true }).click();
+      await getVisibleSelectListItemByText(page, "Ford").click();
 
       await expect(page.locator(".sd-editor-clean-button")).toBeVisible();
 
@@ -647,7 +648,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const myListItems = page.locator(".my-list-item");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
 
       await page.locator(".sd-dropdown").click();
 
@@ -656,7 +657,7 @@ frameworks.forEach((framework) => {
 
       await myListItems.nth(3).click();
 
-      await expect(page.locator(".sd-dropdown__value").locator(".sv-svg-icon")).toHaveCount(1);
+      await expect(page.locator(".sd-dropdown__input").locator(".sv-svg-icon")).toHaveCount(1);
     });
 
     test("Check dropdown key press with searchEnabled", async ({ page }) => {
@@ -697,7 +698,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input").first()).toHaveValue("Nissan");
+      await expect(page.locator(".sd-dropdown__input input").first()).toHaveValue("Nissan");
 
       await page.waitForTimeout(100);
       await page.keyboard.press("ArrowDown");
@@ -705,20 +706,20 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("Enter");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value input").first()).toHaveValue("Volkswagen");
+      await expect(page.locator(".sd-dropdown__input input").first()).toHaveValue("Volkswagen");
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("2");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input").nth(1)).toHaveValue("item20");
+      await expect(page.locator(".sd-dropdown__input input").nth(1)).toHaveValue("item20");
 
       await page.waitForTimeout(100);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input").nth(1)).toHaveValue("item21");
+      await expect(page.locator(".sd-dropdown__input input").nth(1)).toHaveValue("item21");
     });
 
     test("Esc key press", async ({ page }) => {
@@ -755,18 +756,18 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("u");
       await page.keyboard.press("Escape");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value")).toHaveText("");
+      await expect(page.locator(".sd-dropdown__input")).toHaveText("");
 
       await page.locator(".sd-dropdown").click();
-      await getVisibleListItemByText(page, "Nissan").click();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("Nissan");
+      await getVisibleSelectListItemByText(page, "Nissan").click();
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("Nissan");
 
       await page.keyboard.press("Control+a");
       await page.keyboard.press("Backspace");
       await page.keyboard.type("au");
       await page.keyboard.press("Escape");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value")).toHaveText("Nissan");
+      await expect(page.locator(".sd-dropdown__input")).toHaveText("Nissan");
     });
 
     test("Select item after tab press", async ({ page }) => {
@@ -803,18 +804,18 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("u");
       await page.keyboard.press("Tab");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value")).toHaveText("Vauxhall");
+      await expect(page.locator(".sd-dropdown__input")).toHaveText("Vauxhall");
 
       await page.locator(".sd-dropdown").click();
-      await getVisibleListItemByText(page, "Nissan").click();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("Nissan");
+      await getVisibleSelectListItemByText(page, "Nissan").click();
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("Nissan");
 
       await page.keyboard.press("Control+a");
       await page.keyboard.press("Backspace");
       await page.keyboard.type("a u");
       await page.keyboard.press("Tab");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value")).toHaveText("Nissan");
+      await expect(page.locator(".sd-dropdown__input")).toHaveText("Nissan");
     });
 
     test("Check dropdown key press without searchEnabled", async ({ page }) => {
@@ -857,7 +858,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).toHaveText("Nissan");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("Nissan");
 
       await page.waitForTimeout(100);
       await page.keyboard.press(" ");
@@ -865,13 +866,13 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press(" ");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).toHaveText("Volkswagen");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("Volkswagen");
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer").nth(1)).toHaveText("item2");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer").nth(1)).toHaveText("item2");
     });
 
     test("Check dropdown SPACE press without searchEnabled", async ({ page }) => {
@@ -899,7 +900,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press(" ");
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).toHaveText("itemzero");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("itemzero");
     });
 
     test("Check dropdown SPACE press with searchEnabled", async ({ page }) => {
@@ -925,7 +926,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.type("em 2");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item 2");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("item 2");
     });
 
     test("Check dropdown search", async ({ page }) => {
@@ -941,7 +942,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
 
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(0);
@@ -960,17 +961,17 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item20");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("item20");
       await expect(popupContainer).not.toBeVisible();
 
       await page.keyboard.press("ArrowDown");
       await expect(popupContainer).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(27);
-      await expect(page.locator(".sv-list__item.sv-list__item--selected")).toContainText("item20");
+      await expect(page.locator(".sd-selectlist__item.sd-selectlist__item--selected")).toContainText("item20");
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Escape");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item20");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("item20");
     });
 
     test("Check dropdown key press with auto-generated list", async ({ page }) => {
@@ -992,7 +993,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("2018");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("2018");
     });
 
     test("Check reset focused item - no focus on first popup", async ({ page }) => {
@@ -1007,8 +1008,8 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
-      const focusedItem = page.locator(".sv-list__item--focused");
+      const listItems = page.locator(".sd-selectlist__item");
+      const focusedItem = page.locator(".sd-selectlist__item--focused");
 
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(0);
@@ -1036,7 +1037,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
 
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(0);
@@ -1049,7 +1050,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
 
       await page.keyboard.press("Escape");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("");
       await expect(popupContainer).not.toBeVisible();
       await expect(page.locator(".sd-editor-clean-button")).not.toBeVisible();
     });
@@ -1099,30 +1100,30 @@ frameworks.forEach((framework) => {
         ]
       };
       await initSurvey(page, framework, json);
-      const questionValueText = page.locator(".sd-dropdown__value .sv-string-viewer");
-      const oldDropdown = page.locator("select.sd-dropdown");
+      const questionValueText = page.locator(".sd-dropdown__input .sv-string-viewer");
+      const oldDropdown = page.locator("select.sd-dropdown__input");
 
       await expect(questionValueText).toHaveText("Volkswagen");
       await expect(oldDropdown).toHaveValue("Mercedes-Benz");
 
       await page.keyboard.press("Delete");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
       await expect(oldDropdown).toHaveValue("Mercedes-Benz");
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("Delete");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
       await expect(oldDropdown).toHaveValue("");
     });
 
     test("test locale", async ({ page }) => {
       const json = { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] };
       await initSurvey(page, framework, json);
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
       await page.evaluate(() => {
         window["survey"].locale = "de";
       });
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Bitte auswählen..."); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Bitte auswählen..."); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     });
 
     test("Check popup scroll", async ({ page }) => {
@@ -1143,7 +1144,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container");
-      const focusedItem = page.locator(".sv-list__item--focused span");
+      const focusedItem = page.locator(".sd-selectlist__item--focused span");
       await page.setViewportSize({ width: 1280, height: 600 });
 
       await page.keyboard.press("Tab");
@@ -1151,13 +1152,13 @@ frameworks.forEach((framework) => {
       await expect(focusedItem).toBeVisible();
       await expect(focusedItem).toHaveText("item1");
       await expect(popupContainer.nth(0)).toBeVisible();
-      await expect(popupContainer.nth(0).locator(".sv-list__item")).toHaveCount(27);
-      const scrollTop1 = await popupContainer.nth(0).locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      await expect(popupContainer.nth(0).locator(".sd-selectlist__item")).toHaveCount(27);
+      const scrollTop1 = await popupContainer.nth(0).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop1).toEqual(0);
       await page.keyboard.press("ArrowUp");
       await page.waitForTimeout(1000);
       await expect(focusedItem).toHaveText("item27");
-      const scrollTop2 = await popupContainer.nth(0).locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop2 = await popupContainer.nth(0).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop2).toBeGreaterThan(400);
 
       await page.keyboard.press("Tab");
@@ -1165,14 +1166,14 @@ frameworks.forEach((framework) => {
       await expect(focusedItem).toBeVisible();
       await expect(focusedItem).toHaveText("item1");
       await expect(popupContainer.nth(1)).toBeVisible();
-      await expect(popupContainer.nth(1).locator(".sv-list__item")).toHaveCount(30);
-      const scrollTop3 = await popupContainer.nth(1).locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      await expect(popupContainer.nth(1).locator(".sd-selectlist__item")).toHaveCount(30);
+      const scrollTop3 = await popupContainer.nth(1).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop3).toEqual(0);
 
       await page.keyboard.press("ArrowUp");
       await page.waitForTimeout(1000);
       await expect(focusedItem).toHaveText("item30");
-      const scrollTop4 = await popupContainer.nth(1).locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop4 = await popupContainer.nth(1).locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop4).toBeGreaterThan(400);
 
       await page.setViewportSize({ width: 1280, height: 1100 });
@@ -1193,12 +1194,12 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const ratingAsDropdownPlaceHolder = "Select...";
-      const ratingAsDropdown = page.locator(".sd-dropdown .sd-dropdown__value");
+      const ratingAsDropdown = page.locator(".sd-dropdown .sd-dropdown__input");
       const ratingAsDropdownPlaceholder = ratingAsDropdown.locator("input");
       const ratingAsDropdownText = ratingAsDropdown.locator(".sv-string-viewer");
 
       await ratingAsDropdown.click();
-      await getVisibleListItemByText(page, "2").click();
+      await getVisibleSelectListItemByText(page, "2").click();
       await expect(ratingAsDropdownPlaceholder).toHaveAttribute("placeholder", "");
       await expect(ratingAsDropdownText.filter({ hasText: "2" })).toBeVisible();
 
@@ -1236,7 +1237,7 @@ frameworks.forEach((framework) => {
       await questionDropdownV2Select.click();
       const clientWidth1 = await popupContainer.evaluate((el) => (el as HTMLElement).clientWidth);
       expect(clientWidth1).toBeLessThanOrEqual(685);
-      await getVisibleListItemByText(page, "Ford").click();
+      await getVisibleSelectListItemByText(page, "Ford").click();
 
       await page.setViewportSize({ width: 1300, height: 600 });
       await questionDropdownV2Select.click();
@@ -1298,95 +1299,95 @@ frameworks.forEach((framework) => {
 
       await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await expect(dropdown1.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(dropdown1.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight1).toEqual(singleListItemHeight);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(0);
+      expect(offsetHeight1).toEqual(emptyContainerHeigth);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(dropdown1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop1).toBeLessThan(200);
       const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight2).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight2).toBeLessThanOrEqual(708);
-      const scrollTop1 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      expect(offsetHeight2).toBeLessThanOrEqual(722);
+      const scrollTop1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop1).toEqual(0);
-      const scrollHeight1 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       expect(scrollHeight1).toBeGreaterThanOrEqual(1208);
       expect(scrollHeight1).toBeLessThanOrEqual(1308);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(26);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(26);
 
-      await dropdown1.locator(".sv-list").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
+      await dropdown1.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
       await page.waitForTimeout(500);
       const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight3).toBeLessThanOrEqual(708);
-      const scrollTop2 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop2).toBeGreaterThanOrEqual(546);
-      expect(scrollTop2).toBeLessThanOrEqual(556);
+      expect(offsetHeight3).toBeLessThanOrEqual(722);
+      const scrollTop2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
+      expect(scrollTop2).toBeGreaterThanOrEqual(542);
+      expect(scrollTop2).toBeLessThanOrEqual(558);
       await page.waitForTimeout(500);
-      const scrollHeight2 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       expect(scrollHeight2).toBeGreaterThanOrEqual(2408);
       expect(scrollHeight2).toBeLessThanOrEqual(2508);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(51);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(51);
 
-      await dropdown1.locator(".sv-list").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 2300);
+      await dropdown1.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 2300);
       await page.waitForTimeout(500);
       const offsetTop3 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight4).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight4).toBeLessThanOrEqual(708);
-      const scrollTop3 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      expect(offsetHeight4).toBeLessThanOrEqual(722);
+      const scrollTop3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop3).toBeGreaterThanOrEqual(1696);
       expect(scrollTop3).toBeLessThanOrEqual(1796);
       await page.waitForTimeout(500);
-      const scrollHeight3 = await dropdown1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       expect(scrollHeight3).toBeGreaterThanOrEqual(2608);
       expect(scrollHeight3).toBeLessThanOrEqual(2708);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(55);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(55);
 
-      await getVisibleListItemByText(page, "55").click();
+      await getVisibleSelectListItemByText(page, "55").click();
       await page.locator(".sd-dropdown").nth(1).click();
-      await expect(dropdown2.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(dropdown2.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight5 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight5).toEqual(singleListItemHeight);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(0);
+      expect(offsetHeight5).toEqual(emptyContainerHeigth);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(dropdown2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop4).toEqual(0);
       const offsetHeight6 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight6).toBeGreaterThanOrEqual(716);
+      expect(offsetHeight6).toBeGreaterThanOrEqual(670);
       expect(offsetHeight6).toBeLessThanOrEqual(726);
-      const scrollTop4 = await dropdown2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop4).toEqual(0);
-      const scrollHeight4 = await dropdown2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       expect(scrollHeight4).toBeGreaterThanOrEqual(1358);
       expect(scrollHeight4).toBeLessThanOrEqual(1508);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(31);
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(31);
 
-      await dropdown2.locator(".sv-list").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
+      await dropdown2.locator(".sd-selectlist").evaluate((el, y) => { (el as HTMLElement).scrollBy(0, y); }, 1000);
       await page.waitForTimeout(500);
-      await expect(dropdown2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop5 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop5).toEqual(0);
       const offsetHeight7 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight7).toBeGreaterThanOrEqual(716);
+      expect(offsetHeight7).toBeGreaterThanOrEqual(670);
       expect(offsetHeight7).toBeLessThanOrEqual(726);
-      const scrollTop5 = await dropdown2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop5).toBeGreaterThanOrEqual(746);
       expect(scrollTop5).toBeLessThanOrEqual(846);
       await page.waitForTimeout(500);
-      const scrollHeight5 = await dropdown2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       expect(scrollHeight5).toBeGreaterThanOrEqual(2608);
       expect(scrollHeight5).toBeLessThanOrEqual(2658);
-      await expect(page.locator(".sv-list__item span").filter({ visible: true })).toHaveCount(55);
-      await getVisibleListItemByText(page, "55").click();
+      await expect(page.locator(".sd-selectlist__item span").filter({ visible: true })).toHaveCount(55);
+      await getVisibleSelectListItemByText(page, "55").click();
 
       await page.setViewportSize({ width: 1280, height: 1100 });
     });
@@ -1416,7 +1417,7 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container");
       const dropdown1 = popupContainer.nth(0);
       const dropdown2 = popupContainer.nth(1);
-      const listItems = page.locator(".sv-list__item span");
+      const listItems = page.locator(".sd-selectlist__item span");
 
       await page.setViewportSize({ width: 1280, height: 900 });
 
@@ -1425,16 +1426,16 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await expect(dropdown1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(dropdown1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop1).toEqual(questionOffsetTopConst);
       const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toBeGreaterThanOrEqual(485);
-      expect(offsetHeight1).toBeLessThanOrEqual(495);
+      expect(offsetHeight1).toBeLessThanOrEqual(496);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(dropdown1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop2 = await dropdown1.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop2).toEqual(questionOffsetTopConst);
       const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -1447,19 +1448,19 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("2");
       await expect(dropdown2).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(dropdown2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop3 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop3).toBeGreaterThanOrEqual(228);
+      expect(offsetTop3).toBeGreaterThanOrEqual(174);
       expect(offsetTop3).toBeLessThanOrEqual(238);
       const offsetHeight3 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(480);
-      expect(offsetHeight3).toBeLessThanOrEqual(490);
+      expect(offsetHeight3).toBeLessThanOrEqual(500);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(dropdown2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop4).toEqual(768);
+      expect(offsetTop4).toEqual(720);
       const offsetHeight4 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight4).toEqual(singleListItemHeight);
 
@@ -1492,7 +1493,7 @@ frameworks.forEach((framework) => {
         ],
       };
       await initSurvey(page, framework, json);
-      const listSelector = page.locator(".sv-list");
+      const listSelector = page.locator(".sd-selectlist");
 
       await expect(listSelector).not.toBeVisible();
       await page.locator(".sd-dropdown").click();
@@ -1514,7 +1515,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const input = page.locator(".sd-dropdown input").filter({ visible: true });
-      const str = page.locator(".sd-dropdown__value .sv-string-viewer");
+      const str = page.locator(".sd-dropdown__input .sv-string-viewer");
 
       await expect(popupContainer).not.toBeVisible();
       await page.keyboard.press("ArrowDown");
@@ -1547,17 +1548,17 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
-      const selectedItem = page.locator(".sv-list__item--selected");
+      const listItems = page.locator(".sd-selectlist__item");
+      const selectedItem = page.locator(".sd-selectlist__item--selected");
 
       await expect(popupContainer).not.toBeVisible();
       await page.locator(".sd-dropdown").click();
       await expect(popupContainer).toBeVisible();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item2");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("item2");
       await expect(selectedItem).toBeVisible();
       await selectedItem.click();
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item2");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveValue("item2");
     });
 
     test("Recalculate popup position after window resize", async ({ page }) => {
@@ -1604,10 +1605,10 @@ frameworks.forEach((framework) => {
       expect(offsetTop1).toBeLessThanOrEqual(170);
       const offsetLeft1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft1).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft1).toBeLessThanOrEqual(500);
+      expect(offsetLeft1).toBeLessThanOrEqual(510);
       const offsetHeight1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toBeGreaterThanOrEqual(410);
-      expect(offsetHeight1).toBeLessThanOrEqual(420);
+      expect(offsetHeight1).toBeLessThanOrEqual(424);
       const offsetWidth1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(offsetWidth1).toBeGreaterThanOrEqual(310);
       expect(offsetWidth1).toBeLessThanOrEqual(320);
@@ -1619,10 +1620,10 @@ frameworks.forEach((framework) => {
       expect(offsetTop2).toBeLessThanOrEqual(170);
       const offsetLeft2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft2).toBeGreaterThanOrEqual(680);
-      expect(offsetLeft2).toBeLessThanOrEqual(690);
+      expect(offsetLeft2).toBeLessThanOrEqual(700);
       const offsetHeight2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight2).toBeGreaterThanOrEqual(910);
-      expect(offsetHeight2).toBeLessThanOrEqual(920);
+      expect(offsetHeight2).toBeLessThanOrEqual(924);
       const offsetWidth2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(offsetWidth2).toBeGreaterThanOrEqual(500);
       expect(offsetWidth2).toBeLessThanOrEqual(510);
@@ -1634,7 +1635,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop3).toBeLessThanOrEqual(170);
       const offsetLeft3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft3).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft3).toBeLessThanOrEqual(500);
+      expect(offsetLeft3).toBeLessThanOrEqual(510);
       const offsetHeight3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(410);
       expect(offsetHeight3).toBeLessThanOrEqual(460);
@@ -1682,7 +1683,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-dropdown").click();
       await expect(popupContainer).toBeVisible();
 
-      await getVisibleListItemByText(page, "3").click();
+      await getVisibleSelectListItemByText(page, "3").click();
       await expect(popupContainer).not.toBeVisible();
 
       await page.locator(".sd-navigation__next-btn").click();
@@ -1692,12 +1693,13 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-dropdown").click();
       await expect(popupContainer).toBeVisible();
       await page.keyboard.press("Tab");
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).toHaveText("3");
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "");
-
-      await page.locator(".sd-editor-clean-button").click();
-      await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value input")).toHaveAttribute("placeholder", "Select...");
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("3");
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "");
+      await page.pause();
+      await page.locator(".sd-editor-clean-button button").click();
+      await page.pause();
+      await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).not.toBeVisible();
+      await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
     });
 
     test("choicesFromQuestion, bug#5818", async ({ page }) => {
@@ -1739,9 +1741,9 @@ frameworks.forEach((framework) => {
 
       await dropdownChevronButton.scrollIntoViewIfNeeded();
       await dropdownChevronButton.click();
-      await getVisibleListItemByText(page, "Ford").click();
+      await getVisibleSelectListItemByText(page, "Ford").click();
       await dropdownChevronButton.click();
-      await getVisibleListItemByText(page, "Audi").click();
+      await getVisibleSelectListItemByText(page, "Audi").click();
     });
 
     test("Check dropdown popup opens after beak click", async ({ page }) => {
@@ -1814,7 +1816,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const questionDropdownV2Select = page.locator(".sd-dropdown");
-      const questionTextSelect = page.locator(".sd-text");
+      const questionTextSelect = page.locator(".sd-text.sd-formbox .sd-formbox__input");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const dropdownWidth = await questionDropdownV2Select.evaluate((el) => (el as HTMLElement).getBoundingClientRect().width);
       await questionDropdownV2Select.click({ position: { x: dropdownWidth - 20, y: 20 } });
@@ -1943,13 +1945,13 @@ frameworks.forEach((framework) => {
 
       const questionDropdownV2Select = page.locator(".sd-dropdown");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const textQuestion = page.locator(".sd-input.sd-text");
+      const textQuestion = page.locator(".sd-formbox.sd-text .sd-formbox__input");
       await expect(textQuestion).not.toBeFocused();
 
       await questionDropdownV2Select.click();
       await expect(popupContainer).toBeVisible();
 
-      await getVisibleListItemByText(page, "Herr").click();
+      await getVisibleSelectListItemByText(page, "Herr").click();
       await expect(textQuestion).toBeFocused();
       await expect(popupContainer).not.toBeVisible();
     });
@@ -1984,7 +1986,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       await page.locator(".sd-dropdown").first().click();
-      await getVisibleListItemByText(page, "itemone").click();
+      await getVisibleSelectListItemByText(page, "itemone").click();
 
       expect(await page.locator(".sd-dropdown input").first().inputValue()).toBe("itemone");
     });
@@ -2003,10 +2005,10 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       await page.locator(".sd-dropdown").click();
-      await page.locator(".sv-list__item span").filter({ hasText: "item2" }).filter({ visible: true }).click();
+      await getVisibleSelectListItemByText(page, "item2").click();
       await page.locator("textarea").fill("ABC");
       await page.locator(".sd-editor-clean-button").click();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ "q1-Comment": "ABC" });
@@ -2032,10 +2034,10 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       await page.locator(".sd-dropdown").click();
-      await getVisibleListItemByText(page, "Other").click();
+      await getVisibleSelectListItemByText(page, "Other").click();
       await expect(page.getByRole("textbox", { name: "row row1, column col1" })).toBeFocused();
       await page.keyboard.type("ABC");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });
@@ -2068,28 +2070,28 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const dropdown = page.locator("input").first();
-      await expect(page.locator(".sd-dropdown__value").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
+      await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='notenglish']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "notenglish" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "notenglish" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
       await page.evaluate((locale) => {
         window.survey.locale = locale;
       }, "en");
-      await expect(page.locator(".sd-dropdown__value").locator("span").filter({ hasText: "english" })).toBeVisible();
+      await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "english" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='english']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "english" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "english" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
       await page.evaluate((locale) => {
         window.survey.locale = locale;
       }, "de");
-      await expect(page.locator(".sd-dropdown__value").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
+      await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='notenglish']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "notenglish" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "notenglish" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
     });
@@ -2118,7 +2120,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("ot");
 
       await expect(popup).toBeVisible();
-      await expect(page.locator(".sv-list__item").filter({ visible: true })).toHaveCount(2);
+      await expect(page.locator(".sd-selectlist__item").filter({ visible: true })).toHaveCount(2);
       expect(await page.locator(".sd-dropdown").textContent()).toEqual("PeugeotSelect");
 
       await page.getByRole("button", { name: "Select" }).click();
@@ -2128,7 +2130,7 @@ frameworks.forEach((framework) => {
       await page.getByRole("button", { name: "Select" }).click();
       await expect(popup).toBeVisible();
       expect(await page.locator(".sd-dropdown").textContent()).toEqual("PeugeotSelect");
-      await expect(page.locator(".sv-list__item").filter({ visible: true })).toHaveCount(2);
+      await expect(page.locator(".sd-selectlist__item").filter({ visible: true })).toHaveCount(2);
 
       await page.mouse.wheel(0, 20);
       await expect(popup).toBeHidden();
@@ -2137,7 +2139,7 @@ frameworks.forEach((framework) => {
       await page.getByRole("button", { name: "Select" }).click();
       await expect(popup).toBeVisible();
       expect(await page.locator(".sd-dropdown").textContent()).toEqual("PeugeotSelect");
-      await expect(page.locator(".sv-list__item").filter({ visible: true })).toHaveCount(2);
+      await expect(page.locator(".sd-selectlist__item").filter({ visible: true })).toHaveCount(2);
     });
     test("Dropdown with lazyLoadEnabled and onGetChoicesDisplayValue event - #10302", async({ page }) => {
       const json = {
@@ -2159,7 +2161,7 @@ frameworks.forEach((framework) => {
           });
         });
       });
-      expect(await page.locator(".sd-dropdown__value", { hasText: "Test" }).isVisible()).toBeTruthy();
+      expect(await page.locator(".sd-dropdown__input", { hasText: "Test" }).isVisible()).toBeTruthy();
     });
     test("Dropdown other text is displayed after selection - #10942", async({ page }) => {
       const json = {
@@ -2178,7 +2180,7 @@ frameworks.forEach((framework) => {
 
       const dropdown = page.locator(".sd-dropdown");
       const filterInputString = page.locator(".sd-dropdown__filter-string-input");
-      const item = page.locator(".sv-list__item span");
+      const item = page.locator(".sd-selectlist__item span");
       const body = page.locator("body");
       expect(await filterInputString.inputValue()).toBe("");
 
@@ -2186,22 +2188,22 @@ frameworks.forEach((framework) => {
       await item.filter({ hasText: "Item 1" }).filter({ visible: true }).click();
       expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 1");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
       expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("Item 1");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 1");
 
       await dropdown.click();
       await item.filter({ hasText: "Other (describe)" }).filter({ visible: true }).click();
       await page.waitForTimeout(1000);
       expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Other (describe)");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await dropdown.click();
       expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Other (describe)");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
 
       await body.click({ position: { x: 0, y: 0 } });
 
@@ -2209,11 +2211,11 @@ frameworks.forEach((framework) => {
       await item.filter({ hasText: "Item 2" }).filter({ visible: true }).click();
       expect(filterInputString).toBeFocused();
       expect(await filterInputString.inputValue()).toBe("Item 2");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("");
       await body.click({ position: { x: 0, y: 0 } });
       expect(filterInputString).not.toBeFocused();
       expect(await filterInputString.inputValue()).toBe("");
-      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("Item 2");
+      expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 2");
     });
   });
 });

@@ -52,7 +52,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     super();
 
     this.dotsItem = createDropdownActionModelAdvanced({
-      id: "dotsItem-id" + this.id++,
+      id: "dotsItem-id-" + this.id,
       css: "sv-dots",
       innerCss: "sv-dots__item",
       iconName: "icon-more",
@@ -62,6 +62,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       items: [],
       allowSelection: false
     });
+    this.dotsItem.owner = this;
     this.hiddenItemsListModel.createActionCallback = (item: IAction) => this.createActionCore(this.hiddenItemsListModel, item);
   }
   public get hiddenItemsListModel(): ListModel {
@@ -92,7 +93,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
     }
   }
-
   protected getRenderedActions(): Array<T> {
     const actions = super.getRenderedActions();
     if (actions.length == 0 || (actions.length === 1 && !!actions[0].iconName))
@@ -177,6 +177,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
   public initResponsivityManager(container: HTMLDivElement): void {
+    super.initResponsivityManager(container);
     if (!!this.responsivityManager) {
       if (this.responsivityManager.container == container) {
         return;
@@ -190,6 +191,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     };
   }
   public resetResponsivityManager(): void {
+    super.resetResponsivityManager();
     if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
@@ -197,7 +199,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public getRootStyle() {
     if (!this.isInitialized && !this.isResponsivenessDisabled) {
-      return { opacity: 0 };
+      return { opacity: 0, overflow: "hidden" };
     } else {
       return undefined;
     }

@@ -10,6 +10,7 @@ export default defineConfig({
       "tests/vitest.setup.ts",
       "tests/test-helpers.ts",
       "tests/oldTheme.ts",
+      "tests/legacy-theme-vars.ts",
       "node_modules/**",
       "build/**",
     ],

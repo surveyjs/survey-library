@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "./build"
+      ]
+    },
+    "declaration": false
+  },
+  "include": [
+    "./src/themes/adapters/icons/mui.ts",
+    "./src/themes/adapters/icons/lucide.ts"
+  ],
+  "exclude": []
+}

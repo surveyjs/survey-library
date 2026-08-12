@@ -2,14 +2,14 @@ import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions, IConfirmDialogOptions } from "./popup";
 
 export type ISurveyEnvironment = {
-  root: Document | ShadowRoot,
-  rootElement: HTMLElement | ShadowRoot,
-  popupMountContainer: HTMLElement | string,
+  root: Document | ShadowRoot | undefined,
+  rootElement: HTMLElement | ShadowRoot | undefined,
+  popupMountContainer: HTMLElement | string | undefined,
   /**
    * @deprecated
    */
-  svgMountContainer: HTMLElement | string,
-  stylesSheetsMountContainer: HTMLElement,
+  svgMountContainer: HTMLElement | string | undefined,
+  stylesSheetsMountContainer: HTMLElement | undefined,
 }
 export interface IBeforeRequestChoicesOptions { request?: XMLHttpRequest, url: string, fetchOptions?: RequestInit }
 
@@ -18,23 +18,29 @@ const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ?
   root: document,
 
   _rootElement: DomDocumentHelper.getBody(),
-  get rootElement(): HTMLElement | ShadowRoot {
+  get rootElement(): HTMLElement | ShadowRoot | undefined {
     return this._rootElement ?? DomDocumentHelper.getBody();
   },
-  set rootElement(rootElement: HTMLElement | ShadowRoot) {
+  set rootElement(rootElement: HTMLElement | ShadowRoot | undefined) {
     (this._rootElement as any) = rootElement;
   },
-
   _popupMountContainer: DomDocumentHelper.getBody(),
-  get popupMountContainer(): HTMLElement | string {
+  get popupMountContainer(): HTMLElement | string | undefined {
     return this._popupMountContainer ?? DomDocumentHelper.getBody();
   },
-  set popupMountContainer(popupMountContainer: HTMLElement | string) {
+  set popupMountContainer(popupMountContainer: HTMLElement | string | undefined) {
     (this._popupMountContainer as any) = popupMountContainer;
   },
   svgMountContainer: document.head,
   stylesSheetsMountContainer: document.head,
-} : undefined);
+} :
+  {
+    root: undefined,
+    rootElement: undefined,
+    popupMountContainer: undefined,
+    svgMountContainer: undefined,
+    stylesSheetsMountContainer: undefined,
+  });
 const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
   "file": { minWidth: "240px" },
   "comment": { minWidth: "200px" }
@@ -84,9 +90,6 @@ export var settings = {
    *
    * - `storeDuplicatedTranslations`: `boolean`\
    * Specifies whether surveys should store translation strings that equal the translation strings in the default locale. Default value: `false`.
-   *
-   * - `useLocalTimeZone`: `boolean`\
-   * Obsolete. Use the [`storeUtcDates`](https://surveyjs.io/form-library/documentation/api-reference/settings#storeUtcDates) setting instead.
    */
   localization: {
     /**
@@ -119,10 +122,7 @@ export var settings = {
    *
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
-   *
-   * - `surveyServiceUrl`: `string`\
-   * Obsolete. Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
-   *
+
    * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { url: string, request?: XMLHttpRequest, fetchOptions?: RequestInit })`\
    * An event that is raised before a request for choices is sent. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options` parameter to access and modify the request to be sent. The `options.fetchOptions` object is defined only when the Form Library is run on a Node.js server; `options.request` is defined in the rest of cases. The following example shows how you can add authentication headers to a request for choices:
    *
@@ -436,11 +436,12 @@ export var settings = {
   /**
    * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
    *
-   * - `false` (default) - Recalculate on every value change in the survey.
-   * - `true` - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
-   * @since 2.5.27
+   * - `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+   * - `false` - Recalculate on every value change in the survey.
    */
-  expressionQuestionTrackDependencies: false,
+  // MERGE(V3): default is `true` in V3, `false` in master (V2). Keep V3's `true` (and the
+  // matching doc lines above) on merge; discard master's `@since 2.5.27` doc variant.
+  expressionQuestionTrackDependencies: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
@@ -544,22 +545,6 @@ export var settings = {
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
   confirmActionAsync: <(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => void>undefined,
-  /**
-   * A minimum width value for all survey elements.
-   *
-   * Default value: `"300px"`
-   *
-   * You can override this setting for individual elements: [`minWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth).
-   */
-  minWidth: "300px",
-  /**
-   * A maximum width value for all survey elements.
-   *
-   * Default value: `"100%"`
-   *
-   * You can override this setting for individual elements: [`maxWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#maxWidth).
-   */
-  maxWidth: "100%",
   /**
    * Specifies how many times surveys can re-evaluate expressions when a question value changes. This limit helps avoid recursions in expressions.
    *

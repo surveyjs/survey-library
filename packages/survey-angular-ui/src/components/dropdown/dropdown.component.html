@@ -10,34 +10,36 @@
         [attr.aria-describedby]="dropdownModel.ariaQuestionDescribedby"
         [attr.aria-controls]="dropdownModel.ariaQuestionControls"
         [attr.aria-activedescendant]="dropdownModel.ariaQuestionActivedescendant">
-        <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
-            <span>{{ dropdownModel.hintStringPrefix }}</span>
-        </div>
         <div [class]="model.cssClasses.controlValue">
-            <div *ngIf="dropdownModel.showHintString" [class]="model.cssClasses.hintSuffix">
-                <span style="visibility: hidden">{{ dropdownModel.inputStringRendered }}</span>
-                <span>{{ dropdownModel.hintStringSuffix }}</span>
+            <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
+                <span>{{ dropdownModel.hintStringPrefix }}</span>
             </div>
-            <ng-container *ngIf="dropdownModel.showInputFieldComponent">
-                <ng-template
-                    [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
-            </ng-container>
-            <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
-            <input #inputElement *ngIf="dropdownModel.needRenderInput" type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered"
-                [class]="model.cssClasses.filterStringInput" [attr.id]="model.getInputId()"
-                [attr.inputmode]="dropdownModel.inputMode" [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
-                [attr.disabled]="model.isDisabledAttr ? true : null" [attr.role]="dropdownModel.ariaInputRole"
-                [attr.aria-required]="dropdownModel.ariaInputRequired"
-                [attr.aria-invalid]="dropdownModel.ariaInputInvalid"
-                [attr.aria-errormessage]="dropdownModel.ariaInputErrorMessage"
-                [attr.aria-expanded]="dropdownModel.ariaInputExpanded"
-                [attr.aria-controls]="dropdownModel.ariaInputControls" [attr.aria-label]="dropdownModel.ariaInputLabel"
-                [attr.aria-labelledby]="dropdownModel.ariaInputLabelledby"
-                [attr.aria-describedby]="dropdownModel.ariaInputDescribedby"
-                [attr.aria-activedescendant]="dropdownModel.ariaInputActivedescendant"
-                [attr.placeholder]="dropdownModel.placeholderRendered"
-                [attr.readonly]="dropdownModel.filterReadOnly ? true : null" (change)="inputChange($event)"
-                (blur)="blur($event)" (focus)="focus($event)" />
+            <div [class]="model.cssClasses.inputPrefixWrapper">
+                <div *ngIf="dropdownModel.showHintString" [class]="model.cssClasses.hintSuffix">
+                    <span style="visibility: hidden">{{ dropdownModel.inputStringRendered }}</span>
+                    <span>{{ dropdownModel.hintStringSuffix }}</span>
+                </div>
+                <ng-container *ngIf="dropdownModel.showInputFieldComponent">
+                    <ng-template
+                        [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
+                </ng-container>
+                <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
+                <input #inputElement *ngIf="dropdownModel.needRenderInput" type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered"
+                    [class]="model.cssClasses.filterStringInput" [attr.id]="model.getInputId()"
+                    [attr.inputmode]="dropdownModel.inputMode" [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
+                    [attr.disabled]="model.isDisabledAttr ? true : null" [attr.role]="dropdownModel.ariaInputRole"
+                    [attr.aria-required]="dropdownModel.ariaInputRequired"
+                    [attr.aria-invalid]="dropdownModel.ariaInputInvalid"
+                    [attr.aria-errormessage]="dropdownModel.ariaInputErrorMessage"
+                    [attr.aria-expanded]="dropdownModel.ariaInputExpanded"
+                    [attr.aria-controls]="dropdownModel.ariaInputControls" [attr.aria-label]="dropdownModel.ariaInputLabel"
+                    [attr.aria-labelledby]="dropdownModel.ariaInputLabelledby"
+                    [attr.aria-describedby]="dropdownModel.ariaInputDescribedby"
+                    [attr.aria-activedescendant]="dropdownModel.ariaInputActivedescendant"
+                    [attr.placeholder]="dropdownModel.placeholderRendered"
+                    [attr.readonly]="dropdownModel.filterReadOnly ? true : null" (change)="inputChange($event)"
+                    (blur)="blur($event)" (focus)="focus($event)" />
+            </div>
         </div>
         <sv-ng-action-bar [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
     </div>

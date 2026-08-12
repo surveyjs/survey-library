@@ -244,7 +244,9 @@ export var hindiStrings = {
   // [Auto-translated] "Table of contents"
   toc: "विषय-सूची",
   // [Auto-translated] "Progress bar"
-  progressbar: "प्रगति पट्टी"
+  progressbar: "प्रगति पट्टी",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "पेज {0}"
 };
 
 setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "हिन्दी", englishName: "Hindi" });

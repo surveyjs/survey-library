@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "focus input with Error";
 
@@ -60,16 +60,16 @@ frameworks.forEach((framework) => {
 
     test("validate on error", async ({ page }) => {
       await initSurvey(page, framework, json1);
-      await expect(page.locator(".sd-input").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Complete").click();
       await page.keyboard.press("Backspace");
       await page.keyboard.press("1");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({ q1: "1" });
@@ -77,16 +77,16 @@ frameworks.forEach((framework) => {
 
     test("validate on error in matrix", async ({ page }) => {
       await initSurvey(page, framework, json2);
-      await expect(page.locator(".sd-input").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Complete").click();
       await page.keyboard.press("Backspace");
       await page.keyboard.press("1");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({ matrix: [{ col1: "1" }] });

@@ -243,7 +243,7 @@ export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
 export { QuestionExpressionModel } from "../../src/question_expression";
-export { QuestionTextBase, CharacterCounter } from "../../src/question_textbase";
+export { QuestionTextBase, CharacterCounter, ICharacterCounterAction } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";
 export { QuestionBooleanModel } from "../../src/question_boolean";
 export {
@@ -263,9 +263,9 @@ export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
 export { SurveyNavigationLayoutModel } from "../../src/surveyNavigationLayoutModel";
 export * from "../../src/surveyToc";
 export { SurveyProgressModel } from "../../src/surveyProgress";
-export { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "../../src/progress-buttons";
+export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
-export { SurveyModel } from "../../src/survey";
+export { SurveyModel, DefaultTheme } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,
@@ -315,13 +315,13 @@ export {
 } from "../../src/question_buttongroup";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export * from "../../src/utils/browser";
+export * from "../../src/utils/color";
 export * from "../../src/utils/confirm-dialog";
 export * from "../../src/utils/dom-utils";
 export * from "../../src/utils/file-utils";
 export * from "../../src/utils/icons";
 export * from "../../src/utils/key2click";
 export * from "../../src/utils/animation-dom";
-export * from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
 export { InputMaskNumeric } from "../../src/mask/mask_numeric";
@@ -329,6 +329,9 @@ export { InputMaskDateTime } from "../../src/mask/mask_datetime";
 export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
+export * from "../../src/utils/shadow-effects";
+export * from "../../src/utils/resize-manager";
+export * from "../../src/utils/base-theme-init";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 
@@ -338,3 +341,4 @@ export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/de
 export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
+export { default as BaseTheme } from "../../src/default-theme/base-theme";

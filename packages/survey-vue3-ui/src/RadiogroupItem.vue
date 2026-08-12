@@ -33,14 +33,14 @@
     </label>
   </div>
   <SvComponent
-    v-if="item.isPanelShowing"
+    v-if="item.renderedIsPanelShowing"
     :is="'survey-panel'"
     :element="item.panel"
     :cssClasses="question.cssClasses"
   />
   <SvComponent
     :is="'survey-other-choice'"
-    v-if="item.isCommentShowing"
+    v-if="item.renderedIsCommentShowing"
     :question="question"
     :item="item"
   />
@@ -48,7 +48,7 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
+import type { ChoiceItem, QuestionRadiogroupModel } from "survey-core";
 import { ref } from "vue";
 import { useSelectBaseItem } from "./selectbase-item";
 const root = ref<HTMLElement>();
@@ -56,7 +56,7 @@ defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
   question: QuestionRadiogroupModel;
-  item: ItemValue;
+  item: ChoiceItem;
   hideLabel?: boolean;
   ariaLabel?: string;
 }>();

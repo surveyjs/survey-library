@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
 import { backgroundImage } from "../visualRegressionTests/constants";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 
@@ -59,6 +59,14 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          }
+        });
+      });
+
+      await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-default.png");
@@ -80,6 +88,14 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs2-color-component-survey-header-default-title": ""
+          }
+        });
+      });
+
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
         (window as any).survey.setIsMobile(true);
@@ -105,14 +121,18 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
+        (window as any).survey.setIsMobile(true);
+      });
+      await page.evaluate(() => {
         (window as any).survey.applyTheme({
           cssVariables: {
-            "--sjs-header-backcolor": "green"
+            "--sjs-header-backcolor": "green",
+            "--sjs2-color-component-survey-header-default-title": ""
           },
           header: {}
         });
-        (window as any).survey.setIsMobile(true);
       });
+
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-mobile-background.png");
     });
 
@@ -270,7 +290,7 @@ frameworks.forEach(framework => {
         });
       });
       await page.click("text=Windows");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.click("text=Javascript");
       await compareScreenshot(page, ".sd-action-bar.sd-footer.sd-body__navigation", "survey-navigation-bar.png");
     });
@@ -422,7 +442,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer.png", { maxDiffPixels: 2 });
+      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")], maxDiffPixels: 2 });
     });
 
     test("Check survey timer with no limits", async ({ page }) => {
@@ -493,7 +513,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer-without-progress.png");
+      await compareScreenshot(page, "body", "survey-timer-without-progress.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("Check survey timer both values - page and total", async ({ page }) => {
@@ -630,7 +650,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sv-save-data_root", "save-data-saving.png");
       await page.evaluate(() => {
         (window as any).Survey.settings.notifications.lifetime = 2000;
@@ -662,7 +682,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sv-save-data_root.sv-save-data_error", "save-data-error.png");
       await page.evaluate(() => {
         (window as any).survey.notify("An error occurred and we could not save the results.", "error", false);
@@ -698,7 +718,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sv-save-data_root.sv-save-data_success", "save-data-success.png");
       await page.evaluate(() => {
         (window as any).Survey.settings.notifications.lifetime = 2000;
@@ -765,7 +785,7 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
 
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png", { mask: [page.locator(".sd-body")] });
       await page.click(".sd-item__control-label");
       await page.click(".sd-navigation__next-btn");
       await page.click(".sd-item__control-label");
@@ -834,7 +854,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-right.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-right.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("Survey complete pages", async ({ page }) => {
@@ -906,7 +926,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#fff");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-page-without-title-compact.png");
     });
@@ -952,7 +972,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#fff");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-compact.png");
     });
@@ -989,7 +1009,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await page.evaluate(() => {
         document.body.style.setProperty("--background-dim", "#f3f3f3");
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-with-panel-compact.png");
     });
@@ -1056,7 +1076,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png");
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png", { mask: [page.locator(".sd-body")] });
       await page.click(".sv_progress-toc--mobile > div");
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "survey-navigation-toc-mobile-popup.png");
     });
@@ -1121,9 +1141,9 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
 
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png", { mask: [page.locator(".sd-body")] });
       await page.setViewportSize({ width: 600, height: 900 });
-      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png");
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("TOC survey navigation wide questions fit total width", async ({ page }) => {
@@ -1294,16 +1314,16 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.click("input[title='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-with-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-with-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
-      await page.click("input[title='Complete']");
+      await getButtonByText(page, "Complete").click();
       // if (framework !== "vue" && framework !== "knockout") {
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-with-title.png");
       // }
-      await page.evaluate(() => (window as any).survey.isCompact = false);
+      await page.evaluate(() => (window as any).survey.applyTheme({ isPanelless: false, cssVariables: {} }));
       await compareScreenshot(page, ".sd-root-modern", "survey-spm-page-with-error-with-title.png");
     });
 
@@ -1329,14 +1349,14 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.click("input[title='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-without-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-without-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
-      await page.click("input[title='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-without-title.png");
-      await page.evaluate(() => (window as any).survey.isCompact = false);
+      await page.evaluate(() => (window as any).survey.applyTheme({ isPanelless: false, cssVariables: {} }));
       await compareScreenshot(page, ".sd-root-modern", "survey-spm-page-with-error-without-title.png");
     });
 
@@ -1379,7 +1399,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.evaluate(() => (window as any).survey.isCompact = true);
+      await page.evaluate(() => (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless));
       await compareScreenshot(page, ".sd-root-modern", "row-multiple-compact-mode.png");
     });
 
@@ -1437,7 +1457,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-no-scrolling.png");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });
@@ -1502,7 +1522,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await page.evaluate(() => { (window as any).survey.isCompact = true; });
+      await page.evaluate(() => { (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless); });
       await page.setViewportSize({ width: 1920, height: 1080 });
       await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-compact.png");
     });

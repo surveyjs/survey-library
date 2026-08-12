@@ -43,6 +43,27 @@ describe("List Model", () => {
     ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
   });
 
+  test("ListModel batches updates once the container is mounted", () => {
+    ListModel.MINELEMENTCOUNT = 5;
+    const items = createIActionArray(7);
+    const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+    list.flushUpdates();
+    expect(list.renderedActions.length).toBe(7);
+
+    // Before mount updates are synchronous (SSR/initial render): the recomputed list reflects the change immediately.
+    list.actions[0].visible = false;
+    expect(list.renderedActions.length).toBe(6);
+
+    // After mount updates are debounced/batched, so the recomputed list is not refreshed until flushUpdates().
+    list.initListContainerHtmlElement(createListContainerHtmlElement());
+    list.actions[1].visible = false;
+    expect(list.renderedActions.length).toBe(6);
+    list.flushUpdates();
+    expect(list.renderedActions.length).toBe(5);
+
+    ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+  });
+
   test("ListModel reassign items", () => {
     ListModel.MINELEMENTCOUNT = 5;
     const items = createIActionArray(4);

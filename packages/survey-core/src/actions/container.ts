@@ -1,6 +1,7 @@
 import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
-import { IAction, Action, BaseAction } from "./action";
+import { ISurvey } from "../base-interfaces";
+import { IAction, Action, BaseAction, IActionAppearance } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
@@ -10,9 +11,6 @@ import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
 
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
-  private static ContainerID = 1;
-  protected id = ActionContainer.ContainerID++;
-
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
@@ -27,6 +25,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
+  }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const lo: any = this.locOwner;
+    return lo && lo.getSurvey ? lo.getSurvey(isLive) : null;
   }
   @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
@@ -48,7 +50,17 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
 
   @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
-  public locOwner: ILocalizableOwner;
+  private locOwnerValue: ILocalizableOwner;
+  public get locOwner(): ILocalizableOwner { return this.locOwnerValue; }
+  public set locOwner(val: ILocalizableOwner) {
+    this.locOwnerValue = val;
+    if (val) {
+      // Eagerly assign renderedId to every action so that id numbering follows
+      // model-construction order (deterministic for SSR) rather than first-render
+      // order (which can differ between server and client).
+      this.getAllActions().forEach(a => { void a.renderedId; });
+    }
+  }
   @property({ defaultValue: true }) isEmpty: boolean;
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -60,6 +72,11 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
 
   public flushUpdates() {
     this.raiseUpdateCallback.flushSync();
+  }
+  // Updates are synchronous until the container is mounted (so SSR renders with the correct actions);
+  // once mounted in the browser they are debounced/batched into a microtask.
+  protected setUpdatesAsync(isAsync: boolean): void {
+    this.raiseUpdateCallback.async = isAsync;
   }
   protected raiseUpdate(options?: { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }) {
     const lastArguments = this.raiseUpdateCallback.getLastArguments();
@@ -120,6 +137,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected onActionPropertyChangedCallback = this.onActionPropertyChanged.bind(this);
   protected patchAction(action: T) {
     this.setActionCssClasses(action);
+    this.setActionAppearance(action);
     action.owner = this;
     action.onPropertyChanged.add(this.onActionPropertyChangedCallback);
   }
@@ -255,9 +273,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
 
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
+    this.setUpdatesAsync(true);
     return;
   }
-  public resetResponsivityManager(): void { }
+  public resetResponsivityManager(): void {
+    this.setUpdatesAsync(false);
+  }
   public getActionById(id: string): T {
     const index = this.getActionIndexById(id);
     return index > -1 ? this.actions[index] : null;
@@ -273,5 +294,17 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.resetResponsivityManager();
     this.actions.forEach(action => action.dispose());
     this.actions.length = 0;
+  }
+  private setActionAppearance(action: T): void {
+    if (this.actionAppearance) {
+      action.setPredefinedAppearance(this.actionAppearance);
+    }
+  }
+  private actionAppearance: IActionAppearance;
+  public setActionsAppearance(appearance: IActionAppearance): void {
+    this.actionAppearance = appearance;
+    this.getAllActions().forEach(action => {
+      this.setActionAppearance(action);
+    });
   }
 }

@@ -244,7 +244,9 @@ export var icelandicSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Efnisyfirlit",
   // [Auto-translated] "Progress bar"
-  progressbar: "Framvindustika"
+  progressbar: "Framvindustika",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Síða {0}"
 };
 
 setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });

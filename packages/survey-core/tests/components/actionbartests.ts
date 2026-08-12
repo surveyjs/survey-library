@@ -58,16 +58,16 @@ test("AdaptiveActionContainer.css", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.addAction({ id: "1" });
   model.flushUpdates();
-  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode");
+  expect(model.getRootCss()).toBe("sd-action-bar sd-action-bar--default-size");
   model.containerCss = "footer";
-  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode footer");
+  expect(model.getRootCss()).toBe("sd-action-bar sd-action-bar--default-size footer");
 });
 
 test("getActionRootCss", () => {
   const action = new Action(<any>{ css: "custom" });
-  expect(action.getActionRootCss()).toBe("sv-action custom");
+  expect(action.getActionRootCss()).toBe("sd-action-bar__item custom");
   action.visible = false;
-  expect(action.getActionRootCss()).toBe("sv-action custom sv-action--hidden");
+  expect(action.getActionRootCss()).toBe("sd-action-bar__item custom sd-action-bar__item--hidden");
 });
 
 test("Check hideItemsGreaterN with minVisibleItemsCount", () => {
@@ -101,11 +101,11 @@ test("Check dropdown action pressed state", () => {
     popupModel: p1
   },);
   const viewModel = new ActionDropdownViewModel(action);
-  expect(action.pressed).toBeFalsy();
+  expect(action.popupActive).toBeFalsy();
   p1.isVisible = true;
-  expect(action.pressed).toBeTruthy();
+  expect(action.popupActive).toBeTruthy();
   p1.isVisible = false;
-  expect(action.pressed).toBeFalsy();
+  expect(action.popupActive).toBeFalsy();
   action.popupModel = p2;
 });
 
@@ -132,7 +132,7 @@ test("Check action bar cssClasses", () => {
   };
   expect(actionBar.cssClasses !== defaultActionBarCss).toBeTruthy();
   expect(actionBar.cssClasses.root).toBe("custom-action-bar");
-  expect(actionBar.cssClasses.item).toBe("sv-action-bar-item");
+  expect(actionBar.cssClasses.item).toBe("sd-action");
 });
 test("Action title", () => {
   const page = new PageModel("page1");
@@ -484,13 +484,27 @@ class TestAdaptiveActionContainer extends AdaptiveActionContainer {
     this.callback && this.callback(options);
   }
 }
-test("Check actions container update called only once", () => {
+test("Check actions container update called only once (sync before mount)", () => {
+  const container = new TestAdaptiveActionContainer();
+  const results:Array<AdaptiveContainerUpdateOptions> = [];
+  container.callback = (options) => {
+    results.push(options);
+  };
+  container["raiseUpdate"]({ needUpdateActions: true });
+  container["raiseUpdate"]({ needUpdateIsEmpty: true });
+  container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  // sync mode: each raiseUpdate fires immediately
+  expect(results.length).toBe(3);
+});
+
+test("Check actions container update batches after initResponsivityManager", () => {
   return new Promise(function(resolve) {
     let __remaining = 1;
     const __done = function() { if (--__remaining <= 0) resolve(); };
 
     const done = __done;
     const container = new TestAdaptiveActionContainer();
+    container.initResponsivityManager(document.createElement("div"));
     const results:Array<AdaptiveContainerUpdateOptions> = [];
     container.callback = (options) => {
       results.push(options);
@@ -506,8 +520,9 @@ test("Check actions container update called only once", () => {
   });
 });
 
-test("Check actions container flushUpdates", () => {
+test("Check actions container flushUpdates after initResponsivityManager", () => {
   const container = new TestAdaptiveActionContainer();
+  container.initResponsivityManager(document.createElement("div"));
   const results:Array<AdaptiveContainerUpdateOptions> = [];
   container.callback = (options) => {
     results.push(options);
@@ -537,10 +552,11 @@ class Test2AdaptiveActionContainer extends AdaptiveActionContainer {
 
 test("Check actions container update method", () => {
   const container = new Test2AdaptiveActionContainer();
-  container.actions.push(new Action({ id: "test" }));
   let responsivityLog = "";
   container.initResponsivityManager(document.createElement("div"), (forceUpdate: boolean) => responsivityLog += `->called:${forceUpdate}`);
+  container.actions.push(new Action({ id: "test" }));
 
+  // async mode after initResponsivityManager: push is deferred
   expect(container.visibleActions.length).toBe(0);
   expect(container.isEmpty).toBe(true);
   expect(responsivityLog).toBe("");
@@ -589,4 +605,13 @@ test("Make sure that createActionCore is called for bars & list", () => {
   const list = container.hiddenItemsListModel;
   list.addAction({ id: "test3" });
   expect(list.actions[0].template).toBe("custom");
+});
+
+test("Check active appearance", () => {
+  const action = new Action({ id: "test", title: "test", appearance: { style: "brand", mode: "tertiary", size: "large" }, activeAppearance: { style: "alert", mode: "secondary", size: "small" } });
+  expect(action.active).toBeFalsy();
+  expect(action.getActionBarItemCss()).toBe("sd-action sd-action--brand sd-action--tertiary sd-action--large");
+  action.active = true;
+  expect(action.active).toBeTruthy();
+  expect(action.getActionBarItemCss()).toBe("sd-action sd-action--active sd-action--alert sd-action--secondary sd-action--small");
 });

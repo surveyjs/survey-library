@@ -244,7 +244,9 @@ export var indonesianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Indeks",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bilah kemajuan"
+  progressbar: "Bilah kemajuan",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Halaman {0}"
 };
 
 setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });

@@ -23,21 +23,21 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      const questionTagbox = page.locator(".sd-input.sd-tagbox");
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question.png");
+      const questionTagbox = page.locator(".sd-formbox.sd-tagbox");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question.png");
 
       await questionTagbox.click();
       await getVisibleListItemByText(page, "item10").click();
       await getVisibleListItemByText(page, "item15").click();
       await compareScreenshot(page, ".sv-popup__container", "tagbox-popup-selected-items.png");
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-input-selected-items.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-input-selected-items.png");
 
       await page.keyboard.press("Escape");
-      await page.locator(".sv-tagbox__item").first().hover();
-      await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-hover.png");
+      await page.locator(".sd-tagbox-item").first().hover();
+      await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-hover.png");
 
-      await page.locator(".sd-tagbox-item_clean-button-svg").first().hover();
-      await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-icon-hover.png");
+      await page.locator(".sd-tagbox-item__clean-button-svg").first().hover();
+      await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-icon-hover.png");
     });
 
     test("Check tagbox select question without clear button", async ({ page }) => {
@@ -55,7 +55,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-without-clear-button.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-without-clear-button.png");
     });
 
     test("Check tagbox disabled items", async ({ page }) => {
@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
         selectQuestion.onOpened.add(updateChoiceEnabled);
       });
 
-      const questionTagbox = page.locator(".sd-input.sd-tagbox");
+      const questionTagbox = page.locator(".sd-formbox.sd-tagbox");
 
       await page.keyboard.press("Escape");
       await questionTagbox.click();
@@ -104,12 +104,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-multiline-selected-items.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-multiline-selected-items.png");
 
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").readOnly = true;
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-multiline-selected-items-readonly.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-multiline-selected-items-readonly.png");
     });
 
     test("Check rtl tagbox question", async ({ page }) => {
@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.locator(".sv-tagbox__item").first().hover();
+      await page.locator(".sd-tagbox-item").first().hover();
       await compareScreenshot(page, ".sd-question", "tagbox-rtl-question-answered.png");
 
       await page.locator(".sd-editor-clean-button").click();
@@ -168,12 +168,12 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
 
       await page.locator(".sd-editor-chevron-button").click();
-      await page.locator(".sd-list__item span").filter({ hasText: "item1", visible: true }).first().click();
+      await page.getByText("item1", { exact: true }).first().click();
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup-selected.png");
 
       await page.locator("span").filter({ hasText: "Cancel" }).click();
       await page.locator(".sd-editor-chevron-button").click();
-      await page.locator(".sv-list__input").fill("item1");
+      await page.locator(".sd-selectlist__filter input").fill("item1");
       await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup.png");
     });
@@ -202,7 +202,7 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item1");
+      await page.locator(".sd-selectlist__filter input").fill("item1");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
@@ -210,7 +210,7 @@ frameworks.forEach(framework => {
       await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item");
+      await page.locator(".sd-selectlist__filter input").fill("item");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
@@ -218,7 +218,7 @@ frameworks.forEach(framework => {
       await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item3");
+      await page.locator(".sd-selectlist__filter input").fill("item3");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
     });
@@ -316,7 +316,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-readonly-with-markdown.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-readonly-with-markdown.png");
     });
 
     test("Resize input & popup", async ({ page }) => {

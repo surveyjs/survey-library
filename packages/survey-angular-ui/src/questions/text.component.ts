@@ -6,7 +6,7 @@ import { AngularComponentFactory } from "../component-factory";
 @Component({
   selector: "sv-ng-text-question",
   templateUrl: "./text.component.html",
-  styleUrls: ["./text.component.scss"]
+  styles: [":host { display: contents; }"]
 })
 export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   @ViewChild("inputElement") inputElementRef!: ElementRef<HTMLDivElement>;

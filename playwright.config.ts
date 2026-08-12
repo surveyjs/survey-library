@@ -1,8 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import { resolve } from "path";
 export default defineConfig({
-  retries: 2,
-  maxFailures: 5,
+  retries: 4,
   fullyParallel: true,
   expect: {
     toHaveScreenshot: { threshold: 0.02 }

@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
-## 2.5.38 (2026-08-10)
+## 3.0.0 (2026-08-11)
+
+## 3.0.0-beta.9 (2026-08-07)
+
+## 3.0.0-beta.8 (2026-07-01)
+
+## 3.0.0-beta.7 (2026-06-19)
 
 ## 2.5.37 (2026-08-04)
 
@@ -22,33 +28,46 @@ All notable changes to this project will be documented in this file. See [commit
 
 ## 2.5.29 (2026-06-17)
 
-## 2.5.28 (2026-06-09)
+## [3.0.0-beta.6](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.5...v3.0.0-beta.6) (2026-05-26)
 
-## 2.5.27 (2026-06-02)
+## 3.0.0-beta.4 (2026-05-20)
 
-## 2.5.26 (2026-05-28)
+## [3.0.0-beta.5](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.4...v3.0.0-beta.5) (2026-05-21)
 
-## 2.5.25 (2026-05-18)
+## [3.0.0-beta.4](https://github.com/surveyjs/survey-library/compare/v2.5.25...v3.0.0-beta.4) (2026-05-20)
 
-## 2.5.24 (2026-05-12)
 
-## 2.5.23 (2026-05-05)
+### Bug Fixes
 
-## 2.5.22 (2026-04-28)
+* clearing visibleIf/enableIf/requiredIf resets question state to default ([#11291](https://github.com/surveyjs/survey-library/issues/11291)) ([075bfce](https://github.com/surveyjs/survey-library/commit/075bfce2709ce1a8235ecd213d9acedab7617c61))
 
-## 2.5.21 (2026-04-22)
+## [2.5.22](https://github.com/surveyjs/survey-library/compare/v2.5.21...v2.5.22) (2026-04-28)
 
-## 2.5.20 (2026-04-14)
+## [2.5.21](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.3...v2.5.21) (2026-04-22)
 
-## 2.5.19 (2026-04-07)
+## [3.0.0-beta.3](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.1...v3.0.0-beta.3) (2026-04-09)
 
-## 2.5.18 (2026-03-31)
-
-## 2.5.17 (2026-03-25)
+## [3.0.0-beta.1](https://github.com/surveyjs/survey-library/compare/v2.5.16...v3.0.0-beta.1) (2026-03-23)
 
 ## 2.5.16 (2026-03-18)
 
-## 2.5.15 (2026-03-11)
+## [3.0.0-beta.3](https://github.com/surveyjs/survey-creator/compare/v3.0.0-beta.1...v3.0.0-beta.3) (2026-04-09)
+
+## 2.5.16 (2026-03-18)
+
+## [3.0.0-beta.1](https://github.com/surveyjs/survey-creator/compare/v2.5.16...v3.0.0-beta.1) (2026-03-23)
+
+## [2.5.15](https://github.com/surveyjs/survey-creator/compare/v3.0.0-beta.0...v2.5.15) (2026-03-11)
+
+## 3.0.0-beta.0 (2026-03-05)
+
+## [3.0.0-beta.0](https://github.com/surveyjs/survey-creator/compare/v2.5.14...v3.0.0-beta.0) (2026-03-05)
+
+## [2.5.13](https://github.com/surveyjs/survey-creator/compare/v2.5.12...v2.5.13) (2026-02-27)
+
+## [2.5.12](https://github.com/surveyjs/survey-creator/compare/v2.5.9...v2.5.12) (2026-02-24)
+
+## 2.5.9 (2026-02-04)
 
 ## 2.5.14 (2026-03-04)
 

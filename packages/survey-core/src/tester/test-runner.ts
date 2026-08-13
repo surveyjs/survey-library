@@ -10,7 +10,7 @@ import {
   formatTestValue, getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand,
   SurveyTestCommandFactory,
 } from "./test-commands";
-// Imported for its side effect: it registers the "expect" command and the "value" check.
+// Imported for its side effect: it registers the "expect" command and the built-in check set.
 import "./test-checks";
 
 const TEST_PATH_PREFIX = "tests[";

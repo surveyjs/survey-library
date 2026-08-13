@@ -9,7 +9,7 @@ import { SurveyTestIssueCodes } from "./test-result";
 // declared type, and a type-switch payload would have to be re-derived by the editor, the renderer,
 // the validator and the docs.
 export type SurveyTestPayloadType =
-  "string" | "number" | "boolean" | "stringArray" | "nameMap" | "value" | "none";
+  "string" | "number" | "boolean" | "stringArray" | "array" | "nameMap" | "value" | "none";
 
 export interface ISurveyTestCommand {
   name: string;
@@ -29,6 +29,7 @@ export function isValidTestPayload(type: SurveyTestPayloadType, val: any): boole
     case "number": return typeof val === "number" && isFinite(val);
     case "boolean": return typeof val === "boolean";
     case "stringArray": return Array.isArray(val) && val.every(item => typeof item === "string");
+    case "array": return Array.isArray(val);
     case "nameMap": return !!val && typeof val === "object" && !Array.isArray(val);
     case "value": return val !== undefined;
     case "none": return val === true;
@@ -42,6 +43,7 @@ export function getTestPayloadTypeText(type: SurveyTestPayloadType): string {
     case "number": return "a number";
     case "boolean": return "a boolean";
     case "stringArray": return "an array of strings";
+    case "array": return "an array of values";
     case "nameMap": return "an object that maps a name to a value";
     case "value": return "a question value";
     case "none": return "true";
@@ -487,10 +489,12 @@ function checkValueEnterable(context: ISurveyTestContext, question: any, value: 
 // condition on a later cell that depends on an earlier one is already correct when it is reached.
 // -----------------------------------------------------------------------------------------------
 
-function isDynamicPanelQuestion(question: any): boolean {
+// Exported for the check registry: the tester duck-types a question type in one place, so that
+// "panelCount" and "addPanel" can never disagree about what a dynamic panel is.
+export function isDynamicPanelQuestion(question: any): boolean {
   return typeof question.addPanel === "function" && Array.isArray(question.panels);
 }
-function isDynamicMatrixQuestion(question: any): boolean {
+export function isDynamicMatrixQuestion(question: any): boolean {
   return typeof question.addRow === "function" && Array.isArray(question.visibleRows) &&
     typeof question.rowCount === "number";
 }

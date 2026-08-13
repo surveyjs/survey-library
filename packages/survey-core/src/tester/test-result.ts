@@ -105,4 +105,18 @@ export const SurveyTestIssueCodes = Object.freeze({
   startHasReservedKey: "startHasReservedKey",
   invalidDataMode: "invalidDataMode",
   invalidStartPage: "invalidStartPage",
+  // Run-time codes: everything below is reported by the runner, not by the validator.
+  surveyMissing: "surveyMissing",
+  reservedTargetName: "reservedTargetName",
+  unknownTarget: "unknownTarget",
+  ambiguousTarget: "ambiguousTarget",
+  unknownCommand: "unknownCommand",
+  unknownCheck: "unknownCheck",
+  commandNotApplicable: "commandNotApplicable",
+  checkNotApplicable: "checkNotApplicable",
+  invalidCommandParams: "invalidCommandParams",
+  invalidCheckPayload: "invalidCheckPayload",
+  unknownStartPage: "unknownStartPage",
+  startPageNotVisible: "startPageNotVisible",
+  unexpectedError: "unexpectedError",
 });

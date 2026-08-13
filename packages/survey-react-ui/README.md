@@ -78,6 +78,16 @@ Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatc
 
 For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/get-started-react.md](https://surveyjs.io/form-library/documentation/get-started-react.md).
 
+## SurveyJS ecosystem
+
+| Product | Purpose | License |
+| --- | --- | --- |
+| [Form Library](https://surveyjs.io/form-library) | Render dynamic forms from JSON (this package) | MIT |
+| [Survey Creator](https://surveyjs.io/survey-creator) | Drag-and-drop form builder UI | Commercial |
+| [Dashboard](https://surveyjs.io/dashboard) | Visualize and analyze collected results | Commercial |
+| [PDF Generator](https://surveyjs.io/pdf-generator) | Render forms and responses as PDF | Commercial |
+| [AI Form Response Extractor](https://surveyjs.io/documentation/combine-paper-and-online-survey-form-data) | Extract responses from paper forms, PDFs, and images into a SurveyJS schema (`ai-form-response-extractor`) | MIT |
+
 ## Build from sources
 
 Requires Node.js 20 or later — CI builds on Node 20.x and 22.x. This monorepo does **not** use npm workspaces: each package installs independently, but a root install is still required for the shared tooling (linting, Playwright).

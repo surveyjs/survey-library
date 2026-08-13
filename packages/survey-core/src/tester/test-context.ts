@@ -1,5 +1,6 @@
 import { settings } from "../settings";
 import { SurveyModel } from "../survey";
+import { getClosestName, getSurveyNames, SurveyTestDiagnostics } from "./test-diagnostics";
 import { ISurveyTest, ISurveyTestOptions, RESERVED_TARGET_SURVEY } from "./test-json";
 import { ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestStepResult, SurveyTestIssueCodes, SurveyTestSeverity } from "./test-result";
 
@@ -38,12 +39,13 @@ export class SurveyTestCaseError extends Error {
 }
 
 export function createCaseError(code: string, message: string,
-  props?: { target?: string, data?: any, suggestion?: string }): SurveyTestCaseError {
+  props?: { target?: string, data?: any, suggestion?: string, jsonPath?: string }): SurveyTestCaseError {
   const issue: ISurveyTestIssue = { severity: "error", code: code, message: message };
   if (!!props) {
     if (props.target !== undefined) issue.target = props.target;
     if (props.data !== undefined) issue.data = props.data;
     if (props.suggestion !== undefined) issue.suggestion = props.suggestion;
+    if (!!props.jsonPath) issue.jsonPath = props.jsonPath;
   }
   return new SurveyTestCaseError(issue);
 }
@@ -66,6 +68,9 @@ export class SurveyTestContext implements ISurveyTestContext {
   private isDateHookInstalled: boolean = false;
   private currentStep: ISurveyTestStepResult;
   private resetCacheFunc: () => void;
+  private diagnostics: SurveyTestDiagnostics = new SurveyTestDiagnostics(this);
+  // A target resolved to explain a failure must not report an ambiguity the case already heard about.
+  private isResolvingQuietly: boolean = false;
 
   // testIssues is the issues array of the test result: issues raised outside a step land there.
   constructor(private definition: any, public readonly options: ISurveyTestOptions,
@@ -89,8 +94,10 @@ export class SurveyTestContext implements ISurveyTestContext {
     if (options.checkErrorsMode !== undefined) survey.checkErrorsMode = options.checkErrorsMode;
     survey.randomSeed = options.randomSeed !== undefined ? options.randomSeed : DEFAULT_TEST_RANDOM_SEED;
     this.subscribeToModelChanges();
+    this.diagnostics.attach();
   }
   public teardown(): void {
+    this.diagnostics.detach();
     this.unsubscribeFromModelChanges();
     if (this.isDateHookInstalled) {
       // Restore the previous hook exactly, including undefined.
@@ -102,6 +109,11 @@ export class SurveyTestContext implements ISurveyTestContext {
   }
   public setCurrentStep(step: ISurveyTestStepResult): void {
     this.currentStep = step;
+  }
+  // Called by the runner once the command of the step is known: a command starts a new action, and the
+  // triggers and the blocked navigation of the previous one stop explaining what happens after it.
+  public startCommand(commandName: string): void {
+    this.diagnostics.startCommand(commandName);
   }
   // "survey" means the survey itself and nothing else. An element carrying that name would make every
   // case that uses it mean two things, so the test does not run at all.
@@ -127,7 +139,21 @@ export class SurveyTestContext implements ISurveyTestContext {
     }
     return target;
   }
+  // The diagnostics resolve a target that has already been resolved once, to explain a result that
+  // names it. A name that resolves to nothing there is not a second case error.
+  public resolveTargetSafe(name: string): ISurveyTestTarget {
+    if (!name || !this.surveyValue) return undefined;
+    this.isResolvingQuietly = true;
+    try {
+      return this.resolveTarget(name);
+    } catch(e) {
+      return undefined;
+    } finally {
+      this.isResolvingQuietly = false;
+    }
+  }
   public addIssue(issue: ISurveyTestIssue): void {
+    this.enrichIssue(issue);
     if (!!this.currentStep) {
       if (issue.step === undefined) issue.step = this.currentStep.index;
       this.currentStep.issues.push(issue);
@@ -135,13 +161,24 @@ export class SurveyTestContext implements ISurveyTestContext {
       this.testIssues.push(issue);
     }
   }
+  // The runner records the issue a case error carries without going through addIssue, so filling the
+  // JSON path of the element it names lives in a method of its own.
+  public enrichIssue(issue: ISurveyTestIssue): void {
+    this.diagnostics.enrichIssue(issue);
+  }
   public addWarning(code: string, message: string, data?: any): void {
     const issue: ISurveyTestIssue = { severity: <SurveyTestSeverity>"warning", code: code, message: message };
     if (data !== undefined) issue.data = data;
+    // A blocked navigation is recorded, not only reported: the check that asks why the state did not
+    // change is written in the next step, and it reads what this step found out.
+    if (code === SurveyTestIssueCodes.completeBlocked || code === SurveyTestIssueCodes.nextPageBlocked) {
+      this.diagnostics.setBlocked(!!this.currentStep ? this.currentStep.command : "", data);
+    }
     this.addIssue(issue);
   }
   public addCheckResult(result: ISurveyTestCheckResult): void {
     if (!!this.currentStep) {
+      this.diagnostics.enrichCheckResult(result);
       this.currentStep.checks.push(result);
     }
   }
@@ -241,9 +278,9 @@ export class SurveyTestContext implements ISurveyTestContext {
     addFound(survey.getPageByName(segment.name), "page");
     addFound(survey.getCalculatedValueByName(segment.name), "calculatedValue");
     if (found.length === 0) {
-      throw this.createUnknownTargetError(path, segment.name, "");
+      throw this.createUnknownTargetError(path, segment.name, "", getSurveyNames(survey));
     }
-    if (found.length > 1) {
+    if (found.length > 1 && !this.isResolvingQuietly) {
       const kinds = found.map(target => target.kind);
       this.addWarning(SurveyTestIssueCodes.ambiguousTarget,
         "The survey contains several elements named \"" + segment.name + "\": " + kinds.join(", ") +
@@ -264,7 +301,21 @@ export class SurveyTestContext implements ISurveyTestContext {
     }
     const row = this.findRowByName(obj, segment.name);
     if (!!row) return { name: path, kind: this.getContainerKind(), obj: row };
-    throw this.createUnknownTargetError(path, segment.name, this.getPathPrefix(segments, index));
+    throw this.createUnknownTargetError(path, segment.name, this.getPathPrefix(segments, index),
+      this.getChildNames(obj));
+  }
+  private getChildNames(obj: any): Array<string> {
+    const res: Array<string> = [];
+    if (!obj) return res;
+    if (Array.isArray(obj.questions)) {
+      obj.questions.forEach((question: any) => res.push(question.name));
+    }
+    if (Array.isArray(obj.visibleRows)) {
+      obj.visibleRows.forEach((row: any) => {
+        if (row.rowName !== undefined && row.rowName !== null) res.push(String(row.rowName));
+      });
+    }
+    return res;
   }
   private resolveIndex(path: string, parent: ISurveyTestTarget, segment: IPathSegment,
     next: IPathSegment, segments: Array<IPathSegment>, index: number):
@@ -318,11 +369,14 @@ export class SurveyTestContext implements ISurveyTestContext {
     }
     return res.join(".");
   }
-  private createUnknownTargetError(path: string, segment: string, prefix: string): SurveyTestCaseError {
+  private createUnknownTargetError(path: string, segment: string, prefix: string,
+    candidates: Array<string>): SurveyTestCaseError {
     const where = !!prefix ? " inside \"" + prefix + "\"" : " in the survey";
+    const props: any = { target: path, data: { segment: segment, prefix: prefix } };
+    const closest = getClosestName(segment, candidates);
+    if (!!closest) props.suggestion = "Did you mean \"" + closest + "\"?";
     return createCaseError(SurveyTestIssueCodes.unknownTarget,
-      "The target \"" + path + "\" cannot be resolved: there is no \"" + segment + "\"" + where + ".",
-      { target: path, data: { segment: segment, prefix: prefix } });
+      "The target \"" + path + "\" cannot be resolved: there is no \"" + segment + "\"" + where + ".", props);
   }
   private createMalformedPathError(path: string): SurveyTestCaseError {
     return createCaseError(SurveyTestIssueCodes.unknownTarget,

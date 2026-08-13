@@ -127,6 +127,9 @@ describe("SurveyTestRunner: the step loop", () => {
     expect(steps[1].name, "the step metadata is carried over").toEqual("the provider is not answered");
     expect(steps[1].checks[0], "the first check").toEqual({
       target: "hasInsurance", check: "value", expected: "no", actual: "no", passed: true, message: undefined, details: undefined,
+      // Every result for an element carries the path of the node it is about, so a caller can link
+      // a check back into the definition whether it passed or not.
+      jsonPath: "pages[0].elements[0]",
     });
   });
   test("A failing check fails the test and the later steps still run", async () => {

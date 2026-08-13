@@ -1,6 +1,8 @@
 import { Helpers } from "../helpers";
+import { Serializer } from "../jsonobject";
 import { settings } from "../settings";
 import { createCaseError, ISurveyTestContext, ISurveyTestTarget, SurveyTestCaseError, SurveyTestTargetKind } from "./test-context";
+import { getClosestName, getExpressionTrace, getJsonPath, ISurveyTestBlockingQuestion } from "./test-diagnostics";
 import { RESERVED_TARGET_SURVEY } from "./test-json";
 import { SurveyTestIssueCodes } from "./test-result";
 
@@ -110,38 +112,8 @@ function invalidParams(commandName: string, target: string, message: string, dat
     "The \"" + commandName + "\" command cannot run for the target \"" + target + "\": " + message,
     { target: target, data: Object.assign({ command: commandName }, data || {}) });
 }
-// Levenshtein distance, used only to suggest the name the author probably meant. Prompt 05 owns the
-// diagnostics; this is the smallest form of it a walk into a composite value needs.
-function getNameDistance(a: string, b: string): number {
-  const prev: Array<number> = [];
-  for (let j = 0; j <= b.length; j++) prev.push(j);
-  for (let i = 1; i <= a.length; i++) {
-    let diagonal = prev[0];
-    prev[0] = i;
-    for (let j = 1; j <= b.length; j++) {
-      const current = prev[j];
-      const cost = a[i - 1].toLowerCase() === b[j - 1].toLowerCase() ? 0 : 1;
-      prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diagonal + cost);
-      diagonal = current;
-    }
-  }
-  return prev[b.length];
-}
-export function findClosestTestName(name: string, names: Array<string>): string {
-  let res: string = undefined;
-  let best = -1;
-  const limit = Math.max(2, Math.floor(name.length / 3));
-  names.forEach(candidate => {
-    const distance = getNameDistance(name, candidate);
-    if (distance <= limit && (best < 0 || distance < best)) {
-      best = distance;
-      res = candidate;
-    }
-  });
-  return res;
-}
 function unknownChildError(path: string, key: string, names: Array<string>, what: string): SurveyTestCaseError {
-  const closest = findClosestTestName(key, names);
+  const closest = getClosestName(key, names);
   const props: any = { target: path, data: { key: key, available: names } };
   if (!!closest) props.suggestion = "Did you mean \"" + closest + "\"?";
   return createCaseError(SurveyTestIssueCodes.unknownTarget,
@@ -157,9 +129,14 @@ function unknownChildError(path: string, key: string, names: Array<string>, what
 interface INavigationRule {
   buttonId: string;
   title: string;
+  // The model property that decides whether the button is displayed: the renderer prints the name of
+  // the boolean that was false, so it belongs in the result and not only in the sentence.
+  flag: string;
   isVisible(survey: any): boolean;
   // Why the button is not displayed, as one sentence that points at what to do instead.
   getReason(survey: any): string;
+  // The command that does what this one cannot, when there is one.
+  getAlternative?(survey: any): string;
   // The start button has no enabled state of its own.
   hasEnabledState?: boolean;
 }
@@ -172,16 +149,19 @@ const navigationRules: { [name: string]: INavigationRule } = {
   nextPage: {
     buttonId: "sv-nav-next",
     title: "the Next button",
+    flag: "isShowNextButton",
     hasEnabledState: true,
     isVisible: (survey: any): boolean => survey.isShowNextButton,
     getReason: (survey: any): string => {
       if (survey.state !== "running") return getStateReason(survey);
       return "The survey is on the last page, where the Complete button has replaced Next. Use the \"complete\" command.";
     },
+    getAlternative: (survey: any): string => survey.state === "running" ? "complete" : undefined,
   },
   prevPage: {
     buttonId: "sv-nav-prev",
     title: "the Previous button",
+    flag: "isShowPrevButton",
     hasEnabledState: true,
     isVisible: (survey: any): boolean => survey.isShowPrevButton,
     getReason: (survey: any): string => {
@@ -193,8 +173,14 @@ const navigationRules: { [name: string]: INavigationRule } = {
   complete: {
     buttonId: "sv-nav-complete",
     title: "the Complete button",
+    flag: "isCompleteButtonVisible",
     hasEnabledState: true,
     isVisible: (survey: any): boolean => survey.isCompleteButtonVisible,
+    getAlternative: (survey: any): string => {
+      if (survey.state !== "running" || !survey.isEditMode) return undefined;
+      if (survey.showPreviewBeforeComplete) return "showPreview";
+      return survey.showCompleteButton ? "nextPage" : undefined;
+    },
     getReason: (survey: any): string => {
       if (survey.state !== "running" && survey.state !== "preview") return getStateReason(survey);
       if (!survey.isEditMode) return "The survey is in the \"" + survey.mode + "\" mode.";
@@ -208,8 +194,13 @@ const navigationRules: { [name: string]: INavigationRule } = {
   showPreview: {
     buttonId: "sv-nav-preview",
     title: "the Preview button",
+    flag: "isPreviewButtonVisible",
     hasEnabledState: true,
     isVisible: (survey: any): boolean => survey.isPreviewButtonVisible,
+    getAlternative: (survey: any): string => {
+      if (survey.state !== "running" || !survey.isEditMode) return undefined;
+      return survey.showPreviewBeforeComplete ? "nextPage" : "complete";
+    },
     getReason: (survey: any): string => {
       if (survey.state !== "running") return getStateReason(survey);
       if (!survey.isEditMode) return "The survey is in the \"" + survey.mode + "\" mode.";
@@ -220,6 +211,7 @@ const navigationRules: { [name: string]: INavigationRule } = {
   startSurvey: {
     buttonId: "sv-nav-start",
     title: "the Start button",
+    flag: "isStartPageActive",
     isVisible: (survey: any): boolean => survey.isStartPageActive,
     getReason: (survey: any): string => {
       if (!survey.firstPageIsStartPage) return "The survey has no start page: \"firstPageIsStartPage\" is false.";
@@ -232,22 +224,36 @@ const navigationRules: { [name: string]: INavigationRule } = {
   cancelPreview: {
     buttonId: "cancel-preview",
     title: "the Edit button of the preview page",
+    flag: "isCancelPreviewButtonVisible",
     isVisible: (survey: any): boolean => survey.isCancelPreviewButtonVisible,
     getReason: (survey: any): string => "The survey is not showing a preview; its state is \"" + survey.state + "\".",
   },
 };
 
+// The data says which boolean was false and what to do instead, so that a renderer prints the
+// diagnosis without re-deriving it from the sentence.
+function createNavigationData(commandName: string, rule: INavigationRule, survey: any, flag: string): any {
+  const res: any = {
+    command: commandName, button: rule.buttonId, state: survey.state,
+    flag: flag, flagValue: false, page: !!survey.currentPage ? survey.currentPage.name : undefined,
+  };
+  const alternative = !!rule.getAlternative ? rule.getAlternative(survey) : undefined;
+  if (!!alternative) res.useCommand = alternative;
+  return res;
+}
+
 function checkNavigationAvailable(context: ISurveyTestContext, commandName: string): void {
   const survey: any = context.survey;
   const rule = navigationRules[commandName];
-  const data = { command: commandName, button: rule.buttonId, state: survey.state };
   if (!rule.isVisible(survey)) {
     throw createCaseError(SurveyTestIssueCodes.navigationButtonNotAvailable,
       "The \"" + commandName + "\" command cannot run: " + rule.title + " (\"" + rule.buttonId +
       "\") is not displayed. " + rule.getReason(survey),
-      { target: RESERVED_TARGET_SURVEY, data: data });
+      { target: RESERVED_TARGET_SURVEY, data: createNavigationData(commandName, rule, survey, rule.flag) });
   }
   if (rule.hasEnabledState === true && survey.getPropertyValue("isNavigationBlocked") === true) {
+    const data = createNavigationData(commandName, rule, survey, "isNavigationBlocked");
+    data.flagValue = true;
     throw createCaseError(SurveyTestIssueCodes.navigationButtonNotAvailable,
       "The \"" + commandName + "\" command cannot run: " + rule.title + " (\"" + rule.buttonId +
       "\") is displayed but disabled - the survey is waiting for an asynchronous operation to finish.",
@@ -271,7 +277,8 @@ function checkOnCurrentPage(context: ISurveyTestContext, question: any, path: st
   throw createCaseError(SurveyTestIssueCodes.elementNotOnCurrentPage,
     "The question \"" + path + "\" is on the page \"" + page.name + "\", but the survey is on the page \"" +
     (!!active ? active.name : "") + "\". Navigate to it with the \"nextPage\" command, or begin the test there with \"startPage\" in the test start.",
-    { target: path, data: { page: page.name, currentPage: !!active ? active.name : undefined } });
+    { target: path, jsonPath: getJsonPath(question),
+      data: { page: page.name, currentPage: !!active ? active.name : undefined } });
 }
 
 function getHiddenParent(question: any): any {
@@ -287,49 +294,71 @@ function checkVisible(context: ISurveyTestContext, question: any, path: string):
   if (question.isVisibleInSurvey !== false) return;
   const hiddenParent = question.isVisible === false ? undefined : getHiddenParent(question);
   let reason: string;
+  // The path points at the expression that hid the question, and at the question when its own
+  // "visible" property is what is false.
+  let expressionProperty: string = undefined;
   const data: any = { type: getTypeName(question) };
+  // The responsible expression travels with its trace: "visibleIf is false" without the values it read
+  // says nothing a reader could act on.
   if (!!hiddenParent) {
     reason = "it is inside the hidden " + getTypeName(hiddenParent) + " \"" + hiddenParent.name + "\"";
     data.hiddenParent = hiddenParent.name;
-    if (!!hiddenParent.visibleIf) data.visibleIf = hiddenParent.visibleIf;
+    data.hiddenParentJsonPath = getJsonPath(hiddenParent);
+    if (!!hiddenParent.visibleIf) {
+      data.visibleIf = hiddenParent.visibleIf;
+      data.expression = getExpressionTrace(hiddenParent, hiddenParent.visibleIf);
+    }
   } else {
     reason = !!question.visibleIf
       ? "its \"visibleIf\" condition (" + question.visibleIf + ") is false"
       : "its \"visible\" property is false";
-    if (!!question.visibleIf) data.visibleIf = question.visibleIf;
+    if (!!question.visibleIf) {
+      data.visibleIf = question.visibleIf;
+      data.expression = getExpressionTrace(question, question.visibleIf);
+      expressionProperty = "visibleIf";
+    }
   }
   throw createCaseError(SurveyTestIssueCodes.elementNotVisible,
     "The question \"" + path + "\" is not visible, so a respondent cannot answer it: " + reason +
     ". Use the \"setDirectly\" command to assign a value a respondent cannot enter.",
-    { target: path, data: data });
+    { target: path, jsonPath: getJsonPath(question, expressionProperty), data: data });
 }
 
 function checkEditable(context: ISurveyTestContext, question: any, path: string): void {
   if (!question.isReadOnly && !question.isInputReadOnly) return;
   const survey: any = context.survey;
   let reason: string;
+  let expressionProperty: string = undefined;
   const data: any = { type: getTypeName(question) };
   if (survey.isDisplayMode) {
     reason = "the survey is in the \"" + survey.mode + "\" mode";
     data.cause = "surveyMode";
+    data.mode = survey.mode;
   } else if (question.readOnly) {
     reason = !!question.enableIf
       ? "its \"enableIf\" condition (" + question.enableIf + ") is false"
       : "its \"readOnly\" property is true";
     data.cause = !!question.enableIf ? "enableIf" : "readOnly";
-    if (!!question.enableIf) data.enableIf = question.enableIf;
+    if (!!question.enableIf) {
+      data.enableIf = question.enableIf;
+      data.expression = getExpressionTrace(question, question.enableIf);
+      expressionProperty = "enableIf";
+    }
   } else {
     const parent = getReadOnlyParent(question);
     reason = !!parent
       ? "it is inside the read-only " + getTypeName(parent) + " \"" + parent.name + "\""
       : "the input is read-only";
     data.cause = !!parent ? "parent" : "input";
-    if (!!parent) data.readOnlyParent = parent.name;
+    if (!!parent) {
+      data.readOnlyParent = parent.name;
+      data.readOnlyParentJsonPath = getJsonPath(parent);
+    }
   }
   throw createCaseError(SurveyTestIssueCodes.elementNotEditable,
     "The question \"" + path + "\" cannot be edited: " + reason +
     ". Use the \"setDirectly\" command to assign a value a respondent cannot enter.",
-    { target: path, data: data });
+    { target: path, jsonPath: getJsonPath(question, expressionProperty), data: data });
 }
 
 function getReadOnlyParent(question: any): any {
@@ -346,7 +375,26 @@ function getReadOnlyParent(question: any): any {
 function notEnterable(path: string, question: any, message: string, data?: any): SurveyTestCaseError {
   return createCaseError(SurveyTestIssueCodes.valueNotEnterable,
     "The value cannot be entered into the question \"" + path + "\": " + message,
-    { target: path, data: Object.assign({ type: getTypeName(question) }, data || {}) });
+    { target: path, jsonPath: getJsonPath(question),
+      data: Object.assign({ type: getTypeName(question) }, data || {}) });
+}
+// The constraint that rejected the value, in the form the definition writes it: a renderer prints
+// "maskType: numeric, decimalSeparator ".", precision 2" from these fields alone.
+function getMaskData(question: any, mask: any): any {
+  const res: any = { maskType: question.maskType };
+  const maskSettings: any = question.maskSettings;
+  if (!!maskSettings && typeof maskSettings.getType === "function") {
+    // The effective settings, read property by property: toJSON() writes only what differs from the
+    // default, and a renderer that prints "precision 2" would have nothing to print.
+    const json: any = {};
+    Serializer.getPropertiesByObj(maskSettings).forEach((property: any) => {
+      const value = maskSettings[property.name];
+      if (value !== undefined) json[property.name] = value;
+    });
+    res.maskSettings = json;
+  }
+  if (typeof mask.pattern === "string") res.pattern = mask.pattern;
+  return res;
 }
 
 // The value round-trips through the mask exactly as the input does. A phone mask cannot receive
@@ -357,10 +405,9 @@ function checkMask(question: any, value: any, path: string): void {
   if (!mask) return;
   if (typeof value !== "string" && typeof value !== "number") {
     throw notEnterable(path, question, "the \"" + question.maskType + "\" input mask accepts text, but the value is " +
-      formatTestValue(value) + ".", { maskType: question.maskType });
+      formatTestValue(value) + ".", getMaskData(question, mask));
   }
-  const maskData: any = { maskType: question.maskType };
-  if (typeof mask.pattern === "string") maskData.pattern = mask.pattern;
+  const maskData: any = getMaskData(question, mask);
   const patternText = typeof mask.pattern === "string" ? " (\"" + mask.pattern + "\")" : "";
   // With saveMaskedValue the stored value is the masked string, so the round trip starts one step
   // earlier; either way the value must survive it unchanged.
@@ -384,7 +431,7 @@ function checkMaxLength(question: any, value: any, path: string): void {
   const maxLength = question.getMaxLength();
   if (!maxLength || value.length <= maxLength) return;
   throw notEnterable(path, question, "the input accepts at most " + maxLength + " character(s), and the value has " +
-    value.length + ".", { maxLength: maxLength });
+    value.length + ".", { maxLength: maxLength, length: value.length });
 }
 
 // Both QuestionSelectBase and the Rating question expose visibleChoices, so one accessor covers the
@@ -405,6 +452,13 @@ function areChoicesVerifiable(question: any): boolean {
   if (question.choicesLazyLoadEnabled === true) return false;
   const byUrl: any = question.choicesByUrl;
   return !byUrl || byUrl.isEmpty !== false;
+}
+
+// Only a text value can be near-missed; a value of another type is either a choice or it is not.
+function getChoiceSuggestion(value: any, available: Array<any>): string {
+  if (typeof value !== "string") return undefined;
+  const closest = getClosestName(value, available.filter(choice => typeof choice === "string"));
+  return !!closest ? "Did you mean \"" + closest + "\"?" : undefined;
 }
 
 function checkChoices(context: ISurveyTestContext, question: any, value: any, path: string): void {
@@ -438,7 +492,8 @@ function checkChoices(context: ISurveyTestContext, question: any, value: any, pa
     throw createCaseError(SurveyTestIssueCodes.invalidChoiceValue,
       "The value " + formatTestValue(item) + " is not among the choices of \"" + path + "\". Available choices: " +
       availableText + ".",
-      { target: path, data: { value: item, choices: available } });
+      { target: path, jsonPath: getJsonPath(question),
+        data: { value: item, choices: available }, suggestion: getChoiceSuggestion(item, available) });
   });
   const max = question.maxSelectedChoices;
   if (isMulti && typeof max === "number" && max > 0 && values.length > max) {
@@ -626,10 +681,12 @@ function setSingleChoiceMatrixValue(context: ISurveyTestContext, question: any, 
         { target: rowPath, data: { cause: "readOnly" } });
     }
     if (!columns.some(column => Helpers.isTwoValueEquals(column.value, cellValue))) {
+      const available = columns.map(column => column.value);
       throw createCaseError(SurveyTestIssueCodes.invalidChoiceValue,
         "The value " + formatTestValue(cellValue) + " is not among the columns of \"" + rowPath +
         "\". Available columns: " + columns.map(column => formatTestValue(column.value)).join(", ") + ".",
-        { target: rowPath, data: { value: cellValue, choices: columns.map(column => column.value) } });
+        { target: rowPath, data: { value: cellValue, choices: available },
+          suggestion: getChoiceSuggestion(cellValue, available) });
     }
     row.value = cellValue;
   });
@@ -909,22 +966,30 @@ function registerNavigationCommand(name: string, act: (context: ISurveyTestConte
 }
 
 // A blocked completion is not a failing step: the button was there, the respondent pressed it and the
-// survey refused. The warning carries the blocking questions so that the following "expect" - and the
-// diagnostics of prompt 05 - can say why.
+// survey refused. The warning carries every blocking question with the state that made it block, so
+// that the "expect" of the next step can say why the survey is still running.
 function addBlockedWarning(context: ISurveyTestContext, code: string, action: string): void {
   const survey: any = context.survey;
-  const blocking: Array<string> = [];
+  const blocking: Array<ISurveyTestBlockingQuestion> = [];
   const page: any = survey.currentPage;
   if (!!page && Array.isArray(page.questions)) {
     page.questions.forEach((question: any) => {
-      if (question.errors && question.errors.length > 0) blocking.push(question.name);
+      if (!question.errors || question.errors.length === 0) return;
+      blocking.push({
+        name: question.name,
+        jsonPath: getJsonPath(question),
+        isRequired: question.isRequired === true,
+        isVisible: question.isVisibleInSurvey !== false,
+        isEmpty: question.isEmpty(),
+        errors: question.errors.map((error: any) => error.getText()),
+      });
     });
   }
   context.addWarning(code,
     "The survey did not " + action + ": " + (blocking.length > 0
-      ? "the questions " + blocking.join(", ") + " have validation errors."
+      ? "the questions " + blocking.map(item => item.name).join(", ") + " have validation errors."
       : "it was blocked, and no question reported an error - an event handler may have cancelled it."),
-    { questions: blocking, state: survey.state });
+    { questions: blocking, page: !!page ? page.name : undefined, state: survey.state });
 }
 
 registerNavigationCommand("complete", (context: ISurveyTestContext) => {

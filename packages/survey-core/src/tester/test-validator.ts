@@ -1,3 +1,4 @@
+import { getClosestName } from "./test-diagnostics";
 import { CHECK_COMMAND_NAME, ISurveyTest, ISurveyTests, ISurveyTestStep, STEP_METADATA_KEYS } from "./test-json";
 import { ISurveyTestIssue, SurveyTestIssueCodes, SurveyTestSeverity } from "./test-result";
 
@@ -224,9 +225,11 @@ export class SurveyTestValidator {
     if (typeof start === "string") {
       if (!startNames) return;
       if (startNames.indexOf(start) < 0) {
+        const closest = getClosestName(start, startNames);
         this.addIssue(issues, SurveyTestIssueCodes.unknownStartReference,
           "The test refers to the start \"" + start + "\", but \"starts\" contains no entry with this name.",
-          { path: startPath, data: { name: start } });
+          { path: startPath, data: { name: start, starts: startNames },
+            suggestion: !!closest ? "Did you mean \"" + closest + "\"?" : undefined });
       }
       return;
     }
@@ -259,7 +262,7 @@ export class SurveyTestValidator {
   }
 
   private addIssue(issues: Array<ISurveyTestIssue>, code: string, message: string,
-    props?: { path?: string, target?: string, severity?: SurveyTestSeverity, data?: any }): void {
+    props?: { path?: string, target?: string, severity?: SurveyTestSeverity, data?: any, suggestion?: string }): void {
     const issue: ISurveyTestIssue = {
       severity: props && props.severity ? props.severity : "error",
       code: code,
@@ -269,6 +272,7 @@ export class SurveyTestValidator {
       if (props.path !== undefined) issue.path = props.path;
       if (props.target !== undefined) issue.target = props.target;
       if (props.data !== undefined) issue.data = props.data;
+      if (props.suggestion !== undefined) issue.suggestion = props.suggestion;
     }
     issues.push(issue);
   }

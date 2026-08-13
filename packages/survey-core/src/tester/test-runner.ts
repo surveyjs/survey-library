@@ -5,6 +5,7 @@ import {
   ISurveyTestSummary, SurveyTestIssueCodes, SurveyTestStatus,
 } from "./test-result";
 import { SurveyTestValidator } from "./test-validator";
+import { getClosestName } from "./test-diagnostics";
 import { createCaseError, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "./test-context";
 import {
   formatTestValue, getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand,
@@ -116,6 +117,7 @@ export class SurveyTestRunner {
       } catch(e) {
         const issue = this.toIssue(e);
         issue.step = i;
+        context.enrichIssue(issue);
         stepResult.issues.push(issue);
       }
       context.setCurrentStep(undefined);
@@ -136,6 +138,7 @@ export class SurveyTestRunner {
   private runStep(context: SurveyTestContext, step: ISurveyTestStep, stepResult: ISurveyTestStepResult): void {
     const commandName = this.getStepCommandName(step);
     stepResult.command = commandName;
+    context.startCommand(commandName);
     const command = SurveyTestCommandFactory.Instance.get(commandName);
     if (!command) {
       throw createCaseError(SurveyTestIssueCodes.unknownCommand,
@@ -224,9 +227,12 @@ export class SurveyTestRunner {
   private applyStartPage(survey: SurveyModel, pageName: string): void {
     const page = survey.getPageByName(pageName);
     if (!page) {
+      const names = survey.pages.map(item => item.name);
+      const closest = getClosestName(pageName, names);
       throw createCaseError(SurveyTestIssueCodes.unknownStartPage,
         "The start refers to the page \"" + pageName + "\", but the survey has no page with this name.",
-        { data: { startPage: pageName } });
+        { data: { startPage: pageName, pages: names },
+          suggestion: !!closest ? "Did you mean \"" + closest + "\"?" : undefined });
     }
     // SurveyModel ignores an assignment of an invisible page, so a test would silently run on another
     // page. A start that cannot be reached with the state it describes is a broken case.
@@ -245,9 +251,12 @@ export class SurveyTestRunner {
     if (typeof start === "string") {
       const entry = this.getStartByName(start);
       if (!entry) {
+        const names = this.getStartNames();
+        const closest = getClosestName(start, names);
         throw createCaseError(SurveyTestIssueCodes.unknownStartReference,
           "The test refers to the start \"" + start + "\", but \"starts\" contains no entry with this name.",
-          { data: { name: start } });
+          { data: { name: start, starts: names },
+            suggestion: !!closest ? "Did you mean \"" + closest + "\"?" : undefined });
       }
       result.startName = start;
       result.start = this.cloneStart(entry);
@@ -268,6 +277,11 @@ export class SurveyTestRunner {
       if (!!starts[i] && starts[i].name === name) return starts[i];
     }
     return undefined;
+  }
+  private getStartNames(): Array<string> {
+    const starts = !!this.tests ? this.tests.starts : undefined;
+    if (!Array.isArray(starts)) return [];
+    return starts.filter(start => !!start && typeof start.name === "string").map(start => start.name);
   }
   private cloneStart(start: any): ISurveyTestStart {
     const res: ISurveyTestStart = {};

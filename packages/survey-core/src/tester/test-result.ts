@@ -134,4 +134,5 @@ export const SurveyTestIssueCodes = Object.freeze({
   rowsNotRemoved: "rowsNotRemoved",
   setWhileHidden: "setWhileHidden",
   choicesNotVerifiable: "choicesNotVerifiable",
+  valueClearedAsInvisible: "valueClearedAsInvisible",
 });

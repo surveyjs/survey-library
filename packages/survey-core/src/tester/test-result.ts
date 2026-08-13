@@ -119,4 +119,19 @@ export const SurveyTestIssueCodes = Object.freeze({
   unknownStartPage: "unknownStartPage",
   startPageNotVisible: "startPageNotVisible",
   unexpectedError: "unexpectedError",
+  // Feasibility codes: a command describes an interaction no respondent could perform.
+  navigationButtonNotAvailable: "navigationButtonNotAvailable",
+  elementNotOnCurrentPage: "elementNotOnCurrentPage",
+  elementNotVisible: "elementNotVisible",
+  elementNotEditable: "elementNotEditable",
+  valueNotEnterable: "valueNotEnterable",
+  invalidChoiceValue: "invalidChoiceValue",
+  cannotAddRows: "cannotAddRows",
+  // Warnings.
+  completeBlocked: "completeBlocked",
+  nextPageBlocked: "nextPageBlocked",
+  rowsAddedImplicitly: "rowsAddedImplicitly",
+  rowsNotRemoved: "rowsNotRemoved",
+  setWhileHidden: "setWhileHidden",
+  choicesNotVerifiable: "choicesNotVerifiable",
 });

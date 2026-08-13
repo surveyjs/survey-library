@@ -7,7 +7,8 @@ import {
 import { SurveyTestValidator } from "./test-validator";
 import { createCaseError, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "./test-context";
 import {
-  getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand, SurveyTestCommandFactory,
+  formatTestValue, getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand,
+  SurveyTestCommandFactory,
 } from "./test-commands";
 // Imported for its side effect: it registers the "expect" command and the "value" check.
 import "./test-checks";
@@ -157,11 +158,21 @@ export class SurveyTestRunner {
       if (!isValidTestPayload(command.payloadType, payload)) {
         throw createCaseError(SurveyTestIssueCodes.invalidCommandParams,
           "The \"" + command.name + "\" command expects " + getTestPayloadTypeText(command.payloadType) +
-          " as the parameters of the target \"" + targetName + "\".",
+          " as the parameters of the target \"" + targetName + "\", and it was given " +
+          formatTestValue(payload) + this.getUnknownKeysText(payload) + ".",
           { target: targetName, data: { command: command.name, payloadType: command.payloadType } });
       }
       command.run(context, target, payload);
     });
+  }
+  // A command that takes no parameters is often handed a leftover option object from an earlier draft
+  // of a case ({ "complete": { "survey": { "force": true } } }). Naming the keys turns "wrong type"
+  // into "this key does not exist".
+  private getUnknownKeysText(payload: any): string {
+    if (!this.isObject(payload)) return "";
+    const keys = Object.keys(payload);
+    if (keys.length === 0) return "";
+    return ". The command understands no parameter named " + keys.map(key => "\"" + key + "\"").join(", ");
   }
   private checkCommandTarget(command: ISurveyTestCommand, target: ISurveyTestTarget): void {
     if (isCommandAllowedForKind(command, target.kind)) return;

@@ -1,6 +1,8 @@
 import { Helpers } from "../helpers";
 import { CHECK_COMMAND_NAME } from "./test-json";
-import { getTestPayloadTypeText, isValidTestPayload, SurveyTestCommandFactory, SurveyTestPayloadType } from "./test-commands";
+import {
+  formatTestValue, getTestPayloadTypeText, isValidTestPayload, SurveyTestCommandFactory, SurveyTestPayloadType,
+} from "./test-commands";
 import { ISurveyTestContext, ISurveyTestTarget, SurveyTestTargetKind } from "./test-context";
 import { ISurveyTestIssue, SurveyTestIssueCodes } from "./test-result";
 
@@ -43,15 +45,6 @@ export class SurveyTestCheckFactory {
   }
   public getNamesForKind(kind: SurveyTestTargetKind): Array<string> {
     return this.getNames().filter(name => isCheckAllowedForKind(this.checks[name], kind));
-  }
-}
-
-export function formatTestValue(val: any): string {
-  if (val === undefined) return "undefined";
-  try {
-    return JSON.stringify(val);
-  } catch(e) {
-    return String(val);
   }
 }
 

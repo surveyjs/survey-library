@@ -43,7 +43,7 @@ You can create form definitions manually, generate them with AI, or build them v
     ·
     <a href="https://surveyjs.io/form-library/examples/overview">Form Library Demos</a>
     ·
-    <a href="https://github.com/surveyjs/theme-adapter-demos">Theme Adapters</a>
+    <a href="https://surveyjs.io/themes/theme-adapters">Theme Adapters</a>
     ·
     <a href="https://surveyjs.io/form-library/documentation/how-to-store-survey-results">Store survey results</a>
     ·
@@ -140,7 +140,7 @@ npm install survey-js-ui
 
 - Shared design token system based on CSS variables
 - Built-in themes with support for custom branding
-- [Theme Adapters for Bootstrap, Material UI, and shadcn/ui](https://github.com/surveyjs/theme-adapter-demos)
+- [Theme Adapters for Bootstrap, Material UI, and shadcn/ui](https://surveyjs.io/themes/theme-adapters)
 - Custom question rendering and reusable UI components
 - Configurable layouts, navigation controls, validation messages, and form behavior
 

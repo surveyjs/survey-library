@@ -15,6 +15,9 @@ import {
 import "./test-checks";
 
 const TEST_PATH_PREFIX = "tests[";
+// A test run on its own is not addressed by its index in the suite: it is not required to belong to
+// one, so its issues are pathed from "test" instead of from "tests[i]".
+const SINGLE_TEST_PATH = "test";
 
 export class SurveyTestRunner {
   private validator: SurveyTestValidator = new SurveyTestValidator();
@@ -36,7 +39,10 @@ export class SurveyTestRunner {
       result.issues.push(this.createSurveyMissingIssue());
       return Promise.resolve(result);
     }
-    return Promise.resolve(this.runTestCore(test, definition, []));
+    // The same structural validation a suite run does, so a broken case cannot be reported as passed
+    // because the caller picked this entry point. Named starts still resolve against the suite.
+    const issues = this.validator.validateTest(test, SINGLE_TEST_PATH, this.getStartNames());
+    return Promise.resolve(this.runTestCore(test, definition, issues));
   }
   private runCore(): ISurveyTestsResult {
     const result: ISurveyTestsResult = {

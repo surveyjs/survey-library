@@ -729,3 +729,53 @@ describe("SurveyTestRunner: the registries", () => {
     expect(result.tests[0].status, "the test errors").toEqual("error");
   });
 });
+
+describe("SurveyTestRunner: a single test", () => {
+  test("A valid test runs", async () => {
+    const result = await new SurveyTestRunner(insuranceSurvey, undefined).runTest({
+      name: "Declining insurance leaves the provider empty",
+      steps: [
+        { set: { hasInsurance: "no" } },
+        { expect: { insuranceProvider: { value: null } } },
+      ],
+    });
+    expect(result.status, "the test passes").toEqual("passed");
+    expect(result.steps.map(step => step.command), "both steps ran").toEqual(["set", CHECK_COMMAND_NAME]);
+    expect(result.issues, "nothing is reported").toEqual([]);
+  });
+  test("A structurally broken test errors instead of passing", async () => {
+    const result = await new SurveyTestRunner(insuranceSurvey, undefined).runTest({ name: "t", steps: [] });
+    expect(result.status, "an empty test is never a passing one").toEqual("error");
+    expect(codes(result.issues), "the missing steps are reported").toEqual([SurveyTestIssueCodes.stepsMissing]);
+    expect(result.issues[0].path, "the issue is pathed from the test itself").toEqual("test");
+    expect(result.steps, "no step ran").toEqual([]);
+  });
+  test("A test-level structural error is reported before the test runs", async () => {
+    const result = await new SurveyTestRunner(twoQuestionSurvey, undefined).runTest(<any>{
+      steps: [{ set: { q1: "a" }, expect: { q1: { value: "a" } } }],
+    });
+    expect(result.status, "the test errors").toEqual("error");
+    expect(codes(result.issues), "both the name and the step are reported")
+      .toEqual([SurveyTestIssueCodes.testNameMissing, SurveyTestIssueCodes.stepHasSeveralCommands]);
+    expect(result.issues[1].path, "the issue names its step").toEqual("test.steps[0]");
+    expect(result.steps, "the survey is never touched").toEqual([]);
+  });
+  test("A named start resolves against the suite of the runner", async () => {
+    const runner = new SurveyTestRunner(twoPageSurvey, {
+      starts: [{ name: "opened", data: { q1: "open" } }],
+      tests: [],
+    });
+    const passed = await runner.runTest({ name: "t", start: "opened", steps: [{ expect: { q1: { value: "open" } } }] });
+    expect(passed.status, "the referenced start is applied").toEqual("passed");
+    const errored = await runner.runTest({ name: "t", start: "opend", steps: [{ expect: { q1: { value: "open" } } }] });
+    expect(errored.status, "an unknown start errors").toEqual("error");
+    expect(codes(errored.issues), "the unresolved reference is reported once")
+      .toEqual([SurveyTestIssueCodes.unknownStartReference]);
+    expect(errored.issues[0].suggestion, "the closest name is suggested").toEqual("Did you mean \"opened\"?");
+  });
+  test("A missing survey definition still wins over a broken test", async () => {
+    const result = await new SurveyTestRunner(undefined, undefined).runTest({ name: "t", steps: [] });
+    expect(result.status, "the test errors").toEqual("error");
+    expect(codes(result.issues), "the missing survey is the only issue").toEqual([SurveyTestIssueCodes.surveyMissing]);
+  });
+});

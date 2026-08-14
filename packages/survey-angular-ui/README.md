@@ -115,7 +115,7 @@ Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatc
 - Render dynamic JSON-driven forms and surveys in Angular applications
 - Multi-step forms, quizzes, assessments, calculator forms, and survey pop-ups
 - Conditional visibility, branching, calculations, and expression-based logic
-- Input validation, save-and-resume workflows(https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/angular), and dynamic content
+- Input validation, [save-and-resume workflows](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/angular), and dynamic content
 
 ### Form Controls
 

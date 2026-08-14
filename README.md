@@ -147,7 +147,7 @@ npm install survey-js-ui
 ## Resources
 
 - [Website](https://surveyjs.io/)
-- [Documentation](https://surveyjs.io/survey-creator/documentation/overview)
+- [Documentation](https://surveyjs.io/form-library/documentation/overview)
 - [Full-Featured Demo](https://surveyjs.io/create-free-survey)
 - [Release Notes](https://surveyjs.io/stay-updated/release-notes)
 - [Roadmap](https://surveyjs.io/stay-updated/roadmap)

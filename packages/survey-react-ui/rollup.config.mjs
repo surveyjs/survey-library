@@ -14,7 +14,7 @@ const buildPlatformJson = {
   license: "MIT",
   author: "DevSoft Baltic OU <info@devsoftbaltic.com>",
   homepage: "https://surveyjs.io/",
-  description: "A free MIT-licensed React UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
+  description: "React component that renders dynamic JSON-driven SurveyJS forms and surveys with validation, conditional logic, theming, and server-side rendering.",
   keywords: [
     "react",
     "react-component",

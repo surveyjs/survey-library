@@ -21,7 +21,7 @@ const buildPlatformJson = {
   "name": pkg.name,
   "version": pkg.version,
   "license": "MIT",
-  "description": "A free MIT-licensed UI component that renders dynamic, interactive JSON-based forms and surveys in apps built with HTML, CSS, and JavaScript. You can use it to collect responses from users and send them to your own database.",
+  "description": "Framework-free renderer for dynamic JSON-driven SurveyJS forms in HTML/CSS/JavaScript apps, with jQuery support.",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "keywords": [

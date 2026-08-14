@@ -14,7 +14,7 @@ const buildPlatformJson = {
   "license": "MIT",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
-  "description": "A framework-independent core of the SurveyJS Form Library that works with rendering packages. Use it to integrate dynamic, interactive JSON-based forms and surveys into your app, collect user responses, and send them to your own database.",
+  "description": "Framework-independent model behind the SurveyJS Form Library: JSON-driven forms with validation, conditional logic, localization, and theming. Pair with survey-react-ui, survey-angular-ui, survey-vue3-ui, or survey-js-ui to render.",
   "keywords": [
     "survey",
     "form",

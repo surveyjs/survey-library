@@ -4,7 +4,7 @@
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
-  "description": "A free MIT-licensed Vue 3 UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
+  "description": "Vue 3 component that renders dynamic JSON-driven SurveyJS forms and surveys with validation, conditional logic, localization, and theming.",
   "keywords": [
     "vue",
     "vue3",

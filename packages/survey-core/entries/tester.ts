@@ -37,14 +37,38 @@ export type { ISurveyTestCommand, SurveyTestPayloadType } from "../src/tester/te
 export type { ISurveyTestCheckHandler, ISurveyTestCheckOutcome } from "../src/tester/test-checks";
 export type { ISurveyTestContext, ISurveyTestTarget, SurveyTestTargetKind } from "../src/tester/test-context";
 
+// The execution contract: how the model of a test is created and what a host is told while the run
+// progresses. A headless caller passes none of it.
+export type {
+  ISurveyTestExecutionOptions,
+  ISurveyTestModelFactoryContext,
+  SurveyTestModelFactory,
+  SurveyTestExecutionObserver,
+  SurveyTestExecutionEvent,
+  SurveyTestExecutionEventType,
+  ISurveyTestRunStartedEvent,
+  ISurveyTestRunCompletedEvent,
+  ISurveyTestTestStartedEvent,
+  ISurveyTestSurveyCreatedEvent,
+  ISurveyTestTestCompletedEvent,
+  ISurveyTestStepStartedEvent,
+  ISurveyTestStepCompletedEvent,
+  ISurveyTestTargetStartedEvent,
+  ISurveyTestTargetCompletedEvent,
+  ISurveyTestCheckCompletedEvent,
+  ISurveyTestIssueAddedEvent,
+} from "../src/tester/test-execution";
+
 import { ISurveyTestOptions, ISurveyTests } from "../src/tester/test-json";
 import { ISurveyTestsResult } from "../src/tester/test-result";
+import { ISurveyTestExecutionOptions } from "../src/tester/test-execution";
 import { SurveyTestRunner } from "../src/tester/test-runner";
 
 // The two-line path for the common case. The definition comes first and separately: a suite never
 // embeds it, so the same suite runs against an edited definition and the same definition against
-// several suites.
-export function runSurveyTests(survey: any, tests: ISurveyTests,
-  options?: ISurveyTestOptions): Promise<ISurveyTestsResult> {
-  return new SurveyTestRunner(survey, tests, options).run();
+// several suites. It is the survey JSON, never a SurveyModel: the runner creates the model of every
+// test itself, and executionOptions is where an application configures the one it creates.
+export function runSurveyTests(surveyJson: any, tests: ISurveyTests,
+  options?: ISurveyTestOptions, executionOptions?: ISurveyTestExecutionOptions): Promise<ISurveyTestsResult> {
+  return new SurveyTestRunner(surveyJson, tests, options).run(executionOptions);
 }

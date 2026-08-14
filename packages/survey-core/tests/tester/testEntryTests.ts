@@ -47,14 +47,42 @@ describe("survey-core/tester entry point", () => {
     });
   });
 
-  test("runSurveyTests accepts a SurveyModel and reports a failing check", async () => {
+  test("runSurveyTests reports a failing check", async () => {
     const tests: ISurveyTests = {
       tests: [{ name: "wrong", steps: [{ expect: { q1: { value: "a" } } }] }],
     };
-    const result = await runSurveyTests(new SurveyModel(survey), tests);
+    const result = await runSurveyTests(survey, tests);
     expect(result.status).toBe("failed");
     expect(result.tests[0].steps[0].checks[0].passed).toBe(false);
     expect(result.tests[0].steps[0].checks[0].actual).toBe(undefined);
+  });
+
+  test("runSurveyTests takes the survey JSON and rejects a SurveyModel", async () => {
+    const tests: ISurveyTests = { tests: [{ name: "t", steps: [{ expect: { q1: { empty: true } } }] }] };
+    const result = await runSurveyTests(new SurveyModel(survey), tests);
+    expect(result.status).toBe("error");
+    expect(result.issues[0].code).toBe(SurveyTestIssueCodes.surveyJsonExpected);
+    expect(result.tests.length).toBe(0);
+  });
+
+  test("runSurveyTests configures the model through the execution options", async () => {
+    const created: Array<SurveyModel> = [];
+    const tests: ISurveyTests = {
+      tests: [{
+        name: "t",
+        steps: [{ set: { q1: "typed" } }, { expect: { q1: { value: "from the factory" } } }],
+      }],
+    };
+    const result = await runSurveyTests(survey, tests, undefined, {
+      createSurvey: (surveyJson: any): SurveyModel => {
+        const model = new SurveyModel(surveyJson);
+        model.onValueChanging.add((sender: any, options: any) => { options.value = "from the factory"; });
+        created.push(model);
+        return model;
+      },
+    });
+    expect(result.status).toBe("passed");
+    expect(created.length).toBe(1);
   });
 
   test("runSurveyTests passes the options through as the root options", async () => {

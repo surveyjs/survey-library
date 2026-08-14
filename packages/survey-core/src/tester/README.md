@@ -10,6 +10,10 @@ import { runSurveyTests } from "survey-core/tester";
 const result = await runSurveyTests(surveyJson, tests, options);
 ```
 
+The first argument is the survey JSON: the harness creates the `SurveyModel` every test runs on. A
+host that needs to configure that model, or to watch and pace the run step by step, passes an
+execution contract as the fourth argument — see §6.
+
 It is a separate entry point. An application that only renders a survey never loads any of it, and
 nothing in `survey-core` itself imports from `src/tester/`.
 
@@ -281,3 +285,139 @@ with the values it read, the triggers that fired, the questions that blocked a n
 name a value was cleared under.
 
 The whole result is plain data. Formatting it is the caller's job.
+
+---
+
+## 6. Running a suite — the execution contract
+
+```ts
+const result = await runSurveyTests(surveyJson, tests, options, executionOptions);
+```
+
+The first two arguments are data, `options` is the run configuration of §4, and `executionOptions`
+is the only part of the call that is code: how the model of a test is built, and what the caller is
+told while the run progresses. A headless caller passes none of it and gets exactly the behaviour the
+first three arguments describe.
+
+### The input is survey JSON
+
+The first argument is **the survey JSON, never a `SurveyModel`**. The runner builds the model each
+test runs on and throws it away afterwards, so a model passed here would never be the one that runs:
+its event handlers, its callbacks and its state would silently be lost, and a case that relies on them
+would pass for the wrong reason. A `SurveyModel` is reported as the case error `surveyJsonExpected`
+instead of being serialised.
+
+To configure the model the runner creates, replace the factory that creates it.
+
+### The model factory
+
+```ts
+// The default, when createSurvey is not given.
+createSurvey: surveyJson => new SurveyModel(surveyJson)
+```
+
+```ts
+const result = await runSurveyTests(surveyJson, tests, undefined, {
+  createSurvey(surveyJson, context) {
+    const survey = new SurveyModel(surveyJson);
+    survey.onServerValidateQuestions.add(serverValidationHandler);
+    return survey;                       // or a Promise<SurveyModel>
+  }
+});
+```
+
+* It is called **once per enabled, structurally runnable test** — a disabled test and a test the
+  validator rejected never reach it.
+* It receives a **deep clone of the survey JSON of its own test**, so what the factory or the model
+  does to it cannot reach another test, and the caller's definition is never touched.
+* `context` is `{ test, testIndex, options }` — the test, its index in the suite (absent for
+  `runTest()`) and the options that test resolved to.
+* It may be synchronous or asynchronous; a promise is awaited.
+* It must return a **new** `SurveyModel` every time. A failure, a rejection, a wrong return value and a
+  model handed out twice each become a structured issue of that test alone (`surveyFactoryFailed`,
+  `surveyFactoryInvalidResult`); the suite goes on and the next test gets its own model.
+
+What the factory does **not** decide is what makes a run reproducible: the runner applies the locale,
+`clearInvisibleValues`, `checkErrorsMode` and the random seed to the model it is handed, whatever the
+factory set. The order of one test is fixed and it is the contract:
+
+1. resolve the options and create the test context;
+2. call and await `createSurvey` with the cloned survey JSON;
+3. apply the model configuration the runner owns;
+4. attach the tester diagnostics and subscriptions;
+5. emit and await `surveyCreated`;
+6. apply the variables, then the start data and the start page;
+7. run the steps.
+
+So a handler installed by the factory — or by the host, in `surveyCreated` — is already in place while
+the start data goes in.
+
+### The lifecycle events
+
+`onEvent` is called for every operation of the run. It may return a promise, and **the runner awaits
+it before it continues**: this is the whole mechanism a host has to delay, animate, scroll or render
+between two actions. The tester itself never waits, never sleeps and knows nothing about a UI.
+
+| Event | When | Carries |
+|---|---|---|
+| `runStarted` | a suite run begins | `tests` |
+| `testStarted` | before a test, skipped and broken ones included | `testIndex`, `test` |
+| `surveyCreated` | after step 4 above, before the start state | `testIndex`, `test`, `survey` |
+| `stepStarted` | before a step | `testIndex`, `stepIndex`, `step` |
+| `targetStarted` | before one target of the command of a step | `testIndex`, `stepIndex`, `command`, `target` |
+| `checkCompleted` | a check produced a result | `testIndex`, `stepIndex`, `result` |
+| `issueAdded` | an error or a warning was recorded | `testIndex`, `stepIndex`, `issue` |
+| `targetCompleted` | that target is done | `testIndex`, `stepIndex`, `command`, `target` |
+| `stepCompleted` | the step is done, with its status | `testIndex`, `stepIndex`, `result` |
+| `testCompleted` | the test is done | `testIndex`, `result` |
+| `runCompleted` | the suite run is done | `result` |
+
+Every event carries what applies to it and nothing else.
+
+* `surveyCreated` exposes **the exact model** the commands of that test run on. A host renders it there
+  and may attach handlers of its own before anything touches it.
+* A step whose command addresses several targets — `{ "set": { "q1": 1, "q2": 2 } }` — produces one
+  `targetStarted`/`targetCompleted` pair per target, in the order the case wrote them, so a host can
+  highlight the individual operations.
+* A check result and an issue are produced inside a handler, where nothing can be awaited. They are
+  announced at the end of the operation that produced them, in the order they were produced, before
+  that operation's `targetCompleted` or `stepCompleted`.
+* A target whose command ends the step with an error has **no** `targetCompleted`: the error travels
+  past that level, and the `stepCompleted` that follows carries it. Every other `*Started` has its
+  matching `*Completed`.
+* `runStarted` and `runCompleted` bracket a suite run only. `runTest()` runs one test and emits the
+  test-level events without them.
+* A callback that throws or rejects is reported exactly like a handler that fails at the same point:
+  as an `unexpectedError` issue of the step, the test or the suite. The run never rejects, and nothing
+  the tester installed — the model subscriptions, the diagnostics, the pinned clock — is left behind.
+
+`run()` and `runTest()` still resolve to their existing result types: the events are progress, the
+resolved result is the canonical one, and a run watched by a host produces the same result as the same
+run without one.
+
+### Delaying execution
+
+```ts
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+await runSurveyTests(surveyJson, tests, undefined, {
+  onEvent: async event => {
+    switch (event.type) {
+      case "surveyCreated":
+        render(event.survey);           // the model the test is about to run on
+        break;
+      case "targetStarted":
+        highlight(event.target);        // the element the next operation is about to touch
+        await delay(600);               // the runner waits here
+        break;
+      case "checkCompleted":
+        show(event.result);
+        break;
+    }
+  }
+});
+```
+
+Nothing above is in `survey-core`: there is no delay option, no animation setting and no timer in the
+tester. The host owns the pace, and the same suite that plays back at reading speed in an editor runs
+at full speed in CI by passing no observer at all.

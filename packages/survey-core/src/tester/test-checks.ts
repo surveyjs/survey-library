@@ -33,8 +33,11 @@ export interface ISurveyTestCheckHandler {
   // A check that applies to a question type rather than to a kind as a whole says why it does not
   // apply here. The dispatcher turns the sentence into a checkNotApplicable issue.
   getNotApplicableReason?(target: ISurveyTestTarget): string;
+  // A handler that returns a promise is awaited before the next check of the same target runs. Every
+  // built-in check reads the model and returns its outcome synchronously.
   check(context: ISurveyTestContext, target: ISurveyTestTarget, expected: any):
-    ISurveyTestCheckOutcome | Array<ISurveyTestCheckOutcome>;
+    ISurveyTestCheckOutcome | Array<ISurveyTestCheckOutcome> |
+    Promise<ISurveyTestCheckOutcome | Array<ISurveyTestCheckOutcome>>;
 }
 
 export function isCheckAllowedForKind(check: ISurveyTestCheckHandler, kind: SurveyTestTargetKind): boolean {
@@ -76,30 +79,33 @@ SurveyTestCommandFactory.Instance.register({
   allowElement: true,
   paramsKind: "checks",
   payloadType: "nameMap",
-  run: (context: ISurveyTestContext, target: ISurveyTestTarget, params: any): void => {
+  run: async (context: ISurveyTestContext, target: ISurveyTestTarget, params: any): Promise<void> => {
     const factory = SurveyTestCheckFactory.Instance;
     // Every pair produces a result or an issue, including the pairs after a failing one: checks are
-    // independent of each other.
-    Object.keys(params).forEach(checkName => {
+    // independent of each other. They run in key order, one after the other, so an asynchronous handler
+    // finishes before the next pair reads the model.
+    const checkNames = Object.keys(params);
+    for (let i = 0; i < checkNames.length; i++) {
+      const checkName = checkNames[i];
       const handler = factory.get(checkName);
       if (!handler) {
         addPairIssue(context, SurveyTestIssueCodes.unknownCheck,
           "There is no check named \"" + checkName + "\". Available checks: " + factory.getNames().join(", ") + ".",
           target.name, { check: checkName });
-        return;
+        continue;
       }
       if (!isCheckAllowedForKind(handler, target.kind)) {
         addPairIssue(context, SurveyTestIssueCodes.checkNotApplicable,
           "The check \"" + checkName + "\" does not apply to the " + target.kind + " \"" + target.name +
           "\". Checks for a " + target.kind + ": " + factory.getNamesForKind(target.kind).join(", ") + ".",
           target.name, { check: checkName, kind: target.kind });
-        return;
+        continue;
       }
       const reason = !!handler.getNotApplicableReason ? handler.getNotApplicableReason(target) : undefined;
       if (!!reason) {
         addPairIssue(context, SurveyTestIssueCodes.checkNotApplicable, reason, target.name,
           { check: checkName, kind: target.kind });
-        return;
+        continue;
       }
       const expected = params[checkName];
       if (!isValidTestPayload(handler.payloadType, expected)) {
@@ -107,12 +113,12 @@ SurveyTestCommandFactory.Instance.register({
           "The check \"" + checkName + "\" expects " + getCheckPayloadText(handler) +
           " as its expected value, but the target \"" + target.name + "\" passes " + formatTestValue(expected) + ".",
           target.name, { check: checkName, payloadType: handler.payloadType });
-        return;
+        continue;
       }
-      const outcome = handler.check(context, target, expected);
+      const outcome = await handler.check(context, target, expected);
       const outcomes = Array.isArray(outcome) ? outcome : [outcome];
       outcomes.forEach(item => addOutcome(context, target, checkName, expected, item));
-    });
+    }
   },
 });
 

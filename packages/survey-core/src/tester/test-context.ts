@@ -14,6 +14,14 @@ export interface ISurveyTestTarget {
   obj: any;
 }
 
+// What the runner does with a check result or an issue the moment a handler produces it. The context
+// knows nothing about the execution options: it reports, and the runner decides whether anyone listens.
+export interface ISurveyTestNotifier {
+  notifyCheckResult(result: ISurveyTestCheckResult, stepIndex: number): void;
+  // stepIndex is -1 for an issue raised outside a step.
+  notifyIssue(issue: ISurveyTestIssue, stepIndex: number): void;
+}
+
 export interface ISurveyTestContext {
   readonly survey: SurveyModel;
   readonly options: ISurveyTestOptions;
@@ -71,9 +79,10 @@ export class SurveyTestContext implements ISurveyTestContext {
   private diagnostics: SurveyTestDiagnostics = new SurveyTestDiagnostics(this);
   // A target resolved to explain a failure must not report an ambiguity the case already heard about.
   private isResolvingQuietly: boolean = false;
+  private notifier: ISurveyTestNotifier;
 
   // testIssues is the issues array of the test result: issues raised outside a step land there.
-  constructor(private definition: any, public readonly options: ISurveyTestOptions,
+  constructor(public readonly options: ISurveyTestOptions,
     public readonly test: ISurveyTest, private testIssues: Array<ISurveyTestIssue>) {
   }
   public get survey(): SurveyModel {
@@ -82,11 +91,18 @@ export class SurveyTestContext implements ISurveyTestContext {
   public get stepIndex(): number {
     return !!this.currentStep ? this.currentStep.index : -1;
   }
+  public setNotifier(notifier: ISurveyTestNotifier): void {
+    this.notifier = notifier;
+  }
   // The environment is installed before the model is created: a defaultValueExpression calling
-  // today() runs while the survey is being built.
-  public setup(): void {
+  // today() runs while the survey is being built, and the model is built by the runner's factory.
+  public setupEnvironment(): void {
     this.installDateHook();
-    const survey = new SurveyModel(this.definition);
+  }
+  // The configuration the tester owns whatever the factory did, and the subscriptions the tester needs.
+  // Nothing here is left to the factory: an application configures runtime behaviour, not what makes a
+  // run reproducible.
+  public setupSurvey(survey: SurveyModel): void {
     this.surveyValue = survey;
     const options = this.options;
     if (options.locale !== undefined) survey.locale = options.locale;
@@ -160,6 +176,9 @@ export class SurveyTestContext implements ISurveyTestContext {
     } else {
       this.testIssues.push(issue);
     }
+    if (!!this.notifier) {
+      this.notifier.notifyIssue(issue, this.stepIndex);
+    }
   }
   // The runner records the issue a case error carries without going through addIssue, so filling the
   // JSON path of the element it names lives in a method of its own.
@@ -180,6 +199,9 @@ export class SurveyTestContext implements ISurveyTestContext {
     if (!!this.currentStep) {
       this.diagnostics.enrichCheckResult(result);
       this.currentStep.checks.push(result);
+      if (!!this.notifier) {
+        this.notifier.notifyCheckResult(result, this.currentStep.index);
+      }
     }
   }
   private installDateHook(): void {

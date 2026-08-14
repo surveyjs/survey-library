@@ -1,0 +1,180 @@
+import { SurveyModel } from "../survey";
+import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStep } from "./test-json";
+import {
+  ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, ISurveyTestStepResult,
+} from "./test-result";
+
+// How a run is executed, as opposed to what it runs. Nothing here belongs to ISurveyTestOptions: those
+// options are the serialisable test format, and neither a model factory nor an observer can be written
+// in JSON. A headless caller passes none of this and gets exactly the behaviour it always had.
+
+export interface ISurveyTestModelFactoryContext {
+  test: ISurveyTest;
+  // The index of the test in the suite. Undefined for runTest(): a single test has no index.
+  testIndex?: number;
+  // The options of this test, after the suite and the root options are merged into them.
+  options: ISurveyTestOptions;
+}
+
+// Called once per enabled, structurally runnable test, with a deep clone of the survey JSON that
+// belongs to that test alone. It must return a new SurveyModel every time.
+export type SurveyTestModelFactory =
+  (surveyJson: any, context: ISurveyTestModelFactoryContext) => SurveyModel | Promise<SurveyModel>;
+
+export type SurveyTestExecutionEventType =
+  "runStarted" | "runCompleted" | "surveyCreated" | "testStarted" | "testCompleted" |
+  "stepStarted" | "stepCompleted" | "targetStarted" | "targetCompleted" | "checkCompleted" | "issueAdded";
+
+// Every event carries what applies to it and nothing else. A host that needs the whole picture keeps
+// what the earlier events gave it; an event never repeats a field to save it that work.
+
+export interface ISurveyTestRunStartedEvent {
+  type: "runStarted";
+  tests: ISurveyTests;
+}
+export interface ISurveyTestRunCompletedEvent {
+  type: "runCompleted";
+  result: ISurveyTestsResult;
+}
+export interface ISurveyTestTestStartedEvent {
+  type: "testStarted";
+  testIndex?: number;
+  test: ISurveyTest;
+}
+export interface ISurveyTestSurveyCreatedEvent {
+  type: "surveyCreated";
+  testIndex?: number;
+  test: ISurveyTest;
+  // The model the commands of this test run on, configured and subscribed to, before the variables and
+  // the start state are applied.
+  survey: SurveyModel;
+}
+export interface ISurveyTestTestCompletedEvent {
+  type: "testCompleted";
+  testIndex?: number;
+  result: ISurveyTestResult;
+}
+export interface ISurveyTestStepStartedEvent {
+  type: "stepStarted";
+  testIndex?: number;
+  stepIndex: number;
+  step: ISurveyTestStep;
+}
+export interface ISurveyTestStepCompletedEvent {
+  type: "stepCompleted";
+  testIndex?: number;
+  stepIndex: number;
+  // Carries the command name, the status, the checks and the issues of the step.
+  result: ISurveyTestStepResult;
+}
+export interface ISurveyTestTargetStartedEvent {
+  type: "targetStarted";
+  testIndex?: number;
+  stepIndex: number;
+  command: string;
+  target: string;
+}
+export interface ISurveyTestTargetCompletedEvent {
+  type: "targetCompleted";
+  testIndex?: number;
+  stepIndex: number;
+  command: string;
+  target: string;
+}
+export interface ISurveyTestCheckCompletedEvent {
+  type: "checkCompleted";
+  testIndex?: number;
+  stepIndex: number;
+  result: ISurveyTestCheckResult;
+}
+export interface ISurveyTestIssueAddedEvent {
+  type: "issueAdded";
+  testIndex?: number;
+  // Undefined for an issue raised outside a step.
+  stepIndex?: number;
+  issue: ISurveyTestIssue;
+}
+
+export type SurveyTestExecutionEvent =
+  ISurveyTestRunStartedEvent | ISurveyTestRunCompletedEvent |
+  ISurveyTestTestStartedEvent | ISurveyTestSurveyCreatedEvent | ISurveyTestTestCompletedEvent |
+  ISurveyTestStepStartedEvent | ISurveyTestStepCompletedEvent |
+  ISurveyTestTargetStartedEvent | ISurveyTestTargetCompletedEvent |
+  ISurveyTestCheckCompletedEvent | ISurveyTestIssueAddedEvent;
+
+// The runner awaits it before it continues. This is the whole mechanism a host has to delay, animate,
+// scroll or render between two actions: the tester itself never waits for anything.
+export type SurveyTestExecutionObserver = (event: SurveyTestExecutionEvent) => void | Promise<void>;
+
+export interface ISurveyTestExecutionOptions {
+  createSurvey?: SurveyTestModelFactory;
+  onEvent?: SurveyTestExecutionObserver;
+}
+
+function createDefaultSurvey(surveyJson: any): SurveyModel {
+  return new SurveyModel(surveyJson);
+}
+
+// A check result and an issue are produced inside a handler, and a handler is not a place that can
+// await an observer. They are queued as they are produced and the runner drains the queue at the
+// boundary of the operation that produced them, in order.
+interface ISurveyTestPendingNotification {
+  stepIndex: number;
+  check?: ISurveyTestCheckResult;
+  issue?: ISurveyTestIssue;
+}
+
+// The runtime state of one run(): the observer, the model factory and the models already handed out.
+// It is created per call, so two runs never share anything.
+export class SurveyTestExecution {
+  private observer: SurveyTestExecutionObserver;
+  private factory: SurveyTestModelFactory;
+  private pending: Array<ISurveyTestPendingNotification> = [];
+  private models: Array<SurveyModel> = [];
+  constructor(options?: ISurveyTestExecutionOptions) {
+    this.observer = !!options ? options.onEvent : undefined;
+    this.factory = !!options && !!options.createSurvey ? options.createSurvey : createDefaultSurvey;
+  }
+  public get isObserved(): boolean {
+    return !!this.observer;
+  }
+  public createSurvey(surveyJson: any, context: ISurveyTestModelFactoryContext): SurveyModel | Promise<SurveyModel> {
+    return this.factory(surveyJson, context);
+  }
+  public isModelUsed(survey: SurveyModel): boolean {
+    return this.models.indexOf(survey) > -1;
+  }
+  public addModel(survey: SurveyModel): void {
+    this.models.push(survey);
+  }
+  // ISurveyTestNotifier: the context calls these while a handler runs.
+  public notifyCheckResult(result: ISurveyTestCheckResult, stepIndex: number): void {
+    if (!this.observer) return;
+    this.pending.push({ stepIndex: stepIndex, check: result });
+  }
+  public notifyIssue(issue: ISurveyTestIssue, stepIndex: number): void {
+    if (!this.observer) return;
+    this.pending.push({ stepIndex: stepIndex, issue: issue });
+  }
+  public async emit(event: SurveyTestExecutionEvent): Promise<void> {
+    if (!this.observer) return;
+    await this.observer(event);
+  }
+  // The queue is emptied before the first event is emitted: an observer that fails drops what is left
+  // instead of leaking it into the next step.
+  public async flush(testIndex: number): Promise<void> {
+    const items = this.pending;
+    if (items.length === 0) return;
+    this.pending = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!!item.check) {
+        await this.emit({ type: "checkCompleted", testIndex: testIndex, stepIndex: item.stepIndex, result: item.check });
+      } else {
+        const event: ISurveyTestIssueAddedEvent = { type: "issueAdded", testIndex: testIndex, issue: item.issue };
+        if (item.stepIndex >= 0) event.stepIndex = item.stepIndex;
+        await this.emit(event);
+      }
+    }
+  }
+}

@@ -107,6 +107,9 @@ export const SurveyTestIssueCodes = Object.freeze({
   invalidStartPage: "invalidStartPage",
   // Run-time codes: everything below is reported by the runner, not by the validator.
   surveyMissing: "surveyMissing",
+  surveyJsonExpected: "surveyJsonExpected",
+  surveyFactoryFailed: "surveyFactoryFailed",
+  surveyFactoryInvalidResult: "surveyFactoryInvalidResult",
   reservedTargetName: "reservedTargetName",
   unknownTarget: "unknownTarget",
   ambiguousTarget: "ambiguousTarget",

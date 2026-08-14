@@ -22,7 +22,9 @@ export interface ISurveyTestCommand {
   // "checks" means the payload is a check map. Only "expect" declares it.
   paramsKind?: "params" | "checks";
   payloadType: SurveyTestPayloadType;
-  run(context: ISurveyTestContext, target: ISurveyTestTarget, params: any): void;
+  // A handler that returns a promise is awaited before the next target, the next step and the next test
+  // begin. Every built-in command is synchronous and returns void.
+  run(context: ISurveyTestContext, target: ISurveyTestTarget, params: any): void | Promise<void>;
 }
 
 export function isValidTestPayload(type: SurveyTestPayloadType, val: any): boolean {

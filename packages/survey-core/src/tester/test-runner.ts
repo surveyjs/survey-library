@@ -11,6 +11,9 @@ import {
   formatTestValue, getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand,
   SurveyTestCommandFactory,
 } from "./test-commands";
+import {
+  ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext, SurveyTestExecution,
+} from "./test-execution";
 // Imported for its side effect: it registers the "expect" command and the built-in check set.
 import "./test-checks";
 
@@ -21,30 +24,35 @@ const SINGLE_TEST_PATH = "test";
 
 export class SurveyTestRunner {
   private validator: SurveyTestValidator = new SurveyTestValidator();
-  // survey is either a survey definition or a SurveyModel. A model is normalised once with toJSON()
-  // and never used directly: a run neither mutates nor navigates the caller's model.
-  constructor(private survey: any, private tests: ISurveyTests, private options?: ISurveyTestOptions) {
+  // surveyJson is the survey definition and nothing else. The runner creates the model every test runs
+  // on, so a model handed in here would never be the one that runs: its handlers, its callbacks and its
+  // state would be lost. An application configures the model it wants through ISurveyTestExecutionOptions.
+  constructor(private surveyJson: any, private tests: ISurveyTests, private options?: ISurveyTestOptions) {
   }
-  // The API is Promise-based although every built-in command is synchronous: async validators,
-  // onServerValidateQuestions and async expression functions exist, and turning a sync API into an
-  // async one later is a breaking change.
-  public run(): Promise<ISurveyTestsResult> {
-    return Promise.resolve(this.runCore());
+  // Genuinely asynchronous: a command handler, a check handler and an observer callback may each
+  // return a promise, and nothing starts until the operation before it and its callback have finished.
+  public run(executionOptions?: ISurveyTestExecutionOptions): Promise<ISurveyTestsResult> {
+    return this.runCore(new SurveyTestExecution(executionOptions));
   }
-  public runTest(test: ISurveyTest): Promise<ISurveyTestResult> {
+  public runTest(test: ISurveyTest, executionOptions?: ISurveyTestExecutionOptions): Promise<ISurveyTestResult> {
+    return this.runSingleTest(test, new SurveyTestExecution(executionOptions));
+  }
+  private async runSingleTest(test: ISurveyTest, execution: SurveyTestExecution): Promise<ISurveyTestResult> {
     const definition = this.getDefinition();
     if (!definition) {
       const result = this.createTestResult(test);
       result.status = "error";
-      result.issues.push(this.createSurveyMissingIssue());
-      return Promise.resolve(result);
+      result.issues.push(this.createDefinitionIssue());
+      return result;
     }
     // The same structural validation a suite run does, so a broken case cannot be reported as passed
     // because the caller picked this entry point. Named starts still resolve against the suite.
     const issues = this.validator.validateTest(test, SINGLE_TEST_PATH, this.getStartNames());
-    return Promise.resolve(this.runTestCore(test, definition, issues));
+    return await this.runTestCore(test, undefined, definition, issues, execution);
   }
-  private runCore(): ISurveyTestsResult {
+  // runStarted and runCompleted bracket every path of a suite run, a suite that cannot run at all
+  // included: a host that displays progress needs the two boundaries whatever happens in between.
+  private async runCore(execution: SurveyTestExecution): Promise<ISurveyTestsResult> {
     const result: ISurveyTestsResult = {
       status: "passed",
       tests: [],
@@ -55,62 +63,135 @@ export class SurveyTestRunner {
     if (!!suite && typeof suite === "object" && typeof suite.name === "string") {
       result.name = suite.name;
     }
+    try {
+      await execution.emit({ type: "runStarted", tests: suite });
+      await this.runSuite(result, execution);
+    } catch(e) {
+      // Only an observer can throw here: everything else is reported as an issue where it happened.
+      result.issues.push(this.toIssue(e));
+    }
+    result.status = this.getSuiteStatus(result);
+    result.summary = this.createSummary(result);
+    try {
+      await execution.emit({ type: "runCompleted", result: result });
+    } catch(e) {
+      result.issues.push(this.toIssue(e));
+      result.status = "error";
+    }
+    return result;
+  }
+  private async runSuite(result: ISurveyTestsResult, execution: SurveyTestExecution): Promise<void> {
+    const suite: any = this.tests;
     const definition = this.getDefinition();
     if (!definition) {
-      result.issues.push(this.createSurveyMissingIssue());
-      result.status = "error";
-      result.summary = this.createSummary(result);
-      return result;
+      result.issues.push(this.createDefinitionIssue());
+      return;
     }
     const issues = this.validator.validate(suite);
     const suiteIssues = issues.filter(issue => !this.getTestIndex(issue.path));
     if (suiteIssues.some(issue => issue.severity === "error")) {
       result.issues = issues;
-      result.status = "error";
-      result.summary = this.createSummary(result);
-      return result;
+      return;
     }
     result.issues = suiteIssues;
     const tests = suite.tests;
     for (let i = 0; i < tests.length; i++) {
       const testIssues = issues.filter(issue => this.getTestIndex(issue.path) === TEST_PATH_PREFIX + i + "]");
-      result.tests.push(this.runTestCore(tests[i], definition, testIssues));
+      result.tests.push(await this.runTestCore(tests[i], i, definition, testIssues, execution));
     }
-    result.status = this.getSuiteStatus(result);
-    result.summary = this.createSummary(result);
-    return result;
   }
-  private runTestCore(test: ISurveyTest, definition: any, testIssues: Array<ISurveyTestIssue>): ISurveyTestResult {
+  private async runTestCore(test: ISurveyTest, testIndex: number, definition: any,
+    testIssues: Array<ISurveyTestIssue>, execution: SurveyTestExecution): Promise<ISurveyTestResult> {
     const result = this.createTestResult(test);
     testIssues.forEach(issue => result.issues.push(issue));
-    // A structural error wins over "disabled": a broken case is reported as broken, it is never
-    // silently downgraded to a skipped one.
-    if (testIssues.some(issue => issue.severity === "error")) {
+    try {
+      await execution.emit({ type: "testStarted", testIndex: testIndex, test: test });
+      await this.runTestBody(test, testIndex, definition, result, execution);
+      await execution.emit({ type: "testCompleted", testIndex: testIndex, result: result });
+    } catch(e) {
+      // Only an observer can throw here: runTestBody turns every failure of its own into an issue. The
+      // issue is not announced - the observer that would hear about it is the one that just failed.
+      result.issues.push(this.toIssue(e));
       result.status = "error";
-      return result;
+    }
+    return result;
+  }
+  // The order is fixed and it is the contract: the factory is called with the survey JSON of this test,
+  // then the tester configures the model and subscribes to it, then the host sees it, and only then do
+  // the variables, the start data and the steps touch it.
+  private async runTestBody(test: ISurveyTest, testIndex: number, definition: any,
+    result: ISurveyTestResult, execution: SurveyTestExecution): Promise<void> {
+    // A structural error wins over "disabled": a broken case is reported as broken, it is never
+    // silently downgraded to a skipped one. Neither one reaches the model factory.
+    if (result.issues.some(issue => issue.severity === "error")) {
+      result.status = "error";
+      return;
     }
     if (!!test.disabled) {
       result.status = "skipped";
-      return result;
+      return;
     }
     const variables = this.resolveVariables(test);
     result.variables = variables;
-    const context = new SurveyTestContext(this.cloneJson(definition), result.options, test, result.issues);
+    const context = new SurveyTestContext(result.options, test, result.issues);
+    if (execution.isObserved) {
+      context.setNotifier(execution);
+    }
     try {
       const start = this.resolveStart(test, result);
-      context.setup();
+      context.setupEnvironment();
+      const survey = await this.createSurveyModel(test, testIndex, result.options, definition, execution);
+      context.setupSurvey(survey);
       context.checkReservedTargetName();
+      await execution.emit({ type: "surveyCreated", testIndex: testIndex, test: test, survey: survey });
       this.applyStart(context, variables, start);
-      this.runSteps(context, test, result);
+      await execution.flush(testIndex);
+      await this.runSteps(context, test, result, testIndex, execution);
     } catch(e) {
-      result.issues.push(this.toIssue(e));
+      const issue = this.toIssue(e);
+      result.issues.push(issue);
       result.status = "error";
+      execution.notifyIssue(issue, -1);
     } finally {
+      // Nothing the model, the diagnostics or the global settings hold survives the test, whether it
+      // ended on its own, on a rejected handler or on a rejected observer callback.
       context.teardown();
     }
-    return result;
+    await this.flushIssues(result, testIndex, execution);
   }
-  private runSteps(context: SurveyTestContext, test: ISurveyTest, result: ISurveyTestResult): void {
+  private async createSurveyModel(test: ISurveyTest, testIndex: number, options: ISurveyTestOptions,
+    definition: any, execution: SurveyTestExecution): Promise<SurveyModel> {
+    const factoryContext: ISurveyTestModelFactoryContext = { test: test, options: options };
+    if (testIndex !== undefined) {
+      factoryContext.testIndex = testIndex;
+    }
+    let survey: any = undefined;
+    try {
+      // A clone per call: what the factory or the model does to the JSON cannot reach another test.
+      survey = await execution.createSurvey(this.cloneJson(definition), factoryContext);
+    } catch(e) {
+      const message = !!e && !!e.message ? e.message : String(e);
+      throw createCaseError(SurveyTestIssueCodes.surveyFactoryFailed,
+        "The function that creates the survey model failed: " + message,
+        { data: { error: message } });
+    }
+    if (!(survey instanceof SurveyModel)) {
+      const what = !!survey && typeof survey === "object" ? "an object that is not a SurveyModel" : formatTestValue(survey);
+      throw createCaseError(SurveyTestIssueCodes.surveyFactoryInvalidResult,
+        "The function that creates the survey model must return a SurveyModel, and it returned " + what + ".");
+    }
+    // Every test runs on a model of its own: a shared one would carry the answers, the current page and
+    // the completed state of the test before it into this one.
+    if (execution.isModelUsed(survey)) {
+      throw createCaseError(SurveyTestIssueCodes.surveyFactoryInvalidResult,
+        "The function that creates the survey model returned a model another test has already run on. " +
+        "Return a new SurveyModel for every call.");
+    }
+    execution.addModel(survey);
+    return survey;
+  }
+  private async runSteps(context: SurveyTestContext, test: ISurveyTest, result: ISurveyTestResult,
+    testIndex: number, execution: SurveyTestExecution): Promise<void> {
     const steps = Array.isArray(test.steps) ? test.steps : [];
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
@@ -118,18 +199,24 @@ export class SurveyTestRunner {
       if (!!step && typeof step.name === "string") stepResult.name = step.name;
       result.steps.push(stepResult);
       context.setCurrentStep(stepResult);
+      await execution.emit({ type: "stepStarted", testIndex: testIndex, stepIndex: i, step: step });
       try {
-        this.runStep(context, step, stepResult);
+        await this.runStep(context, step, stepResult, testIndex, execution);
       } catch(e) {
         const issue = this.toIssue(e);
         issue.step = i;
         context.enrichIssue(issue);
         stepResult.issues.push(issue);
+        execution.notifyIssue(issue, i);
       }
       context.setCurrentStep(undefined);
       const hasError = stepResult.issues.some(issue => issue.severity === "error");
       const hasFailed = stepResult.checks.some((check: ISurveyTestCheckResult) => !check.passed);
       stepResult.status = hasError ? "error" : (hasFailed ? "failed" : "passed");
+      // What the step produced is announced before the step itself ends, so a host renders the checks
+      // and the issues of a step while it is still the current one.
+      await execution.flush(testIndex);
+      await execution.emit({ type: "stepCompleted", testIndex: testIndex, stepIndex: i, result: stepResult });
       if (hasError) {
         result.status = "error";
         return;
@@ -141,7 +228,8 @@ export class SurveyTestRunner {
       }
     }
   }
-  private runStep(context: SurveyTestContext, step: ISurveyTestStep, stepResult: ISurveyTestStepResult): void {
+  private async runStep(context: SurveyTestContext, step: ISurveyTestStep, stepResult: ISurveyTestStepResult,
+    testIndex: number, execution: SurveyTestExecution): Promise<void> {
     const commandName = this.getStepCommandName(step);
     stepResult.command = commandName;
     context.startCommand(commandName);
@@ -159,8 +247,15 @@ export class SurveyTestRunner {
         "\" command must be a non-empty object that maps a target name to its parameters.",
         { data: { command: commandName } });
     }
-    // Targets run in key order: a case that sets two values relies on the order it wrote them in.
-    Object.keys(params).forEach(targetName => {
+    // Targets run in key order, one after the other: a case that sets two values relies on the order it
+    // wrote them in, and an asynchronous handler does not let the next one start early.
+    const targetNames = Object.keys(params);
+    for (let i = 0; i < targetNames.length; i++) {
+      const targetName = targetNames[i];
+      await execution.emit({
+        type: "targetStarted", testIndex: testIndex, stepIndex: stepResult.index,
+        command: commandName, target: targetName,
+      });
       const target = context.resolveTarget(targetName);
       this.checkCommandTarget(command, target);
       const payload = params[targetName];
@@ -171,8 +266,26 @@ export class SurveyTestRunner {
           formatTestValue(payload) + this.getUnknownKeysText(payload) + ".",
           { target: targetName, data: { command: command.name, payloadType: command.payloadType } });
       }
-      command.run(context, target, payload);
-    });
+      await command.run(context, target, payload);
+      await execution.flush(testIndex);
+      // A target that ends the step with an error has no targetCompleted: the error travels past this
+      // level, and the stepCompleted that follows carries it.
+      await execution.emit({
+        type: "targetCompleted", testIndex: testIndex, stepIndex: stepResult.index,
+        command: commandName, target: targetName,
+      });
+    }
+  }
+  // The last drain of a test: what an issue raised outside a step produced, and what a step that ended
+  // the test left behind. An observer that fails here is reported like any other failure of its own.
+  private async flushIssues(result: ISurveyTestResult, testIndex: number,
+    execution: SurveyTestExecution): Promise<void> {
+    try {
+      await execution.flush(testIndex);
+    } catch(e) {
+      result.issues.push(this.toIssue(e));
+      result.status = "error";
+    }
   }
   // A command that takes no parameters is often handed a leftover option object from an earlier draft
   // of a case ({ "complete": { "survey": { "force": true } } }). Naming the keys turns "wrong type"
@@ -322,8 +435,8 @@ export class SurveyTestRunner {
     });
   }
   private getDefinition(): any {
-    const survey = this.survey;
-    if (survey instanceof SurveyModel) return survey.toJSON();
+    const survey = this.surveyJson;
+    if (survey instanceof SurveyModel) return undefined;
     if (this.isObject(survey)) return survey;
     return undefined;
   }
@@ -336,11 +449,22 @@ export class SurveyTestRunner {
       issues: [],
     };
   }
-  private createSurveyMissingIssue(): ISurveyTestIssue {
+  // A SurveyModel is not silently serialised into a definition: the model that would run is not the one
+  // handed in, so a case that relies on its handlers or its state would pass for the wrong reason.
+  private createDefinitionIssue(): ISurveyTestIssue {
+    if (this.surveyJson instanceof SurveyModel) {
+      return {
+        severity: "error",
+        code: SurveyTestIssueCodes.surveyJsonExpected,
+        message: "The runner takes the survey JSON, not a SurveyModel: it creates a model of its own for every test, " +
+          "so the event handlers, the callbacks and the state of this one would be lost. Pass the survey JSON, and " +
+          "use the \"createSurvey\" execution option to configure the model the runner creates.",
+      };
+    }
     return {
       severity: "error",
       code: SurveyTestIssueCodes.surveyMissing,
-      message: "A survey definition is required to run a test suite. Pass a survey JSON object or a SurveyModel instance to the runner.",
+      message: "A survey definition is required to run a test suite. Pass the survey JSON to the runner.",
     };
   }
   // An unexpected exception from survey-core never reaches the caller: it becomes a case error.

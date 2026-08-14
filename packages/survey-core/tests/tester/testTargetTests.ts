@@ -1,3 +1,4 @@
+import { SurveyModel } from "../../src/survey";
 import { ISurveyTestIssue, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { ISurveyTestContext, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "../../src/tester/test-context";
 import { SurveyTestRunner } from "../../src/tester/test-runner";
@@ -42,9 +43,10 @@ interface ITestContextInfo {
 
 function createContext(definition: any = targetSurvey): ITestContextInfo {
   const issues: Array<ISurveyTestIssue> = [];
-  const context = new SurveyTestContext(JSON.parse(JSON.stringify(definition)), {},
-    { name: "target test", steps: [] }, issues);
-  context.setup();
+  const context = new SurveyTestContext({}, { name: "target test", steps: [] }, issues);
+  // The runner creates the model through its factory and hands it over; a context test does it itself.
+  context.setupEnvironment();
+  context.setupSurvey(new SurveyModel(JSON.parse(JSON.stringify(definition))));
   return { context: context, issues: issues };
 }
 function resolveError(context: SurveyTestContext, name: string): ISurveyTestIssue {

@@ -264,20 +264,26 @@ describe("SurveyTestRunner: the survey definition", () => {
     expect(statuses(result), "both tests pass").toEqual(["passed", "passed"]);
     expect(definition, "the definition is not touched by the run").toEqual(pristine);
   });
-  test("A SurveyModel instance is accepted and is left untouched", async () => {
+  // Serialising it and running on the copy would pass for the wrong reason: the model that ran would
+  // not be the one the caller configured.
+  test("A SurveyModel instance is rejected instead of being serialised", async () => {
     const survey = new SurveyModel(twoPageSurvey);
     survey.data = { q1: "kept" };
-    survey.currentPageNo = 1;
     const result = await run(survey, {
-      tests: [{
-        name: "runs over a copy",
-        steps: [{ set: { q1: "a" } }, { expect: { q1: { value: "a" } } }],
-      }],
+      tests: [{ name: "t", steps: [{ set: { q1: "a" } }, { expect: { q1: { value: "a" } } }] }],
     });
-    expect(statuses(result), "the test passes").toEqual(["passed"]);
-    expect(survey.data, "the data of the caller's model is untouched").toEqual({ q1: "kept" });
-    expect(survey.currentPageNo, "the current page of the caller's model is untouched").toEqual(1);
-    expect(survey.state, "the state of the caller's model is untouched").toEqual("running");
+    expect(result.status, "the suite errors").toEqual("error");
+    expect(codes(result.issues), "the input is reported").toEqual([SurveyTestIssueCodes.surveyJsonExpected]);
+    expect(result.issues[0].message, "the message names the way to configure the model")
+      .toContain("createSurvey");
+    expect(result.tests.length, "no test runs").toEqual(0);
+    expect(survey.data, "the model of the caller is untouched").toEqual({ q1: "kept" });
+  });
+  test("A SurveyModel passed to runTest() is rejected as well", async () => {
+    const result = await new SurveyTestRunner(new SurveyModel(twoPageSurvey), undefined)
+      .runTest({ name: "t", steps: [{ expect: { q1: { value: null } } }] });
+    expect(result.status, "the test errors").toEqual("error");
+    expect(codes(result.issues), "the input is reported").toEqual([SurveyTestIssueCodes.surveyJsonExpected]);
   });
   test("A missing survey definition is a suite error and no test runs", async () => {
     const suite = { tests: [{ name: "t", steps: [{ set: { q1: "a" } }] }] };

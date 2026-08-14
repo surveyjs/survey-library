@@ -127,9 +127,12 @@ export const SurveyTestIssueCodes = Object.freeze({
   valueNotEnterable: "valueNotEnterable",
   invalidChoiceValue: "invalidChoiceValue",
   cannotAddRows: "cannotAddRows",
+  cannotRemoveRows: "cannotRemoveRows",
   // Warnings.
   completeBlocked: "completeBlocked",
   nextPageBlocked: "nextPageBlocked",
+  addBlocked: "addBlocked",
+  removeBlocked: "removeBlocked",
   rowsAddedImplicitly: "rowsAddedImplicitly",
   rowsNotRemoved: "rowsNotRemoved",
   setWhileHidden: "setWhileHidden",

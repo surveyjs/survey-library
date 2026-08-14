@@ -575,7 +575,8 @@ function isObjectValue(value: any): boolean {
 // Grows a dynamic matrix or panel to hold the value, exactly as far as a respondent could by pressing
 // "Add". Never shrinks: the extra entries stay and the case is told about them.
 function resizeForValue(context: ISurveyTestContext, question: any, path: string, count: number,
-  info: { current: number, max: number, allowAdd: boolean, add: () => void, itemsText: string, allowProperty: string, maxProperty: string }): void {
+  info: { current: number, max: number, allowAdd: boolean, add: () => void, itemsText: string, allowProperty: string,
+    maxProperty: string, canAdd: () => boolean, canProperty: string, getCount: () => number, }): void {
   if (count > info.current) {
     const toAdd = count - info.current;
     if (!info.allowAdd) {
@@ -590,7 +591,24 @@ function resizeForValue(context: ISurveyTestContext, question: any, path: string
         info.max + " (\"" + info.maxProperty + "\").",
         { target: path, data: { required: count, current: info.current, max: info.max } });
     }
-    for (let i = 0; i < toAdd; i++) info.add();
+    // The same feasibility property the "addRow" and "addPanel" commands press: the implicit growth
+    // may not reach further than the Add button of the question does.
+    if (!info.canAdd()) {
+      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
+        "The value of \"" + path + "\" has " + count + " " + info.itemsText + ", the question has " + info.current +
+        ", and a respondent cannot add more: the question's \"" + info.canProperty + "\" property is false.",
+        { target: path, data: { required: count, current: info.current } });
+    }
+    for (let i = 0; i < toAdd; i++) {
+      if (!info.canAdd()) break;
+      info.add();
+    }
+    if (info.getCount() < count) {
+      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
+        "The value of \"" + path + "\" has " + count + " " + info.itemsText + ", and only " + info.getCount() +
+        " could be added: the question stopped allowing new ones while they were added.",
+        { target: path, data: { required: count, current: info.getCount() } });
+    }
     context.addWarning(SurveyTestIssueCodes.rowsAddedImplicitly,
       "The value of \"" + path + "\" required " + count + " " + info.itemsText + " and the question had " +
       info.current + ", so " + toAdd + " were added as a respondent would.",
@@ -608,6 +626,8 @@ function setDynamicPanelValue(context: ISurveyTestContext, question: any, value:
     current: question.panelCount, max: question.maxPanelCount, allowAdd: question.allowAddPanel !== false,
     add: () => question.addPanel(), itemsText: "panel(s)",
     allowProperty: "allowAddPanel", maxProperty: "maxPanelCount",
+    canAdd: () => question.canAddPanel !== false, canProperty: "canAddPanel",
+    getCount: () => question.panelCount,
   });
   value.forEach((panelValue: any, index: number) => {
     const panelPath = path + "[" + index + "]";
@@ -633,6 +653,8 @@ function setDynamicMatrixValue(context: ISurveyTestContext, question: any, value
     current: question.rowCount, max: question.maxRowCount, allowAdd: question.allowAddRows !== false,
     add: () => question.addRow(), itemsText: "row(s)",
     allowProperty: "allowAddRows", maxProperty: "maxRowCount",
+    canAdd: () => question.canAddRow !== false, canProperty: "canAddRow",
+    getCount: () => question.rowCount,
   });
   value.forEach((rowValue: any, index: number) => {
     const row = question.visibleRows[index];
@@ -866,6 +888,120 @@ function requireIndex(commandName: string, target: ISurveyTestTarget, params: an
   return params;
 }
 
+// The Add and Remove buttons are shown and hidden by the model's own feasibility properties -
+// canAddRow, canRemoveRows and canRemoveRow for a matrix, canAddPanel and canRemovePanel for a
+// dynamic panel - so the commands that press them read exactly those, and nothing else decides. The
+// individual reasons are unwound before them because "canAddRow is false" leaves the case author
+// guessing which of its conditions failed; the property itself is the last check, and it catches
+// every condition the model adds later.
+interface IDynamicItemsInfo {
+  // "row" or "panel": every message of the pair is built around this one word.
+  item: string;
+  allowProperty: string;
+  // maxRowCount / maxPanelCount when adding, minRowCount / minPanelCount when removing.
+  limitProperty: string;
+  limit: number;
+  canProperty: string;
+  isAllowed: boolean;
+  getCount: () => number;
+  can: () => boolean;
+}
+interface IDynamicAddInfo extends IDynamicItemsInfo {
+  add: () => void;
+}
+interface IDynamicRemoveInfo extends IDynamicItemsInfo {
+  canRemoveItem: (index: number) => boolean;
+  remove: (index: number) => void;
+}
+
+function cannotChangeItems(code: string, target: ISurveyTestTarget, message: string, data: any): SurveyTestCaseError {
+  return createCaseError(code, message, { target: target.name, data: data });
+}
+
+function addDynamicItems(context: ISurveyTestContext, question: any, target: ISurveyTestTarget,
+  count: number, info: IDynamicAddInfo): void {
+  checkOnCurrentPage(context, question, target.name);
+  checkVisible(context, question, target.name);
+  // A read-only question has no Add button either, and elementNotEditable names the property that
+  // made it read-only - a "cannotAddRows" error could not.
+  checkEditable(context, question, target.name);
+  if (!info.isAllowed) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotAddRows, target,
+      "A respondent cannot add a " + info.item + " to \"" + target.name + "\": \"" + info.allowProperty +
+      "\" is false.", { allowAdd: false });
+  }
+  if (info.getCount() + count > info.limit) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotAddRows, target,
+      "Adding " + count + " " + info.item + "(s) to \"" + target.name + "\" would exceed its \"" +
+      info.limitProperty + "\" of " + info.limit + "; it already has " + info.getCount() + ".",
+      { current: info.getCount(), max: info.limit });
+  }
+  if (!info.can()) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotAddRows, target,
+      "A respondent cannot add a " + info.item + " to \"" + target.name + "\": the question's \"" +
+      info.canProperty + "\" property is false, so the Add button is not displayed.",
+      { current: info.getCount(), max: info.limit });
+  }
+  for (let i = 0; i < count; i++) {
+    // Every press is verified on its own: a trigger or an event handler that runs while the items are
+    // added can take the button away before the last of them.
+    if (!info.can()) {
+      throw cannotChangeItems(SurveyTestIssueCodes.cannotAddRows, target,
+        "Only " + i + " of " + count + " " + info.item + "(s) could be added to \"" + target.name +
+        "\": adding them made the question's \"" + info.canProperty + "\" property false.",
+        { added: i, requested: count, current: info.getCount() });
+    }
+    const before = info.getCount();
+    info.add();
+    // Possible-but-ineffective is not an error: the button was there, the respondent pressed it and
+    // the model refused. The state is left to the "expect" of the next step.
+    if (info.getCount() === before) {
+      context.addWarning(SurveyTestIssueCodes.addBlocked,
+        "The question \"" + target.name + "\" did not add the " + info.item + " although the Add button was " +
+        "available - an event handler may have cancelled it. " + i + " of " + count + " were added.",
+        { target: target.name, added: i, requested: count, current: info.getCount() });
+      return;
+    }
+  }
+}
+
+function removeDynamicItem(context: ISurveyTestContext, question: any, target: ISurveyTestTarget,
+  index: number, info: IDynamicRemoveInfo): void {
+  checkOnCurrentPage(context, question, target.name);
+  checkVisible(context, question, target.name);
+  checkEditable(context, question, target.name);
+  if (!info.isAllowed) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotRemoveRows, target,
+      "A respondent cannot remove a " + info.item + " from \"" + target.name + "\": \"" + info.allowProperty +
+      "\" is false.", { allowRemove: false });
+  }
+  if (info.getCount() <= info.limit) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotRemoveRows, target,
+      "Removing a " + info.item + " from \"" + target.name + "\" would leave fewer than its \"" +
+      info.limitProperty + "\" of " + info.limit + "; it has " + info.getCount() + ".",
+      { current: info.getCount(), min: info.limit });
+  }
+  if (!info.can()) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotRemoveRows, target,
+      "A respondent cannot remove a " + info.item + " from \"" + target.name + "\": the question's \"" +
+      info.canProperty + "\" property is false, so the Remove button is not displayed.",
+      { current: info.getCount(), min: info.limit });
+  }
+  if (!info.canRemoveItem(index)) {
+    throw cannotChangeItems(SurveyTestIssueCodes.cannotRemoveRows, target,
+      "The " + info.item + " at the index " + index + " of \"" + target.name + "\" has no Remove button: it is " +
+      "locked or an event handler forbids removing it.", { index: index, current: info.getCount() });
+  }
+  const before = info.getCount();
+  info.remove(index);
+  if (info.getCount() === before) {
+    context.addWarning(SurveyTestIssueCodes.removeBlocked,
+      "The question \"" + target.name + "\" did not remove the " + info.item + " at the index " + index +
+      " although the Remove button was available - an event handler may have cancelled it.",
+      { target: target.name, index: index, current: info.getCount() });
+  }
+}
+
 SurveyTestCommandFactory.Instance.register({
   name: "addRow",
   allowSurvey: false,
@@ -875,20 +1011,15 @@ SurveyTestCommandFactory.Instance.register({
     const question = requireQuestion("addRow", target);
     if (!isDynamicMatrixQuestion(question)) throw commandNotApplicableToType("addRow", target, "a dynamic matrix");
     const count = requireCount("addRow", target, params);
-    checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
-    if (question.allowAddRows === false) {
-      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
-        "A respondent cannot add a row to \"" + target.name + "\": \"allowAddRows\" is false.",
-        { target: target.name, data: { allowAdd: false } });
-    }
-    if (question.rowCount + count > question.maxRowCount) {
-      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
-        "Adding " + count + " row(s) to \"" + target.name + "\" would exceed its \"maxRowCount\" of " +
-        question.maxRowCount + "; it already has " + question.rowCount + ".",
-        { target: target.name, data: { current: question.rowCount, max: question.maxRowCount } });
-    }
-    for (let i = 0; i < count; i++) question.addRow();
+    addDynamicItems(context, question, target, count, {
+      item: "row",
+      allowProperty: "allowAddRows", limitProperty: "maxRowCount", limit: question.maxRowCount,
+      canProperty: "canAddRow",
+      isAllowed: question.allowAddRows !== false,
+      getCount: () => question.rowCount,
+      can: () => question.canAddRow !== false,
+      add: () => question.addRow(),
+    });
   },
 });
 
@@ -901,9 +1032,23 @@ SurveyTestCommandFactory.Instance.register({
     const question = requireQuestion("removeRow", target);
     if (!isDynamicMatrixQuestion(question)) throw commandNotApplicableToType("removeRow", target, "a dynamic matrix");
     const index = requireIndex("removeRow", target, params, question.rowCount);
-    checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
-    question.removeRow(index);
+    removeDynamicItem(context, question, target, index, {
+      item: "row",
+      allowProperty: "allowRemoveRows", limitProperty: "minRowCount", limit: question.minRowCount,
+      canProperty: "canRemoveRows",
+      isAllowed: question.allowRemoveRows !== false,
+      getCount: () => question.rowCount,
+      can: () => question.canRemoveRows !== false,
+      // The row-level rule: a locked row and the "onMatrixRenderRemoveButton" event both take the
+      // Remove button of that one row away while the rest of the matrix keeps it.
+      canRemoveItem: (rowIndex: number) => {
+        const row = question.visibleRows[rowIndex];
+        return !row || typeof question.canRemoveRow !== "function" || question.canRemoveRow(row) !== false;
+      },
+      // confirmDelete is passed explicitly: the confirmation dialog cannot be rendered in a headless
+      // run, and a respondent who presses Remove answers it with "yes".
+      remove: (rowIndex: number) => question.removeRow(rowIndex, false),
+    });
   },
 });
 
@@ -916,20 +1061,15 @@ SurveyTestCommandFactory.Instance.register({
     const question = requireQuestion("addPanel", target);
     if (!isDynamicPanelQuestion(question)) throw commandNotApplicableToType("addPanel", target, "a dynamic panel");
     const count = requireCount("addPanel", target, params);
-    checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
-    if (question.allowAddPanel === false) {
-      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
-        "A respondent cannot add a panel to \"" + target.name + "\": \"allowAddPanel\" is false.",
-        { target: target.name, data: { allowAdd: false } });
-    }
-    if (question.panelCount + count > question.maxPanelCount) {
-      throw createCaseError(SurveyTestIssueCodes.cannotAddRows,
-        "Adding " + count + " panel(s) to \"" + target.name + "\" would exceed its \"maxPanelCount\" of " +
-        question.maxPanelCount + "; it already has " + question.panelCount + ".",
-        { target: target.name, data: { current: question.panelCount, max: question.maxPanelCount } });
-    }
-    for (let i = 0; i < count; i++) question.addPanel();
+    addDynamicItems(context, question, target, count, {
+      item: "panel",
+      allowProperty: "allowAddPanel", limitProperty: "maxPanelCount", limit: question.maxPanelCount,
+      canProperty: "canAddPanel",
+      isAllowed: question.allowAddPanel !== false,
+      getCount: () => question.panelCount,
+      can: () => question.canAddPanel !== false,
+      add: () => question.addPanel(),
+    });
   },
 });
 
@@ -942,9 +1082,17 @@ SurveyTestCommandFactory.Instance.register({
     const question = requireQuestion("removePanel", target);
     if (!isDynamicPanelQuestion(question)) throw commandNotApplicableToType("removePanel", target, "a dynamic panel");
     const index = requireIndex("removePanel", target, params, question.panelCount);
-    checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
-    question.removePanel(index);
+    removeDynamicItem(context, question, target, index, {
+      item: "panel",
+      allowProperty: "allowRemovePanel", limitProperty: "minPanelCount", limit: question.minPanelCount,
+      canProperty: "canRemovePanel",
+      isAllowed: question.allowRemovePanel !== false,
+      getCount: () => question.panelCount,
+      can: () => question.canRemovePanel !== false,
+      // A dynamic panel has no per-panel rule: canRemovePanel governs every Remove button of it.
+      canRemoveItem: () => true,
+      remove: (panelIndex: number) => question.removePanel(panelIndex),
+    });
   },
 });
 

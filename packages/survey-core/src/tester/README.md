@@ -81,6 +81,14 @@ respondent could do.
   or validation itself would be untestable.
 * A complex question is filled **leaf by leaf**, each leaf checked before it is set, so conditions
   and triggers fire between cells exactly as they do for a person.
+* `addRow`, `removeRow`, `addPanel` and `removePanel` read the model's own `canAddRow`,
+  `canRemoveRows` and `canRemoveRow`, `canAddPanel` and `canRemovePanel` — the properties that show
+  and hide the Add and Remove buttons themselves. A read-only question, a count at `maxRowCount` or
+  `minPanelCount`, a locked row and an `onMatrixRenderRemoveButton` handler each end the case with an
+  error instead of a silent change no respondent could make. The growth a `set` performs implicitly
+  stops at the same line. A press the model then refuses — an `onMatrixRowAdding`,
+  `onMatrixRowRemoving` or `onDynamicPanelRemoving` handler cancels it — is a warning, not an error,
+  exactly as a blocked Complete is.
 * Possible-but-ineffective is not an error: a Complete button that validation blocks runs, warns and
   leaves the state to the following `expect`.
 

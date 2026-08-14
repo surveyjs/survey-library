@@ -626,6 +626,150 @@ describe("Dynamic sizing follows what a respondent could add", () => {
 });
 
 // ------------------------------------------------------------------------------------------------
+// The Add and Remove buttons of a dynamic matrix and of a dynamic panel
+// ------------------------------------------------------------------------------------------------
+
+// A step that installs an event handler on the survey of the run: the rules below are the ones the
+// model computes from the events, and they cannot be expressed in the definition JSON.
+const HOOK = "installHandlerForTest";
+let installHandler: (survey: SurveyModel) => void = undefined;
+
+function matrixWith(props: any): any {
+  return { elements: [Object.assign({
+    type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "col1", cellType: "text" }],
+  }, props)] };
+}
+function panelWith(props: any): any {
+  return { elements: [Object.assign({
+    type: "paneldynamic", name: "p", panelCount: 2, templateElements: [{ type: "text", name: "q1" }],
+  }, props)] };
+}
+
+describe("Adding and removing dynamic items follows the model's own buttons", () => {
+  beforeAll(() => {
+    SurveyTestCommandFactory.Instance.register({
+      name: HOOK,
+      allowSurvey: true,
+      allowElement: false,
+      payloadType: "none",
+      run: (context: ISurveyTestContext): void => { if (!!installHandler) installHandler(context.survey); },
+    });
+  });
+  afterAll(() => {
+    SurveyTestCommandFactory.Instance.unregister(HOOK);
+    installHandler = undefined;
+  });
+  async function runWithHandler(definition: any, handler: (survey: SurveyModel) => void,
+    steps: Array<any>): Promise<IRunOutcome> {
+    installHandler = handler;
+    try {
+      return await runSteps(definition, [<any>{ [HOOK]: { survey: true } }].concat(steps));
+    } finally {
+      installHandler = undefined;
+    }
+  }
+
+  test("A read-only matrix has no Add and no Remove button", async () => {
+    const added = await runSteps(matrixWith({ readOnly: true }), [{ addRow: { m: 1 } }]);
+    expectRejected(added, SurveyTestIssueCodes.elementNotEditable, {}, "a read-only matrix cannot grow");
+    expect(question(added, "m").rowCount, "the matrix is untouched").toEqual(2);
+
+    const removed = await runSteps(matrixWith({ readOnly: true }), [{ removeRow: { m: 0 } }]);
+    expectRejected(removed, SurveyTestIssueCodes.elementNotEditable, {}, "a read-only matrix cannot shrink");
+    expect(question(removed, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("The display mode takes the buttons of a dynamic panel away and the message names the mode", async () => {
+    const definition = panelWith({});
+    (<any>definition).mode = "display";
+    const outcome = await runSteps(definition, [{ addPanel: { p: 1 } }]);
+    expect(outcome.codes, "a survey in the display mode has no Add button")
+      .toEqual([SurveyTestIssueCodes.elementNotEditable]);
+    expect(outcome.messages.indexOf("\"display\" mode") > -1, "the message names the mode").toBeTruthy();
+    expect(question(outcome, "p").panelCount, "the question is untouched").toEqual(2);
+  });
+  test("removeRow stops at minRowCount and the message names it", async () => {
+    const outcome = await runSteps(matrixWith({ minRowCount: 2 }), [{ removeRow: { m: 0 } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, {}, "the last allowed row keeps no Remove button");
+    expect(outcome.messages.indexOf("\"minRowCount\" of 2") > -1, "the message names the minimum").toBeTruthy();
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("allowRemoveRows false is rejected before anything is removed", async () => {
+    const outcome = await runSteps(matrixWith({ allowRemoveRows: false }), [{ removeRow: { m: 0 } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, {}, "there is no Remove button to press");
+    expect(outcome.messages.indexOf("\"allowRemoveRows\" is false") > -1, "the message says which").toBeTruthy();
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("A canRemoveRowsCallback that forbids removal is obeyed", async () => {
+    const outcome = await runWithHandler(matrixWith({}), (survey: SurveyModel) => {
+      (<any>survey.getQuestionByName("m")).canRemoveRowsCallback = (): boolean => false;
+    }, [{ removeRow: { m: 0 } }]);
+    expect(outcome.codes, "the callback governs the Remove button").toEqual([SurveyTestIssueCodes.cannotRemoveRows]);
+    expect(outcome.messages.indexOf("\"canRemoveRows\"") > -1, "the message names the property").toBeTruthy();
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("A row whose Remove button an event handler hides cannot be removed", async () => {
+    const outcome = await runWithHandler(matrixWith({}), (survey: SurveyModel) => {
+      survey.onMatrixRenderRemoveButton.add((_, options: any) => { options.allow = options.rowIndex > 0; });
+    }, [{ removeRow: { m: 0 } }]);
+    expect(outcome.codes, "the first row has no Remove button").toEqual([SurveyTestIssueCodes.cannotRemoveRows]);
+    expect(outcome.messages.indexOf("index 0") > -1, "the message names the row").toBeTruthy();
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("The row that keeps its button is still removed", async () => {
+    const outcome = await runWithHandler(matrixWith({}), (survey: SurveyModel) => {
+      survey.onMatrixRenderRemoveButton.add((_, options: any) => { options.allow = options.rowIndex > 0; });
+    }, [{ removeRow: { m: 1 } }]);
+    expect(outcome.status, "the test passes").toEqual("passed");
+    expect(question(outcome, "m").rowCount, "the second row is gone").toEqual(1);
+  });
+  // Possible-but-ineffective is not an error: the button was there and the model refused.
+  test("A cancelled row adding warns and leaves the matrix as it was", async () => {
+    const outcome = await runWithHandler(matrixWith({}), (survey: SurveyModel) => {
+      survey.onMatrixRowAdding.add((_, options: any) => { options.allow = false; });
+    }, [{ addRow: { m: 2 } }]);
+    expect(outcome.status, "the test passes").toEqual("passed");
+    expect(outcome.codes, "the case is warned").toEqual([SurveyTestIssueCodes.addBlocked]);
+    expect(outcome.messages.indexOf("0 of 2 were added") > -1, "the warning states how far it got").toBeTruthy();
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("A cancelled row removing warns and leaves the matrix as it was", async () => {
+    const outcome = await runWithHandler(matrixWith({}), (survey: SurveyModel) => {
+      survey.onMatrixRowRemoving.add((_, options: any) => { options.allow = false; });
+    }, [{ removeRow: { m: 0 } }]);
+    expect(outcome.status, "the test passes").toEqual("passed");
+    expect(outcome.codes, "the case is warned").toEqual([SurveyTestIssueCodes.removeBlocked]);
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
+  });
+  test("removePanel stops at minPanelCount and when allowRemovePanel is false", async () => {
+    const atMinimum = await runSteps(panelWith({ minPanelCount: 2 }), [{ removePanel: { p: 0 } }]);
+    expectRejected(atMinimum, SurveyTestIssueCodes.cannotRemoveRows, { p: [{}, {}] },
+      "the last allowed panel keeps no Remove button");
+    expect(atMinimum.messages.indexOf("\"minPanelCount\" of 2") > -1, "the message names the minimum").toBeTruthy();
+
+    const disabled = await runSteps(panelWith({ allowRemovePanel: false }), [{ removePanel: { p: 0 } }]);
+    expectRejected(disabled, SurveyTestIssueCodes.cannotRemoveRows, { p: [{}, {}] },
+      "there is no Remove button to press");
+    expect(disabled.messages.indexOf("\"allowRemovePanel\" is false") > -1, "the message says which").toBeTruthy();
+    expect(question(disabled, "p").panelCount, "the question is untouched").toEqual(2);
+  });
+  test("A cancelled panel removing warns and leaves the dynamic panel as it was", async () => {
+    const outcome = await runWithHandler(panelWith({}), (survey: SurveyModel) => {
+      survey.onDynamicPanelRemoving.add((_, options: any) => { options.allow = false; });
+    }, [{ removePanel: { p: 0 } }]);
+    expect(outcome.status, "the test passes").toEqual("passed");
+    expect(outcome.codes, "the case is warned").toEqual([SurveyTestIssueCodes.removeBlocked]);
+    expect(question(outcome, "p").panelCount, "the dynamic panel is untouched").toEqual(2);
+  });
+  test("The implicit growth of a set stops where the Add button does", async () => {
+    const outcome = await runSteps(matrixWith({ rowCount: 1, readOnly: true }),
+      [{ set: { m: [{ col1: "a" }, { col1: "b" }] } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.elementNotEditable, {},
+      "a read-only matrix grows for nobody");
+    expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(1);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
 // setDirectly - the one escape hatch
 // ------------------------------------------------------------------------------------------------
 

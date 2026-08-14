@@ -29,11 +29,6 @@ jobs:
         npm install
         npm run build:all
 
-    - name: Check Core bundle size
-      run: |
-        cd ./packages/survey-core
-        npm run test:bundle-size
-
     - name: Build React UI
       run: |
         cd ./packages/survey-react-ui

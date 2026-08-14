@@ -12,15 +12,31 @@
   display: flex;
   position: relative;
   justify-content: center;
+  cursor: pointer;
+
+  &.sd-item--disabled,
+  &.sd-item--readonly,
+  &.sd-item--preview {
+    cursor: default;
+  }
 }
 
 .sd-matrix__text {
   padding: var(--sjs2-spacing-x200);
+  cursor: pointer;
 }
 
 .sd-matrix__text--checked {
   background-color: var(--sjs2-color-bg-brand-secondary);
   padding: var(--sjs2-spacing-x200);
+}
+
+.sd-question--disabled,
+.sd-question--readonly,
+.sd-question--preview {
+  .sd-matrix__text {
+    cursor: default;
+  }
 }
 
 .sd-matrix__cell:first-of-type {

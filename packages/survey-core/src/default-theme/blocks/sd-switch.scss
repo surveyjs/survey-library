@@ -85,6 +85,14 @@
   }
 }
 
+.sd-question--disabled,
+.sd-question--readonly,
+.sd-question--preview {
+  .sd-boolean-switch {
+    cursor: default;
+  }
+}
+
 .sd-boolean-switch__button--readonly:not(.sd-boolean-switch__button--checked) {
   cursor: default;
 

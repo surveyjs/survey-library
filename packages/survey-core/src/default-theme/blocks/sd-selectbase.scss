@@ -38,6 +38,12 @@
   cursor: pointer;
 }
 
+.sd-item--disabled .sd-selectbase__label,
+.sd-item--readonly .sd-selectbase__label,
+.sd-item--preview .sd-selectbase__label {
+  cursor: default;
+}
+
 .sd-selectbase__column {
   vertical-align: top;
 }

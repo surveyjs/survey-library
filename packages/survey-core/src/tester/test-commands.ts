@@ -1016,15 +1016,3 @@ registerNavigationCommand("showPreview", (context: ISurveyTestContext) => {
 registerNavigationCommand("cancelPreview", (context: ISurveyTestContext) => {
   (<any>context.survey).cancelPreview();
 });
-
-// The host application changes a variable mid-session in real deployments, so this is a real
-// interaction and not an escape hatch.
-SurveyTestCommandFactory.Instance.register({
-  name: "setVariable",
-  allowSurvey: true,
-  allowElement: false,
-  payloadType: "nameMap",
-  run: (context: ISurveyTestContext, target: ISurveyTestTarget, params: any): void => {
-    Object.keys(params).forEach(name => context.survey.setVariable(name, params[name]));
-  },
-});

@@ -392,8 +392,10 @@ describe("SurveyTestRunner: options, variables and start", () => {
   });
   test("A variable set mid-test does not leak into the next test", async () => {
     registerVisibleCheck();
+    // A test helper, not a built-in: setting a variable mid-run is not a command of the format, but
+    // the survey a test runs against must still start from the resolved variables every time.
     registerCommand({
-      name: "setVariable",
+      name: "setVariableForTest",
       allowSurvey: true,
       allowElement: false,
       payloadType: "nameMap",
@@ -409,7 +411,7 @@ describe("SurveyTestRunner: options, variables and start", () => {
           name: "overrides the variable mid-test",
           steps: [
             { expect: { q1: { visible: false } } },
-            { setVariable: { survey: { region: "us" } } },
+            { setVariableForTest: { survey: { region: "us" } } },
             { expect: { q1: { visible: true } } },
           ],
         },

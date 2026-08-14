@@ -75,21 +75,21 @@ describe("The command registry is the full built-in set", () => {
     const names = SurveyTestCommandFactory.Instance.getNames().filter(name => name !== CAPTURE);
     expect(names, "every command of the format is registered").toEqual([
       "addPanel", "addRow", "cancelPreview", "clear", "complete", "expect", "nextPage", "prevPage",
-      "removePanel", "removeRow", "set", "setComment", "setDirectly", "setVariable", "showPreview", "startSurvey",
+      "removePanel", "removeRow", "set", "setComment", "setDirectly", "showPreview", "startSurvey",
     ]);
   });
   test("The survey and the element command lists do not overlap except for expect", () => {
     const forSurvey = SurveyTestCommandFactory.Instance.getNamesForKind("survey").filter(name => name !== CAPTURE);
     const forQuestion = SurveyTestCommandFactory.Instance.getNamesForKind("question");
     expect(forSurvey, "the survey commands").toEqual([
-      "cancelPreview", "complete", "expect", "nextPage", "prevPage", "setVariable", "showPreview", "startSurvey",
+      "cancelPreview", "complete", "expect", "nextPage", "prevPage", "showPreview", "startSurvey",
     ]);
     expect(forQuestion, "the element commands").toEqual([
       "addPanel", "addRow", "clear", "expect", "removePanel", "removeRow", "set", "setComment", "setDirectly",
     ]);
   });
   test("The names cut from the draft format are genuinely unknown", async () => {
-    const names = ["goToPage", "validate", "mergeData", "setDynamicProperty"];
+    const names = ["goToPage", "validate", "mergeData", "setDynamicProperty", "setVariable"];
     for (let i = 0; i < names.length; i++) {
       const outcome = await runSteps(twoQuestions, [{ [names[i]]: { survey: true } }]);
       expect(outcome.codes, names[i] + " is not a command").toContain(SurveyTestIssueCodes.unknownCommand);
@@ -441,32 +441,6 @@ describe("startSurvey", () => {
     }, [{ startSurvey: { survey: { skipValidation: true } } }]);
     expect(outcome.codes, "an object is not true").toEqual([SurveyTestIssueCodes.invalidCommandParams]);
     expect(outcome.messages.indexOf("\"skipValidation\"") > -1, "the message names the offending key").toBeTruthy();
-  });
-});
-
-describe("setVariable", () => {
-  test("A variable set mid-run flips a visibleIf that reads it", async () => {
-    const outcome = await runSteps({
-      elements: [
-        { type: "text", name: "q1" },
-        { type: "text", name: "q2", visibleIf: "{$hasAccount} = true" },
-      ],
-    }, [
-      { expect: { q2: { value: null } } },
-      { setVariable: { survey: { hasAccount: true } } },
-    ]);
-    expect(outcome.status, "the test passes").toEqual("passed");
-    expect(question(outcome, "q2").isVisible, "the question is visible now").toBeTruthy();
-    expect(outcome.survey.getVariable("hasAccount"), "the variable is set").toEqual(true);
-  });
-  test("It takes an object that maps a name to a value", async () => {
-    const outcome = await runSteps(twoQuestions, [{ setVariable: { survey: "hasAccount" } }]);
-    expect(outcome.codes, "a string is not a name map").toEqual([SurveyTestIssueCodes.invalidCommandParams]);
-    expect(outcome.messages.indexOf("maps a name to a value") > -1, "the message states what was expected").toBeTruthy();
-  });
-  test("setVariable on a question target is not applicable", async () => {
-    const outcome = await runSteps(twoQuestions, [{ setVariable: { q1: { a: 1 } } }]);
-    expect(outcome.codes, "the command applies to the survey only").toEqual([SurveyTestIssueCodes.commandNotApplicable]);
   });
 });
 

@@ -35,6 +35,7 @@ afterAll(() => {
 interface IRunParams {
   options?: any;
   start?: any;
+  variables?: any;
   // Steps that bring the survey into the state the checks are written for.
   before?: Array<any>;
 }
@@ -53,7 +54,9 @@ async function runSteps(definition: any, steps: Array<any>, params?: IRunParams)
   const allSteps = (runParams.before || []).concat(steps);
   const testCase: any = { name: "t", steps: allSteps };
   if (!!runParams.start) testCase.start = runParams.start;
-  const result = await new SurveyTestRunner(definition, { tests: [testCase] }, runParams.options).run();
+  const tests: any = { tests: [testCase] };
+  if (!!runParams.variables) tests.variables = runParams.variables;
+  const result = await new SurveyTestRunner(definition, tests, runParams.options).run();
   const issues: Array<ISurveyTestIssue> = [].concat(result.issues);
   const testResult = result.tests[0];
   testResult.issues.forEach(issue => issues.push(issue));
@@ -605,7 +608,7 @@ describe("noValues", () => {
 describe("variables", () => {
   const definition = { elements: [{ type: "text", name: "q1" }] };
   test("variables reads the variables of the survey", async () => {
-    const params: IRunParams = { before: [{ setVariable: { survey: { role: "admin", level: 2 } } }] };
+    const params: IRunParams = { variables: { role: "admin", level: 2 } };
     const checks = await runChecks(definition, "survey", { variables: { role: "admin", level: 3 } }, params);
     expect(checks.length, "one result per variable").toEqual(2);
     expect(checks.map(check => check.details.key), "each result names its variable").toEqual(["role", "level"]);
@@ -682,7 +685,7 @@ const sampleSurvey = {
 const sampleStart = { data: { text1: "a" } };
 const sampleVariables = { role: "admin" };
 function sampleParams(): IRunParams {
-  return { start: sampleStart, before: [{ setVariable: { survey: sampleVariables } }] };
+  return { start: sampleStart, variables: sampleVariables };
 }
 // The payload that is wrong for a given type, whatever the check is. "value" takes anything, so the
 // one payload it rejects is the missing one.
@@ -738,7 +741,7 @@ describe("The rules that hold for every registered check", () => {
       const sample = checkSamples[names[i]];
       const params = sampleParams();
       snapshots = [];
-      params.before = params.before.concat([{ [SNAPSHOT]: { survey: true } }]);
+      params.before = (params.before || []).concat([{ [SNAPSHOT]: { survey: true } }]);
       const outcome = await runSteps(sampleSurvey, [
         { expect: { [sample.target]: { [names[i]]: sample.payload } } },
         { [SNAPSHOT]: { survey: true } },

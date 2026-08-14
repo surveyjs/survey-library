@@ -109,7 +109,6 @@ perform, never a way around a failing `set`.
 | `startSurvey` | survey | `true` | presses Start on the start page |
 | `showPreview` | survey | `true` | presses Preview |
 | `cancelPreview` | survey | `true` | presses Edit on the preview page |
-| `setVariable` | survey | name → value | sets survey variables mid-run, as a host application does |
 
 `true` is the canonical "this command takes no parameters" payload.
 

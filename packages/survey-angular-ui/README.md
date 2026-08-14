@@ -1,4 +1,8 @@
-# survey-angular-ui
+<div align="center">
+
+<img width="1200" height="600" alt="readme_overview_library" src="https://github.com/user-attachments/assets/dfd139b5-9ca5-4cc2-886a-3650dbdbc6cd" />
+
+# SurveyJS Angular Form Library
 
 [![Build Status](https://dev.azure.com/SurveyJS/V2%20Libraries/_apis/build/status%2Flibrary%2FLibrary%20Main?repoName=surveyjs%2Fsurvey-library&branchName=master)](https://dev.azure.com/SurveyJS/V2%20Libraries/_build/latest?definitionId=130&repoName=surveyjs%2Fsurvey-library&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/surveyjs/survey-library/blob/master/LICENSE)
@@ -6,11 +10,18 @@
 [![Open Issues](https://img.shields.io/github/issues/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues)
 [![Closed Issues](https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+)
 
-`survey-angular-ui` renders [SurveyJS Form Library](https://surveyjs.io/form-library) surveys in Angular applications. It is the Angular view layer over [`survey-core`](https://www.npmjs.com/package/survey-core), the platform-independent model that holds the JSON schema, validation, conditional logic, localization, and themes. Installing `survey-angular-ui` brings `survey-core` with it — you build a model from JSON with `survey-core` and bind it to this package's `<survey>` component to display.
+</div>
+<div align="justify">
 
-[![SurveyJS Form Library themes](https://raw.githubusercontent.com/surveyjs/survey-library/master/docs/images/survey-library-themes.png)](https://surveyjs.io/form-library/examples/nps-question/angular)
+SurveyJS Angular Form Library is a free and open-source Angular component library for rendering dynamic, JSON-driven forms and surveys in Angular applications.
 
-## Install
+The `survey-angular-ui` package integrates SurveyJS Form Library with Angular, renders forms defined with SurveyJS JSON form definitions, and collects user responses in the browser. It works together with the framework-independent [`survey-core`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core) package, which provides the form model and handles form structure, validation, conditional logic, calculations, navigation, localization, and other core behavior. Installing `survey-angular-ui` brings `survey-core` with it — you build a model from JSON with `survey-core` and bind it to this package's `<survey>` component to display.
+
+Use SurveyJS Angular Form Library to build multi-step forms, surveys, quizzes, assessments, calculator forms, and other data-entry tools. Form definitions and submitted responses can be stored and processed in your own backend and database.
+
+You can create form definitions manually, generate them with AI, or build them visually with [SurveyJS Creator](https://surveyjs.io/survey-creator/documentation/overview), an embeddable drag-and-drop form builder.
+
+## Installation
 
 Requires **Angular v12.0.0 or newer** and the `@angular/cdk` package:
 
@@ -84,9 +95,9 @@ import "survey-core/survey-core.min.css";
 
 This applies the Default theme. For other predefined themes and CSS-variable customization, refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
-## Theme adapters
+## Theme Adapters
 
-A *theme adapter* maps an existing design system's CSS variables onto SurveyJS design tokens, so an embedded survey inherits the look of the host application. Adapters ship with `survey-core` as plain CSS — load one after the base style sheet:
+A theme adapter maps an existing design system's CSS variables onto SurveyJS design tokens, so an embedded survey inherits the look of the host application. Adapters ship with `survey-core` as plain CSS — load one after the base style sheet:
 
 ```json
 "styles": [
@@ -97,6 +108,44 @@ A *theme adapter* maps an existing design system's CSS variables onto SurveyJS d
 
 Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatch variants), [Material UI](https://mui.com), and [shadcn/ui](https://ui.shadcn.com), with matching icon sets (`survey-core/themes/adapters/icons/lucide`, `.../icons/mui`). See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
 
+## Key Features
+
+### Dynamic Forms and Surveys
+
+- Render dynamic JSON-driven forms and surveys in Angular applications
+- Multi-step forms, quizzes, assessments, calculator forms, and survey pop-ups
+- Conditional visibility, branching, calculations, and expression-based logic
+- Input validation, save-and-resume workflows(https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/angular), and dynamic content
+
+### Form Controls
+
+- 20+ built-in question and input types
+- Dynamic panels and repeating question groups
+- [Custom question types](https://surveyjs.io/form-library/documentation/customize-question-types/question-customization-options) and reusable components
+- Electronic signature, image capture, file upload, matrices, and other advanced controls
+
+### Angular Integration
+
+- Native Angular components
+- TypeScript support
+- Framework-independent form model through `survey-core`
+- Client-side rendering without a required SurveyJS backend
+
+### Data and Backend Integration
+
+- [Connect to any server, API, or database](https://surveyjs.io/documentation/backend-integration)
+- Store form definitions and submitted responses in your own infrastructure
+- [Load choices from web services](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/angular)
+- Integrate third-party components and services
+- [Backend integration examples for PHP, ASP.NET Core, and Node.js](https://surveyjs.io/backend-integration/examples)
+
+### Appearance and Localization
+
+- Built-in themes and custom branding
+- [Theme Adapters for Bootstrap, Material UI, and shadcn/ui](https://surveyjs.io/themes/theme-adapters)
+- Multi-language forms and right-to-left language support
+- Community-supported UI localization
+
 ## Related packages
 
 | Package | Purpose |
@@ -106,13 +155,15 @@ Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatc
 | [`survey-vue3-ui`](https://www.npmjs.com/package/survey-vue3-ui) | Vue 3 renderer |
 | [`survey-js-ui`](https://www.npmjs.com/package/survey-js-ui) | HTML/CSS/JavaScript renderer |
 
-## Documentation
+## Resources
 
 - [Website](https://surveyjs.io/)
 - [Documentation](https://surveyjs.io/form-library/documentation/overview)
 - [Get Started with Angular](https://surveyjs.io/form-library/documentation/get-started-angular)
-- [Live Examples](https://surveyjs.io/form-library/examples/nps-question/angular)
-- [What's New](https://surveyjs.io/WhatsNew)
+- [Form Library Demos for Angular](https://surveyjs.io/form-library/examples/nps-question/angular)
+- [Release Notes](https://surveyjs.io/stay-updated/release-notes)
+- [Roadmap](https://surveyjs.io/stay-updated/roadmap)
+- [What's New](https://surveyjs.io/stay-updated/major-updates/2025-2026)
 
 For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/get-started-angular.md](https://surveyjs.io/form-library/documentation/get-started-angular.md).
 
@@ -126,7 +177,7 @@ For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.tx
 | [PDF Generator](https://surveyjs.io/pdf-generator) | Render forms and responses as PDF | Commercial |
 | [AI Form Response Extractor](https://surveyjs.io/documentation/combine-paper-and-online-survey-form-data) | Extract responses from paper forms, PDFs, and images into a SurveyJS schema (`ai-form-response-extractor`) | MIT |
 
-## Build from sources
+## Build from Source
 
 Requires Node.js 20 or later — CI builds on Node 20.x and 22.x. This monorepo does **not** use npm workspaces: each package installs independently, but a root install is still required for the shared tooling (linting, Playwright).
 

@@ -43,10 +43,19 @@
 
 .sd-imagepicker__label {
   position: relative;
+  cursor: pointer;
 
   .sd-visuallyhidden {
     height: 100%;
     margin: 0;
+  }
+}
+
+.sd-imagepicker__item--disabled,
+.sd-imagepicker__item--readonly,
+.sd-imagepicker__item--preview {
+  .sd-imagepicker__label {
+    cursor: default;
   }
 }
 

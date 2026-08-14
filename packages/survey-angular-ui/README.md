@@ -167,7 +167,7 @@ Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatc
 
 For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/get-started-angular.md](https://surveyjs.io/form-library/documentation/get-started-angular.md).
 
-## SurveyJS ecosystem
+## SurveyJS Ecosystem
 
 | Product | Purpose | License |
 | --- | --- | --- |

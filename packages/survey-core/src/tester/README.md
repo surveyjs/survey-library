@@ -81,6 +81,11 @@ respondent could do.
   or validation itself would be untestable.
 * A complex question is filled **leaf by leaf**, each leaf checked before it is set, so conditions
   and triggers fire between cells exactly as they do for a person.
+* `setComment` checks that a comment editor exists: the comment area is off by default, most question
+  types have none at all, and the "Other" input of a select question is a comment editor only while
+  `storeOthersAsComment` holds and the "Other" choice is selected — writing that input is a warning,
+  because the text is an answer and not a comment. The comment area of a choice item is a different
+  storage that the comment of the question does not reach, and the error says so.
 * `addRow`, `removeRow`, `addPanel` and `removePanel` read the model's own `canAddRow`,
   `canRemoveRows` and `canRemoveRow`, `canAddPanel` and `canRemovePanel` — the properties that show
   and hide the Add and Remove buttons themselves. A read-only question, a count at `maxRowCount` or
@@ -106,7 +111,7 @@ perform, never a way around a failing `set`.
 | `set` | element | the value | types the value in, leaf by leaf, with every feasibility check |
 | `setDirectly` | element | the value | assigns the value with no check; warns when the target is hidden or read-only |
 | `clear` | element | `true` | clears the answer as the respondent would |
-| `setComment` | element | a string | writes the comment of the question |
+| `setComment` | element | a string | types into the comment area of the question |
 | `addRow` | dynamic matrix | a count | presses "Add row" that many times |
 | `removeRow` | dynamic matrix | a row index | removes that row |
 | `addPanel` | dynamic panel | a count | presses "Add panel" that many times |

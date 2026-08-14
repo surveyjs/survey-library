@@ -124,6 +124,7 @@ export const SurveyTestIssueCodes = Object.freeze({
   elementNotOnCurrentPage: "elementNotOnCurrentPage",
   elementNotVisible: "elementNotVisible",
   elementNotEditable: "elementNotEditable",
+  commentNotAvailable: "commentNotAvailable",
   valueNotEnterable: "valueNotEnterable",
   invalidChoiceValue: "invalidChoiceValue",
   cannotAddRows: "cannotAddRows",
@@ -136,6 +137,7 @@ export const SurveyTestIssueCodes = Object.freeze({
   rowsAddedImplicitly: "rowsAddedImplicitly",
   rowsNotRemoved: "rowsNotRemoved",
   setWhileHidden: "setWhileHidden",
+  commentIsOtherText: "commentIsOtherText",
   choicesNotVerifiable: "choicesNotVerifiable",
   valueClearedAsInvisible: "valueClearedAsInvisible",
 });

@@ -361,6 +361,73 @@ describe("set feasibility stops where validation begins", () => {
   });
 });
 
+// The comment area is off by default, so a "setComment" that names a question without one describes
+// an interaction that has no input to perform it in.
+describe("setComment feasibility: the comment needs an editor", () => {
+  test("A question whose comment area is switched off is rejected", async () => {
+    const outcome = await runSteps({ elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"] }] },
+      [{ setComment: { q1: "because" } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.commentNotAvailable, {}, "there is nowhere to type the comment");
+    expect(question(outcome, "q1").comment, "the comment is not stored").toBeFalsy();
+    expect(outcome.messages.indexOf("\"showCommentArea\" property is false") > -1,
+      "the message names the property that hides the comment area").toBeTruthy();
+    expect(outcome.issues[0].suggestion.indexOf("\"showCommentArea\": true") > -1,
+      "the suggestion says how to display it").toBeTruthy();
+  });
+  // A text question never displays one: "showCommentArea" is invisible for its type, so survey-core
+  // ignores it in the JSON as well, and a case that sets it would be testing nothing.
+  test("A question type that has no comment area at all says so", async () => {
+    const outcome = await runSteps({ elements: [{ type: "text", name: "q1", showCommentArea: true }] },
+      [{ setComment: { q1: "because" } }]);
+    expect(outcome.codes, "the type has no comment area").toEqual([SurveyTestIssueCodes.commentNotAvailable]);
+    expect(outcome.messages.indexOf("the type \"text\" has no comment area") > -1,
+      "the message names the type").toBeTruthy();
+  });
+  test("The comment area of the question is the editor the command writes", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"], showCommentArea: true }],
+    }, [{ setComment: { q1: "because" } }]);
+    expect(outcome.codes, "nothing was rejected").toEqual([]);
+    expect(question(outcome, "q1").comment, "the comment is stored").toEqual("because");
+  });
+  test("The \"Other\" input is the comment editor while the \"Other\" choice is selected", async () => {
+    const definition = {
+      elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"], showOtherItem: true }],
+    };
+    const rejected = await runSteps(definition, [{ setComment: { q1: "because" } }]);
+    expectRejected(rejected, SurveyTestIssueCodes.commentNotAvailable, {}, "the \"Other\" input is not displayed");
+    expect(rejected.messages.indexOf("only while the \"Other\" choice is selected") > -1,
+      "the message says when the input appears").toBeTruthy();
+    expect(rejected.issues[0].suggestion.indexOf("\"set\" command") > -1,
+      "the suggestion says how to display it").toBeTruthy();
+    const accepted = await runSteps(definition, [{ set: { q1: "other" } }, { setComment: { q1: "because" } }]);
+    expect(accepted.codes, "writing the other text is possible, and named as what it is")
+      .toEqual([SurveyTestIssueCodes.commentIsOtherText]);
+    expect(accepted.status, "the test passes").toEqual("passed");
+    expect(question(accepted, "q1").otherValue, "the other text is stored").toEqual("because");
+  });
+  test("The \"Other\" text stored in the value is not the comment", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"], showOtherItem: true,
+        storeOthersAsComment: false }],
+    }, [{ set: { q1: "other" } }, { setComment: { q1: "because" } }]);
+    expect(outcome.codes, "the comment is not where the other text goes")
+      .toEqual([SurveyTestIssueCodes.commentNotAvailable]);
+    expect(outcome.messages.indexOf("\"storeOthersAsComment\" is false") > -1,
+      "the message names the property that decides it").toBeTruthy();
+  });
+  test("A comment area that belongs to a choice is not the comment of the question", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", { value: "b", showCommentArea: true }] }],
+    }, [{ set: { q1: ["b"] } }, { setComment: { q1: "because" } }]);
+    expect(outcome.codes, "the choice comment is a different storage")
+      .toEqual([SurveyTestIssueCodes.commentNotAvailable]);
+    expect(outcome.messages.indexOf("the choice(s) \"b\"") > -1,
+      "the message names the choices that own a comment area").toBeTruthy();
+    expect(question(outcome, "q1").comment, "the comment is not stored").toBeFalsy();
+  });
+});
+
 // ------------------------------------------------------------------------------------------------
 // 0.3 Complex questions are filled leaf by leaf
 // ------------------------------------------------------------------------------------------------

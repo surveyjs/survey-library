@@ -501,10 +501,11 @@ describe("Issue codes", () => {
       "unknownCheck", "commandNotApplicable", "checkNotApplicable", "invalidCommandParams",
       "invalidCheckPayload", "unknownStartPage", "startPageNotVisible", "unexpectedError",
       "navigationButtonNotAvailable", "elementNotOnCurrentPage", "elementNotVisible",
-      "elementNotEditable", "valueNotEnterable", "invalidChoiceValue", "cannotAddRows",
-      "cannotRemoveRows",
+      "elementNotEditable", "commentNotAvailable", "valueNotEnterable", "invalidChoiceValue",
+      "cannotAddRows", "cannotRemoveRows",
       "completeBlocked", "nextPageBlocked", "addBlocked", "removeBlocked", "rowsAddedImplicitly",
-      "rowsNotRemoved", "setWhileHidden", "choicesNotVerifiable", "valueClearedAsInvisible",
+      "rowsNotRemoved", "setWhileHidden", "commentIsOtherText", "choicesNotVerifiable",
+      "valueClearedAsInvisible",
     ]);
   });
   test("Every code is its own name, so a result can be read without the constant", () => {

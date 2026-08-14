@@ -362,7 +362,9 @@ describe("errors, errorCount and hasErrors", () => {
 });
 
 describe("comment", () => {
-  const definition = { elements: [{ type: "text", name: "q1", showCommentArea: true }] };
+  // A comment area belongs to a select or a matrix question: "showCommentArea" is invisible, and
+  // therefore inoperative, for a text question.
+  const definition = { elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"], showCommentArea: true }] };
   test("comment reads the comment of the question", async () => {
     const params: IRunParams = { before: [{ setComment: { q1: "because" } }] };
     expectPassed(await runCheck(definition, "q1", "comment", "because", params), "because");

@@ -372,6 +372,73 @@ function getReadOnlyParent(question: any): any {
   return undefined;
 }
 
+// A comment is typed into one of three editors, and only two of them end up in "question.comment":
+// the comment area of the question, and the "Other" input of a select question that stores the other
+// text as the comment. Both are off by default, so the command names the missing one instead of
+// storing text no respondent could have typed. The comment area of a choice item is the third: its
+// text travels inside the question value, as { value, comment }, and "question.comment" never
+// reaches it - a case that means that comment is testing something the command cannot do.
+function commentNotAvailable(question: any, path: string, reason: string, data: any,
+  suggestion?: string): SurveyTestCaseError {
+  return createCaseError(SurveyTestIssueCodes.commentNotAvailable,
+    "The comment of the question \"" + path + "\" cannot be typed in: " + reason,
+    { target: path, jsonPath: getJsonPath(question), suggestion: suggestion,
+      data: Object.assign({ type: getTypeName(question) }, data) });
+}
+
+function getChoicesWithComment(question: any): Array<any> {
+  const choices: Array<any> = question.choices;
+  if (!Array.isArray(choices)) return [];
+  return choices.filter((item: any) => item.showCommentArea === true);
+}
+
+// The "Other" input of a select question is a comment editor only while the other text is stored as
+// the comment and the item that shows the input is selected.
+function checkOtherCommentAvailable(context: ISurveyTestContext, question: any, path: string): void {
+  if (!question.getStoreOthersAsComment()) {
+    throw commentNotAvailable(question, path,
+      "its \"showCommentArea\" property is false, and the text of the \"Other\" choice is stored in the question value, " +
+      "not in the comment: \"storeOthersAsComment\" is false.",
+      { cause: "storeOthersAsComment", storeOthersAsComment: question.storeOthersAsComment });
+  }
+  const otherValue = !!question.otherItem ? question.otherItem.value : "other";
+  if (question.isOtherSelected !== true) {
+    throw commentNotAvailable(question, path,
+      "its \"showCommentArea\" property is false, and the \"Other\" input, whose text is stored as the comment, is " +
+      "displayed only while the \"Other\" choice is selected.",
+      { cause: "otherNotSelected", otherValue: otherValue },
+      "Select the \"Other\" choice (" + formatTestValue(otherValue) + ") with the \"set\" command first.");
+  }
+  context.addWarning(SurveyTestIssueCodes.commentIsOtherText,
+    "The question \"" + path + "\" has no comment area, so \"setComment\" wrote the text of its \"Other\" choice.",
+    { target: path, otherValue: otherValue });
+}
+
+function checkCommentAvailable(context: ISurveyTestContext, question: any, path: string): void {
+  if (question.showCommentArea === true) return;
+  if (question.showOtherItem === true && typeof question.getStoreOthersAsComment === "function") {
+    checkOtherCommentAvailable(context, question, path);
+    return;
+  }
+  const withComment = getChoicesWithComment(question);
+  if (withComment.length > 0) {
+    throw commentNotAvailable(question, path,
+      "its \"showCommentArea\" property is false, and the comment area(s) of the choice(s) " +
+      withComment.map((item: any) => formatTestValue(item.value)).join(", ") +
+      " belong to the question value, next to the selected choice, so the comment of the question is not that text.",
+      { cause: "choiceComment", choices: withComment.map((item: any) => item.value) });
+  }
+  // supportComment() reads the visibility of the "showCommentArea" property, which is how a question
+  // type says that it has no comment area at all.
+  if (typeof question.supportComment === "function" && !question.supportComment()) {
+    throw commentNotAvailable(question, path,
+      "a question of the type \"" + getTypeName(question) + "\" has no comment area.", { cause: "unsupportedType" });
+  }
+  throw commentNotAvailable(question, path,
+    "its \"showCommentArea\" property is false, so no comment area is displayed.", { cause: "showCommentArea" },
+    "Add \"showCommentArea\": true to the question, if the case means to test its comment.");
+}
+
 function notEnterable(path: string, question: any, message: string, data?: any): SurveyTestCaseError {
   return createCaseError(SurveyTestIssueCodes.valueNotEnterable,
     "The value cannot be entered into the question \"" + path + "\": " + message,
@@ -867,6 +934,7 @@ SurveyTestCommandFactory.Instance.register({
     checkOnCurrentPage(context, question, target.name);
     checkVisible(context, question, target.name);
     checkEditable(context, question, target.name);
+    checkCommentAvailable(context, question, target.name);
     question.comment = params;
   },
 });

@@ -109,6 +109,19 @@ export type SurveyTestExecutionObserver = (event: SurveyTestExecutionEvent) => v
 export interface ISurveyTestExecutionOptions {
   createSurvey?: SurveyTestModelFactory;
   onEvent?: SurveyTestExecutionObserver;
+  // Stops the run at the next safe boundary. The tester cannot terminate a promise it is waiting for,
+  // so what is already running finishes; nothing after it starts.
+  signal?: AbortSignal;
+}
+
+// The one control-flow exception cancellation raises. It never reaches the caller and it never becomes
+// an issue: the runner unwinds on it and reports the canceled status instead.
+export class SurveyTestCanceledError extends Error {
+  constructor() {
+    super("The test run was canceled.");
+    Object.setPrototypeOf(this, SurveyTestCanceledError.prototype);
+    this.name = "SurveyTestCanceledError";
+  }
 }
 
 function createDefaultSurvey(surveyJson: any): SurveyModel {
@@ -129,14 +142,31 @@ interface ISurveyTestPendingNotification {
 export class SurveyTestExecution {
   private observer: SurveyTestExecutionObserver;
   private factory: SurveyTestModelFactory;
+  private abortSignal: AbortSignal;
   private pending: Array<ISurveyTestPendingNotification> = [];
   private models: Array<SurveyModel> = [];
   constructor(options?: ISurveyTestExecutionOptions) {
     this.observer = !!options ? options.onEvent : undefined;
     this.factory = !!options && !!options.createSurvey ? options.createSurvey : createDefaultSurvey;
+    this.abortSignal = !!options ? options.signal : undefined;
   }
   public get isObserved(): boolean {
     return !!this.observer;
+  }
+  public get signal(): AbortSignal {
+    return this.abortSignal;
+  }
+  public get isCanceled(): boolean {
+    return !!this.abortSignal && this.abortSignal.aborted;
+  }
+  public throwIfCanceled(): void {
+    if (this.isCanceled) throw new SurveyTestCanceledError();
+  }
+  // A handler that observes the signal may reject with an abort error of its own the moment the run is
+  // stopped. Whatever it threw, the caller stopped the run: the outcome is cancellation, and adding an
+  // issue for it would report the user's own decision as a broken case.
+  public isCancellation(error: any): boolean {
+    return error instanceof SurveyTestCanceledError || this.isCanceled;
   }
   public createSurvey(surveyJson: any, context: ISurveyTestModelFactoryContext): SurveyModel | Promise<SurveyModel> {
     return this.factory(surveyJson, context);
@@ -156,12 +186,22 @@ export class SurveyTestExecution {
     if (!this.observer) return;
     this.pending.push({ stepIndex: stepIndex, issue: issue });
   }
+  // Announces an operation that is about to start or has just produced something, and is a cancellation
+  // boundary on both sides of the callback: nothing after it starts if the run was stopped while the
+  // host was holding it.
   public async emit(event: SurveyTestExecutionEvent): Promise<void> {
-    if (!this.observer) return;
-    await this.observer(event);
+    this.throwIfCanceled();
+    await this.emitCore(event);
+    this.throwIfCanceled();
+  }
+  // Announces that something the host already heard about has ended. It is emitted after cancellation
+  // on purpose: a host that heard stepStarted hears the matching stepCompleted, canceled or not.
+  public emitCompleted(event: SurveyTestExecutionEvent): Promise<void> {
+    return this.emitCore(event);
   }
   // The queue is emptied before the first event is emitted: an observer that fails drops what is left
-  // instead of leaking it into the next step.
+  // instead of leaking it into the next step. What a handler already produced is announced whatever
+  // the signal says - the results exist and they are on the step result already.
   public async flush(testIndex: number): Promise<void> {
     const items = this.pending;
     if (items.length === 0) return;
@@ -169,12 +209,16 @@ export class SurveyTestExecution {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (!!item.check) {
-        await this.emit({ type: "checkCompleted", testIndex: testIndex, stepIndex: item.stepIndex, result: item.check });
+        await this.emitCore({ type: "checkCompleted", testIndex: testIndex, stepIndex: item.stepIndex, result: item.check });
       } else {
         const event: ISurveyTestIssueAddedEvent = { type: "issueAdded", testIndex: testIndex, issue: item.issue };
         if (item.stepIndex >= 0) event.stepIndex = item.stepIndex;
-        await this.emit(event);
+        await this.emitCore(event);
       }
     }
+  }
+  private async emitCore(event: SurveyTestExecutionEvent): Promise<void> {
+    if (!this.observer) return;
+    await this.observer(event);
   }
 }

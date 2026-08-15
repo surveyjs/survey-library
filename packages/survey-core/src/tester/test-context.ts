@@ -28,6 +28,10 @@ export interface ISurveyTestContext {
   readonly test: ISurveyTest;
   // The index of the step being executed; -1 outside a step.
   readonly stepIndex: number;
+  // Set when the caller passed one. An asynchronous handler that takes long enough to be worth
+  // stopping should watch it and return early: the tester checks it again the moment the handler
+  // returns, and it cannot terminate a promise on its own.
+  readonly signal?: AbortSignal;
   // Throws SurveyTestCaseError when the name resolves to nothing.
   resolveTarget(name: string): ISurveyTestTarget;
   addIssue(issue: ISurveyTestIssue): void;
@@ -80,6 +84,7 @@ export class SurveyTestContext implements ISurveyTestContext {
   // A target resolved to explain a failure must not report an ambiguity the case already heard about.
   private isResolvingQuietly: boolean = false;
   private notifier: ISurveyTestNotifier;
+  private signalValue: AbortSignal;
 
   // testIssues is the issues array of the test result: issues raised outside a step land there.
   constructor(public readonly options: ISurveyTestOptions,
@@ -91,8 +96,14 @@ export class SurveyTestContext implements ISurveyTestContext {
   public get stepIndex(): number {
     return !!this.currentStep ? this.currentStep.index : -1;
   }
+  public get signal(): AbortSignal {
+    return this.signalValue;
+  }
   public setNotifier(notifier: ISurveyTestNotifier): void {
     this.notifier = notifier;
+  }
+  public setSignal(signal: AbortSignal): void {
+    this.signalValue = signal;
   }
   // The environment is installed before the model is created: a defaultValueExpression calling
   // today() runs while the survey is being built, and the model is built by the runner's factory.

@@ -43,7 +43,7 @@ describe("survey-core/tester entry point", () => {
     expect(result.name).toBe("Entry");
     expect(result.status).toBe("passed");
     expect(result.summary).toEqual({
-      total: 1, passed: 1, failed: 0, errored: 0, skipped: 0, checks: 3, failedChecks: 0, warnings: 0,
+      total: 1, passed: 1, failed: 0, errored: 0, skipped: 0, canceled: 0, checks: 3, failedChecks: 0, warnings: 0,
     });
   });
 

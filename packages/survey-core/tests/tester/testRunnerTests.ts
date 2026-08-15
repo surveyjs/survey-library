@@ -120,7 +120,7 @@ describe("SurveyTestRunner: the step loop", () => {
     expect(result.name, "the suite name is carried over").toEqual("Insurance");
     expect(statuses(result), "the test passes").toEqual(["passed"]);
     expect(result.summary, "the summary is complete").toEqual({
-      total: 1, passed: 1, failed: 0, errored: 0, skipped: 0, checks: 2, failedChecks: 0, warnings: 0,
+      total: 1, passed: 1, failed: 0, errored: 0, skipped: 0, canceled: 0, checks: 2, failedChecks: 0, warnings: 0,
     });
     const steps = result.tests[0].steps;
     expect(steps.map(step => step.command), "every step records its command").toEqual(["set", CHECK_COMMAND_NAME]);

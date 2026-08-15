@@ -86,6 +86,9 @@ SurveyTestCommandFactory.Instance.register({
     // finishes before the next pair reads the model.
     const checkNames = Object.keys(params);
     for (let i = 0; i < checkNames.length; i++) {
+      // A run stopped while the previous check was awaited produces no further ones. Returning is all
+      // a handler has to do: the runner notices the stop the moment this command returns.
+      if (!!context.signal && context.signal.aborted) break;
       const checkName = checkNames[i];
       const handler = factory.get(checkName);
       if (!handler) {

@@ -12,7 +12,7 @@ import {
   SurveyTestCommandFactory,
 } from "./test-commands";
 import {
-  ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext, SurveyTestExecution,
+  ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext, SurveyTestCanceledError, SurveyTestExecution,
 } from "./test-execution";
 // Imported for its side effect: it registers the "expect" command and the built-in check set.
 import "./test-checks";
@@ -38,6 +38,9 @@ export class SurveyTestRunner {
     return this.runSingleTest(test, new SurveyTestExecution(executionOptions));
   }
   private async runSingleTest(test: ISurveyTest, execution: SurveyTestExecution): Promise<ISurveyTestResult> {
+    // Stopped before the test started: it is reported as canceled, and no testStarted/testCompleted
+    // pair is manufactured for something that never began.
+    if (execution.isCanceled) return this.createCanceledResult(test);
     const definition = this.getDefinition();
     if (!definition) {
       const result = this.createTestResult(test);
@@ -63,20 +66,30 @@ export class SurveyTestRunner {
     if (!!suite && typeof suite === "object" && typeof suite.name === "string") {
       result.name = suite.name;
     }
+    // Stopped before the run started: the two boundaries are not manufactured for a run that never
+    // began. Every other path emits both, cancellation included.
+    if (execution.isCanceled) {
+      result.status = "canceled";
+      return result;
+    }
     try {
       await execution.emit({ type: "runStarted", tests: suite });
       await this.runSuite(result, execution);
     } catch(e) {
       // Only an observer can throw here: everything else is reported as an issue where it happened.
-      result.issues.push(this.toIssue(e));
+      if (!execution.isCancellation(e)) {
+        result.issues.push(this.toIssue(e));
+      }
     }
-    result.status = this.getSuiteStatus(result);
+    // A stopped run is canceled whatever the tests that did finish reported: they keep their own
+    // status, and the suite says why it holds no more of them.
+    result.status = execution.isCanceled ? "canceled" : this.getSuiteStatus(result);
     result.summary = this.createSummary(result);
     try {
-      await execution.emit({ type: "runCompleted", result: result });
+      await execution.emitCompleted({ type: "runCompleted", result: result });
     } catch(e) {
       result.issues.push(this.toIssue(e));
-      result.status = "error";
+      if (result.status !== "canceled") result.status = "error";
     }
     return result;
   }
@@ -96,6 +109,8 @@ export class SurveyTestRunner {
     result.issues = suiteIssues;
     const tests = suite.tests;
     for (let i = 0; i < tests.length; i++) {
+      // Before each test: a test the run never reached produces no result and no event pair.
+      execution.throwIfCanceled();
       const testIssues = issues.filter(issue => this.getTestIndex(issue.path) === TEST_PATH_PREFIX + i + "]");
       result.tests.push(await this.runTestCore(tests[i], i, definition, testIssues, execution));
     }
@@ -104,15 +119,32 @@ export class SurveyTestRunner {
     testIssues: Array<ISurveyTestIssue>, execution: SurveyTestExecution): Promise<ISurveyTestResult> {
     const result = this.createTestResult(test);
     testIssues.forEach(issue => result.issues.push(issue));
+    // Both callers stop before a canceled test is entered, so testStarted is always announced here and
+    // cancellation can only be raised once the host has heard it.
+    let started = false;
     try {
       await execution.emit({ type: "testStarted", testIndex: testIndex, test: test });
+      started = true;
       await this.runTestBody(test, testIndex, definition, result, execution);
-      await execution.emit({ type: "testCompleted", testIndex: testIndex, result: result });
     } catch(e) {
       // Only an observer can throw here: runTestBody turns every failure of its own into an issue. The
       // issue is not announced - the observer that would hear about it is the one that just failed.
+      if (execution.isCancellation(e)) {
+        started = true;
+        result.status = "canceled";
+      } else {
+        result.issues.push(this.toIssue(e));
+        result.status = "error";
+      }
+    }
+    if (!started) return result;
+    // The test that was running when the caller stopped the run is completed as canceled: a host that
+    // heard testStarted hears the matching testCompleted whatever ended the test.
+    try {
+      await execution.emitCompleted({ type: "testCompleted", testIndex: testIndex, result: result });
+    } catch(e) {
       result.issues.push(this.toIssue(e));
-      result.status = "error";
+      if (result.status !== "canceled") result.status = "error";
     }
     return result;
   }
@@ -137,6 +169,9 @@ export class SurveyTestRunner {
     if (execution.isObserved) {
       context.setNotifier(execution);
     }
+    // A handler of the case cooperates with a stopped run through the context and nothing else.
+    context.setSignal(execution.signal);
+    let canceled = false;
     try {
       const start = this.resolveStart(test, result);
       context.setupEnvironment();
@@ -148,16 +183,25 @@ export class SurveyTestRunner {
       await execution.flush(testIndex);
       await this.runSteps(context, test, result, testIndex, execution);
     } catch(e) {
-      const issue = this.toIssue(e);
-      result.issues.push(issue);
-      result.status = "error";
-      execution.notifyIssue(issue, -1);
+      if (execution.isCancellation(e)) {
+        canceled = true;
+      } else {
+        const issue = this.toIssue(e);
+        result.issues.push(issue);
+        result.status = "error";
+        execution.notifyIssue(issue, -1);
+      }
     } finally {
       // Nothing the model, the diagnostics or the global settings hold survives the test, whether it
-      // ended on its own, on a rejected handler or on a rejected observer callback.
+      // ended on its own, on a rejected handler, on a rejected observer callback or on cancellation.
       context.teardown();
     }
     await this.flushIssues(result, testIndex, execution);
+    // The steps that did finish keep what they reported; the test itself did not, so it is neither
+    // passed nor failed. The caller stopping a run is not a fault of the case: no issue is added.
+    if (canceled) {
+      result.status = "canceled";
+    }
   }
   private async createSurveyModel(test: ISurveyTest, testIndex: number, options: ISurveyTestOptions,
     definition: any, execution: SurveyTestExecution): Promise<SurveyModel> {
@@ -194,29 +238,54 @@ export class SurveyTestRunner {
     testIndex: number, execution: SurveyTestExecution): Promise<void> {
     const steps = Array.isArray(test.steps) ? test.steps : [];
     for (let i = 0; i < steps.length; i++) {
+      // Before a step starts: nothing of it exists yet, so a stopped run adds neither a step result
+      // nor an event pair for it.
+      execution.throwIfCanceled();
       const step = steps[i];
       const stepResult: ISurveyTestStepResult = { index: i, command: "", status: "passed", checks: [], issues: [] };
       if (!!step && typeof step.name === "string") stepResult.name = step.name;
       result.steps.push(stepResult);
       context.setCurrentStep(stepResult);
-      await execution.emit({ type: "stepStarted", testIndex: testIndex, stepIndex: i, step: step });
+      let canceled = false;
       try {
-        await this.runStep(context, step, stepResult, testIndex, execution);
+        await execution.emit({ type: "stepStarted", testIndex: testIndex, stepIndex: i, step: step });
       } catch(e) {
-        const issue = this.toIssue(e);
-        issue.step = i;
-        context.enrichIssue(issue);
-        stepResult.issues.push(issue);
-        execution.notifyIssue(issue, i);
+        // An observer that fails here still ends the test the way it always did; only a stopped run
+        // is handled, and the step it was holding is completed as canceled.
+        if (!execution.isCancellation(e)) throw e;
+        canceled = true;
+      }
+      if (!canceled) {
+        try {
+          await this.runStep(context, step, stepResult, testIndex, execution);
+        } catch(e) {
+          if (execution.isCancellation(e)) {
+            canceled = true;
+          } else {
+            const issue = this.toIssue(e);
+            issue.step = i;
+            context.enrichIssue(issue);
+            stepResult.issues.push(issue);
+            execution.notifyIssue(issue, i);
+          }
+        }
       }
       context.setCurrentStep(undefined);
+      if (canceled) {
+        // The step the run was stopped in did not finish: it is not a failure and it is not an error.
+        // What it did produce before that is announced and kept.
+        stepResult.status = "canceled";
+        await execution.flush(testIndex);
+        await execution.emitCompleted({ type: "stepCompleted", testIndex: testIndex, stepIndex: i, result: stepResult });
+        throw new SurveyTestCanceledError();
+      }
       const hasError = stepResult.issues.some(issue => issue.severity === "error");
       const hasFailed = stepResult.checks.some((check: ISurveyTestCheckResult) => !check.passed);
       stepResult.status = hasError ? "error" : (hasFailed ? "failed" : "passed");
       // What the step produced is announced before the step itself ends, so a host renders the checks
       // and the issues of a step while it is still the current one.
       await execution.flush(testIndex);
-      await execution.emit({ type: "stepCompleted", testIndex: testIndex, stepIndex: i, result: stepResult });
+      await execution.emitCompleted({ type: "stepCompleted", testIndex: testIndex, stepIndex: i, result: stepResult });
       if (hasError) {
         result.status = "error";
         return;
@@ -251,6 +320,8 @@ export class SurveyTestRunner {
     // wrote them in, and an asynchronous handler does not let the next one start early.
     const targetNames = Object.keys(params);
     for (let i = 0; i < targetNames.length; i++) {
+      // Before each target: the one before it finished and nothing of this one has run.
+      execution.throwIfCanceled();
       const targetName = targetNames[i];
       await execution.emit({
         type: "targetStarted", testIndex: testIndex, stepIndex: stepResult.index,
@@ -269,11 +340,14 @@ export class SurveyTestRunner {
       await command.run(context, target, payload);
       await execution.flush(testIndex);
       // A target that ends the step with an error has no targetCompleted: the error travels past this
-      // level, and the stepCompleted that follows carries it.
-      await execution.emit({
+      // level, and the stepCompleted that follows carries it. A target whose handler did run is
+      // completed even when the run was stopped meanwhile - the stop is noticed on the next line.
+      await execution.emitCompleted({
         type: "targetCompleted", testIndex: testIndex, stepIndex: stepResult.index,
         command: commandName, target: targetName,
       });
+      // After the handler: it ran to its end, and a run stopped meanwhile goes no further.
+      execution.throwIfCanceled();
     }
   }
   // The last drain of a test: what an issue raised outside a step produced, and what a step that ended
@@ -449,6 +523,11 @@ export class SurveyTestRunner {
       issues: [],
     };
   }
+  private createCanceledResult(test: ISurveyTest): ISurveyTestResult {
+    const result = this.createTestResult(test);
+    result.status = "canceled";
+    return result;
+  }
   // A SurveyModel is not silently serialised into a definition: the model that would run is not the one
   // handed in, so a case that relies on its handlers or its state would pass for the wrong reason.
   private createDefinitionIssue(): ISurveyTestIssue {
@@ -498,6 +577,7 @@ export class SurveyTestRunner {
       if (test.status === "failed") summary.failed++;
       if (test.status === "error") summary.errored++;
       if (test.status === "skipped") summary.skipped++;
+      if (test.status === "canceled") summary.canceled++;
       summary.warnings += this.countWarnings(test.issues);
       test.steps.forEach(step => {
         summary.warnings += this.countWarnings(step.issues);
@@ -511,7 +591,7 @@ export class SurveyTestRunner {
     return issues.filter(issue => issue.severity === "warning").length;
   }
   private createEmptySummary(): ISurveyTestSummary {
-    return { total: 0, passed: 0, failed: 0, errored: 0, skipped: 0, checks: 0, failedChecks: 0, warnings: 0 };
+    return { total: 0, passed: 0, failed: 0, errored: 0, skipped: 0, canceled: 0, checks: 0, failedChecks: 0, warnings: 0 };
   }
   private cloneJson(obj: any): any {
     return obj === undefined ? obj : JSON.parse(JSON.stringify(obj));

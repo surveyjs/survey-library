@@ -613,7 +613,7 @@ describe("A suite that continues past a failure", () => {
     expect(result.tests.length).toBe(10);
     expect(result.tests.every(item => item.steps.length === 2)).toBe(true);
     expect(result.summary).toEqual({
-      total: 10, passed: 7, failed: 3, errored: 0, skipped: 0, checks: 10, failedChecks: 3, warnings: 0,
+      total: 10, passed: 7, failed: 3, errored: 0, skipped: 0, canceled: 0, checks: 10, failedChecks: 3, warnings: 0,
     });
     expect(result.tests.filter(item => item.status === "failed").map(item => item.name))
       .toEqual(["Case 2", "Case 5", "Case 8"]);

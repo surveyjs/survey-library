@@ -1,11 +1,13 @@
 import { ISurveyTestOptions, ISurveyTestStart } from "./test-json";
 
-export type SurveyTestStatus = "passed" | "failed" | "error" | "skipped";
+// "canceled" is a control-flow outcome and nothing else: the caller stopped the run, so what carries
+// it neither passed nor failed and it holds no issue of its own.
+export type SurveyTestStatus = "passed" | "failed" | "error" | "skipped" | "canceled";
 export type SurveyTestSeverity = "error" | "warning";
 
 export interface ISurveyTestsResult {
   name?: string;
-  // "failed" if any test failed, "error" if any test errored.
+  // "failed" if any test failed, "error" if any test errored, "canceled" if the run was stopped.
   status: SurveyTestStatus;
   tests: Array<ISurveyTestResult>;
   summary: ISurveyTestSummary;
@@ -13,12 +15,15 @@ export interface ISurveyTestsResult {
   issues: Array<ISurveyTestIssue>;
 }
 
+// total counts the tests that produced a result. The five status counters are mutually exclusive and
+// they add up to it: a test the run never reached produces no result and is counted nowhere.
 export interface ISurveyTestSummary {
   total: number;
   passed: number;
   failed: number;
   errored: number;
   skipped: number;
+  canceled: number;
   checks: number;
   failedChecks: number;
   warnings: number;

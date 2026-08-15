@@ -276,8 +276,9 @@ const tests = {
 const result = await runSurveyTests(surveyJson, tests);
 ```
 
-`result.status` is `"passed"`, `"failed"` (a check did not hold) or `"error"` (the case could not
-run). `result.summary` counts the tests and the checks, `result.tests[i].steps[j].checks` holds one
+`result.status` is `"passed"`, `"failed"` (a check did not hold), `"error"` (the case could not
+run) or `"canceled"` (the caller stopped the run — §6). `result.summary` counts the tests and the
+checks, `result.tests[i].steps[j].checks` holds one
 entry per assertion — target, check, expected, actual, `passed`, a plain sentence and the JSON path
 of the node it is about — and `result.tests[i].issues` plus `steps[j].issues` hold the case errors
 and the warnings. A failing check carries what explains it: the expression that produced the state
@@ -383,8 +384,8 @@ Every event carries what applies to it and nothing else.
   announced at the end of the operation that produced them, in the order they were produced, before
   that operation's `targetCompleted` or `stepCompleted`.
 * A target whose command ends the step with an error has **no** `targetCompleted`: the error travels
-  past that level, and the `stepCompleted` that follows carries it. Every other `*Started` has its
-  matching `*Completed`.
+  past that level, and the `stepCompleted` that follows carries it. A target a stopped run never let
+  begin is the same case. Every other `*Started` has its matching `*Completed`.
 * `runStarted` and `runCompleted` bracket a suite run only. `runTest()` runs one test and emits the
   test-level events without them.
 * A callback that throws or rejects is reported exactly like a handler that fails at the same point:
@@ -421,3 +422,60 @@ await runSurveyTests(surveyJson, tests, undefined, {
 Nothing above is in `survey-core`: there is no delay option, no animation setting and no timer in the
 tester. The host owns the pace, and the same suite that plays back at reading speed in an editor runs
 at full speed in CI by passing no observer at all.
+
+### Stopping a run
+
+A host that can delay a run needs a Stop button for it. `signal` takes an `AbortSignal`, and aborting
+it ends the run at the next safe boundary with a coherent partial result.
+
+```ts
+const controller = new AbortController();
+stopButton.onclick = () => controller.abort();
+
+const result = await runSurveyTests(surveyJson, tests, undefined, {
+  signal: controller.signal,
+  onEvent: async event => {
+    if (event.type === "targetStarted") await delay(600);
+  }
+});
+
+if (result.status === "canceled") {
+  // result.tests holds what did run, and nothing was invented for what did not.
+}
+```
+
+The signal is read at the boundaries between operations: before a test, before a step, before each
+target of a command, after an awaited command or check handler, and on both sides of every awaited
+`onEvent` callback. Between two of them the tester is inside somebody else's promise, and **it cannot
+terminate one**: what is already running finishes, and nothing after it starts.
+
+* The step that was running becomes `"canceled"`, and so do the test it belongs to and the suite.
+* Everything that finished earlier keeps exactly the status it reported: a test that failed before the
+  stop is still `"failed"`, and `summary.canceled` counts only the tests that were stopped.
+* Cancellation is a control-flow outcome, not a broken case: **no issue is added** because the user
+  pressed Stop.
+* A test, a step or a target the run never reached produces no result and no event pair. What did
+  start is completed: `stepCompleted`, `testCompleted` and `runCompleted` are emitted with the canceled
+  results, so a host finishes its presentation from the events alone. Aborting *before* `run()` is
+  called emits nothing at all and resolves to a canceled result.
+* Everything the tester installed is removed as always — the model subscriptions, the diagnostics and
+  the pinned clock.
+* A signal nobody aborts changes nothing, and passing none keeps the previous behaviour exactly.
+
+A custom asynchronous handler cooperates through `context.signal`. There is nothing to throw and no
+protocol to follow: **return early**, and the runner ends the run the moment the handler returns.
+
+```ts
+SurveyTestCommandFactory.Instance.register({
+  name: "waitForBackend",
+  payloadType: "none",
+  run: async (context, target) => {
+    const answer = await fetch(url, { signal: context.signal });
+    if (!!context.signal && context.signal.aborted) return;   // stopped: touch nothing
+    target.obj.value = await answer.json();
+  }
+});
+```
+
+A handler that rejects because it was aborted — what `fetch` does with an aborted signal — is read as
+cancellation too, not as a failure of the case.

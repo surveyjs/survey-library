@@ -157,7 +157,9 @@ export class SurveyTestExecution {
   private factory: SurveyTestModelFactory;
   private abortSignal: AbortSignal;
   private pending: Array<ISurveyTestPendingNotification> = [];
-  private models: Array<SurveyModel> = [];
+  // Weak on purpose: the models are held only to tell a reused one from a new one, and a suite of a
+  // thousand tests must not keep a thousand surveys, their data and their handlers alive for it.
+  private models: WeakSet<SurveyModel> = new WeakSet<SurveyModel>();
   constructor(options?: ISurveyTestExecutionOptions) {
     this.observer = !!options ? options.onEvent : undefined;
     this.factory = !!options && !!options.createSurvey ? options.createSurvey : createDefaultSurvey;
@@ -185,10 +187,10 @@ export class SurveyTestExecution {
     return this.factory(surveyJson, context);
   }
   public isModelUsed(survey: SurveyModel): boolean {
-    return this.models.indexOf(survey) > -1;
+    return this.models.has(survey);
   }
   public addModel(survey: SurveyModel): void {
-    this.models.push(survey);
+    this.models.add(survey);
   }
   // ISurveyTestNotifier: the context calls these while a handler runs.
   public notifyCheckResult(result: ISurveyTestCheckResult, stepIndex: number): void {

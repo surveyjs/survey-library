@@ -459,6 +459,11 @@ Every event carries what applies to it and nothing else.
 * A check result and an issue are produced inside a handler, where nothing can be awaited. They are
   announced at the end of the operation that produced them, in the order they were produced, before
   that operation's `targetCompleted` or `stepCompleted`.
+* An issue the structural validation found is announced too, at the level that carries it: a broken
+  case reports it right after its `testStarted`, and a suite that cannot run at all reports its own
+  between `runStarted` and `runCompleted`, with no `testIndex`. Nothing the run records reaches the
+  result without an `issueAdded` first — the one exception is an issue produced *by* a failing
+  callback, which is not announced to the observer that just failed.
 * A target whose command ends the step with an error has **no** `targetCompleted`: the error travels
   past that level, and the `stepCompleted` that follows carries it. A target a stopped run never let
   begin is the same case. Every other `*Started` has its matching `*Completed`.

@@ -46,7 +46,10 @@ export class SurveyTestRunner {
     if (!definition) {
       const result = this.createTestResult(test);
       result.status = "error";
-      result.issues.push(this.createDefinitionIssue());
+      const issue = this.createDefinitionIssue();
+      result.issues.push(issue);
+      execution.notifyIssue(issue, -1);
+      await this.flushIssues(result, undefined, execution);
       return result;
     }
     // The same structural validation a suite run does, so a broken case cannot be reported as passed
@@ -98,16 +101,22 @@ export class SurveyTestRunner {
     const suite: any = this.tests;
     const definition = this.getDefinition();
     if (!definition) {
-      result.issues.push(this.createDefinitionIssue());
+      const issue = this.createDefinitionIssue();
+      result.issues.push(issue);
+      await this.announceIssues([issue], undefined, execution);
       return;
     }
     const issues = this.validator.validate(suite);
     const suiteIssues = issues.filter(issue => !this.getTestIndex(issue.path));
     if (suiteIssues.some(issue => issue.severity === "error")) {
+      // The suite is broken and no test runs, so what the validator found inside the tests is reported
+      // at the suite level: it is the only place left that can carry it.
       result.issues = issues;
+      await this.announceIssues(issues, undefined, execution);
       return;
     }
     result.issues = suiteIssues;
+    await this.announceIssues(suiteIssues, undefined, execution);
     const tests = suite.tests;
     for (let i = 0; i < tests.length; i++) {
       // Before each test: a test the run never reached produces no result and no event pair.
@@ -126,6 +135,9 @@ export class SurveyTestRunner {
     try {
       await execution.emit({ type: "testStarted", testIndex: testIndex, test: test });
       started = true;
+      // What the validator found for this test is announced inside the test that carries it: a host
+      // hears testStarted, then why this case is broken, and only then testCompleted.
+      await this.announceIssues(testIssues, testIndex, execution);
       await this.runTestBody(test, testIndex, definition, result, execution);
     } catch(e) {
       // Only an observer can throw here: runTestBody turns every failure of its own into an issue. The
@@ -370,6 +382,18 @@ export class SurveyTestRunner {
       // After the handler: it ran to its end, and a run stopped meanwhile goes no further.
       execution.throwIfCanceled();
     }
+  }
+  // A structural or a suite-level issue is recorded before anything runs, outside a handler, so no
+  // operation boundary drains it on its own. It is announced where it is found: every error and every
+  // warning reaches the observer through issueAdded, and a host never has to read some of them out of
+  // the result instead. An observer that fails here is reported by the caller, like any other failure
+  // of its own at that level.
+  private async announceIssues(issues: Array<ISurveyTestIssue>, testIndex: number,
+    execution: SurveyTestExecution): Promise<void> {
+    if (!execution.isObserved || issues.length === 0) return;
+    // Outside a step: the JSON path of the issue says where in the case it belongs.
+    issues.forEach(issue => execution.notifyIssue(issue, -1));
+    await execution.flush(testIndex);
   }
   // The last drain of a test: what an issue raised outside a step produced, and what a step that ended
   // the test left behind. An observer that fails here is reported like any other failure of its own.

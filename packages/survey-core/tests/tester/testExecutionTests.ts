@@ -295,9 +295,94 @@ describe("SurveyTestRunner: the lifecycle events", () => {
     expect(log, "no survey is created for either of them").toEqual([
       "runStarted",
       "testStarted 0", "testCompleted 0",
-      "testStarted 1", "testCompleted 1",
+      "testStarted 1", "issueAdded stepsMissing", "testCompleted 1",
       "runCompleted",
     ]);
+  });
+  test("The structural issue of a test is announced inside that test", async () => {
+    const events: Array<SurveyTestExecutionEvent> = [];
+    const result = await run(twoQuestionSurvey, {
+      tests: [
+        { name: "broken", steps: [{ set: { q1: "a" }, expect: { q1: { value: "a" } } }] },
+        { name: "runs", steps: [{ expect: { q1: { empty: true } } }] },
+      ],
+    }, { onEvent: (event: SurveyTestExecutionEvent): void => { events.push(event); } });
+    expect(result.tests[0].status).toEqual("error");
+    expect(result.tests[1].status, "the broken case does not stop the suite").toEqual("passed");
+    const issues = events.filter(event => event.type === "issueAdded");
+    expect(issues.length, "the issue is announced once").toEqual(1);
+    const issue: any = issues[0];
+    expect(issue.issue.code).toEqual(SurveyTestIssueCodes.stepHasSeveralCommands);
+    expect(issue.testIndex, "it belongs to the test that carries it").toEqual(0);
+    expect("stepIndex" in issue, "it was not raised inside a running step").toBeFalsy();
+    expect(issue.issue, "the announced issue is the one on the result").toBe(result.tests[0].issues[0]);
+  });
+  test("A suite-level issue is announced between runStarted and runCompleted", async () => {
+    const log: Array<string> = [];
+    const events: Array<SurveyTestExecutionEvent> = [];
+    const result = await run(twoQuestionSurvey, { tests: [] }, {
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        log.push(describeEvent(event));
+        events.push(event);
+      },
+    });
+    expect(result.status).toEqual("error");
+    expect(log).toEqual(["runStarted", "issueAdded testsMissing", "runCompleted"]);
+    const issue: any = events[1];
+    expect(issue.testIndex, "it belongs to no test").toBeUndefined();
+    expect(issue.issue, "the announced issue is the one on the result").toBe(result.issues[0]);
+  });
+  test("A structural warning is announced and does not stop the test that carries it", async () => {
+    const log: Array<string> = [];
+    const result = await run(twoQuestionSurvey, {
+      tests: [
+        { name: "same", steps: [{ expect: { q1: { empty: true } } }] },
+        { name: "same", steps: [{ expect: { q2: { empty: true } } }] },
+      ],
+    }, { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
+    expect(result.status, "a warning does not stop the suite").toEqual("passed");
+    expect(log.indexOf("issueAdded duplicateTestName"), "it is announced inside the second test")
+      .toEqual(log.indexOf("testStarted 1") + 1);
+    expect(log.indexOf("surveyCreated 1"), "the test still runs").toBeGreaterThan(0);
+  });
+  test("A broken suite announces the issues of its tests as well", async () => {
+    const log: Array<string> = [];
+    const result = await run(twoQuestionSurvey, {
+      starts: [{ name: "s" }, { name: "s" }],
+      tests: [{ name: "t", steps: [] }],
+    }, { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
+    expect(result.status).toEqual("error");
+    expect(log, "no test runs, so nothing else can carry them").toEqual([
+      "runStarted",
+      "issueAdded duplicateStartName",
+      "issueAdded stepsMissing",
+      "runCompleted",
+    ]);
+    expect(codes(result.issues)).toEqual([SurveyTestIssueCodes.duplicateStartName, SurveyTestIssueCodes.stepsMissing]);
+  });
+  test("A missing survey definition is announced", async () => {
+    const log: Array<string> = [];
+    const result = await run(undefined, {
+      tests: [{ name: "t", steps: [{ expect: { q1: { empty: true } } }] }],
+    }, { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
+    expect(result.status).toEqual("error");
+    expect(log).toEqual(["runStarted", "issueAdded surveyMissing", "runCompleted"]);
+  });
+  test("runTest announces the missing survey definition as well", async () => {
+    const log: Array<string> = [];
+    const runner = new SurveyTestRunner(undefined, { tests: [] });
+    const result = await runner.runTest({ name: "t", steps: [{ expect: { q1: { empty: true } } }] },
+      { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
+    expect(result.status).toEqual("error");
+    expect(log).toEqual(["issueAdded surveyMissing"]);
+  });
+  test("runTest announces the structural issue of the test it was given", async () => {
+    const log: Array<string> = [];
+    const runner = new SurveyTestRunner(twoQuestionSurvey, { tests: [] });
+    const result = await runner.runTest({ name: "t", steps: [] },
+      { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
+    expect(result.status).toEqual("error");
+    expect(log).toEqual(["testStarted undefined", "issueAdded stepsMissing", "testCompleted undefined"]);
   });
   test("An issue and a check result are announced inside the step that produced them", async () => {
     const log: Array<string> = [];

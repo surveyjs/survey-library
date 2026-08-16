@@ -6,7 +6,7 @@
   "license": "MIT",
   "description": "Vue 3 form library for rendering dynamic, JSON-based forms and surveys. Collect user responses and store them in your own database.",
   "keywords": [
-    "vue"
+    "vue",
     "vue-3",
     "survey",
     "form",
@@ -46,7 +46,7 @@
     "url": "https://github.com/surveyjs/survey-library.git"
   },
   "peerDependencies": {
-    "survey-core": "^2.0.0",
+    "survey-core": "^3.0.0",
     "vue": ">=3.0.0"
   },
   "scripts": {

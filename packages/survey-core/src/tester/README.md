@@ -527,6 +527,9 @@ target of a command, after an awaited command or check handler, and on both side
 terminate one**: what is already running finishes, and nothing after it starts.
 
 * The step that was running becomes `"canceled"`, and so do the test it belongs to and the suite.
+* The last step of a test is a boundary like every other one: a stop that arrives while the host is
+  holding its `stepCompleted` cancels that test as well. The step keeps the status it reported — what
+  it found is on its own result — and the test says it was stopped rather than that it passed.
 * Everything that finished earlier keeps exactly the status it reported: a test that failed before the
   stop is still `"failed"`, and `summary.canceled` counts only the tests that were stopped.
 * Cancellation is a control-flow outcome, not a broken case: **no issue is added** because the user

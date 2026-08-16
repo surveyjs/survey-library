@@ -439,6 +439,65 @@ describe("SurveyTestRunner: stopping a run", () => {
     expect(log[log.length - 1], "the test that started is completed").toEqual("testCompleted");
     expect(allIssues(result)).toEqual([]);
   });
+  test("runTest() is canceled when the stop comes in the completion of its last step", async () => {
+    const controller = new AbortController();
+    const log: Array<string> = [];
+    const result = await new SurveyTestRunner(twoQuestionSurvey, undefined).runTest(
+      { name: "single", steps: [{ set: { q1: "a" } }, { set: { q2: "b" } }] },
+      {
+        signal: controller.signal,
+        // The host is holding the run on the completion of the step that happens to be the last one.
+        onEvent: async (event: SurveyTestExecutionEvent): Promise<void> => {
+          log.push(event.type);
+          if (event.type === "stepCompleted" && event.stepIndex === 1) {
+            await delay(0);
+            controller.abort();
+          }
+        },
+      });
+    expect(result.status, "a test the caller stopped is not a passed one").toEqual("canceled");
+    expect(stepStatuses(result), "the steps that did finish keep their own status").toEqual(["passed", "passed"]);
+    expect(allIssues(result), "stopping a run adds no issue").toEqual([]);
+    expect(log[log.length - 1], "the test that started is completed").toEqual("testCompleted");
+  });
+  test("The last test of a suite is canceled when the stop comes in the completion of its last step", async () => {
+    const controller = new AbortController();
+    const result = await run(twoQuestionSurvey, {
+      tests: [
+        { name: "passes", steps: [{ expect: { q1: { empty: true } } }] },
+        { name: "canceled", steps: [{ set: { q1: "a" } }] },
+      ],
+    }, {
+      signal: controller.signal,
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        if (event.type === "stepCompleted" && event.testIndex === 1) controller.abort();
+      },
+    });
+    expect(result.status).toEqual("canceled");
+    expect(statuses(result), "the suite and its last test say the same thing").toEqual(["passed", "canceled"]);
+    expect(stepStatuses(result.tests[1]), "the step that finished before the stop keeps its status")
+      .toEqual(["passed"]);
+    expect(result.summary.canceled, "the counters describe the stop").toEqual(1);
+    expect(result.summary.passed).toEqual(1);
+  });
+  test("A step that failed before the stop keeps its own status inside the canceled test", async () => {
+    const controller = new AbortController();
+    const result = await run(twoQuestionSurvey, {
+      tests: [{ name: "fails", steps: [{ expect: { q1: { value: "nothing" } } }] }],
+    }, {
+      signal: controller.signal,
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        if (event.type === "stepCompleted") controller.abort();
+      },
+    });
+    expect(result.status, "the suite is canceled").toEqual("canceled");
+    expect(statuses(result), "the test the caller stopped is canceled whatever its steps found")
+      .toEqual(["canceled"]);
+    expect(stepStatuses(result.tests[0]), "and what the step found is kept on the step").toEqual(["failed"]);
+    expect(result.summary, "a canceled test is counted once, as canceled").toEqual({
+      total: 1, passed: 0, failed: 0, errored: 0, skipped: 0, canceled: 1, checks: 1, failedChecks: 1, warnings: 0,
+    });
+  });
   test("runTest() with an aborted signal announces nothing", async () => {
     const controller = new AbortController();
     controller.abort();

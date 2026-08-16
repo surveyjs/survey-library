@@ -298,6 +298,11 @@ export class SurveyTestRunner {
       // and the issues of a step while it is still the current one.
       await execution.flush(testIndex);
       await execution.emitCompleted({ type: "stepCompleted", testIndex: testIndex, stepIndex: i, result: stepResult });
+      // After the completion callback of the step: a run stopped while the host was holding it is
+      // noticed here and not on the next iteration, so the last step of a test is a boundary like every
+      // other one. The step keeps what it reported and the test the caller stopped is canceled - what
+      // this step found is in its own result, and the test did not end on its own.
+      execution.throwIfCanceled();
       if (hasError) {
         result.status = "error";
         return;

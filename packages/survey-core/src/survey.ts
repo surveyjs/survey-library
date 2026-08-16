@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "./helpers";
+import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Base, ComputedUpdater, EventAsync } from "./base";
@@ -3489,6 +3489,12 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < caclValues.length; i++)
       values[caclValues[i].name] = caclValues[i].value;
   }
+  // The clock the expressions of this survey read when they ask for the current moment - today(),
+  // currentDate(), currentYear(), age() and the date functions that default to today. It is not
+  // serialized and it is not part of the survey definition: it belongs to the running model, so two
+  // models evaluated in the same process can be pinned to two different moments, or to none.
+  // Assign it before the JSON is loaded to pin the expressions that run while the model is built.
+  public dateProvider: ISurveyDateProvider | undefined = undefined;
   getFilteredProperties(): any {
     return { survey: this };
   }

@@ -174,8 +174,7 @@ export class SurveyTestRunner {
     let canceled = false;
     try {
       const start = this.resolveStart(test, result);
-      context.setupEnvironment();
-      const survey = await this.createSurveyModel(test, testIndex, result.options, definition, execution);
+      const survey = await this.createSurveyModel(context, test, testIndex, definition, execution);
       context.setupSurvey(survey);
       context.checkReservedTargetName();
       await execution.emit({ type: "surveyCreated", testIndex: testIndex, test: test, survey: survey });
@@ -203,9 +202,13 @@ export class SurveyTestRunner {
       result.status = "canceled";
     }
   }
-  private async createSurveyModel(test: ISurveyTest, testIndex: number, options: ISurveyTestOptions,
+  private async createSurveyModel(context: SurveyTestContext, test: ISurveyTest, testIndex: number,
     definition: any, execution: SurveyTestExecution): Promise<SurveyModel> {
-    const factoryContext: ISurveyTestModelFactoryContext = { test: test, options: options };
+    // The clock of this test travels with the JSON: the factory is the only place that can pin the
+    // expressions which run inside the constructor of the model.
+    const factoryContext: ISurveyTestModelFactoryContext = {
+      test: test, options: context.options, dateProvider: context.dateProvider,
+    };
     if (testIndex !== undefined) {
       factoryContext.testIndex = testIndex;
     }

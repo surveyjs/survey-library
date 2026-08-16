@@ -1,3 +1,4 @@
+import type { ISurveyDateProvider } from "../helpers";
 import { SurveyModel } from "../survey";
 import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStep } from "./test-json";
 import {
@@ -14,6 +15,12 @@ export interface ISurveyTestModelFactoryContext {
   testIndex?: number;
   // The options of this test, after the suite and the root options are merged into them.
   options: ISurveyTestOptions;
+  // The clock of this test, pinned to its "now" option. Assign it to the model before the JSON is
+  // loaded - survey.dateProvider = context.dateProvider, then survey.fromJSON(surveyJson) - and the
+  // expressions that run while the model is being built are pinned as well. A factory that skips it
+  // loses the clock for constructor-time evaluation only: the tester assigns it to the model it gets
+  // back, so everything the case does afterwards is pinned whatever the factory did.
+  dateProvider: ISurveyDateProvider;
 }
 
 // Called once per enabled, structurally runnable test, with a deep clone of the survey JSON that
@@ -124,8 +131,14 @@ export class SurveyTestCanceledError extends Error {
   }
 }
 
-function createDefaultSurvey(surveyJson: any): SurveyModel {
-  return new SurveyModel(surveyJson);
+// Two steps instead of new SurveyModel(json): the clock has to be on the model before the JSON is
+// loaded, because a defaultValueExpression or a calculated value that calls today() runs while the
+// model is being built, and there is no moment between the two in a single constructor call.
+function createDefaultSurvey(surveyJson: any, context: ISurveyTestModelFactoryContext): SurveyModel {
+  const survey = new SurveyModel();
+  survey.dateProvider = context.dateProvider;
+  survey.fromJSON(surveyJson);
+  return survey;
 }
 
 // A check result and an issue are produced inside a handler, and a handler is not a place that can

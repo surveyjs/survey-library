@@ -470,10 +470,12 @@ function getDate(params: any[]): any {
 }
 FunctionFactory.Instance.register("getDate", getDate);
 
-function dateDiffMonths(date1Param: any, date2Param: any, type: string): number {
+// owner carries the clock of the survey the expression belongs to: an age() with one parameter
+// measures it against the current moment, and that moment is the survey's, not the machine's.
+function dateDiffMonths(date1Param: any, date2Param: any, type: string, owner?: any): number {
   if (type === "days") return diffDays([date1Param, date2Param]);
-  const date1 = createDate("function-dateDiffMonths", date1Param);
-  const date2 = createDate("function-dateDiffMonths", date2Param);
+  const date1 = createDate("function-dateDiffMonths", date1Param, owner);
+  const date2 = createDate("function-dateDiffMonths", date2Param, owner);
   const age = date2.getFullYear() - date1.getFullYear();
   type = type || "years";
   let ageInMonths = age * 12 + date2.getMonth() - date1.getMonth();
@@ -484,7 +486,7 @@ function dateDiffMonths(date1Param: any, date2Param: any, type: string): number 
 }
 function age(params: any[]): number {
   if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
-  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years");
+  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years", this?.survey);
 }
 FunctionFactory.Instance.register("age", age);
 
@@ -492,14 +494,14 @@ function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
   if (type === "hours" || type === "minutes" || type === "seconds") {
-    const date1: any = createDate("function-dateDiffMonths", params[0]);
-    const date2: any = createDate("function-dateDiffMonths", params[1]);
+    const date1: any = createDate("function-dateDiffMonths", params[0], this?.survey);
+    const date2: any = createDate("function-dateDiffMonths", params[1], this?.survey);
     const diffMs = Math.abs(date2 - date1);
     if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
     if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));
     return Math.ceil(diffMs / 1000);
   }
-  return dateDiffMonths(params[0], params[1], type);
+  return dateDiffMonths(params[0], params[1], type, this?.survey);
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 
@@ -575,13 +577,16 @@ function isDisplayMode() {
 }
 FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
 
+// The functions that mean "now" read the clock of the survey the expression runs in. this.survey is
+// the same object isDisplayMode() and isContainerReady() read, and it is absent only when an
+// expression is run outside a survey - then the machine clock answers, as it always did.
 function currentDate() {
-  return createDate("function-currentDate");
+  return createDate("function-currentDate", undefined, this?.survey);
 }
 FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
-  var res = createDate("function-today");
+  var res = createDate("function-today", undefined, this?.survey);
   if (!settings.storeUtcDates) {
     res.setHours(0, 0, 0, 0);
   } else {
@@ -601,7 +606,7 @@ function getYear(params: any[]) {
 FunctionFactory.Instance.register("getYear", getYear);
 
 function currentYear() {
-  return createDate("function-currentYear").getFullYear();
+  return createDate("function-currentYear", undefined, this?.survey).getFullYear();
 }
 FunctionFactory.Instance.register("currentYear", currentYear);
 
@@ -616,34 +621,36 @@ function diffDays(params: any[]) {
 }
 FunctionFactory.Instance.register("diffDays", diffDays);
 
+// Called through .call() so that the survey the function is running in reaches today(): a plain call
+// would lose it, and year() with no parameter means "the current year of this survey".
 function dateFromFirstParameterOrToday(name: string, params: any[]) {
-  let date = today(undefined);
+  let date = today.call(this, undefined);
   if (params && params[0]) {
-    date = createDate("function-" + name, params[0]);
+    date = createDate("function-" + name, params[0], this?.survey);
   }
   return date;
 }
 
 function year(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("year", params);
+  let date = dateFromFirstParameterOrToday.call(this, "year", params);
   return date.getFullYear();
 }
 FunctionFactory.Instance.register("year", year);
 
 function month(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("month", params);
+  let date = dateFromFirstParameterOrToday.call(this, "month", params);
   return date.getMonth() + 1;
 }
 FunctionFactory.Instance.register("month", month);
 
 function day(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("day", params);
+  let date = dateFromFirstParameterOrToday.call(this, "day", params);
   return date.getDate();
 }
 FunctionFactory.Instance.register("day", day);
 
 function weekday(params: any[]): any {
-  let date = dateFromFirstParameterOrToday("weekday", params);
+  let date = dateFromFirstParameterOrToday.call(this, "weekday", params);
   return date.getDay();
 }
 FunctionFactory.Instance.register("weekday", weekday);

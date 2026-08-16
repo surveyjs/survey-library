@@ -313,14 +313,22 @@ To configure the model the runner creates, replace the factory that creates it.
 ### The model factory
 
 ```ts
-// The default, when createSurvey is not given.
-createSurvey: surveyJson => new SurveyModel(surveyJson)
+// The default, when createSurvey is not given. Two steps, not new SurveyModel(surveyJson): the clock
+// of the test has to be on the model before the JSON is loaded — see "The pinned clock" below.
+createSurvey(surveyJson, context) {
+  const survey = new SurveyModel();
+  survey.dateProvider = context.dateProvider;
+  survey.fromJSON(surveyJson);
+  return survey;
+}
 ```
 
 ```ts
 const result = await runSurveyTests(surveyJson, tests, undefined, {
   createSurvey(surveyJson, context) {
-    const survey = new SurveyModel(surveyJson);
+    const survey = new SurveyModel();
+    survey.dateProvider = context.dateProvider;
+    survey.fromJSON(surveyJson);
     survey.onServerValidateQuestions.add(serverValidationHandler);
     return survey;                       // or a Promise<SurveyModel>
   }
@@ -331,8 +339,8 @@ const result = await runSurveyTests(surveyJson, tests, undefined, {
   validator rejected never reach it.
 * It receives a **deep clone of the survey JSON of its own test**, so what the factory or the model
   does to it cannot reach another test, and the caller's definition is never touched.
-* `context` is `{ test, testIndex, options }` — the test, its index in the suite (absent for
-  `runTest()`) and the options that test resolved to.
+* `context` is `{ test, testIndex, options, dateProvider }` — the test, its index in the suite (absent
+  for `runTest()`), the options that test resolved to and the clock of that test.
 * It may be synchronous or asynchronous; a promise is awaited.
 * It must return a **new** `SurveyModel` every time. A failure, a rejection, a wrong return value and a
   model handed out twice each become a structured issue of that test alone (`surveyFactoryFailed`,
@@ -344,7 +352,7 @@ factory set. The order of one test is fixed and it is the contract:
 
 1. resolve the options and create the test context;
 2. call and await `createSurvey` with the cloned survey JSON;
-3. apply the model configuration the runner owns;
+3. apply the model configuration the runner owns, the clock included;
 4. attach the tester diagnostics and subscriptions;
 5. emit and await `surveyCreated`;
 6. apply the variables, then the start data and the start page;
@@ -352,6 +360,34 @@ factory set. The order of one test is fixed and it is the contract:
 
 So a handler installed by the factory — or by the host, in `surveyCreated` — is already in place while
 the start data goes in.
+
+### The pinned clock
+
+A case that reads `today()`, `currentDate()`, `currentYear()` or `age()` must produce the same result
+on every machine and at any hour, so the tester pins the current moment to the `now` option
+(default `2024-01-01T00:00:00`). Explicit dates a survey or a case writes are never touched: only the
+question "what time is it now" is answered by the test.
+
+The clock is **a property of the model**, `survey.dateProvider`, and nothing global is installed.
+This is what makes an asynchronous run safe: a run that is waiting for a UI callback, for an
+asynchronous command handler or for a factory that fetches something holds no process-wide state while
+it waits, so
+
+* two runs pinned to two different moments may be interleaved, nested or run concurrently on a server;
+* an ordinary `SurveyModel` of the application, created or evaluated while a run is paused, reads the
+  machine clock as it always did;
+* there is no callback to restore, so there is no way to restore the wrong one.
+
+`settings.onDateCreated` keeps working exactly as before, for the tester's models as well: the clock
+decides what the current moment is, and the application hook still sees every created date and may
+still adjust it.
+
+The one thing a factory owns is **construction time**. A `defaultValueExpression`, a calculated value
+or an expression question runs while the JSON is being loaded, before the runner ever sees the model,
+so the clock has to be installed before `fromJSON` — that is why the default factory builds the model
+in two steps and why `context.dateProvider` exists. A factory that returns `new SurveyModel(json)`
+instead is not broken: the runner assigns the clock to the model it is handed, so every later
+evaluation is pinned; only what the constructor itself computed used the machine clock.
 
 ### The lifecycle events
 
@@ -390,7 +426,8 @@ Every event carries what applies to it and nothing else.
   test-level events without them.
 * A callback that throws or rejects is reported exactly like a handler that fails at the same point:
   as an `unexpectedError` issue of the step, the test or the suite. The run never rejects, and nothing
-  the tester installed — the model subscriptions, the diagnostics, the pinned clock — is left behind.
+  the tester installed — the model subscriptions, the diagnostics — is left behind. There is nothing
+  global to undo: the clock lives on the model, and the model dies with the test.
 
 `run()` and `runTest()` still resolve to their existing result types: the events are progress, the
 resolved result is the canonical one, and a run watched by a host produces the same result as the same
@@ -458,8 +495,9 @@ terminate one**: what is already running finishes, and nothing after it starts.
   start is completed: `stepCompleted`, `testCompleted` and `runCompleted` are emitted with the canceled
   results, so a host finishes its presentation from the events alone. Aborting *before* `run()` is
   called emits nothing at all and resolves to a canceled result.
-* Everything the tester installed is removed as always — the model subscriptions, the diagnostics and
-  the pinned clock.
+* Everything the tester installed is removed as always — the model subscriptions and the diagnostics.
+  A host that keeps rendering the model of a stopped test keeps seeing the dates the case ran with:
+  the clock belongs to that model and to nothing else.
 * A signal nobody aborts changes nothing, and passing none keeps the previous behaviour exactly.
 
 A custom asynchronous handler cooperates through `context.signal`. There is nothing to throw and no

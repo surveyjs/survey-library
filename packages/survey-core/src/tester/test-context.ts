@@ -1,4 +1,4 @@
-import { settings } from "../settings";
+import type { ISurveyDateProvider } from "../helpers";
 import { SurveyModel } from "../survey";
 import { getClosestName, getSurveyNames, SurveyTestDiagnostics } from "./test-diagnostics";
 import { ISurveyTest, ISurveyTestOptions, RESERVED_TARGET_SURVEY } from "./test-json";
@@ -64,9 +64,24 @@ export function createCaseError(code: string, message: string,
 
 export const DEFAULT_TEST_NOW = "2024-01-01T00:00:00";
 export const DEFAULT_TEST_RANDOM_SEED = 1;
-// The createDate() reasons that mean "the current moment". Any creation with no input value means it
-// as well, whatever its reason is.
-const NOW_REASONS = ["function-today", "function-currentDate", "function-currentYear"];
+
+// The clock of one test, and of nothing else. It is handed to the model of that test and it is read
+// only by the expressions of that model: nothing global is installed, so a run that waits for a UI
+// callback or for an asynchronous command leaves the date of every other survey in the process alone,
+// and two runs pinned to two different moments can be interleaved freely.
+export class SurveyTestDateProvider implements ISurveyDateProvider {
+  private time: number;
+  constructor(nowStr?: string) {
+    let time = Date.parse(!!nowStr ? nowStr : DEFAULT_TEST_NOW);
+    // An unparsable "now" falls back to the default: pinning the machine clock instead would make the
+    // whole run non-reproducible, which is the one thing this provider exists to prevent.
+    if (isNaN(time)) time = Date.parse(DEFAULT_TEST_NOW);
+    this.time = time;
+  }
+  public now(): number {
+    return this.time;
+  }
+}
 
 interface IPathSegment {
   name: string;
@@ -76,8 +91,7 @@ interface IPathSegment {
 export class SurveyTestContext implements ISurveyTestContext {
   private surveyValue: SurveyModel;
   private targetCache: { [path: string]: ISurveyTestTarget } = {};
-  private prevOnDateCreated: any;
-  private isDateHookInstalled: boolean = false;
+  private dateProviderValue: SurveyTestDateProvider;
   private currentStep: ISurveyTestStepResult;
   private resetCacheFunc: () => void;
   private diagnostics: SurveyTestDiagnostics = new SurveyTestDiagnostics(this);
@@ -89,9 +103,15 @@ export class SurveyTestContext implements ISurveyTestContext {
   // testIssues is the issues array of the test result: issues raised outside a step land there.
   constructor(public readonly options: ISurveyTestOptions,
     public readonly test: ISurveyTest, private testIssues: Array<ISurveyTestIssue>) {
+    this.dateProviderValue = new SurveyTestDateProvider(options.now);
   }
   public get survey(): SurveyModel {
     return this.surveyValue;
+  }
+  // Created before the model is: the model of this test is built with it, so a defaultValueExpression
+  // that calls today() is already pinned while the survey is being built.
+  public get dateProvider(): ISurveyDateProvider {
+    return this.dateProviderValue;
   }
   public get stepIndex(): number {
     return !!this.currentStep ? this.currentStep.index : -1;
@@ -105,17 +125,16 @@ export class SurveyTestContext implements ISurveyTestContext {
   public setSignal(signal: AbortSignal): void {
     this.signalValue = signal;
   }
-  // The environment is installed before the model is created: a defaultValueExpression calling
-  // today() runs while the survey is being built, and the model is built by the runner's factory.
-  public setupEnvironment(): void {
-    this.installDateHook();
-  }
   // The configuration the tester owns whatever the factory did, and the subscriptions the tester needs.
   // Nothing here is left to the factory: an application configures runtime behaviour, not what makes a
   // run reproducible.
   public setupSurvey(survey: SurveyModel): void {
     this.surveyValue = survey;
     const options = this.options;
+    // The factory receives the clock and the default one builds the model with it. A factory that
+    // ignored it - or that returned a model built from a JSON of its own - still runs the rest of the
+    // case pinned: only the expressions that ran inside its constructor read the machine clock.
+    survey.dateProvider = this.dateProviderValue;
     if (options.locale !== undefined) survey.locale = options.locale;
     if (options.clearInvisibleValues !== undefined) survey.clearInvisibleValues = options.clearInvisibleValues;
     if (options.checkErrorsMode !== undefined) survey.checkErrorsMode = options.checkErrorsMode;
@@ -123,14 +142,12 @@ export class SurveyTestContext implements ISurveyTestContext {
     this.subscribeToModelChanges();
     this.diagnostics.attach();
   }
+  // Nothing global is restored here because nothing global was installed. The clock stays on the model
+  // it belongs to: the model dies with the test, and a host that keeps rendering it after the run keeps
+  // seeing the dates the case ran with.
   public teardown(): void {
     this.diagnostics.detach();
     this.unsubscribeFromModelChanges();
-    if (this.isDateHookInstalled) {
-      // Restore the previous hook exactly, including undefined.
-      settings.onDateCreated = this.prevOnDateCreated;
-      this.isDateHookInstalled = false;
-    }
     this.targetCache = {};
     this.currentStep = undefined;
   }
@@ -214,25 +231,6 @@ export class SurveyTestContext implements ISurveyTestContext {
         this.notifier.notifyCheckResult(result, this.currentStep.index);
       }
     }
-  }
-  private installDateHook(): void {
-    const nowStr = !!this.options.now ? this.options.now : DEFAULT_TEST_NOW;
-    let time = Date.parse(nowStr);
-    // An unparsable "now" falls back to the default: pinning the machine clock instead would make the
-    // whole run non-reproducible, which is the one thing this hook exists to prevent.
-    if (isNaN(time)) time = Date.parse(DEFAULT_TEST_NOW);
-    const prevHook = settings.onDateCreated;
-    this.prevOnDateCreated = prevHook;
-    this.isDateHookInstalled = true;
-    settings.onDateCreated = (newDate: Date, reason: string, val?: number | string | Date): Date => {
-      const res = !!prevHook ? prevHook(newDate, reason, val) : newDate;
-      if (!val || NOW_REASONS.indexOf(reason) > -1) {
-        // The date instance comes from createDate(): the tester repins it instead of creating its own,
-        // so no tester code calls new Date().
-        res.setTime(time);
-      }
-      return res;
-    };
   }
   private subscribeToModelChanges(): void {
     const survey = this.survey;

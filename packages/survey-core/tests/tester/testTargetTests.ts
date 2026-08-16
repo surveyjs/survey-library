@@ -45,7 +45,6 @@ function createContext(definition: any = targetSurvey): ITestContextInfo {
   const issues: Array<ISurveyTestIssue> = [];
   const context = new SurveyTestContext({}, { name: "target test", steps: [] }, issues);
   // The runner creates the model through its factory and hands it over; a context test does it itself.
-  context.setupEnvironment();
   context.setupSurvey(new SurveyModel(JSON.parse(JSON.stringify(definition))));
   return { context: context, issues: issues };
 }

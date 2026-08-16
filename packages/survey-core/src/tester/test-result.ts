@@ -126,6 +126,7 @@ export const SurveyTestIssueCodes = Object.freeze({
   invalidCheckPayload: "invalidCheckPayload",
   unknownStartPage: "unknownStartPage",
   startPageNotVisible: "startPageNotVisible",
+  asyncOperationTimeout: "asyncOperationTimeout",
   unexpectedError: "unexpectedError",
   // Feasibility codes: a command describes an interaction no respondent could perform.
   navigationButtonNotAvailable: "navigationButtonNotAvailable",

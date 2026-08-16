@@ -1,6 +1,7 @@
 import { Helpers } from "../helpers";
 import { Serializer } from "../jsonobject";
 import { settings } from "../settings";
+import { waitForSurvey } from "./test-async";
 import { createCaseError, ISurveyTestContext, ISurveyTestTarget, SurveyTestCaseError, SurveyTestTargetKind } from "./test-context";
 import { getClosestName, getExpressionTrace, getJsonPath, ISurveyTestBlockingQuestion } from "./test-diagnostics";
 import { RESERVED_TARGET_SURVEY } from "./test-json";
@@ -1170,15 +1171,41 @@ SurveyTestCommandFactory.Instance.register({
 // 2. Survey commands
 // -----------------------------------------------------------------------------------------------
 
-function registerNavigationCommand(name: string, act: (context: ISurveyTestContext) => void): void {
+// What the survey looked like before the button was pressed. A navigation command never reads the
+// boolean the survey method returned: a survey that starts server validation - or an asynchronous
+// validator, or an asynchronous expression - returns false and navigates from the callback a moment
+// later. The command waits for the model to settle and then compares, so "the survey did not move" is
+// a statement about the model and not about the moment the method happened to return in.
+interface ISurveyTestNavigationState {
+  page: any;
+  element: any;
+  state: string;
+}
+
+function getNavigationState(survey: any): ISurveyTestNavigationState {
+  return { page: survey.currentPage, element: survey.currentSingleElement, state: survey.state };
+}
+
+// The single element covers "inputPerPage", where a next moves inside the page; the state covers a
+// navigation that completed the survey or opened the preview instead of turning a page.
+function hasSurveyMoved(survey: any, before: ISurveyTestNavigationState): boolean {
+  return survey.currentPage !== before.page || survey.currentSingleElement !== before.element ||
+    survey.state !== before.state;
+}
+
+function registerNavigationCommand(name: string, act: (context: ISurveyTestContext) => void,
+  onSettled?: (context: ISurveyTestContext, before: ISurveyTestNavigationState) => void): void {
   SurveyTestCommandFactory.Instance.register({
     name: name,
     allowSurvey: true,
     allowElement: false,
     payloadType: "none",
-    run: (context: ISurveyTestContext): void => {
+    run: async (context: ISurveyTestContext): Promise<void> => {
       checkNavigationAvailable(context, name);
+      const before = getNavigationState(<any>context.survey);
       act(context);
+      await waitForSurvey(context, "the \"" + name + "\" command");
+      if (!!onSettled) onSettled(context, before);
     },
   });
 }
@@ -1211,14 +1238,16 @@ function addBlockedWarning(context: ISurveyTestContext, code: string, action: st
 }
 
 registerNavigationCommand("complete", (context: ISurveyTestContext) => {
-  const survey: any = context.survey;
-  if (!survey.tryComplete()) {
+  (<any>context.survey).tryComplete();
+}, (context: ISurveyTestContext) => {
+  if (!(<any>context.survey).isCompleted) {
     addBlockedWarning(context, SurveyTestIssueCodes.completeBlocked, "complete");
   }
 });
 registerNavigationCommand("nextPage", (context: ISurveyTestContext) => {
-  const survey: any = context.survey;
-  if (!survey.nextPage()) {
+  (<any>context.survey).nextPage();
+}, (context: ISurveyTestContext, before: ISurveyTestNavigationState) => {
+  if (!hasSurveyMoved(<any>context.survey, before)) {
     addBlockedWarning(context, SurveyTestIssueCodes.nextPageBlocked, "move to the next page");
   }
 });

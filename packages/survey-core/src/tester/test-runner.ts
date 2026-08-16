@@ -5,6 +5,7 @@ import {
   ISurveyTestSummary, SurveyTestIssueCodes, SurveyTestStatus,
 } from "./test-result";
 import { SurveyTestValidator } from "./test-validator";
+import { waitForSurvey } from "./test-async";
 import { getClosestName } from "./test-diagnostics";
 import { createCaseError, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "./test-context";
 import {
@@ -178,7 +179,15 @@ export class SurveyTestRunner {
       context.setupSurvey(survey);
       context.checkReservedTargetName();
       await execution.emit({ type: "surveyCreated", testIndex: testIndex, test: test, survey: survey });
+      // Loading the JSON starts the expressions of the model, and an asynchronous one is still running
+      // when fromJSON returns. The start data has to go into a settled model: survey-core skips a
+      // second run of an expression while the first one is in flight, so a value applied now would be
+      // silently ignored by the very condition that reads it.
+      await waitForSurvey(context, "the survey model was created");
       this.applyStart(context, variables, start);
+      // The start data goes in through the normal set path, so it starts whatever a respondent typing
+      // it would: the first step begins on a settled model like every step after it.
+      await waitForSurvey(context, "the start state of the test was applied");
       await execution.flush(testIndex);
       await this.runSteps(context, test, result, testIndex, execution);
     } catch(e) {
@@ -341,6 +350,10 @@ export class SurveyTestRunner {
           { target: targetName, data: { command: command.name, payloadType: command.payloadType } });
       }
       await command.run(context, target, payload);
+      // The handler returned; the survey may still be finishing what it started. Every command settles
+      // here, the ones an integrator registered included, so a check never reads the state of the
+      // interaction before it and nothing lands on the model once the run is over.
+      await waitForSurvey(context, "the \"" + commandName + "\" command");
       await execution.flush(testIndex);
       // A target that ends the step with an error has no targetCompleted: the error travels past this
       // level, and the stepCompleted that follows carries it. A target whose handler did run is

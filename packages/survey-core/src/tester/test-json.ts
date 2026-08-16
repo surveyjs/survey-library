@@ -71,6 +71,10 @@ export interface ISurveyTestOptions {
   checkErrorsMode?: "onNextPage" | "onValueChanged" | "onComplete";
   // Per test; default false - a failed check does not end the case.
   stopOnFirstFailure?: boolean;
+  // How long a step waits for an asynchronous survey operation - server validation, an asynchronous
+  // validator or expression, a navigation handler that holds its callback - before the test ends with
+  // the "asyncOperationTimeout" error. Milliseconds; default 5000. Zero, or less, waits for nothing.
+  asyncTimeout?: number;
 }
 
 // Step keys that are metadata and never a command name.

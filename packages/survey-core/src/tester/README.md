@@ -189,7 +189,8 @@ deliberately describes.
 ### `options` merge per key
 
 `ISurveyTestOptions` is pure run configuration — `locale`, `now`, `randomSeed`,
-`clearInvisibleValues`, `checkErrorsMode`, `stopOnFirstFailure` — and every member is a scalar. The
+`clearInvisibleValues`, `checkErrorsMode`, `stopOnFirstFailure`, `asyncTimeout` — and every member is
+a scalar. The
 root `options` always apply, and a test's own `options` merge over them **shallow, one level, per
 key**. Because it is flat, deep-merge semantics never become a question, and every option can be
 overridden back to its default.
@@ -355,11 +356,50 @@ factory set. The order of one test is fixed and it is the contract:
 3. apply the model configuration the runner owns, the clock included;
 4. attach the tester diagnostics and subscriptions;
 5. emit and await `surveyCreated`;
-6. apply the variables, then the start data and the start page;
-7. run the steps.
+6. wait for the model to settle (see "Asynchronous survey operations" below);
+7. apply the variables, then the start data and the start page;
+8. wait for the model to settle again;
+9. run the steps.
 
 So a handler installed by the factory — or by the host, in `surveyCreated` — is already in place while
 the start data goes in.
+
+### Asynchronous survey operations
+
+A survey does not always finish an operation inside the call that started it, and the returned boolean
+says nothing about the ones it does not:
+
+| what the survey is doing | what the call returns |
+| --- | --- |
+| `onServerValidateQuestions` is validating | `tryComplete()` / `nextPage()` return `false`, and the survey navigates from `options.complete()` later |
+| an asynchronous validator or validation expression is running | the same |
+| an `onCompleting` / `onCurrentPageChanging` handler returned a promise | the same, and `isNavigationBlocked` is set meanwhile |
+| an asynchronous expression function is running | `set` returns, and the `visibleIf`, the calculated value or the expression question it feeds updates later |
+
+So **a command is not finished until the model it acted on has settled.** After every command — the
+ones an integrator registered included — after the model is created and after the start state is
+applied, the runner waits until the survey is running none of the above. Three consequences:
+
+* a navigation command reads **what the model did**, never the boolean it was handed. "The survey did
+  not complete" is decided after the wait, so a completion that passes server validation is no longer
+  reported as `completeBlocked`, and one the server rejects carries the server's own error text in
+  the warning;
+* the next step, and every check in it, sees the state the interaction produced;
+* nothing lands on the model after the run is over. A survey that completes half a second after
+  `runSurveyTests` resolved used to be possible, and it is exactly the kind of result no one reads.
+
+The model is settled before the start data goes in for a reason of its own: survey-core skips a second
+run of an expression while the first one is still in flight, and loading the JSON starts them all. A
+value applied to a model that is still loading would be ignored by the very condition that reads it.
+
+**`asyncTimeout`** bounds the wait — milliseconds, default `5000`, per operation. A handler that never
+answers ends the test with the error `asyncOperationTimeout`, which names what the survey was waiting
+for (`reason`: `serverValidation`, `navigationHandler`, `validators`, `expressions`) and the questions
+involved. The test stops there rather than reporting steps that read a model no one was driving.
+`asyncTimeout: 0` waits for nothing, for a caller that drives the waiting itself.
+
+Stopping a run stops the waiting too: the operation the survey is holding is the caller's decision, so
+the run reports `canceled` and not a timeout.
 
 ### The pinned clock
 

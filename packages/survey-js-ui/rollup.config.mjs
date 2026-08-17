@@ -23,7 +23,7 @@ const buildPlatformJson = {
   "license": "MIT",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
-  "description": "UI component that renders dynamic, interactive JSON-based forms and surveys in HTML/CSS/JavaScript apps, with jQuery support. You can use it to collect responses from users and send them to your own database.",
+  "description": "UI component that renders dynamic, JSON-based forms and surveys in HTML/CSS/JavaScript apps, with jQuery support. You can use it to collect responses from users and send them to your own database.",
   "keywords": [
     "vanilla",
     "vanilla-js",

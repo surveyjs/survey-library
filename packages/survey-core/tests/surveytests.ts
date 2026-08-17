@@ -17830,6 +17830,21 @@ describe("Survey", () => {
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
   });
+  test("survey.applyTheme does not mutate the original theme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const theme = {
+      cssVariables: {
+        "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+      },
+      backgroundOpacity: 0.7,
+    };
+    const originalCssVariables = { ...theme.cssVariables };
+    survey.applyTheme(theme as any);
+    expect(theme.cssVariables).toEqual(originalCssVariables);
+    expect(theme.backgroundOpacity).toBe(0.7);
+    expect(survey.backgroundOpacity).toBe(0.7);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 0, 0, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {

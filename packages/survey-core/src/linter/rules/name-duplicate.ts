@@ -1,0 +1,63 @@
+import { ILintRule, LintContext } from "../rule";
+import { ILintRelated } from "../types";
+
+export const nameDuplicateRule: ILintRule = {
+  id: "name/duplicate",
+  defaultSeverity: "error",
+  run(ctx: LintContext): void {
+    ctx.index.namespaces.forEach(namespace => {
+      namespace.map.forEach((records, name) => {
+        if (records.length < 2) return;
+        const related: Array<ILintRelated> = records.map(rec => ({ path: rec.path, elementName: rec.name }));
+        const kinds = records.map(rec => rec.kind);
+        for (let i = 1; i < records.length; i++) {
+          const rec = records[i];
+          const scopeText = namespace.label ? " inside " + namespace.label : "";
+          ctx.report({
+            message: "The name \"" + name + "\" is used by " + records.length + " elements" + scopeText +
+              " (" + kinds.join(", ") + ") - element names must be unique.",
+            path: rec.path,
+            messageData: { name: name, kinds: kinds, count: records.length, scope: namespace.label },
+            elementName: rec.name,
+            elementType: rec.type,
+            related: related,
+          });
+        }
+      });
+    });
+    // duplicate calculated-value names and calculated values shadowing element names
+    const json = ctx.index.json;
+    const seenCalc: { [key: string]: { name: string, path: string } } = {};
+    if (Array.isArray(json.calculatedValues)) {
+      json.calculatedValues.forEach((cv: any, i: number) => {
+        if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
+        const key = cv.name.toLowerCase();
+        const path = "calculatedValues[" + i + "]";
+        if (seenCalc[key]) {
+          ctx.report({
+            message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
+            path: path,
+            messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
+            elementName: cv.name,
+            elementType: "calculatedvalue",
+            related: [{ path: seenCalc[key].path, elementName: seenCalc[key].name }, { path: path, elementName: cv.name }],
+          });
+        } else {
+          seenCalc[key] = { name: cv.name, path: path };
+        }
+        const elements = ctx.index.byName.get(cv.name);
+        if (elements.length > 0) {
+          ctx.report({
+            message: "The calculated value \"" + cv.name + "\" shares its name with a " + elements[0].kind +
+              " - both are referenced as {" + cv.name + "}, so one of them shadows the other.",
+            path: path,
+            messageData: { name: cv.name, kinds: ["calculatedvalue"].concat(elements.map(el => el.kind)), count: elements.length + 1 },
+            elementName: cv.name,
+            elementType: "calculatedvalue",
+            related: elements.map(el => ({ path: el.path, elementName: el.name })),
+          });
+        }
+      });
+    }
+  },
+};

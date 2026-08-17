@@ -300,7 +300,7 @@ export {
 export { ScrollViewModel } from "../../src/scroll";
 export { ListModel } from "../../src/list";
 export { MultiSelectListModel } from "../../src/multiSelectListModel";
-export { PopupModel, IDialogOptions } from "../../src/popup";
+export { PopupModel, IDialogOptions, IConfirmDialogOptions } from "../../src/popup";
 export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";

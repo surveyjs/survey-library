@@ -21,6 +21,8 @@ Use SurveyJS Angular Form Library to build multi-step forms, surveys, quizzes, a
 
 You can create form definitions manually, generate them with AI, or build them visually with [SurveyJS Creator](https://surveyjs.io/survey-creator/documentation/overview), an embeddable drag-and-drop form builder.
 
+</div>
+
 ## Installation
 
 Requires **Angular v12.0.0 or newer** and the `@angular/cdk` package:

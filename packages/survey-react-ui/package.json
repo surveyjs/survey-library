@@ -29,7 +29,7 @@
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "peerDependencies": {
-        "survey-core": "^2.0.0"
+        "survey-core": "^3.0.0"
     },
     "devDependencies": {
         "@types/node": "7.0.4",

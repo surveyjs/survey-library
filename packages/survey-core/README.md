@@ -8,7 +8,7 @@
 
 `survey-core` is the platform-independent model of the [SurveyJS Form Library](https://surveyjs.io/form-library). It holds everything that does not depend on a rendering framework: the JSON schema and serializer, question types, validation, conditional logic and expressions, localization, input masks, and themes. **It does not render anything on its own** — pair it with one of the [platform-specific UI packages](#related-packages) below. Installing `survey-core` alone is the most common reason a survey never appears on the page.
 
-[![SurveyJS Form Library themes](https://raw.githubusercontent.com/surveyjs/survey-library/master/docs/images/survey-library-themes.png)](https://surveyjs.io/Examples/Library)
+[![SurveyJS Form Library themes](https://raw.githubusercontent.com/surveyjs/survey-library/master/docs/images/survey-library-themes.png)](https://surveyjs.io/form-library/examples/)
 
 ## Install
 
@@ -111,7 +111,7 @@ The same DOM-free design makes SSR work: a survey can be pre-rendered on the ser
 
 - [Website](https://surveyjs.io/)
 - [Documentation](https://surveyjs.io/form-library/documentation/overview)
-- [Live Examples](https://surveyjs.io/Examples/Library)
+- [Live Examples](https://surveyjs.io/form-library/examples/)
 - [What's New](https://surveyjs.io/WhatsNew)
 
 For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/get-started-react.md](https://surveyjs.io/form-library/documentation/get-started-react.md).

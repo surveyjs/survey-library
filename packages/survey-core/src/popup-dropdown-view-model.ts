@@ -21,13 +21,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     this.hidePopup();
   };
-  private resizeEventCallback = () => {
+  private visualViewportChangedCallback = () => {
     if (!DomWindowHelper.isAvailable()) return;
 
     const visualViewport = DomWindowHelper.getVisualViewport();
     const documentElement = DomDocumentHelper.getDocumentElement();
     if (!!documentElement && !!visualViewport) {
-      documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
+      const scale = visualViewport.scale || 1;
+      documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * scale}px`);
+      const offsetTop = scale === 1 ? visualViewport.offsetTop : 0;
+      documentElement.style.setProperty("--sv-popup-overlay-top", `${offsetTop}px`);
     }
   };
   private resizeWindowCallback = () => {
@@ -283,12 +286,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.switchFocus();
     DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
-      DomWindowHelper.getVisualViewport().addEventListener("resize", this.resizeEventCallback);
+      const visualViewport = DomWindowHelper.getVisualViewport();
+      visualViewport.addEventListener("resize", this.visualViewportChangedCallback);
+      visualViewport.addEventListener("scroll", this.visualViewportChangedCallback);
       if (this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
-      this.resizeEventCallback();
+      this.visualViewportChangedCallback();
     }
     this.subscribeOnScrollEvents();
     this._isPositionSetValue = true;
@@ -315,7 +320,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super.updateOnHiding();
     DomWindowHelper.removeEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
-      DomWindowHelper.getVisualViewport().removeEventListener("resize", this.resizeEventCallback);
+      const visualViewport = DomWindowHelper.getVisualViewport();
+      visualViewport.removeEventListener("resize", this.visualViewportChangedCallback);
+      visualViewport.removeEventListener("scroll", this.visualViewportChangedCallback);
       if (this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);

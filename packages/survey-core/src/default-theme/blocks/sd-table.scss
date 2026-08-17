@@ -362,12 +362,15 @@
   z-index: 12;
 
   &:first-of-type {
-    left: var(--sjs2-spacing-negative-x100);
+    left: 0;
   }
 
   &:last-of-type {
-    right: var(--sjs2-spacing-negative-x100);
+    right: 0;
   }
+}
+.sd-table__cell--drag ~ :is(.sd-table__cell--action, .sd-table__cell--actions):where(:not(:last-of-type)) {
+  left: var(--sjs2-spacing-x800);
 }
 
 .sd-table__row-disabled > .sd-table__cell {

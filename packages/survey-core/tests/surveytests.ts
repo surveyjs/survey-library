@@ -21477,5 +21477,6 @@ describe("Survey", () => {
     survey.confirmActionAsync("message_test", () => {}, options);
     expect(rootElement).toBe("survey_root_element");
     expect(options.rootElement).toBeUndefined();
+    settings.confirmActionAsync = oldSettingsFunc;
   });
 });

@@ -1,4 +1,8 @@
-# survey-core
+<div align="center">
+
+<img width="1200" height="600" alt="readme_overview_library" src="https://github.com/user-attachments/assets/7577661c-e64e-4323-8524-18c0f3e2a0e7" />
+
+# SurveyJS Form Library Core
 
 [![Build Status](https://dev.azure.com/SurveyJS/V2%20Libraries/_apis/build/status%2Flibrary%2FLibrary%20Main?repoName=surveyjs%2Fsurvey-library&branchName=master)](https://dev.azure.com/SurveyJS/V2%20Libraries/_build/latest?definitionId=130&repoName=surveyjs%2Fsurvey-library&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/surveyjs/survey-library/blob/master/LICENSE)
@@ -6,11 +10,20 @@
 [![Open Issues](https://img.shields.io/github/issues/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues)
 [![Closed Issues](https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+)
 
-`survey-core` is the platform-independent model of the [SurveyJS Form Library](https://surveyjs.io/form-library). It holds everything that does not depend on a rendering framework: the JSON schema and serializer, question types, validation, conditional logic and expressions, localization, input masks, and themes. **It does not render anything on its own** — pair it with one of the [platform-specific UI packages](#related-packages) below. Installing `survey-core` alone is the most common reason a survey never appears on the page.
+</div>
+<div align="justify">
 
-[![SurveyJS Form Library themes](https://raw.githubusercontent.com/surveyjs/survey-library/master/docs/images/survey-library-themes.png)](https://surveyjs.io/form-library/examples/)
+SurveyJS Form Library Core is a free and open-source, framework-independent package that provides the form model and core logic used by SurveyJS rendering packages.
 
-## Install
+The `survey-core` package handles form structure, validation, conditional logic, calculations, navigation, localization, response data, and other framework-independent behavior. **It does not render the form UI itself.** To display forms in an application, use it together with one of the [framework-specific rendering packages](#related-packages) below. Installing `survey-core` alone is the most common reason a survey never appears on the page.
+
+A typical integration creates a form model from a SurveyJS JSON form definition with `survey-core` and passes that model to the appropriate rendering component. The renderer displays the form and stays synchronized with the model as users interact with it.
+
+Use `survey-core` when you need to work directly with SurveyJS form models, form logic, response data, or shared functionality independently of a particular UI framework.
+
+</div>
+
+## Installation
 
 Install the UI package for your framework — `survey-core` comes with it as a dependency:
 
@@ -50,9 +63,9 @@ Pass the `survey` instance to the component from your UI package to render it �
 
 `survey-core/survey-core.css` applies the Default theme; `survey-core/survey-core.min.css` is the minified build. Other predefined themes are imported from `survey-core/themes` — refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
-## Theme adapters
+## Theme Adapters
 
-Themes are built on `--sjs-*` CSS custom properties (design tokens). A *theme adapter* maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
+Themes are built on `--sjs-*` CSS custom properties (design tokens). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
 
 ```js
 import "survey-core/survey-core.css";
@@ -67,7 +80,7 @@ import "survey-core/themes/adapters/icons/lucide"; // or ".../icons/mui"
 
 Adapters are framework-independent and require no extra markup or configuration. See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
 
-## Use on the server (Node.js)
+## Use on the Server (Node.js)
 
 `survey-core` has no DOM dependency and imports cleanly in Node (both `require` and ESM `import`), so the same model that renders in the browser can run on the server. Use it to re-validate a submitted response, evaluate conditional logic, or inspect and transform a survey JSON definition — no UI package and no CSS import required.
 
@@ -94,11 +107,37 @@ require("survey-core/i18n/french");
 survey.locale = "fr";
 ```
 
-### Server-side rendering (SSR)
+### Server-Side Rendering (SSR)
 
 The same DOM-free design makes SSR work: a survey can be pre-rendered on the server with [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) and hydrated on the client. HTML `id` attributes are generated deterministically per survey instance, so the server and client produce matching markup. If you render multiple surveys on one page, assign a unique [`elementIdPrefix`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#elementIdPrefix) to each model so their `id` attributes don't collide.
 
-## Related packages
+## Key Features
+
+### Core Form Model
+
+- Framework-independent form model for SurveyJS Form Library
+- Create and manage forms from SurveyJS JSON definitions
+- Manage form structure, state, and response data
+
+### Logic and Validation
+
+- Conditional visibility, branching, and [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values)
+- Expression-based logic and custom functions
+- [Built-in and custom validation](https://surveyjs.io/form-library/documentation/data-validation)
+
+### Navigation and Localization
+
+- Multi-page navigation and progress tracking
+- Multi-language forms and runtime locale switching
+- Right-to-left language support
+
+### Extensibility
+
+- Event-driven API for custom form behavior
+- [Custom question types and properties](https://surveyjs.io/form-library/documentation/customize-question-types/question-customization-options)
+- Shared core for `survey-react-ui`, `survey-angular-ui`, `survey-vue3-ui`, and `survey-js-ui`
+
+## Related Packages
 
 | Framework | UI package | Get Started |
 | --- | --- | --- |
@@ -111,12 +150,15 @@ The same DOM-free design makes SSR work: a survey can be pre-rendered on the ser
 
 - [Website](https://surveyjs.io/)
 - [Documentation](https://surveyjs.io/form-library/documentation/overview)
-- [Live Examples](https://surveyjs.io/form-library/examples/)
-- [What's New](https://surveyjs.io/WhatsNew)
+- [Form Library Overview](https://surveyjs.io/form-library/documentation/overview)
+- [Form Library Demos](https://surveyjs.io/form-library/examples/overview)
+- [Release Notes](https://surveyjs.io/stay-updated/release-notes)
+- [Roadmap](https://surveyjs.io/stay-updated/roadmap)
+- [What's New](https://surveyjs.io/stay-updated/major-updates/2025-2026)
 
-For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/get-started-react.md](https://surveyjs.io/form-library/documentation/get-started-react.md).
+For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/overview.md](https://surveyjs.io/form-library/documentation/overview.md).
 
-## SurveyJS ecosystem
+## SurveyJS Ecosystem
 
 | Product | Purpose | License |
 | --- | --- | --- |
@@ -126,7 +168,7 @@ For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.tx
 | [PDF Generator](https://surveyjs.io/pdf-generator) | Render forms and responses as PDF | Commercial |
 | [AI Form Response Extractor](https://surveyjs.io/documentation/combine-paper-and-online-survey-form-data) | Extract responses from paper forms, PDFs, and images into a SurveyJS schema (`ai-form-response-extractor`) | MIT |
 
-## Build from sources
+## Build from Source
 
 This monorepo does **not** use npm workspaces — each package installs and builds independently, but a root install is still required for the shared tooling (linting, Playwright).
 

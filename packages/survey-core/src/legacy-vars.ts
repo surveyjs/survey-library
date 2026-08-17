@@ -51,6 +51,7 @@ export const legacyCssVariables = {
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
   "--sjs-shadow-small": [
     "--sjs2-border-effect-surface-default", //0px 1px 2px 0px rgba(0, 0, 0, 0.15)",
+    "--sjs2-border-effect-component-panel-default",
     "--sjs2-border-effect-component-action-brand-tertiary-surface-default",
     "--sjs2-border-effect-component-action-brand-tertiary-surface-hovered",
     "--sjs2-border-effect-component-action-brand-tertiary-surface-disabled",
@@ -62,6 +63,7 @@ export const legacyCssVariables = {
   "--sjs-shadow-large": { var: "--sjs2-border-effect-floating-default", join: "," }, //0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
   "--sjs-shadow-inner": [
     "--sjs2-border-effect-component-formbox-default", //inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15)",
+    "--sjs2-border-effect-component-formbox-hovered",
     "--sjs2-border-effect-component-checkbox-true-default",
     "--sjs2-border-effect-component-checkbox-false-default",
     "--sjs2-border-effect-component-radio-true-default",

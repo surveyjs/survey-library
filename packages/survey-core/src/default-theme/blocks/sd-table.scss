@@ -271,12 +271,7 @@
 }
 
 .sd-table__cell--detail-panel {
-  border-top: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
-  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x100);
-  border-bottom: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
-  .sd-panel__content {
-    padding: 0;
-  }
+  padding: var(--sjs2-spacing-x100);
 }
 
 //autowidth

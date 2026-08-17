@@ -86,16 +86,6 @@
   }
 }
 
-@keyframes borderAnimation {
-  from {
-    border-width: 0px;
-  }
-
-  to {
-    border-width: 8px;
-  }
-}
-
 @keyframes paddingAnimation {
   from {
     padding-top: 0;
@@ -103,8 +93,8 @@
   }
 
   to {
-    padding-top: 24px;
-    padding-bottom: 32px;
+    padding-top: 8px;
+    padding-bottom: 8px;
   }
 }
 
@@ -124,7 +114,7 @@
   animation-duration: max(var(--fade-whole-animation-duration), var(--move-whole-animation-duration));
 
   & > td {
-    animation-name: borderAnimation;
+    animation-name: paddingAnimation;
     animation-direction: var(--animation-direction);
     animation-timing-function: var(--animation-timing-function);
     animation-duration: var(--move-animation-duration);
@@ -165,7 +155,7 @@
   &.sd-table__row--enter,
   &.sd-table__row--leave {
     & > td {
-      animation-name: borderAnimation, paddingAnimation;
+      animation-name: paddingAnimation;
       animation-duration: var(--move-animation-duration);
       animation-fill-mode: forwards;
       animation-direction: var(--animation-direction);

@@ -48,7 +48,7 @@
   }
 
   .sd-table__cell.sd-table__cell--drag {
-    >div {
+    > div {
       background-color: var(--sjs2-color-component-panel-default-bg);
       min-height: var(--sjs2-size-x600);
     }
@@ -64,7 +64,6 @@
 }
 
 .sd-question--mobile {
-
   .sd-table__cell--header,
   .sd-table__cell {
     &.sd-table__cell--drag {
@@ -77,7 +76,7 @@
   background-color: $background-dim;
 }
 
-.sv-matrix-row--drag-drop-ghost-mod td>* {
+.sv-matrix-row--drag-drop-ghost-mod td > * {
   visibility: hidden;
 }
 
@@ -93,7 +92,6 @@
     height: var(--sjs2-size-x600);
 
     .sv-ranking-item__text {
-
       .sv-string-viewer,
       .sv-string-editor {
         overflow: hidden;

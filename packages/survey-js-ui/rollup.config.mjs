@@ -46,7 +46,6 @@ const buildPlatformJson = {
     "ui-component",
     "json",
     "json-schema",
-    "angular-schema-form",
     "javascript",
     "typescript",
     "schema-form",

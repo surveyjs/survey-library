@@ -15,7 +15,7 @@
 
 SurveyJS React Form Library is a free and open-source React component library for rendering dynamic, JSON-driven forms and surveys in React applications.
 
-The `survey-react-ui` package integrates SurveyJS Form Library with React, renders forms defined with SurveyJS JSON form definitions, and collects user responses in the browser. It works together with the framework-independent [`survey-core`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core) package, which provides the form model and handles form structure, validation, conditional logic, calculations, navigation, localization, and other core behavior. Installing `survey-react-ui` brings `survey-core` with it — you build a model from JSON with `survey-core` and bind it to this package's `<survey>` component to display.
+The `survey-react-ui` package integrates SurveyJS Form Library with React, renders forms defined with SurveyJS JSON form definitions, and collects user responses in the browser. It works together with the framework-independent [`survey-core`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core) package, which provides the form model and handles form structure, validation, conditional logic, calculations, navigation, localization, and other core behavior. Installing `survey-react-ui` brings `survey-core` with it — you build a model from JSON with `survey-core` and pass it to this package's `Survey` component (`<Survey model={survey} />`) to render it.
 
 Use SurveyJS React Form Library to build multi-step forms, surveys, quizzes, assessments, calculator forms, and other data-entry tools. Form definitions and submitted responses can be stored and processed in your own backend and database.
 

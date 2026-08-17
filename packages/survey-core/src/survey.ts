@@ -89,7 +89,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
-import { PopupModel } from "./popup";
+import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
@@ -8518,6 +8518,10 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+
+  public confirmActionAsync(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void {
+    settings.confirmActionAsync(message, callback, { rootElement: this.rootElement, ...options });
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

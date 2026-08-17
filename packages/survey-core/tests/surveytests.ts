@@ -75,6 +75,7 @@ import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 
 import { describe, test, expect, vi } from "vitest";
+import { IConfirmDialogOptions } from "../src/popup";
 describe("Survey", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -21457,5 +21458,24 @@ describe("Survey", () => {
     expect(question2.isVisible, "question2 is visible, calcVal is true").toBe(true);
     survey.setValue("question1", false);
     expect(question2.isVisible, "question2 is invisible, calcVal is false").toBe(false);
+  });
+  test("survey confirmActionAsync", () => {
+    const oldSettingsFunc = settings.confirmActionAsync;
+    let rootElement = undefined;
+    settings.confirmActionAsync = (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => {
+      rootElement = options?.rootElement;
+    };
+    const survey = new SurveyModel({});
+    survey.rootElement = "survey_root_element" as any;
+    survey.confirmActionAsync("message_test", () => {});
+    expect(rootElement).toBe("survey_root_element");
+
+    survey.confirmActionAsync("message_test", () => {}, { rootElement: "document_root_element" as any });
+    expect(rootElement).toBe("document_root_element");
+
+    const options: IConfirmDialogOptions = {};
+    survey.confirmActionAsync("message_test", () => {}, options);
+    expect(rootElement).toBe("survey_root_element");
+    expect(options.rootElement).toBeUndefined();
   });
 });

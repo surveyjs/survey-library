@@ -2,43 +2,46 @@ import { Operand } from "../expressions/expressions";
 import { IComponentDef } from "./types";
 
 // Case-insensitive single-value map that preserves the original key casing.
+// Backed by a native Map: element names come from user JSON, so keys like
+// "constructor" or "__proto__" must not collide with Object.prototype.
 export class CIMap<T> {
-  private items: { [key: string]: { name: string, value: T } } = {};
-  private count = 0;
+  private items = new Map<string, { name: string, value: T }>();
   public set(name: string, value: T): void {
-    const key = name.toLowerCase();
-    if (!this.items[key])this.count++;
-    this.items[key] = { name: name, value: value };
+    this.items.set(name.toLowerCase(), { name: name, value: value });
   }
   public get(name: string): T | undefined {
-    const item = this.items[(name || "").toLowerCase()];
+    const item = this.items.get((name || "").toLowerCase());
     return item ? item.value : undefined;
   }
   public has(name: string): boolean {
-    return !!this.items[(name || "").toLowerCase()];
+    return this.items.has((name || "").toLowerCase());
   }
-  public get size(): number { return this.count; }
+  public get size(): number { return this.items.size; }
   public names(): Array<string> {
-    return Object.keys(this.items).map(key => this.items[key].name);
+    const res: Array<string> = [];
+    this.items.forEach(item => res.push(item.name));
+    return res;
   }
   public forEach(callback: (value: T, name: string) => void): void {
-    Object.keys(this.items).forEach(key => callback(this.items[key].value, this.items[key].name));
+    this.items.forEach(item => callback(item.value, item.name));
   }
 }
 
 // Case-insensitive multi-value map: keeps every record registered under a name.
 export class CIMultiMap<T> {
-  private items: { [key: string]: { name: string, values: Array<T> } } = {};
+  private items = new Map<string, { name: string, values: Array<T> }>();
   public add(name: string, value: T): void {
     const key = name.toLowerCase();
-    if (!this.items[key]) {
-      this.items[key] = { name: name, values: [] };
+    let bucket = this.items.get(key);
+    if (!bucket) {
+      bucket = { name: name, values: [] };
+      this.items.set(key, bucket);
     }
-    this.items[key].values.push(value);
+    bucket.values.push(value);
   }
   public get(name: string): Array<T> {
-    const item = this.items[(name || "").toLowerCase()];
-    return item ? item.values : [];
+    const bucket = this.items.get((name || "").toLowerCase());
+    return bucket ? bucket.values : [];
   }
   public has(name: string): boolean {
     return this.get(name).length > 0;
@@ -48,10 +51,12 @@ export class CIMultiMap<T> {
     return values.length > 0 ? values[0] : undefined;
   }
   public names(): Array<string> {
-    return Object.keys(this.items).map(key => this.items[key].name);
+    const res: Array<string> = [];
+    this.items.forEach(bucket => res.push(bucket.name));
+    return res;
   }
   public forEach(callback: (values: Array<T>, name: string) => void): void {
-    Object.keys(this.items).forEach(key => callback(this.items[key].values, this.items[key].name));
+    this.items.forEach(bucket => callback(bucket.values, bucket.name));
   }
 }
 

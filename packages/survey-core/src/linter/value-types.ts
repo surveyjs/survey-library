@@ -37,7 +37,7 @@ function inferScalarFromValues(values: Array<any>): ScalarType {
 }
 
 export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined {
-  const isSelectBase = !!SELECTBASE_TYPES[type];
+  const isSelectBase = SELECTBASE_TYPES.has(type);
   const isColumnLike = type === "matrixdropdowncolumn";
   if (!isSelectBase && !isColumnLike) return undefined;
   return {

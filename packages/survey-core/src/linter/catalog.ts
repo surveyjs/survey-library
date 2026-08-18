@@ -64,31 +64,17 @@ export const ITEMVALUE_EXPRESSION_PROPS: Array<ExpressionPropDef> = [
   condition("enableIf"),
 ];
 
-export const SELECTBASE_TYPES: { [type: string]: boolean } = {
-  radiogroup: true,
-  dropdown: true,
-  checkbox: true,
-  tagbox: true,
-  imagepicker: true,
-  ranking: true,
-  buttongroup: true,
-};
+// Sets, not object literals: these are looked up with the raw JSON "type" string,
+// which must not collide with Object.prototype keys ("constructor", ...).
+export const SELECTBASE_TYPES = new Set<string>([
+  "radiogroup", "dropdown", "checkbox", "tagbox", "imagepicker", "ranking", "buttongroup",
+]);
 
-export const MATRIXDROPDOWN_TYPES: { [type: string]: boolean } = {
-  matrixdropdown: true,
-  matrixdynamic: true,
-};
+export const MATRIXDROPDOWN_TYPES = new Set<string>(["matrixdropdown", "matrixdynamic"]);
 
-export const MATRIXBASE_TYPES: { [type: string]: boolean } = {
-  matrix: true,
-  matrixdropdown: true,
-  matrixdynamic: true,
-};
+export const MATRIXBASE_TYPES = new Set<string>(["matrix", "matrixdropdown", "matrixdynamic"]);
 
-export const PANEL_TYPES: { [type: string]: boolean } = {
-  panel: true,
-  flowpanel: true,
-};
+export const PANEL_TYPES = new Set<string>(["panel", "flowpanel"]);
 
 export const KNOWN_QUESTION_TYPES: Array<string> = [
   "boolean", "buttongroup", "checkbox", "comment", "dropdown", "expression",
@@ -97,10 +83,9 @@ export const KNOWN_QUESTION_TYPES: Array<string> = [
   "rating", "signaturepad", "slider", "tagbox", "text",
 ];
 
-const knownTypesHash: { [type: string]: boolean } = {};
-KNOWN_QUESTION_TYPES.forEach(type => knownTypesHash[type] = true);
+const knownTypesSet = new Set<string>(KNOWN_QUESTION_TYPES);
 export function isKnownQuestionType(type: string): boolean {
-  return !!knownTypesHash[type];
+  return knownTypesSet.has(type);
 }
 
 // itemvalue-like arrays whose object entries can carry visibleIf/enableIf.
@@ -125,32 +110,33 @@ export interface TriggerTypeDef {
   extraExpressionProps?: Array<ExpressionPropDef>;
 }
 
-export const TRIGGER_TYPES: { [type: string]: TriggerTypeDef } = {
-  complete: { targets: [] },
-  visible: {
+// Map, not an object literal: looked up with the raw JSON trigger "type".
+export const TRIGGER_TYPES = new Map<string, TriggerTypeDef>([
+  ["complete", { targets: [] }],
+  ["visible", {
     targets: [
       { prop: "questions", kind: "question", isArray: true },
       { prop: "pages", kind: "page", isArray: true },
     ],
-  },
-  setvalue: {
+  }],
+  ["setvalue", {
     targets: [{ prop: "setToName", kind: "questionvalue" }],
     setsValue: true,
-  },
-  copyvalue: {
+  }],
+  ["copyvalue", {
     targets: [
       { prop: "setToName", kind: "questionvalue" },
       { prop: "fromName", kind: "questionvalue" },
     ],
     setsValue: true,
-  },
-  skip: { targets: [{ prop: "gotoName", kind: "question" }] },
-  runexpression: {
+  }],
+  ["skip", { targets: [{ prop: "gotoName", kind: "question" }] }],
+  ["runexpression", {
     targets: [{ prop: "setToName", kind: "questionvalue" }],
     setsValue: true,
     extraExpressionProps: [expression("runExpression")],
-  },
-};
+  }],
+]);
 
 // (className, propName) pairs the drift-guard test may find via prop.isExpression
 // that the linter deliberately does not analyze. Every entry needs a reason.

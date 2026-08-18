@@ -2,10 +2,12 @@
 // dependency graphs of calculated values and triggers; each cycle is reported once,
 // rotated so the lexicographically smallest node comes first.
 export function findCycles(nodes: Array<string>, getEdges: (node: string) => Array<string>): Array<Array<string>> {
-  const colors: { [node: string]: number } = {};
+  // Maps/Sets, not object literals: node names come from user JSON and may
+  // collide with Object.prototype keys ("constructor", "__proto__", ...).
+  const colors = new Map<string, number>();
   const stack: Array<string> = [];
   const cycles: Array<Array<string>> = [];
-  const seen: { [key: string]: boolean } = {};
+  const seen = new Set<string>();
 
   const addCycle = (cycle: Array<string>) => {
     let minIndex = 0;
@@ -14,27 +16,27 @@ export function findCycles(nodes: Array<string>, getEdges: (node: string) => Arr
     }
     const canonical = cycle.slice(minIndex).concat(cycle.slice(0, minIndex));
     const key = canonical.join("");
-    if (seen[key]) return;
-    seen[key] = true;
+    if (seen.has(key)) return;
+    seen.add(key);
     cycles.push(canonical);
   };
 
   const visit = (node: string) => {
-    colors[node] = 1;
+    colors.set(node, 1);
     stack.push(node);
     getEdges(node).forEach(next => {
-      if (colors[next] === 1) {
+      if (colors.get(next) === 1) {
         addCycle(stack.slice(stack.indexOf(next)));
-      } else if (!colors[next]) {
+      } else if (!colors.get(next)) {
         visit(next);
       }
     });
     stack.pop();
-    colors[node] = 2;
+    colors.set(node, 2);
   };
 
   nodes.forEach(node => {
-    if (!colors[node]) visit(node);
+    if (!colors.get(node)) visit(node);
   });
   return cycles;
 }

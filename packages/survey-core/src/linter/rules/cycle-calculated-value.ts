@@ -9,18 +9,19 @@ export const cycleCalculatedValueRule: ILintRule = {
   defaultSeverity: "error",
   run(ctx: LintContext): void {
     const calcNames: Array<string> = [];
-    const records: { [key: string]: CalculatedValueRecord } = {};
-    const refsByName: { [key: string]: Array<ParsedRef> } = {};
+    // Maps, not object literals: calculated-value names come from user JSON
+    const records = new Map<string, CalculatedValueRecord>();
+    const refsByName = new Map<string, Array<ParsedRef>>();
     ctx.index.calculatedValues.forEach((record, name) => {
       calcNames.push(name);
-      records[name.toLowerCase()] = record;
-      refsByName[name.toLowerCase()] = record.site && record.site.ast
+      records.set(name.toLowerCase(), record);
+      refsByName.set(name.toLowerCase(), record.site && record.site.ast
         ? classifySiteRefs(record.site, ctx.index, ctx.options)
-        : [];
+        : []);
     });
-    const getRecord = (name: string): CalculatedValueRecord => records[name.toLowerCase()];
+    const getRecord = (name: string): CalculatedValueRecord => records.get(name.toLowerCase());
     const getEdges = (name: string): Array<string> => {
-      return refsByName[name.toLowerCase()]
+      return refsByName.get(name.toLowerCase())
         .filter(ref => ref.resolvedKind === "calculatedValue")
         .map(ref => {
           const target = ctx.index.calculatedValues.get(ref.segments[0].name);
@@ -32,7 +33,8 @@ export const cycleCalculatedValueRule: ILintRule = {
     findCycles(calcNames, getEdges).forEach(cycle => {
       const members = cycle.map(getRecord);
       const first = members[0];
-      const expressions: { [name: string]: string } = {};
+      // null-proto: keys are user names, plain {} would swallow "__proto__"
+      const expressions: { [name: string]: string } = Object.create(null);
       members.forEach(member => expressions[member.name] = member.expression || "");
       const message = cycle.length === 1
         ? "The calculated value \"" + first.name + "\" references itself in its own expression."
@@ -41,7 +43,7 @@ export const cycleCalculatedValueRule: ILintRule = {
       let externalRef: string = undefined;
       members.forEach(member => {
         if (externalRef) return;
-        refsByName[member.name.toLowerCase()].forEach(ref => {
+        refsByName.get(member.name.toLowerCase()).forEach(ref => {
           if (externalRef || ref.status === "skipped") return;
           if (ref.resolvedKind !== "calculatedValue" && ref.segments.length > 0) {
             externalRef = ref.segments[0].name;

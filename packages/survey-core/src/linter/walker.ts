@@ -149,7 +149,7 @@ function walkElementsArray(state: WalkState, elements: Array<any>, basePath: str
     if (!element || typeof element !== "object" || Array.isArray(element)) return;
     const path = basePath + "[" + i + "]";
     const type = (element.type || "").toLowerCase();
-    const record = PANEL_TYPES[type]
+    const record = PANEL_TYPES.has(type)
       ? walkPanel(state, element, path, parent, scope, ancestorPanels)
       : walkQuestion(state, element, path, parent, scope, ancestorPanels);
     if (record && container) container.children.push(record);
@@ -245,7 +245,10 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>): ElementRecord {
   if (!guardEnter(state, json)) return undefined;
   const type = (json.type || "").toLowerCase();
-  const componentDef = state.options.components ? state.options.components[type] : undefined;
+  // components is a caller-supplied plain object: guard against inherited keys
+  const components = state.options.components;
+  const componentDef = components && Object.prototype.hasOwnProperty.call(components, type)
+    ? components[type] : undefined;
   const record: ElementRecord = {
     name: json.name || "", valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
     type: type, kind: "question", path: path, json: json, parent: parent, scope: scope.slice(),
@@ -262,7 +265,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   addSitesFromProps(state, json, path, QUESTION_EXPRESSION_PROPS, record, scope);
   addValidatorSites(state, json, path, record, scope);
 
-  if (SELECTBASE_TYPES[type]) {
+  if (SELECTBASE_TYPES.has(type)) {
     addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.selectbase, record,
       scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: record }]));
     addItemValueSites(state, json.choices, path + ".choices", record, scope);
@@ -283,7 +286,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
       record.choicesInfo.carryForwardTextsPath = joinPath(path, "choiceTextsFromQuestion");
     }
   }
-  if (MATRIXBASE_TYPES[type]) {
+  if (MATRIXBASE_TYPES.has(type)) {
     addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.matrixbase, record,
       scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: record }]));
   }
@@ -292,7 +295,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     addItemValueSites(state, json.rows, path + ".rows", record, scope);
     addItemValueSites(state, json.columns, path + ".columns", record, scope);
   }
-  if (MATRIXDROPDOWN_TYPES[type]) {
+  if (MATRIXDROPDOWN_TYPES.has(type)) {
     if (type === "matrixdropdown") {
       record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
       addItemValueSites(state, json.rows, path + ".rows", record, scope);
@@ -408,7 +411,7 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
   if (!json || typeof json !== "object") return;
   const path = "triggers[" + i + "]";
   const type = normalizeTriggerType(json.type);
-  const def = TRIGGER_TYPES[type];
+  const def = TRIGGER_TYPES.get(type);
   const record: TriggerRecord = { type: type, index: i, path: path, json: json, targets: [] };
   if (isNonEmptyString(json.expression)) {
     record.expressionSite = addSite(state, json.expression, "condition",

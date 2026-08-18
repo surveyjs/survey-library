@@ -4,9 +4,7 @@ import { ILintRule, LintContext } from "../rule";
 import { ElementRecord } from "../symbols";
 
 // carry-forward sources that provide an array of objects to pick fields from
-const ARRAY_SOURCE_TYPES: { [type: string]: boolean } = {
-  matrixdynamic: true, matrixdropdown: true, paneldynamic: true,
-};
+const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
 
 function questionCandidates(ctx: LintContext): Array<string> {
   const res: Array<string> = [];
@@ -55,8 +53,8 @@ export const choicesDeadSourceRule: ILintRule = {
         });
         return;
       }
-      const isSelectSource = !!SELECTBASE_TYPES[source.type];
-      const isArraySource = !!ARRAY_SOURCE_TYPES[source.type];
+      const isSelectSource = SELECTBASE_TYPES.has(source.type);
+      const isArraySource = ARRAY_SOURCE_TYPES.has(source.type);
       if (!isSelectSource && !isArraySource && !source.isUnknownType && !source.componentDef) {
         ctx.report({
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName + "\" (" + source.type +

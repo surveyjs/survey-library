@@ -27,23 +27,25 @@ export const nameDuplicateRule: ILintRule = {
     });
     // duplicate calculated-value names and calculated values shadowing element names
     const json = ctx.index.json;
-    const seenCalc: { [key: string]: { name: string, path: string } } = {};
+    // Map, not an object literal: calculated-value names come from user JSON
+    const seenCalc = new Map<string, { name: string, path: string }>();
     if (Array.isArray(json.calculatedValues)) {
       json.calculatedValues.forEach((cv: any, i: number) => {
         if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
         const key = cv.name.toLowerCase();
         const path = "calculatedValues[" + i + "]";
-        if (seenCalc[key]) {
+        const prev = seenCalc.get(key);
+        if (prev) {
           ctx.report({
             message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
             path: path,
             messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
             elementName: cv.name,
             elementType: "calculatedvalue",
-            related: [{ path: seenCalc[key].path, elementName: seenCalc[key].name }, { path: path, elementName: cv.name }],
+            related: [{ path: prev.path, elementName: prev.name }, { path: path, elementName: cv.name }],
           });
         } else {
-          seenCalc[key] = { name: cv.name, path: path };
+          seenCalc.set(key, { name: cv.name, path: path });
         }
         const elements = ctx.index.byName.get(cv.name);
         if (elements.length > 0) {

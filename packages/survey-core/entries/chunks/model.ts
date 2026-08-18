@@ -82,7 +82,7 @@ function checkPrefix(prefix: string): boolean {
 }
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
-export { Helpers, HashTable } from "../../src/helpers";
+export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
 export { DomWindowHelper, DomDocumentHelper } from "../../src/global_variables_utils";
 export {
   AnswerCountValidator,
@@ -168,7 +168,7 @@ export {
   UnaryOperand
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,

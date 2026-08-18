@@ -611,7 +611,7 @@ export var defaultCss = {
     compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
   },
   matrixdynamic: {
-    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table sd-question--matrixdynamic",
     rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",

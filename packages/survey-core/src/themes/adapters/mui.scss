@@ -337,8 +337,9 @@
   --sjs2-color-component-panel-default-border: var(--mui-palette-divider);
   --sjs2-color-component-panel-default-separator: transparent;
   --sjs2-color-component-panel-default-description: var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-box-padding-top: 0;
@@ -376,8 +377,9 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-simple-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-simple-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
@@ -395,8 +397,9 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-nested-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
@@ -434,8 +437,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-mui-card-border-width)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-mui-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs-mui-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -950,7 +954,6 @@
   }
 }
 
-
 /* tables */
 .sd-table-wrapper {
   &::before,
@@ -1016,10 +1019,6 @@
       margin: 0;
     }
   }
-}
-
-.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
 }
 
 .sd-question__placeholder {

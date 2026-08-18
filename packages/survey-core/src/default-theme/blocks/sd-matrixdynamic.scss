@@ -1,5 +1,20 @@
 @use "../variables.scss" as *;
 
+.sd-question--matrixdynamic {
+  --sd-matrixdynamic-footer-padding-block: var(--sjs2-layout-component-panel-footer-padding-top)
+    var(--sjs2-layout-component-panel-footer-padding-bottom);
+  --sd-matrixdynamic-footer-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
+    var(--sjs2-layout-component-panel-footer-padding-right);
+  --sd-matrixdynamic-footer-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
+}
+.sd-question--matrixdynamic:where(.sd-question--nested) {
+  --sd-matrixdynamic-footer-padding-block: var(--sjs2-layout-component-panel-nested-footer-padding-top)
+    var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
+  --sd-matrixdynamic-footer-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
+    var(--sjs2-layout-component-panel-nested-footer-padding-right);
+  --sd-matrixdynamic-footer-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
+}
+
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
   left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
@@ -30,14 +45,9 @@
   position: sticky;
   left: 0;
   box-sizing: border-box;
-  --sd-panel-footer-padding-block: var(--sjs2-layout-component-panel-footer-padding-top)
-    var(--sjs2-layout-component-panel-footer-padding-bottom);
-  --sd-panel-footer-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
-    var(--sjs2-layout-component-panel-footer-padding-right);
-  --sd-panel-footer-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
-  padding-block: var(--sd-panel-footer-padding-block);
-  padding-inline: var(--sd-panel-footer-padding-inline);
-  --sd-action-bar-gap: var(--sd-panel-footer-gap);
+  padding-block: var(--sd-matrixdynamic-footer-padding-block);
+  padding-inline: var(--sd-matrixdynamic-footer-padding-inline);
+  --sd-action-bar-gap: var(--sd-matrixdynamic-footer-gap);
 }
 .sd-matrixdynamic__content > div {
   display: contents;

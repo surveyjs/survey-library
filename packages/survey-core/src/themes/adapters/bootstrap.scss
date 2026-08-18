@@ -111,8 +111,7 @@
   --sjs2-color-component-action-brand-secondary-hovered-bg: var(--sjs-bs-light-hover-bg);
   --sjs2-color-component-action-brand-secondary-hovered-icon: var(--sjs-bs-on-light);
   --sjs2-color-component-action-brand-secondary-hovered-label: var(--sjs-bs-on-light);
-  --sjs2-border-effect-component-action-brand-secondary-hovered: inset 0px 0px 0px 1px
-    var(--sjs-bs-light-hover-border);
+  --sjs2-border-effect-component-action-brand-secondary-hovered: inset 0px 0px 0px 1px var(--sjs-bs-light-hover-border);
 
   /* .btn:disabled keeps the enabled palette and fades the whole button (opacity: .65) */
   --sjs2-color-component-action-brand-secondary-disabled-bg: rgba(from var(--sjs-bs-light-bg) r g b / 0.65);
@@ -320,8 +319,9 @@
   --sjs2-color-component-panel-default-description: var(--bs-card-subtitle-color, var(--bs-secondary-color));
   /* a .card is a border plus the theme's card shadow, and that border is drawn inside the card
      box, so the effect is an inset ring of the card border width */
-  --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-bs-card-border-width)
-    var(--sjs2-color-component-panel-default-border), var(--sjs-bs-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    inset 0 0 0 var(--sjs-bs-card-border-width) var(--sjs2-color-component-panel-default-border),
+    var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-box-padding-horizontal: 0px;
   --sjs2-layout-component-panel-box-padding-top: 0px;
@@ -359,8 +359,9 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-bs-card-border-width)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs-bs-card-shadow);
+  --sjs2-border-effect-component-panel-simple-default:
+    inset 0 0 0 var(--sjs-bs-card-border-width) var(--sjs2-color-component-panel-simple-default-border),
+    var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0px;
   --sjs2-layout-component-panel-simple-box-padding-top: 0px;
@@ -379,8 +380,9 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-bs-card-border-width)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs-bs-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    inset 0 0 0 var(--sjs-bs-card-border-width) var(--sjs2-color-component-panel-nested-default-border),
+    var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0px;
   --sjs2-layout-component-panel-nested-box-padding-top: 0px;
@@ -418,8 +420,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-bs-card-border-width)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-bs-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    inset 0 0 0 var(--sjs-bs-card-border-width) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs-bs-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0px;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0px;
@@ -427,15 +430,11 @@
   --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0px;
 
   --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs2-layout-component-panel-header-padding-top);
-  --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(
-    --sjs2-layout-component-panel-header-padding-bottom
-  );
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(--sjs2-layout-component-panel-header-padding-bottom);
   --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs2-layout-component-panel-header-padding-left);
   --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs2-layout-component-panel-header-padding-right);
   --sjs2-layout-component-panel-dynamic-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
-  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(
-    --sjs2-layout-component-panel-header-gap-horizontal
-  );
+  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs2-layout-component-panel-header-gap-horizontal);
   --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs-bs-card-action-gap);
 
   --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0px;
@@ -643,8 +642,9 @@
 }
 
 .sd-table.sd-table.sd-table {
-  &> tbody, &> thead {
-    &> tr {
+  & > tbody,
+  & > thead {
+    & > tr {
       & > th,
       & > td {
         &:where(:not(.sd-table__cell--error)) {
@@ -658,10 +658,6 @@
       }
     }
   }
-}
-
-.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0px;
 }
 
 .sd-question__description--under-input {

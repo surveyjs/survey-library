@@ -366,8 +366,8 @@
   /* the ring color; panel separators are off (transparent) across adapters */
   --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
   --sjs2-color-component-panel-default-separator: transparent;
-  --sjs2-border-effect-component-panel-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-typography-font-size-component-panel-title: var(--text-base);
   --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
@@ -414,8 +414,8 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-simple-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
@@ -438,8 +438,8 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
@@ -482,8 +482,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -777,9 +778,9 @@
 .sd-table.sd-table.sd-table > thead > tr {
   & > th,
   & > td {
-      border-top: none;
-      border-bottom: none;
-      padding: calc(var(--spacing) * 2);
+    border-top: none;
+    border-bottom: none;
+    padding: calc(var(--spacing) * 2);
   }
 }
 .sd-table__cell--header,
@@ -793,7 +794,6 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
   svg {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);

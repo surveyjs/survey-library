@@ -117,12 +117,17 @@ function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, can
 
 function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>): ParsedRef {
   if (ref.segments.length < 2) return scopedResolved(ref, prefix);
-  const inner = ref.segments[1].name;
-  const record = map.first(inner);
-  if (record) {
-    scopedResolved(ref, prefix);
-    ref.resolvedTo = record;
-    return ref;
+  // inner names may contain dots too ({row.col.a} for a column named "col.a") -
+  // try progressively longer joins, longest first, like the runtime value walk
+  for (let end = ref.segments.length; end > 1; end--) {
+    if (!isFoldableRange(ref.segments, 1, end)) continue;
+    const inner = ref.segments.slice(1, end).map(seg => seg.name).join(".");
+    const record = map.first(inner);
+    if (record) {
+      scopedResolved(ref, prefix);
+      ref.resolvedTo = record;
+      return ref;
+    }
   }
   return scopedUnknown(ref, prefix, 1, map.names());
 }
@@ -256,6 +261,37 @@ function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   // every other type (custom/unknown, expression, checkbox indexes, ...): stay lenient
 }
 
+// segments [start, end) can fold into one dotted name only if none but the last
+// carries an index: in {a[0].b} the index makes ".b" a walk into a's value
+function isFoldableRange(segments: Array<ParsedRefSegment>, start: number, end: number): boolean {
+  for (let i = start; i < end - 1; i++) {
+    if (segments[i].index !== undefined) return false;
+  }
+  return true;
+}
+
+// Element/calculated-value names may themselves contain dots ("address.city").
+// The runtime resolver re-joins progressively longer dotted prefixes and prefers
+// the longest (ValueGetterContextCore.checkValueByPath with isSearchNameRevert),
+// so a longer registered name must win over "first segment plus sub-path".
+// When a prefix of 2+ segments matches a registered name, collapse it into the
+// root segment; the remaining segments stay a sub-path to validate as usual.
+function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
+  for (let end = ref.segments.length; end > 1; end--) {
+    if (!isFoldableRange(ref.segments, 0, end)) continue;
+    const joined = ref.segments.slice(0, end).map(seg => seg.name).join(".");
+    if (!index.byName.has(joined) && !index.byValueName.has(joined) &&
+      !index.calculatedValues.has(joined) && !isKnownVariable(joined, options)) {
+      continue;
+    }
+    const last = ref.segments[end - 1];
+    const collapsed: ParsedRefSegment = last.index === undefined
+      ? { name: joined } : { name: joined, index: last.index };
+    ref.segments = [collapsed].concat(ref.segments.slice(end));
+    return;
+  }
+}
+
 function stripUnwrapPostfix(name: string): string {
   const postfix = settings.expressionVariables.unwrapPostfix;
   if (!!postfix && name.length > postfix.length && name.endsWith(postfix)) {
@@ -303,10 +339,12 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
     ref.segments = ref.segments.slice(0, ref.segments.length - 1);
   }
   ref.segments[0] = { name: stripUnwrapPostfix(ref.segments[0].name), index: ref.segments[0].index };
-  const root = ref.segments[0].name;
 
   const scopeRes = tryResolveScopePrefix(ref, site);
   if (scopeRes.handled) return scopeRes.ref;
+
+  collapseLongestRootName(ref, index, options);
+  const root = ref.segments[0].name;
 
   const record = <ElementRecord>index.byName.first(root) || <ElementRecord>index.byValueName.first(root);
   if (record) {
@@ -341,7 +379,13 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
     ref.suggestion = settings.expressionVariables.panel + "." + root;
     ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
   } else {
-    ref.suggestion = closestMatch(root, rootCandidates(index, options));
+    const candidates = rootCandidates(index, options);
+    let suggestion: string = undefined;
+    // a typo inside a dotted name ({address.cty}) is closest to the full registered name
+    if (ref.segments.length > 1 && isFoldableRange(ref.segments, 0, ref.segments.length)) {
+      suggestion = closestMatch(ref.segments.map(seg => seg.name).join("."), candidates);
+    }
+    ref.suggestion = suggestion || closestMatch(root, candidates);
   }
   return ref;
 }

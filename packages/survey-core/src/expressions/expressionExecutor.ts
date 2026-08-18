@@ -7,6 +7,7 @@ import { FunctionFactory } from "../functionsfactory";
 import { IExpressionValidationOptions } from "../base";
 import { ExpressionErrorType, IExpressionError, getQuestionErrorText } from "./expressionError";
 import { setCreateExpressionExecutor } from "./expressionRunner";
+import { settings } from "../settings";
 
 export interface IExpressionExecutorBase {
   onComplete: (res: any, id: number) => void;
@@ -143,7 +144,51 @@ export class ExpressionExecutor implements IExpressionExecutor {
   private operand: Operand;
   private parser = new ConditionsParser();
   private isAsyncValue: boolean = false;
+  private isAsyncFuncVersion: number = -1;
   private hasFunctionValue: boolean = false;
+  /* Parsed expression trees are shared between executors: identical expression strings are
+     common (the same visibleIf/choicesEnableIf repeated across questions) and parsing is
+     expensive. Operand trees are treated as immutable after parsing. hasFunction is structural
+     and can be cached; isAsync depends on the function registry, which an application can change
+     at any moment, so it is recalculated whenever the registry version has moved on. The settings
+     below are read while parsing, so a cached tree becomes obsolete when any of them is changed. */
+  private static parsedExpressions = new Map<string, { operand: Operand, hasFunction: boolean, settingsKey: string }>();
+  private static maxParsedExpressions = 10000;
+  /* An expression editor produces a new intermediate string on every keystroke, so a full cache
+     must not be emptied and must not let those strings push out the trees a live survey uses.
+     A string is admitted into a full cache only on its second request - the first one is merely
+     remembered in the ring below - and then the least recently used entry is dropped. Evicting an
+     entry never breaks anything: an executor keeps its own reference to the operand tree. */
+  private static recentExpressions: Array<string> = [];
+  private static maxRecentExpressions = 1000;
+  private static getParseSettingsKey(): string {
+    const delimiters = settings.expressionVariableDelimiters;
+    return settings.expressionDisableConversionChar + "\n" + delimiters.start + "\n" + delimiters.end;
+  }
+  private static addParsedExpression(value: string, parsed: { operand: Operand, hasFunction: boolean, settingsKey: string }): void {
+    const cache = ExpressionExecutor.parsedExpressions;
+    if (cache.size < ExpressionExecutor.maxParsedExpressions) {
+      cache.set(value, parsed);
+      return;
+    }
+    const recent = ExpressionExecutor.recentExpressions;
+    const recentIndex = recent.indexOf(value);
+    if (recentIndex < 0) {
+      recent.push(value);
+      if (recent.length > ExpressionExecutor.maxRecentExpressions) {
+        recent.shift();
+      }
+      return;
+    }
+    recent.splice(recentIndex, 1);
+    // Map iterates in insertion order and a cache hit re-inserts the entry, so the first key is
+    // the least recently used one
+    const lruKey = cache.keys().next();
+    if (!lruKey.done) {
+      cache.delete(lruKey.value);
+    }
+    cache.set(value, parsed);
+  }
   constructor(expression: string) {
     this.setExpression(expression);
   }
@@ -153,11 +198,22 @@ export class ExpressionExecutor implements IExpressionExecutor {
   private setExpression(value: string): void {
     if (this.expression === value) return;
     this.expressionValue = value;
-    this.operand = this.parser.parseExpression(value);
-    this.hasFunctionValue = this.canRun() ? this.operand.hasFunction() : false;
-    this.isAsyncValue = this.hasFunction()
-      ? this.operand.hasAsyncFunction()
-      : false;
+    const cache = ExpressionExecutor.parsedExpressions;
+    const settingsKey = ExpressionExecutor.getParseSettingsKey();
+    let parsed = cache.get(value);
+    if (parsed === undefined || parsed.settingsKey !== settingsKey) {
+      const operand = this.parser.parseExpression(value) || null;
+      parsed = { operand: operand, hasFunction: !!operand ? operand.hasFunction() : false, settingsKey: settingsKey };
+      cache.delete(value);
+      ExpressionExecutor.addParsedExpression(value, parsed);
+    } else {
+      // re-insert to mark the entry as the most recently used one
+      cache.delete(value);
+      cache.set(value, parsed);
+    }
+    this.operand = parsed.operand;
+    this.hasFunctionValue = parsed.hasFunction;
+    this.isAsyncFuncVersion = -1;
   }
   public getVariables(): Array<string> {
     if (!this.operand) return [];
@@ -172,6 +228,14 @@ export class ExpressionExecutor implements IExpressionExecutor {
     return this.hasFunctionValue;
   }
   public get isAsync(): boolean {
+    // an executor outlives the registration of the functions it calls: runners are cached per
+    // property (Base.getExpressionInfoByProperty, QuestionSelectBase.getChoicesCondition) and
+    // an application can re-register a function as async after the first run
+    const version = FunctionFactory.Instance.version;
+    if (this.isAsyncFuncVersion !== version) {
+      this.isAsyncValue = this.hasFunctionValue ? this.operand.hasAsyncFunction() : false;
+      this.isAsyncFuncVersion = version;
+    }
     return this.isAsyncValue;
   }
 

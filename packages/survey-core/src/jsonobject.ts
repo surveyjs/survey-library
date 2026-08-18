@@ -1639,22 +1639,23 @@ export class JsonObject {
     const processedProps: any = {};
     processedProps[JsonObject.typePropertyName] = true;
     const parentProps = {};
+    const propertiesHash = this.buildPropertiesHash(properties);
     for (var key in jsonObj) {
-      this.setPropertyValueToObj(jsonObj, obj, key, properties, processedProps, parentProps, objType, needAddErrors, options);
+      this.setPropertyValueToObj(jsonObj, obj, key, properties, propertiesHash, processedProps, parentProps, objType, needAddErrors, options);
     }
     this.options = undefined;
     if (obj.endLoadingFromJson) {
       obj.endLoadingFromJson();
     }
   }
-  private setPropertyValueToObj(jsonObj: any, obj: any, key: string, properties: Array<JsonObjectProperty>, processedProps: any, parentProps: any,
+  private setPropertyValueToObj(jsonObj: any, obj: any, key: string, properties: Array<JsonObjectProperty>, propertiesHash: any, processedProps: any, parentProps: any,
     objType: string, needAddErrors: boolean, options: ILoadFromJSONOptions): void {
     if (processedProps[key]) return;
     if (key === JsonObject.positionPropertyName) {
       obj[key] = jsonObj[key];
       return;
     }
-    const property = this.findProperty(properties, key);
+    const property: JsonObjectProperty = propertiesHash[key];
     if (!property && needAddErrors) {
       this.addNewError(new JsonUnknownPropertyError(key.toString(), objType), jsonObj, obj);
     }
@@ -1664,13 +1665,29 @@ export class JsonObject {
         parentProps[key] = true;
         dProps.forEach(propKey => {
           if (!parentProps[propKey]) {
-            this.setPropertyValueToObj(jsonObj, obj, propKey, properties, processedProps, parentProps, objType, false, options);
+            this.setPropertyValueToObj(jsonObj, obj, propKey, properties, propertiesHash, processedProps, parentProps, objType, false, options);
           }
         });
       }
       this.valueToObj(jsonObj[key], obj, property, jsonObj, options);
       processedProps[key] = true;
     }
+  }
+  // A null-prototype hash so JSON keys like "constructor" never resolve through Object.prototype
+  private buildPropertiesHash(properties: Array<JsonObjectProperty>): any {
+    const res: any = Object.create(null);
+    if (!properties) return res;
+    for (var i = 0; i < properties.length; i++) {
+      const prop = properties[i];
+      if (res[prop.name] === undefined) {
+        res[prop.name] = prop;
+      }
+      const altName = prop.alternativeName;
+      if (!!altName && res[altName] === undefined) {
+        res[altName] = prop;
+      }
+    }
+    return res;
   }
   public toJsonObjectCore(
     obj: any,
@@ -1987,17 +2004,6 @@ export class JsonObject {
         }
       }
     }
-  }
-  private findProperty(
-    properties: Array<JsonObjectProperty>,
-    key: any
-  ): JsonObjectProperty {
-    if (!properties) return null;
-    for (var i = 0; i < properties.length; i++) {
-      var prop = properties[i];
-      if (prop.name == key || prop.alternativeName == key) return prop;
-    }
-    return null;
   }
 }
 

@@ -114,7 +114,46 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   @property() columnsVisibleIf: string;
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    this.runItemsCondition(properties);
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys || !this.canSkipItemsConditions(keys)) {
+      this.runItemsCondition(properties);
+    }
+  }
+  protected canSkipItemsConditions(keys: any): boolean {
+    // rows/cells/totals depend on the matrix own value, including the case when
+    // the matrix is nested into a dynamic panel/matrix and the survey-level key
+    // is the container question name
+    if (this.isQuestionValueChangedByKeys(keys)) return false;
+    if (!this.canSkipItemsExpression("rowsVisibleIf", keys)) return false;
+    if (!this.canSkipItemsExpression("columnsVisibleIf", keys)) return false;
+    return !this.hasItemsOwnExpressions(this.rows) && !this.hasItemsOwnExpressions(this.columns);
+  }
+  private isQuestionValueChangedByKeys(keys: any): boolean {
+    let q: any = this;
+    while(!!q) {
+      const valueName: string = typeof q.getValueName === "function" ? q.getValueName() : q.name;
+      if (!!valueName && (keys.hasOwnProperty(valueName) || keys.hasOwnProperty(valueName.toLowerCase()))) return true;
+      q = q.parentQuestion;
+    }
+    return false;
+  }
+  protected canSkipItemsExpression(propName: string, keys: any): boolean {
+    if (!(<any>this)[propName]) return true;
+    const runner = this.getExpressionByProperty(propName);
+    // function arguments can reference values inside string literals
+    // (e.g. sumInArray(..., '{col1} > {q1}')), invisible to variable analysis
+    if (!!runner && runner.hasFunction()) return false;
+    return this.canSkipExpressionByKeys(runner, keys);
+  }
+  protected hasItemsOwnExpressions(items: Array<any>): boolean {
+    if (!Array.isArray(items)) return false;
+    for (let i = 0; i < items.length; i++) {
+      const item: any = items[i];
+      if (!item || typeof item.getPropertyValueWithoutDefault !== "function") continue;
+      if (!!item.getPropertyValueWithoutDefault("visibleIf") || !!item.getPropertyValueWithoutDefault("enableIf")) return true;
+    }
+    return false;
   }
   protected onColumnsChanged(): void { }
   protected onRowsChanged(): void {

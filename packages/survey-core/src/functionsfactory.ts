@@ -34,6 +34,12 @@ export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
   private functionHash: HashTable<IFunctionInfo> = {};
   private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
+  // Bumped on every change of the registry so that consumers caching a verdict derived from it
+  // (ExpressionExecutor.isAsync) can tell that they have to recalculate it
+  private versionValue: number = 1;
+  public get version(): number {
+    return this.versionValue;
+  }
 
   public register(info: IFunctionRegistration): void;
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void;
@@ -45,6 +51,7 @@ export class FunctionFactory {
     }
     this.clearCache(info.name);
     this.functionHash[info.name] = { name: info.name, func: info.func, isAsync: !!info.isAsync, useCache: !!useCacheValue, originalValueParams: info.originalValueParams };
+    this.versionValue++;
   }
   // Returns the indexes of the parameters that must receive the original (unfiltered) value.
   public getOriginalValueParams(name: string): Array<number> {
@@ -53,6 +60,7 @@ export class FunctionFactory {
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
+    this.versionValue++;
   }
   public hasFunction(name: string): boolean {
     return !!this.functionHash[name];
@@ -64,6 +72,7 @@ export class FunctionFactory {
   public clear(): void {
     this.functionHash = {};
     this.clearCache();
+    this.versionValue++;
   }
   public clearCache(functionName?: string): void {
     if (functionName) {

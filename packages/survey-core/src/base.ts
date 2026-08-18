@@ -10,7 +10,7 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ExpressionRunner } from "./expressions/expressionRunner";
+import { ExpressionRunner, ExpressionRunnerBase } from "./expressions/expressionRunner";
 import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
@@ -1180,8 +1180,28 @@ export class Base implements IObjectValueContext {
           doRun();
           return false;
         }
+        const cacheHost: any = this.getConditionResultsCacheHost(runner);
+        if (!!cacheHost) {
+          const cached = cacheHost.getCachedConditionResult(expression);
+          if (!!cached) {
+            // onExecute can put the element into a state that makes it run this expression
+            // again, so it has to hold the same guard as on the regular path
+            info.isRunning = true;
+            onExecute(cached.res);
+            info.isRunning = false;
+            return true;
+          }
+        }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
+          // the result is published before onExecute: onExecute can write into the survey and
+          // every write invalidates the cache, so afterwards this result is no longer valid for
+          // the current data version. A shareable expression contains no functions and is always
+          // executed synchronously, so this callback runs before doRun() returns.
+          // reference results are not shared to avoid aliasing the same object between elements
+          if (!!cacheHost && (value === null || typeof value !== "object")) {
+            cacheHost.setCachedConditionResult(expression, value);
+          }
           onExecute(value);
           info.isRunning = false;
         };
@@ -1189,6 +1209,16 @@ export class Base implements IObjectValueContext {
       }
     }
     return true;
+  }
+  // Overridden by elements that resolve expression variables directly against the survey
+  // data - only they can share results of data-only expressions with each other
+  protected canShareConditionResults(): boolean {
+    return false;
+  }
+  private getConditionResultsCacheHost(runner: ExpressionRunnerBase): any {
+    if (!this.canShareConditionResults() || !runner.isResultShareable()) return undefined;
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getCachedConditionResult === "function" ? survey : undefined;
   }
   protected getPropertiesCopy(properties: HashTable<any>, propName?: string): HashTable<any> {
     const copy: HashTable<any> = {};

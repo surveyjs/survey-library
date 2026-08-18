@@ -112,8 +112,12 @@ export const expressionTypeMismatchRule: ILintRule = {
         if (!ref) return;
         const record = ref.resolvedTo;
         if (!record || record.isUnknownType || record.valueType.shape === "unknown") return;
-        // subpath references compare against a sub-value we do not type
-        if (ref.status === "resolved" && ref.segments.length > 1) return;
+        // type only confidently resolved references - an unknown sub-segment keeps
+        // resolvedTo set but is already reported by reference/unknown
+        if (ref.status !== "resolved" && ref.status !== "scoped-resolved") return;
+        // sub-path/indexed references ({q.item}, {q[0]}) compare against a sub-value
+        // we do not type; scoped refs ({row.col}) resolve to the compared element itself
+        if (ref.status === "resolved" && (ref.segments.length > 1 || ref.segments[0].index !== undefined)) return;
         const constValue = constant.correctValue;
         const mismatch = isOrdering ? checkOrdering(record, constValue) : checkEquality(record, constValue);
         if (!mismatch) return;

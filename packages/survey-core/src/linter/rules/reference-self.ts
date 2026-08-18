@@ -1,8 +1,8 @@
-import { settings } from "../../settings";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs } from "../expression-utils";
 import { ElementRecord, ExpressionSite, ParsedRef } from "../symbols";
 import { ILintReproduction } from "../types";
+import { ILintResolvedSettings } from "../lint-settings";
 
 const SELF_PROPS: { [prop: string]: boolean } = { visibleIf: true, enableIf: true, requiredIf: true };
 
@@ -14,12 +14,17 @@ function hasItemValueFrame(site: ExpressionSite): boolean {
   return site.scope.some(frame => frame.kind === "itemValue");
 }
 
-function isSelfRef(ref: ParsedRef, owner: ElementRecord, site: ExpressionSite): boolean {
+function isSelfRef(ref: ParsedRef, owner: ElementRecord, site: ExpressionSite,
+  lintSettings: ILintResolvedSettings): boolean {
   if (ref.status === "skipped") return false;
   const root = ref.segments.length > 0 ? ref.segments[0].name : "";
-  const vars = settings.expressionVariables;
+  const vars = lintSettings.expressionVariables;
   // {self} inside item-level conditions refers to the item, which is the legitimate pattern
   if (equalsCI(root, vars.self) && owner.kind === "question" && !hasItemValueFrame(site)) return true;
+  // per-item conditions (a choice's/rate value's own visibleIf/enableIf) legitimately
+  // reference the owning question to filter items by its current value - only the item
+  // hides, the question value stays, so evaluation converges (the exclusive-"none" idiom)
+  if (hasItemValueFrame(site)) return false;
   if (equalsCI(root, owner.name) || (owner.valueName && equalsCI(root, owner.valueName))) return true;
   // a matrix column referencing itself through {row.<own name>},
   // a dynamic-panel question referencing itself through {panel.<own name>}
@@ -50,7 +55,7 @@ export const referenceSelfRule: ILintRule = {
       const owner = site.owner;
       if (!owner.name) return;
       const refs = classifySiteRefs(site, ctx.index, ctx.options);
-      const selfRef = refs.filter(ref => isSelfRef(ref, owner, site))[0];
+      const selfRef = refs.filter(ref => isSelfRef(ref, owner, site, ctx.index.settings))[0];
       if (!selfRef) return;
       ctx.report({
         message: "The " + site.prop + " of \"" + owner.name + "\" references the element itself ({" +

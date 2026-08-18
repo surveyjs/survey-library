@@ -1,6 +1,6 @@
-import { settings } from "../settings";
 import { SELECTBASE_TYPES } from "./catalog";
 import { ChoicesInfo, ValueTypeInfo, ScalarType } from "./symbols";
+import { ILintResolvedSettings } from "./lint-settings";
 
 const NUMERIC_INPUT_TYPES: { [inputType: string]: boolean } = { number: true, range: true };
 const DATE_INPUT_TYPES: { [inputType: string]: boolean } = {
@@ -55,12 +55,12 @@ export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined
 }
 
 // Values a comparison against this question may legitimately use besides static choices.
-export function getSpecialChoiceValues(info: ChoicesInfo): Array<any> {
+export function getSpecialChoiceValues(info: ChoicesInfo, lintSettings: ILintResolvedSettings): Array<any> {
   const res: Array<any> = [];
   if (info.showOtherItem) res.push("other");
-  if (info.showNoneItem) res.push(settings.noneItemValue);
-  if (info.showRefuseItem) res.push(settings.refuseItemValue);
-  if (info.showDontKnowItem) res.push(settings.dontKnowItemValue);
+  if (info.showNoneItem) res.push(lintSettings.noneItemValue);
+  if (info.showRefuseItem) res.push(lintSettings.refuseItemValue);
+  if (info.showDontKnowItem) res.push(lintSettings.dontKnowItemValue);
   return res;
 }
 

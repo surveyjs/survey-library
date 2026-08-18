@@ -78,26 +78,15 @@ export const PANEL_TYPES = new Set<string>(["panel", "flowpanel"]);
 
 export const KNOWN_QUESTION_TYPES: Array<string> = [
   "boolean", "buttongroup", "checkbox", "comment", "dropdown", "expression",
-  "file", "flowpanel", "html", "image", "imagepicker", "matrix", "matrixdropdown",
-  "matrixdynamic", "multipletext", "panel", "paneldynamic", "radiogroup", "ranking",
-  "rating", "signaturepad", "slider", "tagbox", "text",
+  "file", "flowpanel", "html", "image", "imagemap", "imagepicker", "matrix",
+  "matrixdropdown", "matrixdynamic", "multipletext", "panel", "paneldynamic",
+  "radiogroup", "ranking", "rating", "signaturepad", "slider", "tagbox", "text",
 ];
 
 const knownTypesSet = new Set<string>(KNOWN_QUESTION_TYPES);
 export function isKnownQuestionType(type: string): boolean {
   return knownTypesSet.has(type);
 }
-
-// itemvalue-like arrays whose object entries can carry visibleIf/enableIf.
-// Maps question type to the JSON property names to scan.
-export const ITEMVALUE_ARRAY_PROPS: { [type: string]: Array<string> } = {
-  selectbase: ["choices"],
-  matrix: ["rows", "columns"],
-  matrixdropdown: ["rows"],
-  rating: ["rateValues"],
-  slider: ["customLabels"],
-  imagemap: ["areas"],
-};
 
 // "questions" is a legacy alternativeName for the elements array on the survey root,
 // on panels/pages and on the paneldynamic template.

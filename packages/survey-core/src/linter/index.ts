@@ -4,6 +4,7 @@ import { allRules } from "./rules/index";
 import { buildIndex } from "./walker";
 
 export * from "./types";
+export { ILintFunctionsProvider, ILintSettingsOverrides } from "./lint-settings";
 export { renderFindings } from "./renderer";
 
 export function getRules(): Array<ILintRuleInfo> {

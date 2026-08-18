@@ -179,3 +179,45 @@ describe("expression/type-mismatch - guards", () => {
     expect(findings[0].messageData.reason).toBe("non-scalar");
   });
 });
+
+describe("expression/type-mismatch - indexed and sub-path references", () => {
+  test("indexed element access is not typed as the whole container", () => {
+    // runtime evaluates {q1[0]} to the first selected value, a scalar
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3] },
+        { type: "text", name: "q2", visibleIf: "{q1[0]} = 1" },
+      ],
+    })).toHaveLength(0);
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3] },
+        { type: "text", name: "q2", visibleIf: "{q1[0]} > 5" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("an unknown sub-path adds no type warning on top of reference/unknown", () => {
+    const res = lintSurvey({
+      elements: [
+        { type: "multipletext", name: "mt", items: [{ name: "a" }] },
+        { type: "text", name: "q2", visibleIf: "{mt.badItem} > 5" },
+      ],
+    });
+    expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(1);
+    expect(res.findings.filter(f => f.ruleId === "expression/type-mismatch")).toHaveLength(0);
+  });
+  test("whole-container comparisons are still flagged", () => {
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a"] },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'a'" },
+      ],
+    })).toHaveLength(1);
+    expect(byRule({
+      elements: [
+        { type: "multipletext", name: "mt", items: [{ name: "a" }] },
+        { type: "text", name: "q2", visibleIf: "{mt} > 5" },
+      ],
+    })).toHaveLength(1);
+  });
+});

@@ -219,3 +219,100 @@ describe("choices/dead-source", () => {
     expect(findings[0].messageData.reason).toBe("missing-choice-values");
   });
 });
+
+describe("expression/unknown-choice - contains on scalar questions", () => {
+  // containsCore (expressions.ts) does substring matching when the question value
+  // is a scalar; whole-value membership only applies to array-valued questions
+  const fruitSurvey = (visibleIf: string) => ({
+    elements: [
+      { type: "dropdown", name: "fruit", choices: ["apple", "apricot"] },
+      { type: "text", name: "q2", visibleIf: visibleIf },
+    ],
+  });
+  test("substring of a choice is legitimate", () => {
+    expect(byRule(fruitSurvey("{fruit} contains 'apr'"), "expression/unknown-choice")).toHaveLength(0);
+    expect(byRule(fruitSurvey("{fruit} notcontains 'apr'"), "expression/unknown-choice")).toHaveLength(0);
+  });
+  test("a string no choice contains is still flagged", () => {
+    const findings = byRule(fruitSurvey("{fruit} contains 'xyz'"), "expression/unknown-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].message).toContain("no choice value contains");
+  });
+  test("equality on the same scalar keeps whole-value matching", () => {
+    expect(byRule(fruitSurvey("{fruit} = 'apr'"), "expression/unknown-choice")).toHaveLength(1);
+  });
+  test("array-valued questions keep membership semantics for contains", () => {
+    const tagsSurvey = (visibleIf: string) => ({
+      elements: [
+        { type: "checkbox", name: "tags", choices: ["alpha", "beta"] },
+        { type: "text", name: "q2", visibleIf: visibleIf },
+      ],
+    });
+    expect(byRule(tagsSurvey("{tags} contains 'alp'"), "expression/unknown-choice")).toHaveLength(1);
+    expect(byRule(tagsSurvey("{tags} contains 'alpha'"), "expression/unknown-choice")).toHaveLength(0);
+  });
+});
+
+describe("expression/unknown-choice - matrix columns and cellType", () => {
+  const unknownChoice = (res: any) => res.findings.filter((f: any) => f.ruleId === "expression/unknown-choice");
+  test("non-select columns are not validated against shared matrix choices", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "matrixdynamic",
+        name: "m",
+        choices: ["red", "green"],
+        columns: [
+          { name: "color" },
+          { name: "comments", cellType: "text" },
+          { name: "note", visibleIf: "{row.comments} = 'hello'" },
+        ],
+      }],
+    });
+    expect(unknownChoice(res)).toHaveLength(0);
+  });
+  test("matrix-level cellType disables shared-choice validation for inheriting columns", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "matrixdynamic",
+        name: "m",
+        cellType: "text",
+        choices: ["red", "green"],
+        columns: [
+          { name: "comments" },
+          { name: "note", visibleIf: "{row.comments} = 'hello'" },
+        ],
+      }],
+    });
+    expect(unknownChoice(res)).toHaveLength(0);
+  });
+  test("select columns keep shared-choice validation", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "matrixdynamic",
+        name: "m",
+        choices: ["red", "green"],
+        columns: [
+          { name: "color" },
+          { name: "note", visibleIf: "{row.color} = 'blue'" },
+        ],
+      }],
+    });
+    expect(unknownChoice(res)).toHaveLength(1);
+  });
+  test("options.settings.matrix.defaultCellType drives the inherited cell type", () => {
+    const json = {
+      elements: [{
+        type: "matrixdynamic",
+        name: "m",
+        choices: ["red", "green"],
+        columns: [
+          { name: "c1" },
+          { name: "note", visibleIf: "{row.c1} = 'blue'" },
+        ],
+      }],
+    };
+    expect(unknownChoice(lintSurvey(json))).toHaveLength(1);
+    const res = lintSurvey(json, { settings: { matrix: { defaultCellType: "text" } } });
+    expect(unknownChoice(res)).toHaveLength(0);
+  });
+});

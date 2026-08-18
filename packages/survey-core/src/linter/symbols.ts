@@ -1,5 +1,6 @@
 import { Operand } from "../expressions/expressions";
 import { IComponentDef } from "./types";
+import { ILintResolvedSettings } from "./lint-settings";
 
 // Case-insensitive single-value map that preserves the original key casing.
 // Backed by a native Map: element names come from user JSON, so keys like
@@ -138,7 +139,7 @@ export interface ParsedRefSegment {
 
 export type RefStatus = "resolved" | "unknown" | "skipped" | "scoped-resolved" | "scoped-unknown";
 
-export type ResolvedRefKind = "element" | "calculatedValue" | "page" | "knownVariable" | "scope";
+export type ResolvedRefKind = "element" | "calculatedValue" | "page" | "knownVariable" | "scope" | "comment";
 
 export interface ParsedRef {
   raw: string;
@@ -227,4 +228,6 @@ export interface SurveyIndex {
   allElements: Array<ElementRecord>;
   containers: Array<ContainerRecord>;
   namespaces: Array<Namespace>;
+  // effective settings for this run: options.settings over this bundle's defaults
+  settings: ILintResolvedSettings;
 }

@@ -8,6 +8,7 @@ import {
   isKnownQuestionType, ExpressionPropDef,
 } from "./catalog";
 import { parseExpressionText } from "./expression-utils";
+import { resolveLintSettings } from "./lint-settings";
 import {
   CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite, ExpressionSiteKind,
   ScopeFrame, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex,
@@ -188,21 +189,25 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
   state.index.namespaces.push({
     label: "matrix \"" + (record.name || record.path) + "\"", map: frame.columns,
   });
-  const defaultCellType = (json.cellType || "dropdown").toLowerCase();
+  const defaultCellType = (json.cellType || state.index.settings.matrixDefaultCellType).toLowerCase();
   if (Array.isArray(json.columns)) {
     json.columns.forEach((column: any, i: number) => {
       if (!column || typeof column !== "object") return;
       const columnPath = path + ".columns[" + i + "]";
       const cellType = (column.cellType || defaultCellType).toLowerCase();
+      const effectiveCellType = cellType === "default" ? defaultCellType : cellType;
       const columnJson = column;
       const columnRecord: ElementRecord = {
         name: column.name || "", type: "matrixdropdowncolumn", kind: "column",
         path: columnPath, json: columnJson, parent: record, scope: rowScope.slice(),
         isUnknownType: false,
-        valueType: getValueTypeInfo(cellType === "default" ? defaultCellType : cellType, columnJson),
+        valueType: getValueTypeInfo(effectiveCellType, columnJson),
         choicesInfo: undefined,
       };
-      const choicesInfo = getChoicesInfo(columnJson, "matrixdropdowncolumn");
+      // only select-base cells use choices; a text/comment/boolean/... cell
+      // accepts any value, and the shared matrix "choices" do not apply to it
+      const choicesInfo = SELECTBASE_TYPES.has(effectiveCellType)
+        ? getChoicesInfo(columnJson, "matrixdropdowncolumn") : undefined;
       if (choicesInfo) {
         // a column without own choices uses the matrix-level shared "choices"
         if (choicesInfo.staticValues.length === 0 && Array.isArray(json.choices)) {
@@ -304,6 +309,10 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   }
   if (type === "rating") {
     addItemValueSites(state, json.rateValues, path + ".rateValues", record, scope);
+  }
+  if (type === "imagemap") {
+    // imagemap areas extend itemvalue; their visibleIf/enableIf run at runtime
+    addItemValueSites(state, json.areas, path + ".areas", record, scope);
   }
   if (type === "slider") {
     addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.slider, record, scope);
@@ -464,6 +473,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex 
     allElements: [],
     containers: [],
     namespaces: [],
+    settings: resolveLintSettings(options.settings),
   };
   index.namespaces.push({ label: "", map: index.byName });
   const state: WalkState = { index: index, options: options, visited: new WeakSet(), depth: 0 };

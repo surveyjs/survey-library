@@ -1,7 +1,7 @@
 import { ConditionsParser } from "../conditions/conditionsParser";
 import { Operand, Variable, FunctionOperand } from "../expressions/expressions";
-import { settings } from "../settings";
 import { ISurveyLintOptions } from "./types";
+import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
   ElementRecord, ExpressionSite, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
@@ -132,8 +132,9 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
   return scopedUnknown(ref, prefix, 1, map.names());
 }
 
-function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, scope: Array<ScopeFrame> }): ScopeResolution {
-  const vars = settings.expressionVariables;
+function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
+  lintSettings: ILintResolvedSettings): ScopeResolution {
+  const vars = lintSettings.expressionVariables;
   const root = ref.segments[0].name;
   const scope = site.scope || [];
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
@@ -292,18 +293,19 @@ function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: IS
   }
 }
 
-function stripUnwrapPostfix(name: string): string {
-  const postfix = settings.expressionVariables.unwrapPostfix;
+function stripUnwrapPostfix(name: string, postfix: string): string {
   if (!!postfix && name.length > postfix.length && name.endsWith(postfix)) {
     return name.substring(0, name.length - postfix.length);
   }
   return name;
 }
 
-// The "-total" data key of a matrixdropdown/matrixdynamic total row: {matrix1-total.col1}
+// The total-row data key of a matrixdropdown/matrixdynamic ({matrix1-total.col1}
+// by default); the suffix comes from settings.matrix.totalsSuffix.
 function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
-  const suffix = "-total";
-  if (!root.toLowerCase().endsWith(suffix)) return false;
+  const suffix = index.settings.matrixTotalsSuffix;
+  if (!suffix || root.length <= suffix.length) return false;
+  if (!root.toLowerCase().endsWith(suffix.toLowerCase())) return false;
   const base = root.substring(0, root.length - suffix.length);
   const record = <ElementRecord>index.byName.first(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
@@ -318,6 +320,21 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
   return true;
 }
 
+// The comment data key of a question ({q1-Comment} by default): the runtime stores
+// comments under name + settings.commentSuffix and exposes them to expressions.
+// The comment value is a plain string, so resolvedTo stays unset - typing the ref
+// as the base question would misfire the type/choice rules.
+function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
+  const suffix = index.settings.commentSuffix;
+  if (!suffix || root.length <= suffix.length) return false;
+  if (!root.toLowerCase().endsWith(suffix.toLowerCase())) return false;
+  const base = root.substring(0, root.length - suffix.length);
+  if (!index.byName.has(base) && !index.byValueName.has(base)) return false;
+  ref.status = "resolved";
+  ref.resolvedKind = "comment";
+  return true;
+}
+
 export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
   index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   const ref: ParsedRef = { raw: raw, segments: [], status: "skipped" };
@@ -326,9 +343,9 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
   // {"key": 1}-style JSON object literals are not references
   if (name.indexOf(":") > -1) return ref;
   // element property references ({$q1.isVisible}) are out of scope for v1
-  const propPrefix = settings.expressionElementPropertyPrefix;
+  const propPrefix = index.settings.expressionElementPropertyPrefix;
   if (!!propPrefix && name[0] === propPrefix) return ref;
-  const disableConversion = settings.expressionDisableConversionChar;
+  const disableConversion = index.settings.expressionDisableConversionChar;
   if (!!disableConversion && name.length > 1 && name[0] === disableConversion) {
     name = name.substring(1);
   }
@@ -338,9 +355,12 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
   if (ref.segments.length > 1 && ref.segments[ref.segments.length - 1].name === "length") {
     ref.segments = ref.segments.slice(0, ref.segments.length - 1);
   }
-  ref.segments[0] = { name: stripUnwrapPostfix(ref.segments[0].name), index: ref.segments[0].index };
+  ref.segments[0] = {
+    name: stripUnwrapPostfix(ref.segments[0].name, index.settings.expressionVariables.unwrapPostfix),
+    index: ref.segments[0].index,
+  };
 
-  const scopeRes = tryResolveScopePrefix(ref, site);
+  const scopeRes = tryResolveScopePrefix(ref, site, index.settings);
   if (scopeRes.handled) return scopeRes.ref;
 
   collapseLongestRootName(ref, index, options);
@@ -365,6 +385,7 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
     return ref;
   }
   if (tryResolveMatrixTotal(ref, root, index)) return ref;
+  if (tryResolveCommentSuffix(ref, root, index)) return ref;
 
   ref.status = "unknown";
   ref.unknownSegmentIndex = 0;
@@ -373,10 +394,10 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
   if (matrixFrame && matrixFrame.columns.has(root)) {
-    ref.suggestion = settings.expressionVariables.row + "." + root;
+    ref.suggestion = index.settings.expressionVariables.row + "." + root;
     ref.scopeHint = "\"" + root + "\" is a column of this matrix - reference it as {" + ref.suggestion + "}.";
   } else if (panelFrame && panelFrame.templateNames.has(root)) {
-    ref.suggestion = settings.expressionVariables.panel + "." + root;
+    ref.suggestion = index.settings.expressionVariables.panel + "." + root;
     ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
   } else {
     const candidates = rootCandidates(index, options);

@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 2.5.35 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 2.5.39 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@2.5.35/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@2.5.39/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 

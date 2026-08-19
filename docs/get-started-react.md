@@ -126,7 +126,7 @@ export default function SurveyComponent() {
 
 To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
 
-SurveyJS components are interactive: they rely on state and event handlers. If you are using [Next.js](https://nextjs.org) or another framework that has adopted React Server Components, you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
+SurveyJS components do not support server-side rendering (SSR). If you are using [Next.js](https://nextjs.org) or another framework that has adopted React Server Components, you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
 // components/Survey.tsx
@@ -143,13 +143,21 @@ export default function SurveyComponent() {
 }
 ```
 
-Marking the component as client code does not disable server-side rendering (SSR)&mdash;the component is still pre-rendered on the server and hydrated on the client. SurveyJS supports this: `survey-core` does not access the DOM during rendering, and HTML `id` attributes are generated deterministically for each survey instance, so the server and client produce matching markup and hydration succeeds.
-
-If you render **multiple surveys on the same page**, assign a unique [`elementIdPrefix`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#elementIdPrefix) to each survey model before rendering. Otherwise, their generated `id` attributes collide:
+The lack of SSR support may cause hydration errors if a SurveyJS component is pre-rendered on the server. To ensure against those errors, use dynamic imports with `ssr: false` for React components that render SurveyJS components. The following code shows how to do this in Next.js:
 
 ```js
-const survey = new Model(surveyJson);
-survey.elementIdPrefix = 'first-survey_';
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
+}
 ```
 
 If you replicate the code correctly, you should see the following form:
@@ -183,6 +191,21 @@ export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
   return <Survey model={survey} />;
+}
+```
+
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
 }
 ```
 
@@ -299,6 +322,21 @@ export default function SurveyComponent() {
   survey.onComplete.add(alertResults);
 
   return <Survey model={survey} />;
+}
+```
+
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
 }
 ```
 

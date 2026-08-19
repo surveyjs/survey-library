@@ -11,6 +11,7 @@ import { Base } from "./base";
 
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
+  if (!document) return null;
   return document.createElementNS("http://www.w3.org/2000/svg", name);
 }
 
@@ -623,6 +624,7 @@ export class ImageMapArea extends ItemValue {
     }
 
     const document = DomDocumentHelper.getDocument();
+    if (!document) return;
 
     const el = document.createElementNS("http://www.w3.org/2000/svg", shape === "poly" ? "polygon" : shape);
     el.dataset["uid"] = this.renderedId;

@@ -126,6 +126,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
+    if (!popupComputedStyle) return;
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
     const marginTop = (parseFloat(popupComputedStyle.marginTop) || 0);
@@ -287,8 +288,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
       const visualViewport = DomWindowHelper.getVisualViewport();
-      visualViewport.addEventListener("resize", this.visualViewportChangedCallback);
-      visualViewport.addEventListener("scroll", this.visualViewportChangedCallback);
+      if (!!visualViewport) {
+        visualViewport.addEventListener("resize", this.visualViewportChangedCallback);
+        visualViewport.addEventListener("scroll", this.visualViewportChangedCallback);
+      }
       if (this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
@@ -321,8 +324,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     DomWindowHelper.removeEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
       const visualViewport = DomWindowHelper.getVisualViewport();
-      visualViewport.removeEventListener("resize", this.visualViewportChangedCallback);
-      visualViewport.removeEventListener("scroll", this.visualViewportChangedCallback);
+      if (!!visualViewport) {
+        visualViewport.removeEventListener("resize", this.visualViewportChangedCallback);
+        visualViewport.removeEventListener("scroll", this.visualViewportChangedCallback);
+      }
       if (this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);

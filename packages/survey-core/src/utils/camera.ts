@@ -1,5 +1,5 @@
 import { settings } from "../settings";
-import { DomDocumentHelper } from "../global_variables_utils";
+import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 const envStr = "environment";
 const userStr = "user";
@@ -57,8 +57,9 @@ export class Camera {
       Camera.mediaDevicesCallback(devicesCallback);
       return;
     }
-    if (typeof navigator !== "undefined" && navigator.mediaDevices) {
-      navigator.mediaDevices.enumerateDevices()
+    const window = DomWindowHelper.getWindow();
+    if (!!window && !!window.navigator.mediaDevices) {
+      window.navigator.mediaDevices.enumerateDevices()
         .then(devices =>{
           this.setVideoInputs(devices);
           this.hasCameraCallback(callback);
@@ -107,7 +108,12 @@ export class Camera {
     videoElement.style.height = "100%";
     videoElement.style.objectFit = "contain";
     const mediaConstraints = this.getMediaConstraints({ width: imageWidth, height: imageHeight });
-    navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
+    const window = DomWindowHelper.getWindow();
+    if (!window) {
+      callback(undefined);
+      return;
+    }
+    window.navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
       videoElement.srcObject = stream;
       if (!Camera.cameraList[Camera.cameraIndex]?.deviceId && !!stream.getTracks()[0].getCapabilities().facingMode) {
         Camera.canSwitchFacingMode = true;
@@ -128,6 +134,7 @@ export class Camera {
     if (!videoElement) return false;
     if (!DomDocumentHelper.isAvailable()) return false;
     const root = DomDocumentHelper.getDocument();
+    if (!root) return false;
     const canvasEl = root.createElement("canvas");
     const imageSize = this.getImageSize(videoElement);
     canvasEl.height = imageSize.height;

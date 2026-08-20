@@ -59,4 +59,51 @@ describe("reference/self and per-item conditions", () => {
       elements: [{ type: "text", name: "q1", enableIf: "{self} notempty" }],
     })).toHaveLength(1);
   });
+  test("a matrix column named after a top-level question is not a self reference", () => {
+    // {score} inside the column resolves to the TOP-LEVEL question, so the cell
+    // reacts to it - the runtime shows the cell at score=10 and hides it at score=1
+    expect(selfRefs({
+      elements: [
+        { type: "text", name: "score", inputType: "number" },
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "score", cellType: "text", visibleIf: "{score} > 5" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a template question named after a top-level question is not a self reference", () => {
+    expect(selfRefs({
+      elements: [
+        { type: "text", name: "score", inputType: "number" },
+        {
+          type: "paneldynamic", name: "p1",
+          templateElements: [{ type: "text", name: "score", visibleIf: "{score} > 5" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a column referencing itself through row. is still reported", () => {
+    const findings = selfRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "c1", cellType: "text", visibleIf: "{row.c1} notempty" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].columns[0].visibleIf");
+  });
+  test("a template question referencing itself through panel. is still reported", () => {
+    expect(selfRefs({
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "text", name: "q1", visibleIf: "{panel.q1} notempty" }],
+      }],
+    })).toHaveLength(1);
+  });
+  test("a question referencing itself through its valueName is still reported", () => {
+    expect(selfRefs({
+      elements: [{ type: "text", name: "q1", valueName: "v1", visibleIf: "{v1} notempty" }],
+    })).toHaveLength(1);
+  });
 });

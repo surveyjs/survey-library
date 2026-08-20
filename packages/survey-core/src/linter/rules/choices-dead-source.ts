@@ -1,6 +1,7 @@
-import { SELECTBASE_TYPES } from "../catalog";
+import { Serializer } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
+import { resolveCarryForwardSource } from "../expression-utils";
 import { CIMultiMap, ElementRecord } from "../symbols";
 
 // carry-forward sources that provide an array of objects to pick fields from
@@ -28,9 +29,9 @@ export const choicesDeadSourceRule: ILintRule = {
       // report at the property that carries the dead reference
       const path = record.path + ".choicesFromQuestion";
       const sourceName = info.carryForwardFrom;
-      const source = <ElementRecord>ctx.index.byName.first(sourceName) ||
-        <ElementRecord>ctx.index.byValueName.first(sourceName);
-      if (!source || source.kind !== "question") {
+      const resolved = resolveCarryForwardSource(sourceName, record, ctx.index);
+      const source = resolved.source;
+      if (!source || (source.kind !== "question" && source.kind !== "column")) {
         ctx.report({
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName +
             "\", but no question with that name exists.",
@@ -38,7 +39,7 @@ export const choicesDeadSourceRule: ILintRule = {
           messageData: { name: record.name, source: sourceName, reason: "missing" },
           elementName: record.name,
           elementType: record.type,
-          suggestion: closestMatch(sourceName, questionCandidates(ctx)),
+          suggestion: closestMatch(sourceName, resolved.candidates || questionCandidates(ctx)),
         });
         return;
       }
@@ -52,14 +53,18 @@ export const choicesDeadSourceRule: ILintRule = {
         });
         return;
       }
-      const isSelectSource = SELECTBASE_TYPES.has(source.type);
-      const isArraySource = ARRAY_SOURCE_TYPES.has(source.type);
+      // a matrix column carries its cell type in effectiveType; record.type is the wrapper.
+      // Mirrors question_baseselect.ts getQuestionWithChoicesCore, which accepts any
+      // selectbase descendant rather than a fixed list of type names.
+      const sourceType = source.effectiveType || source.type;
+      const isSelectSource = Serializer.isDescendantOf(sourceType, "selectbase");
+      const isArraySource = ARRAY_SOURCE_TYPES.has(sourceType);
       if (!isSelectSource && !isArraySource && !source.isUnknownType && !source.componentDef) {
         ctx.report({
-          message: "\"" + record.name + "\" copies its choices from \"" + sourceName + "\" (" + source.type +
+          message: "\"" + record.name + "\" copies its choices from \"" + sourceName + "\" (" + sourceType +
             "), which provides neither choices nor an array of values.",
           path: path,
-          messageData: { name: record.name, source: sourceName, sourceType: source.type, reason: "not-a-source" },
+          messageData: { name: record.name, source: sourceName, sourceType: sourceType, reason: "not-a-source" },
           elementName: record.name,
           elementType: record.type,
           related: [{ path: source.path, elementName: source.name }],
@@ -74,8 +79,8 @@ export const choicesDeadSourceRule: ILintRule = {
           if (fields.has(fieldValue)) return;
           ctx.report({
             message: "\"" + record.name + "\" reads " + prop + " \"" + fieldValue + "\" from \"" + sourceName +
-              "\", but " + source.type + " \"" + sourceName + "\" has no such " +
-              (source.type === "paneldynamic" ? "template question" : "column") + ".",
+              "\", but " + sourceType + " \"" + sourceName + "\" has no such " +
+              (sourceType === "paneldynamic" ? "template question" : "column") + ".",
             path: fieldPath,
             messageData: { name: record.name, source: sourceName, field: fieldValue, reason: "missing-field", prop: prop },
             elementName: record.name,
@@ -86,17 +91,8 @@ export const choicesDeadSourceRule: ILintRule = {
         };
         checkField(info.carryForwardValuesFrom, record.path + ".choiceValuesFromQuestion", "choiceValuesFromQuestion");
         checkField(info.carryForwardTextsFrom, record.path + ".choiceTextsFromQuestion", "choiceTextsFromQuestion");
-        if (!info.carryForwardValuesFrom) {
-          ctx.report({
-            message: "\"" + record.name + "\" copies its choices from " + source.type + " \"" + sourceName +
-              "\" but does not specify choiceValuesFromQuestion - no choices can be built.",
-            path: path,
-            messageData: { name: record.name, source: sourceName, reason: "missing-choice-values" },
-            elementName: record.name,
-            elementType: record.type,
-            related: [{ path: source.path, elementName: source.name }],
-          });
-        }
+        // no choiceValuesFromQuestion is not a defect: getValueKeyName (question_baseselect.ts)
+        // falls back to the first key of every row/panel value object, so choices are built
       }
     });
   },

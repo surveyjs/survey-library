@@ -21,13 +21,11 @@ function isSelfRef(ref: ParsedRef, owner: ElementRecord, site: ExpressionSite,
   // reference the owning question to filter items by its current value - only the item
   // hides, the question value stays, so evaluation converges (the exclusive-"none" idiom)
   if (hasItemValueFrame(site)) return false;
-  if (equalsCI(root, owner.name) || (owner.valueName && equalsCI(root, owner.valueName))) return true;
-  // a matrix column referencing itself through {row.<own name>},
-  // a dynamic-panel question referencing itself through {panel.<own name>}
-  if (ref.segments.length > 1 && (equalsCI(root, vars.row) || equalsCI(root, vars.panel))) {
-    return equalsCI(ref.segments[1].name, owner.name);
-  }
-  return false;
+  // identity, not name equality: a matrix column or a template question may share its
+  // name with a top-level question, and then {name} resolves to that other element.
+  // classifyRef already resolved the root (byName/byValueName) and the {row.x}/{panel.x}
+  // inner name, so comparing records covers both forms at once.
+  return ref.resolvedTo === owner;
 }
 
 function buildReproduction(owner: ElementRecord, prop: string): ILintReproduction {

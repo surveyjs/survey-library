@@ -111,6 +111,9 @@ export interface ElementRecord {
   name: string;
   valueName?: string;
   type: string;
+  // for a matrix column: the resolved cellType (type stays the wrapper
+  // "matrixdropdowncolumn"). Rules reasoning about the question kind read this.
+  effectiveType?: string;
   kind: ElementKind;
   path: string;
   json: any;

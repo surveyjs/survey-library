@@ -69,6 +69,15 @@ function endsWithCI(text: string, suffix: string): boolean {
   return !!suffix && text.length > suffix.length && text.toLowerCase().endsWith(suffix.toLowerCase());
 }
 
+// The runtime stores a question's comment under name + settings.commentSuffix and
+// exposes that key next to the value - in the survey data, in a matrix row and in a
+// dynamic-panel value alike. Returns the base name, or undefined when the suffix is absent.
+function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
+  const suffix = lintSettings.commentSuffix;
+  if (!endsWithCI(name, suffix)) return undefined;
+  return name.substring(0, name.length - suffix.length);
+}
+
 export function isKnownVariable(name: string, options: ISurveyLintOptions): boolean {
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
@@ -106,7 +115,8 @@ function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, can
   return ref;
 }
 
-function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>): ParsedRef {
+function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>,
+  lintSettings: ILintResolvedSettings): ParsedRef {
   if (ref.segments.length < 2) return scopedResolved(ref, prefix);
   // inner names may contain dots too ({row.col.a} for a column named "col.a") -
   // try progressively longer joins, longest first, like the runtime value walk
@@ -119,6 +129,14 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
       ref.resolvedTo = record;
       return ref;
     }
+  }
+  // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
+  // resolvedTo stays unset, the comment is a plain string, not the base question
+  const commentBase = stripCommentSuffix(ref.segments[1].name, lintSettings);
+  if (ref.segments.length === 2 && commentBase && map.has(commentBase)) {
+    scopedResolved(ref, prefix);
+    ref.resolvedKind = "comment";
+    return ref;
   }
   return scopedUnknown(ref, prefix, 1, map.names());
 }
@@ -137,7 +155,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   for (let i = 0; i < rowPrefixes.length; i++) {
     if (equalsCI(root, rowPrefixes[i])) {
       if (!matrixFrame) return { handled: false, inactiveHint: "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel." };
-      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], matrixFrame.columns) };
+      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], matrixFrame.columns, lintSettings) };
     }
   }
   const rowStandalone = [vars.rowIndex, vars.visibleRowIndex, vars.rowValue, vars.rowName, vars.rowTitle, vars.matrix];
@@ -148,12 +166,18 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     }
   }
   if (equalsCI(root, vars.panel)) {
-    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, panelFrame.templateNames) };
+    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, panelFrame.templateNames, lintSettings) };
     const staticPanel = getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
       const inner = ref.segments[1].name;
       if (staticPanel.panelDescendantNames.has(inner)) return { handled: true, ref: scopedResolved(ref, vars.panel) };
+      const commentBase = stripCommentSuffix(inner, lintSettings);
+      if (commentBase && staticPanel.panelDescendantNames.has(commentBase)) {
+        const commentRef = scopedResolved(ref, vars.panel);
+        commentRef.resolvedKind = "comment";
+        return { handled: true, ref: commentRef };
+      }
       return { handled: true, ref: scopedUnknown(ref, vars.panel, 1, staticPanel.panelDescendantNames.names()) };
     }
     return { handled: false, inactiveHint: "\"" + vars.panel + ".\" references are only available inside a dynamic panel or a panel container." };
@@ -162,7 +186,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   for (let i = 0; i < panelSiblings.length; i++) {
     if (equalsCI(root, panelSiblings[i])) {
       if (!panelFrame) return { handled: false, inactiveHint: "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel." };
-      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], panelFrame.templateNames) };
+      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], panelFrame.templateNames, lintSettings) };
     }
   }
   const panelStandalone = [vars.parentPanel, vars.panelIndex, vars.visiblePanelIndex];
@@ -292,12 +316,13 @@ function stripUnwrapPostfix(name: string, postfix: string): string {
 }
 
 // The total-row data key of a matrixdropdown/matrixdynamic ({matrix1-total.col1}
-// by default); the suffix comes from settings.matrix.totalsSuffix.
+// by default); the suffix comes from settings.matrix.totalsSuffix. The runtime keys
+// the total row off getValueName(), so a matrix with a valueName is addressed by it.
 function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
   const suffix = index.settings.matrixTotalsSuffix;
   if (!endsWithCI(root, suffix)) return false;
   const base = root.substring(0, root.length - suffix.length);
-  const record = <ElementRecord>index.byName.first(base);
+  const record = <ElementRecord>index.byName.first(base) || <ElementRecord>index.byValueName.first(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
   ref.status = "resolved";
   ref.resolvedTo = record;
@@ -315,9 +340,8 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
 // The comment value is a plain string, so resolvedTo stays unset - typing the ref
 // as the base question would misfire the type/choice rules.
 function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
-  const suffix = index.settings.commentSuffix;
-  if (!endsWithCI(root, suffix)) return false;
-  const base = root.substring(0, root.length - suffix.length);
+  const base = stripCommentSuffix(root, index.settings);
+  if (base === undefined) return false;
   if (!index.byName.has(base) && !index.byValueName.has(base)) return false;
   ref.status = "resolved";
   ref.resolvedKind = "comment";
@@ -434,6 +458,47 @@ export function classifySiteRefs(site: ExpressionSite, index: SurveyIndex, optio
 
 export function classifyNameRef(nameRef: NameRef, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   return classifyRef(nameRef.name, { owner: nameRef.owner, scope: nameRef.scope }, index, options);
+}
+
+export interface CarryForwardSource {
+  source?: ElementRecord;
+  // set when the name carried a row./panel. prefix; candidates are then the names
+  // reachable through that prefix, not the survey-level question names
+  scopePrefix?: string;
+  candidates?: Array<string>;
+}
+
+// Mirrors dynamicItemModelBase.findQuestionByName: inside a matrix row or a dynamic
+// panel, "<variableName>.<name>" addresses a sibling within that row/panel and anything
+// else falls through to the survey. The runtime compares that prefix case-sensitively,
+// unlike an expression reference, so this does too.
+export function resolveCarryForwardSource(sourceName: string, owner: ElementRecord,
+  index: SurveyIndex): CarryForwardSource {
+  const vars = index.settings.expressionVariables;
+  const scope = owner.scope || [];
+  const rowPrefix = vars.row + ".";
+  if (sourceName.indexOf(rowPrefix) === 0) {
+    const frame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
+    const inner = sourceName.substring(rowPrefix.length);
+    return {
+      source: frame ? frame.columns.first(inner) : undefined,
+      scopePrefix: vars.row,
+      candidates: frame ? frame.columns.names().map(name => rowPrefix + name) : [],
+    };
+  }
+  const panelPrefix = vars.panel + ".";
+  if (sourceName.indexOf(panelPrefix) === 0) {
+    const frame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
+    const inner = sourceName.substring(panelPrefix.length);
+    return {
+      source: frame ? frame.templateNames.first(inner) : undefined,
+      scopePrefix: vars.panel,
+      candidates: frame ? frame.templateNames.names().map(name => panelPrefix + name) : [],
+    };
+  }
+  return {
+    source: <ElementRecord>index.byName.first(sourceName) || <ElementRecord>index.byValueName.first(sourceName),
+  };
 }
 
 export interface VariableComparison {

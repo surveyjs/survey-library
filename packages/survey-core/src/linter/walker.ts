@@ -2,7 +2,8 @@ import { Helpers, Trigger } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ELEMENTS_ALIASES, ITEMVALUE_EXPRESSION_PROPS, MATRIXBASE_TYPES, MATRIXDROPDOWN_TYPES,
-  MATRIX_COLUMN_EXPRESSION_PROPS, MULTIPLETEXT_ITEM_EXPRESSION_PROPS, PANELBASE_EXPRESSION_PROPS,
+  MATRIX_COLUMN_EXPRESSION_PROPS, MATRIX_COLUMN_ITEMVALUE_PROPS, MULTIPLETEXT_ITEM_EXPRESSION_PROPS,
+  PANELBASE_EXPRESSION_PROPS,
   PANEL_TYPES, QUESTION_EXPRESSION_PROPS, SELECTBASE_TYPES, TRIGGER_TYPES, TYPE_EXPRESSION_PROPS,
   isKnownQuestionType, ExpressionPropDef,
 } from "./catalog";
@@ -229,7 +230,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       const effectiveCellType = cellType === "default" ? defaultCellType : cellType;
       const columnJson = column;
       const columnRecord: ElementRecord = {
-        name: column.name || "", type: "matrixdropdowncolumn", kind: "column",
+        name: column.name || "", type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
         path: columnPath, json: columnJson, parent: record, scope: rowScope.slice(),
         isUnknownType: false,
         valueType: getValueTypeInfo(effectiveCellType, columnJson),
@@ -249,6 +250,8 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       state.index.allElements.push(columnRecord);
       if (columnRecord.name) frame.columns.add(columnRecord.name, columnRecord);
       addSitesFromProps(state, columnJson, columnPath, MATRIX_COLUMN_EXPRESSION_PROPS, columnRecord, rowScope);
+      addSitesFromProps(state, columnJson, columnPath, MATRIX_COLUMN_ITEMVALUE_PROPS, columnRecord,
+        rowScope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: columnRecord }]));
       addValidatorSites(state, columnJson, columnPath, columnRecord, rowScope);
       addItemValueSites(state, columnJson.choices, columnPath + ".choices", columnRecord, rowScope);
     });

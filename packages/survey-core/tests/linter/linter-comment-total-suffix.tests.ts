@@ -98,4 +98,68 @@ describe("comment and total suffix references", () => {
       expect(unknown[0].suggestion).toBe("col1");
     });
   });
+  test("{row.col-Comment} resolves inside a matrix row", () => {
+    // the row value carries "col1" and "col1-Comment" side by side
+    // (question_matrixdropdownbase.ts), so the condition is live
+    const res = lintSurvey({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "col1", cellType: "text", showCommentArea: true },
+          { name: "col2", cellType: "text", visibleIf: "{row.col1-Comment} notempty" },
+        ],
+      }],
+    });
+    expect(res.findings).toHaveLength(0);
+  });
+  test("{panel.q-Comment} resolves inside a dynamic panel", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [
+          { type: "text", name: "q1", showCommentArea: true },
+          { type: "text", name: "q2", visibleIf: "{panel.q1-Comment} notempty" },
+        ],
+      }],
+    });
+    expect(res.findings).toHaveLength(0);
+  });
+  test("{panel.q-Comment} resolves inside a static panel", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "panel", name: "pnl",
+        elements: [
+          { type: "text", name: "q1", showCommentArea: true },
+          { type: "text", name: "q2", visibleIf: "{panel.q1-Comment} notempty" },
+        ],
+      }],
+    });
+    expect(res.findings).toHaveLength(0);
+  });
+  test("a comment suffix on an unknown inner name is still flagged", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", visibleIf: "{row.nosuch-Comment} notempty" },
+        ],
+      }],
+    });
+    expect(unknownRefs(res.findings)).toHaveLength(1);
+  });
+  test("the total row is keyed off valueName when the matrix declares one", () => {
+    // the runtime writes the total row under getValueName() + totalsSuffix
+    const totalSurvey = (ref: string) => ({
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1", valueName: "mv",
+          columns: [{ name: "col1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "text", name: "q2", visibleIf: ref },
+      ],
+    });
+    expect(lintSurvey(totalSurvey("{mv-total.col1} > 0")).findings).toHaveLength(0);
+    expect(unknownRefs(lintSurvey(totalSurvey("{mv-total.nosuchcol} > 0")).findings)).toHaveLength(1);
+  });
 });

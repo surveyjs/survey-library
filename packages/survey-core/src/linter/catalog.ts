@@ -50,13 +50,19 @@ export const MATRIX_COLUMN_EXPRESSION_PROPS: Array<ExpressionPropDef> = [
   condition("requiredIf"),
   condition("resetValueIf"),
   condition("setValueIf"),
-  condition("choicesVisibleIf"),
-  condition("choicesEnableIf"),
   expression("setValueExpression"),
   expression("defaultValueExpression"),
   expression("totalExpression"),
   expression("minValueExpression"),
   expression("maxValueExpression"),
+];
+
+// Item-level conditions over a column's own choices: they evaluate with an itemValue
+// frame, exactly like the selectbase props of a question, so the walker adds them
+// with an extra scope frame instead of the plain row scope.
+export const MATRIX_COLUMN_ITEMVALUE_PROPS: Array<ExpressionPropDef> = [
+  condition("choicesVisibleIf"),
+  condition("choicesEnableIf"),
 ];
 
 export const ITEMVALUE_EXPRESSION_PROPS: Array<ExpressionPropDef> = [
@@ -158,6 +164,7 @@ export function getCoveredExpressionProps(): Array<{ className: string, propName
   add("sliderlabel", ["visibleIf", "enableIf"]);
   add("multipletextitem", MULTIPLETEXT_ITEM_EXPRESSION_PROPS);
   add("matrixdropdowncolumn", MATRIX_COLUMN_EXPRESSION_PROPS);
+  add("matrixdropdowncolumn", MATRIX_COLUMN_ITEMVALUE_PROPS);
   add("itemvalue", ITEMVALUE_EXPRESSION_PROPS);
   add("calculatedvalue", ["expression"]);
   add("trigger", ["expression"]);

@@ -209,15 +209,63 @@ describe("choices/dead-source", () => {
     }, "choices/dead-source");
     expect(findings).toHaveLength(1);
   });
-  test("array source without choiceValuesFromQuestion is flagged", () => {
+  test("array source without choiceValuesFromQuestion is clean", () => {
+    // getValueKeyName (question_baseselect.ts) falls back to the first key of every
+    // row/panel value object, so the choices are built and nothing is dead here
+    expect(byRule({
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }, { name: "c2" }] },
+        { type: "dropdown", name: "q2", choicesFromQuestion: "m1" },
+      ],
+    }, "choices/dead-source")).toHaveLength(0);
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "t1" }] },
+        { type: "dropdown", name: "q2", choicesFromQuestion: "p1" },
+      ],
+    }, "choices/dead-source")).toHaveLength(0);
+  });
+  test("carry-forward through panel. resolves inside the dynamic panel", () => {
+    expect(byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "checkbox", name: "src", choices: ["a", "b"] },
+          { type: "dropdown", name: "dst", choicesFromQuestion: "panel.src" },
+        ],
+      }],
+    }, "choices/dead-source")).toHaveLength(0);
+  });
+  test("carry-forward through row. resolves inside the matrix row", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [
+          { name: "src", cellType: "checkbox", choices: ["a", "b"] },
+          { name: "dst", cellType: "dropdown", choicesFromQuestion: "row.src" },
+        ],
+      }],
+    }, "choices/dead-source")).toHaveLength(0);
+  });
+  test("panel.-prefixed carry-forward outside a dynamic panel is still dead", () => {
     const findings = byRule({
       elements: [
-        { type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }] },
-        { type: "dropdown", name: "q2", choicesFromQuestion: "m1" },
+        { type: "checkbox", name: "src", choices: ["a"] },
+        { type: "dropdown", name: "dst", choicesFromQuestion: "panel.src" },
       ],
     }, "choices/dead-source");
     expect(findings).toHaveLength(1);
-    expect(findings[0].messageData.reason).toBe("missing-choice-values");
+    expect(findings[0].messageData.reason).toBe("missing");
+  });
+  test("a wrong name behind a row. prefix is flagged with a prefixed suggestion", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [
+          { name: "src", cellType: "checkbox", choices: ["a"] },
+          { name: "dst", cellType: "dropdown", choicesFromQuestion: "row.scr" },
+        ],
+      }],
+    }, "choices/dead-source");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("row.src");
   });
 });
 

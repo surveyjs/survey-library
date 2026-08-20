@@ -284,6 +284,39 @@ describe("reference/unknown - item/choice scope", () => {
       }],
     })).toHaveLength(0);
   });
+  test("{item} in a matrix column choicesVisibleIf is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{
+          name: "col2", cellType: "dropdown", choices: ["a", "b"],
+          choicesVisibleIf: "{item} != 'b'",
+        }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("{column} in a matrix column choicesEnableIf is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{
+          name: "col2", cellType: "dropdown", choices: ["a", "b"],
+          choicesEnableIf: "{column} notempty",
+        }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a column choicesVisibleIf still resolves row. names", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "dropdown", choices: ["a"], choicesVisibleIf: "{row.nosuch} = 1" },
+        ],
+      }],
+    })).toHaveLength(1);
+  });
   test("{choice} in an itemvalue visibleIf is clean", () => {
     expect(unknownRefs({
       elements: [{

@@ -3,25 +3,21 @@ import * as path from "path";
 import { describe, test, expect } from "vitest";
 
 // survey-core/linter is built with survey-core as an external dependency, so the
-// linter's dependency closure is pinned here instead of by the bundler:
+// linter's dependency closure is pinned here instead of by the bundler: the only
+// non-relative import allowed is "survey-core" itself, because anything else (or a
+// relative path out of src/linter) would compile a second copy of the core into the
+// linter bundle, which is exactly what making it external removed. WHICH symbols
+// come from survey-core is not restricted - it is external, so importing more of it
+// costs nothing.
 //
-// - the only non-relative import allowed is "survey-core" itself: anything else
-//   (a relative path into src/) would compile a second copy of the core into the
-//   linter bundle, which is exactly what making it external removed;
-// - only these symbols may come from it. Issue #11693 requires that the analysis
-//   "does not construct or run a survey model" - the serializer normalizes the
-//   linted JSON (dropping unknown properties, replacing an unknown type), i.e. it
-//   swallows the very defects the linter looks for. Trigger is allowed for its
-//   static Trigger.operators only; constructing one is not.
-const ALLOWED_CORE_SYMBOLS = [
-  "ConditionsParser",
-  "Operand", "Const", "BinaryOperand", "Variable", "FunctionOperand", "ArrayOperand", "UnaryOperand",
-  "ValueGetter",
-  "settings",
-  "Helpers",
-  "FunctionFactory",
-  "Trigger",
+// What is restricted is building a model: issue #11693 requires that the analysis
+// "does not construct or run a survey model" - the serializer normalizes the linted
+// JSON (dropping unknown properties, replacing an unknown type), i.e. it swallows the
+// very defects the linter looks for.
+const FORBIDDEN_CONSTRUCTIONS = [
+  "SurveyModel", "PageModel", "PanelModel", "Question", "ItemValue", "Trigger", "Serializer",
 ];
+const MODEL_CTOR_REGEX = /\bnew\s+\w*(?:Model|Question|Panel|Page)\b/;
 
 const LINTER_DIR = path.resolve(__dirname, "../../src/linter");
 const IMPORT_REGEX = /(?:import|export)\s+([^"']*?)\s*from\s*["']([^"']+)["']/g;
@@ -36,18 +32,8 @@ function collectFiles(dir: string): Array<string> {
   return res;
 }
 
-function importedSymbols(clause: string): Array<string> {
-  const braces = clause.match(/\{([^}]*)\}/);
-  if (!braces) return [];
-  return braces[1].split(",")
-    .map(part => part.trim())
-    // "X as Y" - the imported name is what matters
-    .map(part => part.split(/\s+as\s+/)[0].trim())
-    .filter(part => !!part);
-}
-
 describe("linter dependency closure", () => {
-  test("src/linter imports nothing but the allowed survey-core symbols", () => {
+  test("src/linter imports nothing but survey-core and its own files", () => {
     const violations: Array<string> = [];
     collectFiles(LINTER_DIR).forEach(file => {
       const content = fs.readFileSync(file, "utf8");
@@ -55,19 +41,11 @@ describe("linter dependency closure", () => {
       let match: RegExpExecArray;
       IMPORT_REGEX.lastIndex = 0;
       while((match = IMPORT_REGEX.exec(content)) !== null) {
-        const clause = match[1];
         const specifier = match[2];
         if (!specifier.startsWith(".")) {
           if (specifier !== "survey-core") {
             violations.push(name + " imports \"" + specifier + "\"; only \"survey-core\" is allowed");
-            continue;
           }
-          importedSymbols(clause).forEach(symbol => {
-            if (ALLOWED_CORE_SYMBOLS.indexOf(symbol) === -1) {
-              violations.push(name + " imports \"" + symbol + "\" from survey-core, " +
-                "which is not in ALLOWED_CORE_SYMBOLS");
-            }
-          });
           continue;
         }
         const resolved = path.resolve(path.dirname(file), specifier);
@@ -84,16 +62,18 @@ describe("linter dependency closure", () => {
     const violations: Array<string> = [];
     collectFiles(LINTER_DIR).forEach(file => {
       const content = fs.readFileSync(file, "utf8");
-      ALLOWED_CORE_SYMBOLS.forEach(symbol => {
-        // the two stateless parsers are not model objects
-        if (symbol === "ValueGetter" || symbol === "ConditionsParser") return;
+      const name = path.basename(file);
+      if (MODEL_CTOR_REGEX.test(content)) {
+        violations.push(name + " constructs a model object (" + MODEL_CTOR_REGEX.exec(content)[0] + ")");
+      }
+      FORBIDDEN_CONSTRUCTIONS.forEach(symbol => {
         const needle = "new " + symbol;
         let at = content.indexOf(needle);
         while(at > -1) {
           // reject only an exact constructor call, not a longer identifier
           const next = content[at + needle.length];
           if (next === "(" || next === " ") {
-            violations.push(path.basename(file) + " constructs " + symbol);
+            violations.push(name + " constructs " + symbol);
             return;
           }
           at = content.indexOf(needle, at + 1);

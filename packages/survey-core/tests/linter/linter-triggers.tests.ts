@@ -133,3 +133,57 @@ describe("trigger/unknown-type", () => {
     expect(findings[0].suggestion).toBe("setvalue");
   });
 });
+
+describe("trigger/unknown-target uses the shared resolver", () => {
+  test("a target whose name contains dots resolves", () => {
+    expect(byRule({
+      elements: [{ type: "text", name: "address.city" }],
+      triggers: [{ type: "setvalue", expression: "{address.city} = 1", setToName: "address.city", setToValue: 2 }],
+    })).toHaveLength(0);
+    const findings = byRule({
+      elements: [{ type: "text", name: "address.city" }],
+      triggers: [{ type: "setvalue", expression: "{address.city} = 1", setToName: "address.cty", setToValue: 2 }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("address.city");
+  });
+  test("comment and total data keys are accepted as targets", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "matrixdynamic", name: "m", columns: [{ name: "col1" }] },
+      ],
+      triggers: [
+        { type: "copyvalue", expression: "{q1} = 1", setToName: "q1-Comment", fromName: "m-total.col1" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("sub-paths into a multipletext target are validated", () => {
+    const findings = byRule({
+      elements: [{ type: "multipletext", name: "mt1", items: [{ name: "itemA" }] }],
+      triggers: [{ type: "setvalue", expression: "{mt1.itemA} = 1", setToName: "mt1.itemB", setToValue: 2 }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("itemA");
+  });
+  test("page suggestions stay filtered to pages", () => {
+    const findings = byRule({
+      pages: [{ name: "page1", elements: [{ type: "text", name: "pge2" }] }],
+      triggers: [{ type: "visible", expression: "{pge2} = 1", pages: ["pge1"] }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("page1");
+  });
+  test("expression-only sugar is not applied to target names", () => {
+    // a ":" name is skipped inside expressions, but as a target it is just a bad name
+    expect(byRule({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "setvalue", expression: "{q1} = 1", setToName: "a:b", setToValue: 2 }],
+    })).toHaveLength(1);
+    // navigation resolves by name only, never by valueName
+    expect(byRule({
+      elements: [{ type: "text", name: "q1", valueName: "v1" }],
+      triggers: [{ type: "skip", expression: "{q1} = 1", gotoName: "v1" }],
+    })).toHaveLength(1);
+  });
+});

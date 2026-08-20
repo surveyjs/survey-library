@@ -327,33 +327,42 @@ function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyInde
   return true;
 }
 
-export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
-  index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
+// nameOnly: the raw string is a runtime NAME (a trigger target), not an expression
+// reference, so none of the expression-only sugar applies - no ":"/property-prefix
+// skipping, no conversion-char or unwrap-postfix stripping, no trailing ".length",
+// and no scope prefixes (a question may legitimately be named "survey").
+function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
+  index: SurveyIndex, options: ISurveyLintOptions, flags: { nameOnly?: boolean }): ParsedRef {
   const ref: ParsedRef = { raw: raw, segments: [], status: "skipped" };
   if (!raw) return ref;
+  const nameOnly = flags.nameOnly === true;
   let name = raw;
-  // {"key": 1}-style JSON object literals are not references
-  if (name.indexOf(":") > -1) return ref;
-  // element property references ({$q1.isVisible}) are out of scope for v1
-  const propPrefix = index.settings.expressionElementPropertyPrefix;
-  if (!!propPrefix && name[0] === propPrefix) return ref;
-  const disableConversion = index.settings.expressionDisableConversionChar;
-  if (!!disableConversion && name.length > 1 && name[0] === disableConversion) {
-    name = name.substring(1);
+  if (!nameOnly) {
+    // {"key": 1}-style JSON object literals are not references
+    if (name.indexOf(":") > -1) return ref;
+    // element property references ({$q1.isVisible}) are out of scope for v1
+    const propPrefix = index.settings.expressionElementPropertyPrefix;
+    if (!!propPrefix && name[0] === propPrefix) return ref;
+    const disableConversion = index.settings.expressionDisableConversionChar;
+    if (!!disableConversion && name.length > 1 && name[0] === disableConversion) {
+      name = name.substring(1);
+    }
   }
   ref.segments = splitRefSegments(name);
   if (ref.segments.length === 0 || !ref.segments[0].name) return ref;
-  // a single trailing ".length" is valid whenever the base reference is
-  if (ref.segments.length > 1 && ref.segments[ref.segments.length - 1].name === "length") {
-    ref.segments = ref.segments.slice(0, ref.segments.length - 1);
+  if (!nameOnly) {
+    // a single trailing ".length" is valid whenever the base reference is
+    if (ref.segments.length > 1 && ref.segments[ref.segments.length - 1].name === "length") {
+      ref.segments = ref.segments.slice(0, ref.segments.length - 1);
+    }
+    ref.segments[0] = {
+      name: stripUnwrapPostfix(ref.segments[0].name, index.settings.expressionVariables.unwrapPostfix),
+      index: ref.segments[0].index,
+    };
   }
-  ref.segments[0] = {
-    name: stripUnwrapPostfix(ref.segments[0].name, index.settings.expressionVariables.unwrapPostfix),
-    index: ref.segments[0].index,
-  };
 
-  const scopeRes = tryResolveScopePrefix(ref, site, index.settings);
-  if (scopeRes.handled) return scopeRes.ref;
+  const scopeRes = nameOnly ? { handled: false } : tryResolveScopePrefix(ref, site, index.settings);
+  if (scopeRes.handled) return (<ScopeResolution>scopeRes).ref;
 
   collapseLongestRootName(ref, index, options);
   const root = ref.segments[0].name;
@@ -381,7 +390,8 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
 
   ref.status = "unknown";
   ref.unknownSegmentIndex = 0;
-  if (scopeRes.inactiveHint) ref.scopeHint = scopeRes.inactiveHint;
+  const inactiveHint = (<ScopeResolution>scopeRes).inactiveHint;
+  if (inactiveHint) ref.scopeHint = inactiveHint;
   // a bare name that exists in the enclosing template/matrix scope needs its prefix
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
@@ -401,6 +411,17 @@ export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: A
     ref.suggestion = suggestion || closestMatch(root, candidates);
   }
   return ref;
+}
+
+export function classifyRef(raw: string, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
+  index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
+  return classifyRefCore(raw, site, index, options, {});
+}
+
+// Resolves a runtime name (a trigger target) through the same chain as expression
+// references, so both stay consistent by construction.
+export function classifyTargetName(raw: string, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
+  return classifyRefCore(raw, { scope: [] }, index, options, { nameOnly: true });
 }
 
 export function classifySiteRefs(site: ExpressionSite, index: SurveyIndex, options: ISurveyLintOptions): Array<ParsedRef> {

@@ -125,3 +125,21 @@ describe("cycle/trigger", () => {
     }, "cycle/trigger")).toHaveLength(0);
   });
 });
+
+describe("cycle/trigger through valueName", () => {
+  // triggers write and expressions read data keys: setting q1 stores under its
+  // valueName "v1", so a trigger reacting to {v1} closes a genuine runtime loop
+  test("a cycle where one edge goes through a question's valueName is detected", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "q1", valueName: "v1" },
+        { type: "text", name: "flag" },
+      ],
+      triggers: [
+        { type: "setvalue", expression: "{flag} = 1", setToName: "q1", setToValue: 2 },
+        { type: "setvalue", expression: "{v1} = 2", setToName: "flag", setToValue: 1 },
+      ],
+    }, "cycle/trigger");
+    expect(findings).toHaveLength(1);
+  });
+});

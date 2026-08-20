@@ -5,11 +5,21 @@ import { TriggerRecord } from "../symbols";
 import { ILintReproduction, LintReproductionStep } from "../types";
 import { findCycles } from "../graph";
 
+// Triggers write and expressions read DATA keys: a question's name and its
+// valueName identify the same signal. Canonicalize both edge endpoints to the
+// resolved element name so "setToName: q1" links to "{v1}" when v1 is q1's valueName.
+function canonicalRoot(ctx: LintContext, root: string): string {
+  const record = ctx.index.byName.first(root) || ctx.index.byValueName.first(root);
+  return (record && record.name ? record.name : root).toLowerCase();
+}
+
 function getExpressionRoots(ctx: LintContext, trigger: TriggerRecord): Array<string> {
   if (!trigger.expressionSite || !trigger.expressionSite.ast) return [];
   return classifySiteRefs(trigger.expressionSite, ctx.index, ctx.options)
     .filter(ref => ref.status !== "skipped" && ref.segments.length > 0)
-    .map(ref => ref.segments[0].name.toLowerCase());
+    .map(ref => ref.resolvedTo && ref.resolvedTo.name
+      ? ref.resolvedTo.name.toLowerCase()
+      : canonicalRoot(ctx, ref.segments[0].name));
 }
 
 function triggerLabel(trigger: TriggerRecord): string {
@@ -55,7 +65,7 @@ export const cycleTriggerRule: ILintRule = {
     });
     const ids = triggers.map(trigger => String(trigger.index));
     const getEdges = (id: string): Array<string> => {
-      const setRoot = byId[id].setRoot.toLowerCase();
+      const setRoot = canonicalRoot(ctx, byId[id].setRoot);
       return ids.filter(otherId => roots[otherId].indexOf(setRoot) > -1);
     };
     findCycles(ids, getEdges).forEach(cycle => {

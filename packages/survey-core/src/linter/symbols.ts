@@ -124,7 +124,6 @@ export interface ElementRecord {
   // subpath-validation data per element type
   multipleTextItems?: CIMap<ElementRecord>;
   matrixRowValues?: Array<any>;
-  matrixColumnValues?: Array<any>;
   templateNames?: CIMultiMap<ElementRecord>;
   matrixColumns?: CIMultiMap<ElementRecord>;
   // memoized descendant question names for static-panel {panel.x} resolution
@@ -207,7 +206,6 @@ export interface ContainerRecord {
   record?: ElementRecord;
   name?: string;
   path: string;
-  json: any;
   children: Array<ElementRecord>;
 }
 

@@ -201,7 +201,7 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   registerRecord(state, record, ancestorPanels);
   addSitesFromProps(state, json, path, PANELBASE_EXPRESSION_PROPS, record, scope);
   const container: ContainerRecord = {
-    kind: "panel", record: record, name: record.name, path: path, json: json, children: [],
+    kind: "panel", record: record, name: record.name, path: path, children: [],
   };
   state.index.containers.push(container);
   const inner = getElementsArray(json);
@@ -371,7 +371,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
       ? { key: "templateElements", elements: json.templateElements }
       : (Array.isArray(json.questions) ? { key: "questions", elements: json.questions } : undefined);
     const container: ContainerRecord = {
-      kind: "panelDynamicTemplate", record: record, name: record.name, path: path, json: json, children: [],
+      kind: "panelDynamicTemplate", record: record, name: record.name, path: path, children: [],
     };
     state.index.containers.push(container);
     if (template) {
@@ -418,7 +418,7 @@ function walkPage(state: WalkState, json: any, path: string): void {
   registerRecord(state, record, []);
   addSitesFromProps(state, json, path, PANELBASE_EXPRESSION_PROPS, record, []);
   const container: ContainerRecord = {
-    kind: "page", record: record, name: record.name, path: path, json: json, children: [],
+    kind: "page", record: record, name: record.name, path: path, children: [],
   };
   state.index.containers.push(container);
   const inner = getElementsArray(json);
@@ -513,7 +513,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex 
     const inner = getElementsArray(json);
     if (inner) {
       const container: ContainerRecord = {
-        kind: "page", path: inner.key, json: json, children: [],
+        kind: "page", path: inner.key, children: [],
       };
       index.containers.push(container);
       walkElementsArray(state, inner.elements, inner.key, undefined, [], [], container);

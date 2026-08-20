@@ -317,11 +317,6 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     if (json.choicesByUrl && isNonEmptyString(json.choicesByUrl.url)) {
       collectUrlRefs(state, json.choicesByUrl.url, path + ".choicesByUrl.url", record, scope);
     }
-    if (record.choicesInfo) {
-      record.choicesInfo.carryForwardPath = joinPath(path, "choicesFromQuestion");
-      record.choicesInfo.carryForwardValuesPath = joinPath(path, "choiceValuesFromQuestion");
-      record.choicesInfo.carryForwardTextsPath = joinPath(path, "choiceTextsFromQuestion");
-    }
   }
   if (MATRIXBASE_TYPES.has(type)) {
     addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.matrixbase, record,

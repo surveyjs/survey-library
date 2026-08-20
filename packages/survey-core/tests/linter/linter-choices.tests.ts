@@ -316,3 +316,17 @@ describe("expression/unknown-choice - matrix columns and cellType", () => {
     expect(unknownChoice(res)).toHaveLength(0);
   });
 });
+
+describe("choices/dead-source paths", () => {
+  test("a matrix column reports at the carry-forward property path", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic",
+        name: "m",
+        columns: [{ name: "c1", cellType: "dropdown", choicesFromQuestion: "nope" }],
+      }],
+    }, "choices/dead-source");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].columns[0].choicesFromQuestion");
+  });
+});

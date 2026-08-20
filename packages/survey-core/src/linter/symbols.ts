@@ -70,9 +70,6 @@ export interface ChoicesInfo {
   carryForwardFrom?: string;
   carryForwardValuesFrom?: string;
   carryForwardTextsFrom?: string;
-  carryForwardValuesPath?: string;
-  carryForwardTextsPath?: string;
-  carryForwardPath?: string;
   showOtherItem: boolean;
   showNoneItem: boolean;
   showRefuseItem: boolean;

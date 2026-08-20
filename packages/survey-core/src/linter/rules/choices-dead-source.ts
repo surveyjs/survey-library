@@ -25,7 +25,8 @@ export const choicesDeadSourceRule: ILintRule = {
     ctx.index.allElements.forEach(record => {
       const info = record.choicesInfo;
       if (!info || !info.carryForwardFrom) return;
-      const path = info.carryForwardPath || record.path;
+      // report at the property that carries the dead reference
+      const path = record.path + ".choicesFromQuestion";
       const sourceName = info.carryForwardFrom;
       const source = <ElementRecord>ctx.index.byName.first(sourceName) ||
         <ElementRecord>ctx.index.byValueName.first(sourceName);
@@ -83,8 +84,8 @@ export const choicesDeadSourceRule: ILintRule = {
             related: [{ path: source.path, elementName: source.name }],
           });
         };
-        checkField(info.carryForwardValuesFrom, info.carryForwardValuesPath || path, "choiceValuesFromQuestion");
-        checkField(info.carryForwardTextsFrom, info.carryForwardTextsPath || path, "choiceTextsFromQuestion");
+        checkField(info.carryForwardValuesFrom, record.path + ".choiceValuesFromQuestion", "choiceValuesFromQuestion");
+        checkField(info.carryForwardTextsFrom, record.path + ".choiceTextsFromQuestion", "choiceTextsFromQuestion");
         if (!info.carryForwardValuesFrom) {
           ctx.report({
             message: "\"" + record.name + "\" copies its choices from " + source.type + " \"" + sourceName +

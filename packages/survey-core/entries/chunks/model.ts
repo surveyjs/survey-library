@@ -150,7 +150,7 @@ export {
   LocalizableString,
   LocalizableStrings
 } from "../../src/localizablestring";
-export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
+export * from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
 export { FunctionFactory, registerFunction, IFunctionRegistration } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";

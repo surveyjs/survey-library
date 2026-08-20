@@ -115,3 +115,21 @@ describe("trigger/unknown-target", () => {
     })).toHaveLength(0);
   });
 });
+
+describe("trigger/unknown-type", () => {
+  // an unrecognized trigger type used to be silently half-processed: only its
+  // expression was scanned, while targets and cycle detection skipped it
+  test("a misspelled trigger type is reported with a suggestion", () => {
+    const res = lintSurvey({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [
+        { type: "setvalu", expression: "{q1} = 1", setToName: "nope", setToValue: 5 },
+        { type: "complete", expression: "{q1} = 2" },
+      ],
+    });
+    const findings = res.findings.filter(f => f.ruleId === "trigger/unknown-type");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("triggers[0]");
+    expect(findings[0].suggestion).toBe("setvalue");
+  });
+});

@@ -6,6 +6,9 @@ import { describe, test, expect } from "vitest";
 // closure: only the expression parser, the function registry, settings, and helpers.
 const ALLOWED_EXTERNAL_MODULES = [
   "src/conditions/conditionsParser",
+  // ValueGetter.getPath for reference-path parsing; its own runtime imports are
+  // helpers and settings (IQuestion is type-only), so no model is pulled in
+  "src/conditions/conditionProcessValue",
   "src/expressions/expressions",
   "src/expressions/expressionParser",
   "src/functionsfactory",

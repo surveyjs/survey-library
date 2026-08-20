@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { buildIndex } from "../../src/linter/walker";
+import { splitRefSegments } from "../../src/linter/expression-utils";
 import { lintSurvey } from "../../src/linter/index";
 
 describe("walker paths and normalization", () => {
@@ -151,5 +152,15 @@ describe("composite component definitions", () => {
       { elements: [{ type: "fullname", name: "fn1" }] },
       fullnameComponent("{composite.first} notempty"));
     expect(res.findings).toHaveLength(0);
+  });
+});
+
+describe("splitRefSegments parity with the runtime ValueGetter", () => {
+  test("indexes are parsed with the runtime number rules", () => {
+    expect(splitRefSegments("q[0x2]")[0]).toEqual({ name: "q", index: 2 });
+    expect(splitRefSegments("q[1,5]")[0]).toEqual({ name: "q", index: 1.5 });
+    const dotted = splitRefSegments("a.b[3].c");
+    expect(dotted).toHaveLength(3);
+    expect(dotted[1]).toEqual({ name: "b", index: 3 });
   });
 });

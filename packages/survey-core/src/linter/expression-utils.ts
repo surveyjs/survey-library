@@ -1,4 +1,6 @@
 import { ConditionsParser } from "../conditions/conditionsParser";
+import { ValueGetter } from "../conditions/conditionProcessValue";
+import { ValueGetter } from "../conditions/conditionProcessValue";
 import { ArrayOperand, BinaryOperand, Const, Operand, Variable, FunctionOperand } from "../expressions/expressions";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
@@ -37,25 +39,13 @@ export function getFunctionOperands(ast: Operand): Array<FunctionOperand> {
   return <Array<FunctionOperand>>collectOperands(ast).filter(op => op.getType() === "function");
 }
 
-// Mirrors ValueGetter.getPath: split on "." with a trailing "[n]" index per segment.
+// The runtime resolver owns reference-path parsing (including how "[n]" indexes are
+// read through Helpers.getNumber), so delegate instead of reimplementing it.
+// getPath is stateless, hence the shared instance.
+const pathParser = new ValueGetter();
+
 export function splitRefSegments(name: string): Array<ParsedRefSegment> {
-  const res: Array<ParsedRefSegment> = [];
-  name.split(".").forEach(part => {
-    let index: number = undefined;
-    let segName = part;
-    if (part.lastIndexOf("]") === part.length - 1) {
-      const ind = part.lastIndexOf("[");
-      if (ind > -1) {
-        const parsed = parseInt(part.substring(ind + 1, part.length - 1), 10);
-        if (!isNaN(parsed)) {
-          index = parsed;
-          segName = part.substring(0, ind);
-        }
-      }
-    }
-    res.push(index === undefined ? { name: segName } : { name: segName, index: index });
-  });
-  return res;
+  return pathParser.getPath(name);
 }
 
 function findFrame<T extends ScopeFrame>(scope: Array<ScopeFrame>, kind: T["kind"]): T | undefined {

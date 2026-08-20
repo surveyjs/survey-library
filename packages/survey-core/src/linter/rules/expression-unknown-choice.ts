@@ -1,7 +1,7 @@
-import { ArrayOperand, BinaryOperand, Const, Operand, Variable } from "../../expressions/expressions";
+import { Variable } from "../../expressions/expressions";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, collectOperands } from "../expression-utils";
+import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";
 import { ElementRecord, ParsedRef } from "../symbols";
 import { getSpecialChoiceValues } from "../value-types";
 import { ILintReproduction } from "../types";
@@ -11,23 +11,6 @@ const CHOICE_OPERATORS: { [op: string]: boolean } = {
   equal: true, notequal: true, anyof: true, allof: true, noneof: true,
   contains: true, notcontains: true,
 };
-
-function isPlainConst(op: Operand): boolean {
-  return op instanceof Const && !(op instanceof Variable);
-}
-
-function getConstValues(op: Operand): Array<any> | undefined {
-  if (isPlainConst(op)) return [(<Const>op).correctValue];
-  if (op instanceof ArrayOperand) {
-    const values: Array<any> = [];
-    for (let i = 0; i < op.values.length; i++) {
-      if (!isPlainConst(op.values[i])) return undefined;
-      values.push((<Const>op.values[i]).correctValue);
-    }
-    return values;
-  }
-  return undefined;
-}
 
 function getComparableRecord(ref: ParsedRef): ElementRecord | undefined {
   const record = ref.resolvedTo;
@@ -77,30 +60,18 @@ export const expressionUnknownChoiceRule: ILintRule = {
         return refByRaw.get(variable.variable);
       };
       collectOperands(site.ast).forEach(op => {
-        if (!(op instanceof BinaryOperand) || !CHOICE_OPERATORS[op.operator]) return;
-        const left = op.leftOperand;
-        const right = op.rightOperand;
-        let variable: Variable;
-        let constSide: Operand;
-        if (left instanceof Variable && !(right instanceof Variable)) {
-          variable = left;
-          constSide = right;
-        } else if (right instanceof Variable && !(left instanceof Variable)) {
-          variable = right;
-          constSide = left;
-        } else {
-          return;
-        }
-        const constValues = constSide ? getConstValues(constSide) : undefined;
+        const match = matchVariableComparison(op, CHOICE_OPERATORS);
+        if (!match) return;
+        const constValues = getConstValues(match.constSide);
         if (!constValues || constValues.length === 0) return;
-        const ref = getRef(variable);
+        const ref = getRef(match.variable);
         if (!ref) return;
         const record = getComparableRecord(ref);
         if (!record) return;
         // containsCore (expressions.ts) does substring matching when the question
         // value is a scalar (numbers are stringified too): "{q} contains 'apr'" is
         // true for the choice "apricot". Whole-value membership applies to arrays.
-        const useSubstring = (op.operator === "contains" || op.operator === "notcontains") &&
+        const useSubstring = (match.operator === "contains" || match.operator === "notcontains") &&
           record.valueType.shape !== "array";
         const matches = useSubstring ? looseContains : looseEquals;
         const allowed = getAllowedValues(record, ctx.index.settings);
@@ -129,7 +100,7 @@ export const expressionUnknownChoiceRule: ILintRule = {
           messageData: {
             name: refName,
             reference: ref.raw,
-            operator: op.operator,
+            operator: match.operator,
             values: missing,
             available: record.choicesInfo.staticValues,
             semantics: useSubstring ? "substring" : "equality",

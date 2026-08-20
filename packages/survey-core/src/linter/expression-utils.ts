@@ -1,12 +1,12 @@
 import { ConditionsParser } from "../conditions/conditionsParser";
-import { Operand, Variable, FunctionOperand } from "../expressions/expressions";
-import { ISurveyLintOptions } from "./types";
+import { ArrayOperand, BinaryOperand, Const, Operand, Variable, FunctionOperand } from "../expressions/expressions";
+import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
   ElementRecord, ExpressionSite, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
   ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
-  SurveyIndex, CIMultiMap,
+  SurveyIndex, CIMultiMap, TriggerRecord,
 } from "./symbols";
 
 export interface ParseOutcome {
@@ -74,11 +74,15 @@ function getStaticPanelAncestor(owner: ElementRecord): ElementRecord | undefined
   return undefined;
 }
 
-function equalsCI(a: string, b: string): boolean {
+export function equalsCI(a: string, b: string): boolean {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }
 
-function isKnownVariable(name: string, options: ISurveyLintOptions): boolean {
+function endsWithCI(text: string, suffix: string): boolean {
+  return !!suffix && text.length > suffix.length && text.toLowerCase().endsWith(suffix.toLowerCase());
+}
+
+export function isKnownVariable(name: string, options: ISurveyLintOptions): boolean {
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
   return vars.some(v => equalsCI(v, name));
@@ -304,8 +308,7 @@ function stripUnwrapPostfix(name: string, postfix: string): string {
 // by default); the suffix comes from settings.matrix.totalsSuffix.
 function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
   const suffix = index.settings.matrixTotalsSuffix;
-  if (!suffix || root.length <= suffix.length) return false;
-  if (!root.toLowerCase().endsWith(suffix.toLowerCase())) return false;
+  if (!endsWithCI(root, suffix)) return false;
   const base = root.substring(0, root.length - suffix.length);
   const record = <ElementRecord>index.byName.first(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
@@ -326,8 +329,7 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
 // as the base question would misfire the type/choice rules.
 function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
   const suffix = index.settings.commentSuffix;
-  if (!suffix || root.length <= suffix.length) return false;
-  if (!root.toLowerCase().endsWith(suffix.toLowerCase())) return false;
+  if (!endsWithCI(root, suffix)) return false;
   const base = root.substring(0, root.length - suffix.length);
   if (!index.byName.has(base) && !index.byValueName.has(base)) return false;
   ref.status = "resolved";
@@ -424,4 +426,57 @@ export function classifySiteRefs(site: ExpressionSite, index: SurveyIndex, optio
 
 export function classifyNameRef(nameRef: NameRef, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   return classifyRef(nameRef.name, { owner: nameRef.owner, scope: nameRef.scope }, index, options);
+}
+
+export interface VariableComparison {
+  variable: Variable;
+  constSide: Operand;
+  operator: string;
+}
+
+// A BinaryOperand with exactly one Variable side; the other side is returned as-is
+// (it may be a Const, an ArrayOperand, or any non-Variable operand - callers narrow).
+// operators === undefined accepts any BinaryOperand.
+export function matchVariableComparison(op: Operand, operators?: { [op: string]: boolean }): VariableComparison | undefined {
+  if (!(op instanceof BinaryOperand)) return undefined;
+  if (operators && !operators[op.operator]) return undefined;
+  const left = op.leftOperand;
+  const right = op.rightOperand;
+  if (left instanceof Variable && !(right instanceof Variable)) {
+    return { variable: left, constSide: right, operator: op.operator };
+  }
+  if (right instanceof Variable && !(left instanceof Variable)) {
+    return { variable: right, constSide: left, operator: op.operator };
+  }
+  return undefined;
+}
+
+// Variable extends Const, so a plain constant must exclude variables
+export function isPlainConst(op: Operand): boolean {
+  return op instanceof Const && !(op instanceof Variable);
+}
+
+export function getConstValues(op: Operand): Array<any> | undefined {
+  if (isPlainConst(op)) return [(<Const>op).correctValue];
+  if (op instanceof ArrayOperand) {
+    const values: Array<any> = [];
+    for (let i = 0; i < op.values.length; i++) {
+      if (!isPlainConst(op.values[i])) return undefined;
+      values.push((<Const>op.values[i]).correctValue);
+    }
+    return values;
+  }
+  return undefined;
+}
+
+// best-effort: a single {var} op const comparison gives a concrete "set" step.
+// The root is kept as written in the expression, not canonicalized.
+export function buildTriggerSetStep(trigger: TriggerRecord, operators?: { [op: string]: boolean }): LintReproductionStep | undefined {
+  const ast = trigger.expressionSite ? trigger.expressionSite.ast : undefined;
+  if (!ast) return undefined;
+  const match = matchVariableComparison(ast, operators);
+  if (!match || !isPlainConst(match.constSide)) return undefined;
+  const root = splitRefSegments(match.variable.variable)[0];
+  if (!root || !root.name || root.name.indexOf(":") > -1) return undefined;
+  return { set: { [root.name]: (<Const>match.constSide).correctValue } };
 }

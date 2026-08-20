@@ -1,7 +1,7 @@
 import { SELECTBASE_TYPES } from "../catalog";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { ElementRecord } from "../symbols";
+import { CIMultiMap, ElementRecord } from "../symbols";
 
 // carry-forward sources that provide an array of objects to pick fields from
 const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
@@ -14,10 +14,8 @@ function questionCandidates(ctx: LintContext): Array<string> {
   return res;
 }
 
-function getFieldNames(source: ElementRecord): Array<string> | undefined {
-  if (source.matrixColumns) return source.matrixColumns.names();
-  if (source.templateNames) return source.templateNames.names();
-  return undefined;
+function getFields(source: ElementRecord): CIMultiMap<ElementRecord> | undefined {
+  return source.matrixColumns || source.templateNames || undefined;
 }
 
 export const choicesDeadSourceRule: ILintRule = {
@@ -68,11 +66,11 @@ export const choicesDeadSourceRule: ILintRule = {
         return;
       }
       if (isArraySource) {
-        const fieldNames = getFieldNames(source);
-        if (!fieldNames) return;
+        const fields = getFields(source);
+        if (!fields) return;
         const checkField = (fieldValue: string, fieldPath: string, prop: string) => {
           if (!fieldValue) return;
-          if (fieldNames.some(name => name.toLowerCase() === fieldValue.toLowerCase())) return;
+          if (fields.has(fieldValue)) return;
           ctx.report({
             message: "\"" + record.name + "\" reads " + prop + " \"" + fieldValue + "\" from \"" + sourceName +
               "\", but " + source.type + " \"" + sourceName + "\" has no such " +
@@ -81,7 +79,7 @@ export const choicesDeadSourceRule: ILintRule = {
             messageData: { name: record.name, source: sourceName, field: fieldValue, reason: "missing-field", prop: prop },
             elementName: record.name,
             elementType: record.type,
-            suggestion: closestMatch(fieldValue, fieldNames),
+            suggestion: closestMatch(fieldValue, fields.names()),
             related: [{ path: source.path, elementName: source.name }],
           });
         };

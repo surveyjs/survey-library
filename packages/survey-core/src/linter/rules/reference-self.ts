@@ -1,14 +1,10 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs } from "../expression-utils";
+import { classifySiteRefs, equalsCI } from "../expression-utils";
 import { ElementRecord, ExpressionSite, ParsedRef } from "../symbols";
 import { ILintReproduction } from "../types";
 import { ILintResolvedSettings } from "../lint-settings";
 
 const SELF_PROPS: { [prop: string]: boolean } = { visibleIf: true, enableIf: true, requiredIf: true };
-
-function equalsCI(a: string, b: string): boolean {
-  return !!a && !!b && a.toLowerCase() === b.toLowerCase();
-}
 
 function hasItemValueFrame(site: ExpressionSite): boolean {
   return site.scope.some(frame => frame.kind === "itemValue");

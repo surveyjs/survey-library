@@ -1,8 +1,7 @@
-import { BinaryOperand, Const, Variable } from "../../expressions/expressions";
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, splitRefSegments } from "../expression-utils";
+import { buildTriggerSetStep, classifySiteRefs } from "../expression-utils";
 import { TriggerRecord } from "../symbols";
-import { ILintReproduction, LintReproductionStep } from "../types";
+import { ILintReproduction } from "../types";
 import { findCycles } from "../graph";
 
 // Triggers write and expressions read DATA keys: a question's name and its
@@ -28,28 +27,6 @@ function triggerLabel(trigger: TriggerRecord): string {
   return res + ")";
 }
 
-// best-effort: a single {var} op const comparison gives a concrete "set" step
-function buildSetStep(trigger: TriggerRecord): LintReproductionStep | undefined {
-  const ast = trigger.expressionSite ? trigger.expressionSite.ast : undefined;
-  if (!(ast instanceof BinaryOperand)) return undefined;
-  const left = ast.leftOperand;
-  const right = ast.rightOperand;
-  let variable: Variable;
-  let constant: Const;
-  if (left instanceof Variable && right instanceof Const && !(right instanceof Variable)) {
-    variable = left;
-    constant = right;
-  } else if (right instanceof Variable && left instanceof Const && !(left instanceof Variable)) {
-    variable = right;
-    constant = left;
-  } else {
-    return undefined;
-  }
-  const root = splitRefSegments(variable.variable)[0];
-  if (!root || !root.name || root.name.indexOf(":") > -1) return undefined;
-  return { set: { [root.name]: constant.correctValue } };
-}
-
 export const cycleTriggerRule: ILintRule = {
   id: "cycle/trigger",
   defaultSeverity: "warning",
@@ -72,7 +49,7 @@ export const cycleTriggerRule: ILintRule = {
       const members = cycle.map(id => byId[id]);
       const first = members[0];
       const labels = members.map(triggerLabel);
-      const setStep = buildSetStep(first);
+      const setStep = buildTriggerSetStep(first);
       const reproduction: ILintReproduction = setStep ? {
         description: "This fires the first trigger; each trigger in the cycle sets a value the next one reacts to.",
         steps: [setStep],

@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey } from "../../src/linter/index";
 import { ILintFinding } from "../../src/linter/types";
+import { withSettings } from "./lint-test-helpers";
 
 // The runtime resolves {q1-Comment}: setComment stores the value under
 // name + settings.commentSuffix in the values hash, and getFilteredValues exposes
@@ -43,7 +44,7 @@ describe("comment and total suffix references", () => {
     });
     expect(unknownRefs(res.findings)).toHaveLength(1);
   });
-  test("custom commentSuffix via options.settings", () => {
+  test("custom commentSuffix from settings", () => {
     const json = {
       elements: [
         { type: "text", name: "q1" },
@@ -53,10 +54,11 @@ describe("comment and total suffix references", () => {
     };
     const byDefault = lintSurvey(json);
     expect(unknownRefs(byDefault.findings)).toHaveLength(1); // only {q1-Note}
-    const res = lintSurvey(json, { settings: { commentSuffix: "-Note" } });
-    const unknown = unknownRefs(res.findings);
-    expect(unknown).toHaveLength(1); // only {q1-Comment}
-    expect(unknown[0].messageData.name).toBe("q1-Comment");
+    withSettings({ commentSuffix: "-Note" }, () => {
+      const unknown = unknownRefs(lintSurvey(json).findings);
+      expect(unknown).toHaveLength(1); // only {q1-Comment}
+      expect(unknown[0].messageData.name).toBe("q1-Comment");
+    });
   });
   test("default -total suffix keeps working", () => {
     const res = lintSurvey({
@@ -67,7 +69,7 @@ describe("comment and total suffix references", () => {
     });
     expect(unknownRefs(res.findings)).toHaveLength(0);
   });
-  test("custom matrix totalsSuffix via options.settings", () => {
+  test("custom matrix totalsSuffix from settings", () => {
     const json = {
       elements: [
         { type: "matrixdynamic", name: "m", columns: [{ name: "col1" }] },
@@ -77,20 +79,23 @@ describe("comment and total suffix references", () => {
     };
     const byDefault = lintSurvey(json);
     expect(unknownRefs(byDefault.findings)).toHaveLength(1); // only {m_sum.col1}
-    const res = lintSurvey(json, { settings: { matrix: { totalsSuffix: "_sum" } } });
-    const unknown = unknownRefs(res.findings);
-    expect(unknown).toHaveLength(1); // only {m-total.col1}
-    expect(unknown[0].messageData.name).toBe("m-total.col1");
+    withSettings({ "matrix.totalsSuffix": "_sum" }, () => {
+      const unknown = unknownRefs(lintSurvey(json).findings);
+      expect(unknown).toHaveLength(1); // only {m-total.col1}
+      expect(unknown[0].messageData.name).toBe("m-total.col1");
+    });
   });
   test("column sub-path is still validated after a custom totals suffix", () => {
-    const res = lintSurvey({
-      elements: [
-        { type: "matrixdynamic", name: "m", columns: [{ name: "col1" }] },
-        { type: "text", name: "q2", visibleIf: "{m_sum.col2} > 0" },
-      ],
-    }, { settings: { matrix: { totalsSuffix: "_sum" } } });
-    const unknown = unknownRefs(res.findings);
-    expect(unknown).toHaveLength(1);
-    expect(unknown[0].suggestion).toBe("col1");
+    withSettings({ "matrix.totalsSuffix": "_sum" }, () => {
+      const res = lintSurvey({
+        elements: [
+          { type: "matrixdynamic", name: "m", columns: [{ name: "col1" }] },
+          { type: "text", name: "q2", visibleIf: "{m_sum.col2} > 0" },
+        ],
+      });
+      const unknown = unknownRefs(res.findings);
+      expect(unknown).toHaveLength(1);
+      expect(unknown[0].suggestion).toBe("col1");
+    });
   });
 });

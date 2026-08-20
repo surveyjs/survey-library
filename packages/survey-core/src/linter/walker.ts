@@ -1,5 +1,4 @@
-import { OperandMaker } from "../expressions/expressions";
-import { Helpers } from "../helpers";
+import { Helpers, Trigger } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ELEMENTS_ALIASES, ITEMVALUE_EXPRESSION_PROPS, MATRIXBASE_TYPES, MATRIXDROPDOWN_TYPES,
@@ -434,13 +433,38 @@ function normalizeTriggerType(type: any): string {
   return res;
 }
 
-// Mirrors Trigger.buildExpression for the legacy name/operator/value trigger form.
+// Mirrors OperandMaker.toOperandString/isBooleanValue: a value is quoted unless it
+// already reads as a number or a boolean literal. Booleans are accepted here as a
+// fix, not a copy - OperandMaker.isBooleanValue calls toLowerCase() unguarded, so
+// the runtime throws on a legacy trigger with "value": true.
+function isBooleanText(value: any): boolean {
+  if (typeof value === "boolean") return true;
+  if (typeof value !== "string") return false;
+  const lower = value.toLowerCase();
+  return lower === "true" || lower === "false";
+}
+
+function toOperandString(value: any): any {
+  if (!!value && !Helpers.isNumber(value) && !isBooleanText(value)) return "'" + value + "'";
+  return value;
+}
+
+// Mirrors Trigger.buildExpression for the legacy name/operator/value trigger form:
+// the runtime synthesizes the same string and evaluates it as a normal condition.
+// Kept in sync by linter-core-parity.tests.ts. Trigger.operator silently drops an
+// operator it does not know, so an unknown one falls back to "equal" here too;
+// the emptiness check trims strings because Base.isValueEmpty does.
 function buildLegacyTriggerExpression(json: any): string {
-  if (!isNonEmptyString(json.name)) return "";
-  const operator = isNonEmptyString(json.operator) ? json.operator.toLowerCase() : "equal";
+  if (!json.name) return "";
+  let operator = "equal";
+  if (typeof json.operator === "string" && !!json.operator) {
+    const lower = json.operator.toLowerCase();
+    if (Trigger.operators[lower]) operator = lower;
+  }
   const requiresValue = operator !== "empty" && operator !== "notempty";
-  if (Helpers.isValueEmpty(json.value) && requiresValue) return "";
-  return "{" + json.name + "} " + operator + " " + OperandMaker.toOperandString(json.value);
+  const value = typeof json.value === "string" ? json.value.trim() : json.value;
+  if (requiresValue && Helpers.isValueEmpty(value)) return "";
+  return "{" + json.name + "} " + operator + " " + toOperandString(json.value);
 }
 
 function walkTrigger(state: WalkState, json: any, i: number): void {
@@ -500,7 +524,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex 
     allElements: [],
     containers: [],
     namespaces: [],
-    settings: resolveLintSettings(options.settings),
+    settings: resolveLintSettings(),
   };
   index.namespaces.push({ label: "", map: index.byName });
   const state: WalkState = { index: index, options: options, visited: new WeakSet(), depth: 0 };

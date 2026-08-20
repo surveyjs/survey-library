@@ -1,4 +1,4 @@
-import { Variable } from "../../expressions/expressions";
+import { Variable } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";

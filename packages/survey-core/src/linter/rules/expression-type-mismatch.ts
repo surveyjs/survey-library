@@ -1,4 +1,4 @@
-import { BinaryOperand, Const, OperandMaker, Variable } from "../../expressions/expressions";
+import { BinaryOperand, Const, Variable } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs, collectOperands } from "../expression-utils";
 import { ElementRecord, ParsedRef } from "../symbols";
@@ -121,7 +121,7 @@ export const expressionTypeMismatchRule: ILintRule = {
         const constValue = constant.correctValue;
         const mismatch = isOrdering ? checkOrdering(record, constValue) : checkEquality(record, constValue);
         if (!mismatch) return;
-        let message = "The condition applies \"" + OperandMaker.operatorToString(op.operator) +
+        let message = "The condition applies \"" + op.operator +
           "\" to \"" + variable.variable + "\": " + mismatch.detail;
         if (mismatch.suggestion) message += " Consider: " + mismatch.suggestion + ".";
         message += " (in \"" + site.text + "\")";

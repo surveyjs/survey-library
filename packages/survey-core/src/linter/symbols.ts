@@ -1,4 +1,4 @@
-import { Operand } from "../expressions/expressions";
+import { Operand } from "survey-core";
 import { IComponentDef } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
 
@@ -225,6 +225,6 @@ export interface SurveyIndex {
   allElements: Array<ElementRecord>;
   containers: Array<ContainerRecord>;
   namespaces: Array<Namespace>;
-  // effective settings for this run: options.settings over this bundle's defaults
+  // effective settings for this run, snapshotted from the shared survey-core settings
   settings: ILintResolvedSettings;
 }

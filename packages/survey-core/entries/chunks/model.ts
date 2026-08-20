@@ -168,7 +168,7 @@ export {
   UnaryOperand
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,

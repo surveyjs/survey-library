@@ -187,3 +187,72 @@ describe("trigger/unknown-target uses the shared resolver", () => {
     })).toHaveLength(1);
   });
 });
+
+// The legacy name/operator/value form (the properties are registered as invisible,
+// so Creator never writes it, but existing JSON still carries it). The runtime turns
+// it into an expression and evaluates that, so the linter must check it too.
+describe("legacy name/operator/value triggers", () => {
+  const rule = (json: any, ruleId: string): Array<ILintFinding> =>
+    lintSurvey(json).findings.filter(f => f.ruleId === ruleId);
+
+  test("an unknown question in the legacy name is reported", () => {
+    const findings = rule({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "visible", name: "qMissing", operator: "equal", value: "x", questions: ["q1"] }],
+    }, "reference/unknown");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("qMissing");
+  });
+
+  test("a known question in the legacy name produces no finding", () => {
+    expect(rule({
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "visible", name: "q1", operator: "equal", value: "x", questions: ["q2"] }],
+    }, "reference/unknown")).toHaveLength(0);
+  });
+
+  test("legacy setvalue triggers form a cycle", () => {
+    expect(rule({
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [
+        { type: "setvalue", name: "q1", operator: "equal", value: "a", setToName: "q2", setValue: "b" },
+        { type: "setvalue", name: "q2", operator: "equal", value: "b", setToName: "q1", setValue: "a" },
+      ],
+    }, "cycle/trigger")).toHaveLength(1);
+  });
+
+  test("an operator Trigger does not know no longer produces a syntax error", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "visible", name: "q1", operator: "anyof", value: "a", questions: ["q2"] }],
+    };
+    expect(rule(json, "expression/syntax")).toHaveLength(0);
+    expect(rule(json, "reference/unknown")).toHaveLength(0);
+  });
+
+  test("a whitespace-only value synthesizes no expression", () => {
+    expect(rule({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "visible", name: "qMissing", operator: "equal", value: "   ", questions: ["q1"] }],
+    }, "reference/unknown")).toHaveLength(0);
+  });
+
+  // empty/notempty still synthesize an expression, unlike "equal" without a value.
+  // The synthesized string mirrors the runtime exactly, including its bug: Trigger
+  // appends toOperandString(undefined), so the condition reads "{q} notempty undefined"
+  // and does not parse - which is faithful, because the runtime cannot execute it either.
+  test("empty/notempty synthesize an expression without a value", () => {
+    const withOperator = {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "visible", name: "qMissing", operator: "notempty", questions: ["q1"] }],
+    };
+    const withoutValue = {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "visible", name: "qMissing", operator: "equal", questions: ["q1"] }],
+    };
+    const atTrigger = (json: any) =>
+      lintSurvey(json).findings.filter(f => f.path === "triggers[0]");
+    expect(atTrigger(withOperator).length).toBeGreaterThan(0);
+    expect(atTrigger(withoutValue)).toHaveLength(0);
+  });
+});

@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
+import { withSettings } from "./lint-test-helpers";
 
 function byRule(json: any, ruleId: string): Array<ILintFinding> {
   return lintSurvey(json).findings.filter(f => f.ruleId === ruleId);
@@ -299,7 +300,7 @@ describe("expression/unknown-choice - matrix columns and cellType", () => {
     });
     expect(unknownChoice(res)).toHaveLength(1);
   });
-  test("options.settings.matrix.defaultCellType drives the inherited cell type", () => {
+  test("settings.matrix.defaultCellType drives the inherited cell type", () => {
     const json = {
       elements: [{
         type: "matrixdynamic",
@@ -312,8 +313,9 @@ describe("expression/unknown-choice - matrix columns and cellType", () => {
       }],
     };
     expect(unknownChoice(lintSurvey(json))).toHaveLength(1);
-    const res = lintSurvey(json, { settings: { matrix: { defaultCellType: "text" } } });
-    expect(unknownChoice(res)).toHaveLength(0);
+    withSettings({ "matrix.defaultCellType": "text" }, () => {
+      expect(unknownChoice(lintSurvey(json))).toHaveLength(0);
+    });
   });
 });
 

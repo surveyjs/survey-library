@@ -1,7 +1,4 @@
-import { ConditionsParser } from "../conditions/conditionsParser";
-import { ValueGetter } from "../conditions/conditionProcessValue";
-import { ValueGetter } from "../conditions/conditionProcessValue";
-import { ArrayOperand, BinaryOperand, Const, Operand, Variable, FunctionOperand } from "../expressions/expressions";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, Operand, ValueGetter, Variable } from "survey-core";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";

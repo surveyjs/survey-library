@@ -117,12 +117,6 @@ if (process.env.emitNonSourceFiles === "true") {
     buildPlatformJson,
     { spaces: 2 }
   );
-  // typings stub for consumers on classic (moduleResolution: node) resolution,
-  // which ignores the exports map and resolves survey-core/linter by directory
-  fs.outputFileSync(
-    resolve(buildPath, "linter", "index.d.ts"),
-    "export * from \"../typings/entries/linter\";"
-  );
 }
 
 export default (options = {}) => {
@@ -149,35 +143,6 @@ export default (options = {}) => {
       dir: resolve(buildPath),
       emitMinified: process.env.emitMinified === "true",
       globalName: "Survey",
-      globals: {},
-      version: pkg.version,
-      noEmitOnError: !options.watch,
-    }),
-    // survey-core/linter: a standalone bundle so the linter is never pulled into
-    // the render bundle (no "sideEffects" field exists - physical separation is
-    // the isolation mechanism). It duplicates the expression-parser closure and
-    // therefore has its own settings/FunctionFactory instances.
-    createEsmConfig({
-      input: {
-        "linter/index": resolve("./entries/linter.ts")
-      },
-      sharedFileName: "linter/index-shared.mjs",
-      tsconfig: fileURLToPath(new URL("./tsconfig.linter.json", import.meta.url)),
-      external: [],
-      dir: resolve(buildPath, "./fesm"),
-      version: pkg.version,
-      noEmitOnError: !options.watch,
-    }),
-    createUmdConfig({
-      input: {
-        "linter/index": resolve("./entries/linter.ts")
-      },
-      tsconfig: fileURLToPath(new URL("./tsconfig.linter.json", import.meta.url)),
-      external: [],
-      declarationDir: resolve(buildPath, "./typings"),
-      dir: resolve(buildPath),
-      emitMinified: process.env.emitMinified === "true",
-      globalName: "SurveyLinter",
       globals: {},
       version: pkg.version,
       noEmitOnError: !options.watch,

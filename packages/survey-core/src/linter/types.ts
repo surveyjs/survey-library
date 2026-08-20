@@ -1,5 +1,3 @@
-import { ILintFunctionsProvider, ILintSettingsOverrides } from "./lint-settings";
-
 export type LintSeverity = "error" | "warning" | "info" | "off";
 export type LintFindingSeverity = "error" | "warning" | "info";
 
@@ -22,11 +20,6 @@ export interface ISurveyLintOptions {
   knownFunctions?: Array<string>;
   components?: { [typeName: string]: IComponentDef };
   reportSuppressed?: boolean;
-  // the app's own instances from "survey-core", so runtime customizations are
-  // visible to the standalone linter bundle: pass FunctionFactory.Instance and
-  // the imported settings object (or targeted overrides)
-  functions?: ILintFunctionsProvider;
-  settings?: ILintSettingsOverrides;
 }
 
 export interface ILintReproductionExpect {

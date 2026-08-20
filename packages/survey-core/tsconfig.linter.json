@@ -1,4 +1,13 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["./entries/linter.ts"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "./build"
+      ]
+    }
+  },
+  "include": ["./entries/linter.ts"],
+  "exclude": ["./build"]
 }

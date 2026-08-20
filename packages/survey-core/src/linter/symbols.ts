@@ -103,7 +103,9 @@ export interface ScopeFrameItemValue {
 }
 export interface ScopeFrameComposite {
   kind: "composite";
-  owner: ElementRecord;
+  // unset when the frame comes from walking a component definition itself,
+  // where no survey element hosts the expression
+  owner?: ElementRecord;
   fieldNames: CIMap<boolean>;
 }
 export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite;

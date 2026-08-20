@@ -125,3 +125,31 @@ describe("validator type spellings", () => {
     expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(1);
   });
 });
+
+describe("composite component definitions", () => {
+  const fullnameComponent = (visibleIf: string) => ({
+    components: {
+      fullname: {
+        elementsJSON: [
+          { type: "text", name: "first" },
+          { type: "text", name: "last", visibleIf: visibleIf },
+        ],
+      },
+    },
+  });
+  test("expressions inside options.components elementsJSON are linted", () => {
+    const res = lintSurvey(
+      { elements: [{ type: "fullname", name: "fn1" }] },
+      fullnameComponent("{composite.fist} notempty"));
+    const unknown = res.findings.filter(f => f.ruleId === "reference/unknown");
+    expect(unknown).toHaveLength(1);
+    expect(unknown[0].suggestion).toBe("first");
+    expect(unknown[0].path).toBe("components.fullname.elementsJSON[1].visibleIf");
+  });
+  test("valid composite references are clean", () => {
+    const res = lintSurvey(
+      { elements: [{ type: "fullname", name: "fn1" }] },
+      fullnameComponent("{composite.first} notempty"));
+    expect(res.findings).toHaveLength(0);
+  });
+});

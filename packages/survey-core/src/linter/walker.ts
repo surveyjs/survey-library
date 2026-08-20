@@ -11,7 +11,7 @@ import { parseExpressionText } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
   CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite, ExpressionSiteKind,
-  ScopeFrame, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex,
+  ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex,
   TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getItemValueRaw, getValueTypeInfo } from "./value-types";
@@ -124,6 +124,35 @@ function getComponentFieldNames(def: IComponentDef): CIMap<boolean> {
   };
   collect(def.elementsJSON);
   return res;
+}
+
+// Lints expressions inside composite component definitions (options.components).
+// Definition elements are template-local: they get expression sites with a
+// composite scope frame (so {composite.x} resolves against the field names) but
+// are never registered under their names in the survey index. Nested containers
+// inside a definition are not descended into: their panel/template scope
+// semantics differ from the survey body and would produce false positives.
+function walkComponentDefs(state: WalkState): void {
+  const components = state.options.components;
+  if (!components) return;
+  Object.keys(components).forEach(typeName => {
+    const def = components[typeName];
+    if (!def || !Array.isArray(def.elementsJSON)) return;
+    const scope: Array<ScopeFrame> = [<ScopeFrameComposite>{
+      kind: "composite", fieldNames: getComponentFieldNames(def),
+    }];
+    def.elementsJSON.forEach((el: any, i: number) => {
+      if (!el || typeof el !== "object") return;
+      const path = "components." + typeName + ".elementsJSON[" + i + "]";
+      const type = (el.type || "").toLowerCase();
+      const record: ElementRecord = {
+        name: el.name || "", type: type, kind: "question", path: path, json: el,
+        scope: scope.slice(), isUnknownType: false, valueType: getValueTypeInfo(type, el),
+      };
+      addSitesFromProps(state, el, path, QUESTION_EXPRESSION_PROPS, record, scope);
+      addValidatorSites(state, el, path, record, scope);
+    });
+  });
 }
 
 function guardEnter(state: WalkState, json: any): boolean {
@@ -526,6 +555,8 @@ export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex 
       }
     });
   });
+
+  walkComponentDefs(state);
 
   return index;
 }

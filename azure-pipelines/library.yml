@@ -4,7 +4,6 @@ resources:
       type: github
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
-      ref: theme-adapters-pipeline
 
 trigger: none
 pr: none

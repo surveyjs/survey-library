@@ -334,6 +334,7 @@ export class Cover extends Base implements ILayoutElementModel {
 
         let elWidth = headerEl.getBoundingClientRect().width;
         const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
+        if (!headerComputedStyle) return;
         const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
         const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
         const columnGap = (parseFloat(headerComputedStyle.columnGap) || 0);

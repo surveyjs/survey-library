@@ -9,6 +9,7 @@ module.exports = {
         "src/**/*.ts"
       ],
       "rules": {
+        "surveyjs/no-unguarded-dom-helper": 2,
         "no-restricted-properties": [
           "error",
           {
@@ -25,6 +26,10 @@ module.exports = {
           {
             "name": "window",
             "message": "Do not use window into survey-core. Use method from DomWindowHelper"
+          },
+          {
+            "name": "navigator",
+            "message": "Do not use navigator into survey-core. Use DomWindowHelper.getNavigator()/getUserAgent()/getPlatform()"
           }
         ]
       }

@@ -110,3 +110,18 @@ describe("walker paths and normalization", () => {
     expect(index.expressionSites[0].path).toBe("elements[0].items[0].validators[0].expression");
   });
 });
+
+describe("validator type spellings", () => {
+  // the serializer appends the "validator" suffix only when missing, so both
+  // "expression" and "expressionvalidator" load as ExpressionValidator at runtime
+  test("the full 'expressionvalidator' type name is linted like 'expression'", () => {
+    const res = lintSurvey({
+      elements: [{
+        type: "text",
+        name: "q1",
+        validators: [{ type: "expressionvalidator", expression: "{doesNotExist} > 1" }],
+      }],
+    });
+    expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(1);
+  });
+});

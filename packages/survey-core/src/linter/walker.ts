@@ -60,7 +60,10 @@ function addValidatorSites(state: WalkState, json: any, basePath: string, owner:
   if (!Array.isArray(json.validators)) return;
   json.validators.forEach((validator: any, i: number) => {
     if (!validator || typeof validator !== "object") return;
-    if ((validator.type || "").toLowerCase() !== "expression") return;
+    // the serializer appends the "validator" suffix only when missing, so the
+    // runtime accepts both "expression" and the full class name "expressionvalidator"
+    const validatorType = (validator.type || "").toLowerCase();
+    if (validatorType !== "expression" && validatorType !== "expressionvalidator") return;
     if (isNonEmptyString(validator.expression)) {
       addSite(state, validator.expression, "condition",
         basePath + ".validators[" + i + "].expression", "expression", owner, scope);

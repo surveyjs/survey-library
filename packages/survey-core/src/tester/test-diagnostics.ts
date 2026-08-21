@@ -4,7 +4,8 @@ import { ProcessValue, VariableGetterContext } from "../conditions/conditionProc
 import { ExpressionRunner } from "../expressions/expressionRunner";
 import { CHECK_COMMAND_NAME } from "./test-json";
 import { ISurveyTestCheckResult, ISurveyTestIssue, SurveyTestIssueCodes } from "./test-result";
-import type { ISurveyTestContext, ISurveyTestTarget } from "./test-context";
+import type { ISurveyTestContext } from "./test-context";
+import type { ISurveyTestTarget } from "./test-targets";
 
 // Why a check failed, in fields. Nothing here is a sentence: a renderer composes the text blocks from
 // the check result, its jsonPath and its details, and adds nothing of its own.

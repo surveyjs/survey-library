@@ -1,3 +1,4 @@
+import { parseSurveyTestStep } from "./test-authoring";
 import { getClosestName } from "./test-diagnostics";
 import { CHECK_COMMAND_NAME, ISurveyTest, ISurveyTests, ISurveyTestStep, STEP_METADATA_KEYS } from "./test-json";
 import { ISurveyTestIssue, SurveyTestIssueCodes, SurveyTestSeverity } from "./test-result";
@@ -60,8 +61,12 @@ export class SurveyTestValidator {
     this.validateVariables(test.variables, path + ".variables", issues);
     this.validateTestStart(test, path, startNames, issues);
     const steps = test.steps;
-    if (!Array.isArray(steps) || steps.length === 0) {
-      this.addIssue(issues, SurveyTestIssueCodes.stepsMissing, "A test must contain a non-empty \"steps\" array.", { path: path });
+    // An empty array is valid and it runs: it is the state of a test that is being written, and a
+    // recorder starts one to have the runner build the model, apply the options, the variables and the
+    // start state and hand it over. A missing or a non-array "steps" is still the structural error -
+    // the property is what says "this object is a test".
+    if (!Array.isArray(steps)) {
+      this.addIssue(issues, SurveyTestIssueCodes.stepsMissing, "A test must contain a \"steps\" array.", { path: path });
       return issues;
     }
     for (let i = 0; i < steps.length; i++) {
@@ -79,15 +84,12 @@ export class SurveyTestValidator {
       this.addIssue(issues, SurveyTestIssueCodes.stepNotAnObject, "A step must be an object.", { path: path });
       return issues;
     }
-    const commands: Array<string> = [];
-    Object.keys(step).forEach(key => {
-      if (STEP_METADATA_KEYS.indexOf(key) > -1) return;
-      if (step[key] === undefined) {
-        this.addIssue(issues, SurveyTestIssueCodes.unknownStepKey,
-          "The key \"" + key + "\" is not a command: its value is undefined.", { path: path, data: { key: key } });
-        return;
-      }
-      commands.push(key);
+    // The same parse an editor is given, so what it shows and what the validator reports cannot differ.
+    const parsed = parseSurveyTestStep(step);
+    const commands = parsed.commands;
+    parsed.undefinedKeys.forEach(key => {
+      this.addIssue(issues, SurveyTestIssueCodes.unknownStepKey,
+        "The key \"" + key + "\" is not a command: its value is undefined.", { path: path, data: { key: key } });
     });
     if (commands.length === 0) {
       this.addIssue(issues, SurveyTestIssueCodes.stepEmpty,
@@ -277,7 +279,7 @@ export class SurveyTestValidator {
     issues.push(issue);
   }
 
-  private quoteList(values: Array<string>): string {
+  private quoteList(values: ReadonlyArray<string>): string {
     return values.map(val => "\"" + val + "\"").join(", ");
   }
 

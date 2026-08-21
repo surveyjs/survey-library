@@ -1,5 +1,6 @@
 import { SurveyModel } from "../survey";
-import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStart, ISurveyTestStep, STEP_METADATA_KEYS } from "./test-json";
+import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStart, ISurveyTestStep } from "./test-json";
+import { getSurveyTestStepCommandNames } from "./test-authoring";
 import {
   ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, ISurveyTestStepResult,
   ISurveyTestSummary, SurveyTestIssueCodes, SurveyTestStatus,
@@ -7,7 +8,9 @@ import {
 import { SurveyTestValidator } from "./test-validator";
 import { waitForSurvey } from "./test-async";
 import { getClosestName } from "./test-diagnostics";
-import { createCaseError, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "./test-context";
+import { SurveyTestContext } from "./test-context";
+import { createCaseError, SurveyTestCaseError } from "./test-error";
+import { ISurveyTestTarget } from "./test-targets";
 import {
   formatTestValue, getTestPayloadTypeText, isCommandAllowedForKind, isValidTestPayload, ISurveyTestCommand,
   SurveyTestCommandFactory,
@@ -427,7 +430,7 @@ export class SurveyTestRunner {
     if (!this.isObject(step)) {
       throw createCaseError(SurveyTestIssueCodes.stepNotAnObject, "A step must be an object.");
     }
-    const commands = Object.keys(step).filter(key => STEP_METADATA_KEYS.indexOf(key) < 0 && step[key] !== undefined);
+    const commands = getSurveyTestStepCommandNames(step);
     if (commands.length === 0) {
       throw createCaseError(SurveyTestIssueCodes.stepEmpty, "A step holds exactly one command, but this step holds none.");
     }

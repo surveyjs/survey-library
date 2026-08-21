@@ -289,7 +289,7 @@ describe("SurveyTestRunner: the lifecycle events", () => {
     await run(twoQuestionSurvey, {
       tests: [
         { name: "skipped", disabled: true, steps: [{ expect: { q1: { empty: true } } }] },
-        { name: "broken", steps: [] },
+        <any>{ name: "broken" },
       ],
     }, { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
     expect(log, "no survey is created for either of them").toEqual([
@@ -349,7 +349,7 @@ describe("SurveyTestRunner: the lifecycle events", () => {
     const log: Array<string> = [];
     const result = await run(twoQuestionSurvey, {
       starts: [{ name: "s" }, { name: "s" }],
-      tests: [{ name: "t", steps: [] }],
+      tests: [<any>{ name: "t" }],
     }, { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
     expect(result.status).toEqual("error");
     expect(log, "no test runs, so nothing else can carry them").toEqual([
@@ -379,7 +379,7 @@ describe("SurveyTestRunner: the lifecycle events", () => {
   test("runTest announces the structural issue of the test it was given", async () => {
     const log: Array<string> = [];
     const runner = new SurveyTestRunner(twoQuestionSurvey, { tests: [] });
-    const result = await runner.runTest({ name: "t", steps: [] },
+    const result = await runner.runTest(<any>{ name: "t" },
       { onEvent: (event: SurveyTestExecutionEvent): void => { log.push(describeEvent(event)); } });
     expect(result.status).toEqual("error");
     expect(log).toEqual(["testStarted undefined", "issueAdded stepsMissing", "testCompleted undefined"]);
@@ -633,7 +633,7 @@ describe("SurveyTestRunner: the model factory", () => {
     const result = await run(twoQuestionSurvey, {
       tests: [
         { name: "disabled", disabled: true, steps: [{ expect: { q1: { empty: true } } }] },
-        { name: "broken", steps: [] },
+        <any>{ name: "broken" },
         { name: "runs", steps: [{ expect: { q1: { empty: true } } }] },
       ],
     }, {
@@ -722,7 +722,7 @@ describe("SurveyTestRunner: the model factory", () => {
 
 describe("SurveyTestRunner: runTest() and run() agree", () => {
   const brokenTests: Array<any> = [
-    { name: "no steps", test: { name: "t", steps: [] } },
+    { name: "no \"steps\" array", test: { name: "t" } },
     { name: "two commands in a step", test: { name: "t", steps: [{ set: { q1: "a" }, clear: { q1: true } }] } },
     { name: "an unknown start", test: { name: "t", start: "nowhere", steps: [{ expect: { q1: { empty: true } } }] } },
   ];

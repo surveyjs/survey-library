@@ -55,6 +55,9 @@ the same registry as `set` and `complete`, so there is one execution path and on
 7. **The survey definition is not part of the case file.** A suite is a list of tests and nothing
    else; the definition is a separate argument, so the same suite runs against an edited definition
    and the same definition against several suites.
+8. **A test may hold no steps.** `"steps": []` is valid and it runs — see "An empty test" below. A
+   *missing* or non-array `steps` is still the structural error `stepsMissing`: the property is what
+   says "this object is a test".
 
 ### Targets
 
@@ -70,6 +73,30 @@ A target is a name, or several names separated by `.`, where a name may carry an
 
 A name that resolves to nothing ends the case with the `unknownTarget` error and, when there is a
 near miss, the name it probably meant.
+
+The grammar runs backwards as well: `SurveyTestTargets.nameOf(survey, object)` returns the name that
+addresses a live model object — see §7.
+
+### An empty test
+
+`"steps": []` is the natural intermediate state of a test that is being written, and it is what a
+recorder starts from: it needs a model that the case describes, and the only thing that builds one is
+the runner.
+
+An empty test is structurally valid and it runs. In order:
+
+* its model factory is called;
+* the options, the variables and the start state are applied exactly as for any other test;
+* `testStarted`, `surveyCreated` and `testCompleted` are emitted, in that order and with nothing
+  between the last two — **no step, target or check event**, because nothing of the kind happened;
+* the tester detaches from the model before `testCompleted` and before `run()` settles, so the host
+  is left with a usable model whose clock is still pinned;
+* the test **passes vacuously**.
+
+What still ends it with `"error"`: a model factory that fails or returns something that is not a
+`SurveyModel`, an element named `survey`, and a start state that cannot be applied (`startPage`
+naming a page that does not exist). A disabled empty test is `"skipped"` and never reaches the
+factory, like any other disabled one.
 
 ### Commands simulate a respondent
 
@@ -565,3 +592,122 @@ SurveyTestCommandFactory.Instance.register({
 
 A handler that rejects because it was aborted — what `fetch` does with an aborted signal — is read as
 cancellation too, not as a failure of the case.
+
+---
+
+## 7. Authoring APIs — for a recorder, a case editor or a test generator
+
+A host that *writes* cases needs more than the runner: it has to produce a target name for something
+the user touched, and it has to obey the small rules of the format. Both are exported from
+`survey-core/tester`, so that nothing has to be copied out of the sources and drift from them.
+
+### `SurveyTestTargets.nameOf` — the inverse of target resolution
+
+```ts
+import { SurveyTestTargets } from "survey-core/tester";
+
+const name = SurveyTestTargets.nameOf(survey, object);
+// When name is defined, resolving it in this survey returns the same addressable object.
+```
+
+That round trip is the contract, and it is how the name is produced: a candidate path is built from
+the object and then resolved by the very resolver the runner uses. If it comes back as a different
+object — a question of another survey that happens to share the name, an element that was detached —
+the answer is `undefined`. **A name is never invented for something the public grammar cannot
+address**, because such a name would end the case with `unknownTarget`.
+
+```ts
+SurveyTestTargets.nameOf(survey, survey);                        // "survey"
+SurveyTestTargets.nameOf(survey, survey.getQuestionByName("q1")); // "q1"
+SurveyTestTargets.nameOf(survey, survey.getPageByName("page2"));  // "page2"
+SurveyTestTargets.nameOf(survey, survey.getPanelByName("info"));  // "info"
+SurveyTestTargets.nameOf(survey, survey.getCalculatedValueByName("total")); // "total"
+
+const contacts = survey.getQuestionByName("contacts");           // a dynamic panel
+SurveyTestTargets.nameOf(survey, contacts.panels[1]);            // "contacts[1]"
+SurveyTestTargets.nameOf(survey, contacts.panels[1].getQuestionByName("phone")); // "contacts[1].phone"
+
+const items = contacts.panels[0].getQuestionByName("items");     // a dynamic matrix inside it
+SurveyTestTargets.nameOf(survey, items.visibleRows[1]);          // "contacts[0].items[1]"
+SurveyTestTargets.nameOf(survey, items.visibleRows[1].getQuestionByColumnName("price"));
+                                                                 // "contacts[0].items[1].price"
+
+const ratings = survey.getQuestionByName("ratings");             // a matrix with declared rows
+SurveyTestTargets.nameOf(survey, ratings.visibleRows[0].getQuestionByColumnName("score"));
+                                                                 // "ratings.row1.score"
+```
+
+A **dynamic** matrix row is addressed by position and a **declared** row by its name, for the same
+reason the forward direction does it: a dynamic row is created by the respondent and names itself
+after a generated id, while a declared row's name is what the definition fixes.
+
+Nothing is cached and nothing is retained — neither the survey nor a row handed in. Adding or
+removing a panel or a row simply changes the answer:
+
+```ts
+SurveyTestTargets.nameOf(survey, phone);   // "contacts[1].phone"
+contacts.removePanel(0);
+SurveyTestTargets.nameOf(survey, phone);   // "contacts[0].phone"
+```
+
+When a matrix renderer event hands over a cell together with the row and the matrix it came from,
+pass them as the context. It is a fallback used only when the object cannot say which row it belongs
+to; what the object itself says always wins, and the round trip is verified either way:
+
+```ts
+SurveyTestTargets.nameOf(survey, cellQuestion, { matrix, row });   // "ratings.row1.score"
+SurveyTestTargets.nameOf(survey, row, { matrix, row });            // "ratings.row1"
+```
+
+`SurveyTestTargets.resolve(survey, name)` is the forward direction without a runner: the
+`ISurveyTestTarget` the name addresses, or `undefined`. Target names come from the model — **never
+from a DOM attribute**.
+
+### Reading a step
+
+A step is its metadata plus exactly one command. `parseSurveyTestStep` applies that rule and reports
+a broken step honestly rather than picking one of its keys:
+
+```ts
+import { getSurveyTestStepCommandNames, parseSurveyTestStep } from "survey-core/tester";
+
+parseSurveyTestStep({ name: "answer", set: { q1: "a" } });
+// { name: "answer", commands: ["set"], command: "set", params: { q1: "a" }, undefinedKeys: [] }
+
+parseSurveyTestStep({ name: "a" });                        // commands: [],            command: undefined
+parseSurveyTestStep({ set: { q1: 1 }, expect: { … } });    // commands: ["set","expect"], command: undefined
+parseSurveyTestStep({ set: { q1: 1 }, clear: undefined }); // undefinedKeys: ["clear"]
+
+getSurveyTestStepCommandNames(step);   // the commands only
+```
+
+`command` and `params` are set only when there is exactly one command. This is the same parse the
+validator runs, so what an editor shows and what the validator reports cannot differ.
+
+### Payloads and the runtime collections
+
+```ts
+import {
+  isValidTestPayload, getTestPayloadTypeText, isCommandAllowedForKind,
+  SurveyTestPayloadTypes, SurveyTestTargetKinds,
+  SurveyTestStepMetadataKeys, SurveyTestCheckCommandName, SurveyTestSurveyTargetName,
+} from "survey-core/tester";
+
+const command = SurveyTestCommandFactory.Instance.get("set");
+isValidTestPayload(command.payloadType, value);   // exactly what the runner checks before the handler
+getTestPayloadTypeText(command.payloadType);      // "a question value" — the words the error uses
+isCommandAllowedForKind(command, target.kind);    // whether this command applies to this kind
+```
+
+`isValidTestPayload` is the function the runner calls, not a copy of it: an editor that refuses a
+payload refuses exactly what the run would have reported as `invalidCommandParams`.
+
+`SurveyTestPayloadTypes` and `SurveyTestTargetKinds` are the runtime form of the `SurveyTestPayloadType`
+and `SurveyTestTargetKind` unions, for a UI that enumerates them; both are derived from the one
+declaration the types come from. `SurveyTestStepMetadataKeys` (`["name", "description"]`),
+`SurveyTestCheckCommandName` (`"expect"`) and `SurveyTestSurveyTargetName` (`"survey"`) are the three
+names the format fixes. All of them are frozen.
+
+The set of commands and checks is **not** among these constants: it is data, and it is read from
+`SurveyTestCommandFactory.Instance` and `SurveyTestCheckFactory.Instance`, so a command an integrator
+registered appears in an editor's menu like a built-in one.

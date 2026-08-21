@@ -1,10 +1,12 @@
 import { Helpers } from "../helpers";
 import { CHECK_COMMAND_NAME } from "./test-json";
 import {
-  formatTestValue, getTestPayloadTypeText, isDynamicMatrixQuestion, isDynamicPanelQuestion, isValidTestPayload,
-  SurveyTestCommandFactory, SurveyTestPayloadType,
+  formatTestValue, getTestPayloadTypeText, isValidTestPayload, SurveyTestCommandFactory, SurveyTestPayloadType,
 } from "./test-commands";
-import { ISurveyTestContext, ISurveyTestTarget, SurveyTestTargetKind } from "./test-context";
+import { ISurveyTestContext } from "./test-context";
+import {
+  isDynamicMatrixQuestion, isDynamicPanelQuestion, ISurveyTestTarget, SurveyTestTargetKind,
+} from "./test-targets";
 import { ISurveyTestIssue, SurveyTestIssueCodes } from "./test-result";
 
 export interface ISurveyTestCheckOutcome {

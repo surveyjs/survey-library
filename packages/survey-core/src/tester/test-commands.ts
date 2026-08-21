@@ -2,7 +2,11 @@ import { Helpers } from "../helpers";
 import { Serializer } from "../jsonobject";
 import { settings } from "../settings";
 import { waitForSurvey } from "./test-async";
-import { createCaseError, ISurveyTestContext, ISurveyTestTarget, SurveyTestCaseError, SurveyTestTargetKind } from "./test-context";
+import { ISurveyTestContext } from "./test-context";
+import { createCaseError, SurveyTestCaseError } from "./test-error";
+import {
+  isDynamicMatrixQuestion, isDynamicPanelQuestion, ISurveyTestTarget, SurveyTestTargetKind,
+} from "./test-targets";
 import { getClosestName, getExpressionTrace, getJsonPath, ISurveyTestBlockingQuestion } from "./test-diagnostics";
 import { RESERVED_TARGET_SURVEY } from "./test-json";
 import { SurveyTestIssueCodes } from "./test-result";
@@ -11,8 +15,11 @@ import { SurveyTestIssueCodes } from "./test-result";
 // according to the type it was handed: the Creator renders one property editor per entry from the
 // declared type, and a type-switch payload would have to be re-derived by the editor, the renderer,
 // the validator and the docs.
-export type SurveyTestPayloadType =
-  "string" | "number" | "boolean" | "stringArray" | "array" | "nameMap" | "value" | "none";
+const PAYLOAD_TYPES = ["string", "number", "boolean", "stringArray", "array", "nameMap", "value", "none"] as const;
+export type SurveyTestPayloadType = typeof PAYLOAD_TYPES[number];
+// The runtime form of the union, for an editor that enumerates the payload types. Derived from the
+// declaration above and frozen: there is one list, and a host cannot edit it.
+export const SurveyTestPayloadTypes: ReadonlyArray<SurveyTestPayloadType> = Object.freeze(PAYLOAD_TYPES.slice());
 
 export interface ISurveyTestCommand {
   name: string;
@@ -614,15 +621,11 @@ function checkValueEnterable(context: ISurveyTestContext, question: any, value: 
 // condition on a later cell that depends on an earlier one is already correct when it is reached.
 // -----------------------------------------------------------------------------------------------
 
-// Exported for the check registry: the tester duck-types a question type in one place, so that
-// "panelCount" and "addPanel" can never disagree about what a dynamic panel is.
-export function isDynamicPanelQuestion(question: any): boolean {
-  return typeof question.addPanel === "function" && Array.isArray(question.panels);
-}
-export function isDynamicMatrixQuestion(question: any): boolean {
-  return typeof question.addRow === "function" && Array.isArray(question.visibleRows) &&
-    typeof question.rowCount === "number";
-}
+// Re-exported for the check registry: the tester duck-types a question type in one place - the target
+// grammar - so that "panelCount", "addPanel" and the path of a panel can never disagree about what a
+// dynamic panel is.
+export { isDynamicMatrixQuestion, isDynamicPanelQuestion } from "./test-targets";
+
 function isCellMatrixQuestion(question: any): boolean {
   return Array.isArray(question.visibleRows) && !isDynamicMatrixQuestion(question) &&
     (question.visibleRows.length === 0 || typeof question.visibleRows[0].getQuestionByColumnName === "function");

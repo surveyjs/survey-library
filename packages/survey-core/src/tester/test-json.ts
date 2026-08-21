@@ -77,8 +77,9 @@ export interface ISurveyTestOptions {
   asyncTimeout?: number;
 }
 
-// Step keys that are metadata and never a command name.
-export const STEP_METADATA_KEYS = ["name", "description"];
+// Step keys that are metadata and never a command name. Frozen: it is public through the tester entry
+// point, and it is the one list the validator, the runner and an editor all read.
+export const STEP_METADATA_KEYS: ReadonlyArray<string> = Object.freeze(["name", "description"]);
 // The one command the format fixes the payload shape of.
 export const CHECK_COMMAND_NAME = "expect";
 // The target name that means the survey itself.

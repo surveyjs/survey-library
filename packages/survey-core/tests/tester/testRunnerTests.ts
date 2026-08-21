@@ -750,8 +750,8 @@ describe("SurveyTestRunner: a single test", () => {
     expect(result.issues, "nothing is reported").toEqual([]);
   });
   test("A structurally broken test errors instead of passing", async () => {
-    const result = await new SurveyTestRunner(insuranceSurvey, undefined).runTest({ name: "t", steps: [] });
-    expect(result.status, "an empty test is never a passing one").toEqual("error");
+    const result = await new SurveyTestRunner(insuranceSurvey, undefined).runTest(<any>{ name: "t" });
+    expect(result.status, "a test without \"steps\" is never a passing one").toEqual("error");
     expect(codes(result.issues), "the missing steps are reported").toEqual([SurveyTestIssueCodes.stepsMissing]);
     expect(result.issues[0].path, "the issue is pathed from the test itself").toEqual("test");
     expect(result.steps, "no step ran").toEqual([]);

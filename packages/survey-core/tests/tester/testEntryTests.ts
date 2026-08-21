@@ -1,10 +1,18 @@
 import {
-  ISurveyTestContext, ISurveyTestTarget, ISurveyTests, runSurveyTests, SurveyTestCheckFactory,
-  SurveyTestCommandFactory, SurveyTestIssueCodes, SurveyTestRunner, SurveyTestValidator,
+  getSurveyTestStepCommandNames, getTestPayloadTypeText, isValidTestPayload, ISurveyTestContext,
+  ISurveyTestTarget, ISurveyTests, parseSurveyTestStep, runSurveyTests, SurveyTestCheckCommandName,
+  SurveyTestCheckFactory, SurveyTestCommandFactory, SurveyTestIssueCodes, SurveyTestPayloadTypes,
+  SurveyTestRunner, SurveyTestStepMetadataKeys, SurveyTestSurveyTargetName, SurveyTestTargetKinds,
+  SurveyTestTargets, SurveyTestValidator,
 } from "survey-core/tester";
-import { SurveyTestCommandFactory as InternalCommandFactory } from "../../src/tester/test-commands";
+import * as SurveyCore from "survey-core";
+import {
+  SurveyTestCommandFactory as InternalCommandFactory, isValidTestPayload as InternalIsValidPayload,
+} from "../../src/tester/test-commands";
 import { SurveyTestCheckFactory as InternalCheckFactory } from "../../src/tester/test-checks";
 import { SurveyTestRunner as InternalRunner } from "../../src/tester/test-runner";
+import { SurveyTestTargets as InternalTargets } from "../../src/tester/test-targets";
+import { parseSurveyTestStep as InternalParseStep } from "../../src/tester/test-authoring";
 import { SurveyModel } from "../../src/survey";
 
 import { afterEach, describe, expect, test } from "vitest";
@@ -163,5 +171,50 @@ describe("survey-core/tester entry point", () => {
     const runner = new SurveyTestRunner(survey, { tests: [{ name: "a", steps: [{ expect: { q1: { empty: true } } }] }] });
     const result = await runner.run();
     expect(result.status).toBe("passed");
+  });
+
+  test("The recorder and authoring APIs are the ones of the sources", () => {
+    expect(SurveyTestTargets).toBe(InternalTargets);
+    expect(parseSurveyTestStep).toBe(InternalParseStep);
+    expect(isValidTestPayload).toBe(InternalIsValidPayload);
+  });
+
+  test("SurveyTestTargets.nameOf answers through the entry point", () => {
+    const model = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "contacts", panelCount: 2, templateElements: [{ type: "text", name: "phone" }] },
+      ],
+    });
+    expect(SurveyTestTargets.nameOf(model, model), "the survey").toBe(SurveyTestSurveyTargetName);
+    expect(SurveyTestTargets.nameOf(model, model.getQuestionByName("q1")), "a question").toBe("q1");
+    const phone = (<any>model.getQuestionByName("contacts")).panels[1].getQuestionByName("phone");
+    expect(SurveyTestTargets.nameOf(model, phone), "a question of a dynamic panel").toBe("contacts[1].phone");
+    expect(SurveyTestTargets.nameOf(model, { name: "q1" }), "an object of no survey").toBe(undefined);
+  });
+
+  test("The authoring helpers answer through the entry point", () => {
+    expect(getSurveyTestStepCommandNames({ name: "a", set: { q1: 1 } })).toEqual(["set"]);
+    expect(parseSurveyTestStep({ name: "a" }).command, "a step with no command").toBe(undefined);
+    expect(isValidTestPayload("stringArray", ["a"])).toBe(true);
+    expect(isValidTestPayload("stringArray", [1])).toBe(false);
+    expect(typeof getTestPayloadTypeText("nameMap")).toBe("string");
+    expect(SurveyTestPayloadTypes).toContain("none");
+    expect(SurveyTestTargetKinds).toContain("calculatedValue");
+    expect(SurveyTestStepMetadataKeys.slice()).toEqual(["name", "description"]);
+    expect(SurveyTestCheckCommandName).toBe("expect");
+  });
+
+  test("None of it leaks into the main survey-core entry point", () => {
+    const main: any = SurveyCore;
+    const names = [
+      "SurveyTestTargets", "SurveyTestRunner", "SurveyTestValidator", "SurveyTestCommandFactory",
+      "SurveyTestCheckFactory", "SurveyTestIssueCodes", "SurveyTestPayloadTypes", "SurveyTestTargetKinds",
+      "SurveyTestStepMetadataKeys", "SurveyTestCheckCommandName", "SurveyTestSurveyTargetName",
+      "parseSurveyTestStep", "getSurveyTestStepCommandNames", "isValidTestPayload", "getTestPayloadTypeText",
+      "isCommandAllowedForKind", "runSurveyTests",
+    ];
+    const leaked = names.filter(name => main[name] !== undefined);
+    expect(leaked, "the tester is a separate entry point").toEqual([]);
   });
 });

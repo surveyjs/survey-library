@@ -1,4 +1,5 @@
-import { createCaseError, ISurveyTestContext, SurveyTestCaseError } from "./test-context";
+import { ISurveyTestContext } from "./test-context";
+import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { ISurveyTestOptions } from "./test-json";
 import { SurveyTestIssueCodes } from "./test-result";
 

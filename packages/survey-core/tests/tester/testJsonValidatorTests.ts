@@ -160,10 +160,14 @@ describe("SurveyTestValidator: tests", () => {
     expect(issues[0].data.indexes, "Both indexes are reported").toEqual([0, 1]);
     expect(issues[0].message.indexOf("\"t1\"") > -1, "The message names the test").toBeTruthy();
   });
-  test("\"steps\" must be a non-empty array", () => {
+  test("\"steps\" must be an array, and an empty one is valid", () => {
     expect(codes(validate({ tests: [{ name: "t1" }] })), "no steps").toEqual([SurveyTestIssueCodes.stepsMissing]);
-    expect(codes(validate({ tests: [{ name: "t1", steps: [] }] })), "an empty array").toEqual([SurveyTestIssueCodes.stepsMissing]);
     expect(codes(validate({ tests: [{ name: "t1", steps: {} }] })), "an object").toEqual([SurveyTestIssueCodes.stepsMissing]);
+    expect(codes(validate({ tests: [{ name: "t1", steps: <any>null }] })), "null").toEqual([SurveyTestIssueCodes.stepsMissing]);
+    expect(codes(validate({ tests: [{ name: "t1", steps: <any>"set" }] })), "a string").toEqual([SurveyTestIssueCodes.stepsMissing]);
+    // The intermediate state of a test that is being written, and what a recorder starts from: the
+    // runner builds the model, applies the start state and hands it over with nothing recorded yet.
+    expect(codes(validate({ tests: [{ name: "t1", steps: [] }] })), "an empty array is valid").toEqual([]);
   });
 });
 
@@ -467,7 +471,7 @@ describe("SurveyTestValidator: the public methods and the state", () => {
   test("Every issue carries a severity, a code and a message", () => {
     const issues = validate({
       tests: [
-        { steps: [] },
+        { steps: undefined },
         { name: "t2", steps: [{ expect: "q1" }] },
       ],
     });

@@ -30,12 +30,35 @@ export { SurveyTestValidator } from "../src/tester/test-validator";
 export { SurveyTestCommandFactory } from "../src/tester/test-commands";
 export { SurveyTestCheckFactory } from "../src/tester/test-checks";
 
+// The inverse of target resolution, for a recorder or a test generator that starts from a live model
+// object and needs the name a case addresses it by. It is the same grammar as the forward direction,
+// so a name it returns is a name the runner resolves back to that object.
+export { SurveyTestTargets } from "../src/tester/test-targets";
+export type { ISurveyTestTargetContext } from "../src/tester/test-targets";
+
+// Authoring helpers: the small rules of the format that a case editor has to obey and would otherwise
+// have to restate. Every one of them is the very code the validator and the runner use.
+export { parseSurveyTestStep, getSurveyTestStepCommandNames } from "../src/tester/test-authoring";
+export type { ISurveyTestParsedStep } from "../src/tester/test-authoring";
+export { isValidTestPayload, getTestPayloadTypeText, isCommandAllowedForKind } from "../src/tester/test-commands";
+
+// The runtime form of what the string unions above declare, and the three names the format fixes, so
+// that a UI can enumerate them instead of hard-coding a copy. All of it is frozen.
+export { SurveyTestPayloadTypes } from "../src/tester/test-commands";
+export { SurveyTestTargetKinds } from "../src/tester/test-targets";
+export {
+  STEP_METADATA_KEYS as SurveyTestStepMetadataKeys,
+  CHECK_COMMAND_NAME as SurveyTestCheckCommandName,
+  RESERVED_TARGET_SURVEY as SurveyTestSurveyTargetName,
+} from "../src/tester/test-json";
+
 // The handler interfaces, so that an integrator can register a command or a check of their own.
 // SurveyTestPayloadType and SurveyTestTargetKind travel with them: a handler cannot be written
 // without naming the payload type it accepts and the target kinds it applies to.
 export type { ISurveyTestCommand, SurveyTestPayloadType } from "../src/tester/test-commands";
 export type { ISurveyTestCheckHandler, ISurveyTestCheckOutcome } from "../src/tester/test-checks";
-export type { ISurveyTestContext, ISurveyTestTarget, SurveyTestTargetKind } from "../src/tester/test-context";
+export type { ISurveyTestContext } from "../src/tester/test-context";
+export type { ISurveyTestTarget, SurveyTestTargetKind } from "../src/tester/test-targets";
 
 // The execution contract: how the model of a test is created and what a host is told while the run
 // progresses. A headless caller passes none of it.

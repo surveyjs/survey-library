@@ -2,6 +2,7 @@ import { ILintFinding, ILintRuleInfo, ISurveyLintOptions, ISurveyLintResult } fr
 import { LintContext, resolveSeverity } from "./rule";
 import { allRules } from "./rules/index";
 import { buildIndex } from "./walker";
+import { LintMetadata } from "./metadata";
 
 export * from "./types";
 export { renderFindings } from "./renderer";
@@ -21,8 +22,11 @@ export function lintSurvey(json: any, options?: ISurveyLintOptions): ISurveyLint
     throw new TypeError("lintSurvey expects a survey JSON object. Parse JSON strings with JSON.parse before calling.");
   }
   const opts: ISurveyLintOptions = options || {};
-  const index = buildIndex(json, opts);
-  const ctx = new LintContext(index, opts);
+  // one snapshot of the serializer registry per run: it is mutable at runtime, and
+  // both the walker and the rules must see the same view of it
+  const metadata = new LintMetadata();
+  const index = buildIndex(json, opts, metadata);
+  const ctx = new LintContext(index, opts, metadata);
   allRules.forEach(rule => {
     const severity = resolveSeverity(rule, opts);
     if (severity === "off") return;

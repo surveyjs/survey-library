@@ -2,6 +2,7 @@ import {
   ILintFinding, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
 } from "./types";
 import { SurveyIndex } from "./symbols";
+import { LintMetadata } from "./metadata";
 
 export interface ILintRule {
   id: string;
@@ -57,7 +58,8 @@ export class LintContext {
   public suppressed: Array<ILintFinding> = [];
   private currentRuleId: string;
   private currentSeverity: LintFindingSeverity;
-  constructor(public index: SurveyIndex, public options: ISurveyLintOptions) {}
+  constructor(public index: SurveyIndex, public options: ISurveyLintOptions,
+    public metadata: LintMetadata) {}
   public setCurrentRule(ruleId: string, severity: LintFindingSeverity): void {
     this.currentRuleId = ruleId;
     this.currentSeverity = severity;

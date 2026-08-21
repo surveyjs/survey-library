@@ -1,13 +1,8 @@
-import { Helpers, Trigger } from "survey-core";
+import { Helpers, TextPreProcessor, Trigger } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
-import {
-  ELEMENTS_ALIASES, ITEMVALUE_EXPRESSION_PROPS, MATRIXBASE_TYPES, MATRIXDROPDOWN_TYPES,
-  MATRIX_COLUMN_EXPRESSION_PROPS, MATRIX_COLUMN_ITEMVALUE_PROPS, MULTIPLETEXT_ITEM_EXPRESSION_PROPS,
-  PANELBASE_EXPRESSION_PROPS,
-  PANEL_TYPES, QUESTION_EXPRESSION_PROPS, SELECTBASE_TYPES, TRIGGER_TYPES, TYPE_EXPRESSION_PROPS,
-  isKnownQuestionType, ExpressionPropDef,
-} from "./catalog";
-import { parseExpressionText } from "./expression-utils";
+import { ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS } from "./catalog";
+import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBase } from "./metadata";
+import { parseExpressionText, splitRefSegments } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
   CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite, ExpressionSiteKind,
@@ -21,6 +16,7 @@ const MAX_DEPTH = 128;
 interface WalkState {
   index: SurveyIndex;
   options: ISurveyLintOptions;
+  metadata: LintMetadata;
   visited: any;
   depth: number;
 }
@@ -46,12 +42,25 @@ function addSite(state: WalkState, text: string, kind: ExpressionSiteKind, path:
   return site;
 }
 
+// One site per non-empty expression property. A property whose condition runs against
+// the owner's own items (choicesVisibleIf, rowsVisibleIf, ...) gets an extra itemValue
+// frame; a property scoped to a dynamic-panel template is skipped unless the caller
+// passes that scope, because it exists only inside walkQuestion.
 function addSitesFromProps(state: WalkState, json: any, basePath: string, props: Array<ExpressionPropDef>,
-  owner: ElementRecord, scope: Array<ScopeFrame>): void {
+  owner: ElementRecord, scope: Array<ScopeFrame>, templateScope?: Array<ScopeFrame>): void {
+  let itemScope: Array<ScopeFrame> = undefined;
   props.forEach(def => {
-    if (isNonEmptyString(json[def.name])) {
-      addSite(state, json[def.name], def.kind, joinPath(basePath, def.name), def.name, owner, scope);
+    if (!isNonEmptyString(json[def.name])) return;
+    const key = def.name.toLowerCase();
+    let siteScope = scope;
+    if (TEMPLATE_SCOPED_PROPS.has(key)) {
+      if (!templateScope) return;
+      siteScope = templateScope;
+    } else if (ITEMVALUE_SCOPED_PROPS.has(key)) {
+      if (!itemScope) itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
+      siteScope = itemScope;
     }
+    addSite(state, json[def.name], def.kind, joinPath(basePath, def.name), def.name, owner, siteScope);
   });
 }
 
@@ -60,24 +69,24 @@ function addValidatorSites(state: WalkState, json: any, basePath: string, owner:
   if (!Array.isArray(json.validators)) return;
   json.validators.forEach((validator: any, i: number) => {
     if (!validator || typeof validator !== "object") return;
-    // the serializer appends the "validator" suffix only when missing, so the
-    // runtime accepts both "expression" and the full class name "expressionvalidator"
-    const validatorType = (validator.type || "").toLowerCase();
-    if (validatorType !== "expression" && validatorType !== "expressionvalidator") return;
-    if (isNonEmptyString(validator.expression)) {
-      addSite(state, validator.expression, "condition",
-        basePath + ".validators[" + i + "].expression", "expression", owner, scope);
-    }
+    const props = state.metadata.getValidatorExpressionProps(validator.type);
+    if (props.length === 0) return;
+    addSitesFromProps(state, validator, basePath + ".validators[" + i + "]", props, owner, scope);
   });
 }
 
-function addItemValueSites(state: WalkState, arr: any, basePath: string, owner: ElementRecord,
-  scope: Array<ScopeFrame>): void {
+// Walks an itemvalue-like array property; the item class - and so which conditions the
+// items carry - comes from the array property's own metadata.
+function addItemValueSites(state: WalkState, json: any, propName: string, ownerType: string,
+  basePath: string, owner: ElementRecord, scope: Array<ScopeFrame>): void {
+  const arr = json[propName];
   if (!Array.isArray(arr)) return;
+  const props = state.metadata.getItemExpressionProps(ownerType, propName);
+  if (props.length === 0) return;
   const itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
   arr.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return;
-    addSitesFromProps(state, item, basePath + "[" + i + "]", ITEMVALUE_EXPRESSION_PROPS, owner, itemScope);
+    addSitesFromProps(state, item, basePath + "." + propName + "[" + i + "]", props, owner, itemScope);
   });
 }
 
@@ -111,15 +120,17 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
-function getComponentFieldNames(def: IComponentDef): CIMap<boolean> {
+function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boolean> {
   const res = new CIMap<boolean>();
+  const elementsKeys = state.metadata.getElementsKeys();
+  const templateKeys = state.metadata.getTemplateElementsKeys();
   const collect = (elements: any) => {
     if (!Array.isArray(elements)) return;
     elements.forEach((el: any) => {
       if (!el || typeof el !== "object") return;
       if (isNonEmptyString(el.name)) res.set(el.name, true);
-      ELEMENTS_ALIASES.forEach(alias => collect(el[alias]));
-      collect(el.templateElements);
+      elementsKeys.forEach(key => collect(el[key]));
+      templateKeys.forEach(key => collect(el[key]));
     });
   };
   collect(def.elementsJSON);
@@ -139,7 +150,7 @@ function walkComponentDefs(state: WalkState): void {
     const def = components[typeName];
     if (!def || !Array.isArray(def.elementsJSON)) return;
     const scope: Array<ScopeFrame> = [<ScopeFrameComposite>{
-      kind: "composite", fieldNames: getComponentFieldNames(def),
+      kind: "composite", fieldNames: getComponentFieldNames(state, def),
     }];
     def.elementsJSON.forEach((el: any, i: number) => {
       if (!el || typeof el !== "object") return;
@@ -149,7 +160,8 @@ function walkComponentDefs(state: WalkState): void {
         name: el.name || "", type: type, kind: "question", path: path, json: el,
         scope: scope.slice(), isUnknownType: false, valueType: getValueTypeInfo(type, el),
       };
-      addSitesFromProps(state, el, path, QUESTION_EXPRESSION_PROPS, record, scope);
+      addSitesFromProps(state, el, path,
+        state.metadata.getElementExpressionProps(type, "question"), record, scope);
       addValidatorSites(state, el, path, record, scope);
     });
   });
@@ -167,12 +179,16 @@ function guardLeave(state: WalkState): void {
   state.depth--;
 }
 
-function getElementsArray(json: any): { key: string, elements: Array<any> } | undefined {
-  for (let i = 0; i < ELEMENTS_ALIASES.length; i++) {
-    const key = ELEMENTS_ALIASES[i];
+function getArrayByKeys(json: any, keys: Array<string>): { key: string, elements: Array<any> } | undefined {
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
     if (Array.isArray(json[key])) return { key: key, elements: json[key] };
   }
   return undefined;
+}
+
+function getElementsArray(state: WalkState, json: any): { key: string, elements: Array<any> } | undefined {
+  return getArrayByKeys(json, state.metadata.getElementsKeys());
 }
 
 function walkElementsArray(state: WalkState, elements: Array<any>, basePath: string,
@@ -182,7 +198,7 @@ function walkElementsArray(state: WalkState, elements: Array<any>, basePath: str
     if (!element || typeof element !== "object" || Array.isArray(element)) return;
     const path = basePath + "[" + i + "]";
     const type = (element.type || "").toLowerCase();
-    const record = PANEL_TYPES.has(type)
+    const record = isPanel(type)
       ? walkPanel(state, element, path, parent, scope, ancestorPanels)
       : walkQuestion(state, element, path, parent, scope, ancestorPanels);
     if (record && container) container.children.push(record);
@@ -199,12 +215,13 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
     panelDescendantNames: new CIMap<ElementRecord>(),
   };
   registerRecord(state, record, ancestorPanels);
-  addSitesFromProps(state, json, path, PANELBASE_EXPRESSION_PROPS, record, scope);
+  addSitesFromProps(state, json, path,
+    state.metadata.getElementExpressionProps(record.type, "panel"), record, scope);
   const container: ContainerRecord = {
     kind: "panel", record: record, name: record.name, path: path, children: [],
   };
   state.index.containers.push(container);
-  const inner = getElementsArray(json);
+  const inner = getElementsArray(state, json);
   if (inner) {
     walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, scope,
       ancestorPanels.concat([record]), container);
@@ -238,7 +255,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       };
       // only select-base cells use choices; a text/comment/boolean/... cell
       // accepts any value, and the shared matrix "choices" do not apply to it
-      const choicesInfo = SELECTBASE_TYPES.has(effectiveCellType)
+      const choicesInfo = isSelectBase(effectiveCellType)
         ? getChoicesInfo(columnJson, "matrixdropdowncolumn") : undefined;
       if (choicesInfo) {
         // a column without own choices uses the matrix-level shared "choices"
@@ -249,11 +266,10 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       }
       state.index.allElements.push(columnRecord);
       if (columnRecord.name) frame.columns.add(columnRecord.name, columnRecord);
-      addSitesFromProps(state, columnJson, columnPath, MATRIX_COLUMN_EXPRESSION_PROPS, columnRecord, rowScope);
-      addSitesFromProps(state, columnJson, columnPath, MATRIX_COLUMN_ITEMVALUE_PROPS, columnRecord,
-        rowScope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: columnRecord }]));
+      addSitesFromProps(state, columnJson, columnPath,
+        state.metadata.getCellExpressionProps(effectiveCellType), columnRecord, rowScope);
       addValidatorSites(state, columnJson, columnPath, columnRecord, rowScope);
-      addItemValueSites(state, columnJson.choices, columnPath + ".choices", columnRecord, rowScope);
+      addItemValueSites(state, columnJson, "choices", effectiveCellType, columnPath, columnRecord, rowScope);
     });
   }
   if (Array.isArray(json.detailElements)) {
@@ -265,6 +281,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
   scope: Array<ScopeFrame>): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
+  const itemProps = state.metadata.getItemExpressionProps("multipletext", "items");
   json.items.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object") return;
     const itemPath = path + ".items[" + i + "]";
@@ -275,7 +292,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
     };
     state.index.allElements.push(itemRecord);
     if (itemRecord.name) record.multipleTextItems.set(itemRecord.name, itemRecord);
-    addSitesFromProps(state, item, itemPath, MULTIPLETEXT_ITEM_EXPRESSION_PROPS, itemRecord, scope);
+    addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
     addValidatorSites(state, item, itemPath, itemRecord, scope);
   });
 }
@@ -291,23 +308,36 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   const record: ElementRecord = {
     name: json.name || "", valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
     type: type, kind: "question", path: path, json: json, parent: parent, scope: scope.slice(),
-    isUnknownType: !isKnownQuestionType(type) && !componentDef,
+    isUnknownType: !state.metadata.isKnownElementType(type) && !componentDef,
     componentDef: componentDef,
     valueType: getValueTypeInfo(type, json),
     choicesInfo: getChoicesInfo(json, type),
   };
   if (componentDef && componentDef.elementsJSON) {
-    record.componentFieldNames = getComponentFieldNames(componentDef);
+    record.componentFieldNames = getComponentFieldNames(state, componentDef);
   }
   registerRecord(state, record, ancestorPanels);
 
-  addSitesFromProps(state, json, path, QUESTION_EXPRESSION_PROPS, record, scope);
+  // the dynamic-panel template frame is built before the expression pass because
+  // templateVisibleIf is evaluated inside it (see TEMPLATE_SCOPED_PROPS)
+  let templateScope: Array<ScopeFrame> = undefined;
+  if (type === "paneldynamic") {
+    const frame: ScopeFramePanelDynamic = {
+      kind: "panelDynamic", owner: record, templateNames: new CIMultiMap<ElementRecord>(),
+    };
+    record.templateNames = frame.templateNames;
+    templateScope = scope.concat([frame]);
+    state.index.namespaces.push({
+      label: "dynamic panel \"" + (record.name || record.path) + "\"", map: frame.templateNames,
+    });
+  }
+
+  addSitesFromProps(state, json, path, state.metadata.getElementExpressionProps(type, "question"),
+    record, scope, templateScope);
   addValidatorSites(state, json, path, record, scope);
 
-  if (SELECTBASE_TYPES.has(type)) {
-    addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.selectbase, record,
-      scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: record }]));
-    addItemValueSites(state, json.choices, path + ".choices", record, scope);
+  if (isSelectBase(type)) {
+    addItemValueSites(state, json, "choices", type, path, record, scope);
     // choiceitem.elements: full questions nested inside a choice
     if (Array.isArray(json.choices)) {
       json.choices.forEach((choice: any, i: number) => {
@@ -320,58 +350,33 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
       collectUrlRefs(state, json.choicesByUrl.url, path + ".choicesByUrl.url", record, scope);
     }
   }
-  if (MATRIXBASE_TYPES.has(type)) {
-    addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.matrixbase, record,
-      scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: record }]));
-  }
   if (type === "matrix") {
     record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
-    addItemValueSites(state, json.rows, path + ".rows", record, scope);
-    addItemValueSites(state, json.columns, path + ".columns", record, scope);
+    addItemValueSites(state, json, "rows", type, path, record, scope);
+    addItemValueSites(state, json, "columns", type, path, record, scope);
   }
-  if (MATRIXDROPDOWN_TYPES.has(type)) {
+  if (isMatrixDropdown(type)) {
     if (type === "matrixdropdown") {
       record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
-      addItemValueSites(state, json.rows, path + ".rows", record, scope);
+      addItemValueSites(state, json, "rows", type, path, record, scope);
     }
     walkMatrixColumns(state, json, path, record, scope);
   }
   if (type === "rating") {
-    addItemValueSites(state, json.rateValues, path + ".rateValues", record, scope);
+    addItemValueSites(state, json, "rateValues", type, path, record, scope);
   }
   if (type === "imagemap") {
     // imagemap areas extend itemvalue; their visibleIf/enableIf run at runtime
-    addItemValueSites(state, json.areas, path + ".areas", record, scope);
+    addItemValueSites(state, json, "areas", type, path, record, scope);
   }
   if (type === "slider") {
-    addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.slider, record, scope);
-    addItemValueSites(state, json.customLabels, path + ".customLabels", record, scope);
-  }
-  if (type === "text") {
-    addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.text, record, scope);
-  }
-  if (type === "expression") {
-    addSitesFromProps(state, json, path, TYPE_EXPRESSION_PROPS.expression, record, scope);
+    addItemValueSites(state, json, "customLabels", type, path, record, scope);
   }
   if (type === "multipletext") {
     walkMultipleTextItems(state, json, path, record, scope);
   }
-  if (type === "paneldynamic") {
-    const frame: ScopeFramePanelDynamic = {
-      kind: "panelDynamic", owner: record, templateNames: new CIMultiMap<ElementRecord>(),
-    };
-    record.templateNames = frame.templateNames;
-    const templateScope = scope.concat([frame]);
-    state.index.namespaces.push({
-      label: "dynamic panel \"" + (record.name || record.path) + "\"", map: frame.templateNames,
-    });
-    if (isNonEmptyString(json.templateVisibleIf)) {
-      addSite(state, json.templateVisibleIf, "condition", joinPath(path, "templateVisibleIf"),
-        "templateVisibleIf", record, templateScope);
-    }
-    const template = Array.isArray(json.templateElements)
-      ? { key: "templateElements", elements: json.templateElements }
-      : (Array.isArray(json.questions) ? { key: "questions", elements: json.questions } : undefined);
+  if (!!templateScope) {
+    const template = getArrayByKeys(json, state.metadata.getTemplateElementsKeys());
     const container: ContainerRecord = {
       kind: "panelDynamicTemplate", record: record, name: record.name, path: path, children: [],
     };
@@ -395,20 +400,24 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   return record;
 }
 
-const URL_REF_REGEX = /\{([^{}]+)\}/g;
-
+// TextPreProcessor is a text utility, not a model object: it owns how the runtime finds
+// {...} references in a string - the delimiters come from settings.expressionVariableDelimiters
+// and "a:b" is not a reference - so the URL is scanned with it instead of with a regex of
+// our own. process() substitutes nothing while every value stays isExists: false, and it
+// walks the items back to front, hence the reverse() to restore document order.
 function collectUrlRefs(state: WalkState, url: string, path: string, owner: ElementRecord,
   scope: Array<ScopeFrame>): void {
-  let match: RegExpExecArray;
-  URL_REF_REGEX.lastIndex = 0;
-  while((match = URL_REF_REGEX.exec(url)) !== null) {
-    const name = match[1].trim();
-    // names with ":" are not references (mirrors TextPreProcessor.isValidItemName)
-    if (!name || name.indexOf(":") > -1) continue;
+  const names: Array<string> = [];
+  const processor = new TextPreProcessor();
+  processor.onProcess = (textValue: any) => {
+    if (isNonEmptyString(textValue.name)) names.push(textValue.name);
+  };
+  processor.process(url);
+  names.reverse().forEach(name => {
     state.index.nameRefs.push({
       name: name, path: path, owner: owner, scope: scope.slice(), kind: "choicesByUrlVariable",
     });
-  }
+  });
 }
 
 function walkPage(state: WalkState, json: any, path: string): void {
@@ -418,22 +427,16 @@ function walkPage(state: WalkState, json: any, path: string): void {
     scope: [], isUnknownType: false, valueType: { shape: "none" },
   };
   registerRecord(state, record, []);
-  addSitesFromProps(state, json, path, PANELBASE_EXPRESSION_PROPS, record, []);
+  addSitesFromProps(state, json, path, state.metadata.getExpressionProps("page"), record, []);
   const container: ContainerRecord = {
     kind: "page", record: record, name: record.name, path: path, children: [],
   };
   state.index.containers.push(container);
-  const inner = getElementsArray(json);
+  const inner = getElementsArray(state, json);
   if (inner) {
     walkElementsArray(state, inner.elements, joinPath(path, inner.key), record, [], [], container);
   }
   guardLeave(state);
-}
-
-function normalizeTriggerType(type: any): string {
-  let res = (type || "").toLowerCase();
-  if (res.endsWith("trigger")) res = res.substring(0, res.length - "trigger".length);
-  return res;
 }
 
 // Mirrors OperandMaker.toOperandString/isBooleanValue: a value is quoted unless it
@@ -473,8 +476,8 @@ function buildLegacyTriggerExpression(json: any): string {
 function walkTrigger(state: WalkState, json: any, i: number): void {
   if (!json || typeof json !== "object") return;
   const path = "triggers[" + i + "]";
-  const type = normalizeTriggerType(json.type);
-  const def = TRIGGER_TYPES.get(type);
+  const type = state.metadata.normalizeTriggerType(json.type);
+  const def = state.metadata.getTriggerDef(type);
   const record: TriggerRecord = { type: type, index: i, path: path, json: json, targets: [] };
   if (isNonEmptyString(json.expression)) {
     record.expressionSite = addSite(state, json.expression, "condition",
@@ -506,7 +509,9 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
     });
     if (def.setsValue && isNonEmptyString(json.setToName)) {
       record.setToName = json.setToName;
-      record.setRoot = json.setToName.split(".")[0].replace(/\[\d+\]$/, "");
+      // the runtime resolver owns value-path parsing, so take the root through it
+      const root = splitRefSegments(json.setToName)[0];
+      record.setRoot = root ? root.name : "";
     }
     if (def.extraExpressionProps) {
       addSitesFromProps(state, json, path, def.extraExpressionProps, undefined, []);
@@ -515,7 +520,7 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
   state.index.triggers.push(record);
 }
 
-export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex {
+export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata): SurveyIndex {
   const index: SurveyIndex = {
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
@@ -530,14 +535,16 @@ export function buildIndex(json: any, options: ISurveyLintOptions): SurveyIndex 
     settings: resolveLintSettings(),
   };
   index.namespaces.push({ label: "", map: index.byName });
-  const state: WalkState = { index: index, options: options, visited: new WeakSet(), depth: 0 };
+  const state: WalkState = {
+    index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
+  };
 
   if (Array.isArray(json.pages)) {
     json.pages.forEach((page: any, i: number) => {
       if (page && typeof page === "object") walkPage(state, page, "pages[" + i + "]");
     });
   } else {
-    const inner = getElementsArray(json);
+    const inner = getElementsArray(state, json);
     if (inner) {
       const container: ContainerRecord = {
         kind: "page", path: inner.key, children: [],

@@ -380,3 +380,37 @@ describe("choices/dead-source paths", () => {
     expect(findings[0].path).toBe("elements[0].columns[0].choicesFromQuestion");
   });
 });
+
+// The rule compares the way the runtime "equal"/"contains" operators do
+// (Helpers.isTwoValueEquals / containsCore), so settings.comparator drives it.
+describe("expression/unknown-choice - comparator parity", () => {
+  const choiceSurvey = (visibleIf: string, choices: Array<any>) => ({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: choices },
+      { type: "text", name: "q2", visibleIf: visibleIf },
+    ],
+  });
+  const unknownChoices = (visibleIf: string, choices: Array<any>) =>
+    byRule(choiceSurvey(visibleIf, choices), "expression/unknown-choice");
+
+  test("a case mismatch is accepted while the comparator is case-insensitive", () => {
+    expect(unknownChoices("{q1} = 'LOW'", ["low", "high"])).toHaveLength(0);
+  });
+  test("a case mismatch is flagged once the comparator is case-sensitive", () => {
+    withSettings({ "comparator.caseSensitive": true }, () => {
+      const findings = unknownChoices("{q1} = 'LOW'", ["low", "high"]);
+      expect(findings).toHaveLength(1);
+      expect(findings[0].messageData.values).toEqual(["LOW"]);
+    });
+  });
+  test("substring matching follows the comparator too", () => {
+    expect(unknownChoices("{q1} contains 'LO'", ["low", "high"])).toHaveLength(0);
+    withSettings({ "comparator.caseSensitive": true }, () => {
+      expect(unknownChoices("{q1} contains 'LO'", ["low", "high"])).toHaveLength(1);
+    });
+  });
+  test("a string compared to numeric choices converts, like the runtime", () => {
+    expect(unknownChoices("{q1} = '2'", [1, 2, 3])).toHaveLength(0);
+    expect(unknownChoices("{q1} = '4'", [1, 2, 3])).toHaveLength(1);
+  });
+});

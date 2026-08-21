@@ -1,6 +1,6 @@
 import { BinaryOperand, Const, Variable } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, collectOperands } from "../expression-utils";
+import { classifySiteRefs, collectOperands, isPlainConst } from "../expression-utils";
 import { ElementRecord, ParsedRef } from "../symbols";
 import { isTextInputQuestion } from "../value-types";
 
@@ -14,10 +14,6 @@ interface Mismatch {
   reason: string;
   detail: string;
   suggestion?: string;
-}
-
-function isPlainConst(op: any): boolean {
-  return op instanceof Const && !(op instanceof Variable);
 }
 
 function checkOrdering(record: ElementRecord, constValue: any): Mismatch | undefined {

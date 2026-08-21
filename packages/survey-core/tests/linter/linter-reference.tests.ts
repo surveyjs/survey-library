@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
+import { withSettings } from "./lint-test-helpers";
 
 function unknownRefs(json: any, options?: any): Array<ILintFinding> {
   return lintSurvey(json, options).findings.filter(f => f.ruleId === "reference/unknown");
@@ -412,6 +413,42 @@ describe("reference/unknown - other reference sites", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].path).toBe("elements[1].choicesByUrl.url");
     expect(findings[0].suggestion).toBe("country");
+  });
+  // the url is scanned with TextPreProcessor, the same scanner the runtime uses, so the
+  // delimiters an application customizes apply here too
+  test("choicesByUrl refs are found through custom expression delimiters", () => {
+    withSettings({ expressionVariableDelimiters: { start: "[[", end: "]]" } }, () => {
+      const findings = unknownRefs({
+        elements: [
+          { type: "text", name: "country" },
+          {
+            type: "dropdown", name: "city",
+            choicesByUrl: { url: "https://api.example.com/[[countryy]]/cities" },
+          },
+        ],
+      });
+      expect(findings).toHaveLength(1);
+      expect(findings[0].path).toBe("elements[1].choicesByUrl.url");
+      expect(findings[0].suggestion).toBe("country");
+    });
+  });
+  test("several url refs are reported in document order", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "dropdown", name: "city",
+        choicesByUrl: { url: "https://api.example.com/{aaa}/{bbb}" },
+      }],
+    });
+    expect(findings).toHaveLength(2);
+    expect(findings.map(f => f.messageData.name)).toEqual(["aaa", "bbb"]);
+  });
+  test("a url placeholder with a colon is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "dropdown", name: "city",
+        choicesByUrl: { url: "https://api.example.com/cities?f={\"a\": 1}" },
+      }],
+    })).toHaveLength(0);
   });
   test("bindings are validated", () => {
     const findings = unknownRefs({

@@ -13,7 +13,9 @@ import { describe, test, expect } from "vitest";
 // What is restricted is building a model: issue #11693 requires that the analysis
 // "does not construct or run a survey model" - the serializer normalizes the linted
 // JSON (dropping unknown properties, replacing an unknown type), i.e. it swallows the
-// very defects the linter looks for.
+// very defects the linter looks for. The core's stateless utilities are NOT models and
+// are meant to be reused: ConditionsParser, ValueGetter and TextPreProcessor own the
+// parsing rules the linter would otherwise reimplement, so instantiating them is fine.
 const FORBIDDEN_CONSTRUCTIONS = [
   "SurveyModel", "PageModel", "PanelModel", "Question", "ItemValue", "Trigger", "Serializer",
 ];

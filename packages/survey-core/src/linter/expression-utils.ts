@@ -61,6 +61,10 @@ function getStaticPanelAncestor(owner: ElementRecord): ElementRecord | undefined
   return undefined;
 }
 
+// Names, not values: element names and scope prefixes are matched case-insensitively by
+// the runtime resolver no matter what settings.comparator says, so this must NOT become
+// Helpers.isTwoValueEquals - that one honours caseSensitive/trimStrings and converts
+// numbers, which is right for comparing question VALUES and wrong for names.
 export function equalsCI(a: string, b: string): boolean {
   return !!a && !!b && a.toLowerCase() === b.toLowerCase();
 }

@@ -1,4 +1,4 @@
-import { SELECTBASE_TYPES } from "./catalog";
+import { isSelectBase } from "./metadata";
 import { ChoicesInfo, ValueTypeInfo, ScalarType } from "./symbols";
 import { ILintResolvedSettings } from "./lint-settings";
 
@@ -37,9 +37,9 @@ function inferScalarFromValues(values: Array<any>): ScalarType {
 }
 
 export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined {
-  const isSelectBase = SELECTBASE_TYPES.has(type);
+  const isSelect = isSelectBase(type);
   const isColumnLike = type === "matrixdropdowncolumn";
-  if (!isSelectBase && !isColumnLike) return undefined;
+  if (!isSelect && !isColumnLike) return undefined;
   return {
     staticValues: getStaticChoiceValues(json.choices),
     hasChoicesByUrl: !!json.choicesByUrl && !!json.choicesByUrl.url,

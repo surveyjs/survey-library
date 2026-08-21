@@ -1,4 +1,4 @@
-import { settings } from "survey-core";
+import { Helpers, settings } from "survey-core";
 
 export interface ILintResolvedSettings {
   expressionVariables: typeof settings.expressionVariables;
@@ -10,22 +10,17 @@ export interface ILintResolvedSettings {
   commentSuffix: string;
   matrixTotalsSuffix: string;
   matrixDefaultCellType: string;
-}
-
-// A shallow copy, so the whole resolved object stays a snapshot: the nested
-// settings.expressionVariables would otherwise stay live and change mid-run.
-function copyExpressionVariables(): typeof settings.expressionVariables {
-  const res: any = {};
-  const base: any = settings.expressionVariables;
-  Object.keys(base).forEach(key => res[key] = base[key]);
-  return res;
+  comparatorCaseSensitive: boolean;
 }
 
 // Snapshot taken once per lint run. The linter shares the application's module
 // closure, so this reads the very settings object the app customizes.
+// expressionVariables is copied (Helpers.createCopy - a shallow copy, the same one
+// the core uses), so the whole resolved object stays a snapshot: the nested object
+// would otherwise stay live and change mid-run.
 export function resolveLintSettings(): ILintResolvedSettings {
   return {
-    expressionVariables: copyExpressionVariables(),
+    expressionVariables: Helpers.createCopy(settings.expressionVariables),
     expressionElementPropertyPrefix: settings.expressionElementPropertyPrefix,
     expressionDisableConversionChar: settings.expressionDisableConversionChar,
     noneItemValue: settings.noneItemValue,
@@ -34,5 +29,6 @@ export function resolveLintSettings(): ILintResolvedSettings {
     commentSuffix: settings.commentSuffix,
     matrixTotalsSuffix: settings.matrix.totalsSuffix,
     matrixDefaultCellType: settings.matrix.defaultCellType,
+    comparatorCaseSensitive: settings.comparator.caseSensitive,
   };
 }

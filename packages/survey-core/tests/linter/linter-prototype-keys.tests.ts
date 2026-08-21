@@ -76,6 +76,29 @@ describe("linter prototype-key safety", () => {
     });
     expect(res.findings.filter(f => f.ruleId === "cycle/trigger")).toHaveLength(0);
   });
+  test("prototype-key element types resolve to unknown, not to a serializer class", () => {
+    // Serializer.classes is a plain object literal, so findClass("__proto__") hands
+    // back Object.prototype: the metadata lookups must not treat it as a class
+    ["__proto__", "hasOwnProperty", "toString"].forEach(type => {
+      const res = lintSurvey({ elements: [{ type: type, name: "q1", visibleIf: "{nope} = 1" }] });
+      const unknown = res.findings.filter(f => f.ruleId === "element/unknown-type");
+      expect(unknown, "type " + type).toHaveLength(1);
+      // the base question conditions are still analyzed on an unknown type
+      expect(res.findings.filter(f => f.ruleId === "reference/unknown"), "type " + type).toHaveLength(1);
+    });
+  });
+  test("prototype-key trigger types and cell types lint without crashing", () => {
+    ["__proto__", "hasOwnProperty", "constructor"].forEach(type => {
+      const res = lintSurvey({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "m1", columns: [{ name: "c1", cellType: type }] },
+        ],
+        triggers: [{ type: type, expression: "{q1} = 1" }],
+      });
+      expect(res.findings.filter(f => f.ruleId === "trigger/unknown-type"), "type " + type).toHaveLength(1);
+    });
+  });
   test("findCycles visits a node named 'constructor'", () => {
     const cycles = findCycles(["constructor", "x"],
       node => node.toLowerCase() === "constructor" ? ["x"] : ["constructor"]);

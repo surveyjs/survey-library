@@ -1,15 +1,13 @@
 import { ILintRule, LintContext } from "../rule";
-import { TRIGGER_TYPES } from "../catalog";
 import { closestMatch } from "../levenshtein";
 
 export const triggerUnknownTypeRule: ILintRule = {
   id: "trigger/unknown-type",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    const knownTypes: Array<string> = [];
-    TRIGGER_TYPES.forEach((def, name) => knownTypes.push(name));
+    const knownTypes = ctx.metadata.getTriggerTypes();
     ctx.index.triggers.forEach(trigger => {
-      if (TRIGGER_TYPES.has(trigger.type)) return;
+      if (!!ctx.metadata.getTriggerDef(trigger.type)) return;
       const suggestion = trigger.type ? closestMatch(trigger.type, knownTypes) : undefined;
       let message = trigger.type
         ? "The trigger type \"" + trigger.type + "\" is not known."

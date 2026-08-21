@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { buildIndex } from "../../src/linter/walker";
+import { LintMetadata } from "../../src/linter/metadata";
 import { splitRefSegments } from "../../src/linter/expression-utils";
 import { lintSurvey } from "../../src/linter/index";
 
@@ -7,13 +8,13 @@ describe("walker paths and normalization", () => {
   test("paths mirror the pages form", () => {
     const index = buildIndex({
       pages: [{ name: "p1", elements: [{ type: "text", name: "q1", visibleIf: "{x} = 1" }] }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.expressionSites[0].path).toBe("pages[0].elements[0].visibleIf");
   });
   test("paths mirror the legacy questions alias", () => {
     const index = buildIndex({
       questions: [{ type: "text", name: "q1", visibleIf: "{x} = 1" }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.expressionSites[0].path).toBe("questions[0].visibleIf");
   });
   test("questions alias works on pages, panels, and templates", () => {
@@ -27,7 +28,7 @@ describe("walker paths and normalization", () => {
           }],
         }],
       }],
-    }, {});
+    }, {}, new LintMetadata());
     const names = index.allElements.map(el => el.name);
     expect(names).toContain("pn");
     expect(names).toContain("pd");
@@ -41,7 +42,7 @@ describe("walker paths and normalization", () => {
         type: "paneldynamic", name: "pd",
         templateElements: [{ type: "text", name: "inner" }],
       }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.byName.has("pd")).toBeTruthy();
     expect(index.byName.has("inner")).toBeFalsy();
     const pd = index.allElements.filter(el => el.name === "pd")[0];
@@ -53,27 +54,27 @@ describe("walker paths and normalization", () => {
         type: "radiogroup", name: "q1",
         choices: [1, "two", { value: "three", text: "Three" }],
       }],
-    }, {});
+    }, {}, new LintMetadata());
     const record = index.allElements[0];
     expect(record.choicesInfo.staticValues).toEqual([1, "two", "three"]);
   });
   test("legacy trigger synthesis matches the runtime form", () => {
     const index = buildIndex({
       triggers: [{ type: "complete", name: "q1", operator: "equal", value: 3 }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.triggers[0].expressionSite.text).toBe("{q1} equal 3");
     expect(index.triggers[0].expressionSite.synthesized).toBe(true);
   });
   test("legacy trigger with a string value quotes it", () => {
     const index = buildIndex({
       triggers: [{ type: "complete", name: "q1", value: "yes" }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.triggers[0].expressionSite.text).toBe("{q1} equal 'yes'");
   });
   test("legacy trigger without a required value produces no site", () => {
     const index = buildIndex({
       triggers: [{ type: "complete", name: "q1", operator: "equal" }],
-    }, {});
+    }, {}, new LintMetadata());
     expect(index.triggers[0].expressionSite).toBeUndefined();
   });
   test("cyclic JSON objects do not hang the walker", () => {
@@ -91,7 +92,7 @@ describe("walker paths and normalization", () => {
           columns: [{ name: "col1", visibleIf: "{row.col1} > 0" }],
         }],
       }],
-    }, {});
+    }, {}, new LintMetadata());
     const site = index.expressionSites.filter(s => s.prop === "visibleIf")[0];
     expect(site.scope.map(f => f.kind)).toEqual(["panelDynamic", "matrixRow"]);
   });
@@ -104,7 +105,7 @@ describe("walker paths and normalization", () => {
           validators: [{ type: "expression", expression: "{mt.item1} > 0" }],
         }],
       }],
-    }, {});
+    }, {}, new LintMetadata());
     const mt = index.allElements.filter(el => el.name === "mt")[0];
     expect(mt.multipleTextItems.has("item1")).toBeTruthy();
     expect(index.expressionSites).toHaveLength(1);

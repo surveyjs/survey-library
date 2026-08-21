@@ -1,4 +1,4 @@
-import { Variable } from "survey-core";
+import { Helpers, Variable } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";
@@ -34,18 +34,35 @@ function getAllowedValues(record: ElementRecord, lintSettings: ILintResolvedSett
   return res;
 }
 
-function looseEquals(a: any, b: any): boolean {
-  return String(a).toLowerCase() === String(b).toLowerCase();
+// The runtime "equal" operator compares through OperandMaker.isTwoValueEquals, which
+// normalizes the string "undefined" and then delegates to Helpers.isTwoValueEquals with
+// ignoreOrder. Helpers is public, so this IS that comparison rather than an approximation
+// of it: settings.comparator (caseSensitive, trimStrings, normalizeTextCallback) and the
+// numeric conversion apply exactly as they do at runtime.
+function runtimeEquals(a: any, b: any): boolean {
+  if (a === "undefined") a = undefined;
+  if (b === "undefined") b = undefined;
+  return Helpers.isTwoValueEquals(a, b, true);
 }
 
-function looseContains(haystack: any, needle: any): boolean {
-  return String(haystack).toLowerCase().indexOf(String(needle).toLowerCase()) > -1;
+// Mirrors OperandMaker.binaryFunctions.containsCore for a scalar left side: the value is
+// stringified and matched as a substring, case-folded only when settings.comparator
+// .caseSensitive is off. OperandMaker is not part of the public API, so this stays a copy.
+function runtimeContains(haystack: any, needle: any, caseSensitive: boolean): boolean {
+  let left = String(haystack);
+  let right = String(needle);
+  if (!caseSensitive) {
+    left = left.toLowerCase();
+    right = right.toLowerCase();
+  }
+  return left.indexOf(right) > -1;
 }
 
 export const expressionUnknownChoiceRule: ILintRule = {
   id: "expression/unknown-choice",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
+    const caseSensitive = ctx.index.settings.comparatorCaseSensitive;
     ctx.index.expressionSites.forEach(site => {
       if (site.kind !== "condition" || !site.ast) return;
       // Map, not an object literal: keys are raw variable names from user expressions
@@ -73,7 +90,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
         // true for the choice "apricot". Whole-value membership applies to arrays.
         const useSubstring = (match.operator === "contains" || match.operator === "notcontains") &&
           record.valueType.shape !== "array";
-        const matches = useSubstring ? looseContains : looseEquals;
+        const matches = useSubstring
+          ? (choice: any, value: any) => runtimeContains(choice, value, caseSensitive)
+          : runtimeEquals;
         const allowed = getAllowedValues(record, ctx.index.settings);
         const missing = constValues.filter(value =>
           value !== null && value !== undefined && value !== "" && typeof value !== "boolean" &&

@@ -242,6 +242,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     return super.hasUnknownValueItem(this.getPropertyNameArray([val]).getValue(0), includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected hasUnknownValueItemInChoices(val: any, isFilteredChoices: boolean): boolean {
+    return super.hasUnknownValueItemInChoices(this.getPropertyNameArray([val]).getValue(0), isFilteredChoices);
+  }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
     newValue = this.getTrimmedComment(newValue);
     if (this.isOtherItemByValue(item)) {

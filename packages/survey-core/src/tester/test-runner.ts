@@ -26,6 +26,26 @@ const TEST_PATH_PREFIX = "tests[";
 // one, so its issues are pathed from "test" instead of from "tests[i]".
 const SINGLE_TEST_PATH = "test";
 
+// Everything a suite run decides before it announces anything: whether it can run at all, what the
+// structural validation found and which suite entries this run holds. It is resolved first because
+// runStarted describes the run that is about to happen, and a host must not have to execute the
+// selection filter a second time to learn it.
+interface ISurveyTestRunPlan {
+  definition: any;
+  // The original suite indexes this run holds, in suite order. Empty when nothing can run.
+  testIndexes: Array<number>;
+  // Everything the validator found, test-level issues included.
+  issues: Array<ISurveyTestIssue>;
+  // What the validator found outside a test: the shape of the suite itself.
+  suiteIssues: Array<ISurveyTestIssue>;
+  // The suite cannot run at all: no definition, or a structural error in the suite object. Filtering
+  // never repairs this - a malformed root shape is not made runnable by leaving out the node that
+  // demonstrates it.
+  blockingIssue?: ISurveyTestIssue;
+  // The selection filter threw. Nothing is selected and nothing runs after it.
+  filterIssue?: ISurveyTestIssue;
+}
+
 export class SurveyTestRunner {
   private validator: SurveyTestValidator = new SurveyTestValidator();
   // surveyJson is the survey definition and nothing else. The runner creates the model every test runs
@@ -79,9 +99,16 @@ export class SurveyTestRunner {
       result.status = "canceled";
       return result;
     }
+    // Resolved before the first event: runStarted says how many results this run is going to produce
+    // and which suite entries they belong to, and neither can be known without the selection.
+    const plan = this.createRunPlan(execution);
     try {
-      await execution.emit({ type: "runStarted", tests: suite });
-      await this.runSuite(result, execution);
+      await execution.emit({
+        type: "runStarted", tests: suite,
+        plannedTestCount: plan.testIndexes.length,
+        plannedTestIndexes: plan.testIndexes.slice(),
+      });
+      await this.runSuite(result, plan, execution);
     } catch(e) {
       // Only an observer can throw here: everything else is reported as an issue where it happened.
       if (!execution.isCancellation(e)) {
@@ -100,32 +127,67 @@ export class SurveyTestRunner {
     }
     return result;
   }
-  private async runSuite(result: ISurveyTestsResult, execution: SurveyTestExecution): Promise<void> {
+  // The structural validation of the whole suite always runs, whatever this run holds: a malformed
+  // suite is malformed for every subset of it. The selection decides which entries are executed and
+  // nothing else, and it is never applied by rewriting the suite the caller handed in.
+  private createRunPlan(execution: SurveyTestExecution): ISurveyTestRunPlan {
     const suite: any = this.tests;
-    const definition = this.getDefinition();
-    if (!definition) {
-      const issue = this.createDefinitionIssue();
-      result.issues.push(issue);
-      await this.announceIssues([issue], undefined, execution);
-      return;
+    const plan: ISurveyTestRunPlan = {
+      definition: this.getDefinition(), testIndexes: [], issues: [], suiteIssues: [],
+    };
+    if (!plan.definition) {
+      plan.blockingIssue = this.createDefinitionIssue();
+      return plan;
     }
-    const issues = this.validator.validate(suite);
-    const suiteIssues = issues.filter(issue => !this.getTestIndex(issue.path));
-    if (suiteIssues.some(issue => issue.severity === "error")) {
+    plan.issues = this.validator.validate(suite);
+    plan.suiteIssues = plan.issues.filter(issue => !this.getTestIndex(issue.path));
+    const broken = plan.suiteIssues.filter(issue => issue.severity === "error");
+    if (broken.length > 0) {
+      plan.blockingIssue = broken[0];
+      return plan;
+    }
+    const tests = suite.tests;
+    try {
+      for (let i = 0; i < tests.length; i++) {
+        if (execution.isTestSelected(tests[i], i)) plan.testIndexes.push(i);
+      }
+    } catch(e) {
+      // A filter that throws is a bug in the host, not a broken case: it is reported once, where the
+      // suite reports its own failures, and the selection stops there. Nothing runs on a selection
+      // that is only half decided.
+      plan.testIndexes = [];
+      plan.filterIssue = this.toFilterIssue(e);
+    }
+    return plan;
+  }
+  private async runSuite(result: ISurveyTestsResult, plan: ISurveyTestRunPlan,
+    execution: SurveyTestExecution): Promise<void> {
+    if (!!plan.blockingIssue) {
       // The suite is broken and no test runs, so what the validator found inside the tests is reported
-      // at the suite level: it is the only place left that can carry it.
+      // at the suite level: it is the only place left that can carry it. A missing definition has
+      // nothing else to report.
+      const issues = plan.issues.length > 0 ? plan.issues : [plan.blockingIssue];
       result.issues = issues;
       await this.announceIssues(issues, undefined, execution);
       return;
     }
-    result.issues = suiteIssues;
-    await this.announceIssues(suiteIssues, undefined, execution);
-    const tests = suite.tests;
-    for (let i = 0; i < tests.length; i++) {
+    result.issues = plan.suiteIssues.slice();
+    await this.announceIssues(plan.suiteIssues, undefined, execution);
+    if (!!plan.filterIssue) {
+      result.issues.push(plan.filterIssue);
+      await this.announceIssues([plan.filterIssue], undefined, execution);
+      return;
+    }
+    const tests: Array<ISurveyTest> = this.tests.tests;
+    for (let i = 0; i < plan.testIndexes.length; i++) {
       // Before each test: a test the run never reached produces no result and no event pair.
       execution.throwIfCanceled();
-      const testIssues = issues.filter(issue => this.getTestIndex(issue.path) === TEST_PATH_PREFIX + i + "]");
-      result.tests.push(await this.runTestCore(tests[i], i, definition, testIssues, execution));
+      const testIndex = plan.testIndexes[i];
+      // Only what belongs to a selected test is published: a test outside this run reports nothing,
+      // not even what the validator found in it. The index is the original one, so an issue path, an
+      // event and the suite document keep addressing the same node.
+      const testIssues = plan.issues.filter(issue => this.getTestIndex(issue.path) === TEST_PATH_PREFIX + testIndex + "]");
+      result.tests.push(await this.runTestCore(tests[testIndex], testIndex, plan.definition, testIssues, execution));
     }
   }
   private async runTestCore(test: ISurveyTest, testIndex: number, definition: any,
@@ -602,6 +664,18 @@ export class SurveyTestRunner {
       severity: "error",
       code: SurveyTestIssueCodes.unexpectedError,
       message: "The survey threw an unexpected error: " + message,
+    };
+  }
+  // What the host threw while it was deciding which tests to run. It is not a fault of any case, so it
+  // belongs to no test: the suite carries it, like every other failure that happens outside one.
+  private toFilterIssue(error: any): ISurveyTestIssue {
+    if (error instanceof SurveyTestCaseError) return error.issue;
+    const message = !!error && !!error.message ? error.message : String(error);
+    return {
+      severity: "error",
+      code: SurveyTestIssueCodes.unexpectedError,
+      message: "The function that selects the tests of this run failed: " + message,
+      data: { error: message },
     };
   }
   private getTestIndex(path: string): string {

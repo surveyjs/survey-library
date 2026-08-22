@@ -66,6 +66,7 @@ export type {
   ISurveyTestExecutionOptions,
   ISurveyTestModelFactoryContext,
   SurveyTestModelFactory,
+  SurveyTestFilter,
   SurveyTestExecutionObserver,
   SurveyTestExecutionEvent,
   SurveyTestExecutionEventType,

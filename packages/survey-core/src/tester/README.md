@@ -464,7 +464,7 @@ between two actions. The tester itself never waits, never sleeps and knows nothi
 
 | Event | When | Carries |
 |---|---|---|
-| `runStarted` | a suite run begins | `tests` |
+| `runStarted` | a suite run begins | `tests`, `plannedTestCount`, `plannedTestIndexes` |
 | `testStarted` | before a test, skipped and broken ones included | `testIndex`, `test` |
 | `surveyCreated` | after step 4 above, before the start state | `testIndex`, `test`, `survey` |
 | `stepStarted` | before a step | `testIndex`, `stepIndex`, `step` |
@@ -499,11 +499,92 @@ Every event carries what applies to it and nothing else.
 * A callback that throws or rejects is reported exactly like a handler that fails at the same point:
   as an `unexpectedError` issue of the step, the test or the suite. The run never rejects, and nothing
   the tester installed — the model subscriptions, the diagnostics — is left behind. There is nothing
-  global to undo: the clock lives on the model, and the model dies with the test.
+  global to undo: the clock lives on the model, and the tester releases the model at the end of the
+  test that ran on it.
 
 `run()` and `runTest()` still resolve to their existing result types: the events are progress, the
 resolved result is the canonical one, and a run watched by a host produces the same result as the same
 run without one.
+
+### The lifecycle guarantees
+
+The order below is the contract. A host may build its whole presentation on it, and nothing in the
+tester is allowed to reorder it.
+
+* **Teardown precedes `testCompleted`.** Everything the tester installed on the model of a test — the
+  subscriptions it uses to observe it and the diagnostics that explain what the survey did — is removed
+  before the `testCompleted` of that test is emitted, whether the test ended on its own, on a failing
+  handler, on a failing callback or on cancellation.
+* **The model is released, not destroyed.** After teardown the tester no longer drives that model and
+  no longer hears from it: what a host does with it afterwards reaches nothing and adds no issue. A host
+  that kept the model — from `surveyCreated`, to keep rendering the last test — keeps a perfectly usable
+  `SurveyModel`, pinned to the clock the test ran with.
+* **Every test that started is completed.** A selected test that emitted `testStarted` emits
+  `testCompleted`, cancellation included. A test the run never entered emits neither.
+* **`runCompleted` is the last observer callback of a suite run.** There is no terminal event after it,
+  and none is planned: a host finishes its presentation there.
+* **The promise settles last.** `run()` resolves after `runCompleted` has been awaited and after every
+  model the run created has been released. `runTest()` has no run-level events at all, and its promise
+  settles after the teardown of its one test.
+
+### Running a part of a suite
+
+`testFilter` selects the suite entries a run holds. It is **execution infrastructure**: the suite is not
+copied, not re-indexed and not re-flagged, and a test left out is *absent from the run* rather than
+reported as one the author disabled.
+
+```ts
+// One test, addressed by its index in the suite.
+await runSurveyTests(surveyJson, tests, undefined, {
+  testFilter: (test, testIndex) => testIndex === 3
+});
+
+// An arbitrary selected set, from an editor that tracks the nodes the user ticked.
+const selected = new Set([0, 2, 5]);
+await runSurveyTests(surveyJson, tests, undefined, {
+  testFilter: (test, testIndex) => selected.has(testIndex)
+});
+```
+
+* The filter is called **once per suite entry, in suite order**, with the original test object and its
+  original index, before anything is announced. Passing none runs every entry, exactly as before.
+* An unselected test produces **no result, no events and no issues**, and it is counted nowhere in the
+  summary. `summary.total` counts the results that were produced, so a filtered run reports one test
+  rather than one test plus a row of skipped ones.
+* A **selected** test that the author disabled is still `"skipped"`, and a selected test that is
+  structurally broken is still `"error"`: the filter says what runs, never what a test means.
+* Selected tests keep their **original suite index** — in `testIndex` on every event and in the
+  `tests[i]…` path of every issue — so an event still addresses the right node of the suite document.
+* Nothing is mutated: not the suite, not a test, not the options and not the starts.
+* **The index is the identity.** Test names are only warned about when they repeat, so they are not an
+  identity, and the filter is handed an index precisely so that a host can select unambiguously.
+
+Structural validation is unchanged: the whole suite is validated before the run, because a malformed
+suite is malformed for every subset of it and filtering out the entry that demonstrates a broken root
+shape does not make the rest runnable. What the validator found *inside* a test is published only if
+that test is in the run.
+
+`runStarted` describes the planned run, so a UI never has to execute the filter a second time or infer
+what the runner selected:
+
+```ts
+onEvent: event => {
+  if (event.type === "runStarted") {
+    progress.reset(event.plannedTestCount);        // how many results this run will produce
+    event.plannedTestIndexes.forEach(highlight);   // which suite entries they belong to
+  }
+}
+```
+
+`plannedTestCount` is `plannedTestIndexes.length`. A selected test that is disabled or broken is counted
+— it still produces a result. `summary.total` may end up *lower*: a stopped run holds fewer results than
+it planned.
+
+A filter that throws is a bug in the host, not a broken case. It is reported once, as a suite-level
+`unexpectedError`, the selection stops there, no test runs, `runCompleted` is emitted as always and
+`run()` resolves with an `"error"` result. It never rejects and never leaves a subscription behind.
+
+`runTest()` selects one test by definition and never consults `testFilter`.
 
 ### Delaying execution
 

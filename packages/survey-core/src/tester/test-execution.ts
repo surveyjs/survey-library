@@ -28,6 +28,11 @@ export interface ISurveyTestModelFactoryContext {
 export type SurveyTestModelFactory =
   (surveyJson: any, context: ISurveyTestModelFactoryContext) => SurveyModel | Promise<SurveyModel>;
 
+// Which entries of the suite this run holds. It is execution infrastructure and not part of the case:
+// a suite is not rewritten, copied or re-flagged to run a part of it, and what the filter leaves out is
+// not "disabled by the author" - it is simply not in this run.
+export type SurveyTestFilter = (test: ISurveyTest, testIndex: number) => boolean;
+
 export type SurveyTestExecutionEventType =
   "runStarted" | "runCompleted" | "surveyCreated" | "testStarted" | "testCompleted" |
   "stepStarted" | "stepCompleted" | "targetStarted" | "targetCompleted" | "checkCompleted" | "issueAdded";
@@ -38,6 +43,14 @@ export type SurveyTestExecutionEventType =
 export interface ISurveyTestRunStartedEvent {
   type: "runStarted";
   tests: ISurveyTests;
+  // What this run is going to do, so that a host initialises its progress from the event instead of
+  // running the filter a second time or guessing what the runner selected. Both describe the same set:
+  // plannedTestCount is plannedTestIndexes.length, and the indexes are the original suite indexes, in
+  // suite order. A selected test that is disabled or structurally broken is counted - it still produces
+  // a result. A test the filter rejected is not, and a suite that cannot run at all plans nothing.
+  // summary.total may end up lower than this: a stopped run holds fewer results than it planned.
+  plannedTestCount: number;
+  plannedTestIndexes: Array<number>;
 }
 export interface ISurveyTestRunCompletedEvent {
   type: "runCompleted";
@@ -115,6 +128,12 @@ export type SurveyTestExecutionObserver = (event: SurveyTestExecutionEvent) => v
 
 export interface ISurveyTestExecutionOptions {
   createSurvey?: SurveyTestModelFactory;
+  // Selects the suite entries this run holds. It is called once per entry, in suite order, with the
+  // original test object and its original index, before anything is announced. Omitted, every entry
+  // runs. A test it leaves out produces no result, no events and no issues, and it is counted nowhere
+  // in the summary. The index is what a host selects by: test names are not required to be unique, so
+  // they are not an identity. runTest() selects one test by definition and never consults it.
+  testFilter?: SurveyTestFilter;
   onEvent?: SurveyTestExecutionObserver;
   // Stops the run at the next safe boundary. The tester cannot terminate a promise it is waiting for,
   // so what is already running finishes; nothing after it starts.
@@ -156,6 +175,7 @@ export class SurveyTestExecution {
   private observer: SurveyTestExecutionObserver;
   private factory: SurveyTestModelFactory;
   private abortSignal: AbortSignal;
+  private testFilter: SurveyTestFilter;
   private pending: Array<ISurveyTestPendingNotification> = [];
   // Weak on purpose: the models are held only to tell a reused one from a new one, and a suite of a
   // thousand tests must not keep a thousand surveys, their data and their handlers alive for it.
@@ -164,6 +184,18 @@ export class SurveyTestExecution {
     this.observer = !!options ? options.onEvent : undefined;
     this.factory = !!options && !!options.createSurvey ? options.createSurvey : createDefaultSurvey;
     this.abortSignal = !!options ? options.signal : undefined;
+    this.testFilter = !!options ? options.testFilter : undefined;
+  }
+  public get hasTestFilter(): boolean {
+    return !!this.testFilter;
+  }
+  // The test object and the index are the ones the suite holds: the filter is host code, and it is
+  // never handed a copy it could believe it is allowed to change. What it throws travels out of here
+  // untouched - the runner reports it once, at the suite level. The result is read as a boolean:
+  // anything falsy leaves the test out of this run.
+  public isTestSelected(test: ISurveyTest, testIndex: number): boolean {
+    if (!this.testFilter) return true;
+    return !!this.testFilter(test, testIndex);
   }
   public get isObserved(): boolean {
     return !!this.observer;

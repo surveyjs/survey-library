@@ -1,6 +1,6 @@
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { buildTriggerSetStep, classifyTargetName, equalsCI } from "../expression-utils";
+import { buildTriggerSetStep, builtInVariableNames, classifyTargetName, equalsCI } from "../expression-utils";
 import { ParsedRef, TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
 
@@ -16,6 +16,7 @@ function candidates(ctx: LintContext, kind: "questionvalue" | "question" | "page
     ctx.index.byValueName.forEach((records, name) => res.push(name));
     ctx.index.calculatedValues.forEach((record, name) => res.push(name));
     if (Array.isArray(ctx.options.knownVariables)) res.push(...ctx.options.knownVariables);
+    res.push(...builtInVariableNames());
   }
   return res;
 }
@@ -60,7 +61,7 @@ function isAcceptedTarget(ref: ParsedRef, kind: "questionvalue" | "question" | "
       equalsCI(record.name, ref.segments[0].name);
   }
   if (ref.resolvedKind === "calculatedValue" || ref.resolvedKind === "knownVariable" ||
-    ref.resolvedKind === "comment") return true;
+    ref.resolvedKind === "builtInVariable" || ref.resolvedKind === "comment") return true;
   return ref.resolvedKind === "element" && !!record && record.kind === "question";
 }
 

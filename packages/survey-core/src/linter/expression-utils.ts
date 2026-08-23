@@ -1,4 +1,4 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, Operand, ValueGetter, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, Operand, ValueGetter, Variable } from "survey-core";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
@@ -88,12 +88,24 @@ export function isKnownVariable(name: string, options: ISurveyLintOptions): bool
   return vars.some(v => equalsCI(v, name));
 }
 
+// {pageno}, {locale} and the quiz counters: the survey answers these itself, so they
+// carry no declaration in the JSON and must not be reported as unknown. The names come
+// from the core's own table (SurveyModel's value getter), so the list cannot drift.
+export function builtInVariableNames(): Array<string> {
+  return getBuiltInVariableNames();
+}
+
+export function isBuiltInVariable(name: string): boolean {
+  return !!name && builtInVariableNames().some(v => equalsCI(v, name));
+}
+
 function rootCandidates(index: SurveyIndex, options: ISurveyLintOptions): Array<string> {
   const res: Array<string> = [];
   index.byName.forEach((values, name) => res.push(name));
   index.byValueName.forEach((values, name) => res.push(name));
   index.calculatedValues.forEach((value, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
+  res.push(...builtInVariableNames());
   return res;
 }
 
@@ -408,6 +420,16 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   if (isKnownVariable(root, options)) {
     ref.status = "resolved";
     ref.resolvedKind = "knownVariable";
+    return ref;
+  }
+  // A one-segment path only: the runtime answers a built-in for a single name, so
+  // {pageno.x} is not one of them. Checked after the element/calculated-value lookup,
+  // not before it: the runtime does let a built-in shadow a question of the same name,
+  // but a trigger target with that name still addresses the question, and reading such
+  // a reference as the question keeps the type rules working on it.
+  if (ref.segments.length === 1 && isBuiltInVariable(root)) {
+    ref.status = "resolved";
+    ref.resolvedKind = "builtInVariable";
     return ref;
   }
   if (tryResolveMatrixTotal(ref, root, index)) return ref;

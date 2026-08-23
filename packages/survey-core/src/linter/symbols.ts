@@ -140,7 +140,8 @@ export interface ParsedRefSegment {
 
 export type RefStatus = "resolved" | "unknown" | "skipped" | "scoped-resolved" | "scoped-unknown";
 
-export type ResolvedRefKind = "element" | "calculatedValue" | "page" | "knownVariable" | "scope" | "comment";
+export type ResolvedRefKind = "element" | "calculatedValue" | "page" | "knownVariable" |
+  "builtInVariable" | "scope" | "comment";
 
 export interface ParsedRef {
   raw: string;

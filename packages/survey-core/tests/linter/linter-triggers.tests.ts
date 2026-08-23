@@ -17,6 +17,20 @@ describe("trigger/unknown-target", () => {
     expect(findings[0].suggestion).toBe("q1");
     expect(findings[0].reproduction.steps[0]).toEqual({ set: { q1: 1 } });
   });
+  test("built-in variables are accepted as a value target", () => {
+    expect(byRule({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "copyvalue", expression: "{q1} notempty", fromName: "pageno", setToName: "q1" }],
+    })).toHaveLength(0);
+  });
+  test("a built-in variable is not a navigable question", () => {
+    const findings = byRule({
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "skip", expression: "{q1} notempty", gotoName: "pageno" }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.kind).toBe("question");
+  });
   test("knownVariables silences setToName", () => {
     expect(byRule({
       elements: [{ type: "text", name: "q1" }],

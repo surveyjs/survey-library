@@ -4,6 +4,7 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { lintSurvey } from "../../src/linter/index";
+import { getBuiltInVariableNames } from "../../src/survey";
 
 // A finding at "error" severity claims the survey cannot work. These tests build a
 // live SurveyModel on purpose - it is the only way to pin the linter against real
@@ -211,5 +212,42 @@ describe("linter vs runtime: configurations that really are dead", () => {
       ],
     };
     expect(errors(json)).toEqual(["reference/unknown @ elements[1].visibleIf"]);
+  });
+});
+
+// The linter reads these names from the core's own table, so the two cannot drift
+// apart. What still needs pinning is the table itself: every name in it must really be
+// answered by a live survey, and a name outside it must not be.
+describe("built-in variables: the core table vs the linter", () => {
+  const json = {
+    elements: [
+      { type: "text", name: "q1", correctAnswer: "a" },
+      { type: "text", name: "q2" },
+    ],
+  };
+  getBuiltInVariableNames().forEach(name => {
+    test("{" + name + "} is answered by the survey and accepted by the linter", () => {
+      const survey = new SurveyModel(json);
+      expect(survey.runExpression("{" + name + "}")).not.toBe(null);
+      expect(errors({
+        elements: [{ type: "text", name: "q1", visibleIf: "{" + name + "} notempty" }],
+      })).toEqual([]);
+    });
+  });
+
+  test("a name outside the table is answered by nothing", () => {
+    const survey = new SurveyModel(json);
+    expect(survey.runExpression("{nosuchvariable}")).toBe(null);
+    expect(errors({
+      elements: [{ type: "text", name: "q1", visibleIf: "{nosuchvariable} notempty" }],
+    })).toEqual(["reference/unknown @ elements[0].visibleIf"]);
+  });
+
+  test("a built-in has no sub-path", () => {
+    const survey = new SurveyModel(json);
+    expect(survey.runExpression("{pageno.title}")).toBe(null);
+    expect(errors({
+      elements: [{ type: "text", name: "q1", visibleIf: "{pageno.title} notempty" }],
+    })).toEqual(["reference/unknown @ elements[0].visibleIf"]);
   });
 });

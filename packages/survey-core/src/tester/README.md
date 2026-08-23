@@ -12,7 +12,7 @@ const result = await runSurveyTests(surveyJson, tests, options);
 
 The first argument is the survey JSON: the harness creates the `SurveyModel` every test runs on. A
 host that needs to configure that model, or to watch and pace the run step by step, passes an
-execution contract as the fourth argument — see §6.
+execution contract as the fourth argument — see §7.
 
 It is a separate entry point. An application that only renders a survey never loads any of it, and
 nothing in `survey-core` itself imports from `src/tester/`.
@@ -75,7 +75,7 @@ A name that resolves to nothing ends the case with the `unknownTarget` error and
 near miss, the name it probably meant.
 
 The grammar runs backwards as well: `SurveyTestTargets.nameOf(survey, object)` returns the name that
-addresses a live model object — see §7.
+addresses a live model object — see §8.
 
 ### An empty test
 
@@ -176,7 +176,9 @@ Element checks:
 | `hasErrors` | question, panel, page | a boolean |
 | `comment` | question | a string |
 | `choices` | a question with choices | an array of choice values |
+| `choiceTexts` | a question with choices | the visible choice texts, **in order** |
 | `title` | question, panel, page | a string, with the locale and the text piping resolved |
+| `description` | question, panel, page | a string, with the locale and the text piping resolved |
 | `page` | question, panel | a page name |
 | `rowCount` | dynamic matrix | a number |
 | `panelCount` | dynamic panel | a number |
@@ -197,6 +199,25 @@ Survey checks:
 The three error checks exist separately because one payload type means one thing: `errors` is the
 texts, `errorCount` is a number, and `hasErrors` earns its place because a count cannot express "at
 least one".
+
+`choices` and `choiceTexts` are two checks for the same reason. `choices` is what the survey stores and
+posts; `choiceTexts` is what the respondent reads — the rendered text of the same visible items, in the
+order they appear, with `choicesVisibleIf`, the locale and the text piping resolved. A case that pins
+the texts says so by name, and neither check changes meaning with the shape of its payload:
+
+```json
+{ "expect": { "plan": {
+  "choices": ["basic", "pro"],
+  "choiceTexts": ["Basic for Ann", "Professional for Ann"]
+} } }
+```
+
+`choices` compares as a set and `choiceTexts` in order: the same answers offered in another order are
+the same set of answers, and the same screen rendered in another order is a different screen.
+
+`title` and `description` read an element the same way — the string as it is rendered, so the locale,
+the text piping and the HTML form the definition wrote are all resolved. An element that declares no
+description reads as an empty string, so `"description": ""` pins "there is none".
 
 A check never converts one type into another. `value: "5"` does not match a stored `5`, even though
 the expression engine treats them as equal — a case that passes with the wrong type hides the bug it
@@ -305,19 +326,106 @@ const result = await runSurveyTests(surveyJson, tests);
 ```
 
 `result.status` is `"passed"`, `"failed"` (a check did not hold), `"error"` (the case could not
-run) or `"canceled"` (the caller stopped the run — §6). `result.summary` counts the tests and the
+run) or `"canceled"` (the caller stopped the run — §7). `result.summary` counts the tests and the
 checks, `result.tests[i].steps[j].checks` holds one
 entry per assertion — target, check, expected, actual, `passed`, a plain sentence and the JSON path
 of the node it is about — and `result.tests[i].issues` plus `steps[j].issues` hold the case errors
-and the warnings. A failing check carries what explains it: the expression that produced the state
-with the values it read, the triggers that fired, the questions that blocked a navigation, and the
-name a value was cleared under.
+and the warnings. A failing check carries what explains it, and every issue carries where it belongs:
+§6 reads a result field by field.
 
 The whole result is plain data. Formatting it is the caller's job.
 
 ---
 
-## 6. Running a suite — the execution contract
+## 6. Reading a result
+
+A result is read on its own: a run downloaded today and opened a week later says everything about
+itself, without the event transcript that announced it.
+
+### Where an issue belongs — the path grammar
+
+Every issue carries two independent locations, and neither of them is a transient index:
+
+* **`path`** — the node of the *case document* the issue belongs to.
+* **`jsonPath`** — the node of the *survey definition* the issue names, when it names one.
+
+`path` is one grammar, whoever produced the issue. The validator writes it for what it finds in the
+document, and execution writes it for what it finds while running:
+
+| Path | What it addresses |
+|---|---|
+| *(none)* | the run itself — no node of the case caused it |
+| `starts[i]` | a named start |
+| `tests[i]` | the test, in a suite run |
+| `tests[i].steps[j]` | one step of it |
+| `tests[i].steps[j].<command>.<target>` | one target inside the step — the validator only |
+| `test` | the test, in `runTest()` |
+| `test.steps[j]` | one step of it |
+
+* A **step** issue — an unknown target, an unknown check, a feasibility refusal, a warning, an
+  asynchronous timeout, an unexpected error from a handler — carries the path of the step that
+  produced it.
+* A **test-level** issue — a start that names a page the survey does not have, an element named after
+  the reserved target, a model factory that failed — carries the path of the test.
+* A **suite-level** issue that no case node caused — a missing survey definition, a `testFilter` that
+  threw — carries **no** path. Nothing is invented for it.
+* `runTest()` roots its paths at `test` rather than at `tests[i]`: a test run on its own is not
+  required to belong to a suite, so it has no index in one.
+* A **more specific** path always wins. Validation addresses a target inside a step, and a command or
+  a check an integrator registered may set a path of its own; neither is overwritten.
+* Selected tests keep their **original suite index**, so a filtered run still addresses the right node
+  of the suite document.
+
+The path on the final `ISurveyTestIssue` is canonical, and `issueAdded` announces *that object*: what a
+host renders live and what it reads back out of a saved result are the same string.
+
+`issue.step` still carries the 0-based index of the step, for a host that indexes its own live state by
+it. It says what the path says; the path is the one that survives being written to a file.
+
+### Why a check failed — the diagnostic details
+
+A failing check carries `details`: fields, never sentences, so a renderer composes the text and adds
+nothing of its own.
+
+| Member | Shape | When |
+|---|---|---|
+| `expression` | `ISurveyTestExpressionTrace` | the state was produced by `visibleIf`, `enableIf`, `requiredIf` or the expression of a calculated value: the expression, the values it read, the result, and the names that resolve to nothing |
+| `triggers` | `Array<ISurveyTestTriggerTrace>` | a trigger fired during the command before a `state`, `value` or `values` check |
+| `blockedBy` | `ISurveyTestBlockedRecord` | a `state` or `currentPage` check after a navigation or a completion the survey refused: the page, and every question that held it |
+| `clearedBy` | `ISurveyTestClearedRecord` | the value the check is about was dropped by `clearInvisibleValues` |
+| `rowIndex` | `number` | the target is in a matrix row or a created panel — neither has a node in the definition, so the index travels here |
+| `key` | `string` | one result of a per-key survey check: `values`, `variables`, `noValues` |
+| `present` | `boolean` | `noValues` only: whether the data holds the key at all |
+
+`details` itself stays open: a check an integrator registered puts into it whatever it likes, including
+an object under one of the names above. So **every built-in detail object carries a `kind`** —
+`"expression"`, `"trigger"`, `"blocked"`, `"cleared"` — and a host reads them back through the two
+helpers rather than by guessing from the properties an object happens to have:
+
+```ts
+import { getSurveyTestCheckDetails, getSurveyTestDetailKind } from "survey-core/tester";
+
+const details = getSurveyTestCheckDetails(check.details);   // only what carries the discriminant
+if (details.expression) renderTrace(details.expression);    // ISurveyTestExpressionTrace
+if (details.blockedBy) renderBlocked(details.blockedBy);    // ISurveyTestBlockedRecord
+
+// Anything the helper did not vouch for is a third-party detail: render it as it is.
+getSurveyTestDetailKind(anyDetailObject);                   // undefined unless the tester made it
+```
+
+`getSurveyTestCheckDetails` never presents a custom object as a built-in shape, so a host can fall back
+to the raw payload for what it does not recognise and still narrow safely on what it does.
+`ISurveyTestCheckDetails` is the shape it returns; the interfaces of the members, and
+`SurveyTestDetailKinds`, are exported next to it.
+
+A check result also carries `jsonPath`, the node of the survey definition it is about: the element, the
+expression property that produced the state a failing `visible` / `enabled` / `required` check read, or
+the `choices` list for a failing `choices` / `choiceTexts` — never one choice item, because a list that
+came out in the wrong order was not caused by one of them.
+
+---
+
+## 7. Running a suite — the execution contract
 
 ```ts
 const result = await runSurveyTests(surveyJson, tests, options, executionOptions);
@@ -676,7 +784,7 @@ cancellation too, not as a failure of the case.
 
 ---
 
-## 7. Authoring APIs — for a recorder, a case editor or a test generator
+## 8. Authoring APIs — for a recorder, a case editor or a test generator
 
 A host that *writes* cases needs more than the runner: it has to produce a target name for something
 the user touched, and it has to obey the small rules of the format. Both are exported from

@@ -247,6 +247,15 @@ function getElementTitle(obj: any): string {
   // renderedHtml resolves the locale and the text piping, which is the point of checking a title.
   return !!obj && !!obj.locTitle ? obj.locTitle.renderedHtml : undefined;
 }
+// The same convention as the title: what the respondent reads, with the locale and the text piping
+// resolved, and the HTML form when the definition wrote one. An element that declares no description
+// renders an empty string, so a case can pin "there is no description" as well as a text.
+function getElementDescription(obj: any): string {
+  return !!obj && !!obj.locDescription ? obj.locDescription.renderedHtml : undefined;
+}
+function hasDescriptionContract(obj: any): boolean {
+  return !!obj && !!obj.locDescription;
+}
 function getElementPageName(obj: any): string {
   const page: any = !!obj ? obj.page : undefined;
   return !!page ? page.name : undefined;
@@ -254,12 +263,27 @@ function getElementPageName(obj: any): string {
 function getChoiceValues(obj: any): Array<any> {
   return obj.visibleChoices.map((choice: any) => choice.value);
 }
+// The text of an item as it is rendered: the locale and the text piping resolved, and the value itself
+// for an item that declares no text of its own. "choicesVisibleIf" and the order come with
+// visibleChoices, so nothing here filters or sorts.
+function getChoiceTexts(obj: any): Array<string> {
+  return obj.visibleChoices.map((choice: any) => !!choice && !!choice.locText ? choice.locText.renderedHtml : undefined);
+}
+function hasChoices(obj: any): boolean {
+  return Array.isArray(obj.visibleChoices);
+}
 function getTypeName(obj: any): string {
   return !!obj && typeof obj.getType === "function" ? obj.getType() : "element";
 }
 function createTypeReason(checkName: string, target: ISurveyTestTarget, expected: string): string {
   return "The check \"" + checkName + "\" applies to " + expected + ", but the target \"" + target.name +
     "\" is a question of the type \"" + getTypeName(target.obj) + "\".";
+}
+// The kind is not the question type here: a check may apply to every kind it is registered for and
+// still find an object that carries nothing to read.
+function createMissingReason(checkName: string, target: ISurveyTestTarget, what: string): string {
+  return "The check \"" + checkName + "\" reads " + what + ", and the " + target.kind + " \"" + target.name +
+    "\" of the type \"" + getTypeName(target.obj) + "\" has none.";
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -360,16 +384,42 @@ registerReadCheck({
   payloadText: "an array of choice values",
   ignoreOrder: true,
   getNotApplicableReason: (target: ISurveyTestTarget): string => {
-    return Array.isArray(target.obj.visibleChoices) ? undefined
+    return hasChoices(target.obj) ? undefined
       : createTypeReason("choices", target, "a question with choices");
   },
   getActual: (context: ISurveyTestContext, target: ISurveyTestTarget): any => getChoiceValues(target.obj),
+});
+// The other half of a choice list, and a check of its own: "choices" is what the survey stores and
+// "choiceTexts" is what the respondent reads. One check never changes meaning with the shape of its
+// payload, so a case that pins the texts says so by name. There is no "ignoreOrder" here on purpose:
+// the visible order is what the respondent scrolls through, and a list whose first two items swapped
+// is a different screen, while the same answers offered in another order are the same set of answers.
+registerReadCheck({
+  name: "choiceTexts",
+  kinds: ["question"],
+  payloadType: "stringArray",
+  payloadText: "an array of choice texts",
+  getNotApplicableReason: (target: ISurveyTestTarget): string => {
+    return hasChoices(target.obj) ? undefined
+      : createTypeReason("choiceTexts", target, "a question with choices");
+  },
+  getActual: (context: ISurveyTestContext, target: ISurveyTestTarget): any => getChoiceTexts(target.obj),
 });
 registerReadCheck({
   name: "title",
   kinds: ["question", "panel", "page"],
   payloadType: "string",
   getActual: (context: ISurveyTestContext, target: ISurveyTestTarget): any => getElementTitle(target.obj),
+});
+registerReadCheck({
+  name: "description",
+  kinds: ["question", "panel", "page"],
+  payloadType: "string",
+  getNotApplicableReason: (target: ISurveyTestTarget): string => {
+    return hasDescriptionContract(target.obj) ? undefined
+      : createMissingReason("description", target, "the description of an element");
+  },
+  getActual: (context: ISurveyTestContext, target: ISurveyTestTarget): any => getElementDescription(target.obj),
 });
 registerReadCheck({
   name: "page",

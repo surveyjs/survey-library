@@ -25,6 +25,25 @@ export type {
 } from "../src/tester/test-result";
 export { SurveyTestIssueCodes } from "../src/tester/test-result";
 
+// The structured half of a result: why a check failed, in fields. A renderer composes the sentences
+// from them, and it does not have to import a private source file to know their shape.
+// ISurveyTestCheckResult.details stays open on purpose - a check an integrator registered puts into it
+// whatever it likes - so every built-in detail object carries a "kind" and is read back through
+// getSurveyTestCheckDetails, which returns only what carries that discriminant. Anything else stays in
+// "details" for the host to render as it sees fit.
+export type {
+  ISurveyTestCheckDetails,
+  ISurveyTestExpressionTrace,
+  ISurveyTestTriggerTrace,
+  ISurveyTestBlockedRecord,
+  ISurveyTestBlockingQuestion,
+  ISurveyTestClearedRecord,
+  SurveyTestDetailKind,
+} from "../src/tester/test-diagnostics";
+export {
+  SurveyTestDetailKinds, getSurveyTestCheckDetails, getSurveyTestDetailKind,
+} from "../src/tester/test-diagnostics";
+
 export { SurveyTestRunner } from "../src/tester/test-runner";
 export { SurveyTestValidator } from "../src/tester/test-validator";
 export { SurveyTestCommandFactory } from "../src/tester/test-commands";

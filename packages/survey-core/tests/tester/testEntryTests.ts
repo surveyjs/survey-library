@@ -1,9 +1,13 @@
 import {
-  getSurveyTestStepCommandNames, getTestPayloadTypeText, isValidTestPayload, ISurveyTestContext,
-  ISurveyTestTarget, ISurveyTests, parseSurveyTestStep, runSurveyTests, SurveyTestCheckCommandName,
-  SurveyTestCheckFactory, SurveyTestCommandFactory, SurveyTestIssueCodes, SurveyTestPayloadTypes,
-  SurveyTestRunner, SurveyTestStepMetadataKeys, SurveyTestSurveyTargetName, SurveyTestTargetKinds,
-  SurveyTestTargets, SurveyTestValidator,
+  getSurveyTestCheckDetails, getSurveyTestDetailKind, getSurveyTestStepCommandNames, getTestPayloadTypeText,
+  isValidTestPayload, ISurveyTestContext, ISurveyTestTarget, ISurveyTests, parseSurveyTestStep, runSurveyTests,
+  SurveyTestCheckCommandName, SurveyTestCheckFactory, SurveyTestCommandFactory, SurveyTestDetailKinds,
+  SurveyTestIssueCodes, SurveyTestPayloadTypes, SurveyTestRunner, SurveyTestStepMetadataKeys,
+  SurveyTestSurveyTargetName, SurveyTestTargetKinds, SurveyTestTargets, SurveyTestValidator,
+} from "survey-core/tester";
+import type {
+  ISurveyTestBlockedRecord, ISurveyTestBlockingQuestion, ISurveyTestCheckDetails, ISurveyTestClearedRecord,
+  ISurveyTestExpressionTrace, ISurveyTestTriggerTrace, SurveyTestDetailKind,
 } from "survey-core/tester";
 import * as SurveyCore from "survey-core";
 import {
@@ -205,6 +209,124 @@ describe("survey-core/tester entry point", () => {
     expect(SurveyTestCheckCommandName).toBe("expect");
   });
 
+  test("The diagnostic detail types are usable from the entry point, with no src/ import", async () => {
+    const definition = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'yes'" },
+      ],
+    };
+    const tests: ISurveyTests = {
+      tests: [{ name: "t", steps: [{ set: { q1: "no" } }, { expect: { q2: { visible: true } } }] }],
+    };
+    const result = await runSurveyTests(definition, tests);
+    const check = result.tests[0].steps[1].checks[0];
+    expect(check.passed, "the check the details explain").toBe(false);
+    // The compiler is what is under test here: these are the declared types, not "any".
+    const details: ISurveyTestCheckDetails = getSurveyTestCheckDetails(check.details);
+    const trace: ISurveyTestExpressionTrace = details.expression;
+    expect(trace.kind).toBe("expression");
+    expect(trace.expression).toBe("{q1} = 'yes'");
+    expect(trace.values).toEqual({ q1: "no" });
+    expect(trace.result).toBe(false);
+    const kind: SurveyTestDetailKind = getSurveyTestDetailKind(trace);
+    expect(kind).toBe("expression");
+    expect(SurveyTestDetailKinds.slice()).toEqual(["expression", "trigger", "blocked", "cleared"]);
+  });
+
+  test("The blocked detail narrows through the same discriminant", async () => {
+    const result = await runSurveyTests({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1", isRequired: true }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    }, {
+      tests: [{
+        name: "t",
+        steps: [{ nextPage: { survey: true } }, { expect: { survey: { currentPage: "page2" } } }],
+      }],
+    });
+    const blocked: ISurveyTestBlockedRecord =
+      getSurveyTestCheckDetails(result.tests[0].steps[1].checks[0].details).blockedBy;
+    expect(blocked.kind).toBe("blocked");
+    expect(blocked.command).toBe("nextPage");
+    const blocking: ISurveyTestBlockingQuestion = blocked.questions[0];
+    expect(blocking.name).toBe("q1");
+    expect(blocking.isRequired).toBe(true);
+  });
+
+  test("The trigger detail narrows through the same discriminant", async () => {
+    const result = await runSurveyTests({
+      elements: [
+        { type: "text", name: "claimAmount", inputType: "number" },
+        { type: "text", name: "payout", inputType: "number" },
+      ],
+      triggers: [{ type: "setvalue", expression: "{claimAmount} notempty", setToName: "payout", setValue: 0 }],
+    }, {
+      tests: [{
+        name: "t",
+        steps: [{ set: { claimAmount: 500 } }, { expect: { survey: { values: { payout: 500 } } } }],
+      }],
+    });
+    const triggers: Array<ISurveyTestTriggerTrace> =
+      getSurveyTestCheckDetails(result.tests[0].steps[1].checks[0].details).triggers;
+    expect(triggers.length).toBe(1);
+    expect(triggers[0].kind).toBe("trigger");
+    expect(triggers[0].triggerType).toBe("setvalue");
+    expect(triggers[0].jsonPath).toBe("triggers[0]");
+  });
+
+  test("The cleared detail narrows through the same discriminant", async () => {
+    const result = await runSurveyTests({
+      elements: [
+        { type: "radiogroup", name: "hasInsurance", choices: ["yes", "no"] },
+        { type: "text", name: "insuranceProvider", visibleIf: "{hasInsurance} = 'yes'" },
+      ],
+    }, {
+      options: { clearInvisibleValues: "onComplete" },
+      tests: [{
+        name: "t",
+        steps: [
+          { set: { hasInsurance: "yes" } },
+          { set: { insuranceProvider: "Acme" } },
+          { set: { hasInsurance: "no" } },
+          { complete: { survey: true } },
+          { expect: { survey: { values: { insuranceProvider: "Acme" } } } },
+        ],
+      }],
+    });
+    const details: ISurveyTestCheckDetails =
+      getSurveyTestCheckDetails(result.tests[0].steps[4].checks[0].details);
+    const cleared: ISurveyTestClearedRecord = details.clearedBy;
+    expect(cleared.kind).toBe("cleared");
+    expect(cleared.name).toBe("insuranceProvider");
+    expect(cleared.clearInvisibleValues).toBe("onComplete");
+    expect(details.key, "the key of the per-key check the detail explains").toBe("insuranceProvider");
+  });
+
+  test("A custom detail object is never presented as a built-in shape", () => {
+    // The property names of the built-ins are not reserved: a third-party check may use any of them,
+    // and it is the discriminant - not the name - that decides what the helper vouches for.
+    const details = {
+      expression: { expression: "made up", values: {}, result: 1 },
+      blockedBy: { kind: "somethingElse", command: "complete" },
+      triggers: [{ kind: "trigger", stepIndex: 0, triggerType: "complete", expression: "", jsonPath: "" },
+        { stepIndex: 1 }],
+      clearedBy: undefined,
+      rowIndex: "2",
+      key: "q1",
+    };
+    const read = getSurveyTestCheckDetails(details);
+    expect(read.expression, "no discriminant, no promise").toBeUndefined();
+    expect(read.blockedBy, "a discriminant of its own is not one of ours").toBeUndefined();
+    expect(read.triggers, "one entry of the array is not a trace").toBeUndefined();
+    expect(read.rowIndex, "a row index is a number").toBeUndefined();
+    expect(read.key, "and the plain members are read as declared").toBe("q1");
+    expect(getSurveyTestDetailKind(undefined)).toBeUndefined();
+    expect(getSurveyTestDetailKind("expression"), "a string is not a detail object").toBeUndefined();
+    expect(getSurveyTestCheckDetails(undefined), "an absent details object reads as empty").toEqual({});
+  });
+
   test("None of it leaks into the main survey-core entry point", () => {
     const main: any = SurveyCore;
     const names = [
@@ -212,7 +334,8 @@ describe("survey-core/tester entry point", () => {
       "SurveyTestCheckFactory", "SurveyTestIssueCodes", "SurveyTestPayloadTypes", "SurveyTestTargetKinds",
       "SurveyTestStepMetadataKeys", "SurveyTestCheckCommandName", "SurveyTestSurveyTargetName",
       "parseSurveyTestStep", "getSurveyTestStepCommandNames", "isValidTestPayload", "getTestPayloadTypeText",
-      "isCommandAllowedForKind", "runSurveyTests",
+      "isCommandAllowedForKind", "runSurveyTests", "SurveyTestDetailKinds", "getSurveyTestCheckDetails",
+      "getSurveyTestDetailKind",
     ];
     const leaked = names.filter(name => main[name] !== undefined);
     expect(leaked, "the tester is a separate entry point").toEqual([]);

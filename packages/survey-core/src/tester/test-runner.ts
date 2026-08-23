@@ -69,7 +69,7 @@ export class SurveyTestRunner {
     if (!definition) {
       const result = this.createTestResult(test);
       result.status = "error";
-      const issue = this.createDefinitionIssue();
+      const issue = this.setCasePath(this.createDefinitionIssue(), SINGLE_TEST_PATH);
       result.issues.push(issue);
       execution.notifyIssue(issue, -1);
       await this.flushIssues(result, undefined, execution);
@@ -193,6 +193,7 @@ export class SurveyTestRunner {
   private async runTestCore(test: ISurveyTest, testIndex: number, definition: any,
     testIssues: Array<ISurveyTestIssue>, execution: SurveyTestExecution): Promise<ISurveyTestResult> {
     const result = this.createTestResult(test);
+    const testPath = this.getTestPath(testIndex);
     testIssues.forEach(issue => result.issues.push(issue));
     // Both callers stop before a canceled test is entered, so testStarted is always announced here and
     // cancellation can only be raised once the host has heard it.
@@ -211,7 +212,7 @@ export class SurveyTestRunner {
         started = true;
         result.status = "canceled";
       } else {
-        result.issues.push(this.toIssue(e));
+        result.issues.push(this.toIssue(e, testPath));
         result.status = "error";
       }
     }
@@ -221,7 +222,7 @@ export class SurveyTestRunner {
     try {
       await execution.emitCompleted({ type: "testCompleted", testIndex: testIndex, result: result });
     } catch(e) {
-      result.issues.push(this.toIssue(e));
+      result.issues.push(this.toIssue(e, testPath));
       if (result.status !== "canceled") result.status = "error";
     }
     return result;
@@ -244,6 +245,9 @@ export class SurveyTestRunner {
     const variables = this.resolveVariables(test);
     result.variables = variables;
     const context = new SurveyTestContext(result.options, test, result.issues);
+    // Every issue this test produces - inside a step or outside one - is addressed from here, so a
+    // downloaded result says where each of them belongs without an event transcript to rebuild it from.
+    context.setCasePath(this.getTestPath(testIndex));
     if (execution.isObserved) {
       context.setNotifier(execution);
     }
@@ -272,6 +276,9 @@ export class SurveyTestRunner {
         canceled = true;
       } else {
         const issue = this.toIssue(e);
+        // Before the issue is announced: the object the observer hears is the object the result holds,
+        // and it carries its path in both places.
+        context.enrichIssue(issue);
         result.issues.push(issue);
         result.status = "error";
         execution.notifyIssue(issue, -1);
@@ -467,7 +474,7 @@ export class SurveyTestRunner {
     try {
       await execution.flush(testIndex);
     } catch(e) {
-      result.issues.push(this.toIssue(e));
+      result.issues.push(this.toIssue(e, this.getTestPath(testIndex)));
       result.status = "error";
     }
   }
@@ -656,15 +663,27 @@ export class SurveyTestRunner {
       message: "A survey definition is required to run a test suite. Pass the survey JSON to the runner.",
     };
   }
-  // An unexpected exception from survey-core never reaches the caller: it becomes a case error.
-  private toIssue(error: any): ISurveyTestIssue {
-    if (error instanceof SurveyTestCaseError) return error.issue;
+  // An unexpected exception from survey-core never reaches the caller: it becomes a case error. The
+  // path is the node of the case document the issue belongs to, when the caller knows it.
+  private toIssue(error: any, casePath?: string): ISurveyTestIssue {
+    if (error instanceof SurveyTestCaseError) return this.setCasePath(error.issue, casePath);
     const message = !!error && !!error.message ? error.message : String(error);
-    return {
+    return this.setCasePath({
       severity: "error",
       code: SurveyTestIssueCodes.unexpectedError,
       message: "The survey threw an unexpected error: " + message,
-    };
+    }, casePath);
+  }
+  // A suite run addresses a test by its index, a runTest() by the word "test": the entry point decides
+  // the root of the path, and everything below it is the same grammar.
+  private getTestPath(testIndex: number): string {
+    return testIndex === undefined ? SINGLE_TEST_PATH : TEST_PATH_PREFIX + testIndex + "]";
+  }
+  // Validation and the handlers know more about where an issue belongs than the level that stores it,
+  // so a path that is already there wins.
+  private setCasePath(issue: ISurveyTestIssue, path: string): ISurveyTestIssue {
+    if (!!issue && !!path && issue.path === undefined) issue.path = path;
+    return issue;
   }
   // What the host threw while it was deciding which tests to run. It is not a fault of any case, so it
   // belongs to no test: the suite carries it, like every other failure that happens outside one.

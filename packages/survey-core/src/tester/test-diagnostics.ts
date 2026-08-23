@@ -10,7 +10,16 @@ import type { ISurveyTestTarget } from "./test-targets";
 // Why a check failed, in fields. Nothing here is a sentence: a renderer composes the text blocks from
 // the check result, its jsonPath and its details, and adds nothing of its own.
 
+// The discriminant every built-in detail object carries. "details" stays open-ended - a check an
+// integrator registered puts into it whatever it likes - so a host has to be able to tell a shape the
+// tester produced from one that merely looks like it. Narrowing on "kind" is that test; guessing from
+// the properties an object happens to have is not.
+const DETAIL_KINDS = ["expression", "trigger", "blocked", "cleared"] as const;
+export type SurveyTestDetailKind = typeof DETAIL_KINDS[number];
+export const SurveyTestDetailKinds: ReadonlyArray<SurveyTestDetailKind> = Object.freeze(DETAIL_KINDS.slice());
+
 export interface ISurveyTestExpressionTrace {
+  kind: "expression";
   expression: string;
   // Only the names the expression reads. Start data is shared and can be large, and a failure that
   // dumps the whole data object buries the two values that mattered.
@@ -23,6 +32,7 @@ export interface ISurveyTestExpressionTrace {
 }
 
 export interface ISurveyTestTriggerTrace {
+  kind: "trigger";
   stepIndex: number;
   // The type as the definition writes it: "complete", "setvalue", "runexpression".
   triggerType: string;
@@ -40,6 +50,7 @@ export interface ISurveyTestBlockingQuestion {
 }
 
 export interface ISurveyTestBlockedRecord {
+  kind: "blocked";
   stepIndex: number;
   // The command that was blocked: "complete" or "nextPage".
   command: string;
@@ -48,11 +59,61 @@ export interface ISurveyTestBlockedRecord {
 }
 
 export interface ISurveyTestClearedRecord {
+  kind: "cleared";
   stepIndex: number;
   name: string;
   jsonPath: string;
   // The effective mode, after the question's own "clearIfInvisible" is resolved against the survey.
   clearInvisibleValues: string;
+}
+
+// Everything a built-in check puts into ISurveyTestCheckResult.details. It is not the type of that
+// field: "details" is open to a check an integrator registered, and typing it as this shape would
+// promise a host that a third-party object is one of these. Read it through
+// getSurveyTestCheckDetails, which returns only the members that carry the discriminant.
+export interface ISurveyTestCheckDetails {
+  // The expression that produced the state the check read - visibleIf, enableIf, requiredIf, or the
+  // expression of a calculated value - with the values it read and the names that resolve to nothing.
+  expression?: ISurveyTestExpressionTrace;
+  // What fired during the command before this check, for a check about the state or a value.
+  triggers?: Array<ISurveyTestTriggerTrace>;
+  // Why the navigation or the completion of the previous command did not happen.
+  blockedBy?: ISurveyTestBlockedRecord;
+  // The question whose value was dropped by clearInvisibleValues, and when.
+  clearedBy?: ISurveyTestClearedRecord;
+  // The row of a matrix or the created panel the target belongs to. Neither has a node in the
+  // definition, so the index travels here instead of in a path that would point at nothing.
+  rowIndex?: number;
+  // The key one result of a per-key survey check is about: "values", "variables", "noValues".
+  key?: string;
+  // "noValues" only: whether the survey data holds the key at all.
+  present?: boolean;
+}
+
+// The kind of a built-in detail object, or undefined for anything else - including an object of a
+// third-party check that happens to carry a "kind" of its own.
+export function getSurveyTestDetailKind(detail: any): SurveyTestDetailKind {
+  const kind = !!detail && typeof detail === "object" ? detail.kind : undefined;
+  return typeof kind === "string" && DETAIL_KINDS.indexOf(<any>kind) > -1 ? <SurveyTestDetailKind>kind : undefined;
+}
+
+// The built-in members of a check result's details, and nothing else. A member is returned only when
+// the object under it carries the discriminant the tester stamps on it, so a custom detail stored
+// under the same property name is left where it is: in "details", for a host to render as it likes.
+export function getSurveyTestCheckDetails(details: any): ISurveyTestCheckDetails {
+  const res: ISurveyTestCheckDetails = {};
+  if (!details || typeof details !== "object") return res;
+  if (getSurveyTestDetailKind(details.expression) === "expression") res.expression = details.expression;
+  if (getSurveyTestDetailKind(details.blockedBy) === "blocked") res.blockedBy = details.blockedBy;
+  if (getSurveyTestDetailKind(details.clearedBy) === "cleared") res.clearedBy = details.clearedBy;
+  if (Array.isArray(details.triggers) &&
+    details.triggers.every((item: any) => getSurveyTestDetailKind(item) === "trigger")) {
+    res.triggers = details.triggers;
+  }
+  if (typeof details.rowIndex === "number") res.rowIndex = details.rowIndex;
+  if (typeof details.key === "string") res.key = details.key;
+  if (typeof details.present === "boolean") res.present = details.present;
+  return res;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -258,7 +319,7 @@ export function getSurveyNames(survey: any): Array<string> {
 }
 
 export function getExpressionTrace(owner: any, expression: string): ISurveyTestExpressionTrace {
-  const res: ISurveyTestExpressionTrace = { expression: expression, values: {}, result: undefined };
+  const res: ISurveyTestExpressionTrace = { kind: "expression", expression: expression, values: {}, result: undefined };
   if (!expression) return res;
   const survey = getSurveyOf(owner);
   const values = !!survey ? survey.getFilteredValues() : {};
@@ -304,6 +365,10 @@ const EXPRESSION_PROPERTIES: { [check: string]: string } = {
 // A trigger changes the state and the values, so a failure of these carries what fired.
 const TRIGGER_CHECKS = ["state", "value", "values"];
 const BLOCKED_CHECKS = ["state", "currentPage"];
+// The checks that read the whole list of visible choices. A failure of one of them is about the list,
+// so it points at the list: no single item of the definition produced a text that came out in the
+// wrong order, and a path into one of them would say it did.
+const CHOICE_CHECKS = ["choices", "choiceTexts"];
 
 export class SurveyTestDiagnostics {
   private triggers: Array<ISurveyTestTriggerTrace> = [];
@@ -345,6 +410,7 @@ export class SurveyTestDiagnostics {
   public setBlocked(commandName: string, data: any): void {
     const page: any = this.survey.currentPage;
     this.blocked = {
+      kind: "blocked",
       stepIndex: this.context.stepIndex,
       command: commandName,
       page: !!page ? page.name : undefined,
@@ -367,7 +433,7 @@ export class SurveyTestDiagnostics {
     // node the reader wants to open; a passing one points at the element.
     const property = result.passed ? undefined : this.getExpressionProperty(result.check, target);
     if (isElement) {
-      const path = getJsonPath(target.obj, property);
+      const path = getJsonPath(target.obj, property || this.getListProperty(result.check, target, result.passed));
       if (!!path) result.jsonPath = path;
     }
     if (result.passed) return;
@@ -394,6 +460,14 @@ export class SurveyTestDiagnostics {
       result.details = Object.assign(details, result.details || {});
     }
   }
+  // The definition node a failing list check is about, when the definition holds one: a question whose
+  // choices come from a URL, from another question or from its type has no "choices" node to open, and
+  // the element itself stays the most useful path.
+  private getListProperty(checkName: string, target: ISurveyTestTarget, passed: boolean): string {
+    if (passed || CHOICE_CHECKS.indexOf(checkName) < 0) return undefined;
+    const choices: any = target.obj.choices;
+    return Array.isArray(choices) && choices.length > 0 ? "choices" : undefined;
+  }
   private getExpressionProperty(checkName: string, target: ISurveyTestTarget): string {
     const property = target.kind === "calculatedValue" && checkName === "value"
       ? "expression" : EXPRESSION_PROPERTIES[checkName];
@@ -414,6 +488,7 @@ export class SurveyTestDiagnostics {
     if (!record) return undefined;
     const question = record.question;
     return {
+      kind: "cleared",
       stepIndex: record.stepIndex,
       name: question.name,
       jsonPath: getJsonPath(question),
@@ -440,6 +515,7 @@ export class SurveyTestDiagnostics {
     const trigger: any = !!options ? options.trigger : undefined;
     if (!trigger) return;
     this.triggers.push({
+      kind: "trigger",
       stepIndex: this.context.stepIndex,
       triggerType: this.getTriggerTypeName(trigger),
       expression: trigger.expression,

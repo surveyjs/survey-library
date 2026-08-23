@@ -123,9 +123,9 @@ const onValueChanged = { checkErrorsMode: "onValueChanged" };
 describe("The check registry is the full built-in set", () => {
   test("Every check of both tables is registered, and getNames sorts them", () => {
     expect(SurveyTestCheckFactory.Instance.getNames(), "the built-in checks").toEqual([
-      "choices", "comment", "currentPage", "empty", "enabled", "errorCount", "errors", "hasErrors",
-      "noValues", "page", "pages", "panelCount", "required", "rowCount", "state", "title", "type",
-      "value", "values", "variables", "visible",
+      "choiceTexts", "choices", "comment", "currentPage", "description", "empty", "enabled",
+      "errorCount", "errors", "hasErrors", "noValues", "page", "pages", "panelCount", "required",
+      "rowCount", "state", "title", "type", "value", "values", "variables", "visible",
     ]);
   });
   test("Every kind lists the checks that apply to it", () => {
@@ -133,14 +133,14 @@ describe("The check registry is the full built-in set", () => {
       "currentPage", "errorCount", "noValues", "pages", "state", "values", "variables",
     ]);
     expect(SurveyTestCheckFactory.Instance.getNamesForKind("question"), "the question checks").toEqual([
-      "choices", "comment", "empty", "enabled", "errorCount", "errors", "hasErrors", "page",
-      "panelCount", "required", "rowCount", "title", "type", "value", "visible",
+      "choiceTexts", "choices", "comment", "description", "empty", "enabled", "errorCount", "errors",
+      "hasErrors", "page", "panelCount", "required", "rowCount", "title", "type", "value", "visible",
     ]);
     expect(SurveyTestCheckFactory.Instance.getNamesForKind("page"), "the page checks").toEqual([
-      "enabled", "errorCount", "errors", "hasErrors", "title", "visible",
+      "description", "enabled", "errorCount", "errors", "hasErrors", "title", "visible",
     ]);
     expect(SurveyTestCheckFactory.Instance.getNamesForKind("panel"), "the panel checks").toEqual([
-      "enabled", "errorCount", "errors", "hasErrors", "page", "title", "visible",
+      "description", "enabled", "errorCount", "errors", "hasErrors", "page", "title", "visible",
     ]);
     expect(SurveyTestCheckFactory.Instance.getNamesForKind("calculatedValue"), "a calculated value holds a value")
       .toEqual(["value"]);
@@ -418,6 +418,179 @@ describe("title", () => {
   });
 });
 
+describe("choiceTexts", () => {
+  const definition = {
+    elements: [
+      { type: "text", name: "who" },
+      {
+        type: "radiogroup", name: "plan",
+        choices: [
+          { value: "basic", text: "Basic for {who}" },
+          { value: "hidden", text: "Hidden" },
+          { value: "pro", text: "Professional for {who}" },
+        ],
+        choicesVisibleIf: "{item} != 'hidden'",
+      },
+    ],
+  };
+  const answered: IRunParams = { before: [{ set: { who: "Ann" } }] };
+  test("choiceTexts reads the rendered text of the visible choices, in the visible order", async () => {
+    expectPassed(await runCheck(definition, "plan", "choiceTexts", ["Basic for Ann", "Professional for Ann"], answered),
+      ["Basic for Ann", "Professional for Ann"]);
+  });
+  test("The order is part of what choiceTexts asserts", async () => {
+    expectFailed(await runCheck(definition, "plan", "choiceTexts", ["Professional for Ann", "Basic for Ann"], answered),
+      ["Professional for Ann", "Basic for Ann"], ["Basic for Ann", "Professional for Ann"],
+      ["\"Basic for Ann\",\"Professional for Ann\""]);
+  });
+  test("choiceTexts observes choicesVisibleIf", async () => {
+    // The hidden item is absent from the list, not present with an empty text.
+    expectPassed(await runCheck(definition, "plan", "choiceTexts", ["Basic for ", "Professional for "]),
+      ["Basic for ", "Professional for "]);
+    const shown = await runCheck(definition, "plan", "choiceTexts",
+      ["Basic for Ann", "Hidden", "Professional for Ann"], answered);
+    expect(shown.passed, "the invisible item is not read").toBeFalsy();
+    expect(shown.actual, "only what the respondent sees").toEqual(["Basic for Ann", "Professional for Ann"]);
+  });
+  test("choiceTexts responds to a piped answer changing", async () => {
+    const outcome = await runSteps(definition, [
+      { set: { who: "Ann" } },
+      { expect: { plan: { choiceTexts: ["Basic for Ann", "Professional for Ann"] } } },
+      { set: { who: "Bob" } },
+      { expect: { plan: { choiceTexts: ["Basic for Bob", "Professional for Bob"] } } },
+    ]);
+    expect(outcome.status, "both steps read what the survey rendered at that moment").toEqual("passed");
+    expect(outcome.codes, "nothing was reported").toEqual([]);
+  });
+  test("choiceTexts resolves the locale of the test", async () => {
+    const localized = {
+      elements: [{
+        type: "radiogroup", name: "plan",
+        choices: [
+          { value: "basic", text: { default: "Basic", de: "Einfach" } },
+          { value: "pro", text: { default: "Pro", de: "Profi" } },
+        ],
+      }],
+    };
+    expectPassed(await runCheck(localized, "plan", "choiceTexts", ["Basic", "Pro"]), ["Basic", "Pro"]);
+    expectPassed(await runCheck(localized, "plan", "choiceTexts", ["Einfach", "Profi"], { options: { locale: "de" } }),
+      ["Einfach", "Profi"]);
+  });
+  test("An item that declares no text renders its value", async () => {
+    const plain = { elements: [{ type: "radiogroup", name: "plan", choices: ["basic", "pro"] }] };
+    expectPassed(await runCheck(plain, "plan", "choiceTexts", ["basic", "pro"]), ["basic", "pro"]);
+  });
+  test("choices still reads the values, and the two checks are independent", async () => {
+    const checks = await runChecks(definition, "plan",
+      { choices: ["basic", "pro"], choiceTexts: ["Basic for Ann", "Professional for Ann"] }, answered);
+    expect(checks.length, "one result per check").toEqual(2);
+    expect(checks[0].check).toEqual("choices");
+    expect(checks[0].actual, "choices reads the values, not the texts").toEqual(["basic", "pro"]);
+    expect(checks[0].passed, "the values hold").toBeTruthy();
+    expect(checks[1].check).toEqual("choiceTexts");
+    expect(checks[1].actual).toEqual(["Basic for Ann", "Professional for Ann"]);
+    expect(checks[1].passed, "the texts hold").toBeTruthy();
+  });
+  test("choices rejects an array of texts: that is the other check's payload, not a second shape of this one", async () => {
+    expectFailed(await runCheck(definition, "plan", "choices", ["Basic for Ann", "Professional for Ann"], answered),
+      ["Basic for Ann", "Professional for Ann"], ["basic", "pro"], ["\"basic\",\"pro\""]);
+  });
+  test("A failing choice check points at the choices of the question, never at one item", async () => {
+    const texts = await runExpect(definition, { plan: { choiceTexts: ["nope"] } }, answered);
+    expect(texts.checks[0].jsonPath, "the list is what the check is about").toEqual("pages[0].elements[1].choices");
+    const values = await runExpect(definition, { plan: { choices: ["nope"] } }, answered);
+    expect(values.checks[0].jsonPath, "the same node for the other half of the list")
+      .toEqual("pages[0].elements[1].choices");
+  });
+  test("A question whose choices are not in the definition keeps the path of the question", async () => {
+    const fromQuestion = {
+      elements: [
+        { type: "checkbox", name: "source", choices: ["a", "b"] },
+        { type: "radiogroup", name: "plan", choicesFromQuestion: "source" },
+      ],
+    };
+    const outcome = await runExpect(fromQuestion, { plan: { choiceTexts: ["nope"] } });
+    expect(outcome.checks[0].jsonPath, "there is no \"choices\" node to open").toEqual("pages[0].elements[1]");
+  });
+  test("choiceTexts does not apply to a question without choices", async () => {
+    const outcome = await runExpect(oneQuestion, { q1: { choiceTexts: ["a"] } });
+    expect(outcome.codes, "a text question has no choices").toEqual([SurveyTestIssueCodes.checkNotApplicable]);
+    expect(outcome.messages.indexOf("a question with choices") > -1, "the message says what it applies to").toBeTruthy();
+    expect(outcome.messages.indexOf("\"text\"") > -1, "the message names the type it was given").toBeTruthy();
+  });
+});
+
+describe("description", () => {
+  test("description passes and fails on plain text", async () => {
+    const definition = { elements: [{ type: "text", name: "q1", description: "Two words" }] };
+    expectPassed(await runCheck(definition, "q1", "description", "Two words"), "Two words");
+    expectFailed(await runCheck(definition, "q1", "description", "Three words"),
+      "Three words", "Two words", ["Two words", "Three words"]);
+  });
+  test("description resolves the text piping", async () => {
+    const definition = {
+      elements: [
+        { type: "text", name: "name" },
+        { type: "text", name: "q1", description: "Hello, {name}" },
+      ],
+    };
+    expectPassed(await runCheck(definition, "q1", "description", "Hello, Bob", { before: [{ set: { name: "Bob" } }] }),
+      "Hello, Bob");
+    expectFailed(await runCheck(definition, "q1", "description", "Hello, Ann", { before: [{ set: { name: "Bob" } }] }),
+      "Hello, Ann", "Hello, Bob", ["Hello, Bob", "Hello, Ann"]);
+  });
+  test("description resolves the locale of the test, for a question, a panel and a page", async () => {
+    const definition = {
+      pages: [{
+        name: "page1",
+        description: { default: "The page", de: "Die Seite" },
+        elements: [
+          { type: "panel", name: "panel1", description: { default: "The panel", de: "Das Panel" },
+            elements: [{ type: "text", name: "q1", description: { default: "Hello", de: "Hallo" } }] },
+        ],
+      }],
+    };
+    expectPassed(await runCheck(definition, "q1", "description", "Hello"), "Hello");
+    expectPassed(await runCheck(definition, "q1", "description", "Hallo", { options: { locale: "de" } }), "Hallo");
+    expectPassed(await runCheck(definition, "panel1", "description", "Das Panel", { options: { locale: "de" } }),
+      "Das Panel");
+    expectPassed(await runCheck(definition, "page1", "description", "Die Seite", { options: { locale: "de" } }),
+      "Die Seite");
+  });
+  test("description follows the HTML convention of title", async () => {
+    const definition = { elements: [{ type: "text", name: "q1", description: "<b>Bold</b>" }] };
+    const description = await runCheck(definition, "q1", "description", "<b>Bold</b>");
+    const title = await runCheck({ elements: [{ type: "text", name: "q1", title: "<b>Bold</b>" }] },
+      "q1", "title", "<b>Bold</b>");
+    expect(description.actual, "the two checks read the string the same way").toEqual(title.actual);
+    expectPassed(description, "<b>Bold</b>");
+  });
+  test("An element without a description reads as an empty string", async () => {
+    expectPassed(await runCheck(oneQuestion, "q1", "description", ""), "");
+    expectFailed(await runCheck(oneQuestion, "q1", "description", "Something"), "Something", "", ["Something"]);
+  });
+  test("description does not apply to an object that carries none", async () => {
+    // A calculated value is a target, and it has no description contract at all.
+    const definition = {
+      calculatedValues: [{ name: "total", expression: "1 + 1" }],
+      elements: [{ type: "text", name: "q1" }],
+    };
+    const outcome = await runExpect(definition, { total: { description: "x" } });
+    expect(outcome.codes, "a calculated value is not an element").toEqual([SurveyTestIssueCodes.checkNotApplicable]);
+    expect(outcome.messages.indexOf("does not apply to the calculatedValue") > -1,
+      "the kind is what rules it out: " + outcome.messages).toBeTruthy();
+  });
+  test("The not-applicable sentence of description names the kind and the type", async () => {
+    const handler = SurveyTestCheckFactory.Instance.get("description");
+    const reason = handler.getNotApplicableReason({ name: "odd", kind: "question", obj: { getType: () => "custom" } });
+    expect(reason, "an object of a question kind that carries no locDescription").toEqual(
+      "The check \"description\" reads the description of an element, and the question \"odd\" of the type " +
+      "\"custom\" has none.");
+    expect(handler.getNotApplicableReason({ name: "q1", kind: "question", obj: { locDescription: {} } }),
+      "an element that has one is checkable").toBeUndefined();
+  });
+});
+
 describe("page", () => {
   test("page names the page the element is on", async () => {
     expectPassed(await runCheck(twoPages, "q2", "page", "page2"), "page2");
@@ -660,7 +833,9 @@ const checkSamples: { [name: string]: ICheckSample } = {
   hasErrors: { target: "text1", payload: false },
   comment: { target: "text1", payload: "" },
   choices: { target: "radio1", payload: ["a", "b"] },
+  choiceTexts: { target: "radio1", payload: ["a", "b"] },
   title: { target: "text1", payload: "text1" },
+  description: { target: "text1", payload: "Your name" },
   page: { target: "text1", payload: "page1" },
   rowCount: { target: "matrix1", payload: 1 },
   panelCount: { target: "dynamicPanel1", payload: 1 },
@@ -676,7 +851,7 @@ const sampleSurvey = {
   pages: [{
     name: "page1",
     elements: [
-      { type: "text", name: "text1", showCommentArea: true },
+      { type: "text", name: "text1", description: "Your name", showCommentArea: true },
       { type: "radiogroup", name: "radio1", choices: ["a", "b"] },
       { type: "matrixdynamic", name: "matrix1", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] },
       { type: "paneldynamic", name: "dynamicPanel1", panelCount: 1, templateElements: [{ type: "text", name: "p1" }] },

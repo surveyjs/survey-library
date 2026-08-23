@@ -71,6 +71,9 @@ export class SurveyTestContext implements ISurveyTestContext {
   private isResolvingQuietly: boolean = false;
   private notifier: ISurveyTestNotifier;
   private signalValue: AbortSignal;
+  // The path of the test node inside the case document: "tests[3]" in a suite run, "test" in
+  // runTest(). Every issue this context records is addressed from it.
+  private casePathValue: string = "";
 
   // testIssues is the issues array of the test result: issues raised outside a step land there.
   constructor(public readonly options: ISurveyTestOptions,
@@ -96,6 +99,16 @@ export class SurveyTestContext implements ISurveyTestContext {
   }
   public setSignal(signal: AbortSignal): void {
     this.signalValue = signal;
+  }
+  public setCasePath(path: string): void {
+    this.casePathValue = path;
+  }
+  // Where in the case document an issue raised right now belongs: the step that is running, or the
+  // test itself when nothing is.
+  public get casePath(): string {
+    const path = this.casePathValue;
+    if (!path) return undefined;
+    return !!this.currentStep ? path + ".steps[" + this.currentStep.index + "]" : path;
   }
   // The configuration the tester owns whatever the factory did, and the subscriptions the tester needs.
   // Nothing here is left to the factory: an application configures runtime behaviour, not what makes a
@@ -191,8 +204,15 @@ export class SurveyTestContext implements ISurveyTestContext {
     }
   }
   // The runner records the issue a case error carries without going through addIssue, so filling the
-  // JSON path of the element it names lives in a method of its own.
+  // two paths of an issue - where it belongs in the case, and the node of the survey it names - lives
+  // in a method of its own. A path the validator or a handler already set is more specific than
+  // anything that can be derived here and it is never overwritten.
   public enrichIssue(issue: ISurveyTestIssue): void {
+    if (!issue) return;
+    if (issue.path === undefined) {
+      const path = this.casePath;
+      if (!!path) issue.path = path;
+    }
     this.diagnostics.enrichIssue(issue);
   }
   public addWarning(code: string, message: string, data?: any): void {

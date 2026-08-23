@@ -1,4 +1,4 @@
-import { Helpers, TextPreProcessor, Trigger } from "survey-core";
+import { TextPreProcessor, buildTriggerExpression } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import { ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS } from "./catalog";
 import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBase } from "./metadata";
@@ -439,40 +439,6 @@ function walkPage(state: WalkState, json: any, path: string): void {
   guardLeave(state);
 }
 
-// Mirrors OperandMaker.toOperandString/isBooleanValue: a value is quoted unless it
-// already reads as a number or a boolean literal. Booleans are accepted here as a
-// fix, not a copy - OperandMaker.isBooleanValue calls toLowerCase() unguarded, so
-// the runtime throws on a legacy trigger with "value": true.
-function isBooleanText(value: any): boolean {
-  if (typeof value === "boolean") return true;
-  if (typeof value !== "string") return false;
-  const lower = value.toLowerCase();
-  return lower === "true" || lower === "false";
-}
-
-function toOperandString(value: any): any {
-  if (!!value && !Helpers.isNumber(value) && !isBooleanText(value)) return "'" + value + "'";
-  return value;
-}
-
-// Mirrors Trigger.buildExpression for the legacy name/operator/value trigger form:
-// the runtime synthesizes the same string and evaluates it as a normal condition.
-// Kept in sync by linter-core-parity.tests.ts. Trigger.operator silently drops an
-// operator it does not know, so an unknown one falls back to "equal" here too;
-// the emptiness check trims strings because Base.isValueEmpty does.
-function buildLegacyTriggerExpression(json: any): string {
-  if (!json.name) return "";
-  let operator = "equal";
-  if (typeof json.operator === "string" && !!json.operator) {
-    const lower = json.operator.toLowerCase();
-    if (Trigger.operators[lower]) operator = lower;
-  }
-  const requiresValue = operator !== "empty" && operator !== "notempty";
-  const value = typeof json.value === "string" ? json.value.trim() : json.value;
-  if (requiresValue && Helpers.isValueEmpty(value)) return "";
-  return "{" + json.name + "} " + operator + " " + toOperandString(json.value);
-}
-
 function walkTrigger(state: WalkState, json: any, i: number): void {
   if (!json || typeof json !== "object") return;
   const path = "triggers[" + i + "]";
@@ -483,7 +449,7 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
     record.expressionSite = addSite(state, json.expression, "condition",
       joinPath(path, "expression"), "expression", undefined, []);
   } else {
-    const legacy = buildLegacyTriggerExpression(json);
+    const legacy = buildTriggerExpression(json.name, json.operator, json.value);
     if (legacy) {
       record.expressionSite = addSite(state, legacy, "condition", path, "expression", undefined, [], true);
     }

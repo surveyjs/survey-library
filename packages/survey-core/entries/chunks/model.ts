@@ -165,7 +165,9 @@ export {
   Variable,
   FunctionOperand,
   ArrayOperand,
-  UnaryOperand
+  UnaryOperand,
+  hasBinaryOperator,
+  runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
 export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
@@ -275,7 +277,9 @@ export {
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
   SurveyTriggerSkip,
-  Trigger
+  Trigger,
+  buildTriggerExpression,
+  hasTriggerOperator
 } from "../../src/trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../src/popup-survey";
 export { TextPreProcessor } from "../../src/textPreProcessor";

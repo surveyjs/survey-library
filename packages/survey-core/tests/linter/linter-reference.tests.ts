@@ -77,13 +77,51 @@ describe("reference/unknown - basics", () => {
       ],
     })).toHaveLength(0);
   });
-  test("page names resolve", () => {
-    expect(unknownRefs({
+  test("a page name is not an expression value", () => {
+    const findings = unknownRefs({
       pages: [
         { name: "intro", elements: [{ type: "text", name: "q1" }] },
         { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro} notempty" }] },
       ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("intro");
+  });
+  test("a page is not a container for its questions either", () => {
+    const findings = unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro.q1} notempty" }] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("intro.q1");
+  });
+  test("a page property reference is still skipped", () => {
+    expect(unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{$intro.isVisible} = true" }] },
+      ],
     })).toHaveLength(0);
+  });
+  test("a question wins over the page name it shares", () => {
+    expect(unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "intro" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro} notempty" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a page name is not suggested for a typo in an expression", () => {
+    const findings = unknownRefs({
+      pages: [
+        { name: "price", elements: [{ type: "text", name: "amount" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{pric} > 10" }] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBeUndefined();
   });
 });
 

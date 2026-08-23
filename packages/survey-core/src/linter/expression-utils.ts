@@ -99,9 +99,29 @@ export function isBuiltInVariable(name: string): boolean {
   return !!name && builtInVariableNames().some(v => equalsCI(v, name));
 }
 
-function rootCandidates(index: SurveyIndex, options: ISurveyLintOptions): Array<string> {
+// A page holds no value: the runtime answers a page name only behind the element-property
+// prefix ({$page1.visible}), which never reaches the name lookup, so {page1} in an
+// expression is nothing. A runtime name (nameOnly - a gotoName trigger target) does
+// address a page by name.
+function isRootRecordVisible(record: ElementRecord, nameOnly: boolean): boolean {
+  return nameOnly || record.kind !== "page";
+}
+
+function findRootRecord(root: string, index: SurveyIndex, nameOnly: boolean): ElementRecord | undefined {
+  // byName is a multimap: a page and a question may share a name, and only the
+  // question answers an expression reference
+  const named = index.byName.get(root);
+  for (let i = 0; i < named.length; i++) {
+    if (isRootRecordVisible(named[i], nameOnly)) return named[i];
+  }
+  return index.byValueName.first(root);
+}
+
+function rootCandidates(index: SurveyIndex, options: ISurveyLintOptions, nameOnly: boolean): Array<string> {
   const res: Array<string> = [];
-  index.byName.forEach((values, name) => res.push(name));
+  index.byName.forEach((values, name) => {
+    if (values.some(value => isRootRecordVisible(value, nameOnly))) res.push(name);
+  });
   index.byValueName.forEach((values, name) => res.push(name));
   index.calculatedValues.forEach((value, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
@@ -404,7 +424,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   collapseLongestRootName(ref, index, options);
   const root = ref.segments[0].name;
 
-  const record = <ElementRecord>index.byName.first(root) || <ElementRecord>index.byValueName.first(root);
+  const record = findRootRecord(root, index, nameOnly);
   if (record) {
     ref.status = "resolved";
     ref.resolvedTo = record;
@@ -449,7 +469,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.suggestion = index.settings.expressionVariables.panel + "." + root;
     ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
   } else {
-    const candidates = rootCandidates(index, options);
+    const candidates = rootCandidates(index, options, nameOnly);
     let suggestion: string = undefined;
     // a typo inside a dotted name ({address.cty}) is closest to the full registered name
     if (ref.segments.length > 1 && isFoldableRange(ref.segments, 0, ref.segments.length)) {

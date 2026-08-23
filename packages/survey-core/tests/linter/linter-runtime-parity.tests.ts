@@ -201,6 +201,27 @@ describe("linter vs runtime: configurations that really are dead", () => {
     expect(errors(json)).toEqual(["choices/dead-source @ elements[1].choiceValuesFromQuestion"]);
   });
 
+  test("a page name in an expression resolves to nothing", () => {
+    const json = {
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro} notempty" }] },
+      ],
+    };
+    expect(errors(json)).toEqual(["reference/unknown @ pages[1].elements[0].visibleIf"]);
+    const survey = new SurveyModel(json);
+    survey.setValue("q1", "abc");
+    expect(survey.runExpression("{intro} notempty")).toBe(false);
+    // the runtime answers a page only behind the element-property prefix
+    expect(survey.runExpression("{$intro.isVisible}")).toBe(true);
+    expect(errors({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{$intro.isVisible} = true" }] },
+      ],
+    })).toEqual([]);
+  });
+
   test("an unknown total column is still an error", () => {
     const json = {
       elements: [

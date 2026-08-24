@@ -75,6 +75,7 @@ import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 
 import { describe, test, expect, vi } from "vitest";
+import { IConfirmDialogOptions } from "../src/popup";
 describe("Survey", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -17830,6 +17831,21 @@ describe("Survey", () => {
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
   });
+  test("survey.applyTheme does not mutate the original theme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const theme = {
+      cssVariables: {
+        "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+      },
+      backgroundOpacity: 0.7,
+    };
+    const originalCssVariables = { ...theme.cssVariables };
+    survey.applyTheme(theme as any);
+    expect(theme.cssVariables).toEqual(originalCssVariables);
+    expect(theme.backgroundOpacity).toBe(0.7);
+    expect(survey.backgroundOpacity).toBe(0.7);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 0, 0, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {
@@ -21442,5 +21458,25 @@ describe("Survey", () => {
     expect(question2.isVisible, "question2 is visible, calcVal is true").toBe(true);
     survey.setValue("question1", false);
     expect(question2.isVisible, "question2 is invisible, calcVal is false").toBe(false);
+  });
+  test("survey confirmActionAsync", () => {
+    const oldSettingsFunc = settings.confirmActionAsync;
+    let rootElement = undefined;
+    settings.confirmActionAsync = (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => {
+      rootElement = options?.rootElement;
+    };
+    const survey = new SurveyModel({});
+    survey.rootElement = "survey_root_element" as any;
+    survey.confirmActionAsync("message_test", () => {});
+    expect(rootElement).toBe("survey_root_element");
+
+    survey.confirmActionAsync("message_test", () => {}, { rootElement: "document_root_element" as any });
+    expect(rootElement).toBe("document_root_element");
+
+    const options: IConfirmDialogOptions = {};
+    survey.confirmActionAsync("message_test", () => {}, options);
+    expect(rootElement).toBe("survey_root_element");
+    expect(options.rootElement).toBeUndefined();
+    settings.confirmActionAsync = oldSettingsFunc;
   });
 });

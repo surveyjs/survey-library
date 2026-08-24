@@ -165,10 +165,12 @@ export {
   Variable,
   FunctionOperand,
   ArrayOperand,
-  UnaryOperand
+  UnaryOperand,
+  runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
 export { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -265,7 +267,7 @@ export * from "../../src/surveyToc";
 export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
-export { SurveyModel, DefaultTheme } from "../../src/survey";
+export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,
@@ -275,7 +277,8 @@ export {
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
   SurveyTriggerSkip,
-  Trigger
+  Trigger,
+  buildTriggerExpression
 } from "../../src/trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../src/popup-survey";
 export { TextPreProcessor } from "../../src/textPreProcessor";
@@ -300,7 +303,7 @@ export {
 export { ScrollViewModel } from "../../src/scroll";
 export { ListModel } from "../../src/list";
 export { MultiSelectListModel } from "../../src/multiSelectListModel";
-export { PopupModel, IDialogOptions } from "../../src/popup";
+export { PopupModel, IDialogOptions, IConfirmDialogOptions } from "../../src/popup";
 export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";

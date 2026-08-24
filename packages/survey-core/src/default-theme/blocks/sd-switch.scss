@@ -1,7 +1,6 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: var(--sjs2-spacing-x050);
   --sd-boolean-switch-thumb-width: var(--sjs2-font-size-x150);
@@ -85,6 +84,14 @@
   }
 }
 
+.sd-question--disabled,
+.sd-question--readonly,
+.sd-question--preview {
+  .sd-boolean-switch {
+    cursor: default;
+  }
+}
+
 .sd-boolean-switch__button--readonly:not(.sd-boolean-switch__button--checked) {
   cursor: default;
 
@@ -146,7 +153,6 @@
   gap: 0px;
   align-items: flex-start;
   justify-content: flex-start;
-  flex-shrink: 0;
   position: relative;
   align-self: center;
 }

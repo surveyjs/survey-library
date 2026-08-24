@@ -27,9 +27,9 @@
 
 <div align="justify">
 
-SurveyJS Form Library is a free and open-source JavaScript library that renders dynamic, JSON-based forms and surveys in your web application. It collects responses in the browser and and lets you send submitted data to any backend or database.
+SurveyJS Form Library is a free and open-source JavaScript form library for rendering dynamic, JSON-based forms and surveys in React, Angular, Vue, and plain JavaScript applications. It collects responses in the browser and lets you send submitted data to any backend or database.
 
-The library supports React, Angular, Vue, and plain JavaScript. Use it to build complex multi-step forms, pop-up surveys, quizzes, scored surveys, calculator forms, and other data-entry tools. Form content and structure, validation, conditional logic, navigation, and appearance are defined through a SurveyJS JSON form definition.
+Use it to build complex multi-step forms, pop-up surveys, quizzes, scored surveys, calculator forms, and other data-entry tools. Form content and structure, validation, conditional logic, navigation, and appearance are defined through a SurveyJS JSON form definition.
 
 You can create form definitions manually, generate them with AI, or build them visually with [SurveyJS Creator](https://surveyjs.io/survey-creator/documentation/overview), an embeddable drag-and-drop form builder.
 
@@ -37,15 +37,15 @@ You can create form definitions manually, generate them with AI, or build them v
 <br>
 
 <p align="center">
-    <a href="https://surveyjs.io/survey-creator/documentation/overview">Documentation</a>
+    <a href="https://surveyjs.io/form-library/documentation/overview">Documentation</a>
     ·
     <a href="https://surveyjs.io/find-surveyjs-guides-for-my-stack">Setup Guides for My Stack</a>
     ·
     <a href="https://surveyjs.io/form-library/examples/overview">Form Library Demos</a>
     ·
-    <a href="https://github.com/surveyjs/theme-adapter-demos">Theme Adapters</a>
+    <a href="https://surveyjs.io/themes/theme-adapters">Theme Adapters</a>
     ·
-    <a href="https://surveyjs.io/form-library/documentation/how-to-store-survey-results">Store survey results</a>
+    <a href="https://surveyjs.io/form-library/documentation/how-to-store-survey-results">Store Survey Results</a>
     ·
     <a href="https://github.com/surveyjs/survey-library/issues/new">Report Bug</a>
   </p>
@@ -60,43 +60,47 @@ SurveyJS Form Library renders forms from JSON definitions directly in your web a
 
 Your application can:
 
-1. Define the form as a SurveyJS JSON object.
+1. Create or load a SurveyJS JSON form definition.
 2. Render it with SurveyJS Form Library.
 3. Collect responses in the browser.
-4. Send the submitted data to your backend.
+4. Send submitted data to your backend.
 5. Store it in the database or service of your choice.
    
 ## Installation
 
 Choose the package for your framework:
 
-### React
+### React Form Library
 
 ```bash
 npm install survey-react-ui
 ```
 [Get Started with Form Library for React](https://surveyjs.io/form-library/documentation/get-started-react)
 
-### Angular
+### Angular Form Library
 
 ```bash
 npm install survey-angular-ui
 ```
 [Get Started with Form Library for Angular](https://surveyjs.io/form-library/documentation/get-started-angular)
 
-### Vue.js
+### Vue.js Form Library
 
 ```bash
 npm install survey-vue3-ui
 ```
 [Get Started with Form Library for Vue.js](https://surveyjs.io/form-library/documentation/get-started-vue)
 
-### Plain JavaScript
+### Plain JavaScript Form Library
 
 ```bash
 npm install survey-js-ui
 ```
 [Get Started with Form Library for Plain JavaScript](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript)
+
+## Package Architecture
+
+SurveyJS Form Library separates form logic from rendering. The framework-independent [`survey-core`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core) package provides the form model, validation, conditional logic, calculations, navigation, localization, and other core behavior. Framework-specific packages such as [`survey-react-ui`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-react-ui), [`survey-angular-ui`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-angular-ui), and [`survey-vue3-ui`](https://github.com/surveyjs/survey-library/tree/master/packages/survey-vue3-ui) render that model in React, Angular, and Vue 3 applications. Installing a rendering package brings `survey-core` with it.
 
 ## Key Features
 
@@ -110,7 +114,7 @@ npm install survey-js-ui
 
 ### Multi-Framework Support
 
-- Native integrations for React, Angular, Vue 3, and plain JavaScript
+- Dedicated Form Library rendering packages for React, Angular, Vue 3, and plain JavaScript
 - TypeScript support
 - Client-side rendering with no required SurveyJS backend
 
@@ -127,7 +131,7 @@ npm install survey-js-ui
 - 20+ built-in question and input types
 - [Custom question types and input components](https://surveyjs.io/form-library/documentation/customize-question-types/question-customization-options)
 - Electronic signature and image capture
-- Reusable form components and custom widgets
+- Reusable composite questions and third-party widgets
 
 ### Localization and Accessibility
 
@@ -136,18 +140,18 @@ npm install survey-js-ui
 - Right-to-left language support
 - Accessible input controls and keyboard navigation
 
-### Appearance and Customization
+### Appearance and UI Customization
 
 - Shared design token system based on CSS variables
 - Built-in themes with support for custom branding
-- [Theme Adapters for Bootstrap, Material UI, and shadcn/ui](https://github.com/surveyjs/theme-adapter-demos)
+- [Theme Adapters for Bootstrap, Material UI, and shadcn/ui](https://surveyjs.io/themes/theme-adapters)
 - Custom question rendering and reusable UI components
 - Configurable layouts, navigation controls, validation messages, and form behavior
 
 ## Resources
 
 - [Website](https://surveyjs.io/)
-- [Documentation](https://surveyjs.io/survey-creator/documentation/overview)
+- [Documentation](https://surveyjs.io/form-library/documentation/overview)
 - [Full-Featured Demo](https://surveyjs.io/create-free-survey)
 - [Release Notes](https://surveyjs.io/stay-updated/release-notes)
 - [Roadmap](https://surveyjs.io/stay-updated/roadmap)
@@ -156,9 +160,10 @@ npm install survey-js-ui
 ## SurveyJS Product Family
 
 - [Form Library](https://surveyjs.io/form-library/documentation/overview) - A free and open-source MIT-licensed JavaScript library that renders dynamic JSON-based forms in your web application, and collects responses.
-- [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview) - A self-hosted drag-and-drop form builder that automatically generates JSON definition (schemas) of your forms in real time. Try out a [free full-featured demo](https://surveyjs.io/create-free-survey) to evaluate its capabilities.
--  [Dashboard](https://surveyjs.io/dashboard/documentation/overview) - Simplifies survey data visualization and analysis with interactive and customizable charts and tables.
--  [PDF Generator](https://surveyjs.io/pdf-generator/documentation/overview) - An open-source JavaScript library that renders SurveyJS surveys and forms as PDF files in a browser. With PDF Generator you can save an unlimited number of custom-built forms to PDF (both editable and read-only).
+- [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview) - An embeddable drag-and-drop form builder that generates SurveyJS JSON form definitions. Try out a [free full-featured demo](https://surveyjs.io/create-free-survey) to evaluate its capabilities.
+- [Dashboard](https://surveyjs.io/dashboard/documentation/overview) - Simplifies survey data visualization and analysis with interactive and customizable charts and tables.
+- [PDF Generator](https://surveyjs.io/pdf-generator/documentation/overview) - Renders SurveyJS surveys and forms as PDF files in a browser. Save custom forms to PDF (both editable and read-only).
+- [AI Form Response Extractor](https://surveyjs.io/documentation/combine-paper-and-online-survey-form-data) - A free and open-source MIT-licensed JavaScript library that extracts responses from paper forms, PDFs, and images, maps them to the SurveyJS schema, and produces a unified response object that can be stored and processed alongside online submissions. (`ai-form-response-extractor`).
 
 ## Build from Source
 

@@ -1,71 +1,229 @@
-# Survey Model (Platform-Independent Part) 
+<div align="center">
 
+<img width="1200" height="600" alt="readme_overview_library" src="https://github.com/user-attachments/assets/7577661c-e64e-4323-8524-18c0f3e2a0e7" />
 
-<video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
-
+# SurveyJS Form Library Core
 
 [![Build Status](https://dev.azure.com/SurveyJS/V2%20Libraries/_apis/build/status%2Flibrary%2FLibrary%20Main?repoName=surveyjs%2Fsurvey-library&branchName=master)](https://dev.azure.com/SurveyJS/V2%20Libraries/_build/latest?definitionId=130&repoName=surveyjs%2Fsurvey-library&branchName=master)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/surveyjs/survey-library/blob/master/LICENSE)
 [![Tested with Playwright](https://img.shields.io/badge/tested%20with-Playwright-2fa4cf.svg)](https://playwright.dev)
-<a href="https://github.com/surveyjs/survey-library/issues">
-<img alt="Issues" title="Open Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
-</a>
-<a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
-<img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
-</a>
+[![Open Issues](https://img.shields.io/github/issues/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues)
+[![Closed Issues](https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg)](https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+)
 
-A platform-independent survey model for SurveyJS Form Library. This package should be used with one of platform-specific UI rendering packages. Refer to the following Get Started tutorials for more information:
+</div>
+<div align="justify">
 
-- [Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular)
-- [React](https://surveyjs.io/Documentation/Library?id=get-started-react)
-- [Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue)
-- [HTML/CSS/JavaScript](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript)
+SurveyJS Form Library Core is a free and open-source, framework-independent package that provides the form model and core logic used by SurveyJS rendering packages.
 
-## Resources
+The `survey-core` package handles form structure, validation, conditional logic, calculations, navigation, localization, response data, and other framework-independent behavior. **It does not render the form UI itself.** To display forms in an application, use it together with one of the [framework-specific rendering packages](#related-packages) below. Installing `survey-core` alone is the most common reason a survey never appears on the page.
+
+A typical integration creates a form model from a SurveyJS JSON form definition with `survey-core` and passes that model to the appropriate rendering component. The renderer displays the form and stays synchronized with the model as users interact with it.
+
+Use `survey-core` when you need to work directly with SurveyJS form models, form logic, response data, or shared functionality independently of a particular UI framework.
+
+</div>
+
+## Installation
+
+Install the UI package for your framework — `survey-core` comes with it as a dependency:
+
+```sh
+npm install survey-react-ui   # React
+npm install survey-angular-ui # Angular
+npm install survey-vue3-ui    # Vue 3
+npm install survey-js-ui      # HTML/CSS/JavaScript
+```
+
+To add the model on its own (for example, in code shared between a UI layer and a Node.js service):
+
+```sh
+npm install survey-core
+```
+
+## Usage
+
+```js
+import { Model } from "survey-core";
+import "survey-core/survey-core.css";
+
+const surveyJson = {
+  elements: [
+    { name: "firstName", title: "Enter your first name:", type: "text" },
+    { name: "satisfaction", title: "How satisfied are you?", type: "rating" }
+  ]
+};
+
+const survey = new Model(surveyJson);
+survey.onComplete.add((sender) => {
+  console.log(JSON.stringify(sender.data, null, 2));
+});
+```
+
+Pass the `survey` instance to the component from your UI package to render it — for example, `<Survey model={survey} />` in React. See the Get Started tutorial for your framework in the table below.
+
+`survey-core/survey-core.css` applies the Default theme; `survey-core/survey-core.min.css` is the minified build. Other predefined themes are imported from `survey-core/themes` — refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+## Theme Adapters
+
+Themes are built on `--sjs-*` CSS custom properties (design tokens). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
+
+```js
+import "survey-core/survey-core.css";
+import "survey-core/themes/adapters/bootstrap-default.css";
+```
+
+Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](https://mui.com) (`mui.css`), and [shadcn/ui](https://ui.shadcn.com) (`shadcn-default.css`, `shadcn-new-york.css`). Bootstrap additionally ships [Bootswatch](https://bootswatch.com) variants — `bootstrap-darkly.css`, `bootstrap-flatly.css`, and others. Because adapters read the host system's live variables, any Bootstrap or Bootswatch build re-skins the survey automatically. Matching icon sets are optional side-effect imports:
+
+```js
+import "survey-core/themes/adapters/icons/lucide"; // or ".../icons/mui"
+```
+
+Adapters are framework-independent and require no extra markup or configuration. See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
+
+## Use on the Server (Node.js)
+
+`survey-core` has no DOM dependency and imports cleanly in Node (both `require` and ESM `import`), so the same model that renders in the browser can run on the server. Use it to re-validate a submitted response, evaluate conditional logic, or inspect and transform a survey JSON definition — no UI package and no CSS import required.
+
+```js
+const { Model } = require("survey-core");
+
+const survey = new Model(surveyJson);
+survey.data = submittedAnswers;
+
+if (!survey.validate(true, false)) {
+  const errors = survey.getAllQuestions()
+    .filter((q) => q.errors.length > 0)
+    .map((q) => ({ question: q.name, messages: q.errors.map((e) => e.getText()) }));
+  // Reject the submission and return `errors` to the client.
+}
+```
+
+Client-side validation can always be bypassed, so re-running it on the server with the same schema is the point: `isRequired`, `validators`, and `visibleIf` behave identically in both places. `survey.getPlainData()` gives a flat, display-ready view of the answers for storage, export, or reporting, and `Serializer` lets you inspect or modify the JSON definition programmatically.
+
+To get validation messages in a specific locale, load it and set `locale`:
+
+```js
+require("survey-core/i18n/french");
+survey.locale = "fr";
+```
+
+### Server-Side Rendering (SSR)
+
+The same DOM-free design makes SSR work: a survey can be pre-rendered on the server with [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) and hydrated on the client. HTML `id` attributes are generated deterministically per survey instance, so the server and client produce matching markup. If you render multiple surveys on one page, assign a unique [`elementIdPrefix`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#elementIdPrefix) to each model so their `id` attributes don't collide.
+
+## Key Features
+
+### Core Form Model
+
+- Framework-independent form model for SurveyJS Form Library
+- Create and manage forms from SurveyJS JSON definitions
+- Manage form structure, state, and response data
+
+### Logic and Validation
+
+- Conditional visibility, branching, and [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values)
+- Expression-based logic and custom functions
+- [Built-in and custom validation](https://surveyjs.io/form-library/documentation/data-validation)
+
+### Navigation and Localization
+
+- Multi-page navigation and progress tracking
+- Multi-language forms and runtime locale switching
+- Right-to-left language support
+
+### Extensibility
+
+- Event-driven API for custom form behavior
+- [Custom question types and properties](https://surveyjs.io/form-library/documentation/customize-question-types/question-customization-options)
+- Shared core for `survey-react-ui`, `survey-angular-ui`, `survey-vue3-ui`, and `survey-js-ui`
+
+## Related Packages
+
+| Framework | UI package | Get Started |
+| --- | --- | --- |
+| React | [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) | [Tutorial](https://surveyjs.io/form-library/documentation/get-started-react) |
+| Angular | [`survey-angular-ui`](https://www.npmjs.com/package/survey-angular-ui) | [Tutorial](https://surveyjs.io/form-library/documentation/get-started-angular) |
+| Vue 3 | [`survey-vue3-ui`](https://www.npmjs.com/package/survey-vue3-ui) | [Tutorial](https://surveyjs.io/form-library/documentation/get-started-vue) |
+| HTML/CSS/JavaScript | [`survey-js-ui`](https://www.npmjs.com/package/survey-js-ui) | [Tutorial](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript) |
+
+## Documentation
 
 - [Website](https://surveyjs.io/)
-- [Documentation](https://surveyjs.io/Documentation/Library)
-- [Live Examples](https://surveyjs.io/Examples/Library)
-- [What's New](https://surveyjs.io/WhatsNew)
+- [Documentation](https://surveyjs.io/form-library/documentation/overview)
+- [Form Library Overview](https://surveyjs.io/form-library/documentation/overview)
+- [Form Library Demos](https://surveyjs.io/form-library/examples/overview)
+- [Release Notes](https://surveyjs.io/stay-updated/release-notes)
+- [Roadmap](https://surveyjs.io/stay-updated/roadmap)
+- [What's New](https://surveyjs.io/stay-updated/major-updates/2025-2026)
 
-## Build Survey Model from Sources
+For AI coding agents: [https://surveyjs.io/llms.txt](https://surveyjs.io/llms.txt) indexes the documentation. Any documentation page is also available as raw Markdown — append `.md` to its URL, for example [https://surveyjs.io/form-library/documentation/overview.md](https://surveyjs.io/form-library/documentation/overview.md).
 
-1. **Clone the repo**
+## SurveyJS Ecosystem
 
-    ```
+| Product | Purpose | License |
+| --- | --- | --- |
+| [Form Library](https://surveyjs.io/form-library) | Render dynamic forms from JSON (this package) | MIT |
+| [Survey Creator](https://surveyjs.io/survey-creator) | Drag-and-drop form builder UI | Commercial |
+| [Dashboard](https://surveyjs.io/dashboard) | Visualize and analyze collected results | Commercial |
+| [PDF Generator](https://surveyjs.io/pdf-generator) | Render forms and responses as PDF | Commercial |
+| [AI Form Response Extractor](https://surveyjs.io/documentation/combine-paper-and-online-survey-form-data) | Extract responses from paper forms, PDFs, and images into a SurveyJS schema (`ai-form-response-extractor`) | MIT |
+
+## Build from Source
+
+This monorepo does **not** use npm workspaces — each package installs and builds independently, but a root install is still required for the shared tooling (linting, Playwright).
+
+1. **Clone the repo and install shared dependencies**
+
+    ```sh
     git clone https://github.com/surveyjs/survey-library.git
-    cd survey-library/packages/survey-core
-    ```
-
-2. **Install dependencies**          
-Make sure that you have Node.js v16 or later and a compatible npm version installed.
-
-    ```
+    cd survey-library
     npm install
     ```
 
-3. **Build the library**
+    Requires Node.js 20 or later — CI builds on Node 20.x and 22.x.
 
-    ```
+2. **Install and build `survey-core`**
+
+    ```sh
+    cd packages/survey-core
+    npm install
     npm run build:all
     ```
 
-    You can find the built scripts and style sheets in folders under the `build` directory.
+    Build output goes to the `build` directory. `npm run build` produces the JS bundle alone; `npm run build:all` adds i18n, themes, icons, and adapters. Use `npm run watch:dev` while developing.
 
-4. **Run unit tests**
+    Every UI package resolves `survey-core` from `../survey-core/build`, so **survey-core must be built before you build or test any UI package.**
 
+3. **Run unit tests**
+
+    Unit tests use [Vitest](https://vitest.dev/) in a jsdom environment and live in `packages/survey-core/tests`.
+
+    ```sh
+    npm run test                          # whole suite
+    npm run test:watch                    # watch mode
+    npx vitest run tests/surveytests.ts   # a single file
+    npx vitest run -t "visibleIf"         # tests whose name matches a substring
     ```
-    npm run test
+
+4. **Run end-to-end tests**
+
+    E2E, visual-regression, and accessibility tests are Playwright suites shared by all UI packages and run from a UI package directory (after `survey-core` is built). Angular and Vue 3 additionally need their example app built first (`npm run build:example:prod`). Do not start an HTTP server yourself — the Playwright config starts its own.
+
+    ```sh
+    cd packages/survey-react-ui
+    npm install
+    npm run e2e:ci                        # e2e
+    npm run e2e:ci -- --grep "TestName"   # a single test
+    npm run scr:ci                        # visual regression
+    npm run accessibility-tests:ci        # accessibility
     ```
 
-    The unit tests use [Karma](https://karma-runner.github.io/6.3/index.html).
+5. **Build a UI package**
 
-After that, you can build one of the UI packages:
-
-- [Angular Form Library](../survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources)
-- [React Form Library](../survey-react-ui/README.md#build-surveyjs-react-form-library-from-sources)
-- [Vue Form Library](../survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources)
-- [HTML/CSS/JS Form Library](../survey-js-ui/README.md#build-surveyjs-form-library-ui-from-sources)
+    - [Angular Form Library](https://github.com/surveyjs/survey-library/blob/master/packages/survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources)
+    - [React Form Library](https://github.com/surveyjs/survey-library/blob/master/packages/survey-react-ui/README.md#build-surveyjs-react-form-library-from-sources)
+    - [Vue Form Library](https://github.com/surveyjs/survey-library/blob/master/packages/survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources)
+    - [HTML/CSS/JS Form Library](https://github.com/surveyjs/survey-library/blob/master/packages/survey-js-ui/README.md#build-surveyjs-form-library-ui-from-sources)
 
 ## Licensing
 

@@ -44,7 +44,8 @@
   --sjs2-base-unit-spacing: calc(var(--spacing) * 2);
 
   /* Let shadcn size the elements in a row instead of the default element min-width. */
-  --sjs-element-min-width: 0;
+  --sjs-element-min-width: 271.5px;
+  --sd-mobile-width: 640px;
 
   --sjs2-color-utility-body: var(--card);
   --sjs2-color-utility-sheet: var(--background);

@@ -378,7 +378,6 @@ Possible values:
 - `"default"` - Inherits the setting from the parent panel, page, or survey.
 - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
 - `"onpanel"` - Starts numbering within the dynamic panel from scratch.
-- `"onSurvey"` - Obsolete. Use the `"default"` value instead.
 
 **Related APIs:** [`questionStartIndex`](#questionStartIndex), [`showNumber`](#showNumber)
 

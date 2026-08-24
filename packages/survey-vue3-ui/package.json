@@ -1,13 +1,13 @@
 {
   "name": "survey-vue3-ui",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
-  "description": "A free MIT-licensed Vue 3 UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
+  "description": "Vue 3 form library for rendering dynamic, JSON-based forms and surveys. Collect user responses and store them in your own database.",
   "keywords": [
     "vue",
-    "vue3",
+    "vue-3",
     "survey",
     "form",
     "surveyjs",
@@ -18,7 +18,6 @@
     "dynamic-form",
     "interactive-form",
     "form-library",
-    "form-management",
     "questionnaire",
     "data-collection",
     "data-validation",
@@ -28,18 +27,26 @@
     "json",
     "json-schema",
     "vue-schema-form",
-    "survey-renderer",
-    "client-side",
-    "frontend",
     "javascript",
-    "typescript"
+    "typescript",
+    "schema-form",
+    "conditional-logic",
+    "quiz",
+    "poll",
+    "localization",
+    "css",
+    "shadcn",
+    "mui",
+    "material-ui",
+    "bootstrap",
+    "bootswatch"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/survey-library.git"
   },
   "peerDependencies": {
-    "survey-core": "^2.0.0",
+    "survey-core": "^3.0.0",
     "vue": ">=3.0.0"
   },
   "scripts": {

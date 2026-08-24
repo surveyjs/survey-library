@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 2.5.35 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.0.1 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@2.5.35/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.1/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -54,10 +54,10 @@ The `PageModel` object describes a survey page and contains properties and metho
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `navigationTitle` *(loc)* | `string` |  | A caption displayed on a navigation button in the TOC or progress bar. |
+| `navigationDescription` *(loc)* | `string` |  | Specifies the description text displayed on a navigation button in the progress bar. |
+| `navigationTitle` *(loc)* | `string` |  | Specifies the title text displayed on a navigation button in the TOC or progress bar. |
 | `showNavigationButtons` | `boolean` |  | Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons on this page. |
 | `timeLimit` | `number` | `0` | A time period that a respondent has to complete this page; measured in seconds. |
-| `navigationDescription` *(loc)* | `string` |  |  |
 
 ### `survey`
 
@@ -79,6 +79,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `previewMode` | `allQuestions, answeredQuestions` | `"allQuestions"` | Specifies whether the preview of given answers includes all or only answered questions. |
 | `progressBarInheritWidthFrom` | `container, survey` | `"container"` | Specifies whether the progress bar spans the width of the survey or that of the survey container. |
 | `progressBarLocation` | `auto, aboveheader, belowheader, bottom, topbottom` | `"auto"` | Specifies the alignment of the progress bar. |
+| `progressBarNavigationTextLocation` | `top, bottom, inline` | `"top"` | Specifies the placement of navigation titles and descriptions in the progress bar relative to the step buttons. |
 | `progressBarType` | `pages, questions, requiredQuestions, correctQuestions` | `"pages"` | Specifies the type of information displayed by the progress bar. |
 | `questionDescriptionLocation` | `underInput, underTitle, hidden` | `"underTitle"` | Specifies where to display question descriptions. |
 | `questionErrorLocation` | `top, bottom` | `"top"` | Specifies the error message position. |
@@ -118,8 +119,8 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `pagePrevText` *(loc)* | `string` |  | Gets or sets a caption for the Previous button. |
 | `partialSendEnabled` | `boolean` |  | Specifies whether to save survey results when respondents switch between pages. |
 | `previewText` *(loc)* | `string` |  | Gets or sets a caption for the Preview button. |
+| `progressBarShowNavigationText` | `boolean` |  | Specifies whether the progress bar displays navigation titles and descriptions. |
 | `progressBarShowPageNumbers` | `boolean` |  | Specifies whether the progress bar displays page numbers. |
-| `progressBarShowPageTitles` | `boolean` |  | Specifies whether the progress bar displays page titles. |
 | `questionStartIndex` | `string` |  | Specifies the initial number or letter from which to start question numbering. |
 | `questionTitlePattern` | `string` | `"numTitleRequire"` | Specifies a pattern for question titles. |
 | `readOnly` | `boolean` |  | Enables the read-only mode. |
@@ -247,8 +248,8 @@ A base class for all questions. Required: `name`.
 | `defaultValue` | `string` |  | A default value for the question. |
 | `description` *(loc)* | `string` |  | Explanatory text displayed under the title. |
 | `isRequired` | `boolean` |  | Makes the question required. |
-| `maxWidth` | `string` | `"100%"` | Gets or sets maximum survey element width in CSS values. |
-| `minWidth` | `string` | `"300px"` | Gets or sets minimum survey element width in CSS values. |
+| `maxWidth` | `string` |  | Gets or sets maximum survey element width in CSS values. |
+| `minWidth` | `string` |  | Gets or sets minimum survey element width in CSS values. |
 | `readOnly` | `boolean` |  | Makes the survey element read-only. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required form field. |
 | `showNumber` | `boolean` | `true` | Specifies whether to show a number for this question. |
@@ -306,6 +307,7 @@ A class that describes the Yes/No (Boolean) question type. Inherits the properti
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `displayMode` | `segmented, radio, checkbox, switch` | `"segmented"` | Specifies the visual representation of the Yes/No question. |
 | `labelFalse` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a negative answer. |
 | `labelTrue` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a positive answer. |
 | `swapOrder` | `boolean` |  | Specifies whether to swap the order of the Yes and No answers. |
@@ -441,13 +443,13 @@ A class that describes the File Upload question type. Inherits the properties of
 | `acceptedTypes` | `string` |  | An `accept` attribute value for the underlying `<input>` element. |
 | `allowImagesPreview` | `boolean` | `true` | Specifies whether to show a preview of image files. |
 | `allowMultiple` | `boolean` |  | Specifies whether users can upload multiple files. |
+| `confirmDelete` | `boolean` | `true` | Specifies whether users should confirm file deletion. |
 | `fileOrPhotoPlaceholder` *(loc)* | `string` |  | A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. |
 | `filePlaceholder` *(loc)* | `string` |  | A placeholder text displayed when the File Upload question doesn't contain any files to upload. |
 | `imageHeight` | `string` |  | The height of the following images: - Images in the preview - Photos taken using the camera - Uploaded images in a generated PDF form > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in multiple file upload mode. |
 | `imageWidth` | `string` |  | The width of the following images: - Images in the preview - Photos taken using the camera - Uploaded images in a generated PDF form > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in multiple file upload mode. |
 | `maxFiles` | `number` | `1000` | Maximum number of files a user can upload. |
 | `maxSize` | `number` | `0` | Maximum allowed file size, measured in bytes. |
-| `needConfirmRemoveFile` | `boolean` |  | Specifies whether users should confirm file deletion. |
 | `photoPlaceholder` *(loc)* | `string` |  | A placeholder text displayed when the File Upload question doesn't contain any photos to upload. |
 | `storeDataAsText` | `boolean` | `true` | Specifies whether to store file or signature content as text in `SurveyModel`'s `data` property. |
 | `waitForUpload` | `boolean` | `false` | Enable this property if you want to wait until files are uploaded to complete the survey. |
@@ -689,8 +691,8 @@ A class that describes the Panel container element. Inherits the properties of `
 | `showQuestionNumbers` | `default, onpanel, recursive, off` | `"default"` | Specifies whether to display survey element numbers within this page/panel and how to calculate them. |
 | `state` | `default, collapsed, expanded` | `"default"` | Gets and sets the survey element's expand state. |
 | `isRequired` | `boolean` |  | Makes the panel/page require an answer at least in one nested question. |
-| `maxWidth` | `string` | `"100%"` | Gets or sets maximum survey element width in CSS values. |
-| `minWidth` | `string` | `"auto"` | Gets or sets minimum survey element width in CSS values. |
+| `maxWidth` | `string` |  | Gets or sets maximum survey element width in CSS values. |
+| `minWidth` | `string` |  | Gets or sets minimum survey element width in CSS values. |
 | `questionStartIndex` | `string` |  | Specifies a number or letter used to start numbering of elements inside this page/panel. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required panel/page. |
 | `showNumber` | `boolean` |  | Specifies whether to show the panel number in the title. |
@@ -1700,7 +1702,7 @@ Nesting is where generated JSON most often goes wrong. A `paneldynamic` repeats 
 - Every `name` in the document is unique, and an expression may only reference a name that exists.
 - Leave out any property that would be set to its default value.
 - Emit the JSON object on its own: no fences, no comments, no trailing commas.
-- Never emit these legacy aliases -- the library still parses them, but they are not the property names: `addRowLocation`, `allowCompleteSurveyAutomatic`, `allowRowsDragAndDrop`, `attachOriginalItems`, `autoComplete`, `commentPlaceHolder`, `defaultValueFromLastPanel`, `defaultValueFromLastRow`, `emptyRowsText`, `firstPageIsStarted`, `focusFirstQuestionAutomatic`, `focusOnFirstError`, `goNextPageAutomatic`, `hasComment`, `hasNone`, `hasOther`, `hasSelectAll`, `insensitive`, `isAllRowRequired`, `itemSize`, `maxOthersLength`, `maxTimeToFinish`, `maxTimeToFinishPage`, `maximumRateDescription`, `mininumRateDescription`, `navigationButtonsVisibility`, `optionsCaption`, `otherPlaceHolder`, `panelAddText`, `panelNextText`, `panelPrevText`, `panelRemoveButtonLocation`, `panelRemoveText`, `placeHolder`, `questionsOrder`, `rateDisplayMode`, `requiredText`, `rowsOrder`, `sendResultOnPageNext`, `showClearButton`, `showCompletedPage`, `showOptionsCaption`, `showRangeInProgress`, `showTimerPanelMode`, `size`, `templateTitleLocation`, `useDisplayValuesInTitle`.
+- Never emit these legacy aliases -- the library still parses them, but they are not the property names: `addRowLocation`, `allowCompleteSurveyAutomatic`, `allowRowsDragAndDrop`, `attachOriginalItems`, `autoComplete`, `commentPlaceHolder`, `defaultValueFromLastPanel`, `defaultValueFromLastRow`, `emptyRowsText`, `firstPageIsStarted`, `focusFirstQuestionAutomatic`, `focusOnFirstError`, `goNextPageAutomatic`, `hasComment`, `hasNone`, `hasOther`, `hasSelectAll`, `insensitive`, `isAllRowRequired`, `itemSize`, `maxOthersLength`, `maxTimeToFinish`, `maxTimeToFinishPage`, `maximumRateDescription`, `mininumRateDescription`, `navigationButtonsVisibility`, `optionsCaption`, `otherPlaceHolder`, `panelAddText`, `panelNextText`, `panelPrevText`, `panelRemoveButtonLocation`, `panelRemoveText`, `placeHolder`, `progressBarShowPageTitles`, `questionsOrder`, `rateDisplayMode`, `requiredText`, `rowsOrder`, `sendResultOnPageNext`, `showClearButton`, `showCompletedPage`, `showOptionsCaption`, `showRangeInProgress`, `showTimerPanelMode`, `size`, `templateTitleLocation`, `useDisplayValuesInTitle`.
 
 ## Complete examples
 

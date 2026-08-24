@@ -226,6 +226,12 @@ frameworks.forEach(framework => {
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
       });
 
+      // Wait for the question model to rebuild fileIndexAction after the value sort
+      await page.waitForFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        return !!(question && question.fileIndexAction);
+      });
+
       await page.evaluate(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.indexToShow = 0;

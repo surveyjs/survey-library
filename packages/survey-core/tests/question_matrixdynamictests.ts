@@ -9712,4 +9712,37 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cell(1, 2).isVisible, "row1 {prevrow.x} is hidden again").toBeFalsy();
     expect(cell(0, 4).isVisible, "row0 {totalrow.x} is hidden again, 5 + 2 = 7").toBeFalsy();
   });
+  test("settings.matrix.defaultCellType changes the default cellType, bug#11708", () => {
+    settings.matrix.defaultCellType = "text";
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix1", columns: [{ name: "col1" }], rowCount: 1 },
+        { type: "matrixdropdown", name: "matrix2", columns: [{ name: "col1" }], rows: ["row1"] }
+      ]
+    });
+    const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    const matrix2 = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix2");
+    expect(matrix1.cellType, "matrixdynamic cellType").toBe("text");
+    expect(matrix2.cellType, "matrixdropdown cellType").toBe("text");
+    expect(matrix1.visibleRows[0].cells[0].question.getType(), "matrixdynamic cell question").toBe("text");
+    expect(matrix2.visibleRows[0].cells[0].question.getType(), "matrixdropdown cell question").toBe("text");
+    expect(matrix1.toJSON().cellType, "cellType equal to the default is not serialized").toBeUndefined();
+    matrix1.cellType = "dropdown";
+    expect(matrix1.toJSON().cellType, "cellType different from the default is serialized").toBe("dropdown");
+    settings.matrix.defaultCellType = "dropdown";
+  });
+  test("Change the default cellType via Serializer, bug#11708", () => {
+    const prop = Serializer.findProperty("matrixdynamic", "cellType");
+    const defaultFunc = prop.defaultValueFunc;
+    prop.defaultValue = "text";
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", columns: [{ name: "col1" }], rowCount: 1 }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.cellType, "cellType").toBe("text");
+    expect(matrix.visibleRows[0].cells[0].question.getType(), "cell question").toBe("text");
+    prop.defaultValue = undefined;
+    prop.defaultValueFunc = defaultFunc;
+    expect(new QuestionMatrixDynamicModel("q1").cellType, "the default cellType is restored").toBe("dropdown");
+  });
 });

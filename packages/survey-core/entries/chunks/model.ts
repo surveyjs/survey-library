@@ -169,8 +169,7 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
-export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,

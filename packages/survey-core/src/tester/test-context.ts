@@ -4,7 +4,7 @@ import { SurveyTestDiagnostics } from "./test-diagnostics";
 import { ISurveyTest, ISurveyTestOptions, RESERVED_TARGET_SURVEY } from "./test-json";
 import { ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestStepResult, SurveyTestIssueCodes, SurveyTestSeverity } from "./test-result";
 import { createCaseError } from "./test-error";
-import { ISurveyTestTarget, SurveyTestTargetKind, SurveyTestTargetResolver } from "./test-targets";
+import { ISurveyTestTarget, SurveyTestTargetResolver } from "./test-targets";
 
 // The target grammar - the path a case writes, in both directions - lives in test-targets.ts. It is
 // re-exported here because the context is what a command and a check handler are written against, and

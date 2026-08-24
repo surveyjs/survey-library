@@ -326,19 +326,6 @@ describe("SurveyTestTargets.nameOf: nothing is cached", () => {
 // The authoring helpers
 // -------------------------------------------------------------------------------------------------
 
-// One value per payload type that satisfies it, and the whole set doubles as the values every other
-// type is tested against.
-const payloadSamples: { [type: string]: any } = {
-  string: "text",
-  number: 1,
-  boolean: true,
-  stringArray: ["a", "b"],
-  array: [1, "a"],
-  nameMap: { q1: "a" },
-  value: "anything",
-  none: true,
-};
-
 describe("Authoring helpers: payloads", () => {
   test("isValidTestPayload is exactly what the runner applies, for every payload type", async () => {
     const values: Array<any> = [

@@ -186,9 +186,6 @@ export class SurveyTestExecution {
     this.abortSignal = !!options ? options.signal : undefined;
     this.testFilter = !!options ? options.testFilter : undefined;
   }
-  public get hasTestFilter(): boolean {
-    return !!this.testFilter;
-  }
   // The test object and the index are the ones the suite holds: the filter is host code, and it is
   // never handed a copy it could believe it is allowed to change. What it throws travels out of here
   // untouched - the runner reports it once, at the suite level. The result is read as a boolean:

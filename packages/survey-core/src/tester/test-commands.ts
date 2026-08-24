@@ -300,7 +300,7 @@ function getHiddenParent(question: any): any {
   return undefined;
 }
 
-function checkVisible(context: ISurveyTestContext, question: any, path: string): void {
+function checkVisible(question: any, path: string): void {
   if (question.isVisibleInSurvey !== false) return;
   const hiddenParent = question.isVisible === false ? undefined : getHiddenParent(question);
   let reason: string;
@@ -647,7 +647,7 @@ function isObjectValue(value: any): boolean {
 
 // Grows a dynamic matrix or panel to hold the value, exactly as far as a respondent could by pressing
 // "Add". Never shrinks: the extra entries stay and the case is told about them.
-function resizeForValue(context: ISurveyTestContext, question: any, path: string, count: number,
+function resizeForValue(context: ISurveyTestContext, path: string, count: number,
   info: { current: number, max: number, allowAdd: boolean, add: () => void, itemsText: string, allowProperty: string,
     maxProperty: string, canAdd: () => boolean, canProperty: string, getCount: () => number, }): void {
   if (count > info.current) {
@@ -695,7 +695,7 @@ function resizeForValue(context: ISurveyTestContext, question: any, path: string
 }
 
 function setDynamicPanelValue(context: ISurveyTestContext, question: any, value: Array<any>, path: string): void {
-  resizeForValue(context, question, path, value.length, {
+  resizeForValue(context, path, value.length, {
     current: question.panelCount, max: question.maxPanelCount, allowAdd: question.allowAddPanel !== false,
     add: () => question.addPanel(), itemsText: "panel(s)",
     allowProperty: "allowAddPanel", maxProperty: "maxPanelCount",
@@ -722,7 +722,7 @@ function setDynamicPanelValue(context: ISurveyTestContext, question: any, value:
 }
 
 function setDynamicMatrixValue(context: ISurveyTestContext, question: any, value: Array<any>, path: string): void {
-  resizeForValue(context, question, path, value.length, {
+  resizeForValue(context, path, value.length, {
     current: question.rowCount, max: question.maxRowCount, allowAdd: question.allowAddRows !== false,
     add: () => question.addRow(), itemsText: "row(s)",
     allowProperty: "allowAddRows", maxProperty: "maxRowCount",
@@ -761,7 +761,7 @@ function setMatrixCellValues(context: ISurveyTestContext, question: any, row: an
   });
 }
 
-function setSingleChoiceMatrixValue(context: ISurveyTestContext, question: any, value: any, path: string): void {
+function setSingleChoiceMatrixValue(question: any, value: any, path: string): void {
   const columns: Array<any> = question.columns;
   Object.keys(value).forEach(rowName => {
     const row = question.visibleRows.filter((item: any) => String(item.name) === rowName)[0];
@@ -812,7 +812,7 @@ function setCompositeValue(context: ISurveyTestContext, question: any, value: an
 // "could this be typed" checks apply at every nesting level, so a cell that a condition hides halfway
 // through the walk fails naming that cell - the bug wholesale assignment hides.
 function setValueThroughInput(context: ISurveyTestContext, question: any, value: any, path: string): void {
-  checkVisible(context, question, path);
+  checkVisible(question, path);
   checkEditable(context, question, path);
   if (!Helpers.isValueEmpty(value)) {
     if (isDynamicPanelQuestion(question) && Array.isArray(value)) {
@@ -828,7 +828,7 @@ function setValueThroughInput(context: ISurveyTestContext, question: any, value:
       return;
     }
     if (isSingleChoiceMatrixQuestion(question) && isObjectValue(value)) {
-      setSingleChoiceMatrixValue(context, question, value, path);
+      setSingleChoiceMatrixValue(question, value, path);
       return;
     }
     if (isMultipleTextQuestion(question) && isObjectValue(value)) {
@@ -924,7 +924,7 @@ SurveyTestCommandFactory.Instance.register({
   run: (context: ISurveyTestContext, target: ISurveyTestTarget): void => {
     const question = requireQuestion("clear", target);
     checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
+    checkVisible(question, target.name);
     checkEditable(context, question, target.name);
     question.clearValue();
   },
@@ -938,7 +938,7 @@ SurveyTestCommandFactory.Instance.register({
   run: (context: ISurveyTestContext, target: ISurveyTestTarget, params: any): void => {
     const question = requireQuestion("setComment", target);
     checkOnCurrentPage(context, question, target.name);
-    checkVisible(context, question, target.name);
+    checkVisible(question, target.name);
     checkEditable(context, question, target.name);
     checkCommentAvailable(context, question, target.name);
     question.comment = params;
@@ -995,7 +995,7 @@ function cannotChangeItems(code: string, target: ISurveyTestTarget, message: str
 function addDynamicItems(context: ISurveyTestContext, question: any, target: ISurveyTestTarget,
   count: number, info: IDynamicAddInfo): void {
   checkOnCurrentPage(context, question, target.name);
-  checkVisible(context, question, target.name);
+  checkVisible(question, target.name);
   // A read-only question has no Add button either, and elementNotEditable names the property that
   // made it read-only - a "cannotAddRows" error could not.
   checkEditable(context, question, target.name);
@@ -1042,7 +1042,7 @@ function addDynamicItems(context: ISurveyTestContext, question: any, target: ISu
 function removeDynamicItem(context: ISurveyTestContext, question: any, target: ISurveyTestTarget,
   index: number, info: IDynamicRemoveInfo): void {
   checkOnCurrentPage(context, question, target.name);
-  checkVisible(context, question, target.name);
+  checkVisible(question, target.name);
   checkEditable(context, question, target.name);
   if (!info.isAllowed) {
     throw cannotChangeItems(SurveyTestIssueCodes.cannotRemoveRows, target,

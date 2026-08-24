@@ -118,7 +118,7 @@ export class SurveyTestTargetResolver {
         : this.resolveChildSegment(path, current, segment, segments, i);
       if (segment.index !== undefined) {
         const next = i + 1 < segments.length ? segments[i + 1] : undefined;
-        const indexed = this.resolveIndex(path, current, segment, next, segments, i);
+        const indexed = this.resolveIndex(path, current, segment, next);
         current = indexed.target;
         if (indexed.consumedNext) i++;
       }
@@ -325,8 +325,7 @@ export class SurveyTestTargetResolver {
     }
     return res;
   }
-  private resolveIndex(path: string, parent: ISurveyTestTarget, segment: IPathSegment,
-    next: IPathSegment, segments: Array<IPathSegment>, index: number):
+  private resolveIndex(path: string, parent: ISurveyTestTarget, segment: IPathSegment, next: IPathSegment):
     { target: ISurveyTestTarget, consumedNext: boolean } {
     const obj: any = parent.obj;
     const children = getIndexedChildren(obj);

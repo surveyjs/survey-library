@@ -58,6 +58,11 @@ const buildPlatformJson = {
       "import": "./fesm/survey-core.mjs",
       "require": "./survey.core.js"
     },
+    "./linter": {
+      "types": "./typings/entries/linter.d.ts",
+      "import": "./fesm/linter/index.mjs",
+      "require": "./linter/index.js"
+    },
     "./*.css": "./*.css",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",

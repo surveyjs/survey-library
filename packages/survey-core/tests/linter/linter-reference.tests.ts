@@ -45,13 +45,83 @@ describe("reference/unknown - basics", () => {
       elements: [{ type: "text", name: "q1", visibleIf: "{externalVar} = 1" }],
     }, { knownVariables: ["externalVar"] })).toHaveLength(0);
   });
-  test("page names resolve", () => {
+  test("built-in variables resolve", () => {
     expect(unknownRefs({
+      elements: [
+        { type: "text", name: "q1", visibleIf: "{pageno} > 1" },
+        { type: "text", name: "q2", visibleIf: "{pageCount} > 2 and {questioncount} > 0" },
+        { type: "text", name: "q3", visibleIf: "{locale} = 'de'" },
+        { type: "text", name: "q4", visibleIf: "{correctedAnswers} + {incorrectAnswers} > 0" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a built-in variable is a variable, not a container", () => {
+    const findings = unknownRefs({
+      elements: [{ type: "text", name: "q1", visibleIf: "{pageno.title} notempty" }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("pageno.title");
+  });
+  test("a typo in a built-in variable is suggested", () => {
+    const findings = unknownRefs({
+      elements: [{ type: "text", name: "q1", visibleIf: "{pagno} > 1" }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("pageno");
+  });
+  test("a question wins over the built-in name it shadows", () => {
+    expect(unknownRefs({
+      elements: [
+        { type: "text", name: "locale" },
+        { type: "text", name: "q1", visibleIf: "{locale} = 'de'" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a page name is not an expression value", () => {
+    const findings = unknownRefs({
       pages: [
         { name: "intro", elements: [{ type: "text", name: "q1" }] },
         { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro} notempty" }] },
       ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("intro");
+  });
+  test("a page is not a container for its questions either", () => {
+    const findings = unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro.q1} notempty" }] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("intro.q1");
+  });
+  test("a page property reference is still skipped", () => {
+    expect(unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{$intro.isVisible} = true" }] },
+      ],
     })).toHaveLength(0);
+  });
+  test("a question wins over the page name it shares", () => {
+    expect(unknownRefs({
+      pages: [
+        { name: "intro", elements: [{ type: "text", name: "intro" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{intro} notempty" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a page name is not suggested for a typo in an expression", () => {
+    const findings = unknownRefs({
+      pages: [
+        { name: "price", elements: [{ type: "text", name: "amount" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2", visibleIf: "{pric} > 10" }] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBeUndefined();
   });
 });
 

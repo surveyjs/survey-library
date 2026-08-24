@@ -27,15 +27,10 @@ const DEFAULT_ITEM_CLASS = "itemvalue";
 const TRIGGER_SUFFIX = "trigger";
 const VALIDATOR_SUFFIX = "validator";
 
-// Serializer.classes and JsonMetadataClass.hashProperties are plain object literals,
-// so findClass("constructor") hands back Object.prototype.constructor and
-// getAllProperties() then throws on it. Element, cell, trigger and validator type
-// names come straight from the linted JSON, so every registry lookup goes through
-// this guard.
+// Element, cell, trigger and validator type names come straight from the linted JSON,
+// so a type may be anything - including "" or a name the registry does not know.
 function findMetaClass(name: string): any {
-  if (!name) return undefined;
-  const res: any = Serializer.findClass(name);
-  return !!res && typeof res.getAllProperties === "function" ? res : undefined;
+  return !!name ? Serializer.findClass(name) : undefined;
 }
 
 function findProperty(className: string, propName: string): JsonObjectProperty {

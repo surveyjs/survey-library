@@ -165,7 +165,8 @@ export {
   Variable,
   FunctionOperand,
   ArrayOperand,
-  UnaryOperand
+  UnaryOperand,
+  runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
 export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
@@ -265,7 +266,7 @@ export * from "../../src/surveyToc";
 export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
-export { SurveyModel, DefaultTheme } from "../../src/survey";
+export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,
@@ -275,7 +276,8 @@ export {
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
   SurveyTriggerSkip,
-  Trigger
+  Trigger,
+  buildTriggerExpression
 } from "../../src/trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../src/popup-survey";
 export { TextPreProcessor } from "../../src/textPreProcessor";

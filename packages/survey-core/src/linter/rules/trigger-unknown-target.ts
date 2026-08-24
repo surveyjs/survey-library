@@ -13,8 +13,8 @@ function candidates(ctx: LintContext, kind: "questionvalue" | "question" | "page
     if (records.some(rec => wantPage ? rec.kind === "page" : rec.kind === "question")) res.push(name);
   });
   if (kind === "questionvalue") {
-    ctx.index.byValueName.forEach((records, name) => res.push(name));
-    ctx.index.calculatedValues.forEach((record, name) => res.push(name));
+    ctx.index.byValueName.forEach((_, name) => res.push(name));
+    ctx.index.calculatedValues.forEach((_, name) => res.push(name));
     if (Array.isArray(ctx.options.knownVariables)) res.push(...ctx.options.knownVariables);
     res.push(...builtInVariableNames());
   }

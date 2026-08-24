@@ -122,8 +122,8 @@ function rootCandidates(index: SurveyIndex, options: ISurveyLintOptions, nameOnl
   index.byName.forEach((values, name) => {
     if (values.some(value => isRootRecordVisible(value, nameOnly))) res.push(name);
   });
-  index.byValueName.forEach((values, name) => res.push(name));
-  index.calculatedValues.forEach((value, name) => res.push(name));
+  index.byValueName.forEach((_, name) => res.push(name));
+  index.calculatedValues.forEach((_, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
   res.push(...builtInVariableNames());
   return res;

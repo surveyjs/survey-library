@@ -330,13 +330,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.getValuePropertyName(); }
-  public getFilteredName(): any {
-    let res = super.getFilteredName();
-    if (this.hasFilteredValue) {
-      res += settings.expressionVariables.unwrapPostfix;
-    }
-    return res;
-  }
   public getFilteredValue(isUnwrapped?: boolean): any {
     if (this.hasFilteredValue && (isUnwrapped || !this.valuePropertyName)) return this.renderedValue;
     return super.getFilteredValue(isUnwrapped);

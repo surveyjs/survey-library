@@ -75,6 +75,7 @@ import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 
 import { describe, test, expect, vi } from "vitest";
+import { IConfirmDialogOptions } from "../src/popup";
 describe("Survey", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -6936,6 +6937,85 @@ describe("Survey", () => {
     expect(q1.visibleChoices.map(ch => ch.value), "the 'c' choice is invisible").toEqual(["a", "b"]);
     //the 'c' choice still exists, it is only invisible, so correctAnswer is preserved
     expect(q1.correctAnswer, "radiogroup correctAnswer is preserved for invisible choice").toBe("c");
+  });
+  test("Quiz, correctQuestions progress for a dynamic panel with several panels, Bug#11656", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dynamicQ1",
+          correctAnswer: [{ subQuestion2: ["Item 1"] }],
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "subQuestion2",
+              correctAnswer: ["Item 2"],
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ],
+      showProgressBar: true,
+      progressBarType: "correctQuestions"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+    //the correctAnswer of the question inside the template is used, one quiz question per panel
+    panel.value = [{ subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, one panel").toBe(1);
+    expect(survey.getQuizQuestionCount(), "survey.getQuizQuestionCount, one panel").toBe(1);
+    expect(panel.correctAnswerCount, "correctAnswerCount, one panel").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "the answer is correct, one panel").toBe(1);
+    expect(survey.progressText, "progressText, one panel").toBe("Answered 1/1 questions");
+    //every new panel adds a new quiz question
+    panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, three panels").toBe(3);
+    expect(survey.getQuizQuestionCount(), "survey.getQuizQuestionCount, three panels").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, three panels").toBe(3);
+    expect(survey.getCorrectAnswerCount(), "all the answers are correct, three panels").toBe(3);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, three panels").toBe(0);
+    expect(survey.progressText, "progressText, three panels").toBe("Answered 3/3 questions");
+    //the second panel is answered incorrectly
+    panel.value = [{ subQuestion2: ["Item 2"] }, { subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, one incorrect answer").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, one incorrect answer").toBe(2);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, one incorrect answer").toBe(2);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, one incorrect answer").toBe(1);
+    expect(survey.progressText, "progressText, one incorrect answer").toBe("Answered 2/3 questions");
+    //an empty panel is a quiz question, but it is not answered correctly
+    panel.value = [{ subQuestion2: ["Item 2"] }, {}, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, an empty panel").toBe(3);
+    expect(panel.correctAnswerCount, "correctAnswerCount, an empty panel").toBe(2);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, an empty panel").toBe(2);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, an empty panel").toBe(1);
+    expect(survey.progressText, "progressText, an empty panel").toBe("Answered 2/3 questions");
+  });
+  test("Quiz, correctAnswer in a dynamic panel when its questions have no correctAnswer, Bug#11656", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dynamicQ1",
+          correctAnswer: [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }],
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "subQuestion2",
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("dynamicQ1");
+    //there are no quiz questions inside panels, the entire question value is compared with correctAnswer
+    panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 1"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, the answer is incorrect").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, the answer is incorrect").toBe(0);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, the answer is incorrect").toBe(1);
+    panel.value = [{ subQuestion2: ["Item 1"] }, { subQuestion2: ["Item 2"] }];
+    expect(panel.quizQuestionCount, "quizQuestionCount, the answer is correct").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "getCorrectAnswerCount, the answer is correct").toBe(1);
+    expect(survey.getIncorrectAnswerCount(), "getIncorrectAnswerCount, the answer is correct").toBe(0);
   });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
@@ -16097,36 +16177,6 @@ describe("Survey", () => {
     survey.showProgressBar = "bottom";
     expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_bottom");
   });
-  test("settings.minWidth/maxWidth", () => {
-    const oldMinWidth = settings.minWidth;
-    const oldMaxWidth = settings.maxWidth;
-    settings.minWidth = "0px";
-    settings.maxWidth = "500px";
-    const survey = new SurveyModel({
-      "showProgressBar": true,
-      "progressBarLocation": "top",
-      elements: [
-        { type: "text", name: "q1" },
-        { type: "text", name: "q2", minWidth: "50px" },
-        { type: "text", name: "q3", maxWidth: "90%" },
-        { type: "paneldynamic", name: "q4" },
-      ],
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    const q3 = survey.getQuestionByName("q3");
-    const q4 = survey.getQuestionByName("q4");
-    expect(q1.minWidth, "q1 minWidth").toBe("0px");
-    expect(q1.maxWidth, "q1 maxWidth").toBe("500px");
-    expect(q2.minWidth, "q2 minWidth").toBe("50px");
-    expect(q2.maxWidth, "q2 maxWidth").toBe("500px");
-    expect(q3.minWidth, "q3 minWidth").toBe("0px");
-    expect(q3.maxWidth, "q3 maxWidth").toBe("90%");
-    expect(q4.minWidth, "q4 (paneldynamic) minWidth").toBe("auto");
-    settings.minWidth = oldMinWidth;
-    settings.maxWidth = oldMaxWidth;
-  });
-
   test("getContainerContent - navigation", () => {
     const json = {
       pages: [
@@ -17781,6 +17831,21 @@ describe("Survey", () => {
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
   });
+  test("survey.applyTheme does not mutate the original theme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const theme = {
+      cssVariables: {
+        "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+      },
+      backgroundOpacity: 0.7,
+    };
+    const originalCssVariables = { ...theme.cssVariables };
+    survey.applyTheme(theme as any);
+    expect(theme.cssVariables).toEqual(originalCssVariables);
+    expect(theme.backgroundOpacity).toBe(0.7);
+    expect(survey.backgroundOpacity).toBe(0.7);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 0, 0, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {
@@ -17806,11 +17871,11 @@ describe("Survey", () => {
       expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
       expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
       expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
-      expect(vars["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
-      expect(vars["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-title"]).toBe("32px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-title"]).toBe("40px");
       expect(typeof vars["--sjs-font-headertitle-size"]).toBe("undefined");
-      expect(vars["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
-      expect(vars["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+      expect(vars["--sjs2-typography-font-size-component-survey-header-description"]).toBe("20px");
+      expect(vars["--sjs2-typography-line-height-component-survey-header-description"]).toBe("30px");
       expect(typeof vars["--sjs-font-headerdescription-size"]).toBe("undefined");
     } finally {
       DefaultTheme.cssVariables = cssVariables;
@@ -21273,5 +21338,145 @@ describe("Survey", () => {
     q1.value = 5;
     expect(q1.errors.length, "q1 has error, value=5 < min=10").toBe(1);
     expect(panel1.isVisible, "panel1 is invisible, q1=5 contains errors").toBe(false);
+  });
+  test("Do not run visibleIf/enableIf/requiredIf expressions on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        { type: "text", name: "question2", visibleIf: "customFunc({question1})", enableIf: "customFunc({question1})", requiredIf: "customFunc({question1})" },
+        { type: "text", name: "question3", enableIf: "customFunc({question1})", requiredIf: "customFunc({question1})" }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc").toBe(0);
+    survey.setValue("question1", true);
+    expect(counter, "changing question1 runs all 5 expressions").toBe(5);
+    const question2 = survey.getQuestionByName("question2");
+    expect(question2.isVisible, "question2 is visible").toBe(true);
+    expect(question2.isRequired, "question2 is required").toBe(true);
+    expect(question2.isReadOnly, "question2 is enabled").toBe(false);
+    counter = 0;
+    survey.setValue("dummy", "def");
+    expect(counter, "changing dummy again should not run customFunc").toBe(0);
+    survey.runExpressions();
+    expect(counter, "survey.runExpressions() runs all expressions").toBe(5);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Run visibleIf expression with a parameterless custom function on any value change", () => {
+    let counter = 0;
+    let funcRes = false;
+    FunctionFactory.Instance.register("customNoParamsFunc", (params: any): boolean => {
+      counter++;
+      return funcRes;
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "text", name: "question1", visibleIf: "customNoParamsFunc()" }
+      ]
+    });
+    counter = 0;
+    funcRes = true;
+    survey.setValue("dummy", "abc");
+    expect(counter, "the function dependencies are unknown, run it on any change").toBe(1);
+    expect(survey.getQuestionByName("question1").isVisible, "question1 is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customNoParamsFunc");
+  });
+  test("Do not run panel visibleIf/enableIf/requiredIf expressions on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        {
+          type: "panel", name: "panel1",
+          visibleIf: "customFunc({question1})",
+          enableIf: "customFunc({question1})",
+          requiredIf: "customFunc({question1})",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc").toBe(0);
+    survey.setValue("question1", true);
+    expect(counter, "changing question1 runs all 3 panel expressions").toBe(3);
+    expect(survey.getPanelByName("panel1").isVisible, "panel1 is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Do not run visibleIf expressions in dynamic panel on changing unrelated values", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunc", (params: any): boolean => {
+      counter++;
+      return !!params[0];
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        {
+          type: "paneldynamic", name: "panel1", panelCount: 2,
+          templateElements: [
+            { type: "boolean", name: "q1" },
+            { type: "text", name: "q2", visibleIf: "customFunc({panel.q1})" }
+          ]
+        }
+      ]
+    });
+    counter = 0;
+    survey.setValue("dummy", "abc");
+    expect(counter, "changing dummy should not run customFunc in panels").toBe(0);
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel1")).panels[0];
+    panel.getQuestionByName("q1").value = true;
+    expect(counter > 0, "changing q1 inside the panel runs customFunc").toBeTruthy();
+    expect(panel.getQuestionByName("q2").isVisible, "q2 in the first panel is visible").toBe(true);
+    FunctionFactory.Instance.unregister("customFunc");
+  });
+  test("Run visibleIf expressions on changing a calculated value it depends on", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "dummy" },
+        { type: "boolean", name: "question1" },
+        { type: "text", name: "question2", visibleIf: "{calcVal} = true" }
+      ],
+      calculatedValues: [{ name: "calcVal", expression: "{question1} = true" }]
+    });
+    const question2 = survey.getQuestionByName("question2");
+    expect(question2.isVisible, "question2 is invisible initially").toBe(false);
+    survey.setValue("question1", true);
+    expect(question2.isVisible, "question2 is visible, calcVal is true").toBe(true);
+    survey.setValue("question1", false);
+    expect(question2.isVisible, "question2 is invisible, calcVal is false").toBe(false);
+  });
+  test("survey confirmActionAsync", () => {
+    const oldSettingsFunc = settings.confirmActionAsync;
+    let rootElement = undefined;
+    settings.confirmActionAsync = (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => {
+      rootElement = options?.rootElement;
+    };
+    const survey = new SurveyModel({});
+    survey.rootElement = "survey_root_element" as any;
+    survey.confirmActionAsync("message_test", () => {});
+    expect(rootElement).toBe("survey_root_element");
+
+    survey.confirmActionAsync("message_test", () => {}, { rootElement: "document_root_element" as any });
+    expect(rootElement).toBe("document_root_element");
+
+    const options: IConfirmDialogOptions = {};
+    survey.confirmActionAsync("message_test", () => {}, options);
+    expect(rootElement).toBe("survey_root_element");
+    expect(options.rootElement).toBeUndefined();
+    settings.confirmActionAsync = oldSettingsFunc;
   });
 });

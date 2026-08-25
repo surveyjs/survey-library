@@ -85,7 +85,7 @@ frameworks.forEach(framework => {
             maxWidth: "768px",
             minWidth: "768px",
             width: "768px",
-            renderAs: "radio"
+            displayMode: "radio"
           },
         ]
       });
@@ -97,7 +97,7 @@ frameworks.forEach(framework => {
       await expect(page.locator("input[type=radio]").first()).toBeChecked();
       await compareScreenshot(page, questionRoot, "boolean-radio-question-clicked.png");
 
-      await page.click("body", { position: { x: 0, y: 400 } });
+      await page.click("body", { position: { x: 0, y: 0 } });
       await expect(page.locator("input[type=radio]").first()).not.toBeFocused();
       await compareScreenshot(page, questionRoot, "boolean-radio-question-unfocused.png");
     });
@@ -294,5 +294,59 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-readOnly.png");
       await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-readOnly.png");
     });
+
+    test("Check switch boolean question with multiline text", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "boolean",
+                "name": "switch-readonly-unchecked",
+                "title": "Switch readonly Unchecked - and some other long text appears here and goes outside the boundaries",
+                "defaultValue": "false",
+                "readOnly": true,
+                "labelTrue": "On",
+                "labelFalse": "Off",
+                "displayMode": "switch"
+              },
+              {
+                "type": "boolean",
+                "name": "question1",
+                "title": "Switch readonly Unchecked - and some other long text appears here and goes outside the boundaries",
+                "defaultValue": "false",
+                "labelTrue": "On",
+                "labelFalse": "Off",
+                "displayMode": "switch"
+              },
+              {
+                "type": "boolean",
+                "name": "switch-readonly-checked",
+                "title": "Switch readonly CHECKED - and some other long text appears here and goes outside the boundaries",
+                "defaultValue": "true",
+                "labelTrue": "On",
+                "labelFalse": "Off",
+                "displayMode": "switch"
+              },
+              {
+                "type": "boolean",
+                "name": "question2",
+                "title": "Switch readonly CHECKED - and some other long text appears here and goes outside the boundaries",
+                "defaultValue": "true",
+                "readOnly": true,
+                "labelTrue": "On",
+                "labelFalse": "Off",
+                "displayMode": "switch"
+              }
+            ]
+          }
+        ]
+      });
+      await page.waitForTimeout(1000);
+      await compareScreenshot(page, ".sd-page__content", "boolean-switch-multiline-caption.png");
+    });
+
   });
 });

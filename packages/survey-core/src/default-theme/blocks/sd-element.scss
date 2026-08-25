@@ -2,11 +2,6 @@
 @use "../mixins.scss" as mixins;
 @use "../typography-mixins.scss" as *;
 
-.sd-element {
-  padding-left: var(--sv-element-add-padding-left, 0px);
-  padding-right: var(--sv-element-add-padding-right, 0px);
-}
-
 .sd-element__title {
   outline: none;
 }
@@ -39,17 +34,6 @@
   .sd-element__num {
     @include sjs2--typography--small-strong;
     color: $foreground-light;
-  }
-
-  span {
-    font-size: $font-questiontitle-size;
-    line-height: multiply(1.5, $font-questiontitle-size);
-  }
-
-  .sv-title-actions__title {
-    font-size: 0;
-    line-height: 0;
-    white-space: nowrap;
   }
 
   .sv-string-viewer {
@@ -97,10 +81,6 @@
   .sd-element__num {
     float: right;
   }
-
-  .sd-element__title--collapsed .sd-element__title-expandable-svg {
-    transform: rotate(180deg);
-  }
 }
 
 .sd-element__title--num-inline {
@@ -114,17 +94,56 @@
   display: block;
 }
 
-.sd-element__title-expandable-svg {
-  display: inline-block;
-  width: var(--sjs2-size-x200);
-  height: var(--sjs2-size-x200);
-
+.sd-element__title-expandable-svg-container {
+  display: block;
   position: absolute;
   inset-inline-start: var(--sjs2-spacing-negative-x300);
-  top: var(--sjs2-spacing-x050);
-
-  use {
-    fill: $foreground-light;
+  padding-inline-end: var(--sjs2-spacing-x100);
+  width: var(--sjs2-size-x200);
+  height: 1lh;
+}
+.sd-element__title-expandable-svg {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
+  border-radius: var(--sjs2-radius-form-item, 4px);
+  transition:
+    background $transition-duration,
+    fill $transition-duration;
+}
+.sd-element--collapsed,
+.sd-element__header--expandable {
+  cursor: pointer;
+}
+.sd-element--collapsed:hover,
+.sd-element__header--expandable:hover {
+  .sd-element__title-expandable-svg {
+    background: var(--sjs2-color-bg-basic-secondary-dim);
+  }
+}
+.sd-element__header--expandable:has(:focus-visible) {
+  .sd-element__title-expandable-svg {
+    box-shadow: var(--sjs2-border-effect-a11y);
+  }
+}
+.sd-root-modern--mobile {
+  .sd-element__title--expandable {
+    display: flex;
+    sv-ng-string,
+    .sv-string-viewer {
+      flex-grow: 1;
+    }
+  }
+  .sd-element__title-expandable-svg-container {
+    position: relative;
+    inset-inline-start: 0;
+    padding-inline-end: 0;
+    order: 1;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 }
 
@@ -132,24 +151,17 @@
 //   transform: rotate(90deg);
 // }
 
-//with borders styles
-.sd-element--with-frame {
-  border-radius: var(--sjs2-radius-component-panel);
-  box-sizing: border-box;
-  padding-top: var(--sd-base-padding);
-  padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
-  padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
-  padding-bottom: var(--sd-base-padding);
-  background: var(--sjs2-color-component-panel-default-bg);
-  box-shadow: $shadow-small;
+// The element is sized by the survey layout, so it must never grow past its row. Without this,
+// a flex item's automatic minimum size is its content size, and wide content (a dynamic panel tab
+// strip, for one) makes the element overflow the row instead of letting the content collapse.
+.sd-element-wrapper {
+  max-width: 100%;
 }
 
-//compact styles
-.sd-element--with-frame.sd-element--compact {
-  border: 1px solid $border;
-  border-radius: var(--sjs2-radius-component-panel);
-  box-shadow: none;
-  background-color: transparent;
+// Below this width the element wraps onto a row of its own. Panels, grid layout columns and
+// elements the survey does not size shrink to their content instead and do not get this class.
+.sd-element-wrapper--min-width {
+  min-width: min(100%, #{$sd-element-min-width});
 }
 
 @keyframes elementMoveIn {
@@ -220,73 +232,4 @@
   animation-timing-function: $reverse-ease-out;
   animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration;
   animation-delay: 0s, $collapse-move-out-delay, $collapse-move-out-delay;
-}
-
-.sd-element--expandable.sd-elemenet--expandable--animating {
-  & > .sd-element__header:focus-within,
-  & > .sd-element__header:hover {
-    background-color: transparent;
-  }
-}
-
-.sd-elemenet--expandable--animating.sd-element--expandable {
-  transition-property: padding-top, padding-bottom;
-
-  & > .sd-element__header {
-    transition-property: padding-top, padding-bottom;
-  }
-
-  &.sd-element--expanded {
-    transition-timing-function: $ease-out;
-    transition-duration: $expand-move-in-duration;
-
-    & > .sd-element__header {
-      transition-timing-function: $ease-out;
-      transition-duration: $expand-move-in-duration;
-
-      .sd-element__title:before {
-        transition-duration: $expand-move-in-duration;
-      }
-    }
-  }
-
-  &.sd-element--collapsed {
-    transition-timing-function: $ease-out;
-    transition-duration: $collapse-move-out-duration;
-    transition-delay: $collapse-move-out-delay;
-
-    & > .sd-element__header {
-      transition-timing-function: $ease-out;
-      transition-duration: $collapse-move-out-duration;
-      transition-delay: $collapse-move-out-delay;
-
-      .sd-element__title:before {
-        transition-duration: $collapse-move-out-duration;
-        transition-delay: $collapse-move-out-delay;
-      }
-    }
-  }
-
-  &.sd-element--complex:not(.sd-question--empty) {
-    & > .sd-element__header--location-top:after {
-      display: block;
-      opacity: 0;
-      height: 0;
-      --animation-height: 1px;
-      animation-name: fadeIn, moveIn;
-      animation-fill-mode: forwards;
-      animation-timing-function: $ease-out;
-      animation-delay: $expand-fade-in-delay, 0s;
-      animation-duration: $expand-fade-in-duration, $expand-move-in-duration;
-    }
-
-    &.sd-element--collapsed .sd-element__header--location-top:after {
-      animation-direction: reverse;
-      opacity: 1;
-      height: 1px;
-      animation-timing-function: $reverse-ease-out;
-      animation-delay: 0s, $collapse-move-out-delay;
-      animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration;
-    }
-  }
 }

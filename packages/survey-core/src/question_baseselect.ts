@@ -1208,6 +1208,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && this.isOtherValue(val)) return false;
+    if (!this.hasUnknownValueItemInChoices(val, isFilteredChoices)) return false;
+    return !this.isValueInSharedQuestions(val, isFilteredChoices);
+  }
+  protected hasUnknownValueItemInChoices(val: any, isFilteredChoices: boolean): boolean {
     if (this.showNoneItem && val == this.noneItem.value) return false;
     if (this.showRefuseItem && val == this.refuseItem.value) return false;
     if (this.showDontKnowItem && val == this.dontKnowItem.value) return false;
@@ -1215,6 +1219,28 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       ? this.getFilteredChoices()
       : this.activeChoices;
     return this.getItemByValue(val, choices) == null;
+  }
+  // Several questions may share the same valueName. In this case the value that belongs
+  // to another question choices is a known value for this question as well and it should
+  // not be treated as the "other" value.
+  private isValueInSharedQuestions(val: any, isFilteredChoices: boolean): boolean {
+    const questions = this.getQuestionsWithSameValueName();
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].hasUnknownValueItemInChoices(val, isFilteredChoices)) return true;
+    }
+    return false;
+  }
+  private getQuestionsWithSameValueName(): Array<QuestionSelectBase> {
+    const res: Array<QuestionSelectBase> = [];
+    if (!this.valueName || !this.survey) return res;
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    if (!Array.isArray(questions) || questions.length < 2) return res;
+    questions.forEach((q: any) => {
+      if (q !== this && q.isDescendantOf && q.isDescendantOf("selectbase")) {
+        res.push(<QuestionSelectBase>q);
+      }
+    });
+    return res;
   }
   protected isValueDisabled(val: any): boolean {
     var itemValue = this.getItemByValue(val, this.getFilteredChoices());
@@ -1230,6 +1256,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
    * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   * @since 2.0.4
    */
   public get customChoices(): Array<any> {
     return this.getItemValuesPropertyValue("customChoices");

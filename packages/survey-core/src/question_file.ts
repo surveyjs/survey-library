@@ -616,6 +616,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * To allow specific file extensions, use the [`acceptedTypes`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedTypes) property. This property can be used together with `acceptedCategories` to define a combined set of allowed files.
    *
    * To add or remove file extensions within a category, modify the [`acceptedFileCategories`](https://surveyjs.io/form-library/documentation/api-reference/settings#acceptedFileCategories) object in the global settings.
+   * @since 2.3.16
    */
   @property() acceptedCategories: Array<string>;
 
@@ -672,6 +673,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Default value: 1000
    * @see maxSize
+   * @since 2.3.14
    */
   @property() maxFiles: number;
 
@@ -695,6 +697,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Specifies whether users should confirm file deletion.
    *
    * Default value: `true`
+   * @since 3.0.0
    */
   @property() confirmDelete: boolean = true;
 

@@ -606,10 +606,11 @@ describe("Layout:", () => {
     expect(q1.rootStyle, "#1").toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)"
+      "flexShrink": 1
     });
+    expect(q1.isInGridColumn, "q1 spans the whole row").toBe(false);
+    expect(q1.getWrapperCss(), "q1 wrapper css")
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
 
     const q2 = new QuestionTextModel("q2");
     q2.startWithNewLine = false;
@@ -618,18 +619,19 @@ describe("Layout:", () => {
     expect(q1.rootStyle, "#2").toEqual({
       "flexBasis": "50%",
       "flexGrow": 1,
-      "flexShrink": 0,
-      "maxWidth": "100%",
-      "minWidth": undefined
+      "flexShrink": 0
     });
 
     expect(q2.rootStyle, "#3").toEqual({
       "flexBasis": "50%",
       "flexGrow": 1,
-      "flexShrink": 0,
-      "maxWidth": "100%",
-      "minWidth": undefined
+      "flexShrink": 0
     });
+
+    // Elements sized by grid columns must not get the default element min-width from CSS.
+    expect(q1.isInGridColumn, "q1 is in a grid column").toBe(true);
+    expect(q1.getWrapperCss(), "q1 wrapper css").toBe("sd-element-wrapper");
+    expect(q2.getWrapperCss(), "q2 wrapper css").toBe("sd-element-wrapper");
   });
 
   test("gridLayoutColumns: serialize last column", () => {

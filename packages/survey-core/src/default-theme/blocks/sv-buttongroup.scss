@@ -71,7 +71,7 @@
   --sd-buttongroup-a11y-boxshadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
 
   .sv-button-group__item-decorator {
-    padding: var(--sjs2-spacing-x100);
+    padding: var(--sjs2-layout-component-action-small-box-padding-vertical) var(--sjs2-layout-component-action-small-box-padding-horizontal);
     box-sizing: border-box;
     display: flex;
     flex-grow: 1;

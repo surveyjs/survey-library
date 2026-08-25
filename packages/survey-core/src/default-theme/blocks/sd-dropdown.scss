@@ -6,20 +6,23 @@
   position: relative;
 }
 .sd-dropdown--select {
+  justify-content: end;
   &:before {
     pointer-events: none;
     content: "";
     @include sjs2--typography--component--input--content;
     min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
   }
-  justify-content: end;
   select.sd-dropdown__input {
     position: absolute;
-    padding: 
-      calc(var(--sjs2-layout-component-input-medium-content-padding-vertical) + 
-        var(--sjs2-layout-component-formbox-medium-padding-vertical))
-      calc(var(--sjs2-layout-component-input-medium-content-padding-horizontal) + 
-        var(--sjs2-layout-component-formbox-medium-padding-horizontal));
+    padding: calc(
+        var(--sjs2-layout-component-input-medium-content-padding-vertical) +
+          var(--sjs2-layout-component-formbox-medium-padding-vertical)
+      )
+      calc(
+        var(--sjs2-layout-component-input-medium-content-padding-horizontal) +
+          var(--sjs2-layout-component-formbox-medium-padding-horizontal)
+      );
     top: 0;
     left: 0;
     right: 0;
@@ -67,6 +70,8 @@
   display: flex;
   width: 100%;
   span {
+    align-self: center;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -93,6 +98,21 @@
   white-space: nowrap;
   display: inline-block;
   appearance: none;
+}
+.sd-dropdown:where(:not(.sd-dropdown__input-field-component, .sd-tagbox)) {
+  .sd-dropdown__filter-string-input {
+    position: static;
+  }
+  .sd-dropdown__input-prefix-wrapper {
+    & > sv-ng-string span,
+    & > span {
+      position: absolute;
+      width: 100%;
+    }
+  }
+  .sd-dropdown__hint-suffix {
+    position: absolute;
+  }
 }
 
 .sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {

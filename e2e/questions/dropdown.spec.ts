@@ -3,7 +3,7 @@ import { registerCustomItemComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
 
-const questionOffsetTopConst = 176;
+const questionOffsetTopConst = 160;
 const singleListItemHeight = 64;
 const emptyContainerHeigth = 120;
 
@@ -1310,7 +1310,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop1).toBeLessThan(200);
       const offsetHeight2 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight2).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight2).toBeLessThanOrEqual(708);
+      expect(offsetHeight2).toBeLessThanOrEqual(722);
       const scrollTop1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop1).toEqual(0);
       const scrollHeight1 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
@@ -1324,9 +1324,9 @@ frameworks.forEach((framework) => {
       expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight3).toBeLessThanOrEqual(708);
+      expect(offsetHeight3).toBeLessThanOrEqual(722);
       const scrollTop2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
-      expect(scrollTop2).toBeGreaterThanOrEqual(546);
+      expect(scrollTop2).toBeGreaterThanOrEqual(542);
       expect(scrollTop2).toBeLessThanOrEqual(558);
       await page.waitForTimeout(500);
       const scrollHeight2 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
@@ -1340,7 +1340,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight4).toBeGreaterThanOrEqual(688);
-      expect(offsetHeight4).toBeLessThanOrEqual(708);
+      expect(offsetHeight4).toBeLessThanOrEqual(722);
       const scrollTop3 = await dropdown1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop3).toBeGreaterThanOrEqual(1696);
       expect(scrollTop3).toBeLessThanOrEqual(1796);
@@ -1362,7 +1362,7 @@ frameworks.forEach((framework) => {
       const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop4).toEqual(0);
       const offsetHeight6 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight6).toBeGreaterThanOrEqual(716);
+      expect(offsetHeight6).toBeGreaterThanOrEqual(670);
       expect(offsetHeight6).toBeLessThanOrEqual(726);
       const scrollTop4 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop4).toEqual(0);
@@ -1377,7 +1377,7 @@ frameworks.forEach((framework) => {
       const offsetTop5 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
       expect(offsetTop5).toEqual(0);
       const offsetHeight7 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      expect(offsetHeight7).toBeGreaterThanOrEqual(716);
+      expect(offsetHeight7).toBeGreaterThanOrEqual(670);
       expect(offsetHeight7).toBeLessThanOrEqual(726);
       const scrollTop5 = await dropdown2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       expect(scrollTop5).toBeGreaterThanOrEqual(746);
@@ -1450,7 +1450,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop3 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop3).toBeGreaterThanOrEqual(222);
+      expect(offsetTop3).toBeGreaterThanOrEqual(174);
       expect(offsetTop3).toBeLessThanOrEqual(238);
       const offsetHeight3 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(480);
@@ -1460,7 +1460,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
       await expect(dropdown2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await dropdown2.evaluate((el) => (el as HTMLElement).offsetTop);
-      expect(offsetTop4).toEqual(768);
+      expect(offsetTop4).toEqual(720);
       const offsetHeight4 = await dropdown2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight4).toEqual(singleListItemHeight);
 
@@ -1605,10 +1605,10 @@ frameworks.forEach((framework) => {
       expect(offsetTop1).toBeLessThanOrEqual(170);
       const offsetLeft1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft1).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft1).toBeLessThanOrEqual(500);
+      expect(offsetLeft1).toBeLessThanOrEqual(510);
       const offsetHeight1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toBeGreaterThanOrEqual(410);
-      expect(offsetHeight1).toBeLessThanOrEqual(420);
+      expect(offsetHeight1).toBeLessThanOrEqual(424);
       const offsetWidth1 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(offsetWidth1).toBeGreaterThanOrEqual(310);
       expect(offsetWidth1).toBeLessThanOrEqual(320);
@@ -1620,10 +1620,10 @@ frameworks.forEach((framework) => {
       expect(offsetTop2).toBeLessThanOrEqual(170);
       const offsetLeft2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft2).toBeGreaterThanOrEqual(680);
-      expect(offsetLeft2).toBeLessThanOrEqual(690);
+      expect(offsetLeft2).toBeLessThanOrEqual(700);
       const offsetHeight2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight2).toBeGreaterThanOrEqual(910);
-      expect(offsetHeight2).toBeLessThanOrEqual(920);
+      expect(offsetHeight2).toBeLessThanOrEqual(924);
       const offsetWidth2 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetWidth);
       expect(offsetWidth2).toBeGreaterThanOrEqual(500);
       expect(offsetWidth2).toBeLessThanOrEqual(510);
@@ -1635,7 +1635,7 @@ frameworks.forEach((framework) => {
       expect(offsetTop3).toBeLessThanOrEqual(170);
       const offsetLeft3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetLeft);
       expect(offsetLeft3).toBeGreaterThanOrEqual(490);
-      expect(offsetLeft3).toBeLessThanOrEqual(500);
+      expect(offsetLeft3).toBeLessThanOrEqual(510);
       const offsetHeight3 = await popupContainer.evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight3).toBeGreaterThanOrEqual(410);
       expect(offsetHeight3).toBeLessThanOrEqual(460);

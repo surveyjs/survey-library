@@ -2413,6 +2413,83 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question4.visibleChoices.length, "There are two visible choices by now").toBe(2);
   });
 
+  test("visibleIf with lower-case {parentpanel.x} is re-evaluated on value change, dependency-skip is case-insensitive", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "question2",
+              choices: ["item1", "item2", "item3"],
+            },
+            {
+              type: "paneldynamic",
+              name: "question3",
+              panelCount: 1,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question4",
+                  visibleIf: "{parentpanel.question2} contains 'item1'",
+                },
+                {
+                  type: "text",
+                  name: "question5",
+                  visibleIf: "{ParentPanel.question2} contains 'item2'",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    const rootPanelEl1 = rootPanel.panels[0];
+    const question2 = rootPanelEl1.getQuestionByName("question2");
+    const childPanel = <QuestionPanelDynamicModel>rootPanelEl1.getQuestionByName("question3");
+    const question4 = childPanel.panels[0].getQuestionByName("question4");
+    const question5 = childPanel.panels[0].getQuestionByName("question5");
+    expect(question4.isVisible, "question4 is hidden by default").toBeFalsy();
+    expect(question5.isVisible, "question5 is hidden by default").toBeFalsy();
+    question2.value = ["item1"];
+    expect(question4.isVisible, "question4 becomes visible, {parentpanel.x}").toBeTruthy();
+    expect(question5.isVisible, "question5 is still hidden").toBeFalsy();
+    question2.value = ["item2"];
+    expect(question4.isVisible, "question4 is hidden again").toBeFalsy();
+    expect(question5.isVisible, "question5 becomes visible, {ParentPanel.x}").toBeTruthy();
+  });
+
+  test("panel context variables in expressions are case-insensitive: {PANEL.x}, {prevpanel.x}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2", visibleIf: "{PANEL.q1} = 1" },
+            { type: "text", name: "q3", visibleIf: "{prevpanel.q1} = 1" },
+          ],
+        },
+      ],
+    });
+    const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels;
+    const q = (p: number, name: string) => panels[p].getQuestionByName(name);
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} is hidden by default").toBeFalsy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} is hidden by default").toBeFalsy();
+    q(0, "q1").value = 1;
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} becomes visible").toBeTruthy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} becomes visible").toBeTruthy();
+    q(0, "q1").value = 2;
+    expect(q(0, "q2").isVisible, "panel0 {PANEL.x} is hidden again").toBeFalsy();
+    expect(q(1, "q3").isVisible, "panel1 {prevpanel.x} is hidden again").toBeFalsy();
+  });
+
   test("Page.ensureRowsVisibility updates rows in dynamic panel", () => {
     const survey = new SurveyModel({
       pages: [
@@ -4284,6 +4361,61 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panelCount, "We still have one panel").toBe(1);
     expect(panel.panels[0].locTitle.textOrHtml, "the first panel title set correctly again").toBe("sample title 2");
   });
+  test("Changing template title/description fires panel onPropertyChanged for templateTitle/templateDescription, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    const changes: Array<{ name: string, oldValue: any, newValue: any }> = [];
+    question.onPropertyChanged.add((sender, options) => {
+      if (options.name === "templateTitle" || options.name === "templateDescription") {
+        changes.push({ name: options.name, oldValue: options.oldValue, newValue: options.newValue });
+      }
+    });
+
+    question.template.title = "Title from design surface";
+    expect(question.templateTitle, "templateTitle getter reflects template.title").toBe("Title from design surface");
+    expect(changes.length, "templateTitle change is raised").toBe(1);
+    expect(changes[0].name, "templateTitle name is raised").toBe("templateTitle");
+    expect(changes[0].newValue, "templateTitle new value is correct").toBe("Title from design surface");
+
+    question.template.description = "Description from design surface";
+    expect(question.templateDescription, "templateDescription getter reflects template.description").toBe("Description from design surface");
+    expect(changes.length, "templateDescription change is raised").toBe(2);
+    expect(changes[1].name, "templateDescription name is raised").toBe("templateDescription");
+    expect(changes[1].newValue, "templateDescription new value is correct").toBe("Description from design surface");
+
+    question.template.title = "";
+    expect(question.templateTitle, "templateTitle is cleared").toBe("");
+    expect(changes.length, "clearing templateTitle is raised").toBe(3);
+    expect(changes[2].name).toBe("templateTitle");
+  });
+  test("Property grid (editingObj) synchronizes with template title/description changes on design surface, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    question.templateTitle = "Initial title";
+    question.templateDescription = "Initial description";
+
+    const propertyGrid = new SurveyModel({
+      elements: [
+        { type: "text", name: "templateTitle" },
+        { type: "text", name: "templateDescription" }
+      ]
+    });
+    propertyGrid.editingObj = question;
+    const titleQuestion = propertyGrid.getQuestionByName("templateTitle");
+    const descriptionQuestion = propertyGrid.getQuestionByName("templateDescription");
+    expect(titleQuestion.value, "grid shows the initial title").toBe("Initial title");
+    expect(descriptionQuestion.value, "grid shows the initial description").toBe("Initial description");
+
+    // Emulate editing the template panel title/description inline on the design surface
+    question.template.title = "Edited on surface";
+    question.template.description = "Edited description";
+    expect(titleQuestion.value, "grid title is synchronized with the design surface").toBe("Edited on surface");
+    expect(descriptionQuestion.value, "grid description is synchronized with the design surface").toBe("Edited description");
+
+    // Emulate clearing the values on the design surface
+    question.template.title = "";
+    question.template.description = "";
+    expect(titleQuestion.value, "grid title is cleared").toBeFalsy();
+    expect(descriptionQuestion.value, "grid description is cleared").toBeFalsy();
+  });
   test("defaultValue &  survey.onValueChanged on adding new panel", () => {
     const survey = new SurveyModel({
       elements: [
@@ -5681,10 +5813,10 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
     panel.renderMode = undefined;
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.titleLocation = "hidden";
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.displayMode = "tab";
     panel.titleLocation = "top";

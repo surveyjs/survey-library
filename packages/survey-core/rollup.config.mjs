@@ -4,7 +4,6 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
-import { isNotEmittedStatement } from "typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -15,19 +14,17 @@ const buildPlatformJson = {
   "license": "MIT",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
-  "description": "A framework-independent core of the SurveyJS Form Library that works with rendering packages. Use it to integrate dynamic, interactive JSON-based forms and surveys into your app, collect user responses, and send them to your own database.",
+  "description": "Framework-independent core of SurveyJS Form Library. Provides the form model and logic used by survey-react-ui, survey-angular-ui, survey-vue3-ui, and survey-js-ui to render dynamic, JSON-based forms and collect responses.",
   "keywords": [
     "survey",
     "form",
     "surveyjs",
     "survey-library",
-    "form-component",
     "form-rendering",
     "survey-renderer",
     "dynamic-form",
     "interactive-form",
     "form-library",
-    "form-management",
     "questionnaire",
     "data-collection",
     "data-validation",
@@ -36,12 +33,19 @@ const buildPlatformJson = {
     "ui-component",
     "json",
     "json-schema",
-    "schema-form",
-    "survey-renderer",
-    "client-side",
-    "frontend",
     "javascript",
-    "typescript"
+    "typescript",
+    "schema-form",
+    "conditional-logic",
+    "quiz",
+    "poll",
+    "localization",
+    "css",
+    "shadcn",
+    "mui",
+    "material-ui",
+    "bootstrap",
+    "bootswatch"
   ],
   "files": [
     "**/*"
@@ -53,6 +57,11 @@ const buildPlatformJson = {
       "types": "./typings/entries/index.d.ts",
       "import": "./fesm/survey-core.mjs",
       "require": "./survey.core.js"
+    },
+    "./linter": {
+      "types": "./typings/entries/linter.d.ts",
+      "import": "./fesm/linter/index.mjs",
+      "require": "./linter/index.js"
     },
     "./*.css": "./*.css",
     "./survey.i18n": {

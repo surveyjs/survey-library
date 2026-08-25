@@ -1,8 +1,24 @@
+/* MUI -> SurveyJS bridge.
+
+   Scope: this file only reproduces how STOCK MUI components look — outlined TextField
+   (including the floating label), Select, Checkbox, Radio, Switch, Button (with the
+   TouchRipple), Stepper, Table, Chip, Menu — expressed through the --mui-* CSS variables
+   the app's theme emits, so any palette / color scheme re-skins the survey automatically.
+
+   Out of scope (belongs to the host app, not here): anything that imitates markup or
+   layout the APP defines rather than MUI — per-instance `sx` spacing, the padding the
+   survey needs because the app dropped it into a <Card> without <CardContent>, and the
+   breakpoint at which the app's own responsive Stacks/Grids collapse. Those live in the
+   app's own stylesheet; in the demo app that is /survey-overrides/mui.css and
+   /survey-overrides/<palette-id>.css, loaded after this file. */
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
   --sjs2-base-unit-spacing: 8px;
+
+  /* Let MUI size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 130px;
   --sjs2-color-utility-body: var(--mui-palette-background-default);
-  --sjs2-color-utility-sheet: var(--mui-palette-background-default);
+  --sjs2-color-utility-sheet: var(--mui-palette-background-paper);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
   --sjs2-color-utility-toolbox: var(--mui-palette-background-default);
   --sjs2-color-utility-property-grid: var(--mui-palette-background-default);
@@ -20,6 +36,14 @@
   --sjs2-typography-font-size-component-action-large-content: 0.875rem;
   --sjs2-typography-font-weight-component-action-large-content: 500;
   --sjs2-typography-line-height-component-action-large-content: 1.75;
+
+  --sjs2-layout-component-action-small-box-padding-horizontal: 5px;
+  --sjs2-layout-component-action-small-box-padding-vertical: 4px;
+  --sjs2-layout-component-action-small-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-small-label-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-small-content: 0.8125rem;
+  --sjs2-typography-font-weight-component-action-small-content: 500;
+  --sjs2-typography-line-height-component-action-small-content: 1.75;
 
   /* primary buttons (contained) */
   --sjs2-color-component-action-brand-primary-default-label: var(--mui-palette-primary-contrastText);
@@ -57,6 +81,24 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px
     rgba(from var(--mui-palette-primary-main) r g b / 0.5);
 
+  /* text buttons */
+  --sjs2-color-component-action-brand-secondary-default-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-default-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-default-bg: transparent;
+  --sjs2-border-effect-component-action-brand-secondary-default: inset 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-hovered-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-hovered-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-secondary-hovered-bg: rgba(
+    var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity)
+  );
+  --sjs2-border-effect-component-action-brand-secondary-hovered: inset 0 0 0 0 transparent;
+
+  --sjs2-color-component-action-brand-secondary-disabled-label: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-secondary-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-secondary-disabled-bg: transparent;
+  --sjs2-border-effect-component-action-brand-secondary-disabled: inset 0 0 0 0 transparent;
+
   /* secondary buttons */
   --sjs2-color-component-action-neutral-secondary-default-bg: transparent;
   --sjs2-color-component-action-neutral-secondary-default-icon: var(--mui-palette-primary-main);
@@ -92,6 +134,7 @@
   --sjs2-layout-component-input-medium-content-padding-vertical: 8.5px;
 
   /* buttongroup */
+  --sjs2-radius-component-buttongroup-item: var(--sjs2-radius-component-formbox);
   --sjs2-color-component-buttongroup-item-true-default-bg: var(--mui-palette-primary-main);
   --sjs2-color-component-buttongroup-item-true-default-value: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-buttongroup-item-true-default-border: var(--mui-palette-primary-main);
@@ -100,18 +143,20 @@
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--mui-palette-error-main);
   --sjs2-color-component-message-error-icon: var(--mui-palette-error-main);
+  --sjs2-layout-component-message-box-padding-horizontal: 14px;
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--mui-palette-error-main);
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 2px;
-  --sjs2-color-component-check-false-focused-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-false-focused-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-false-focused-border: var(--mui-palette-primary-main);
   --sjs2-size-component-checkbox-box: 18px;
   --sjs2-size-component-checkbox-icon: 18px;
   --sjs2-size-component-radio-icon: 20px;
   --sjs2-size-component-radio-box: 20px;
-  --sjs2-layout-component-labeled-item-box-gap-horizontal: 12px;
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: 11px;
   --sjs2-layout-component-labeled-group-box-gap-vertical: 18px;
   --sjs2-layout-component-labeled-group-box-padding-vertical: 9px;
 
@@ -123,20 +168,34 @@
     var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity))
   );
 
-  --sjs2-color-component-check-false-default-bg: var(--mui-palette-background-paper);
-  --sjs2-color-component-check-false-hovered-bg: transparent;
-  --sjs2-color-component-check-true-hovered-bg: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-false-focused-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-checkbox-false-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-radio-false-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-checkbox-false-hovered-bg: transparent;
+  --sjs2-color-component-radio-false-hovered-bg: transparent;
+  --sjs2-color-component-checkbox-true-hovered-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-hovered-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-false-focused-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-radio-false-focused-bg: var(--mui-palette-background-paper);
 
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-check-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
-  --sjs2-border-effect-component-check-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
-  --sjs2-border-effect-component-check-a11y: 0 0 0 0 transparent;
+  --sjs2-border-effect-component-checkbox-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-invalid: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-radio-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-checkbox-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-radio-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-checkbox-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-radio-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-checkbox-a11y: 0 0 0 0 transparent;
+  --sjs2-border-effect-component-radio-a11y: 0 0 0 0 transparent;
 
-  --sjs2-color-component-check-true-default-bg: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-true-default-border: var(--mui-palette-primary-main);
-  --sjs2-color-component-check-true-default-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-checkbox-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-true-default-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-radio-true-default-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-checkbox-true-default-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-radio-true-default-icon: var(--mui-palette-primary-contrastText);
 
   /* toggle */
   --sjs2-color-component-toggle-true-default-thumb: var(--mui-palette-primary-main);
@@ -167,6 +226,7 @@
 
   /* common and other */
   --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-border-effect-floating-default: var(--mui-shadows-8);
 
   --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
   --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
@@ -195,7 +255,7 @@
   --sjs2-color-bg-alert-secondary: color-mix(in srgb, var(--mui-palette-error-main) 10%, transparent);
   --sjs2-color-bg-alert-secondary-dim: color-mix(in srgb, var(--mui-palette-error-main) 15%, transparent);
 
-  --sjs2-color-border-basic-primary: var(--mui-palette-divider);
+  --sjs2-color-border-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
 
   --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
@@ -208,25 +268,209 @@
   --sjs2-radius-component-drop: var(--mui-shape-borderRadius);
   --sjs2-radius-component-panel: var(--mui-shape-borderRadius);
 
+  --sjs2-layout-component-drop-box-padding-horizontal: 0px;
+  --sjs2-layout-component-drop-box-padding-vertical: 8px;
+  --sjs2-radius-component-drop-item: 0;
+  --sjs2-layout-component-drop-item-box-padding-vertical: 6px;
+  --sjs2-layout-component-drop-item-box-padding-right: 16px;
+  --sjs2-layout-component-drop-item-box-padding-left: 16px;
+  --sjs2-layout-component-drop-item-label-padding-horizontal: 0px;
+
   --sjs2-typography-font-family-text: var(--mui-fontFamily, "Roboto", Helvetica, Arial, sans-serif);
   --sjs2-typography-font-size-large: 1.25rem;
   --sjs2-typography-font-size-default: 1rem;
   --sjs2-typography-font-size-component-input-content: 1rem;
   --sjs2-typography-font-size-component-question-description: 0.75rem;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+  --sjs2-layout-component-question-description-padding-horizontal: 14px;
+  --sjs2-layout-component-question-description-padding-top: 3px;
+  --sjs2-typography-line-height-component-question-description: 1.66;
+  --sjs2-layout-component-question-box-gap-vertical: 0;
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
-  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-component-question-title: 1.4375em;
   --sjs2-typography-font-weight-component-question-title: 400;
+
+  --sjs2-color-component-panel-default-title: var(--mui-palette-text-primary);
+  --sjs2-typography-font-size-component-panel-title: 1.25rem;
+  --sjs2-typography-font-weight-component-panel-title: 500;
 
   --sjs2-typography-font-size-component-page-title: 1.25rem;
   --sjs2-typography-font-weight-component-page-title: 500;
 
-  --sjs2-typography-font-size-component-header-title: 1.5rem;
-  --sjs2-typography-font-size-component-header-description: 1.25rem;
-  --sjs2-typography-font-weight-component-header-description: 500;
+  --sjs2-typography-font-size-component-survey-header-title: 1.5rem;
+  --sjs2-typography-font-size-component-survey-header-description: 1.25rem;
+  --sjs2-typography-font-weight-component-survey-header-description: 500;
 
-  --sd-mobile-width: 0px;
+  --sjs2-color-component-survey-header-default-title: var(--mui-palette-text-primary);
+  --sjs2-color-component-page-default-title: var(--mui-palette-text-primary);
+
+  --sjs2-typography-line-height-component-panel-title: 1.6;
+
+  /* panels = cards.
+     A panel is a <Card>: the panel header is <CardHeader> (padding: spacing(2), no gap between
+     its title and subheader), the panel content is <CardContent> (padding: spacing(2), but
+     spacing(3) at the bottom when it is the last child) and the panel footer is <CardActions>
+     (padding: spacing(1), spacing(1) between the buttons). A nested panel is a card inside a
+     card and a dynamic panel is a card whose content stacks the entries above its actions. */
+  --sjs-mui-spacing: var(--mui-spacing, 8px);
+  --sjs-mui-card-padding: calc(var(--sjs-mui-spacing) * 2);
+  --sjs-mui-card-content-padding-bottom: calc(var(--sjs-mui-spacing) * 3);
+  --sjs-mui-card-actions-padding: var(--sjs-mui-spacing);
+  --sjs-mui-card-actions-gap: var(--sjs-mui-spacing);
+  /* the cards are outlined ones: a 1px divider border instead of an elevation shadow. An elevated
+     card is the other way round: a zero border width and var(--mui-shadows-1) as the shadow. */
+  --sjs-mui-card-border-width: 1px;
+  --sjs-mui-card-shadow: 0 0 #0000;
+  /* That border is painted as an inset ring, which takes no room in the layout the way a real
+     border does, so every padding that sits against a card edge carries the border width on top of
+     the MUI padding and the panel stays as large as a card with the same content. */
+  --sjs-mui-card-edge-padding: calc(var(--sjs-mui-card-padding) + var(--sjs-mui-card-border-width));
+  --sjs-mui-card-edge-content-padding-bottom: calc(
+    var(--sjs-mui-card-content-padding-bottom) + var(--sjs-mui-card-border-width)
+  );
+  --sjs-mui-card-edge-actions-padding: calc(var(--sjs-mui-card-actions-padding) + var(--sjs-mui-card-border-width));
+  /* the gap of the <Stack spacing={2}> / <Grid spacing={2}> the app lays the fields out with */
+  --sjs-mui-field-gap: calc(var(--sjs-mui-spacing) * 2);
+
+  --sjs2-color-component-panel-default-border: var(--mui-palette-divider);
+  --sjs2-color-component-panel-default-separator: transparent;
+  --sjs2-color-component-panel-default-description: var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-panel-default: inset 0 0 0 var(--sjs-mui-card-border-width)
+    var(--sjs2-color-component-panel-default-border), var(--sjs-mui-card-shadow);
+
+  --sjs2-layout-component-panel-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-box-padding-top: 0;
+  --sjs2-layout-component-panel-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-header-padding-top: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-header-padding-bottom: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-header-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-description-padding-top: 0;
+  --sjs2-layout-component-panel-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-footer-padding-top: 0;
+  --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  /* a framed question is a card with a <CardContent> only */
+  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-simple-default: inset 0 0 0 var(--sjs-mui-card-border-width)
+    var(--sjs2-color-component-panel-simple-default-border), var(--sjs-mui-card-shadow);
+
+  --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-simple-box-padding-top: 0;
+  --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  /* a nested panel is an outlined card whose <CardHeader> keeps a divider above the content */
+  --sjs2-radius-component-panel-nested: var(--sjs2-radius-component-panel);
+  --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
+  --sjs2-border-effect-component-panel-nested-default: inset 0 0 0 var(--sjs-mui-card-border-width)
+    var(--sjs2-color-component-panel-nested-default-border), var(--sjs-mui-card-shadow);
+
+  --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-box-padding-top: 0;
+  --sjs2-layout-component-panel-nested-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-nested-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-nested-header-padding-top: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-nested-header-padding-bottom: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-nested-header-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-nested-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-nested-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-nested-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-nested-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-nested-description-padding-top: 0;
+  --sjs2-layout-component-panel-nested-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-nested-content-area-padding-top: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-nested-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
+  --sjs2-layout-component-panel-nested-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-nested-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-nested-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-nested-footer-padding-top: 0;
+  --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-padding-left: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-nested-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-nested-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  /* a dynamic panel is a card whose content stacks the entries above its <CardActions> */
+  --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
+  --sjs2-color-component-panel-dynamic-default-separator: transparent;
+  --sjs2-border-effect-component-panel-dynamic-default: inset 0 0 0 var(--sjs-mui-card-border-width)
+    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs-mui-card-shadow);
+
+  --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-box-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-box-gap-vertical: 0;
+
+  --sjs2-layout-component-panel-dynamic-header-padding-top: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-dynamic-header-padding-bottom: var(--sjs-mui-spacing);
+  --sjs2-layout-component-panel-dynamic-header-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-dynamic-header-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-dynamic-header-gap-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-header-gap-horizontal: var(--sjs-mui-card-padding);
+  --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-layout-component-panel-dynamic-title-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-title-padding-vertical: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-horizontal: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-description-padding-bottom: 0;
+
+  --sjs2-layout-component-panel-dynamic-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-bottom: 0;
+  --sjs2-layout-component-panel-dynamic-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-vertical: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-dynamic-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+
+  --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs-mui-card-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-left: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs-mui-card-actions-gap);
+  --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-color-utility-body: transparent;
+  --sjs2-color-utility-surface-survey: transparent;
 }
 
 /* input */
@@ -253,7 +497,6 @@
     z-index: 1;
     transform-origin: top left;
 
-    --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
     background-color: transparent;
 
     max-width: calc(100% - 12px);
@@ -293,8 +536,8 @@
     }
   }
 
-  &:has(input:focus),
-  &:has(textarea:focus) {
+  &:not(.sd-question--error):has(input:focus),
+  &:not(.sd-question--error):has(textarea:focus) {
     .sd-question__header {
       --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
     }
@@ -302,7 +545,7 @@
 
   &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
-      transform: translate(8px, 15px) scale(1);
+      transform: translate(8px, 16px) scale(1);
     }
     input,
     textarea {
@@ -321,6 +564,15 @@
   }
 }
 
+.sd-question__erbox--below-question {
+  margin-top: 3px;
+}
+
+.sd-error__item {
+  font-size: 0.75rem;
+  line-height: 1.66;
+}
+
 /*
 .sd-question:has(>.sd-question__content--comment):focus-within .sd-question__header {
   transform: translate(-14px, -11px) scale(0.75);
@@ -333,10 +585,9 @@
 /* dropdown */
 .sd-editor-chevron-button button.sd-action {
   padding-inline: 0;
-  cursor: default;
   transition: none;
-  --sd-action-hover-background: transparent;
 
+  &:hover,
   &:active {
     background-color: transparent;
   }
@@ -351,6 +602,32 @@
 }
 .sd-dropdown .sd-formbox__group .sd-action--popup-active {
   transform: rotate(180deg);
+}
+
+.sd-selectlist__item {
+  color: var(--mui-palette-text-primary);
+}
+
+.sd-selectlist__item--selected {
+  background-color: rgba(var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-selectedOpacity)));
+  color: var(--mui-palette-text-primary);
+  font-weight: normal;
+}
+
+.sd-selectlist__item--selected.sd-selectlist__item--hovered {
+  background-color: rgba(
+    var(--mui-palette-primary-mainChannel) /
+      calc(var(--mui-palette-action-selectedOpacity) + var(--mui-palette-action-hoverOpacity))
+  );
+}
+
+.sd-selectlist__item--hovered {
+  background: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-primary);
+}
+
+*:where(.dark) .sv-popup--menu-popup > .sv-popup__container {
+  background-image: var(--mui-overlays-8);
 }
 
 /* tagbox */
@@ -520,6 +797,10 @@
   animation: sd-check-ripple-press calc(var(--mui-to-sjs-animation-speed-slow) * 2) ease-out forwards;
 }
 
+.sd-selectbase--row {
+  column-gap: 16px;
+}
+
 @keyframes sd-check-ripple-press {
   0% {
     opacity: 0.3;
@@ -566,10 +847,13 @@
   --sd-boolean-switch-button-spacing: 0px;
   --sd-boolean-switch-button-width: 34px;
   --sd-boolean-switch-button-heigth: 14px;
+
+  padding-block: 7px;
 }
 
 .sd-boolean-switch__button {
-  margin-inline: 9px;
+  margin-inline-start: 12px;
+  margin-inline-end: 4px;
 }
 
 .sd-boolean-switch__thumb {
@@ -666,6 +950,83 @@
   }
 }
 
+
+/* tables */
+.sd-table-wrapper {
+  &::before,
+  &::after {
+    width: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+  &::before {
+    left: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+
+  &:after {
+    right: calc(1px - var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  }
+}
+
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+
+.sd-table.sd-table.sd-table > tbody > tr {
+  & > th,
+  & > td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-bottom: 1px solid var(--mui-palette-TableCell-border);
+      border-top: none;
+      padding: 16px;
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.43;
+      color: var(--mui-palette-text-primary);
+      &.sd-table__cell--header span {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+      }
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+    border-bottom: 1px solid var(--mui-palette-TableCell-border);
+    border-top: none;
+    padding: 16px;
+    &.sd-table__cell--header span {
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+      font-weight: 500;
+      color: var(--mui-palette-text-primary);
+    }
+    .sd-radio {
+      padding: 0;
+    }
+    .sd-radio__decorator {
+      margin: 0;
+    }
+  }
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
+}
+
 /* stepper */
 .sd-progress-buttons--numbered {
   .sd-progress-buttons__button {
@@ -686,9 +1047,14 @@
   }
 
   .sd-progress-buttons__page-title {
-    margin-top: 16px;
+    margin-top: 10px;
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 1.43rem;
+  }
+
+  .sd-progress-buttons__list-container {
+    padding-top: 0;
   }
 
   .sd-progress-buttons__list li {
@@ -706,37 +1072,6 @@
   }
 }
 
-.sd-body.sd-body--responsive,
-.sd-progress-buttons,
-.sv-header__content {
-  padding: 16px;
-}
-
-.sd-panel__title {
-  --sjs2-color-component-question-default-title: var(--mui-palette-text-primary);
-  --sjs2-typography-font-size-component-question-title: 1rem;
-  --sjs2-typography-font-weight-component-question-title: 600;
-}
-
-.sd-question__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
-}
-
-.sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
-  border: none;
-}
-
-.sd-element--complex.sd-element--with-frame > .sd-element__header:after {
-  content: initial;
-}
-
-.sd-element--with-frame {
-  --sd-base-padding: 16px;
-}
-
 .sd-action__title {
   text-transform: uppercase;
 }
@@ -750,28 +1085,4 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
-}
-
-/* xs — phones */
-@media (width < 600px) {
-  .sd-row.sd-row--multiple {
-    flex-direction: column;
-  }
-}
-
-/* sm and down — tablets */
-@media (width < 900px) {
-}
-
-/* md and down — small desktops */
-@media (width < 1200px) {
-}
-
-/* xl and up — large desktops */
-@media (width >= 1536px) {
 }

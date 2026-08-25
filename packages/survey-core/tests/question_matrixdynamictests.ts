@@ -9650,4 +9650,99 @@ describe("Survey_QuestionMatrixDynamic", () => {
     // The rendered table must reset and expose the delete button again.
     expect(matrix.renderedTable.hasRemoveRows).toBeTruthy();
   });
+  test("cell visibleIf with {row.x} and {prevRow.x} is re-evaluated on value change, dependency-skip keeps row context variables", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          columns: [
+            { name: "Column 1", cellType: "text" },
+            { name: "col2", cellType: "text", visibleIf: "{row.Column 1} = 1" },
+            { name: "col3", cellType: "text", visibleIf: "{prevRow.Column 1} = 1" },
+          ],
+        },
+      ],
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    const cell = (r: number, c: number): Question => rows[r].cells[c].question;
+    expect(cell(0, 1).isVisible, "row0 col2 is hidden by default").toBeFalsy();
+    expect(cell(1, 2).isVisible, "row1 col3 is hidden by default").toBeFalsy();
+    cell(0, 0).value = 1;
+    expect(cell(0, 1).isVisible, "row0 col2 becomes visible, {row.x}").toBeTruthy();
+    expect(cell(1, 2).isVisible, "row1 col3 becomes visible, {prevRow.x}").toBeTruthy();
+    cell(0, 0).value = 2;
+    expect(cell(0, 1).isVisible, "row0 col2 is hidden again").toBeFalsy();
+    expect(cell(1, 2).isVisible, "row1 col3 is hidden again").toBeFalsy();
+  });
+  test("row context variables in expressions are case-insensitive: {ROW.x}, {prevrow.x}, {NextRow.x}, {totalrow.x}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          columns: [
+            { name: "Column 1", cellType: "text", totalType: "sum" },
+            { name: "col2", cellType: "text", visibleIf: "{ROW.Column 1} = 1" },
+            { name: "col3", cellType: "text", visibleIf: "{prevrow.Column 1} = 1" },
+            { name: "col4", cellType: "text", visibleIf: "{NextRow.Column 1} = 2" },
+            { name: "col5", cellType: "text", visibleIf: "{totalrow.Column 1} = 3" },
+          ],
+        },
+      ],
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    const cell = (r: number, c: number): Question => rows[r].cells[c].question;
+    expect(cell(0, 1).isVisible, "row0 {ROW.x} is hidden by default").toBeFalsy();
+    expect(cell(1, 2).isVisible, "row1 {prevrow.x} is hidden by default").toBeFalsy();
+    expect(cell(0, 3).isVisible, "row0 {NextRow.x} is hidden by default").toBeFalsy();
+    expect(cell(0, 4).isVisible, "row0 {totalrow.x} is hidden by default").toBeFalsy();
+    cell(0, 0).value = 1;
+    cell(1, 0).value = 2;
+    expect(cell(0, 1).isVisible, "row0 {ROW.x} becomes visible").toBeTruthy();
+    expect(cell(1, 2).isVisible, "row1 {prevrow.x} becomes visible").toBeTruthy();
+    expect(cell(0, 3).isVisible, "row0 {NextRow.x} becomes visible").toBeTruthy();
+    expect(cell(0, 4).isVisible, "row0 {totalrow.x} becomes visible, 1 + 2 = 3").toBeTruthy();
+    cell(0, 0).value = 5;
+    expect(cell(0, 1).isVisible, "row0 {ROW.x} is hidden again").toBeFalsy();
+    expect(cell(1, 2).isVisible, "row1 {prevrow.x} is hidden again").toBeFalsy();
+    expect(cell(0, 4).isVisible, "row0 {totalrow.x} is hidden again, 5 + 2 = 7").toBeFalsy();
+  });
+  test("settings.matrix.defaultCellType changes the default cellType, bug#11708", () => {
+    settings.matrix.defaultCellType = "text";
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix1", columns: [{ name: "col1" }], rowCount: 1 },
+        { type: "matrixdropdown", name: "matrix2", columns: [{ name: "col1" }], rows: ["row1"] }
+      ]
+    });
+    const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    const matrix2 = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix2");
+    expect(matrix1.cellType, "matrixdynamic cellType").toBe("text");
+    expect(matrix2.cellType, "matrixdropdown cellType").toBe("text");
+    expect(matrix1.visibleRows[0].cells[0].question.getType(), "matrixdynamic cell question").toBe("text");
+    expect(matrix2.visibleRows[0].cells[0].question.getType(), "matrixdropdown cell question").toBe("text");
+    expect(matrix1.toJSON().cellType, "cellType equal to the default is not serialized").toBeUndefined();
+    matrix1.cellType = "dropdown";
+    expect(matrix1.toJSON().cellType, "cellType different from the default is serialized").toBe("dropdown");
+    settings.matrix.defaultCellType = "dropdown";
+  });
+  test("Change the default cellType via Serializer, bug#11708", () => {
+    const prop = Serializer.findProperty("matrixdynamic", "cellType");
+    const defaultFunc = prop.defaultValueFunc;
+    prop.defaultValue = "text";
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", columns: [{ name: "col1" }], rowCount: 1 }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(matrix.cellType, "cellType").toBe("text");
+    expect(matrix.visibleRows[0].cells[0].question.getType(), "cell question").toBe("text");
+    prop.defaultValue = undefined;
+    prop.defaultValueFunc = defaultFunc;
+    expect(new QuestionMatrixDynamicModel("q1").cellType, "the default cellType is restored").toBe("dropdown");
+  });
 });

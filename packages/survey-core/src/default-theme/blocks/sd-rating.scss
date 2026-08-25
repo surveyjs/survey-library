@@ -121,6 +121,7 @@
   fill: $foreground;
   box-shadow: $shadow-small, inset 0 0 0 0px $background;
   transition: box-shadow $transition-duration, background-color $transition-duration;
+  cursor: pointer;
 }
 
 .sd-rating__item--fixed-size {
@@ -236,6 +237,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   fill: $border;
   box-shadow: $shadow-small-reset, inset 0 0 0 0px $background;
   transition: box-shadow $transition-duration, background-color $transition-duration;
+  cursor: pointer;
 
   svg {
     display: block;
@@ -392,6 +394,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   width: var(--sjs2-size-x600);
   height: var(--sjs2-size-x600);
   box-sizing: content-box;
+  cursor: pointer;
 
   &:not(:first-of-type) {
     padding-left: var(--sjs2-spacing-x050);
@@ -564,7 +567,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   &.sd-rating__min-text {
     margin-right: var(--sjs2-spacing-x100);
-    // margin-left: var(--sjs2-spacing-x200);
     border-left: 0px;
   }
 
@@ -610,6 +612,18 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   color: $primary-foreground;
   font-weight: inherit;
   border: none;
+}
+
+.sd-rating__item--disabled,
+.sd-rating__item--readonly,
+.sd-rating__item--preview,
+.sd-rating__item-smiley--disabled,
+.sd-rating__item-smiley--readonly,
+.sd-rating__item-smiley--preview,
+.sd-rating__item-star--disabled,
+.sd-rating__item-star--readonly,
+.sd-rating__item-star--preview {
+  cursor: default;
 }
 
 .sd-rating-dropdown-item {

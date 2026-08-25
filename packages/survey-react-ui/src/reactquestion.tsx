@@ -160,13 +160,18 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-labelledby={question.ariaLabelledBy}
           aria-describedby={question.ariaDescribedBy}
           aria-expanded={question.ariaExpanded}
+          onClick={(event) => question.clickRootFunction && question.clickRootFunction(event.nativeEvent)}
         >
           {singleBreadcrumbs}
-          {errorsAboveQuestion}
-          {headerTop}
-          {questionContent}
-          {headerBottom}
-          {errorsBelowQuestion}
+          <div className={question.getQuestionContainerCss()}>
+            {errorsAboveQuestion}
+            <div className={question.getHeaderAndContentContainerCss()}>
+              {headerTop}
+              {questionContent}
+              {headerBottom}
+            </div>
+            {errorsBelowQuestion}
+          </div>
         </div>
       </>
     );

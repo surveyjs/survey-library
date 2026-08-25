@@ -512,6 +512,31 @@ describe("SurveyShowPreviewTests", () => {
     expect(counterServer, "Server validation is called").toBe(1);
     expect(counterPreview, "Showing preview is called").toBe(1);
   });
+  test("showPreview runs built-in validation before onServerValidateQuestions", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "question1", isRequired: true },
+        { type: "text", name: "country", isRequired: true },
+      ],
+      showPreviewBeforeComplete: true,
+    });
+    let serverValidationCount = 0;
+    survey.onServerValidateQuestions.add((_, options) => {
+      serverValidationCount++;
+      options.complete();
+    });
+    expect(survey.showPreview()).toBe(false);
+    expect(survey.state).toBe("running");
+    expect(serverValidationCount).toBe(0);
+    expect(survey.getQuestionByName("question1").errors.length).toBe(1);
+    expect(survey.getQuestionByName("country").errors.length).toBe(1);
+
+    survey.setValue("question1", "value");
+    survey.setValue("country", "France");
+    expect(survey.showPreview()).toBe(true);
+    expect(survey.state).toBe("preview");
+    expect(serverValidationCount).toBe(1);
+  });
   test("showPreviewBeforeComplete = true and invisible matrix dropdown, Bug#3176", () => {
     var survey = new SurveyModel({
       showPreviewBeforeComplete: true,

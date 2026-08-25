@@ -262,6 +262,10 @@ describe("ProgressButtons", () => {
         { name: "page3", elements: [{ type: "text", name: "question3" }] }
       ]
     };
+    // MERGE(V3): this test (and "ProgressButtons restores the actually active page" below)
+    // conflicts every merge. V3 captures visited pages as `{ shown: true }` and drives state by
+    // navigation (currentPage/currentPageNo); master (V2) captures `{ passed: true }` and drives
+    // state via ProgressButtons.clickListElement. Keep the V3 body on merge.
     // Source survey: visit page3 directly (page2 stays unvisited), leave all questions empty.
     const survey1: SurveyModel = new SurveyModel(json);
     survey1.currentPage = survey1.pages[2];
@@ -315,6 +319,17 @@ describe("ProgressButtons", () => {
     const progress: ProgressButtons = new ProgressButtons(survey);
     expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
     expect(progress.isListElementPassed(1), "the unvisited page with a default value is not passed").toBe(false);
+  });
+  test("Progress bar does not mark an unvisited page as passed because of a calculated expression value", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "expression", name: "date", expression: "currentDate()" }, { type: "html", name: "info", html: "<p>text</p>" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(1), "the unvisited page with an expression question is not passed").toBe(false);
   });
   test("ProgressButtons restores the actually active page, not the furthest visited", () => {
     const json: any = {

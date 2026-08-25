@@ -213,7 +213,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length > 1 && path[0].name === settings.expressionVariables.totalRow) {
+    if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.totalRow.toLocaleLowerCase()) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
@@ -228,6 +228,14 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   protected getItemVariableNames(): Array<string> {
     const v = settings.expressionVariables;
     return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
+  }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.totalRow];
+  }
+  /* Total row expressions ({matrix} in xxxInArray functions) calculate over visible rows
+     only, and row visibility may depend on any survey value */
+  protected isItemDependenciesTrackable(): boolean {
+    return !(this.row instanceof MatrixDropdownTotalRowModel);
   }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
@@ -274,11 +282,11 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     return this.idValue;
   }
-  // This class does not extend Base, so it cannot inherit Base.renderedId / composeRenderedId; it
+  // This class does not extend Base, so it cannot inherit Base.renderedId / composeElementId; it
   // delegates the DOM-id namespacing to the owner survey directly (raw id when detached).
   public get renderedId(): string {
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(this.id) : this.id;
+    return survey ? survey.getElementId(this.id) : this.id;
   }
   public get rowName(): any {
     return null;
@@ -1127,6 +1135,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Default value: `false`
    * @see keyDuplicationError
+   * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
     return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
@@ -1353,7 +1362,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    */
-  @property({ isLowerCase: true, defaultValue: settings.matrix.defaultCellType }) cellType: string;
+  @property({ isLowerCase: true }) cellType: string;
   isSelectCellType(): boolean {
     return Serializer.isDescendantOf(this.cellType, "selectbase");
   }
@@ -1797,6 +1806,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `{row.columnname}` - The value of a cell in the same row.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
+   * @since 2.0.6
    */
   public get singleInputTitleTemplate(): string {
     return this.getLocStringText(this.locSingleInputTitleTemplate);
@@ -2896,7 +2906,7 @@ Serializer.addClass(
     },
     {
       name: "cellType",
-      default: "dropdown",
+      defaultFunc: () => settings.matrix.defaultCellType,
       choices: () => {
         return MatrixDropdownColumn.getColumnTypes();
       },

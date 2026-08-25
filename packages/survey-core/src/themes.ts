@@ -227,8 +227,8 @@ export interface IHeader {
 }
 
 const typographyComponentLineHeightCoefficients: { component: string, coefficient: number }[] = [
-  { component: "header-title", coefficient: 1.25 },
-  { component: "header-description", coefficient: 1.5 },
+  { component: "survey-header-title", coefficient: 1.25 },
+  { component: "survey-header-description", coefficient: 1.5 },
   { component: "page-title", coefficient: 1.33 },
   { component: "page-description", coefficient: 1.5 },
   { component: "question-title", coefficient: 1.5 },
@@ -312,15 +312,24 @@ function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: 
   });
 }
 
+function initDefaultCssVariables(convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
+  if (isPanelless) {
+    convertedCssVariable["--sjs2-color-component-panel-default-bg"] = "transparent";
+  }
+}
+
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
   const convertedCssVariable: { [index: string]: string } = {};
   patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
+  initDefaultCssVariables(convertedCssVariable, isPanelless);
   const patchLegacyVarReferencesInValue = (value: string): string => {
     return value.replace(/var\(\s*(--[\w-]+)\s*\)/g, (match, referencedVar) => {
       const referencedMapping = legacyCssVariables[referencedVar];
       if (typeof referencedMapping === "string") {
         return `var(${referencedMapping})`;
+      } else if (Array.isArray(referencedMapping) && referencedMapping.length > 0) {
+        return `var(${referencedMapping[0]})`;
       }
       return match;
     });

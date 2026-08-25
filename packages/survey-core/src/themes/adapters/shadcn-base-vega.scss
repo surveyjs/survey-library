@@ -20,8 +20,30 @@
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 4px;
 
-  /* common and other */
-  --sjs2-typography-font-size-component-page-title: var(--text-base);
-  --sjs2-typography-font-size-component-header-title: var(--text-base);
-  --sjs2-radius-component-panel: calc(var(--radius) + 2px);
+  /* dropdown */
+  --sjs2-radius-component-drop: calc(var(--radius) * 0.8);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 0.6);
+  --sjs2-shadcn-drop-action-radius: calc(var(--radius) - 5px);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--muted);
+  --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-gap: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.5);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-clean-radius: min(var(--radius-md), 8px);
+
+  /* panel = Card (rounded-xl, shadow-xs, CardHeader gap-1, CardTitle leading-normal), question = Field */
+  --sjs2-radius-component-panel: calc(var(--radius) * 1.4);
+  --sjs2-shadcn-card-shadow: var(--shadow-xs);
+  --sjs2-layout-component-panel-header-gap-vertical: calc(var(--spacing) * 1);
+  --sjs2-typography-line-height-component-panel-title: calc(var(--leading-normal) * 1em);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }

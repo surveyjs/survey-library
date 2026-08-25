@@ -1,5 +1,6 @@
 import { IExpressionValidationResult } from "../../src/base";
 import { ExpressionErrorType } from "../../src/expressions/expressionError";
+import { Helpers } from "../../src/helpers";
 import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
@@ -592,6 +593,128 @@ describe("Expression Validation", () => {
     expect(result[1].errors[0].errorType, "error type is SemanticError #2").toBe(ExpressionErrorType.SemanticError);
   });
 
+  test("Test validateExpressions check constant vs constant comparison in condition", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "1 = 1",
+          enableIf: "'abc' != 'cba'",
+          requiredIf: "1 + 2 > 4"
+        },
+        {
+          type: "text",
+          name: "q3",
+          visibleIf: "!true",
+          enableIf: "{q1} = 1 + 2",
+          requiredIf: "{q1} anyof [1, 2]"
+        }
+      ],
+    });
+
+    const result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    const res = result.map(e => [e.name, e.propertyName, e.errors.length]).sort();
+    expect(res, "constant comparisons are flagged, conditions with a variable are not").toEqual([
+      ["q2", "enableIf", 1],
+      ["q2", "requiredIf", 1],
+      ["q2", "visibleIf", 1],
+      ["q3", "visibleIf", 1]
+    ]);
+    result.forEach(e => {
+      expect(e.errors[0].errorType, "error type is SemanticError, " + e.name + "." + e.propertyName).toBe(ExpressionErrorType.SemanticError);
+    });
+  });
+
+  test("Test validateExpressions check operand compared with itself", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q3" },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "{q1} = {q1}",
+          enableIf: "{q1} < {q1}",
+          requiredIf: "{q1} != {q3}"
+        }
+      ],
+    });
+
+    const result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    const res = result.map(e => [e.name, e.propertyName, e.errors.length, e.errors[0].errorType]).sort();
+    expect(res, "comparisons of a variable with itself are flagged").toEqual([
+      ["q2", "enableIf", 1, ExpressionErrorType.SemanticError],
+      ["q2", "visibleIf", 1, ExpressionErrorType.SemanticError]
+    ]);
+  });
+
+  test("Test validateExpressions check constant branch in and/or condition", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "{q1} = 1 or 3 < 5",
+          enableIf: "1 < {q1} and {q1} < 10",
+          requiredIf: "{q1} = {q1} or {q2} = 1"
+        }
+      ],
+    });
+
+    const result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    const res = result.map(e => [e.name, e.propertyName, e.errors.length, e.errors[0].errorType]).sort();
+    expect(res, "a branch with the known upfront result is flagged once").toEqual([
+      ["q2", "requiredIf", 1, ExpressionErrorType.SemanticError],
+      ["q2", "visibleIf", 1, ExpressionErrorType.SemanticError]
+    ]);
+  });
+
+  test("Test validateExpressions check arithmetic result in condition", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "q1" },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "{q1} + 1",
+          enableIf: "{q1}",
+          requiredIf: "iif(1, 'a', 'b') = {q1}"
+        }
+      ],
+    });
+
+    const result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    expect(result.length, "only the arithmetic root is flagged").toBe(1);
+    expect([result[0].name, result[0].propertyName, result[0].errors.length], "q2.visibleIf has 1 error").toEqual(["q2", "visibleIf", 1]);
+    expect(result[0].errors[0].errorType, "error type is SemanticError").toBe(ExpressionErrorType.SemanticError);
+  });
+
+  test("Test validateExpressions semantic error doesn't hide unknown variable error", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          visibleIf: "{unknown} = {unknown}",
+          enableIf: "{q1} = null"
+        }
+      ],
+    });
+
+    const result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    expect(result.length, "only visibleIf is invalid").toBe(1);
+    expect(result[0].propertyName, "visibleIf has errors").toBe("visibleIf");
+    const errorTypes = result[0].errors.map(e => e.errorType);
+    expect(errorTypes, "both semantic and unknown variable errors are reported").toEqual([
+      ExpressionErrorType.SemanticError,
+      ExpressionErrorType.UnknownVariable,
+      ExpressionErrorType.UnknownVariable
+    ]);
+  });
+
   test("Direct - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
     const survey = new SurveyModel({
       elements: [
@@ -763,6 +886,76 @@ describe("Expression Validation", () => {
     const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
     expect(results.length, "There are 0 invalid expressions").toBe(0);
     expect(q1.panelCount, "panelCount is 1 after validateExpressions").toBe(1);
+  });
+
+  test("validateExpressions() should not mutate survey data for paneldynamic with shared valueName and defaultValueExpression", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "panelCountQuestion",
+              inputType: "number",
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic1",
+              valueName: "sharedItems",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "itemName",
+                  defaultValueExpression: "iif({panelIndex} == 0, 'You', 'Person ' + {panelIndex})",
+                },
+                {
+                  type: "expression",
+                  name: "itemLabel",
+                  expression: "iif({panelIndex} == 0, 'your', {panel.itemName} + 's')",
+                  visibleIf: "false",
+                },
+              ],
+              templateTabTitle: "{panel.itemName}",
+              bindings: {
+                panelCount: "panelCountQuestion",
+              },
+              displayMode: "tab",
+            },
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dynamic2",
+              templateElements: [],
+              valueName: "sharedItems",
+              panelCount: 1,
+            },
+          ],
+        },
+      ],
+    });
+    survey.setValue("panelCountQuestion", 4);
+    const dynamic1 = survey.getQuestionByName("dynamic1");
+    const dynamic2 = survey.getQuestionByName("dynamic2");
+    const dataBefore = Helpers.getUnbindValue(survey.data);
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion before").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount before").toBe(4);
+
+    survey.validateExpressions();
+
+    expect(survey.getValue("panelCountQuestion"), "panelCountQuestion after").toBe(4);
+    expect(dynamic1.panelCount, "dynamic1 panelCount after").toBe(4);
+    expect(dynamic2.panelCount, "dynamic2 panelCount after").toBe(1);
+    expect(survey.data, "survey.data after").toEqual(dataBefore);
   });
 
   test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", () => {

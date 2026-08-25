@@ -76,6 +76,7 @@ describe("patchLegacyCSSVariables", () => {
     expect(cssVariables["--sjs2-color-project-brand-600"]).toBe("rgba(229, 244, 154, 1)");
     expect(cssVariables["--sjs2-color-component-action-brand-tertiary-surface-default-bg"]).toBe("rgba(45, 235, 223, 1)");
     expect(cssVariables["--sjs2-color-component-action-brand-tertiary-surface-hovered-bg"]).toBe("rgba(243, 243, 243, 1)");
+    expect(cssVariables["--sjs2-color-component-panel-default-bg"]).toBe("transparent");
 
     expect(cssVariables["--sjs-base-unit"]).toBeUndefined();
     expect(cssVariables["--sjs-corner-radius"]).toBeUndefined();
@@ -121,8 +122,27 @@ describe("patchLegacyCSSVariables", () => {
 
     expect(cssVariables["--sjs2-color-component-action-brand-tertiary-surface-default-bg"]).toBe("rgba(45, 235, 223, 1)");
     expect(cssVariables["--sjs2-color-component-action-brand-tertiary-surface-hovered-bg"]).toBe("rgba(70, 143, 221, 1)");
+    expect(cssVariables["--sjs2-color-component-panel-default-bg"]).toBe("transparent");
     expect(cssVariables["--sjs-general-backcolor-dim-light"]).toBeUndefined();
     expect(cssVariables["--sjs-editorpanel-hovercolor"]).toBeUndefined();
+  });
+
+  test("sets panelless panel background to transparent when question panel backcolor is absent", () => {
+    const cssVariables = {
+      "--sjs-general-backcolor": "rgba(253, 255, 148, 0.5)",
+    };
+    patchLegacyCSSVariables(cssVariables, true);
+
+    expect(cssVariables["--sjs2-color-component-panel-default-bg"]).toBe("transparent");
+  });
+
+  test("keeps question panel backcolor for panelless theme when it is set", () => {
+    const cssVariables = {
+      "--sjs-questionpanel-backcolor": "rgba(253, 255, 148, 0.6)",
+    };
+    patchLegacyCSSVariables(cssVariables, true);
+
+    expect(cssVariables["--sjs2-color-component-panel-default-bg"]).toBe("rgba(253, 255, 148, 0.6)");
   });
 
   test("uses panel action button backgrounds from question panel colors", () => {
@@ -157,10 +177,10 @@ describe("patchLegacyCSSVariables", () => {
     };
     patchLegacyCSSVariables(cssVariables);
 
-    expect(cssVariables["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
-    expect(cssVariables["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
-    expect(cssVariables["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
-    expect(cssVariables["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+    expect(cssVariables["--sjs2-typography-font-size-component-survey-header-title"]).toBe("32px");
+    expect(cssVariables["--sjs2-typography-line-height-component-survey-header-title"]).toBe("40px");
+    expect(cssVariables["--sjs2-typography-font-size-component-survey-header-description"]).toBe("20px");
+    expect(cssVariables["--sjs2-typography-line-height-component-survey-header-description"]).toBe("30px");
     expect(cssVariables["--sjs2-typography-font-size-component-page-title"]).toBe("24px");
     expect(cssVariables["--sjs2-typography-line-height-component-page-title"]).toBe("32px");
   });

@@ -126,6 +126,10 @@ frameworks.forEach((framework) => {
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
 
+      // MERGE(V3): this test's progress assertions conflict every merge. V3 asserts the
+      // active step via `.sd-progress-buttons__list > li` + `...--current` class; master (V2)
+      // asserts `.sd-progress-buttons__page-title` text ("Page N of 3"). Keep the V3 step-based
+      // assertions here and at each ArrowDown/Tab/Enter step below.
       const stepElements = page.locator(".sd-progress-buttons__list > li");
       await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
 

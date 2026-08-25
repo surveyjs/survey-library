@@ -19,6 +19,9 @@
   --sjs2-color-component-formbox-default-border: transparent;
   --sjs2-border-effect-component-formbox-default: inset 0 calc(-1 * 1px) 0 0 var(--input);
   --sjs2-border-effect-component-formbox-focused: inset 0 calc(-1 * 1px) 0 0 var(--ring);
+  --sjs2-border-effect-component-formbox-invalid: 0 0 0 calc(-1 * 1px) var(--destructive);
+  --sjs2-border-effect-component-formbox-invalid-focused: 0 0 0 calc(-1 * 1px) var(--destructive);
+
   --sjs2-border-effect-component-formbox-a11y: 0 0 0 0 transparent;
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */
   --sjs2-layout-component-input-medium-content-padding-horizontal: 0; /* px-0 */
@@ -30,14 +33,46 @@
   --sjs2-size-component-radio-box: calc(var(--spacing) * 4.5);
   --sjs2-typography-font-weight-component-label-content: normal;
   --sjs2-typography-line-height-component-label-content: var(--text-sm--line-height);
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-checkbox-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-radio-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
 
+  /* dropdown */
+  --sjs2-layout-component-drop-box-padding-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-layout-component-drop-box-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-layout-component-drop-item-box-padding-left: calc(var(--spacing) * 3);
+  --sjs2-layout-component-drop-item-box-padding-right: calc(var(--spacing) * 8);
+  --sjs2-layout-component-drop-item-box-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: 0;
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: 0;
 
-  /* common and other */
-  --sjs2-typography-font-size-component-page-title: var(--text-lg);
-  --sjs2-typography-font-size-component-header-title: var(--text-lg);
+  /* tagbox */
+  --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: 0;
+  --sjs2-shadcn-tagbox-input-gap: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-horizontal: 0;
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.5);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 2);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-radius: 0;
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 7);
+  --sjs2-shadcn-tagbox-item-clean-radius: 0;
+
+  /* panel = Card (square, shadow-sm over a lighter ring-foreground/5, CardTitle text-lg
+     font-semibold uppercase), question = Field (FieldContent gap-1) */
   --sjs2-radius-component-panel: 0;
+  --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --sjs2-shadcn-card-shadow: var(--shadow-sm);
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-shadcn-card-spacing: calc(var(--spacing) * 8); /* [--card-spacing:--spacing(8)] */
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--spacing) * 10);
+  --sjs2-typography-font-size-component-panel-title: var(--text-lg);
+  --sjs2-typography-line-height-component-panel-title: var(--text-lg--line-height);
+  --sjs2-typography-font-weight-component-panel-title: var(--font-weight-semibold);
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 }
 
 .sd-comment__grip {
@@ -63,11 +98,35 @@
 .sd-action__title {
   text-transform: uppercase;
   letter-spacing: var(--tracking-widest);
-} 
+}
 
-.sd-element__title, .sd-page__title {
+.sd-element__title {
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
+}
+
+.sd-panel__title {
+  letter-spacing: var(--tracking-wider);
+}
+
+
+.sd-table.sd-table.sd-table {
+  &> tbody, &> thead {
+    &> tr {
+      & > th,
+      & > td {
+        &.sd-table__cell--row-text span,
+        &.sd-table__cell--header span {
+          color: var(--muted-foreground);
+          font-size: var(--text-xs);
+          line-height: var(--tw-leading, var(--text-xs--line-height));
+          font-weight: var(--font-weight-medium);
+          letter-spacing: var(--tracking-wider);
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
 }
 
 /* toggle */
@@ -89,4 +148,14 @@
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(calc(100% + 2px));
+}
+
+.sd-formbox--error {
+  --tw-ring-shadow: 0 0 0 1px transparent;
+  --shadcn-formbox-border-error: inset 0 -1px 0 0 var(--shadcn-border-color);
+}
+
+/* panel */
+.sd-element--with-frame.sd-element--compact {
+  border-color: transparent;
 }

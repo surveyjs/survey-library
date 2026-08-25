@@ -365,6 +365,7 @@ export class MatrixDropdownColumn extends Base
    * Default value: `""`
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   * @since 2.0.0
    */
   public get defaultDisplayValue(): string {
     return this.templateQuestion.defaultDisplayValue;
@@ -812,7 +813,7 @@ export class MatrixDropdownColumn extends Base
       if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
         delete json["choices"];
       }
-      delete json["itemComponent"];
+      this.updateItemComponentInJson(json, question);
 
       if (this.jsonObj && json.type === "rating" && this.isLoadingFromJson) {
         Object.keys(this.jsonObj).forEach((prop) => {
@@ -830,6 +831,15 @@ export class MatrixDropdownColumn extends Base
         this.templateQuestion.choices = choices;
         this.propertyValueChanged("choices", choices, choices);
       };
+    }
+  }
+  private updateItemComponentInJson(json: any, question: Question): void {
+    const propName = "itemComponent";
+    if (json[propName] === undefined) return;
+    const prop = this.templateQuestion.getPropertyByName(propName);
+    if (!prop || prop.isDefaultValueByObj(this.templateQuestion, json[propName]) ||
+      !question.getPropertyByName(propName)) {
+      delete json[propName];
     }
   }
   private doItemValuePropertyChanged(

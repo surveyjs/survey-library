@@ -21,67 +21,18 @@
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
   box-sizing: border-box;
-  background-color: var(--sjs2-color-component-check-false-default-bg);
   border: none;
   flex-shrink: 0;
   margin-bottom: var(--sjs2-layout-component-labeled-item-box-padding-vertical);
-  box-shadow: var(--sjs2-border-effect-component-check-false-default);
   transition:
     box-shadow $transition-duration,
     background $transition-duration;
-}
-
-.sd-item--disabled.sd-item--disabled {
-  .sd-item__decorator {
-    background-color: var(--sjs2-color-component-check-false-disabled-bg);
-    box-shadow: var(--sjs2-border-effect-component-check-false-disabled);
-  }
-}
-
-.sd-item--readonly.sd-item--readonly {
-  &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
-  .sd-item__decorator {
-    background-color: var(--sjs2-color-component-check-false-readonly-bg);
-    box-shadow: var(--sjs2-border-effect-component-check-false-readonly);
-  }
 }
 
 .sd-item--preview.sd-item--preview .sd-item__decorator {
   background-color: transparent;
   box-shadow: none;
   transition: none;
-}
-
-.sd-item--checked .sd-item__decorator {
-  box-shadow: var(--sjs2-border-effect-component-check-true-default);
-  background: var(--sjs2-color-component-check-true-default-bg);
-}
-
-.sd-item__control:focus-visible + .sd-item__decorator {
-  &::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    content: "";
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: var(--sjs2-radius-component-checkbox);
-    box-shadow: var(--sjs2-border-effect-component-check-a11y);
-    transition: box-shadow $transition-duration;
-  }
-}
-
-.sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
-  background: var(--sjs2-color-component-check-false-hovered-bg);
-  box-shadow: var(--sjs2-border-effect-component-check-false-hovered);
-  outline: none;
-}
-
-.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
-  background: var(--sjs2-color-component-check-true-hovered-bg);
-  box-shadow: var(--sjs2-border-effect-component-check-true-hovered);
-  outline: none;
 }
 
 .sd-item__control-label {
@@ -106,9 +57,4 @@
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {
   color: $font-questiontitle-color;
-}
-
-.sd-item--error .sd-item__decorator {
-  background-color: var(--sjs2-color-component-check-false-invalid-bg);
-  box-shadow: var(--sjs2-border-effect-component-check-false-invalid);
 }

@@ -1009,6 +1009,73 @@ describe("TOC", () => {
     expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
   });
 
+  test("page becomes visible via hideIfRowsEmpty should appear in TOC", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          title: "Page 1 - Trigger",
+          elements: [
+            {
+              type: "checkbox",
+              name: "trigger",
+              title: "Select an option",
+              choices: ["A", "B"]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          title: "Page 2 - should appear once triggered",
+          elements: [
+            {
+              type: "matrixdropdown",
+              name: "details",
+              visibleIf: "{trigger} anyof ['A', 'B']",
+              title: "Details matrix",
+              columns: [
+                {
+                  name: "comment",
+                  title: "Comment",
+                  cellType: "text"
+                }
+              ],
+              choices: [1, 2, 3],
+              rows: [
+                {
+                  value: "rowA",
+                  text: "Row A",
+                  visibleIf: "{trigger} contains 'A'"
+                },
+                {
+                  value: "rowB",
+                  text: "Row B",
+                  visibleIf: "{trigger} contains 'B'"
+                }
+              ],
+              hideIfRowsEmpty: true
+            }
+          ]
+        }
+      ],
+      showProgressBar: true,
+      progressBarLocation: "bottom",
+      progressBarShowPageTitles: true,
+      showTOC: true
+    });
+    const tocListModel = createTOCListModel(survey);
+    expect(survey.visiblePages.length, "only page1 visible initially").toBe(1);
+    expect(tocListModel.visibleItems.length, "only page1 in TOC initially").toBe(1);
+    expect(survey.pages[1].isVisible, "page2 not visible initially").toBe(false);
+
+    survey.setValue("trigger", ["A"]);
+    expect(survey.getQuestionByName("details").isVisible, "matrix becomes visible").toBe(true);
+    expect(survey.pages[1].isVisible, "page2 becomes visible").toBe(true);
+    expect(survey.visiblePages.length, "both pages visible").toBe(2);
+    expect(tocListModel.visibleItems.length, "both pages in TOC").toBe(2);
+    expect(tocListModel.visibleItems[1].id, "page2 in TOC").toBe("page2");
+  });
+
   test("navigate to page in single page mode", () => {
     let json: any = {
       "questionsOnPageMode": "singlePage",
@@ -1178,5 +1245,77 @@ describe("TOC", () => {
 
     expect(() => survey.findLayoutElement("toc-navigation")).not.toThrow();
     expect(!!survey.findLayoutElement("toc-navigation")).toBe(true);
+  });
+});
+
+describe("TOC custom item component", () => {
+  test("tocItemComponent sets listModel.itemComponent", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true,
+      tocItemComponent: "sv-custom-toc-item"
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
+
+  test("tocItemComponent updates listModel.itemComponent dynamically", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.itemComponent).toBe("sv-list-item-content");
+
+    survey.tocItemComponent = "sv-custom-toc-item";
+
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
+
+  test("TOC items have page and survey in data", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.actions[0].data).toBeTruthy();
+    expect(tocListModel.actions[0].data.page).toBe(survey.pages[0]);
+    expect(tocListModel.actions[0].data.survey).toBe(survey);
+
+    expect(tocListModel.actions[1].data.page).toBe(survey.pages[1]);
+    expect(tocListModel.actions[1].data.survey).toBe(survey);
   });
 });

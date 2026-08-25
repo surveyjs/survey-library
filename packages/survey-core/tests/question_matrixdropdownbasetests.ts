@@ -2787,4 +2787,54 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     survey.setValue("matrix", { row1: { col1: 1 } });
     expect(q1.isVisible, "q1 becomes visible on setting the cell value").toBe(true);
   });
+  test("A custom dropdown item template is not applied to a matrix column, Bug#11728", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              cellType: "dropdown",
+              itemComponent: "custom-dropdown-item",
+              choices: [1, 2, 3]
+            },
+            { name: "col2", cellType: "dropdown", choices: [1, 2, 3] }
+          ]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    expect(column.templateQuestion["itemComponent"], "column template question").toBe("custom-dropdown-item");
+    const rows = matrix.visibleRows;
+    const cellQuestion = <QuestionDropdownModel>rows[0].cells[0].question;
+    expect(cellQuestion.itemComponent, "cell question in the first column").toBe("custom-dropdown-item");
+    expect(cellQuestion.inputFieldComponentName, "inputFieldComponentName in the first column").toBe("custom-dropdown-item");
+    const cellQuestion2 = <QuestionDropdownModel>rows[0].cells[1].question;
+    expect(cellQuestion2.itemComponent, "cell question in the second column").toBe("");
+  });
+  test("Set a custom dropdown item template into a matrix column in run-time, Bug#11728", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "dropdown", choices: [1, 2, 3] }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    const cellQuestion = <QuestionDropdownModel>matrix.visibleRows[0].cells[0].question;
+    expect(cellQuestion.itemComponent, "cell question itemComponent, #1").toBe("");
+    column["itemComponent"] = "custom-dropdown-item";
+    expect(cellQuestion.itemComponent, "cell question itemComponent, #2").toBe("custom-dropdown-item");
+    matrix.addRow();
+    const cellQuestion2 = <QuestionDropdownModel>matrix.visibleRows[1].cells[0].question;
+    expect(cellQuestion2.itemComponent, "cell question itemComponent in a new row").toBe("custom-dropdown-item");
+  });
 });

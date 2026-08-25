@@ -1,13 +1,13 @@
 {
   "name": "survey-vue3-ui",
-  "version": "3.0.0-beta.8",
+  "version": "3.0.1",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
-  "description": "A free MIT-licensed Vue 3 UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
+  "description": "Vue 3 form library for rendering dynamic, JSON-based forms and surveys. Collect user responses and store them in your own database.",
   "keywords": [
     "vue",
-    "vue3",
+    "vue-3",
     "survey",
     "form",
     "surveyjs",
@@ -18,7 +18,6 @@
     "dynamic-form",
     "interactive-form",
     "form-library",
-    "form-management",
     "questionnaire",
     "data-collection",
     "data-validation",
@@ -28,18 +27,26 @@
     "json",
     "json-schema",
     "vue-schema-form",
-    "survey-renderer",
-    "client-side",
-    "frontend",
     "javascript",
-    "typescript"
+    "typescript",
+    "schema-form",
+    "conditional-logic",
+    "quiz",
+    "poll",
+    "localization",
+    "css",
+    "shadcn",
+    "mui",
+    "material-ui",
+    "bootstrap",
+    "bootswatch"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/survey-library.git"
   },
   "peerDependencies": {
-    "survey-core": "^2.0.0",
+    "survey-core": "^3.0.0",
     "vue": ">=3.0.0"
   },
   "scripts": {
@@ -55,8 +62,8 @@
     "serve:example:prod": "npm run preview --prefix ./example",
     "build:example:prod": "npm run build --prefix ./example",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
-    "test": "vitest --no-watch --no-threads",
-    "test:watch": "vitest --no-threads",
+    "test": "node ../../tests/markup/gen-shards.js && vitest --no-watch",
+    "test:watch": "node ../../tests/markup/gen-shards.js && vitest",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "accessibility-tests": "cross-env env=vue3 playwright test --project a11y --ui",

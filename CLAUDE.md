@@ -19,7 +19,7 @@ Each UI package depends on `survey-core` via the path `../survey-core/build`. In
 ```bash
 # survey-core (run from packages/survey-core) — REQUIRED before building/testing any UI package
 npm run build          # main JS bundle + non-source files
-npm run build:all      # build + i18n + themes + icons
+npm run build:all      # build + i18n + themes + icons + adapters + linter + doc
 
 # UI packages (run from the package dir)
 npm run build          # react / js-ui / angular (ng build) / vue3 (vite)
@@ -97,3 +97,8 @@ survey-core is framework-agnostic and exposes its own change-notification system
 - Vue/Angular wrap the same model events into their respective reactivity systems.
 
 So a typical UI rendering component is a paper-thin view over a survey-core model object: it reads computed properties (CSS classes, visibility, value) off the model and re-renders when the model notifies a change. New behavior generally belongs in survey-core; the UI layer only renders it.
+
+## Coding conventions
+
+- **Do not generate API doccomments** (`/** ... */`) for either new or existing API members.
+- If an API requires clarification for maintainers, add a regular JavaScript comment (`//` or `/* ... */`) in the implementation instead of a doccomment.

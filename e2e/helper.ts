@@ -70,16 +70,6 @@ export async function resetFocusToBody(page: Page): Promise<void> {
     document.body.focus();
   });
 }
-
-export const applyTheme = async (page: Page, theme: any) => {
-  await page.evaluate((theme) => {
-    const survey = (window as any).survey;
-    const baseTheme = survey.theme || {};
-    const newTheme = { ...baseTheme, ...theme };
-    newTheme.cssVariables = { ...(baseTheme.cssVariables || {}), ...(theme.cssVariables || {}) };
-    survey.applyTheme(newTheme);
-  }, theme);
-};
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
   if (!!props) {
     Object.keys(props).forEach(name => {

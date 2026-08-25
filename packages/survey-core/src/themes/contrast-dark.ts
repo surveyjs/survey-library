@@ -4,7 +4,6 @@ export default {
   "colorPalette": "dark",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#9c40ff",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-body": "var(--sjs2-palette-gray-999)",
     "--sjs2-color-utility-sheet": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-a11y": "rgba(from var(--sjs2-palette-blue-400) r g b / var(--sjs2-opacity-x040))",
@@ -45,6 +44,7 @@ export default {
     "--sjs2-color-fg-basic-primary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-secondary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-tertiary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
+    "--sjs2-color-fg-basic-primary-dim": "var(--sjs2-color-fg-basic-primary)",
     "--sjs2-color-fg-neutral-on-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-fg-neutral-primary-disabled": "rgba(from var(--sjs2-color-fg-neutral-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-brand-primary": "var(--sjs2-color-project-brand-400)",

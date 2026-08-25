@@ -1118,6 +1118,38 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
+  test("PopupDropdownViewModel overlay follows the visual viewport", () => {
+    const model: PopupModel = new PopupModel("sv-list", {}, { displayMode: "overlay" });
+    const targetElement: HTMLElement = document.createElement("div");
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    viewModel.initializePopupContainer();
+    viewModel.container.innerHTML = popupTemplate;
+
+    const visualViewport: any = new EventTarget();
+    visualViewport.height = 800;
+    visualViewport.offsetTop = 0;
+    visualViewport.scale = 1;
+    Object.defineProperty(window, "visualViewport", { configurable: true, value: visualViewport });
+
+    const documentStyle = document.documentElement.style;
+    viewModel.updateOnShowing();
+    expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("800px");
+    expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("0px");
+
+    // the on-screen keyboard shrinks the visual viewport and shifts it within the layout viewport
+    visualViewport.height = 400;
+    visualViewport.offsetTop = 150;
+    visualViewport.dispatchEvent(new Event("scroll"));
+    expect(documentStyle.getPropertyValue("--sv-popup-overlay-height")).toBe("400px");
+    expect(documentStyle.getPropertyValue("--sv-popup-overlay-top")).toBe("150px");
+
+    viewModel.dispose();
+    documentStyle.removeProperty("--sv-popup-overlay-height");
+    documentStyle.removeProperty("--sv-popup-overlay-top");
+    delete (<any>window).visualViewport;
+    targetElement.remove();
+  });
+
   test("PopupModel isModal displayMode", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const targetElement: HTMLElement = document.createElement("div");

@@ -38,14 +38,17 @@
 
 .sd-selectlist__item-body {
     display: flex;
-    padding: var(--sjs2-spacing-x150);
+    padding: var(--sjs2-layout-component-drop-item-box-padding-vertical)
+        var(--sjs2-layout-component-drop-item-box-padding-right)
+        var(--sjs2-layout-component-drop-item-box-padding-vertical)
+        var(--sjs2-layout-component-drop-item-box-padding-left);
     align-items: center;
-    gap: var(--sjs2-spacing-x100);
+    gap: var(--sjs2-layout-component-drop-item-box-gap);
     width: 100%;
     box-sizing: border-box;
 
     .sv-string-viewer {
-        padding: 0 var(--sjs2-spacing-x050);
+        padding: 0 var(--sjs2-layout-component-drop-item-label-padding-horizontal);
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 1;

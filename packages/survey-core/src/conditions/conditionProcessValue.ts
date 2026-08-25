@@ -32,7 +32,7 @@ export interface IValueGetterContext {
   getObj?(): any;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
-  getContextKeys?(): { [key: string]: any };
+  getContextKeys?(keys?: any): { [key: string]: any };
 }
 export interface IValueInfoParams {
   name: string;
@@ -97,12 +97,16 @@ export class ValueGetter {
     return this.getValue(name, context, true, isDisplayValue);
   }
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+    const propPrefix = settings.expressionElementPropertyPrefix;
     for (var i = 0; i < usedNames.length; i++) {
       const name = usedNames[i];
       if (!name) continue;
+      // An element property reference ({$q1.isVisible}) can change without any value key change
+      if (!!propPrefix && name[0] === propPrefix) return true;
       const lowerName = name.toLowerCase();
       if (keys.hasOwnProperty(name)) return true;
       if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
+      if (this.isUnwrappedNameChanged(keys, name)) return true;
       const firstName = this.getFirstNameByKeys(keys, name);
       if (!firstName) continue;
       if (name === firstName) return true;
@@ -122,12 +126,22 @@ export class ValueGetter {
     }
     return false;
   }
+  private isUnwrappedNameChanged(keys: any, name: string): boolean {
+    const postfix = settings.expressionVariables.unwrapPostfix;
+    if (!postfix) return false;
+    const first = this.getPath(name)[0].name;
+    if (!first.endsWith(postfix)) return false;
+    const baseName = first.substring(0, first.length - postfix.length);
+    return keys.hasOwnProperty(baseName) || keys.hasOwnProperty(baseName.toLowerCase());
+  }
   private getFirstNameByKeys(keys: any, name: string): string {
     const path = this.getPath(name);
     let res = "";
     for (let i = 0; i < path.length; i++) {
       res += (i > 0 ? "." : "") + path[i].name;
       if (keys.hasOwnProperty(res)) return res;
+      const lowerRes = res.toLowerCase();
+      if (lowerRes !== res && keys.hasOwnProperty(lowerRes)) return lowerRes;
     }
     return "";
   }

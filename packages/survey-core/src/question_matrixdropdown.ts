@@ -343,6 +343,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * - `"initial"` (default) - Preserves the original order of the `rows` array.
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
+   * @since 2.0.0
    */
   @property({ isLowerCase: true }) rowOrder: string;
 

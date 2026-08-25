@@ -169,7 +169,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
     const lowName = name.toLocaleLowerCase();
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
-      const qName = q.getFilteredName().toLocaleLowerCase();
+      const qName = q.getValueName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
         res.obj = q;
@@ -362,9 +362,9 @@ export class Question extends SurveyElement<Question>
     super(name);
     this.onCreating();
 
-    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
+    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, true, () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, true, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, true, () => { this.isRequired = false; });
 
     this.addTriggersInfo();
   }
@@ -1266,6 +1266,7 @@ export class Question extends SurveyElement<Question>
    * Default value: `""`
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   * @since 2.0.0
    */
   @property({ localizable: true }) defaultDisplayValue: string;
 
@@ -1418,7 +1419,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssHeader(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.header)
+      .append(super.getCssHeader(cssClasses))
       .append(cssClasses.headerTop, this.hasTitleOnTop)
       .append(cssClasses.headerLeft, this.hasTitleOnLeft)
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
@@ -1521,6 +1522,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot, !this.singleInputQuestion)
+      .append(this.cssClasses.rootSingleInput, !!this.singleInputQuestion)
       .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)
@@ -1528,7 +1530,21 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
-
+  public getQuestionContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.questionContainer)
+      .toString();
+  }
+  public getHeaderAndContentContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.headerAndContentContainer)
+      .toString();
+  }
+  public get isComplexQuestion(): boolean {
+    const rootCss = this.getRootCss() || "";
+    return rootCss.indexOf("sd-element--complex") > -1;
+    // return this.isContainer || !!this.singleInputQuestion;
+  }
   public getQuestionRootCss() {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -2223,18 +2239,17 @@ export class Question extends SurveyElement<Question>
    * @see SurveyModel.getQuizQuestions
    */
   public get quizQuestionCount(): number {
-    if (
-      this.isVisible &&
-      this.hasInput &&
-      !this.isValueEmpty(this.getCorrectAnswerValue())
-    )
+    if (this.isVisible && this.hasInput && this.hasCorrectAnswerValue())
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
+    if (!this.isEmpty() && this.hasCorrectAnswerValue())
       return this.getCorrectAnswerCount();
     return 0;
+  }
+  protected hasCorrectAnswerValue(): boolean {
+    return !this.isValueEmpty(this.getCorrectAnswerValue());
   }
   protected getQuizQuestionCount(): number {
     return 1;
@@ -2242,6 +2257,8 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  // MERGE(V3): this doc block conflicts every merge - master (V2) adds `@since 2.5.30`, V3 omits
+  // it (3.0.0 API in V3). Keep the V3 (no `@since`) doc on merge.
   /**
    * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
    * classes can override this method to exclude values that cannot be selected (for example,
@@ -2453,7 +2470,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getFilteredName(),
+      name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
@@ -2541,6 +2558,7 @@ export class Question extends SurveyElement<Question>
    * Returns a character or text string that indicates a required question.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return this.survey != null && this.isRequired
@@ -3265,8 +3283,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+  { name: "minWidth" },
+  { name: "maxWidth" },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

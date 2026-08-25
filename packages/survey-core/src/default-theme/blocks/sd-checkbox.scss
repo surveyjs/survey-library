@@ -5,6 +5,8 @@
   width: var(--sjs2-size-component-checkbox-box);
   height: var(--sjs2-size-component-checkbox-box);
   margin-top: calc(calc(1lh - var(--sjs2-size-component-checkbox-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
+  background-color: var(--sjs2-color-component-checkbox-false-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-false-default);
 }
 
 .sd-checkbox__svg {
@@ -20,20 +22,79 @@
 
 .sd-checkbox--checked .sd-checkbox__svg {
   use {
-    fill: var(--sjs2-color-component-check-true-default-icon);
+    fill: var(--sjs2-color-component-checkbox-true-default-icon);
   }
 }
 
 .sd-checkbox--checked.sd-checkbox--disabled .sd-checkbox__svg use {
-  fill: var(--sjs2-color-component-check-true-disabled-icon);
+  fill: var(--sjs2-color-component-checkbox-true-disabled-icon);
 }
 
 .sd-checkbox--checked.sd-checkbox--readonly .sd-checkbox__svg use {
-  fill: var(--sjs2-color-component-check-true-disabled-icon);
+  fill: var(--sjs2-color-component-checkbox-true-disabled-icon);
 }
 
 .sd-checkbox--checked.sd-checkbox--preview .sd-checkbox__svg use {
   fill: $foreground;
+}
+
+.sd-checkbox--disabled.sd-checkbox--disabled {
+  .sd-checkbox__decorator {
+    background-color: var(--sjs2-color-component-checkbox-false-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-false-disabled);
+  }
+
+  &.sd-checkbox--checked .sd-checkbox__decorator {
+    background-color: var(--sjs2-color-component-checkbox-true-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-true-disabled);
+  }
+}
+
+.sd-checkbox--readonly.sd-checkbox--readonly {
+  &.sd-checkbox:not(.sd-checkbox--checked) .sd-item__control:focus + .sd-checkbox__decorator,
+  .sd-checkbox__decorator {
+    background-color: var(--sjs2-color-component-checkbox-false-readonly-bg);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-false-readonly);
+  }
+}
+
+.sd-checkbox--checked .sd-checkbox__decorator {
+  box-shadow: var(--sjs2-border-effect-component-checkbox-true-default);
+  background: var(--sjs2-color-component-checkbox-true-default-bg);
+}
+
+.sd-item__control:focus-visible + .sd-checkbox__decorator {
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--sjs2-radius-component-checkbox);
+    box-shadow: var(--sjs2-border-effect-component-checkbox-a11y);
+    transition: box-shadow $transition-duration;
+  }
+}
+
+.sd-checkbox--allowhover:not(.sd-checkbox--readonly) .sd-selectbase__label:hover .sd-checkbox__decorator,
+.sd-checkbox--allowhover:not(.sd-checkbox--readonly).sd-matrix__label:hover .sd-checkbox__decorator {
+  background: var(--sjs2-color-component-checkbox-false-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-false-hovered);
+  outline: none;
+}
+
+.sd-checkbox--allowhover.sd-checkbox--checked:not(.sd-checkbox--readonly) .sd-selectbase__label:hover .sd-checkbox__decorator,
+.sd-checkbox--allowhover.sd-checkbox--checked:not(.sd-checkbox--readonly).sd-matrix__label:hover .sd-checkbox__decorator {
+  background: var(--sjs2-color-component-checkbox-true-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-true-hovered);
+  outline: none;
+}
+
+.sd-item--error.sd-checkbox:not(.sd-checkbox--checked) .sd-checkbox__decorator {
+  background-color: var(--sjs2-color-component-checkbox-false-invalid-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-false-invalid);
 }
 
 .sd-checkbox--label-rendered {

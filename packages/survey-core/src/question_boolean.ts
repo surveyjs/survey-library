@@ -95,12 +95,26 @@ export class QuestionBooleanModel extends Question {
    */
   @property({ localizable: true }) label: string;
 
-  @property({ defaultValue: false, onSet: (val: boolean, target: QuestionBooleanModel) => {
-    if (val) target.setPropertyValue("titleLocation", "hidden");
-  } }) useTitleAsLabel: boolean;
+  /**
+   * Specifies whether to display the question title as a label next to the checkbox or switch control. Applies only when [`displayMode`](#displayMode) is set to `"checkbox"` or `"switch"`.
+   *
+   * Default value: `true`
+   *
+   * Set this property to `false` to display the question title according to the [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#titleLocation) property.
+   * @since 3.0.0
+   */
+  @property({ defaultValue: true }) useTitleAsLabel: boolean;
 
   get isLabelRendered(): boolean {
-    return this.titleLocation === "hidden" || this.useTitleAsLabel;
+    if (this.titleLocation === "hidden") return true;
+    if (!this.useTitleAsLabel) return false;
+    if (this.inMatrixMode && !this.isSingleInputActive) return false;
+    const renderAs = this.getRenderAsValue();
+    return renderAs === "checkbox" || renderAs === "switch";
+  }
+  protected getTitleLocationCore(): string {
+    if (this.isLabelRendered) return "hidden";
+    return super.getTitleLocationCore();
   }
   get canRenderLabelDescription(): boolean {
     return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);
@@ -349,11 +363,13 @@ export class QuestionBooleanModel extends Question {
    *
    * Possible values:
    *
-   * - `"segmented"` (default) - Displays a toggle switch on wide screens and radio buttons on narrow screens.
-   * - `"radio"` - Displays Yes/No answers as radio buttons.
+   * - `"segmented"` (default) - Displays a segmented toggle on wide screens and radio buttons on narrow screens.
+   * - `"radio"` - Displays Yes/No options as radio buttons.
    * - `"checkbox"` - Displays a single checkbox.
    * - `"switch"` - Displays a switch control with the question title.
-   * - `"custom"` - Set automatically when the `renderAs` property contains a custom renderer name.
+   * - `"custom"` - Assigned automatically when the `renderAs` property contains a custom renderer name.
+   * @since 3.0.0
+   * @see useTitleAsLabel
    */
   @property() displayMode: "segmented" | "radio" | "checkbox" | "switch" | "custom";
   private customRenderAs: string;
@@ -461,7 +477,7 @@ Serializer.addClass(
       visible: false,
       isSerializableFunc: (obj: any) => isCustomRenderAs(obj.renderAs)
     },
-    { name: "useTitleAsLabel", default: false, visible: false },
+    { name: "useTitleAsLabel:boolean", default: true, visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

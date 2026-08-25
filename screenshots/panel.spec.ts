@@ -116,6 +116,7 @@ frameworks.forEach(framework => {
       const panelRoot = page.locator(".sd-panel");
       await compareScreenshot(page, panelRoot, "panel-collapse.png");
       await panelRoot.locator(".sd-panel__title").click();
+      await page.hover("body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, panelRoot, "panel-expand.png");
     });
 
@@ -144,6 +145,7 @@ frameworks.forEach(framework => {
       const panelRoot = page.locator(".sd-panel");
       await compareScreenshot(page, panelRoot, "panel-collapse-rtl.png");
       await panelRoot.locator(".sd-panel__title").click();
+      await page.hover("body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, panelRoot, "panel-expand-rtl.png");
 
       await page.setViewportSize({ width: 400, height: 1080 });
@@ -406,8 +408,8 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "800"
       });
-      await applyTheme(page, {
-        "isPanelless": true
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
       const panelRoot = page.locator(".sd-panel--as-page");
       await compareScreenshot(page, panelRoot, "panel-multi-panelless.png");

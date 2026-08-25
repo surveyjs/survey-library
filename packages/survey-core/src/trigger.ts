@@ -7,6 +7,29 @@ import { ExpressionRunner } from "./expressions/expressionRunner";
 import { OperandMaker } from "./expressions/expressions";
 import { settings } from "./settings";
 
+export function hasTriggerOperator(operator: string): boolean {
+  if (!operator || typeof operator !== "string") return false;
+  const operators: any = Trigger.operators;
+  return Object.prototype.hasOwnProperty.call(operators, operator) &&
+    typeof operators[operator] === "function";
+}
+
+function normalizeTriggerOperator(operator: string): string {
+  const res = !!operator && typeof operator === "string" ? operator.toLowerCase() : "";
+  return hasTriggerOperator(res) ? res : "equal";
+}
+
+export function buildTriggerExpression(name: string, operator: string, value: any): string {
+  if (!name) return "";
+  const op = normalizeTriggerOperator(operator);
+  // "empty"/"notempty" are the only operators that run without a value
+  const requireValue = op !== "empty" && op !== "notempty";
+  // Base.isValueEmpty trims strings before the check, hence trimValue here
+  const trimmed = typeof value === "string" ? value.trim() : value;
+  if (requireValue && Helpers.isValueEmpty(trimmed)) return "";
+  return "{" + name + "} " + op + " " + OperandMaker.toOperandString(value);
+}
+
 export class Trigger extends Base {
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
@@ -71,7 +94,7 @@ export class Trigger extends Base {
   public set operator(value: string) {
     if (!value) return;
     value = value.toLowerCase();
-    if (!Trigger.operators[value]) return;
+    if (!hasTriggerOperator(value)) return;
     this.setPropertyValue("operator", value);
   }
   @property() value: any;
@@ -115,7 +138,7 @@ export class Trigger extends Base {
   }
   protected canSuccessOnEmptyExpression(): boolean { return false; }
   public check(value: any): void {
-    var triggerResult = Trigger.operators[this.operator](value, this.value);
+    var triggerResult = Trigger.operators[normalizeTriggerOperator(this.operator)](value, this.value);
     if (triggerResult) {
       this.onSuccess(null);
     } else {
@@ -136,37 +159,16 @@ export class Trigger extends Base {
   protected onFailure(): void {}
   protected onSuccessExecuted(): void {}
   private buildExpression(): string {
-    if (!this.name) return "";
-    if (this.isValueEmpty(this.value) && this.isRequireValue) return "";
-    return (
-      "{" +
-      this.name +
-      "} " +
-      this.operator +
-      " " +
-      OperandMaker.toOperandString(this.value)
-    );
+    return buildTriggerExpression(this.name, this.operator, this.value);
   }
   private isCheckRequired(runner: ExpressionRunner, keys: any): boolean {
     if (!keys) return false;
     return !this.canSkipExpressionByKeys(runner, keys, this.getUsedVariables(runner));
   }
   protected getUsedVariables(runner: ExpressionRunner): string[] {
+    // The "-unwrapped" postfix is handled in ValueGetter.isAnyKeyChanged
     if (!runner) return [];
-    const res = runner.getVariables();
-    if (Array.isArray(res)) {
-      const unw = settings.expressionVariables.unwrapPostfix;
-      for (let i = res.length - 1; i >= 0; i--) {
-        const s = res[i];
-        if (s.endsWith(unw)) {
-          res.push(s.substring(0, s.length - unw.length));
-        }
-      }
-    }
-    return res;
-  }
-  private get isRequireValue(): boolean {
-    return this.operator !== "empty" && this.operator != "notempty";
+    return runner.getVariables();
   }
 }
 

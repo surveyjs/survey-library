@@ -144,11 +144,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
+    this.syncValueWithVisibleChoices();
     this.updateRankingChoices();
   }
   onSurveyLoad(): void {
     this.blockAnimations();
     super.onSurveyLoad();
+    this.syncDefaultValueWithVisibleChoices();
+    this.syncValueWithVisibleChoices();
     this.updateRankingChoices();
     this.releaseAnimations();
   }
@@ -178,10 +181,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
-    if (this.visibleChoices.length > this.value.length)
-      this.addToValueByVisibleChoices();
-    if (this.visibleChoices.length < this.value.length)
-      this.removeFromValueByVisibleChoices();
+    this.syncDefaultValueWithVisibleChoices();
+    this.syncValueWithVisibleChoices();
     this.updateRankingChoices();
   };
 
@@ -195,26 +196,39 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoicesSync();
   };
 
-  private addToValueByVisibleChoices() {
-    const newValue = this.value.slice();
-
-    this.visibleChoices.forEach((choice) => {
-      if (newValue.indexOf(choice.value) === -1) {
-        newValue.push(choice.value);
+  private getRankedValueByVisibleChoices(value: Array<any>): Array<any> {
+    const res: Array<any> = [];
+    const filteredVisibleChoices = this.visibleChoices.filter((choice) => this.isItemInList(choice));
+    (Array.isArray(value) ? value : []).forEach((valueItem) => {
+      if (!!ItemValue.getItemByValue(filteredVisibleChoices, valueItem) && res.indexOf(valueItem) < 0) {
+        res.push(valueItem);
       }
     });
-    this.value = newValue;
+    filteredVisibleChoices.forEach((choice) => {
+      if (res.indexOf(choice.value) < 0) {
+        res.push(choice.value);
+      }
+    });
+    return res;
   }
 
-  private removeFromValueByVisibleChoices() {
-    const newValue = this.value.slice();
-    const choices = this.visibleChoices;
-    for (let i = this.value.length - 1; i >= 0; i --) {
-      if (!ItemValue.getItemByValue(choices, this.value[i])) {
-        newValue.splice(i, 1);
-      }
+  private syncValueWithVisibleChoices(): void {
+    if (this.selectToRankEnabled || this.isEmpty()) return;
+    const newValue = this.getRankedValueByVisibleChoices(this.value);
+    if (!this.isTwoValueEquals(this.value, newValue)) {
+      this.value = newValue;
     }
-    this.value = newValue;
+  }
+
+  // the defaultValue should contain all choices as the question value does, otherwise a user sees a part of choices in the designer
+  private syncDefaultValueWithVisibleChoices(): void {
+    if (!this.isDesignMode || this.isLoadingFromJson || this.selectToRankEnabled) return;
+    const defaultValue = this.defaultValue;
+    if (!Array.isArray(defaultValue) || defaultValue.length === 0) return;
+    const newValue = this.getRankedValueByVisibleChoices(defaultValue);
+    if (!this.isTwoValueEquals(defaultValue, newValue)) {
+      this.defaultValue = newValue;
+    }
   }
 
   private getChoicesAnimationOptions(isRankingChoices: boolean): IAnimationGroupConsumer<ItemValue> {
@@ -344,6 +358,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.visibleChoices.forEach((choice) => {
         if (choice.value === valueItem) newRankingChoices.push(choice);
       });
+    });
+    this.visibleChoices.forEach((choice) => {
+      if (newRankingChoices.indexOf(choice) < 0) {
+        newRankingChoices.push(choice);
+      }
     });
     this.rankingChoices = newRankingChoices;
   }

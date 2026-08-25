@@ -14,6 +14,13 @@
   "main": "survey-vue3-ui.umd.js",
   "module": "survey-vue3-ui.es.js",
   "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./survey-vue3-ui.es.js",
+      "require": "./survey-vue3-ui.umd.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"

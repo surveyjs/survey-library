@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
     plugins: [vue()],
     build: {
       emptyOutDir: false,
+      target: "ES2019",
       sourcemap: mode == "development",
       // Output compiled files to /dist.
       outDir: "./build",

@@ -14,6 +14,7 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify("production"),
   },
   test: {
+    include: ["tests/**/*.spec.{ts,tsx}"],
     setupFiles: ["./vitest.setup.ts"],
     environment: "jsdom",
     deps: {

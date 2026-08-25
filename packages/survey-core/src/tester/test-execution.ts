@@ -171,9 +171,9 @@ export interface ISurveyTestWebResponse {
   response?: any;
 }
 
-// Returning nothing - or anything that is not a response object - is the same as declaring no answer:
-// the request is reported as unstubbed and the question loads no choices. A test run never falls back
-// to the network.
+// When a handler is supplied, returning nothing - or anything that is not a response object - is the
+// same as declaring no answer: the request is reported as unstubbed and the question loads no choices.
+// Without a handler and without a JSON stub for the url, the normal cached web transport is used.
 export type ISurveyTestWebHandler =
   (request: ISurveyTestWebHandlerRequest) => ISurveyTestWebResponse | Promise<ISurveyTestWebResponse>;
 

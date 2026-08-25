@@ -10,8 +10,7 @@ import { SurveyTestValidator } from "../../src/tester/test-validator";
 import { afterEach, describe, expect, test } from "vitest";
 
 // What a survey takes from outside itself: the asynchronous functions its expressions call and the web
-// service its choicesByUrl questions load from. A case answers both, so a run touches no network and
-// reads the same answer on every machine.
+// service its choicesByUrl questions load from. A case may replace either with a reproducible answer.
 
 const registeredFunctions: Array<string> = [];
 function registerFunction(name: string, func: (params: any) => any, isAsync: boolean = true): void {
@@ -466,50 +465,71 @@ describe("survey-tester: web choices", () => {
     });
     expect(failedChecks(result.tests[0])).toEqual([]);
   });
-  test("an undeclared url is reported, loads nothing and sends no request", async () => {
+  test("an url uses the real transport when the case has no web section", async () => {
     const globalAny: any = globalThis;
     const savedXhr = globalAny.XMLHttpRequest;
-    const savedFetch = globalAny.fetch;
     let transportUsed = 0;
-    globalAny.XMLHttpRequest = function(): void { transportUsed++; };
-    globalAny.fetch = (): any => { transportUsed++; return Promise.reject(new Error("no")); };
+    globalAny.XMLHttpRequest = class {
+      public status: number = 200;
+      public statusText: string = "OK";
+      public response: string = JSON.stringify([{ id: "de", name: "Germany" }]);
+      public responseText: string = this.response;
+      public onload: () => void;
+      public open(): void {}
+      public setRequestHeader(): void {}
+      public send(): void {
+        transportUsed++;
+        this.onload();
+      }
+    };
+    try {
+      const result = await run(countriesSurvey, {
+        tests: [{ name: "real web", steps: [{ expect: { country: { choices: ["de"] } } }] }],
+      });
+      expect(transportUsed).toBe(1);
+      expect(failedChecks(result.tests[0])).toEqual([]);
+      expect(codes(result.tests[0])).not.toContain(SurveyTestIssueCodes.webRequestNotStubbed);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+    }
+  });
+  test("an url missing from the web section uses the real transport and its static cache", async () => {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    let transportUsed = 0;
+    globalAny.XMLHttpRequest = class {
+      public status: number = 200;
+      public statusText: string = "OK";
+      public response: string = JSON.stringify([{ id: "de", name: "Germany" }]);
+      public responseText: string = this.response;
+      public onload: () => void;
+      public open(): void {}
+      public setRequestHeader(): void {}
+      public send(): void {
+        transportUsed++;
+        this.onload();
+      }
+    };
     try {
       const result = await run(countriesSurvey, {
         web: { "https://api.example.com/other": { response: [] } },
-        tests: [{ name: "unstubbed", steps: [{ expect: { country: { choices: [] } } }] }],
+        tests: [
+          { name: "first", steps: [{ expect: { country: { choices: ["de"] } } }] },
+          { name: "cached", steps: [{ expect: { country: { choices: ["de"] } } }] },
+          {
+            name: "stub wins",
+            web: { [countriesUrl]: { response: [{ id: "fr", name: "France" }] } },
+            steps: [{ expect: { country: { choices: ["fr"] } } }],
+          },
+        ],
       });
-      expect(transportUsed).toBe(0);
       expect(failedChecks(result.tests[0])).toEqual([]);
-      const issue = allIssues(result.tests[0]).filter(item => item.code === SurveyTestIssueCodes.webRequestNotStubbed)[0];
-      expect(issue).toBeTruthy();
-      expect(issue.message).toContain(countriesUrl);
-      expect(issue.message).toContain("https://api.example.com/other");
-      expect(issue.severity).toBe("warning");
+      expect(failedChecks(result.tests[1])).toEqual([]);
+      expect(failedChecks(result.tests[2])).toEqual([]);
+      expect(transportUsed, "the second test uses ChoicesRestful's static cache").toBe(1);
     } finally {
       globalAny.XMLHttpRequest = savedXhr;
-      globalAny.fetch = savedFetch;
     }
-  });
-  test("an undeclared url leaves the question loaded, so the steps after it run normally", async () => {
-    const surveyJson = {
-      elements: [
-        { type: "text", name: "q1" },
-        { type: "dropdown", name: "country", choicesByUrl: { url: countriesUrl } },
-      ],
-    };
-    const result = await run(surveyJson, {
-      tests: [{
-        name: "goes on",
-        steps: [
-          { expect: { country: { choices: [] } } },
-          { set: { q1: "a" } },
-          { expect: { survey: { values: { q1: "a" } } } },
-        ],
-      }],
-    });
-    // Three steps ran: nothing waited for a request that will never answer.
-    expect(result.tests[0].steps).toHaveLength(3);
-    expect(result.tests[0].steps[2].status).toBe("passed");
   });
   test("two tests declaring one url differently each get their own answer", async () => {
     const result = await run(countriesSurvey, {
@@ -529,21 +549,35 @@ describe("survey-tester: web choices", () => {
     expect(failedChecks(result.tests[0])).toEqual([]);
     expect(failedChecks(result.tests[1])).toEqual([]);
   });
-  test("the process-wide choices cache is neither read nor written by a run", async () => {
+  test("a stubbed request does not write to the process-wide choices cache", async () => {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
     const savedCache = settings.web.cacheLoadedChoices;
     settings.web.cacheLoadedChoices = true;
+    let transportUsed = 0;
+    globalAny.XMLHttpRequest = class {
+      public status: number = 200;
+      public response: string = JSON.stringify([{ id: "fr", name: "France" }]);
+      public onload: () => void;
+      public open(): void {}
+      public setRequestHeader(): void {}
+      public send(): void {
+        transportUsed++;
+        this.onload();
+      }
+    };
     try {
       await run(countriesSurvey, {
         web: { [countriesUrl]: { response: [{ id: "de", name: "Germany" }] } },
         tests: [{ name: "cached", steps: [{ expect: { country: { choices: ["de"] } } }] }],
       });
-      // An application survey asking for the same url is not served the answer of the test: it goes to
-      // the transport, which does not exist here, so it loads nothing.
+      // An application survey asking for the same url is not served the answer of the test.
       const other = new SurveyModel(countriesSurvey);
-      await new Promise(resolve => setTimeout(resolve, 20));
       const question: any = other.getQuestionByName("country");
-      expect(question.visibleChoices.map((item: any) => item.value)).not.toContain("de");
+      expect(question.visibleChoices.map((item: any) => item.value)).toEqual(["fr"]);
+      expect(transportUsed).toBe(1);
     } finally {
+      globalAny.XMLHttpRequest = savedXhr;
       settings.web.cacheLoadedChoices = savedCache;
     }
   });

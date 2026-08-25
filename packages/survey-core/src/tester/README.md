@@ -303,10 +303,11 @@ the variables above them.
 }
 ```
 
-**A test run performs no network request.** Not "should not": a request the case did not declare
-never reaches `XMLHttpRequest` or `fetch`. It is reported as `webRequestNotStubbed`, naming the url
-that was wanted and the urls the case declares, and the load completes with no choices — a warning
-and an empty list, never a stuck model or a test that passes on one machine and fails on another.
+An url the case declares is answered by its stub. An url it does not declare follows the Form
+Library's normal `XMLHttpRequest` or `fetch` path, including the process-wide `ChoicesRestful` cache.
+This lets a test use the real choices service when it needs no controlled response and prevents
+identical requests from putting avoidable pressure on that service. Declare every relevant url when
+the test must be deterministic or must reproduce a service failure.
 
 | function stub | |
 | --- | --- |
@@ -343,8 +344,9 @@ is a slow handler, not a different date. It is bounded by `asyncTimeout`.
 
 The case document is the reproducible artifact, so these two maps are answers. A function that has a
 real implementation — one no JSON table expresses — is not declared here at all; it is passed as
-`functions` in the execution options, together with `web` for a host that serves requests from a
-fixture directory. See "Serving the outside world from code" in section 7.
+`functions` in the execution options. A `web` execution handler can serve undeclared requests from a
+fixture directory; without that handler, undeclared urls use the real web service. See "Serving the
+outside world from code" in section 7.
 
 ---
 
@@ -815,9 +817,10 @@ const result = await runSurveyTests(surveyJson, tests, undefined, {
 ```
 
 The case document is the reproducible artifact, so **a JSON entry always wins** and these serve what
-the case did not declare. A handler that answers with nothing — or with anything that is not a
-response object — declared nothing: the request is reported as `webRequestNotStubbed` exactly as it
-would be without a handler at all. A run never falls back to the network.
+the case did not declare. When a `web` handler is supplied, it owns undeclared requests. A handler
+that answers with nothing — or with anything that is not a response object — produces
+`webRequestNotStubbed` and an empty list. When no handler is supplied, an url absent from the JSON
+`web` map uses the normal cached network transport.
 
 A function whose body comes from `functions` here is not declared in the suite's `functions` map: a
 map entry that answers nothing is a validation error, because a stub that silently returns `undefined`

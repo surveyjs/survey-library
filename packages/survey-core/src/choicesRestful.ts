@@ -116,6 +116,7 @@ export class ChoicesRestful extends Base {
     settings.web.onBeforeRequestChoices = val;
   }
   private static getCachedItemsResult(obj: ChoicesRestful): boolean {
+    if (!obj.isUsingCache) return false;
     var hash = obj.objHash;
     var res = ChoicesRestful.itemsResult[hash];
     if (!res) return false;
@@ -178,10 +179,6 @@ export class ChoicesRestful extends Base {
     this.sendRequest();
   }
   public get isUsingCache(): boolean {
-    // The cache is process-wide and keyed by the request alone, so it cannot be scoped to one model.
-    // A survey that serves its own requests would therefore both read answers meant for another
-    // survey and hide its own requests from the code that serves them, so a provided transport is
-    // never cached: the provider decides what an url returns, every time it is asked.
     if (!!this.webProvider) return false;
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
@@ -189,7 +186,10 @@ export class ChoicesRestful extends Base {
   }
   private get webProvider(): ISurveyWebProvider {
     const survey: any = this.getSurvey();
-    return !!survey ? survey.webProvider : undefined;
+    const provider: ISurveyWebProvider = !!survey ? survey.webProvider : undefined;
+    if (!!provider && !!provider.canHandleRequest &&
+      !provider.canHandleRequest({ url: this.processedUrl })) return undefined;
+    return provider;
   }
   public get isRunning(): boolean {
     return this.getIsRunning();

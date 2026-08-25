@@ -29,6 +29,9 @@ export interface ISurveyWebResponse {
   response?: any;
 }
 export interface ISurveyWebProvider {
+  // Optional. Return false to let the survey send this request through its default XMLHttpRequest or
+  // fetch transport. A provider without this callback handles every request for backward compatibility.
+  canHandleRequest?: (request: ISurveyWebRequest) => boolean;
   // Called once per request. The survey is waiting from the moment this is entered until onResponse
   // is called, and it is called exactly once.
   sendRequest(request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void;

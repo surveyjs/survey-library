@@ -11,9 +11,8 @@ import {
 } from "./test-execution";
 
 // What a survey takes from outside itself, and what a case puts there instead: the asynchronous
-// functions its expressions call, and the web service its choicesByUrl questions load from. Both are
-// answered from the case, so a run touches no network, reads the same answer on every machine and at
-// any hour, and can describe a failure a real service produces once a year.
+// functions its expressions call, and the web service its choicesByUrl questions load from. Declared
+// answers come from the case; an undeclared url follows the survey's real, cached web transport.
 //
 // The two halves are scoped differently, because survey-core decides them at two different moments.
 // A url is asked for by a model, and the model carries the transport (survey.webProvider), so the web
@@ -130,6 +129,9 @@ export class SurveyTestStubs {
     private webHandler?: ISurveyTestWebHandler) {
     const self = this;
     this.webProviderValue = {
+      canHandleRequest: (request: ISurveyWebRequest): boolean => {
+        return self.canHandleWebRequest(request);
+      },
       sendRequest: (request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void => {
         self.sendWebRequest(request, onResponse);
       },
@@ -270,6 +272,10 @@ export class SurveyTestStubs {
     if (!!registered) return !!registered.isAsync;
     return true;
   }
+  private canHandleWebRequest(request: ISurveyWebRequest): boolean {
+    const url = !!request ? request.url : "";
+    return !!this.web[url] || !!this.webHandler;
+  }
   private sendWebRequest(request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void {
     const url = !!request ? request.url : "";
     const stub = this.web[url];
@@ -288,9 +294,6 @@ export class SurveyTestStubs {
       return;
     }
     this.reportUnstubbedUrl(url);
-    // The load still completes. A question whose request never answers is not ready for the rest of
-    // the run - "isChoicesLoaded" is what makes it ready, and only a response sets it - so an
-    // undeclared url costs a warning and an empty list of choices, never a stuck model.
     onResponse({ status: 200, response: [] });
   }
   private runWebHandler(url: string, onResponse: (response: ISurveyWebResponse) => void): void {
@@ -332,11 +335,11 @@ export class SurveyTestStubs {
   private reportUnstubbedUrl(url: string): void {
     const declared = Object.keys(this.web);
     this.report(SurveyTestIssueCodes.webRequestNotStubbed,
-      "The survey requested \"" + url + "\", and the case declares no answer for it. A test run sends " +
-      "no request of its own, so the question loaded no choices. " +
+      "The survey requested \"" + url + "\", and the web handler returned no answer for it, so the " +
+      "question loaded no choices. " +
       (declared.length > 0
         ? "The urls the case declares: " + declared.join(", ") + "."
-        : "Declare the url in the \"web\" section of the suite."),
+        : "Declare the url in the \"web\" section of the suite or return it from the handler."),
       { url: url, declared: declared });
   }
   private reportWebHandlerError(url: string, error: any): void {

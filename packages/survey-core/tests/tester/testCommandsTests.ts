@@ -147,15 +147,25 @@ describe("set", () => {
     expect(outcome.codes, "\"other\" is not offered").toEqual([SurveyTestIssueCodes.invalidChoiceValue]);
   });
   test("Choices loaded from a web service are not verified, and the case is told so", async () => {
-    const outcome = await runSteps({
-      elements: [{ type: "dropdown", name: "q1", choicesByUrl: { url: "https://surveyjs.io/api/countries" } }],
-    }, [{ set: { q1: "Neverland" } }]);
-    expect(outcome.status, "the value goes in").toEqual("passed");
-    // The url is not declared by the case either, and a run sends no request of its own, so the case
-    // hears both: nothing answered the request, and the value it set could not be verified.
-    expect(outcome.codes, "the case is warned").toEqual([
-      SurveyTestIssueCodes.webRequestNotStubbed, SurveyTestIssueCodes.choicesNotVerifiable,
-    ]);
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    globalAny.XMLHttpRequest = class {
+      public status: number = 200;
+      public response: string = "[]";
+      public onload: () => void;
+      public open(): void {}
+      public setRequestHeader(): void {}
+      public send(): void { this.onload(); }
+    };
+    try {
+      const outcome = await runSteps({
+        elements: [{ type: "dropdown", name: "q1", choicesByUrl: { url: "https://surveyjs.io/api/countries" } }],
+      }, [{ set: { q1: "Neverland" } }]);
+      expect(outcome.status, "the value goes in").toEqual("passed");
+      expect(outcome.codes, "the case is warned").toEqual([SurveyTestIssueCodes.choicesNotVerifiable]);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+    }
   });
 });
 

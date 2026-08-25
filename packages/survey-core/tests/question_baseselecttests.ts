@@ -4,6 +4,7 @@ import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultCss } from "../src/defaultCss/defaultCss";
@@ -4678,5 +4679,104 @@ describe("baseselect", () => {
     q1.setCommentValue(q1.choices[1], "test comment 2");
     expect(q2.isVisible, "q2 should stay visible after setting comment on choice 2").toBe(true);
     expect([...(q1.value)], "q1 value has two comments").toEqual([{ value: 1, comment: "test comment" }, { value: 2, comment: "test comment 2" }]);
+  });
+  test("Questions with the same valueName: a value from another question choices is not the 'other' value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(q2.otherValue, "q2 other value is empty").toBeFalsy();
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple"]);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["apple"] });
+  });
+  test("Questions with the same valueName: a value from another question choices is not the 'other' value, tagbox sets the value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "tagbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "checkbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["banana"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["banana"] });
+    q2.renderedValue = ["banana", "milk"];
+    expect(q1.renderedValue, "q1 rendered value").toEqual(["banana", "milk"]);
+    expect(q1.isOtherSelected, "q1 doesn't have the other item").toBe(false);
+    expect(survey.data, "survey data, #2").toEqual({ val: ["banana", "milk"] });
+  });
+  test("Questions with the same valueName: an unknown value is still the 'other' value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    survey.setValue("val", ["apple", "unknown"]);
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(q2.otherValue, "q2 other value").toEqual("unknown");
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple", "other"]);
+    expect(survey.data, "survey data").toEqual({ val: ["apple", "other"], "val-Comment": "unknown" });
+  });
+  test("Questions with the same valueName: showOtherItem in several questions shares the other value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"], showOtherItem: true },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple", "other"];
+    q1.otherValue = "abc";
+    expect(q1.isOtherSelected, "q1 selects the other item").toBe(true);
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(q2.otherValue, "q2 shares the other value").toEqual("abc");
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple", "other"]);
+    q2.otherValue = "edf";
+    expect(q1.otherValue, "q1 shares the modified other value").toEqual("edf");
+    expect(survey.data, "survey data").toEqual({ val: ["apple", "other"], "val-Comment": "edf" });
+  });
+  test("Questions with the same valueName, storeOthersAsComment: false, Bug#11746", () => {
+    const survey = new SurveyModel({
+      storeOthersAsComment: false,
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple"]);
+    expect(survey.data, "survey data").toEqual({ val: ["apple"] });
+    q2.renderedValue = ["apple", "milk", "other"];
+    q2.otherValue = "abc";
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(survey.data, "survey data, #2").toEqual({ val: ["apple", "milk", "abc"] });
+    expect(q1.renderedValue, "q1 rendered value").toEqual(["apple", "milk", "abc"]);
+  });
+  test("Questions with the same valueName: load the survey data, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"] },
+        { type: "checkbox", name: "q3", valueName: "val", choices: ["water", "juice"], showOtherItem: true }
+      ]
+    });
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    survey.data = { val: ["apple", "eggs", "water"] };
+    expect(q3.isOtherSelected, "q3 doesn't select the other item").toBe(false);
+    expect(q3.renderedValue, "q3 rendered value").toEqual(["apple", "eggs", "water"]);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["apple", "eggs", "water"] });
   });
 });

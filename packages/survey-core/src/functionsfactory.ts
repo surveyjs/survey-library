@@ -79,6 +79,18 @@ export class FunctionFactory {
     }
     return result.sort();
   }
+  public getRegistrations(): Array<IFunctionRegistration> {
+    return this.getAll().map((name: string): IFunctionRegistration => {
+      const info = this.functionHash[name];
+      const res: IFunctionRegistration = {
+        name: info.name, func: info.func, isAsync: info.isAsync, useCache: info.useCache,
+      };
+      if (Array.isArray(info.originalValueParams)) {
+        res.originalValueParams = info.originalValueParams.slice();
+      }
+      return res;
+    });
+  }
   public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[]): any {
     if (!properties) {
       properties = {};

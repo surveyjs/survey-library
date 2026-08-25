@@ -19,12 +19,15 @@ export const DEFAULT_TEST_ASYNC_TIMEOUT = 5000;
 // no timer at all. Everything after it polls at this interval.
 const ASYNC_POLL_INTERVAL = 5;
 
-export type SurveyTestBusyReason = "serverValidation" | "navigationHandler" | "validators" | "expressions";
+export type SurveyTestBusyReason =
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
 
 export interface ISurveyTestBusyState {
   reason: SurveyTestBusyReason;
   // The questions or the expression owners the survey is still waiting for, when the reason names any.
   names?: Array<string>;
+  // The urls of the requests that have not answered yet. Only "webChoices" carries them.
+  urls?: Array<string>;
 }
 
 export function getAsyncTimeout(options: ISurveyTestOptions): number {
@@ -46,7 +49,25 @@ export function getSurveyBusyState(survey: any): ISurveyTestBusyState {
   if (validating.length > 0) return { reason: "validators", names: validating.map(getOwnerName) };
   const running = getExpressionOwners(survey, questions).filter((obj: any) => obj.isAsyncExpressionRunning === true);
   if (running.length > 0) return { reason: "expressions", names: running.map(getOwnerName) };
+  // A request that was sent and has not answered. It is deliberately "isRunning" and not "isReady":
+  // a question is un-ready from the moment it merely has a url - waitingChoicesByURL is
+  // !isChoicesLoaded && hasChoicesUrl - and it stays un-ready for the whole run when nothing will ever
+  // send that request, which is what a lazy-loading question with a url does. Waiting for readiness
+  // would then time out on every step, over a question no step addresses.
+  const loading = questions.filter(isLoadingChoicesFromWeb);
+  if (loading.length > 0) {
+    return {
+      reason: "webChoices",
+      names: loading.map(getOwnerName),
+      urls: loading.map((question: any) => question.choicesByUrl.processedUrl || question.choicesByUrl.url),
+    };
+  }
   return undefined;
+}
+
+function isLoadingChoicesFromWeb(question: any): boolean {
+  const choicesByUrl = question.choicesByUrl;
+  return !!choicesByUrl && choicesByUrl.isRunning === true;
 }
 
 // "what" names the action the wait belongs to, as a phrase: the "complete" command, the start state
@@ -74,6 +95,7 @@ export async function waitForSurvey(context: ISurveyTestContext, what: string): 
 function createTimeoutError(what: string, busy: ISurveyTestBusyState, timeout: number): SurveyTestCaseError {
   const data: any = { reason: busy.reason, operation: what, timeout: timeout };
   if (!!busy.names) data.names = busy.names;
+  if (!!busy.urls) data.urls = busy.urls;
   return createCaseError(SurveyTestIssueCodes.asyncOperationTimeout,
     "The survey was still running an asynchronous operation " + timeout + "ms after " + what + ": " +
     getReasonText(busy) + ". The test stops here: what the survey does next would land on a model no " +
@@ -93,6 +115,9 @@ function getReasonText(busy: ISurveyTestBusyState): string {
       return "the asynchronous validators of " + names + " have not finished";
     case "expressions":
       return "the asynchronous expressions of " + names + " have not finished";
+    case "webChoices":
+      return "the choices of " + names + " are still loading from " +
+        (!!busy.urls ? busy.urls.join(", ") : "a web service");
   }
   return busy.reason;
 }

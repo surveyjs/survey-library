@@ -9,6 +9,7 @@ import { SurveyTestValidator } from "./test-validator";
 import { waitForSurvey } from "./test-async";
 import { getClosestName } from "./test-diagnostics";
 import { SurveyTestContext } from "./test-context";
+import { SurveyTestStubs } from "./test-stubs";
 import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { ISurveyTestTarget } from "./test-targets";
 import {
@@ -253,12 +254,19 @@ export class SurveyTestRunner {
     }
     // A handler of the case cooperates with a stopped run through the context and nothing else.
     context.setSignal(execution.signal);
+    // Before the model exists: a stub replaces the body of a function, but whether an expression is
+    // asynchronous at all is decided when that expression is parsed, so the names have to be in place
+    // before the JSON is loaded.
+    context.setStubs(new SurveyTestStubs(this.resolveFunctions(test), this.resolveWeb(test),
+      execution.functionHandlers, execution.webHandler));
     let canceled = false;
     try {
       const start = this.resolveStart(test, result);
+      context.stubs.install();
       const survey = await this.createSurveyModel(context, test, testIndex, definition, execution);
       context.setupSurvey(survey);
       context.checkReservedTargetName();
+      this.reportUnknownFunctions(context, survey);
       await execution.emit({ type: "surveyCreated", testIndex: testIndex, test: test, survey: survey });
       // Loading the JSON starts the expressions of the model, and an asynchronous one is still running
       // when fromJSON returns. The start data has to go into a settled model: survey-core skips a
@@ -301,6 +309,7 @@ export class SurveyTestRunner {
     // expressions which run inside the constructor of the model.
     const factoryContext: ISurveyTestModelFactoryContext = {
       test: test, options: context.options, dateProvider: context.dateProvider,
+      attachProviders: (survey: SurveyModel): void => { context.attachProviders(survey); },
     };
     if (testIndex !== undefined) {
       factoryContext.testIndex = testIndex;
@@ -608,6 +617,41 @@ export class SurveyTestRunner {
     this.copyByPresence(res, !!this.tests ? this.tests.options : undefined);
     this.copyByPresence(res, !!test ? test.options : undefined);
     return res;
+  }
+  // Merged per name and per url, exactly like the variables below: a test that overrides one entry
+  // keeps the rest of the suite's.
+  private resolveFunctions(test: ISurveyTest): { [name: string]: any } {
+    const res: { [name: string]: any } = {};
+    this.copyByPresence(res, !!this.tests ? this.tests.functions : undefined);
+    this.copyByPresence(res, !!test ? test.functions : undefined);
+    return res;
+  }
+  private resolveWeb(test: ISurveyTest): { [url: string]: any } {
+    const res: { [url: string]: any } = {};
+    this.copyByPresence(res, !!this.tests ? this.tests.web : undefined);
+    this.copyByPresence(res, !!test ? test.web : undefined);
+    return res;
+  }
+  // A function nobody registered and no stub declares answers null, and everything that reads it - a
+  // visibleIf, a calculated value, the value of an expression question - is then wrong for a reason
+  // that is nowhere in the result. survey-core writes it to the console, which no downloaded result
+  // holds, so the case is told once, at the start, naming what it has to declare.
+  private reportUnknownFunctions(context: SurveyTestContext, survey: SurveyModel): void {
+    const found = survey.validateExpressions({ functions: true, variables: false, semantics: false });
+    const names: Array<string> = [];
+    found.forEach(item => {
+      item.errors.forEach(error => {
+        const name = (<any>error).functionName;
+        if (!!name && names.indexOf(name) < 0) names.push(name);
+      });
+    });
+    if (names.length === 0) return;
+    context.addWarning(SurveyTestIssueCodes.unknownFunctionCalled,
+      "The survey calls " + (names.length === 1 ? "a function that is" : "functions that are") +
+      " neither registered in this process nor declared by the case: " + names.join(", ") +
+      ". Every expression that calls " + (names.length === 1 ? "it" : "them") + " receives null. " +
+      "Declare " + (names.length === 1 ? "it" : "them") + " in the \"functions\" section of the suite.",
+      { names: names });
   }
   // Merged per variable name: a test that overrides one root variable keeps the others. A test can
   // override a root variable but cannot remove one - null sets it to null, it does not unset it.

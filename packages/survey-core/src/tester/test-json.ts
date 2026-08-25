@@ -9,6 +9,10 @@ export interface ISurveyTests {
   options?: ISurveyTestOptions;
   variables?: { [name: string]: any };
   starts?: Array<ISurveyTestStartDefinition>;
+  // What the survey takes from outside itself. Both are maps by key - the function name, the url - and
+  // both are merged per key, test over suite, like the variables above them.
+  functions?: { [name: string]: ISurveyTestFunctionStub };
+  web?: { [url: string]: ISurveyTestWebStub };
   tests: Array<ISurveyTest>;
 }
 
@@ -23,7 +27,52 @@ export interface ISurveyTest {
   options?: ISurveyTestOptions;
   // Merged over ISurveyTests.variables, per variable name.
   variables?: { [name: string]: any };
+  // Merged over ISurveyTests.functions and ISurveyTests.web, per name and per url: a test overrides
+  // one entry without restating the map.
+  functions?: { [name: string]: ISurveyTestFunctionStub };
+  web?: { [url: string]: ISurveyTestWebStub };
   steps: Array<ISurveyTestStep>;
+}
+
+// What a function registered through FunctionFactory answers while this case runs. The stub replaces
+// the body of that function for the model of this test alone: what the survey does with the answer -
+// an expression, a trigger, a calculated value - is the real code.
+export interface ISurveyTestFunctionStub {
+  // Whether the survey defers the expression that calls it. Inherited from an existing registration
+  // when the process has one - and contradicting that registration is a case error, because a survey
+  // cannot treat one name as both - and true when it has none.
+  async?: boolean;
+  // Real milliseconds before the answer, never the pinned clock of the test: what is simulated is a
+  // slow handler, not a different date. Bounded by the "asyncTimeout" option. Asynchronous stubs only.
+  delay?: number;
+  // The answer when no "results" row matches.
+  result?: any;
+  results?: Array<ISurveyTestFunctionResult>;
+  // The handler failed. The expression receives null, the way it does when a real one fails, and the
+  // step records a warning that says why.
+  error?: string;
+}
+
+export interface ISurveyTestFunctionResult {
+  // The arguments this row answers, compared as the checks compare values: "1" does not match 1.
+  params: Array<any>;
+  result?: any;
+  delay?: number;
+  error?: string;
+}
+
+// What a "choicesByUrl" request answers. The stub supplies the response and nothing else: the path,
+// the value and title fields, the parsing and what an error does to the question all stay in the
+// survey.
+export interface ISurveyTestWebStub {
+  // Default 200. Anything else takes the question down the same path a failing service does.
+  status?: number;
+  statusText?: string;
+  // A string is parsed the way a real response is - JSON, XML, a plain list of lines - and an object
+  // or an array is the body already parsed.
+  response?: any;
+  // Real milliseconds, as above.
+  delay?: number;
 }
 
 export interface ISurveyTestStart {

@@ -1,4 +1,3 @@
-import { Helpers } from "../helpers";
 import { CHECK_COMMAND_NAME } from "./test-json";
 import {
   formatTestValue, getTestPayloadTypeText, isValidTestPayload, SurveyTestCommandFactory, SurveyTestPayloadType,
@@ -8,6 +7,7 @@ import {
   isDynamicMatrixQuestion, isDynamicPanelQuestion, ISurveyTestTarget, SurveyTestTargetKind,
 } from "./test-targets";
 import { ISurveyTestIssue, SurveyTestIssueCodes } from "./test-result";
+import { isEqualByEngine, isSameTestValue, isTestTypeMismatch } from "./test-values";
 
 export interface ISurveyTestCheckOutcome {
   passed?: boolean;
@@ -165,27 +165,11 @@ function getValueTypeText(val: any): string {
   return "an object";
 }
 
-// Helpers.isTwoValueEquals converts "5" into 5 because the expression engine does, and visibleIf has
-// to keep working that way. A check must not: "what is stored" has one answer, and a case that passes
-// with the wrong type hides the bug it was written to find. Empty values keep the engine semantics,
-// so value: null still matches an unanswered question and value: [] an unanswered checkbox. Only the
-// top level is compared: a payload is written by hand, and a nested type-only difference has never
-// been the confusing case.
-function isTypeMismatch(actual: any, expected: any): boolean {
-  if (Helpers.isValueEmpty(actual) || Helpers.isValueEmpty(expected)) return false;
-  if (Array.isArray(actual) !== Array.isArray(expected)) return true;
-  return typeof actual !== typeof expected;
-}
-function isEqualByEngine(actual: any, expected: any, ignoreOrder: boolean): boolean {
-  return Helpers.isTwoValueEquals(actual, expected, ignoreOrder, true, false);
-}
-function isSameTestValue(actual: any, expected: any, ignoreOrder?: boolean): boolean {
-  if (isTypeMismatch(actual, expected)) return false;
-  return isEqualByEngine(actual, expected, ignoreOrder === true);
-}
+// The comparison itself lives in test-values.ts: the arguments of a stubbed function are matched the
+// same way, and one rule with two implementations is one rule too many.
 function getMismatchText(actual: any, expected: any, ignoreOrder: boolean): string {
   let res = " is " + formatTestValue(actual) + ", expected " + formatTestValue(expected) + ".";
-  if (isTypeMismatch(actual, expected) && isEqualByEngine(actual, expected, ignoreOrder)) {
+  if (isTestTypeMismatch(actual, expected) && isEqualByEngine(actual, expected, ignoreOrder)) {
     res += " The two differ only by type: the survey holds " + getValueTypeText(actual) +
       " and the case expects " + getValueTypeText(expected) + ". The tester never converts one into the other.";
   }

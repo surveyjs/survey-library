@@ -110,6 +110,15 @@ export const SurveyTestIssueCodes = Object.freeze({
   startHasReservedKey: "startHasReservedKey",
   invalidDataMode: "invalidDataMode",
   invalidStartPage: "invalidStartPage",
+  functionsNotAnObject: "functionsNotAnObject",
+  functionStubNotAnObject: "functionStubNotAnObject",
+  functionStubHasNoResult: "functionStubHasNoResult",
+  functionStubResultsInvalid: "functionStubResultsInvalid",
+  functionStubDelayNotAsync: "functionStubDelayNotAsync",
+  webNotAnObject: "webNotAnObject",
+  webStubNotAnObject: "webStubNotAnObject",
+  webStubHasNoResponse: "webStubHasNoResponse",
+  unknownStubKey: "unknownStubKey",
   // Run-time codes: everything below is reported by the runner, not by the validator.
   surveyMissing: "surveyMissing",
   surveyJsonExpected: "surveyJsonExpected",
@@ -128,6 +137,8 @@ export const SurveyTestIssueCodes = Object.freeze({
   startPageNotVisible: "startPageNotVisible",
   asyncOperationTimeout: "asyncOperationTimeout",
   unexpectedError: "unexpectedError",
+  // A stub of a function cannot be installed: the process already treats the name the other way round.
+  functionStubConflict: "functionStubConflict",
   // Feasibility codes: a command describes an interaction no respondent could perform.
   navigationButtonNotAvailable: "navigationButtonNotAvailable",
   elementNotOnCurrentPage: "elementNotOnCurrentPage",
@@ -149,4 +160,8 @@ export const SurveyTestIssueCodes = Object.freeze({
   commentIsOtherText: "commentIsOtherText",
   choicesNotVerifiable: "choicesNotVerifiable",
   valueClearedAsInvisible: "valueClearedAsInvisible",
+  // The survey asked the outside world something the case did not answer, or answered by failing.
+  webRequestNotStubbed: "webRequestNotStubbed",
+  functionStubFailed: "functionStubFailed",
+  unknownFunctionCalled: "unknownFunctionCalled",
 });

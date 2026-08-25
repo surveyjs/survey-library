@@ -7,6 +7,9 @@ const DATA_MODES = ["input", "restore"];
 // A start describes a starting state only. Options and variables have exactly one path each, and it
 // does not go through a start.
 const START_RESERVED_KEYS = ["options", "variables"];
+const FUNCTION_STUB_KEYS = ["async", "delay", "result", "results", "error"];
+const FUNCTION_RESULT_KEYS = ["params", "result", "delay", "error"];
+const WEB_STUB_KEYS = ["status", "statusText", "response", "delay"];
 
 // A purely structural check of a suite object: it never sees a survey definition and knows nothing
 // about element names, command names or check names. Unknown command and check names depend on the
@@ -20,6 +23,8 @@ export class SurveyTestValidator {
     }
     this.validateOptions(tests.options, "options", issues);
     this.validateVariables(tests.variables, "variables", issues);
+    this.validateFunctions(tests.functions, "functions", issues);
+    this.validateWeb(tests.web, "web", issues);
     const startNames = this.validateStarts(tests, issues);
     const testsArray = tests.tests;
     if (!Array.isArray(testsArray) || testsArray.length === 0) {
@@ -59,6 +64,8 @@ export class SurveyTestValidator {
     }
     this.validateOptions(test.options, path + ".options", issues);
     this.validateVariables(test.variables, path + ".variables", issues);
+    this.validateFunctions(test.functions, path + ".functions", issues);
+    this.validateWeb(test.web, path + ".web", issues);
     this.validateTestStart(test, path, startNames, issues);
     const steps = test.steps;
     // An empty array is valid and it runs: it is the state of a test that is being written, and a
@@ -184,6 +191,109 @@ export class SurveyTestValidator {
     if (!this.isObject(variables)) {
       this.addIssue(issues, SurveyTestIssueCodes.variablesNotAnObject, "\"variables\" must be an object.", { path: path });
     }
+  }
+
+  // What the case answers when the survey asks the outside world something. A stub that cannot answer
+  // is rejected here rather than at run time: a run in which a function silently returns undefined and
+  // a url silently returns nothing is a run whose results mean nothing.
+  private validateFunctions(functions: any, path: string, issues: Array<ISurveyTestIssue>): void {
+    if (functions === undefined) return;
+    if (!this.isObject(functions)) {
+      this.addIssue(issues, SurveyTestIssueCodes.functionsNotAnObject, "\"functions\" must be an object.", { path: path });
+      return;
+    }
+    Object.keys(functions).forEach(name => {
+      const stub = functions[name];
+      const stubPath = path + "." + name;
+      if (!this.isObject(stub)) {
+        this.addIssue(issues, SurveyTestIssueCodes.functionStubNotAnObject,
+          "The stub of the function \"" + name + "\" must be an object.", { path: stubPath, data: { name: name } });
+        return;
+      }
+      this.validateStubKeys(stub, FUNCTION_STUB_KEYS, stubPath, "function stub", issues);
+      const hasOutcome = this.hasOutcome(stub);
+      const rows = stub.results;
+      if (rows !== undefined && !Array.isArray(rows)) {
+        this.addIssue(issues, SurveyTestIssueCodes.functionStubResultsInvalid,
+          "\"results\" of the function \"" + name + "\" must be an array.", { path: stubPath + ".results", data: { name: name } });
+      } else if (Array.isArray(rows)) {
+        rows.forEach((row: any, index: number) => {
+          const rowPath = stubPath + ".results[" + index + "]";
+          if (!this.isObject(row) || !Array.isArray(row.params)) {
+            this.addIssue(issues, SurveyTestIssueCodes.functionStubResultsInvalid,
+              "Every row of \"results\" must be an object with a \"params\" array: it is the argument " +
+              "list the row answers.", { path: rowPath, data: { name: name, index: index } });
+            return;
+          }
+          this.validateStubKeys(row, FUNCTION_RESULT_KEYS, rowPath, "result row", issues);
+          if (!this.hasOutcome(row)) {
+            this.addIssue(issues, SurveyTestIssueCodes.functionStubHasNoResult,
+              "The row answers nothing: a row of \"results\" must declare \"result\" or \"error\".",
+              { path: rowPath, data: { name: name, index: index } });
+          }
+        });
+      }
+      if (!hasOutcome && !Array.isArray(rows)) {
+        this.addIssue(issues, SurveyTestIssueCodes.functionStubHasNoResult,
+          "The stub of the function \"" + name + "\" answers nothing: declare \"result\", \"results\" " +
+          "or \"error\".", { path: stubPath, data: { name: name } });
+      }
+      // A synchronous function answers inside the call that asked, so there is nowhere to wait: a
+      // delay declared on one would be silently ignored, and a case that wrote it expects otherwise.
+      if (stub.async === false && this.hasDelay(stub, rows)) {
+        this.addIssue(issues, SurveyTestIssueCodes.functionStubDelayNotAsync,
+          "The stub of the function \"" + name + "\" declares a \"delay\" and \"async\": false. A " +
+          "synchronous function answers inside the call that asked for it, so nothing can wait for it.",
+          { path: stubPath, data: { name: name } });
+      }
+    });
+  }
+
+  private validateWeb(web: any, path: string, issues: Array<ISurveyTestIssue>): void {
+    if (web === undefined) return;
+    if (!this.isObject(web)) {
+      this.addIssue(issues, SurveyTestIssueCodes.webNotAnObject, "\"web\" must be an object.", { path: path });
+      return;
+    }
+    Object.keys(web).forEach(url => {
+      const stub = web[url];
+      const stubPath = path + "[\"" + url + "\"]";
+      if (!this.isObject(stub)) {
+        this.addIssue(issues, SurveyTestIssueCodes.webStubNotAnObject,
+          "The stub of \"" + url + "\" must be an object.", { path: stubPath, data: { url: url } });
+        return;
+      }
+      this.validateStubKeys(stub, WEB_STUB_KEYS, stubPath, "web stub", issues);
+      if (stub.response === undefined && stub.status === undefined) {
+        this.addIssue(issues, SurveyTestIssueCodes.webStubHasNoResponse,
+          "The stub of \"" + url + "\" answers nothing: declare a \"response\", or a \"status\" that " +
+          "is not 200 to describe a service that fails.", { path: stubPath, data: { url: url } });
+      }
+    });
+  }
+
+  // A misspelled key in a stub is silence at run time - the stub answers, with the default - so it is
+  // named here, with what it was probably meant to be.
+  private validateStubKeys(stub: any, allowed: Array<string>, path: string, what: string,
+    issues: Array<ISurveyTestIssue>): void {
+    Object.keys(stub).forEach(key => {
+      if (allowed.indexOf(key) >= 0) return;
+      const closest = getClosestName(key, allowed);
+      this.addIssue(issues, SurveyTestIssueCodes.unknownStubKey,
+        "\"" + key + "\" is not a key of a " + what + ". Known keys: " + allowed.join(", ") + "." +
+        (!!closest ? " Did you mean \"" + closest + "\"?" : ""),
+        { path: path, data: { key: key, allowed: allowed } });
+    });
+  }
+
+  private hasOutcome(stub: any): boolean {
+    return Object.prototype.hasOwnProperty.call(stub, "result") || typeof stub.error === "string";
+  }
+
+  private hasDelay(stub: any, rows: any): boolean {
+    if (typeof stub.delay === "number") return true;
+    if (!Array.isArray(rows)) return false;
+    return rows.some((row: any) => this.isObject(row) && typeof row.delay === "number");
   }
 
   // Duplicate names and unresolved references are reported up front, for the whole suite, before any

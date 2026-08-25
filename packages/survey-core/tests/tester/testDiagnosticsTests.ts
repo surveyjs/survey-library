@@ -497,17 +497,21 @@ describe("Issue codes", () => {
       "optionsNotAnObject", "variablesNotAnObject", "startsNotAnArray", "startNotAnObject",
       "startNameMissing", "duplicateStartName", "unknownStartReference", "startHasReservedKey",
       "invalidDataMode", "invalidStartPage",
+      "functionsNotAnObject", "functionStubNotAnObject", "functionStubHasNoResult",
+      "functionStubResultsInvalid", "functionStubDelayNotAsync", "webNotAnObject",
+      "webStubNotAnObject", "webStubHasNoResponse", "unknownStubKey",
       "surveyMissing", "surveyJsonExpected", "surveyFactoryFailed", "surveyFactoryInvalidResult",
       "reservedTargetName", "unknownTarget", "ambiguousTarget", "unknownCommand",
       "unknownCheck", "commandNotApplicable", "checkNotApplicable", "invalidCommandParams",
       "invalidCheckPayload", "unknownStartPage", "startPageNotVisible", "asyncOperationTimeout",
-      "unexpectedError",
+      "unexpectedError", "functionStubConflict",
       "navigationButtonNotAvailable", "elementNotOnCurrentPage", "elementNotVisible",
       "elementNotEditable", "commentNotAvailable", "valueNotEnterable", "invalidChoiceValue",
       "cannotAddRows", "cannotRemoveRows",
       "completeBlocked", "nextPageBlocked", "addBlocked", "removeBlocked", "rowsAddedImplicitly",
       "rowsNotRemoved", "setWhileHidden", "commentIsOtherText", "choicesNotVerifiable",
       "valueClearedAsInvisible",
+      "webRequestNotStubbed", "functionStubFailed", "unknownFunctionCalled",
     ]);
   });
   test("Every code is its own name, so a result can be read without the constant", () => {

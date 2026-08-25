@@ -11,6 +11,9 @@ export type {
   ISurveyTestStart,
   ISurveyTestStartDefinition,
   ISurveyTestCommandParams,
+  ISurveyTestFunctionStub,
+  ISurveyTestFunctionResult,
+  ISurveyTestWebStub,
 } from "../src/tester/test-json";
 
 export type {
@@ -100,6 +103,10 @@ export type {
   ISurveyTestTargetCompletedEvent,
   ISurveyTestCheckCompletedEvent,
   ISurveyTestIssueAddedEvent,
+  SurveyTestFunction,
+  ISurveyTestWebHandler,
+  ISurveyTestWebHandlerRequest,
+  ISurveyTestWebResponse,
 } from "../src/tester/test-execution";
 
 import { ISurveyTestOptions, ISurveyTests } from "../src/tester/test-json";

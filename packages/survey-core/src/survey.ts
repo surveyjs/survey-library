@@ -26,6 +26,7 @@ import {
   IDropdownMenuOptions,
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
+  ISurveyWebProvider,
   ISaveToJSONOptions,
   IScrollElementToTopOptions
 } from "./base-interfaces";
@@ -3500,6 +3501,11 @@ export class SurveyModel extends SurveyElementCore
   // models evaluated in the same process can be pinned to two different moments, or to none.
   // Assign it before the JSON is loaded to pin the expressions that run while the model is built.
   public dateProvider: ISurveyDateProvider | undefined = undefined;
+  // The transport the choicesByUrl requests of this survey go through. Like the clock above it, it
+  // belongs to the running model and not to the process: a survey that carries one serves its own
+  // requests, every other survey keeps using XMLHttpRequest or fetch, and choices loaded through a
+  // provider are not put into the process-wide choices cache.
+  public webProvider: ISurveyWebProvider | undefined = undefined;
   getFilteredProperties(): any {
     return { survey: this };
   }

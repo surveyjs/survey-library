@@ -5,6 +5,7 @@ import { ISurveyTest, ISurveyTestOptions, RESERVED_TARGET_SURVEY } from "./test-
 import { ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestStepResult, SurveyTestIssueCodes, SurveyTestSeverity } from "./test-result";
 import { createCaseError } from "./test-error";
 import { ISurveyTestTarget, SurveyTestTargetResolver } from "./test-targets";
+import { SurveyTestStubs } from "./test-stubs";
 
 // The target grammar - the path a case writes, in both directions - lives in test-targets.ts. It is
 // re-exported here because the context is what a command and a check handler are written against, and
@@ -71,6 +72,7 @@ export class SurveyTestContext implements ISurveyTestContext {
   private isResolvingQuietly: boolean = false;
   private notifier: ISurveyTestNotifier;
   private signalValue: AbortSignal;
+  private stubsValue: SurveyTestStubs;
   // The path of the test node inside the case document: "tests[3]" in a suite run, "test" in
   // runTest(). Every issue this context records is addressed from it.
   private casePathValue: string = "";
@@ -79,6 +81,29 @@ export class SurveyTestContext implements ISurveyTestContext {
   constructor(public readonly options: ISurveyTestOptions,
     public readonly test: ISurveyTest, private testIssues: Array<ISurveyTestIssue>) {
     this.dateProviderValue = new SurveyTestDateProvider(options.now);
+  }
+  // What this test answers when the survey asks the outside world something. Installed before the
+  // model is created - whether an expression is asynchronous is decided when it is parsed - and
+  // disposed with the test.
+  public setStubs(stubs: SurveyTestStubs): void {
+    this.stubsValue = stubs;
+    // A stub answers while a step is running, so what it reports belongs to that step: it is the step
+    // whose result would otherwise have no explanation.
+    stubs.setReporter((code: string, message: string, data?: any) => {
+      this.addWarning(code, message, data);
+    });
+  }
+  public get stubs(): SurveyTestStubs {
+    return this.stubsValue;
+  }
+  // Everything the model of this test carries before its JSON is loaded. It is one call because a
+  // custom factory has to make it, and a list of three assignments is a list a factory gets wrong.
+  public attachProviders(survey: SurveyModel): void {
+    if (!survey) return;
+    survey.dateProvider = this.dateProviderValue;
+    if (!!this.stubsValue) {
+      this.stubsValue.attach(survey);
+    }
   }
   public get survey(): SurveyModel {
     return this.surveyValue;
@@ -125,10 +150,11 @@ export class SurveyTestContext implements ISurveyTestContext {
         { name: name, kinds: kinds });
     });
     const options = this.options;
-    // The factory receives the clock and the default one builds the model with it. A factory that
-    // ignored it - or that returned a model built from a JSON of its own - still runs the rest of the
-    // case pinned: only the expressions that ran inside its constructor read the machine clock.
-    survey.dateProvider = this.dateProviderValue;
+    // The factory receives the providers and the default one builds the model with them. A factory
+    // that ignored them - or that returned a model built from a JSON of its own - still runs the rest
+    // of the case with them: only the expressions that ran inside its constructor read the machine
+    // clock and reached the real functions and the real network.
+    this.attachProviders(survey);
     if (options.locale !== undefined) survey.locale = options.locale;
     if (options.clearInvisibleValues !== undefined) survey.clearInvisibleValues = options.clearInvisibleValues;
     if (options.checkErrorsMode !== undefined) survey.checkErrorsMode = options.checkErrorsMode;
@@ -136,10 +162,16 @@ export class SurveyTestContext implements ISurveyTestContext {
     this.subscribeToModelChanges();
     this.diagnostics.attach();
   }
-  // Nothing global is restored here because nothing global was installed. The clock stays on the model
-  // it belongs to: the model dies with the test, and a host that keeps rendering it after the run keeps
-  // seeing the dates the case ran with.
+  // The clock and the transport stay on the model they belong to: the model dies with the test, and a
+  // host that keeps rendering it after the run keeps seeing the dates and the choices the case ran
+  // with. The one thing that was installed outside the model is the name of a stubbed function - a
+  // survey cannot be asked whether a function is asynchronous, only the factory can - and the stubs
+  // give it back here, to whatever held it before, once the last run holding it is done.
   public teardown(): void {
+    if (!!this.stubsValue) {
+      this.stubsValue.dispose();
+      this.stubsValue = undefined;
+    }
     this.diagnostics.detach();
     this.unsubscribeFromModelChanges();
     this.targetCache = {};

@@ -21,6 +21,14 @@ export interface ISurveyTestModelFactoryContext {
   // loses the clock for constructor-time evaluation only: the tester assigns it to the model it gets
   // back, so everything the case does afterwards is pinned whatever the factory did.
   dateProvider: ISurveyDateProvider;
+  // Everything of this test a model has to carry before its JSON is loaded, in one call: the clock
+  // above, the transport its choicesByUrl requests go through, and the functions its expressions call.
+  // A factory that builds the model itself calls it between the constructor and fromJSON -
+  // const survey = new SurveyModel(); context.attachProviders(survey); survey.fromJSON(json) - and a
+  // factory that skips it loses them for constructor-time evaluation only: the runner attaches them to
+  // the model it gets back, so everything the case does afterwards runs with them whatever the factory
+  // did.
+  attachProviders: (survey: SurveyModel) => void;
 }
 
 // Called once per enabled, structurally runnable test, with a deep clone of the survey JSON that
@@ -138,7 +146,36 @@ export interface ISurveyTestExecutionOptions {
   // Stops the run at the next safe boundary. The tester cannot terminate a promise it is waiting for,
   // so what is already running finishes; nothing after it starts.
   signal?: AbortSignal;
+  // Real implementations of the functions a survey calls, and a real handler for the urls it loads
+  // choices from, for logic no JSON table expresses - a fixture directory, a rule, a recorded session.
+  // The case document is the reproducible artifact, so a "functions" or "web" entry of the suite
+  // always wins: these serve what the case did not declare.
+  functions?: { [name: string]: SurveyTestFunction };
+  web?: ISurveyTestWebHandler;
 }
+
+// Called with the arguments of the call and the model that called it. A promise is awaited, and the
+// survey waits for it exactly as it waits for a real asynchronous function.
+export type SurveyTestFunction = (params: Array<any>, survey: SurveyModel) => any | Promise<any>;
+
+export interface ISurveyTestWebHandlerRequest {
+  // The url the survey asked for, after text piping resolved it.
+  url: string;
+}
+
+export interface ISurveyTestWebResponse {
+  // Default 200.
+  status?: number;
+  statusText?: string;
+  // A string is parsed the way a real response is; an object or an array is the parsed body.
+  response?: any;
+}
+
+// Returning nothing - or anything that is not a response object - is the same as declaring no answer:
+// the request is reported as unstubbed and the question loads no choices. A test run never falls back
+// to the network.
+export type ISurveyTestWebHandler =
+  (request: ISurveyTestWebHandlerRequest) => ISurveyTestWebResponse | Promise<ISurveyTestWebResponse>;
 
 // The one control-flow exception cancellation raises. It never reaches the caller and it never becomes
 // an issue: the runner unwinds on it and reports the canceled status instead.
@@ -150,12 +187,13 @@ export class SurveyTestCanceledError extends Error {
   }
 }
 
-// Two steps instead of new SurveyModel(json): the clock has to be on the model before the JSON is
-// loaded, because a defaultValueExpression or a calculated value that calls today() runs while the
-// model is being built, and there is no moment between the two in a single constructor call.
+// Two steps instead of new SurveyModel(json): what the test provides has to be on the model before
+// the JSON is loaded, because a defaultValueExpression or a calculated value that calls today() - or
+// a stubbed function - runs while the model is being built, and there is no moment between the two in
+// a single constructor call.
 function createDefaultSurvey(surveyJson: any, context: ISurveyTestModelFactoryContext): SurveyModel {
   const survey = new SurveyModel();
-  survey.dateProvider = context.dateProvider;
+  context.attachProviders(survey);
   survey.fromJSON(surveyJson);
   return survey;
 }
@@ -180,11 +218,21 @@ export class SurveyTestExecution {
   // Weak on purpose: the models are held only to tell a reused one from a new one, and a suite of a
   // thousand tests must not keep a thousand surveys, their data and their handlers alive for it.
   private models: WeakSet<SurveyModel> = new WeakSet<SurveyModel>();
+  private functionHandlersValue: { [name: string]: SurveyTestFunction };
+  private webHandlerValue: ISurveyTestWebHandler;
   constructor(options?: ISurveyTestExecutionOptions) {
     this.observer = !!options ? options.onEvent : undefined;
     this.factory = !!options && !!options.createSurvey ? options.createSurvey : createDefaultSurvey;
     this.abortSignal = !!options ? options.signal : undefined;
     this.testFilter = !!options ? options.testFilter : undefined;
+    this.functionHandlersValue = !!options ? options.functions : undefined;
+    this.webHandlerValue = !!options ? options.web : undefined;
+  }
+  public get functionHandlers(): { [name: string]: SurveyTestFunction } {
+    return this.functionHandlersValue;
+  }
+  public get webHandler(): ISurveyTestWebHandler {
+    return this.webHandlerValue;
   }
   // The test object and the index are the ones the suite holds: the filter is host code, and it is
   // never handed a copy it could believe it is allowed to change. What it throws travels out of here

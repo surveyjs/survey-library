@@ -228,11 +228,11 @@ Checks live in `SurveyTestCheckFactory.Instance` and are extensible in the same 
 
 ---
 
-## 4. Options, variables and starts — three inputs, three rules
+## 4. Options, variables, starts and stubs — four inputs, four rules
 
-This is the part that is easiest to get wrong, and the rules differ **because the three things
+This is the part that is easiest to get wrong, and the rules differ **because the four things
 differ**: flat run configuration, independent named values, one coherent state a scenario
-deliberately describes.
+deliberately describes, and the answers the world outside the survey gives it.
 
 ### `options` merge per key
 
@@ -272,6 +272,79 @@ test run**, so one test's mutation cannot leak into the next through a shared en
 `dataMode` decides how the data is applied — `"input"` (the default) puts every answer in through the
 normal set path, so triggers, calculated values and conditions run as they would for a respondent;
 `"restore"` assigns the data at once, as if it were loaded from saved storage.
+
+### `functions` and `web` — what the survey takes from outside itself
+
+A survey is not always self-contained. Its expressions may call a function the application registered
+through `FunctionFactory`, and a question may load its choices from a web service. Both come from
+outside the model, and both are answered by the case: `functions` maps a function name to what it
+answers, `web` maps a url to what it returns. Both **merge per key**, test over suite, exactly like
+the variables above them.
+
+```json
+{
+  "functions": {
+    "getRate": {
+      "async": true,
+      "result": 1.0,
+      "results": [
+        { "params": ["EUR"], "result": 1.1 },
+        { "params": ["GBP"], "delay": 20, "result": 1.3 }
+      ]
+    },
+    "isMemberValid": { "async": true, "error": "the membership service is down" }
+  },
+  "web": {
+    "https://api.example.com/countries": {
+      "response": [{ "id": "de", "name": "Germany" }, { "id": "fr", "name": "France" }]
+    },
+    "https://api.example.com/cities": { "status": 500, "statusText": "Server Error" }
+  }
+}
+```
+
+**A test run performs no network request.** Not "should not": a request the case did not declare
+never reaches `XMLHttpRequest` or `fetch`. It is reported as `webRequestNotStubbed`, naming the url
+that was wanted and the urls the case declares, and the load completes with no choices — a warning
+and an empty list, never a stuck model or a test that passes on one machine and fails on another.
+
+| function stub | |
+| --- | --- |
+| `result` | the answer when no `results` row matches |
+| `results` | rows tried in order; a row answers when its `params` match the call |
+| `params` | the argument list a row answers. Compared the way a check compares a value: `"1"` does not match `1` |
+| `error` | the handler failed. The expression receives `null` and the step records `functionStubFailed`, which says why |
+| `async` | whether the survey defers the expression that calls it — see below |
+| `delay` | real milliseconds before the answer. Asynchronous stubs only |
+
+| web stub | |
+| --- | --- |
+| `response` | the body. A string is parsed the way a real response is — JSON, XML, a plain list of lines — and an object or an array is the parsed body |
+| `status` | default `200`. Anything else takes the question down the same path a failing service does |
+| `statusText` | the status text the survey's own `WebRequestError` carries |
+| `delay` | real milliseconds before the answer |
+
+A stub supplies the response **and nothing else**: `path`, `valueName`, `titleName`, `imageLinkName`,
+the parsing, `onLoadChoicesFromServer`, `WebRequestError` and
+`settings.web.disableQuestionWhileLoadingChoices` are the survey's own code, which is the code the
+case is there to test. A url is matched **exactly**, against the url the survey actually asks for —
+after text piping resolved `{question}` placeholders — so a case that drives the piped question sees
+a second, different request and answers it with a second entry.
+
+**`async` is inherited, not chosen.** Whether an expression waits for a function is decided by
+survey-core when the expression is *parsed*, from the registration of that name, and it is the same
+for every survey in the process. So a stub of a function the process already registers inherits its
+`async`, and declaring the opposite is the case error `functionStubConflict` rather than a silent
+change to how an unrelated model parses its expressions. Only a name nobody registered defaults to
+`async: true` — a stub declared for it exists to be waited for.
+
+`delay` is real wall-clock milliseconds and deliberately **not** the pinned clock: what it describes
+is a slow handler, not a different date. It is bounded by `asyncTimeout`.
+
+The case document is the reproducible artifact, so these two maps are answers. A function that has a
+real implementation — one no JSON table expresses — is not declared here at all; it is passed as
+`functions` in the execution options, together with `web` for a host that serves requests from a
+fixture directory. See "Serving the outside world from code" in section 7.
 
 ---
 
@@ -449,11 +522,13 @@ To configure the model the runner creates, replace the factory that creates it.
 ### The model factory
 
 ```ts
-// The default, when createSurvey is not given. Two steps, not new SurveyModel(surveyJson): the clock
-// of the test has to be on the model before the JSON is loaded — see "The pinned clock" below.
+// The default, when createSurvey is not given. Two steps, not new SurveyModel(surveyJson): what the
+// test provides — the clock, the transport its choicesByUrl requests go through, the functions its
+// expressions call — has to be on the model before the JSON is loaded, because the expressions that
+// run while the model is being built already use it.
 createSurvey(surveyJson, context) {
   const survey = new SurveyModel();
-  survey.dateProvider = context.dateProvider;
+  context.attachProviders(survey);
   survey.fromJSON(surveyJson);
   return survey;
 }
@@ -463,7 +538,7 @@ createSurvey(surveyJson, context) {
 const result = await runSurveyTests(surveyJson, tests, undefined, {
   createSurvey(surveyJson, context) {
     const survey = new SurveyModel();
-    survey.dateProvider = context.dateProvider;
+    context.attachProviders(survey);
     survey.fromJSON(surveyJson);
     survey.onServerValidateQuestions.add(serverValidationHandler);
     return survey;                       // or a Promise<SurveyModel>
@@ -475,8 +550,12 @@ const result = await runSurveyTests(surveyJson, tests, undefined, {
   validator rejected never reach it.
 * It receives a **deep clone of the survey JSON of its own test**, so what the factory or the model
   does to it cannot reach another test, and the caller's definition is never touched.
-* `context` is `{ test, testIndex, options, dateProvider }` — the test, its index in the suite (absent
-  for `runTest()`), the options that test resolved to and the clock of that test.
+* `context` is `{ test, testIndex, options, dateProvider, attachProviders }` — the test, its index in
+  the suite (absent for `runTest()`), the options that test resolved to, the clock of that test, and
+  the one call that puts everything of the test on the model before its JSON is loaded. A factory that
+  skips `attachProviders` loses them for constructor-time evaluation only: the runner attaches them to
+  the model it gets back, so everything the case does afterwards runs with them whatever the factory
+  did.
 * It may be synchronous or asynchronous; a promise is awaited.
 * It must return a **new** `SurveyModel` every time. A failure, a rejection, a wrong return value and a
   model handed out twice each become a structured issue of that test alone (`surveyFactoryFailed`,
@@ -510,6 +589,7 @@ says nothing about the ones it does not:
 | an asynchronous validator or validation expression is running | the same |
 | an `onCompleting` / `onCurrentPageChanging` handler returned a promise | the same, and `isNavigationBlocked` is set meanwhile |
 | an asynchronous expression function is running | `set` returns, and the `visibleIf`, the calculated value or the expression question it feeds updates later |
+| a `choicesByUrl` request is in flight | `set` returns, and the choices of the question arrive later |
 
 So **a command is not finished until the model it acted on has settled.** After every command — the
 ones an integrator registered included — after the model is created and after the start state is
@@ -527,11 +607,32 @@ The model is settled before the start data goes in for a reason of its own: surv
 run of an expression while the first one is still in flight, and loading the JSON starts them all. A
 value applied to a model that is still loading would be ignored by the very condition that reads it.
 
+**What the wait is, and what it is not.** It is the whole model, and it is what is **in flight** — not
+what is "ready".
+
+A step never waits for the question it addresses. An asynchronous function running on `q1` leaves `q2`
+perfectly ready, because nothing has told `q2` yet; when the function answers, `q1` takes its value,
+the conditions re-run, and `q2` changes under a step that already read it. Nothing computes that `q2`
+depends on `q1` — no such graph exists, and a trigger or a `setValueExpression` reaches wherever it
+likes — so the scan is flat and covers every question and every expression owner. It is cheap: a
+property read per question, once per command, returning without awaiting when nothing is running.
+
+And it waits for operations that were **started**, never for `Question.isReady`. A question is
+un-ready from the moment it merely *has* a `choicesByUrl` url — `waitingChoicesByURL` is
+`!isChoicesLoaded && hasChoicesUrl` — and it stays un-ready for the whole run when nothing will ever
+send that request, which is what a lazy-loading question with a url does. Waiting for readiness would
+time out on every step of such a survey, over a question no step addresses.
+
+`choicesLazyLoadEnabled` and `getChoiceDisplayValue` are callback mechanisms with their own contract
+and are **not** stubbed by the case: they are not a url a case can name. A question using them never
+blocks a run either.
+
 **`asyncTimeout`** bounds the wait — milliseconds, default `5000`, per operation. A handler that never
 answers ends the test with the error `asyncOperationTimeout`, which names what the survey was waiting
-for (`reason`: `serverValidation`, `navigationHandler`, `validators`, `expressions`) and the questions
-involved. The test stops there rather than reporting steps that read a model no one was driving.
-`asyncTimeout: 0` waits for nothing, for a caller that drives the waiting itself.
+for (`reason`: `serverValidation`, `navigationHandler`, `validators`, `expressions`, `webChoices`) and
+the questions — and, for `webChoices`, the urls — involved. The test stops there rather than reporting
+steps that read a model no one was driving. `asyncTimeout: 0` waits for nothing, for a caller that
+drives the waiting itself.
 
 Stopping a run stops the waiting too: the operation the survey is holding is the caller's decision, so
 the run reports `canceled` and not a timeout.
@@ -693,6 +794,35 @@ A filter that throws is a bug in the host, not a broken case. It is reported onc
 `run()` resolves with an `"error"` result. It never rejects and never leaves a subscription behind.
 
 `runTest()` selects one test by definition and never consults `testFilter`.
+
+### Serving the outside world from code
+
+The `functions` and `web` sections of a suite are answers, written in JSON. When the answer is a rule
+rather than a value — a fixture directory, a computation, a recorded session — it goes into the
+execution options instead, as code:
+
+```ts
+const result = await runSurveyTests(surveyJson, tests, undefined, {
+  // Called with the arguments of the call and the model that called it. A promise is awaited, and the
+  // survey waits for it exactly as it waits for a real asynchronous function.
+  functions: {
+    getRate: (params, survey) => rateTable[params[0]] ?? 1,
+    checkMembership: params => fetchFromFixture("members/" + params[0]),
+  },
+  // Called for a url the case did not declare.
+  web: request => ({ response: readFileSync("fixtures/" + hash(request.url) + ".json", "utf-8") }),
+});
+```
+
+The case document is the reproducible artifact, so **a JSON entry always wins** and these serve what
+the case did not declare. A handler that answers with nothing — or with anything that is not a
+response object — declared nothing: the request is reported as `webRequestNotStubbed` exactly as it
+would be without a handler at all. A run never falls back to the network.
+
+A function whose body comes from `functions` here is not declared in the suite's `functions` map: a
+map entry that answers nothing is a validation error, because a stub that silently returns `undefined`
+is the failure this format exists to prevent. Such a function is asynchronous unless the process
+registered it as synchronous.
 
 ### Delaying execution
 

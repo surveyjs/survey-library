@@ -824,7 +824,8 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const conds: any = [];
     q1.addConditionObjectsByContext(conds, undefined);
-    expect(conds[0].name, "use filtered name").toBe("q1-unwrapped");
+    expect(q1.getFilteredName(), "use the value name as the filtered name").toBe("q1");
+    expect(conds[0].name, "use the value name in Creator").toBe("q1");
     const q2 = survey.getQuestionByName("q2");
     expect(q2.isVisible, "#1").toBe(false);
     q1.renderedValue = ["apple", "orange"];

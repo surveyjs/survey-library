@@ -3481,7 +3481,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.getAllQuestions().forEach(q => {
         if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue(true);
+          values[q.getValueName()] = q.getFilteredValue(true);
         }
       });
     }

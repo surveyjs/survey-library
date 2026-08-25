@@ -979,13 +979,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   private isContentConditionPath(path: string): boolean {
     if (!path) return false;
-    return path !== this.name && path !== this.getValueName() && path !== this.getFilteredName();
+    return path !== this.name && path !== this.getValueName();
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     if (!!this.contentQuestion) {
       const nestedObjs: Array<IConditionObject> = [];
       this.contentQuestion.addConditionObjectsByContext(nestedObjs, context);
-      const contentNames = [this.contentQuestion.getFilteredName(), this.contentQuestion.getValueName()];
+      const contentNames = [this.contentQuestion.getValueName()];
       for (let i = 0; i < nestedObjs.length; i++) {
         const obj = nestedObjs[i];
         obj.name = this.replaceContentPrefix(obj.name, contentNames, this.getValueName());

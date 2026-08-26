@@ -452,7 +452,9 @@ function walk(children: IndexedChild[], targetPath: string, ctx: Ctx): SurveyJSO
 
 /** A safe fallback element name derived from a JSON Pointer (e.g. `/components/2`). */
 function sanitizePointer(ptr: string): string {
-  const cleaned = ptr.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  // Join the alphanumeric runs rather than replacing separators and then trimming underscores:
+  // a `/^_+|_+$/` trim backtracks quadratically on long underscore runs coming from library input.
+  const cleaned = (ptr.match(/[a-zA-Z0-9]+/g) || []).join("_");
   return cleaned.length > 0 ? `element_${cleaned}` : "element";
 }
 

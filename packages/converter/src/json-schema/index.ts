@@ -921,7 +921,9 @@ function walkUiChildren(ui: UiNode, sourcePtr: string, targetPath: string, ctx: 
 
 function labelToName(label: unknown, fallback: string): string {
   if (typeof label !== "string" || label.length === 0) return fallback;
-  const cleaned = label.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "").toLowerCase();
+  // Join the alphanumeric runs rather than replacing separators and then trimming underscores:
+  // a `/^_+|_+$/` trim backtracks quadratically on long underscore runs coming from library input.
+  const cleaned = (label.match(/[a-zA-Z0-9]+/g) || []).join("_").toLowerCase();
   return cleaned.length > 0 ? cleaned : fallback;
 }
 

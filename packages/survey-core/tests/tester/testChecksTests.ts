@@ -972,3 +972,63 @@ describe("A custom check", () => {
     expect(outcome < 0, "and is listed nowhere").toBeTruthy();
   });
 });
+
+// getAllErrors() and not "errors": a matrix, a dynamic panel and a multipletext keep the errors of
+// their cells, panels and items in the children, and reading "errors" made the question checks say
+// there was nothing wrong while the survey check of the same run counted the error.
+describe("SurveyTestChecks: errors of a question whose children carry them", () => {
+  const requiredCell = {
+    elements: [{
+      type: "matrixdynamic", name: "m", rowCount: 1,
+      columns: [{ name: "a", cellType: "text", isRequired: true }],
+    }],
+  };
+  test("hasErrors, errorCount and errors include the errors of the cells", async () => {
+    const outcome = await runExpect(requiredCell, {
+      survey: { errorCount: 1 },
+      m: { hasErrors: true, errorCount: 1 },
+    }, { before: [{ complete: { survey: true } }] });
+    outcome.checks.forEach(check => {
+      expect(check.passed, "the check \"" + check.check + "\" of \"" + check.target +
+        "\" agrees with the survey; message: " + check.message).toBeTruthy();
+    });
+    const errors = await runCheck(requiredCell, "m", "errorCount", 1,
+      { before: [{ complete: { survey: true } }] });
+    expect(errors.actual).toEqual(1);
+  });
+});
+
+// A check handler is registered code and a registration written in untyped JavaScript can throw or
+// answer with nothing. Either way it is that one pair that failed: the pairs after it still run.
+describe("SurveyTestChecks: a handler that misbehaves", () => {
+  const oneQuestion = { elements: [{ type: "text", name: "q1" }] };
+  afterEach(() => {
+    SurveyTestCheckFactory.Instance.unregister("brokenCheck");
+  });
+  function runWithBrokenCheck(): Promise<IRunOutcome> {
+    // The broken check comes first, so the sibling after it is the one that must still run.
+    return runExpect(oneQuestion, { q1: { brokenCheck: true, value: "a" } },
+      { before: [{ set: { q1: "a" } }] });
+  }
+  test("A check that returns nothing is reported and the siblings still run", async () => {
+    SurveyTestCheckFactory.Instance.register({
+      name: "brokenCheck", payloadType: "boolean", kinds: ["question"],
+      check: (): any => undefined,
+    });
+    const outcome = await runWithBrokenCheck();
+    expect(outcome.codes).toEqual([SurveyTestIssueCodes.unexpectedError]);
+    expect(outcome.messages.indexOf("brokenCheck") > -1, "the message names the check").toBeTruthy();
+    expect(outcome.checks.map(check => check.check), "the sibling produced its result").toEqual(["value"]);
+  });
+  test("A check that throws is reported and the siblings still run", async () => {
+    SurveyTestCheckFactory.Instance.register({
+      name: "brokenCheck", payloadType: "boolean", kinds: ["question"],
+      check: (): any => { throw new Error("the check gave up"); },
+    });
+    const outcome = await runWithBrokenCheck();
+    expect(outcome.codes).toEqual([SurveyTestIssueCodes.unexpectedError]);
+    expect(outcome.messages.indexOf("brokenCheck") > -1, "the message names the check").toBeTruthy();
+    expect(outcome.messages.indexOf("the check gave up") > -1, "and keeps what it threw").toBeTruthy();
+    expect(outcome.checks.map(check => check.check), "the sibling produced its result").toEqual(["value"]);
+  });
+});

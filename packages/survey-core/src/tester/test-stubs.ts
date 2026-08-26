@@ -35,7 +35,9 @@ interface IInstalledFunction {
   // it because another one finished.
   count: number;
 }
-const installedFunctions: { [name: string]: IInstalledFunction } = {};
+// Object.create(null) and not {}: the keys are function names a case writes, and a name like
+// "toString" read back off Object.prototype would look like a registration nobody made.
+const installedFunctions: { [name: string]: IInstalledFunction } = Object.create(null);
 
 // One entry per name, whatever the number of runs: the dispatcher is stateless and routes by survey.
 function createFunctionDispatcher(name: string): (params: any[], originalParams: any[]) => any {
@@ -119,7 +121,10 @@ export type SurveyTestStubReporter = (code: string, message: string, data?: any)
 
 export class SurveyTestStubs {
   private reporter: SurveyTestStubReporter;
-  private timers: Array<any> = [];
+  // Answers that were scheduled and have not been given yet. They are not dropped on teardown: a
+  // choicesByUrl request is "running" from the moment it was sent until it answers, so a dropped
+  // answer leaves the question loading for as long as the model the host was handed lives.
+  private pending: Array<{ run: () => void }> = [];
   private installedNames: Array<string> = [];
   private isDisposedValue: boolean = false;
   private webProviderValue: ISurveyWebProvider;
@@ -161,13 +166,15 @@ export class SurveyTestStubs {
     stubsBySurvey.set(survey, this);
     survey.webProvider = this.webProvider;
   }
-  // Everything this test started stops here: a pending answer is dropped instead of landing on a model
-  // no step is watching, and the names this test holds go back to what they were.
+  // Everything this test started stops here: what was scheduled and never answered is answered now,
+  // at once, and the names this test holds go back to what they were. isDisposedValue is set first,
+  // so the answers land on the model without reporting anything - there is no step left to report to.
   public dispose(): void {
     if (this.isDisposedValue) return;
     this.isDisposedValue = true;
-    this.timers.forEach(timer => clearTimeout(timer));
-    this.timers = [];
+    const pending = this.pending;
+    this.pending = [];
+    pending.forEach(entry => entry.run());
     this.installedNames.forEach(name => uninstallFunction(name));
     this.installedNames = [];
     this.reporter = undefined;
@@ -180,11 +187,18 @@ export class SurveyTestStubs {
     if (!!stub) return stub;
     // A code handler serves what the case did not declare: the case document is the reproducible
     // artifact, so a JSON entry always wins.
-    return !!this.functionHandlers && !!this.functionHandlers[name] ? {} : undefined;
+    return !!this.getFunctionHandler(name) ? {} : undefined;
+  }
+  // The handler map comes from the application as it wrote it, so a name that is a member of
+  // Object.prototype - "toString", "constructor" - must not read back as a handler it never supplied.
+  private getFunctionHandler(name: string): SurveyTestFunction {
+    const handlers = this.functionHandlers;
+    if (!handlers || !Object.prototype.hasOwnProperty.call(handlers, name)) return undefined;
+    return handlers[name];
   }
   public runFunctionStub(name: string, stub: ISurveyTestFunctionStub, params: any[], properties: any): any {
     const isAsync = this.isAsyncStub(name);
-    const handler = !!this.functionHandlers ? this.functionHandlers[name] : undefined;
+    const handler = this.getFunctionHandler(name);
     if (!!handler && !this.functions[name]) {
       return this.runFunctionHandler(name, handler, params, properties, isAsync);
     }
@@ -282,22 +296,16 @@ export class SurveyTestStubs {
     // a host that keeps rendering the model reloads a url. Such a request was never part of the test:
     // no step waits for it and nothing is reported about it, but a url this test claims still has to
     // be answered. Dropping it would leave the question loading for as long as the model lives.
-    const afterTeardown = this.isDisposedValue;
+    // schedule() gives the answer at once once this object is disposed, for that very reason.
     const stub = this.web[url];
     if (!!stub) {
-      // A delay describes a slow service to the step that waits for it. After teardown no step does,
-      // and this object no longer owns timers: it is the same answer, given at once.
-      if (afterTeardown) {
-        onResponse(this.getWebStubResponse(stub));
-        return;
-      }
       this.schedule(() => {
         onResponse(this.getWebStubResponse(stub));
       }, stub.delay);
       return;
     }
     if (!!this.webHandler) {
-      this.runWebHandler(url, onResponse, afterTeardown);
+      this.runWebHandler(url, onResponse);
       return;
     }
     this.reportUnstubbedUrl(url);
@@ -310,8 +318,7 @@ export class SurveyTestStubs {
       response: stub.response,
     };
   }
-  private runWebHandler(url: string, onResponse: (response: ISurveyWebResponse) => void,
-    afterTeardown?: boolean): void {
+  private runWebHandler(url: string, onResponse: (response: ISurveyWebResponse) => void): void {
     const request: ISurveyTestWebHandlerRequest = { url: url };
     let res: any = undefined;
     try {
@@ -322,14 +329,12 @@ export class SurveyTestStubs {
       return;
     }
     if (!!res && typeof res.then === "function") {
-      // An answer to a request the test made is dropped once the test is over: it would land on a
-      // model no step is watching. An answer to a request that came after teardown is the only thing
-      // whoever made that request is waiting for.
+      // Answered whenever it resolves, teardown or not: the question that sent the request is loading
+      // until it hears back, and nobody else is going to tell it. Anything the answer wants to report
+      // is dropped instead - report() is a no-op once this object is disposed.
       res.then((response: ISurveyWebResponse) => {
-        if (this.isDisposedValue && !afterTeardown) return;
         onResponse(this.toWebResponse(url, response));
       }, (error: any) => {
-        if (this.isDisposedValue && !afterTeardown) return;
         this.reportWebHandlerError(url, error);
         onResponse({ status: 200, response: [] });
       });
@@ -370,21 +375,28 @@ export class SurveyTestStubs {
   // slow handler, not a different date. Zero costs no timer - a microtask is already a turn later than
   // the call that started it, which is all "asynchronous" has to mean here.
   private schedule(action: () => void, delay?: number): void {
-    if (this.isDisposedValue) return;
-    const ms = typeof delay === "number" && isFinite(delay) && delay > 0 ? delay : 0;
-    if (ms === 0) {
-      Promise.resolve().then(() => {
-        if (this.isDisposedValue) return;
-        action();
-      });
+    // After teardown there is no step to simulate a slow service for, and the answer is still the only
+    // thing whoever sent the request is waiting for: give it at once.
+    if (this.isDisposedValue) {
+      action();
       return;
     }
-    const timer = setTimeout(() => {
-      this.timers = this.timers.filter(item => item !== timer);
-      if (this.isDisposedValue) return;
+    const ms = typeof delay === "number" && isFinite(delay) && delay > 0 ? delay : 0;
+    let timer: any = undefined;
+    let isDone = false;
+    const entry = { run: (): void => {
+      if (isDone) return;
+      isDone = true;
+      if (timer !== undefined) clearTimeout(timer);
+      this.pending = this.pending.filter(item => item !== entry);
       action();
-    }, ms);
-    this.timers.push(timer);
+    } };
+    this.pending.push(entry);
+    if (ms === 0) {
+      Promise.resolve().then(() => entry.run());
+    } else {
+      timer = setTimeout(() => entry.run(), ms);
+    }
   }
   private report(code: string, message: string, data?: any): void {
     if (!this.reporter || this.isDisposedValue) return;

@@ -640,3 +640,44 @@ describe("The renderings in issue #11692", () => {
     expect(issue.data.clearInvisibleValues).toEqual("onComplete");
   });
 });
+
+// The trace of a failed check reads the expression, it does not run it. Running one that calls a
+// function would call that function a second time: the stub dispatcher routes by survey and its cache
+// is off on purpose, so a stub that reports a failure would report it twice and a handler the
+// application supplied would run twice - from a step that performs no command at all.
+describe("Expression traces never re-run what they explain", () => {
+  const stubbedExpression = {
+    elements: [
+      { type: "text", name: "trigger" },
+      { type: "text", name: "q1", visibleIf: "boom() = 1" },
+    ],
+  };
+  test("A step that only checks produces no issue of the stub's own", async () => {
+    const result = await new SurveyTestRunner(stubbedExpression, {
+      functions: { boom: { async: false, error: "handler exploded" } },
+      tests: [{
+        name: "trace",
+        steps: [
+          { name: "act", set: { trigger: "x" } },
+          { name: "check", expect: { q1: { visible: true } } },
+        ],
+      }],
+    }).run();
+    const steps = result.tests[0].steps;
+    expect(steps[0].issues.map(issue => issue.code), "the command called the stub")
+      .toEqual([SurveyTestIssueCodes.functionStubFailed]);
+    expect(steps[1].issues.map(issue => issue.code), "the check did not call it again").toEqual([]);
+  });
+  test("The trace of an expression that calls a function reports the values without a result", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "someFunc({q1}) = 1" },
+      ],
+    });
+    survey.setValue("q1", "a");
+    const trace = getExpressionTrace(survey.getQuestionByName("q2"), "someFunc({q1}) = 1");
+    expect(trace.values, "the values it reads are still reported").toEqual({ q1: "a" });
+    expect(trace.result, "and the result is not computed by running it").toBeUndefined();
+  });
+});

@@ -32,7 +32,9 @@ export class SurveyTestValidator {
         "A test suite must contain a non-empty \"tests\" array.");
       return issues;
     }
-    const nameIndexes: { [name: string]: number } = {};
+    // Object.create(null): a suite names its tests and its starts, and a name like "constructor"
+    // read back off Object.prototype would look like an entry that was already registered.
+    const nameIndexes: { [name: string]: number } = Object.create(null);
     for (let i = 0; i < testsArray.length; i++) {
       const test = testsArray[i];
       const path = "tests[" + i + "]";
@@ -306,7 +308,9 @@ export class SurveyTestValidator {
       this.addIssue(issues, SurveyTestIssueCodes.startsNotAnArray, "\"starts\" must be an array.", { path: "starts" });
       return names;
     }
-    const nameIndexes: { [name: string]: number } = {};
+    // Object.create(null): a suite names its tests and its starts, and a name like "constructor"
+    // read back off Object.prototype would look like an entry that was already registered.
+    const nameIndexes: { [name: string]: number } = Object.create(null);
     for (let i = 0; i < starts.length; i++) {
       const start: any = starts[i];
       const path = "starts[" + i + "]";

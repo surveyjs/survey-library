@@ -785,3 +785,43 @@ describe("SurveyTestRunner: a single test", () => {
     expect(codes(result.issues), "the missing survey is the only issue").toEqual([SurveyTestIssueCodes.surveyMissing]);
   });
 });
+
+// A suite entry belongs to the caller and is shared by every test of the run, so what the runner hands
+// the model is a copy of it. Aliasing it lets one test change what the next one starts from, and
+// leaves the change in the document the caller passed in.
+describe("SurveyTestRunner: object values of the suite are cloned per test", () => {
+  const oneQuestion = { elements: [{ type: "text", name: "q1" }] };
+  function captureModels(models: Array<SurveyModel>): any {
+    return {
+      createSurvey: (surveyJson: any, context: any): SurveyModel => {
+        const survey = new SurveyModel();
+        survey.dateProvider = context.dateProvider;
+        context.attachProviders(survey);
+        survey.fromJSON(surveyJson);
+        models.push(survey);
+        return survey;
+      },
+    };
+  }
+  test("a variable is neither the caller's object nor shared between two tests", async () => {
+    const shared = ["a", "b"];
+    const suite = {
+      variables: { picked: shared },
+      tests: [
+        { name: "t1", steps: [{ set: { q1: "x" } }] },
+        { name: "t2", steps: [{ set: { q1: "y" } }] },
+      ],
+    };
+    const models: Array<SurveyModel> = [];
+    await new SurveyTestRunner(oneQuestion, suite).run(captureModels(models));
+    const first = models[0].getVariable("picked");
+    const second = models[1].getVariable("picked");
+    expect(first, "the value is the one the suite declares").toEqual(["a", "b"]);
+    expect(first === shared, "and not the array the caller holds").toBeFalsy();
+    expect(first === second, "and not the array the other test holds").toBeFalsy();
+
+    first.push("LEAKED");
+    expect(shared, "so a mutation stays inside the test that made it").toEqual(["a", "b"]);
+    expect(second).toEqual(["a", "b"]);
+  });
+});

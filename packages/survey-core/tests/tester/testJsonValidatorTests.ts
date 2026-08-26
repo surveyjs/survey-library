@@ -484,3 +484,26 @@ describe("SurveyTestValidator: the public methods and the state", () => {
     });
   });
 });
+
+// The name maps of the validator are keyed by names the case writes. A name that is a member of
+// Object.prototype must not read back as an entry that was already registered.
+describe("SurveyTestValidator: names that collide with Object.prototype members", () => {
+  test("A test named \"constructor\" is not a duplicate of itself", () => {
+    const tests: ISurveyTests = { tests: [{ name: "constructor", steps: [{ expect: { q1: { value: 1 } } }] }] };
+    expect(codes(validate(tests))).toEqual([]);
+  });
+  test("A \"starts\" entry named \"toString\" is a normal start", () => {
+    const tests: ISurveyTests = {
+      starts: [{ name: "toString", data: { q1: 1 } }],
+      tests: [{ name: "t", start: "toString", steps: [{ expect: { q1: { value: 1 } } }] }],
+    };
+    expect(codes(validate(tests))).toEqual([]);
+  });
+  test("Two entries that really share such a name are still duplicates", () => {
+    const tests: ISurveyTests = {
+      starts: [{ name: "constructor", data: { q1: 1 } }, { name: "constructor", data: { q1: 2 } }],
+      tests: [{ name: "t", start: "constructor", steps: [{ expect: { q1: { value: 1 } } }] }],
+    };
+    expect(codes(validate(tests))).toEqual([SurveyTestIssueCodes.duplicateStartName]);
+  });
+});

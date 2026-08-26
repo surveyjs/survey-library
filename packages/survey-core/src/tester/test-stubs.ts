@@ -278,25 +278,40 @@ export class SurveyTestStubs {
   }
   private sendWebRequest(request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void {
     const url = !!request ? request.url : "";
+    // The transport stays on the model when the test is over, so a request may arrive after teardown -
+    // a host that keeps rendering the model reloads a url. Such a request was never part of the test:
+    // no step waits for it and nothing is reported about it, but a url this test claims still has to
+    // be answered. Dropping it would leave the question loading for as long as the model lives.
+    const afterTeardown = this.isDisposedValue;
     const stub = this.web[url];
     if (!!stub) {
+      // A delay describes a slow service to the step that waits for it. After teardown no step does,
+      // and this object no longer owns timers: it is the same answer, given at once.
+      if (afterTeardown) {
+        onResponse(this.getWebStubResponse(stub));
+        return;
+      }
       this.schedule(() => {
-        onResponse({
-          status: typeof stub.status === "number" ? stub.status : 200,
-          statusText: stub.statusText,
-          response: stub.response,
-        });
+        onResponse(this.getWebStubResponse(stub));
       }, stub.delay);
       return;
     }
     if (!!this.webHandler) {
-      this.runWebHandler(url, onResponse);
+      this.runWebHandler(url, onResponse, afterTeardown);
       return;
     }
     this.reportUnstubbedUrl(url);
     onResponse({ status: 200, response: [] });
   }
-  private runWebHandler(url: string, onResponse: (response: ISurveyWebResponse) => void): void {
+  private getWebStubResponse(stub: ISurveyTestWebStub): ISurveyWebResponse {
+    return {
+      status: typeof stub.status === "number" ? stub.status : 200,
+      statusText: stub.statusText,
+      response: stub.response,
+    };
+  }
+  private runWebHandler(url: string, onResponse: (response: ISurveyWebResponse) => void,
+    afterTeardown?: boolean): void {
     const request: ISurveyTestWebHandlerRequest = { url: url };
     let res: any = undefined;
     try {
@@ -307,11 +322,14 @@ export class SurveyTestStubs {
       return;
     }
     if (!!res && typeof res.then === "function") {
+      // An answer to a request the test made is dropped once the test is over: it would land on a
+      // model no step is watching. An answer to a request that came after teardown is the only thing
+      // whoever made that request is waiting for.
       res.then((response: ISurveyWebResponse) => {
-        if (this.isDisposedValue) return;
+        if (this.isDisposedValue && !afterTeardown) return;
         onResponse(this.toWebResponse(url, response));
       }, (error: any) => {
-        if (this.isDisposedValue) return;
+        if (this.isDisposedValue && !afterTeardown) return;
         this.reportWebHandlerError(url, error);
         onResponse({ status: 200, response: [] });
       });

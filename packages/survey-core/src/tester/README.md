@@ -729,7 +729,9 @@ tester is allowed to reorder it.
 * **The model is released, not destroyed.** After teardown the tester no longer drives that model and
   no longer hears from it: what a host does with it afterwards reaches nothing and adds no issue. A host
   that kept the model — from `surveyCreated`, to keep rendering the last test — keeps a perfectly usable
-  `SurveyModel`, pinned to the clock the test ran with.
+  `SurveyModel`, pinned to the clock the test ran with and still loading the urls the case declared from
+  the case: a reload after the run answers, immediately and with the same body, rather than reaching the
+  network or waiting forever.
 * **Every test that started is completed.** A selected test that emitted `testStarted` emits
   `testCompleted`, cancellation included. A test the run never entered emits neither.
 * **`runCompleted` is the last observer callback of a suite run.** There is no terminal event after it,

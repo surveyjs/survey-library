@@ -3,7 +3,7 @@ import { ChoicesRestful } from "../../src/choicesRestful";
 import { SurveyModel } from "../../src/survey";
 import { settings } from "../../src/settings";
 import { ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
-import { ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext } from "../../src/tester/test-execution";
+import { ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext, SurveyTestExecutionEvent } from "../../src/tester/test-execution";
 import { SurveyTestRunner } from "../../src/tester/test-runner";
 import { SurveyTestValidator } from "../../src/tester/test-validator";
 
@@ -628,6 +628,139 @@ describe("survey-tester: web choices", () => {
         : undefined),
     });
     expect(failedChecks(result.tests[0])).toEqual([]);
+  });
+  test("a model kept after the run reloads a declared url instead of loading forever", async () => {
+    const pipedSurvey = {
+      elements: [
+        { type: "text", name: "code", defaultValue: "de" },
+        {
+          type: "dropdown", name: "country",
+          choicesByUrl: { url: "https://api.example.com/{code}/countries", valueName: "id", titleName: "name" },
+        },
+      ],
+    };
+    let created: SurveyModel = undefined;
+    const result = await run(pipedSurvey, {
+      web: {
+        "https://api.example.com/de/countries": { response: [{ id: "de", name: "Germany" }] },
+        "https://api.example.com/fr/countries": { delay: 30, response: [{ id: "fr", name: "France" }] },
+      },
+      tests: [{ name: "countries", steps: [{ expect: { country: { choices: ["de"] } } }] }],
+    }, {
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        if (event.type === "surveyCreated") created = event.survey;
+      },
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    // The run is over and the stubs are disposed, but the model keeps the transport it ran with. The
+    // reload this value change starts is answered from the case - at once, whatever delay the stub
+    // declares, because no step is waiting for a slow service any more - and the question settles.
+    const question: any = created.getQuestionByName("country");
+    created.setValue("code", "fr");
+    await new Promise(resolve => setTimeout(resolve, 60));
+    expect(question.choicesByUrl.isRunning).toBe(false);
+    expect(question.visibleChoices.map((item: any) => item.value)).toEqual(["fr"]);
+    expect(question.isReady).toBe(true);
+  });
+});
+
+// A handler is application code and it fails the way application code does. What a case sees then is
+// what it sees when a declared stub says it failed: the value the survey would have got from a real
+// failure, and a warning that names the handler and says why.
+describe("survey-tester: handlers that fail", () => {
+  function issueOf(result: ISurveyTestResult, code: string): ISurveyTestIssue {
+    return allIssues(result).filter(issue => issue.code === code)[0];
+  }
+  test("a function handler that throws gives the expression null and says why", async () => {
+    const result = await run(rateSurvey, {
+      tests: [{
+        name: "throwing",
+        steps: [{ set: { currency: "EUR" } }, { expect: { rate: { value: null } } }],
+      }],
+    }, {
+      functions: { getRate: () => { throw new Error("the rate service is down"); } },
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.functionStubFailed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain("the rate service is down");
+    // A handler that fails is not a case that is wrong: the case pinned what the survey does about it.
+    expect(result.tests[0].status).toBe("passed");
+  });
+  test("a function handler that rejects gives the expression null and says why", async () => {
+    const result = await run(rateSurvey, {
+      tests: [{
+        name: "rejecting",
+        steps: [{ set: { currency: "EUR" } }, { expect: { rate: { value: null } } }],
+      }],
+    }, {
+      functions: { getRate: () => Promise.reject(new Error("the rate service timed out")) },
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.functionStubFailed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain("the rate service timed out");
+    expect(result.tests[0].status).toBe("passed");
+  });
+  test("a promise from a handler of a synchronous function is reported, not read as a value", async () => {
+    registerFunction("syncRate", () => 0, false);
+    const surveyJson = {
+      elements: [
+        { type: "dropdown", name: "currency", choices: ["EUR", "GBP"] },
+        { type: "expression", name: "rate", expression: "syncRate({currency})" },
+      ],
+    };
+    const result = await run(surveyJson, {
+      tests: [{
+        name: "a promise nothing waits for",
+        steps: [{ set: { currency: "EUR" } }, { expect: { rate: { value: null } } }],
+      }],
+    }, {
+      functions: { syncRate: () => Promise.resolve(1.1) },
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.functionStubFailed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain("is a synchronous function");
+    expect(issue.message).toContain("\"async\": true");
+    expect(result.tests[0].status).toBe("passed");
+  });
+  test("a web handler that throws leaves the question without choices and says why", async () => {
+    const result = await run(countriesSurvey, {
+      tests: [{ name: "throwing", steps: [{ expect: { country: { choices: [] } } }] }],
+    }, {
+      web: () => { throw new Error("the countries service is down"); },
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.webRequestNotStubbed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain(countriesUrl);
+    expect(issue.message).toContain("the countries service is down");
+    expect(result.tests[0].status).toBe("passed");
+  });
+  test("a web handler that rejects leaves the question without choices and says why", async () => {
+    const result = await run(countriesSurvey, {
+      tests: [{ name: "rejecting", steps: [{ expect: { country: { choices: [] } } }] }],
+    }, {
+      web: () => Promise.reject(new Error("the countries service timed out")),
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.webRequestNotStubbed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain("the countries service timed out");
+    expect(result.tests[0].status).toBe("passed");
+  });
+  test("a web handler that answers nothing is the url nobody declared", async () => {
+    const result = await run(countriesSurvey, {
+      tests: [{ name: "no answer", steps: [{ expect: { country: { choices: [] } } }] }],
+    }, {
+      web: () => undefined,
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const issue = issueOf(result.tests[0], SurveyTestIssueCodes.webRequestNotStubbed);
+    expect(issue.severity).toBe("warning");
+    expect(issue.message).toContain("returned no answer");
+    expect(result.tests[0].status).toBe("passed");
   });
 });
 

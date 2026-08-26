@@ -8,7 +8,7 @@ description: Use any Angular component as an editor in your survey or form.
 This help topic describes how to integrate a third-party Angular component into a standalone survey and Survey Creator. As an example, we will integrate the [Angular Color](https://www.npmjs.com/package/ngx-color) component. To install it, run the following command:
 
 ```sh
-npm install ngx-color --save
+npm install ngx-color
 ```
 
 You also need to list Angular Color modules within `app.module.ts`:
@@ -435,7 +435,7 @@ SvgRegistry.registerIcon(
 );
 ```
 
-Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+Alternatively, you can use one of [built-in SurveyJS icons](/documentation/icons#built-in-svg-icons). The code below shows how to use the Text icon:
 
 ```js
 import { ..., settings } from "survey-core";

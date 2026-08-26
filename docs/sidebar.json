@@ -91,14 +91,6 @@
       "Title": "Localization & Globalization"
     },
     {
-      "Name": "manage-default-themes-and-styles",
-      "Title": "Themes & Styles"
-    },
-    {
-      "Name": "icons",
-      "Title": "UI Icons"
-    },
-    {
       "Name": "customize-question-types",
       "Title": "Customize Questions",
       "Items": [
@@ -131,6 +123,10 @@
           "Title": "Integrate Third-Party Vue 3 Components"
         }
       ]
+    },
+    {
+      "Name": "shadow-dom-support",
+      "Title": "Shadow DOM Support"
     },
     {
       "Name": "Troubleshooting",

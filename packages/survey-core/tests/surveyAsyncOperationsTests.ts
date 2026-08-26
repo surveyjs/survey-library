@@ -47,13 +47,17 @@ describe("SurveyModel.getRunningAsyncOperations", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     let release: () => void = undefined;
     survey.onCompleting.add((): Promise<void> => new Promise<void>(resolve => { release = resolve; }));
+    expect(survey.isNavigationBlocked, "nothing holds a navigation yet").toBe(false);
     survey.tryComplete();
     const operations = survey.getRunningAsyncOperations();
     expect(operations.map(operation => operation.type)).toEqual(["navigationHandler"]);
     expect(operations[0].owner, "the survey itself runs it").toBe(survey);
+    // The same hold, as the public boolean the navigation buttons disable themselves on.
+    expect(survey.isNavigationBlocked).toBe(true);
     release();
     await delay(1);
     expect(types(survey)).toEqual([]);
+    expect(survey.isNavigationBlocked).toBe(false);
     expect(survey.state).toBe("completed");
   });
   test("A running asynchronous validator is reported with the question that owns it", async () => {

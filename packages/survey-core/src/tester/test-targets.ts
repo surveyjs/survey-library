@@ -202,9 +202,9 @@ export class SurveyTestTargetResolver {
   }
   private isRow(obj: any, context: ISurveyTestTargetContext): boolean {
     if (!!context && !!context.row && context.row === obj) return true;
-    // A row of a matrix is neither a question nor a panel: it holds cells and answers getQuestionByName
-    // for them and for its detail panel.
-    return Array.isArray(obj.cells) && typeof obj.getQuestionByName === "function";
+    // A row of a matrix identifies itself, exactly as every element does: it is neither a question
+    // nor a panel, and it is the one container the grammar addresses that is not a survey element.
+    return typeof obj.getType === "function" && obj.getType() === "matrixrow";
   }
   private getRowMatrix(row: any, context: ISurveyTestTargetContext): any {
     // "data" is the matrix that built the row. A row handed over by a renderer event carries its

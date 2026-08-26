@@ -4109,7 +4109,15 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  @property({ defaultValue: false }) private isNavigationBlocked: boolean;
+  // True while a handler of onCompleting or onCurrentPageChanging holds its callback; the navigation
+  // buttons are disabled for exactly that time. Read-only public state: getRunningAsyncOperations()
+  // reports the same hold as its "navigationHandler" operation.
+  public get isNavigationBlocked(): boolean {
+    return this.getPropertyValue("isNavigationBlocked", false);
+  }
+  private setIsNavigationBlocked(val: boolean): void {
+    this.setPropertyValue("isNavigationBlocked", val);
+  }
   private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
     options.allowChanging = true;
@@ -4124,9 +4132,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!options.message) {
         this.notify(options.message, options.allow ? "success" : "error");
       }
-      this.isNavigationBlocked = false;
+      this.setIsNavigationBlocked(false);
     };
-    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.isNavigationBlocked = true);
+    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
@@ -5274,7 +5282,7 @@ export class SurveyModel extends SurveyElementCore
       completeTrigger: completeTrigger
     };
     const doCompleteFunc = () => {
-      this.isNavigationBlocked = false;
+      this.setIsNavigationBlocked(false);
       const allow = options.allowComplete && options.allow;
       if (!!options.message) {
         this.notify(options.message, allow ? "success" : "error");
@@ -5282,7 +5290,7 @@ export class SurveyModel extends SurveyElementCore
       result = allow;
       onComplete(allow);
     };
-    this.onCompleting.fire(this, options, doCompleteFunc, () => this.isNavigationBlocked = true);
+    this.onCompleting.fire(this, options, doCompleteFunc, () => this.setIsNavigationBlocked(true));
     return result;
   }
   /**

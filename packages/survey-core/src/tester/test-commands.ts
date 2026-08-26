@@ -261,10 +261,9 @@ function checkNavigationAvailable(context: ISurveyTestContext, commandName: stri
       "\") is not displayed. " + rule.getReason(survey),
       { target: RESERVED_TARGET_SURVEY, data: createNavigationData(commandName, rule, survey, rule.flag) });
   }
-  // The buttons are disabled exactly while a navigation event handler holds its callback, and that
-  // hold is one of the operations the model reports about itself.
-  if (rule.hasEnabledState === true &&
-    survey.getRunningAsyncOperations().some((operation: any) => operation.type === "navigationHandler")) {
+  // The buttons are disabled exactly while a navigation event handler holds its callback, and the
+  // model publishes that hold as isNavigationBlocked - the same state its own buttons read.
+  if (rule.hasEnabledState === true && survey.isNavigationBlocked === true) {
     const data = createNavigationData(commandName, rule, survey, "isNavigationBlocked");
     data.flagValue = true;
     throw createCaseError(SurveyTestIssueCodes.navigationButtonNotAvailable,

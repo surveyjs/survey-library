@@ -93,13 +93,89 @@ demand gate.
 
 ## Development
 
+Every executable action in this package is an npm script — run them from
+`packages/converter/`. Nothing here is wired into a monorepo task runner; the
+package installs and builds on its own.
+
+### One-time setup
+
 ```bash
-# survey-core must be built first (it is the test oracle):
+# survey-core is the test ORACLE (converted JSON must construct a SurveyModel
+# with zero jsonErrors) and is reached through node_modules/survey-core, a
+# junction to ../survey-core/build. Build it BEFORE installing/testing here,
+# or `npm install` links an empty directory and every spec fails to import it.
 cd ../survey-core && npm run build
 
-cd ../converter
-npm install
-npm run build      # dist/ + per-converter CDN bundles + cli
-npm test           # unit + fidelity specs
-npm run lint
+cd ../converter && npm install
 ```
+
+### Build
+
+| Command | What it does |
+| --- | --- |
+| `npm run build` | `build:types` + rollup. The full publishable `dist/`. |
+| `npm run build:types` | `tsc -p tsconfig.build.json` → `dist/typings/` only. Declarations are emitted separately because the rollup TS plugin runs with `declaration: false`; the `exports` map and `typesVersions` point at this output, so a rollup-only build ships JS with no types. |
+| `npm run watch:dev` | Rollup in watch mode (JS bundles only — **no** `.d.ts` refresh; re-run `build:types` when a public signature changes). |
+
+`rollup.config.mjs` emits three things: ESM + CJS per subpath (`.`, `./formio`,
+`./json-schema`), one minified self-contained IIFE per converter
+(`dist/survey.converter.<name>.min.js`, the CDN bundles), and the Node CLI
+(`dist/cli.js`, shebang preserved).
+
+### Test
+
+| Command | What it does |
+| --- | --- |
+| `npm test` | `vitest run` — unit + fidelity specs. Vitest picks up `src/**/*.spec.ts` **and** `corpus/**/*.spec.ts`, so this includes the corpus gate. Node environment, no DOM. |
+| `npm run test:watch` | Same set, watch mode. |
+| `npx vitest run src/formio` | One directory. |
+| `npx vitest run -t "name"` | One test by name substring. |
+
+### Corpus (fidelity gate + drift alarm)
+
+The corpus is real upstream form definitions, scored rather than pinned — see
+[`corpus/README.md`](./corpus/README.md) for why. Two jobs, four commands — all
+run by hand: this package has no workflow of its own in `.github/workflows/`.
+
+| Command | Network | What it does |
+| --- | --- | --- |
+| `npm run corpus:score` | no | The regression gate — run it before pushing a converter change: runs `corpus/fidelity.spec.ts` over the **committed** snapshots. Hard-fails on an oracle break (any output that will not construct a `SurveyModel`) or an aggregate fidelity regression below `corpus/fidelity-baseline.json`. |
+| `npm run corpus:score:update-baseline` | no | Deletes `corpus/fidelity-baseline.json` and re-scores so the spec writes a fresh one. **Deliberate act** — commit the baseline diff and say why it moved; a converter improvement raises it, a regression must not be laundered through it. |
+| `npm run corpus:refresh` | **yes** | The drift job (weekly cadence, run by hand). A: re-scrape the repos in `corpus/sources.json` into `corpus/<source>/` and diff construct tokens against each `_manifest.json`. B: diff the vendored schema snapshots (`src/formio/vendor/`, JSON Schema meta-schemas) against upstream. Writes content-free alerts to `corpus/.alerts.json` (gitignored) and rewrites snapshots + manifests in the working tree. Add `--fail-on-alert` to gate on it. |
+| `npm run corpus:refresh:self-test` | no | Proves the alert paths fire against a synthetic new construct + vendored drift. Nothing else covers the alarm itself, so run it whenever the diff/alert code changes. |
+
+`corpus:refresh` is the one that needs a cadence rather than a trigger — weekly
+is what it was designed for, because upstream ships on its own clock and a
+construct we have no rule for only shows up when we look. It rewrites snapshots
+and manifests in the working tree, so its output is reviewed as an ordinary
+diff, and the *high* alerts in `corpus/.alerts.json` are the backlog it exists
+to produce.
+
+### Lint
+
+```bash
+npm run lint        # eslint . --max-warnings=0
+npm run lint:fix
+```
+
+`.eslintignore` excludes `dist`, `node_modules`, and `corpus` (scraped
+third-party JSON and the `.mjs` job scripts are not linted).
+
+### Running the CLI locally
+
+The `survey-converter` bin points at the **built** `dist/cli.js`, so build first:
+
+```bash
+npm run build
+node dist/cli.js --from formio corpus/formio/<some>.json | head
+node dist/cli.js --from json-schema schema.json --fail-on unsupported,assumed --verbose
+```
+
+Report → stderr, survey JSON → stdout (or `--out`); `--fail-on` exits 1 when a
+named bucket fired.
+
+### Release
+
+`npm run release` (commit-and-tag-version) bumps `package.json` and tags. It
+publishes nothing on its own — the package is released through the repo's
+normal pipeline.

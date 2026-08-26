@@ -1,6 +1,6 @@
 /* eslint-env node */
 
-// Shared helpers for the scheduled corpus refresh (`refresh.mjs`).
+// Shared helpers for the corpus refresh job (`refresh.mjs`).
 //
 // CONTENT-FREE boundary: this module fetches and extracts raw upstream
 // definitions and writes them into `corpus/<source>/` (where raw content is

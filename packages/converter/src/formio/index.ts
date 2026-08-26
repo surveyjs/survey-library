@@ -3,8 +3,8 @@
 // Form.io is a single proprietary component tree: no data/presentation split,
 // logic embedded in the nodes. There is no published JSON Schema of the form
 // definition; the authoritative shape is the TypeScript types in `@formio/core`,
-// a snapshot of whose builtin `type` set we vendor under `vendor/` and diff on a
-// schedule (see `promts/03-eval-corpus.md`). This module never throws on a
+// a snapshot of whose builtin `type` set we vendor under `vendor/` and diff
+// against upstream via `npm run corpus:refresh` (see `promts/03-eval-corpus.md`). This module never throws on a
 // construct it cannot map -- every such case goes to the report. It throws only
 // when the input is not a Form.io form at all (see `assertFormioForm`).
 //

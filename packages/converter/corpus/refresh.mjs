@@ -1,9 +1,11 @@
 /* eslint-env node */
 /* eslint-disable no-console -- this is a CLI-style corpus job; printing is its interface */
 
-// Scheduled corpus refresh + vendored-schema diff.
+// Corpus refresh + vendored-schema diff.
 //
-// Two independent jobs on one weekly schedule (see promts/03-eval-corpus.md):
+// Two independent jobs, run together by `npm run corpus:refresh` (see
+// promts/03-eval-corpus.md). No scheduled workflow runs this — it is invoked by
+// hand, weekly being the cadence it was designed for:
 //
 //   Job A — re-scrape upstream + diff. Fetch the definitions matched by
 //     sources.json, extract them into corpus/<source>/, and diff the set of
@@ -17,9 +19,10 @@
 //     corpus — so drift is an alert, not a shrug.
 //
 // Alerting is the whole point. Both jobs write structural, content-free alerts
-// to corpus/.alerts.json (consumed by the scheduled workflow to open an issue)
-// and print a human summary. `--self-test` proves the alerting fires against a
-// synthetic diff, offline, so the mechanism itself is covered in CI.
+// to corpus/.alerts.json (review the high-severity ones — they are the backlog
+// this job exists to produce) and print a human summary. `--self-test` proves
+// the alerting fires against a synthetic diff, offline, so the mechanism itself
+// stays covered.
 //
 // Flags:
 //   (default)         Jobs A + B against live upstream; writes snapshots,

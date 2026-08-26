@@ -1,7 +1,8 @@
 # Eval corpus
 
 Real form definitions scraped from public repositories (Form.io, JSONForms,
-RJSF examples — all on GitHub). Used to score conversion **fidelity** in CI.
+RJSF examples — all on GitHub). Used to score conversion **fidelity** as a
+regression gate.
 
 This directory is **top-level and excluded from the published tarball** (it is
 not in `package.json` `files`). Only the hand-written unit fixtures under
@@ -17,9 +18,11 @@ The failure this exists to catch is **not a throw**. It is a 400-field wizard
 that renders perfectly and branches wrong because we guessed at one
 `conditional`. Only fidelity scoring against known-good output finds that.
 
-## Two jobs, one schedule (weekly)
+## Two jobs, one command
 
-`npm run corpus:refresh` runs both:
+There is no scheduled workflow — `npm run corpus:refresh` is run by hand (weekly
+is the cadence it was designed for: upstream moves on its own clock, not on
+ours). It runs both jobs:
 
 1. **Job A — re-scrape upstream** into `corpus/<source>/` and diff the set of
    **construct tokens** (a Form.io component `type`, a JSON Schema keyword)
@@ -30,21 +33,24 @@ that renders perfectly and branches wrong because we guessed at one
    the same reason → **alert**.
 
 Alerts are written **content-free** (tokens, paths, counts — never form content)
-to `corpus/.alerts.json`; the scheduled workflow opens an issue on any *high*
-alert and a PR with the refreshed snapshot. `npm run corpus:refresh:self-test`
-proves the alert paths fire against a synthetic diff, offline (runs in CI).
+to `corpus/.alerts.json`; review the *high* ones and act on them by adding a
+mapping (or refreshing the vendored snapshot), never by silencing the alarm.
+The refreshed snapshots and manifests land in the working tree, so the scrape
+itself is reviewed as an ordinary diff. `npm run corpus:refresh:self-test`
+proves the alert paths fire against a synthetic diff, offline — run it whenever
+the diff/alert code changes, since nothing else covers the alarm itself.
 
-## Scoring — the per-push gate
+## Scoring — the regression gate
 
 `npm run corpus:score` runs `corpus/fidelity.spec.ts` over the **committed**
 snapshots (fast, deterministic, no network):
 
 - **Oracle (hard gate):** every `convert(def).output` must construct a
-  survey-core `SurveyModel` with zero `jsonErrors`. One failure fails CI.
+  survey-core `SurveyModel` with zero `jsonErrors`. One failure fails the run.
 - **Fidelity (tracked metric):** `fields_out / fields_in` and a weighted "clean"
   score (`assumed` weighted highest — the silent mis-branch), per definition and
   aggregated. A regression of the aggregate below `corpus/fidelity-baseline.json`
-  fails CI; per-definition drops are logged. The corpus is scored in full — any
+  fails the run; per-definition drops are logged. The corpus is scored in full — any
   file that cannot be scored is logged, never silently skipped.
 
 Regenerate the baseline intentionally with

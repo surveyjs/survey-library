@@ -3,8 +3,8 @@
 // Form.io has NO published JSON Schema of its form definition; the authoritative
 // shape is the TypeScript types in `@formio/core`. Rather than add `@formio/core`
 // as a dependency (zero runtime deps, and we do not want to track their release
-// train), we freeze the set of component types they ship here and diff it on a
-// schedule (see `promts/03-eval-corpus.md`, "vendored-schema diff").
+// train), we freeze the set of component types they ship here and diff it via
+// `npm run corpus:refresh` (see `promts/03-eval-corpus.md`, "vendored-schema diff").
 //
 // This set is what powers the `unknown` vs `unsupported` distinction:
 //   - a `type` IN this set that `index.ts` has no mapping for  -> `unsupported`

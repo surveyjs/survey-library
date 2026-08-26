@@ -2,7 +2,7 @@
 
 // Fidelity scoring — pure, content-free, deterministic.
 //
-// Shared by the CI scoring spec (`corpus/fidelity.spec.ts`, which runs the
+// Shared by the scoring spec (`corpus/fidelity.spec.ts`, which runs the
 // converters + the survey-core oracle) and, structurally, by `refresh.mjs`.
 // It reads ONLY structure and counts — never a label, option text, or
 // expression source — so its output is safe to log and to store as a baseline.
@@ -213,7 +213,7 @@ export function scoreDefinition(source, def, output, report) {
 
 /**
  * Aggregate per-definition scores into corpus-level totals. The two tracked
- * numbers the CI gate keys off:
+ * numbers the gate keys off:
  *   - fidelityRatio       = sum(fields_out) / sum(fields_in)   (higher is better)
  *   - cleanPerField       = sum(weightedClean) / sum(fields_in) (lower is better)
  */

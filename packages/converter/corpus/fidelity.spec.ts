@@ -1,17 +1,17 @@
-// Corpus fidelity scoring — the per-push regression gate (`npm run corpus:score`).
+// Corpus fidelity scoring — the regression gate (`npm run corpus:score`).
 //
 // For every scraped definition in corpus/<source>/ this runs TWO gates
 // (promts/03-eval-corpus.md):
 //
 //   1. Oracle (HARD gate): convert(def).output constructs a survey-core
 //      SurveyModel with ZERO jsonErrors. This is the shared oracle from steps
-//      01/02. A single failure fails CI — the whole point of scoring against a
+//      01/02. A single failure fails the run — the whole point of scoring against
 //      real corpus is that a converter change that produces invalid SurveyJS on
 //      a real-world form is caught here, not by a customer.
 //
 //   2. Fidelity (tracked metric): fields_out/fields_in and the weighted "clean"
 //      score, per definition and aggregated. A drop in the AGGREGATE below the
-//      committed baseline fails CI; per-definition drops are logged, not failed
+//      committed baseline fails the run; per-definition drops are logged, not
 //      (real forms vary; the aggregate is the signal).
 //
 // The corpus is scored in FULL — no top-N, no sampling. If anything is dropped

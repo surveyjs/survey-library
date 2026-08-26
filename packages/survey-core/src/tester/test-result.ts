@@ -152,6 +152,7 @@ export const SurveyTestIssueCodes = Object.freeze({
   // Warnings.
   completeBlocked: "completeBlocked",
   nextPageBlocked: "nextPageBlocked",
+  showPreviewBlocked: "showPreviewBlocked",
   addBlocked: "addBlocked",
   removeBlocked: "removeBlocked",
   rowsAddedImplicitly: "rowsAddedImplicitly",

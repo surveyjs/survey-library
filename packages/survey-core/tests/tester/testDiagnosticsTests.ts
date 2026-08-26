@@ -508,7 +508,7 @@ describe("Issue codes", () => {
       "navigationButtonNotAvailable", "elementNotOnCurrentPage", "elementNotVisible",
       "elementNotEditable", "commentNotAvailable", "valueNotEnterable", "invalidChoiceValue",
       "cannotAddRows", "cannotRemoveRows",
-      "completeBlocked", "nextPageBlocked", "addBlocked", "removeBlocked", "rowsAddedImplicitly",
+      "completeBlocked", "nextPageBlocked", "showPreviewBlocked", "addBlocked", "removeBlocked", "rowsAddedImplicitly",
       "rowsNotRemoved", "setWhileHidden", "commentIsOtherText", "choicesNotVerifiable",
       "valueClearedAsInvisible",
       "webRequestNotStubbed", "functionStubFailed", "unknownFunctionCalled",

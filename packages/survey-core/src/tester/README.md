@@ -125,8 +125,8 @@ respondent could do.
   stops at the same line. A press the model then refuses — an `onMatrixRowAdding`,
   `onMatrixRowRemoving` or `onDynamicPanelRemoving` handler cancels it — is a warning, not an error,
   exactly as a blocked Complete is.
-* Possible-but-ineffective is not an error: a Complete button that validation blocks runs, warns and
-  leaves the state to the following `expect`.
+* Possible-but-ineffective is not an error: a Complete, Next or Preview button that validation blocks
+  runs, warns and leaves the state to the following `expect`.
 
 `setDirectly` is the one deliberate escape hatch, named for the mechanism so that nobody reaches for
 it by accident: it assigns a value with none of those checks. It is for setup a respondent cannot

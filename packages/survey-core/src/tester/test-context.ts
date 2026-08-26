@@ -252,7 +252,8 @@ export class SurveyTestContext implements ISurveyTestContext {
     if (data !== undefined) issue.data = data;
     // A blocked navigation is recorded, not only reported: the check that asks why the state did not
     // change is written in the next step, and it reads what this step found out.
-    if (code === SurveyTestIssueCodes.completeBlocked || code === SurveyTestIssueCodes.nextPageBlocked) {
+    if (code === SurveyTestIssueCodes.completeBlocked || code === SurveyTestIssueCodes.nextPageBlocked ||
+      code === SurveyTestIssueCodes.showPreviewBlocked) {
       this.diagnostics.setBlocked(!!this.currentStep ? this.currentStep.command : "", data);
     }
     this.addIssue(issue);

@@ -427,6 +427,28 @@ describe("showPreview and cancelPreview", () => {
     const outcome = await runSteps(previewSurvey, [{ showPreview: { q1: true } }]);
     expect(outcome.codes, "the command applies to the survey only").toEqual([SurveyTestIssueCodes.commandNotApplicable]);
   });
+  test("A blocked showPreview keeps the state and warns, exactly as a blocked complete does", async () => {
+    const outcome = await runSteps({
+      showPreviewBeforeComplete: "showAllQuestions",
+      elements: [{ type: "text", name: "q1", isRequired: true }],
+    }, [
+      { showPreview: { survey: true } },
+      { expect: { survey: { state: "preview" } } },
+    ]);
+    expect(outcome.codes, "the refusal is a warning, not an error").toEqual([SurveyTestIssueCodes.showPreviewBlocked]);
+    expect(outcome.messages.indexOf("did not show the preview") > -1, "the warning says what did not happen").toBeTruthy();
+    expect(outcome.messages.indexOf("q1") > -1, "the warning names the blocking question").toBeTruthy();
+    expect(outcome.survey.state, "the survey stays where it was").toEqual("running");
+    const steps = outcome.result.tests[0].steps;
+    expect(steps[1].status, "the blocked step itself passes").toEqual("passed");
+    expect(steps[2].status, "the following expect is what fails").toEqual("failed");
+    // The failing state check explains itself: the blocked record of the previous command travels in
+    // its details, the way it does for a blocked complete.
+    const check: any = steps[2].checks[0];
+    expect(check.passed, "the survey is not previewing").toBe(false);
+    expect(check.details.blockedBy.command, "the check carries what blocked it").toEqual("showPreview");
+    expect(check.details.blockedBy.questions.map((item: any) => item.name), "with the blocking question").toEqual(["q1"]);
+  });
 });
 
 describe("startSurvey", () => {

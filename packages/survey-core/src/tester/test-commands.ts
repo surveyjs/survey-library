@@ -1262,6 +1262,12 @@ registerNavigationCommand("startSurvey", (context: ISurveyTestContext) => {
 });
 registerNavigationCommand("showPreview", (context: ISurveyTestContext) => {
   (<any>context.survey).showPreview();
+}, (context: ISurveyTestContext) => {
+  // showPreview validates exactly as a navigation does, so a survey with invalid answers refuses it
+  // the same way: the button was there, the respondent pressed it, and the survey stayed where it was.
+  if ((<any>context.survey).state !== "preview") {
+    addBlockedWarning(context, SurveyTestIssueCodes.showPreviewBlocked, "show the preview");
+  }
 });
 registerNavigationCommand("cancelPreview", (context: ISurveyTestContext) => {
   (<any>context.survey).cancelPreview();

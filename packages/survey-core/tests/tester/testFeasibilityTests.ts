@@ -154,6 +154,36 @@ describe("Navigation feasibility", () => {
     expect(outcome.status, "the step did not fail").toEqual("passed");
     expect(outcome.survey.state, "the survey stays running").toEqual("running");
   });
+  test("A button that is displayed but disabled names the operation the survey is waiting for", async () => {
+    // With asyncTimeout: 0 the runner waits for nothing, so the hold of an onCompleting handler is
+    // still in place when the next step presses the button again: displayed, but disabled.
+    const result = await new SurveyTestRunner({ elements: [{ type: "text", name: "q1" }] }, {
+      options: { asyncTimeout: 0 },
+      tests: [{
+        name: "t", steps: [
+          { complete: { survey: true } },
+          { complete: { survey: true } },
+        ],
+      }],
+    }).run({
+      createSurvey: (json: any): SurveyModel => {
+        const survey = new SurveyModel(json);
+        // Holds the completion open forever: nothing ever calls the callback back.
+        survey.onCompleting.add((): Promise<void> => new Promise<void>(() => { }));
+        return survey;
+      },
+    });
+    const test = result.tests[0];
+    expect(test.status, "the second press is a case error").toEqual("error");
+    expect(test.steps[0].issues.map(issue => issue.code), "the first press runs and is reported as blocked")
+      .toEqual([SurveyTestIssueCodes.completeBlocked]);
+    expect(test.steps[1].issues.map(issue => issue.code), "the second press finds the button disabled")
+      .toEqual([SurveyTestIssueCodes.navigationButtonNotAvailable]);
+    expect(test.steps[1].issues[0].message.indexOf("displayed but disabled") > -1,
+      "the message says the button is there and unusable").toBeTruthy();
+    expect(test.steps[1].issues[0].message.indexOf("asynchronous operation") > -1,
+      "and why").toBeTruthy();
+  });
 });
 
 // ------------------------------------------------------------------------------------------------
@@ -274,6 +304,13 @@ describe("set feasibility: the value must be enterable", () => {
     expect(outcome.status, "a conforming value goes in").toEqual("passed");
     expect(question(outcome, "q1").value, "the value is stored").toEqual("19876543210");
   });
+  test("A mask takes text, and a value of another type says so before the mask is asked", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "text", name: "q1", maskType: "numeric" }],
+    }, [{ set: { q1: true } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, {}, "a boolean cannot be typed into an input");
+    expect(outcome.messages.indexOf("input mask accepts text") > -1, "the message says what a mask takes").toBeTruthy();
+  });
   test("A numeric mask rejects a non-numeric string and accepts a number", async () => {
     const survey = { elements: [{ type: "text", name: "q1", maskType: "numeric" }] };
     const rejected = await runSteps(survey, [{ set: { q1: "abc" } }]);
@@ -316,6 +353,13 @@ describe("set feasibility: the value must be enterable", () => {
     }, [{ set: { q1: "a" } }]);
     expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, {}, "the case says one thing, the model another");
     expect(outcome.messages.indexOf("an array of choice values") > -1, "the message says what it takes").toBeTruthy();
+  });
+  test("A dropdown takes a single value, and an array is not unwrapped either", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"] }],
+    }, [{ set: { q1: ["a"] } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, {}, "one choice is not a list of choices");
+    expect(outcome.messages.indexOf("takes a single choice value") > -1, "the message says what it takes").toBeTruthy();
   });
   test("A rating rejects a value outside its rate values", async () => {
     const survey = { elements: [{ type: "rating", name: "q1", rateMin: 1, rateMax: 5 }] };
@@ -585,6 +629,101 @@ describe("Composite questions are filled leaf by leaf", () => {
     expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, {}, "a matrix is not filled from a string");
     expect(outcome.messages.indexOf("an array of row values") > -1, "the message says what it takes").toBeTruthy();
   });
+  test("Every composite kind names its own shape", async () => {
+    const dp = await runSteps({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] }],
+    }, [{ set: { p: "a" } }]);
+    expectRejected(dp, SurveyTestIssueCodes.valueNotEnterable, { p: [{}] }, "a dynamic panel is not filled from a string");
+    expect(dp.messages.indexOf("an array of panel values") > -1, "the panel message").toBeTruthy();
+
+    const md = await runSteps({
+      elements: [{ type: "matrixdropdown", name: "m", rows: ["row1"], columns: [{ name: "col1", cellType: "text" }] }],
+    }, [{ set: { m: ["a"] } }]);
+    expectRejected(md, SurveyTestIssueCodes.valueNotEnterable, {}, "a matrix with named rows is not filled from an array");
+    expect(md.messages.indexOf("maps a row name to its value") > -1, "the matrix message").toBeTruthy();
+
+    const mt = await runSteps({
+      elements: [{ type: "multipletext", name: "mt", items: [{ name: "first" }] }],
+    }, [{ set: { mt: ["a"] } }]);
+    expectRejected(mt, SurveyTestIssueCodes.valueNotEnterable, {}, "a multiple text is not filled from an array");
+    expect(mt.messages.indexOf("maps an item name to its value") > -1, "the multiple text message").toBeTruthy();
+
+    ComponentCollection.Instance.add({
+      name: "testershapeinfo",
+      elementsJSON: [{ type: "text", name: "firstName" }],
+    });
+    try {
+      const composite = await runSteps({
+        elements: [{ type: "testershapeinfo", name: "who" }],
+      }, [{ set: { who: "Ada" } }]);
+      expectRejected(composite, SurveyTestIssueCodes.valueNotEnterable, {}, "a composite is not filled from a string");
+      expect(composite.messages.indexOf("maps a question name to its value") > -1, "the composite message").toBeTruthy();
+    } finally {
+      ComponentCollection.Instance.remove("testershapeinfo");
+    }
+  });
+  test("A panel entry of a dynamic panel value must be an object of its questions", async () => {
+    const definition = {
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] }],
+    };
+    const notAnObject = await runSteps(definition, [{ set: { p: ["a"] } }]);
+    expectRejected(notAnObject, SurveyTestIssueCodes.valueNotEnterable, { p: [{}] }, "a panel entry is not a string");
+    expect(notAnObject.issues[0].target, "the error names the panel").toEqual("p[0]");
+    expect(notAnObject.messages.indexOf("a panel of a dynamic panel is filled from an object") > -1,
+      "the message says what a panel takes").toBeTruthy();
+
+    const unknown = await runSteps(definition, [{ set: { p: [{ nope: 1 }] } }]);
+    expectRejected(unknown, SurveyTestIssueCodes.unknownTarget, { p: [{}] }, "the panel has no question named nope");
+    expect(unknown.messages.indexOf("\"nope\"") > -1, "the message names the key").toBeTruthy();
+    expect(unknown.messages.indexOf("q1") > -1, "and lists what the panel does have").toBeTruthy();
+  });
+  test("A row of a matrix value must exist and hold an object of its columns", async () => {
+    const definition = {
+      elements: [{ type: "matrixdropdown", name: "m", rows: ["row1"], columns: [{ name: "col1", cellType: "text" }] }],
+    };
+    const unknownRow = await runSteps(definition, [{ set: { m: { nope: { col1: "a" } } } }]);
+    expectRejected(unknownRow, SurveyTestIssueCodes.unknownTarget, {}, "the matrix has no row named nope");
+    expect(unknownRow.messages.indexOf("no row with this name") > -1, "the message says what is missing").toBeTruthy();
+    expect(unknownRow.messages.indexOf("row1") > -1, "and lists the rows it has").toBeTruthy();
+
+    const notAnObject = await runSteps(definition, [{ set: { m: { row1: "a" } } }]);
+    expectRejected(notAnObject, SurveyTestIssueCodes.valueNotEnterable, {}, "a row value is not a string");
+    expect(notAnObject.issues[0].target, "the error names the row").toEqual("m.row1");
+    expect(notAnObject.messages.indexOf("maps a column name to its value") > -1,
+      "the message says what a row takes").toBeTruthy();
+  });
+  test("An unknown row of a single-choice matrix lists the rows it has", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "matrix", name: "m", rows: ["row1", "row2"], columns: ["col1", "col2"] }],
+    }, [{ set: { m: { nope: "col1" } } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.unknownTarget, {}, "the matrix has no row named nope");
+    expect(outcome.messages.indexOf("no row with this name") > -1, "the message says what is missing").toBeTruthy();
+    expect(outcome.messages.indexOf("row1") > -1, "and lists the rows").toBeTruthy();
+  });
+  test("An unknown item of a multiple text lists the items it has", async () => {
+    const outcome = await runSteps({
+      elements: [{ type: "multipletext", name: "mt", items: [{ name: "first" }, { name: "second" }] }],
+    }, [{ set: { mt: { nope: "a" } } }]);
+    expectRejected(outcome, SurveyTestIssueCodes.unknownTarget, {}, "the question has no item named nope");
+    expect(outcome.messages.indexOf("no item with this name") > -1, "the message says what is missing").toBeTruthy();
+    expect(outcome.messages.indexOf("first") > -1, "and lists the items").toBeTruthy();
+  });
+  test("An unknown child of a composite question lists the questions it has", async () => {
+    ComponentCollection.Instance.add({
+      name: "testerchildinfo",
+      elementsJSON: [{ type: "text", name: "firstName" }],
+    });
+    try {
+      const outcome = await runSteps({
+        elements: [{ type: "testerchildinfo", name: "who" }],
+      }, [{ set: { who: { nope: "Ada" } } }]);
+      expectRejected(outcome, SurveyTestIssueCodes.unknownTarget, {}, "the composite has no question named nope");
+      expect(outcome.messages.indexOf("no question with this name") > -1, "the message says what is missing").toBeTruthy();
+      expect(outcome.messages.indexOf("firstName") > -1, "and lists the questions").toBeTruthy();
+    } finally {
+      ComponentCollection.Instance.remove("testerchildinfo");
+    }
+  });
 });
 
 describe("Dynamic sizing follows what a respondent could add", () => {
@@ -833,6 +972,41 @@ describe("Adding and removing dynamic items follows the model's own buttons", ()
     expectRejected(outcome, SurveyTestIssueCodes.elementNotEditable, {},
       "a read-only matrix grows for nobody");
     expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(1);
+  });
+  // A tab-rendered dynamic panel hides its Add button while an earlier panel is the current one -
+  // canAddPanel is false although "allowAddPanel" is true and the count is under the maximum. It is
+  // the one case where the model's own button property is the first check that fails.
+  test("A hidden Add button of a tab-rendered panel stops the command and the implicit growth", async () => {
+    const tabPanel = panelWith({ renderMode: "tab" });
+    const command = await runSteps(tabPanel, [{ addPanel: { p: 1 } }]);
+    expectRejected(command, SurveyTestIssueCodes.cannotAddRows, { p: [{}, {}] },
+      "the Add button is not displayed on this tab");
+    expect(command.messages.indexOf("\"canAddPanel\" property is false") > -1,
+      "the message names the model property").toBeTruthy();
+    expect(question(command, "p").panelCount, "the question is untouched").toEqual(2);
+
+    const growth = await runSteps(tabPanel, [{ set: { p: [{ q1: "a" }, { q1: "b" }, { q1: "c" }] } }]);
+    expect(growth.codes, "the implicit growth stops at the same line").toEqual([SurveyTestIssueCodes.cannotAddRows]);
+    expect(growth.messages.indexOf("\"canAddPanel\" property is false") > -1,
+      "with the same diagnosis").toBeTruthy();
+    expect(question(growth, "p").panelCount, "nothing was added").toEqual(2);
+  });
+  test("Adding stops mid-way when adding a row takes the button away", async () => {
+    const takeButtonAway = (survey: SurveyModel): void => {
+      survey.onMatrixRowAdded.add((_, options: any) => { options.question.allowAddRows = false; });
+    };
+    const command = await runWithHandler(matrixWith({ rowCount: 1 }), takeButtonAway, [{ addRow: { m: 3 } }]);
+    expect(command.codes, "the case is told where it stopped").toEqual([SurveyTestIssueCodes.cannotAddRows]);
+    expect(command.status, "the case ends with an error").toEqual("error");
+    expect(command.messages.indexOf("Only 1 of 3") > -1, "the message states how far it got").toBeTruthy();
+    expect(question(command, "m").rowCount, "the added row stays").toEqual(2);
+
+    const growth = await runWithHandler(matrixWith({ rowCount: 1 }), takeButtonAway,
+      [{ set: { m: [{ col1: "a" }, { col1: "b" }, { col1: "c" }] } }]);
+    expect(growth.codes, "the implicit growth reports the same stop").toEqual([SurveyTestIssueCodes.cannotAddRows]);
+    expect(growth.messages.indexOf("only 2 could be added") > -1,
+      "the message states what the question stopped allowing").toBeTruthy();
+    expect(question(growth, "m").rowCount, "the row added before the stop stays").toEqual(2);
   });
 });
 

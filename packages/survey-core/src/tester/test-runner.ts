@@ -197,11 +197,9 @@ export class SurveyTestRunner {
     const testPath = this.getTestPath(testIndex);
     testIssues.forEach(issue => result.issues.push(issue));
     // Both callers stop before a canceled test is entered, so testStarted is always announced here and
-    // cancellation can only be raised once the host has heard it.
-    let started = false;
+    // whatever is caught below was raised after the host heard it.
     try {
       await execution.emit({ type: "testStarted", testIndex: testIndex, test: test });
-      started = true;
       // What the validator found for this test is announced inside the test that carries it: a host
       // hears testStarted, then why this case is broken, and only then testCompleted.
       await this.announceIssues(testIssues, testIndex, execution);
@@ -209,15 +207,15 @@ export class SurveyTestRunner {
     } catch(e) {
       // Only an observer can throw here: runTestBody turns every failure of its own into an issue. The
       // issue is not announced - the observer that would hear about it is the one that just failed.
+      // The testCompleted below is still emitted: a host that heard testStarted hears the matching
+      // testCompleted, whether the test ended on its own, on cancellation or on the host's own failure.
       if (execution.isCancellation(e)) {
-        started = true;
         result.status = "canceled";
       } else {
         result.issues.push(this.toIssue(e, testPath));
         result.status = "error";
       }
     }
-    if (!started) return result;
     // The test that was running when the caller stopped the run is completed as canceled: a host that
     // heard testStarted hears the matching testCompleted whatever ended the test.
     try {

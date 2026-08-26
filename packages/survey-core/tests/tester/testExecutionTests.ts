@@ -496,6 +496,51 @@ describe("SurveyTestRunner: the lifecycle events", () => {
     expect(codes(result.issues)).toEqual([SurveyTestIssueCodes.unexpectedError]);
     expect(result.tests.length, "no test runs").toEqual(0);
   });
+  test("A callback that fails in testStarted still hears the matching testCompleted", async () => {
+    const events: Array<string> = [];
+    const result = await run(twoQuestionSurvey, {
+      tests: [
+        { name: "first", steps: [] },
+        { name: "second", steps: [{ expect: { q1: { empty: true } } }] },
+      ],
+    }, {
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        events.push(event.type);
+        if (event.type === "testStarted" && event.testIndex === 0) throw new Error("the host gave up");
+      },
+    });
+    // The pairing guarantee holds whatever the host did inside its own testStarted handler: it heard
+    // testStarted, so it hears the matching testCompleted, and the suite goes on to the next test.
+    expect(events.slice(0, 3), "the pair brackets the failed test").toEqual(["runStarted", "testStarted", "testCompleted"]);
+    expect(result.tests[0].status, "the test the host broke is an error").toEqual("error");
+    expect(codes(result.tests[0].issues)).toEqual([SurveyTestIssueCodes.unexpectedError]);
+    expect(result.tests[1].status, "the next test still runs and passes").toEqual("passed");
+    expect(events.filter(type => type === "testCompleted").length, "every started test is completed").toEqual(2);
+  });
+  test("A callback that fails in testCompleted is reported on that test", async () => {
+    const result = await run(twoQuestionSurvey, {
+      tests: [{ name: "t", steps: [] }],
+    }, {
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        if (event.type === "testCompleted") throw new Error("the host gave up");
+      },
+    });
+    expect(result.status, "the suite errors").toEqual("error");
+    expect(result.tests[0].status, "the failure lands on the test whose completion the host broke").toEqual("error");
+    expect(codes(result.tests[0].issues)).toEqual([SurveyTestIssueCodes.unexpectedError]);
+  });
+  test("A callback that fails in runCompleted is reported on the suite", async () => {
+    const result = await run(twoQuestionSurvey, {
+      tests: [{ name: "t", steps: [] }],
+    }, {
+      onEvent: (event: SurveyTestExecutionEvent): void => {
+        if (event.type === "runCompleted") throw new Error("the host gave up");
+      },
+    });
+    expect(result.status, "the suite errors").toEqual("error");
+    expect(codes(result.issues)).toEqual([SurveyTestIssueCodes.unexpectedError]);
+    expect(result.tests[0].status, "the test itself finished before the host failed").toEqual("passed");
+  });
   test("runTest() announces the test it runs and no run boundary", async () => {
     const log: Array<string> = [];
     const result = await new SurveyTestRunner(twoQuestionSurvey, undefined).runTest(

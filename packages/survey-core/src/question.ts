@@ -169,7 +169,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
     const lowName = name.toLocaleLowerCase();
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
-      const qName = q.getFilteredName().toLocaleLowerCase();
+      const qName = q.getValueName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
         res.obj = q;
@@ -2470,7 +2470,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getFilteredName(),
+      name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });

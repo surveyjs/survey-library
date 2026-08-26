@@ -12,7 +12,7 @@ SurveyJS Form Library allows you to control and populate form fields programmati
 
 ## Single Question Value
 
-You can set a question's `value` property directly to populate a form field. Call `SurveyModel`'s [`getQuestionByName(questionName)`](https://surveyjs.io/form-library/documentation/surveymodel#getQuestionByName) method to obtain the question's instance and set the `value` property on this instance. Refer to the [`value` property description](https://surveyjs.io/form-library/documentation/questiontextmodel#value) to find information about value types for different question types.
+You can set a question's `value` property directly to populate a form field. Call `SurveyModel`'s [`getQuestionByName(questionName)`](https://surveyjs.io/form-library/documentation/surveymodel#getQuestionByName) method to obtain the question's instance and set the `value` property on this instance. Refer to the [`value`](https://surveyjs.io/form-library/documentation/questiontextmodel#value) property description to find information about value types for different question types.
 
 ```js
 import { Model } from "survey-core";
@@ -21,7 +21,7 @@ const surveyJson = {
   "elements": [{
     "name": "subscribed",
     "type": "boolean",
-    "renderAs": "checkbox",
+    "displayMode": "checkbox",
     "title": "I agree to receive weekly newsletters"
   }]
 }

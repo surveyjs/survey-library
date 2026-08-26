@@ -11,6 +11,7 @@ export default defineConfig({
       "tests/test-helpers.ts",
       "tests/oldTheme.ts",
       "tests/legacy-theme-vars.ts",
+      "tests/linter/lint-test-helpers.ts",
       "node_modules/**",
       "build/**",
     ],

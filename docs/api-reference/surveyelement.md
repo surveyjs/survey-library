@@ -57,6 +57,20 @@ Validation errors. Call the `validate()` method to validate survey element data.
 
 **Related APIs:** [`validate`](#validate)
 
+### `gridColumnsWidth`
+
+**Type**: `number`
+
+A total width, in percent, of the grid layout columns this element occupies, or 0 when the grid layout is disabled.
+
+### `hasDefaultMinWidth`
+
+**Type**: `boolean`
+
+The default element min-width, which makes an element wrap onto its own row when the row gets too narrow,
+applies only to elements sized by the flex basis. Grid columns and panels shrink to their content instead.
+An element with its own minWidth replaces the default with an inline style.
+
 ### `indent`
 
 **Type**: `number`
@@ -79,6 +93,12 @@ Returns `true` if the survey element is expanded.
 
 **Related APIs:** [`state`](#state), [`toggleState`](#toggleState), [`collapse`](#collapse), [`expand`](#expand), [`isCollapsed`](#isCollapsed)
 
+### `isInGridColumn`
+
+**Type**: `boolean`
+
+Returns `true` if the element occupies a part of a grid layout row. Such elements are sized by their columns.
+
 ### `isReadOnly`
 
 **Type**: `boolean`
@@ -95,7 +115,7 @@ If you want to switch a survey element to the read-only state based on a conditi
 
 Gets or sets maximum survey element width in CSS values.
 
-Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form-library/documentation/settings#maxWidth))
+Default value: "" (the element width is not limited)
 
 **Related APIs:** [`minWidth`](#minWidth), [`renderWidth`](#renderWidth), [`width`](#width)
 
@@ -105,7 +125,7 @@ Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form
 
 Gets or sets minimum survey element width in CSS values.
 
-Default value: "300px" (taken from [`settings.minWidth`](https://surveyjs.io/form-library/documentation/settings#minWidth))
+Default value: "" (the element uses the theme's `--sjs-element-min-width` value)
 
 **Related APIs:** [`maxWidth`](#maxWidth), [`renderWidth`](#renderWidth), [`width`](#width)
 
@@ -176,6 +196,12 @@ Default value: ""
 **Related APIs:** [`minWidth`](#minWidth), [`maxWidth`](#maxWidth)
 
 ## Methods
+
+### `calcMinWidth()`
+
+**Return value:** `string`
+
+Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
 
 ### `collapse()`
 

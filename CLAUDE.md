@@ -19,7 +19,7 @@ Each UI package depends on `survey-core` via the path `../survey-core/build`. In
 ```bash
 # survey-core (run from packages/survey-core) — REQUIRED before building/testing any UI package
 npm run build          # main JS bundle + non-source files
-npm run build:all      # build + i18n + themes + icons
+npm run build:all      # build + i18n + themes + icons + adapters + linter + doc
 
 # UI packages (run from the package dir)
 npm run build          # react / js-ui / angular (ng build) / vue3 (vite)

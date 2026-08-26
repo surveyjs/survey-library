@@ -242,6 +242,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     return super.hasUnknownValueItem(this.getPropertyNameArray([val]).getValue(0), includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected hasUnknownValueItemInChoices(val: any, isFilteredChoices: boolean): boolean {
+    return super.hasUnknownValueItemInChoices(this.getPropertyNameArray([val]).getValue(0), isFilteredChoices);
+  }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
     newValue = this.getTrimmedComment(newValue);
     if (this.isOtherItemByValue(item)) {
@@ -330,13 +333,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.getValuePropertyName(); }
-  public getFilteredName(): any {
-    let res = super.getFilteredName();
-    if (this.hasFilteredValue) {
-      res += settings.expressionVariables.unwrapPostfix;
-    }
-    return res;
-  }
   public getFilteredValue(isUnwrapped?: boolean): any {
     if (this.hasFilteredValue && (isUnwrapped || !this.valuePropertyName)) return this.renderedValue;
     return super.getFilteredValue(isUnwrapped);

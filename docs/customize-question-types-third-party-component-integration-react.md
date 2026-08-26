@@ -17,7 +17,7 @@ This help topic describes how to integrate a third-party React component into a 
 As an example, we will integrate the [React Color](https://casesandberg.github.io/react-color/) component. To install it, run the following command:
 
 ```sh
-npm install react-color @types/react-color --save
+npm install react-color @types/react-color
 ```
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/integrate-third-party-react-components (linkStyle))
@@ -278,7 +278,7 @@ const svg = ReactDOMServer.renderToString(ColorPickerIcon);
 SvgRegistry.registerIcon(CUSTOM_TYPE, svg);
 ```
 
-Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+Alternatively, you can use one of [built-in SurveyJS icons](/documentation/icons#built-in-svg-icons). The code below shows how to use the Text icon:
 
 ```js
 // components/ColorPicker.tsx

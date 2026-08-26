@@ -105,6 +105,32 @@ import { createBoxShadowReset } from "./utils/shadow-effects";
 
 export var DefaultTheme = DefaultLightTheme;
 
+// The variables a survey answers by itself. They are declared nowhere in the survey
+// JSON and resolve before any question, calculated value or variable of the same name.
+// This table is the single source of truth for the list: tools read the names from it
+// (getBuiltInVariableNames) instead of keeping their own copy.
+// A Map, not an object literal: the key is an arbitrary name taken from an expression
+// and must not hit Object.prototype ("constructor", ...).
+const builtInVariables = new Map<string, (survey: SurveyModel) => any>([
+  ["pageno", (survey: SurveyModel): any => {
+    const page = survey.currentPage;
+    return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
+  }],
+  ["pagecount", (survey: SurveyModel): any => survey.visiblePageCount],
+  ["questioncount", (survey: SurveyModel): any => survey.getQuizQuestionCount()],
+  ["correctedanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
+  ["correctanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
+  ["correctedanswercount", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
+  ["incorrectedanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
+  ["incorrectanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
+  ["incorrectedanswercount", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
+  ["locale", (survey: SurveyModel): any => survey.locale || surveyLocalization.defaultLocale],
+]);
+
+export function getBuiltInVariableNames(): Array<string> {
+  return Array.from(builtInVariables.keys());
+}
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -113,11 +139,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 1) {
-      const name = path[0].name;
-      let val: any = this.getBuiltInVariableValue(name);
-      if (name === "locale") {
-        val = this.survey.locale || surveyLocalization.defaultLocale;
-      }
+      const val: any = this.getBuiltInVariableValue(path[0].name);
       if (val !== undefined) return { value: val, isFound: true };
     }
     if (params.isProperty && path.length > 1) {
@@ -174,26 +196,9 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
-  private getBuiltInVariableValue(name: string): number {
-    const survey = this.survey;
-    name = name.toLocaleLowerCase();
-    if (name === "pageno") {
-      var page = survey.currentPage;
-      return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
-    }
-    if (name === "pagecount") {
-      return survey.visiblePageCount;
-    }
-    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
-      return survey.getCorrectedAnswerCount();
-    }
-    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
-      return survey.getInCorrectedAnswerCount();
-    }
-    if (name === "questioncount") {
-      return survey.getQuizQuestionCount();
-    }
-    return undefined;
+  private getBuiltInVariableValue(name: string): any {
+    const func = builtInVariables.get(name.toLocaleLowerCase());
+    return !!func ? func(this.survey) : undefined;
   }
 
 }
@@ -3476,7 +3481,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.getAllQuestions().forEach(q => {
         if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue(true);
+          values[q.getValueName()] = q.getFilteredValue(true);
         }
       });
     }

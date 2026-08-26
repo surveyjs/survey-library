@@ -204,6 +204,21 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
 
 }
 
+// One entry of getRunningAsyncOperations(): which mechanism is still running and on which object.
+// "serverValidation" - a handler of onServerValidateQuestions has not called options.complete();
+// "navigationHandler" - a handler of onCompleting or onCurrentPageChanging holds its callback;
+// "validators" - the asynchronous validators of the owner question have not finished;
+// "expressions" - an asynchronous expression of the owner has not finished;
+// "webChoices" - a choicesByUrl request of the owner question has not answered.
+export type SurveyAsyncOperationType =
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
+export interface IRunningAsyncOperation {
+  type: SurveyAsyncOperationType;
+  // The object that runs the operation: the survey itself for a server validation and a held
+  // navigation, the question or the element whose validators, expressions or choices are pending.
+  owner: Base;
+}
+
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
  *
@@ -3506,6 +3521,41 @@ export class SurveyModel extends SurveyElementCore
   // requests, every other survey keeps using XMLHttpRequest or fetch, and choices loaded through a
   // provider are not put into the process-wide choices cache.
   public webProvider: ISurveyWebProvider | undefined = undefined;
+  // Every asynchronous operation this model is in the middle of, in one list, and empty when the
+  // model has settled. Code that has to wait for the model - a busy indicator, a test harness, an
+  // e2e helper - reads this instead of keeping its own list of the mechanisms, so this method is the
+  // one place that enumerates them: a new asynchronous mechanism is added here in the change that
+  // introduces it. The order is fixed, the cheapest and most explanatory reason first.
+  public getRunningAsyncOperations(): Array<IRunningAsyncOperation> {
+    const res: Array<IRunningAsyncOperation> = [];
+    if (this.isValidatingOnServer) res.push({ type: "serverValidation", owner: this });
+    if (this.isNavigationBlocked) res.push({ type: "navigationHandler", owner: this });
+    // Nested questions included: a matrix cell and a question inside a dynamic panel run validators
+    // and expressions of their own.
+    const questions = this.getAllQuestions(false, false, true);
+    questions.forEach(question => {
+      if (question.isRunningValidators) res.push({ type: "validators", owner: question });
+    });
+    // Every object that runs an expression of its own keeps its own "is a run in flight" flag: a
+    // visibleIf of a page, a trigger and a calculated value hold the model exactly as a question does.
+    const expressionOwners: Array<Base> = [this];
+    questions.forEach(question => expressionOwners.push(question));
+    this.getAllPanels().forEach(panel => expressionOwners.push(<Base><any>panel));
+    this.pages.forEach(page => expressionOwners.push(page));
+    this.triggers.forEach(trigger => expressionOwners.push(trigger));
+    this.calculatedValues.forEach(calculatedValue => expressionOwners.push(calculatedValue));
+    expressionOwners.forEach(owner => {
+      if (owner.isAsyncExpressionRunning) res.push({ type: "expressions", owner: owner });
+    });
+    // A request that was sent and has not answered - deliberately "isRunning" and not "isReady": a
+    // question is un-ready from the moment it merely has a url, and it stays so when nothing will
+    // ever send the request, which is what a lazy-loading question with a url does.
+    questions.forEach(question => {
+      const choicesByUrl: any = (<any>question).choicesByUrl;
+      if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
+    });
+    return res;
+  }
   getFilteredProperties(): any {
     return { survey: this };
   }

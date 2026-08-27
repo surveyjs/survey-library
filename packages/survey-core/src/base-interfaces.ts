@@ -11,6 +11,9 @@ export type {
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
+  ISurveyWebProvider,
+  ISurveyWebRequest,
+  ISurveyWebResponse,
 } from "./interfaces/survey-callbacks";
 
 // Data & text-processing interfaces.

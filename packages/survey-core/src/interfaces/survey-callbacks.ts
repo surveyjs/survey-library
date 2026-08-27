@@ -10,6 +10,33 @@ import type {
   IValueItemCustomPropValues,
 } from "../base-interfaces";
 
+// The transport a survey uses to load choices from a web service. It is a property of one model -
+// survey.webProvider - and not a global setting, so an application that has to serve those requests
+// itself (an offline client, a test run that must not touch the network, a server that proxies them)
+// replaces the transport of that model alone and leaves every other survey in the process on the
+// real one. Absent by default: nothing changes for a survey that does not carry a provider.
+export interface ISurveyWebRequest {
+  // The url the survey asks for, after text piping resolved the placeholders in it.
+  url: string;
+}
+export interface ISurveyWebResponse {
+  // The HTTP status the survey behaves as if it received. 200 loads the choices; anything else goes
+  // down the same path a failing service does.
+  status: number;
+  statusText?: string;
+  // The body. A string is parsed exactly as a real response is - JSON, XML or a plain list of lines -
+  // and an object or an array is taken as the already parsed body.
+  response?: any;
+}
+export interface ISurveyWebProvider {
+  // Optional. Return false to let the survey send this request through its default XMLHttpRequest or
+  // fetch transport. A provider without this callback handles every request for backward compatibility.
+  canHandleRequest?: (request: ISurveyWebRequest) => boolean;
+  // Called once per request. The survey is waiting from the moment this is entered until onResponse
+  // is called, and it is called exactly once.
+  sendRequest(request: ISurveyWebRequest, onResponse: (response: ISurveyWebResponse) => void): void;
+}
+
 export interface ISurveyElementLifecycle {
   questionCreated(question: IQuestion): any;
   questionAdded(

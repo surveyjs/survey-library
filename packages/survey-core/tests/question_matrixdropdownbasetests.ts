@@ -2838,3 +2838,18 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(cellQuestion2.itemComponent, "cell question itemComponent in a new row").toBe("custom-dropdown-item");
   });
 });
+
+describe("Matrix row getType", () => {
+  test("A row of a matrixdropdown and of a matrixdynamic identifies itself as a matrix row", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdropdown", name: "md", rows: ["row1"], columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "mdyn", rowCount: 1, columns: [{ name: "col1" }] },
+      ],
+    });
+    const dropdownRow = (<QuestionMatrixDropdownModel>survey.getQuestionByName("md")).visibleRows[0];
+    const dynamicRow = (<QuestionMatrixDynamicModel>survey.getQuestionByName("mdyn")).visibleRows[0];
+    expect(dropdownRow.getType()).toBe("matrixrow");
+    expect(dynamicRow.getType()).toBe("matrixrow");
+  });
+});

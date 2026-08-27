@@ -76,6 +76,11 @@ const buildPlatformJson = {
       "import": "./fesm/i18n/*.mjs",
       "require": "./i18n/*.js"
     },
+    "./tester": {
+      "types": "./typings/entries/tester.d.ts",
+      "import": "./fesm/tester.mjs",
+      "require": "./tester.js"
+    },
     "./themes": {
       "types": "./themes/index.d.ts",
       "import": "./fesm/themes/index.mjs",

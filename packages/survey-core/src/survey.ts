@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "./helpers";
+import { HashTable, Helpers, ISurveyDateProvider } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Base, ComputedUpdater, EventAsync } from "./base";
@@ -26,6 +26,7 @@ import {
   IDropdownMenuOptions,
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
+  ISurveyWebProvider,
   ISaveToJSONOptions,
   IScrollElementToTopOptions
 } from "./base-interfaces";
@@ -201,6 +202,21 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     return !!func ? func(this.survey) : undefined;
   }
 
+}
+
+// One entry of getRunningAsyncOperations(): which mechanism is still running and on which object.
+// "serverValidation" - a handler of onServerValidateQuestions has not called options.complete();
+// "navigationHandler" - a handler of onCompleting or onCurrentPageChanging holds its callback;
+// "validators" - the asynchronous validators of the owner question have not finished;
+// "expressions" - an asynchronous expression of the owner has not finished;
+// "webChoices" - a choicesByUrl request of the owner question has not answered.
+export type SurveyAsyncOperationType =
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
+export interface IRunningAsyncOperation {
+  type: SurveyAsyncOperationType;
+  // The object that runs the operation: the survey itself for a server validation and a held
+  // navigation, the question or the element whose validators, expressions or choices are pending.
+  owner: Base;
 }
 
 /**
@@ -3494,6 +3510,55 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < caclValues.length; i++)
       values[caclValues[i].name] = caclValues[i].value;
   }
+  // The clock the expressions of this survey read when they ask for the current moment - today(),
+  // currentDate(), currentYear(), age() and the date functions that default to today. It is not
+  // serialized and it is not part of the survey definition: it belongs to the running model, so two
+  // models evaluated in the same process can be pinned to two different moments, or to none.
+  // Assign it before the JSON is loaded to pin the expressions that run while the model is built.
+  public dateProvider: ISurveyDateProvider | undefined = undefined;
+  // The transport the choicesByUrl requests of this survey go through. Like the clock above it, it
+  // belongs to the running model and not to the process: a survey that carries one serves its own
+  // requests, every other survey keeps using XMLHttpRequest or fetch, and choices loaded through a
+  // provider are not put into the process-wide choices cache.
+  public webProvider: ISurveyWebProvider | undefined = undefined;
+  // Every asynchronous operation this model is in the middle of, in one list, and empty when the
+  // model has settled. Code that has to wait for the model - a busy indicator, a test harness, an
+  // e2e helper - reads this instead of keeping its own list of the mechanisms, so this method is the
+  // one place that enumerates them: a new asynchronous mechanism is added here in the change that
+  // introduces it. The order is fixed, the cheapest and most explanatory reason first.
+  public getRunningAsyncOperations(): Array<IRunningAsyncOperation> {
+    const res: Array<IRunningAsyncOperation> = [];
+    if (this.isValidatingOnServer) res.push({ type: "serverValidation", owner: this });
+    if (this.isNavigationBlocked) res.push({ type: "navigationHandler", owner: this });
+    // Nested questions included: a matrix cell and a question inside a dynamic panel run validators
+    // and expressions of their own. Collected by hand and not through getAllQuestions(includeNested):
+    // that overload renders every page first, and a page is rendered once - it is marked shown for
+    // good and its real first rendering becomes a no-op. Asking what is running must not move the
+    // survey forward.
+    const questions = this.getNestedQuestionsByQuestionArray(this.getAllQuestions(), false);
+    questions.forEach(question => {
+      if (question.isRunningValidators) res.push({ type: "validators", owner: question });
+    });
+    // Every object that runs an expression of its own keeps its own "is a run in flight" flag: a
+    // visibleIf of a page, a trigger and a calculated value hold the model exactly as a question does.
+    const expressionOwners: Array<Base> = [this];
+    questions.forEach(question => expressionOwners.push(question));
+    this.getAllPanels().forEach(panel => expressionOwners.push(<Base><any>panel));
+    this.pages.forEach(page => expressionOwners.push(page));
+    this.triggers.forEach(trigger => expressionOwners.push(trigger));
+    this.calculatedValues.forEach(calculatedValue => expressionOwners.push(calculatedValue));
+    expressionOwners.forEach(owner => {
+      if (owner.isAsyncExpressionRunning) res.push({ type: "expressions", owner: owner });
+    });
+    // A request that was sent and has not answered - deliberately "isRunning" and not "isReady": a
+    // question is un-ready from the moment it merely has a url, and it stays so when nothing will
+    // ever send the request, which is what a lazy-loading question with a url does.
+    questions.forEach(question => {
+      const choicesByUrl: any = (<any>question).choicesByUrl;
+      if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
+    });
+    return res;
+  }
   getFilteredProperties(): any {
     return { survey: this };
   }
@@ -4047,7 +4112,15 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  @property({ defaultValue: false }) private isNavigationBlocked: boolean;
+  // True while a handler of onCompleting or onCurrentPageChanging holds its callback; the navigation
+  // buttons are disabled for exactly that time. Read-only public state: getRunningAsyncOperations()
+  // reports the same hold as its "navigationHandler" operation.
+  public get isNavigationBlocked(): boolean {
+    return this.getPropertyValue("isNavigationBlocked", false);
+  }
+  private setIsNavigationBlocked(val: boolean): void {
+    this.setPropertyValue("isNavigationBlocked", val);
+  }
   private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
     options.allowChanging = true;
@@ -4062,9 +4135,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!options.message) {
         this.notify(options.message, options.allow ? "success" : "error");
       }
-      this.isNavigationBlocked = false;
+      this.setIsNavigationBlocked(false);
     };
-    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.isNavigationBlocked = true);
+    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
@@ -5212,7 +5285,7 @@ export class SurveyModel extends SurveyElementCore
       completeTrigger: completeTrigger
     };
     const doCompleteFunc = () => {
-      this.isNavigationBlocked = false;
+      this.setIsNavigationBlocked(false);
       const allow = options.allowComplete && options.allow;
       if (!!options.message) {
         this.notify(options.message, allow ? "success" : "error");
@@ -5220,7 +5293,7 @@ export class SurveyModel extends SurveyElementCore
       result = allow;
       onComplete(allow);
     };
-    this.onCompleting.fire(this, options, doCompleteFunc, () => this.isNavigationBlocked = true);
+    this.onCompleting.fire(this, options, doCompleteFunc, () => this.setIsNavigationBlocked(true));
     return result;
   }
   /**

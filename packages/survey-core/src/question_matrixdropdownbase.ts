@@ -288,6 +288,12 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     const survey = this.getSurvey();
     return survey ? survey.getElementId(this.id) : this.id;
   }
+  // Not a serializable element, but code that is handed a model object - the tester's target grammar,
+  // a renderer event handler - identifies it the way it identifies everything else: by getType(),
+  // instead of duck-typing on the properties a row happens to have.
+  public getType(): string {
+    return "matrixrow";
+  }
   public get rowName(): any {
     return null;
   }

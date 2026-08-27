@@ -2643,6 +2643,9 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
+  // Stable read-only state: true while the asynchronous validators of this question have not
+  // finished. SurveyModel.getRunningAsyncOperations() reads it on every question, so a rename or a
+  // semantics change here is a breaking change of that API.
   public get isRunningValidators(): boolean {
     return this.getIsRunningValidators();
   }

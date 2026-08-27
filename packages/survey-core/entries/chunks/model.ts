@@ -82,7 +82,7 @@ function checkPrefix(prefix: string): boolean {
 }
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
-export { Helpers, HashTable } from "../../src/helpers";
+export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
 export { DomWindowHelper, DomDocumentHelper } from "../../src/global_variables_utils";
 export {
   AnswerCountValidator,
@@ -115,6 +115,9 @@ export {
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
+  ISurveyWebProvider,
+  ISurveyWebRequest,
+  ISurveyWebResponse,
   ISurveyTitleSettings,
   ISurveyValidation,
   ISurveySingleInput,
@@ -169,7 +172,7 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue, ValueGetter } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -267,6 +270,7 @@ export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";
 export * from "../../src/themes";
 export { SurveyModel, DefaultTheme, getBuiltInVariableNames } from "../../src/survey";
+export { IRunningAsyncOperation, SurveyAsyncOperationType } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,

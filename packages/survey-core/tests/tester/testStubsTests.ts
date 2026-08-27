@@ -784,7 +784,7 @@ describe("survey-tester: stubs, cancellation and single tests", () => {
     setTimeout(() => controller.abort(), 5);
     const result = await promise;
     expect(result.status).toBe("canceled");
-    // Nothing rejects or throws after the run is over: the pending answers were dropped.
+    // Nothing rejects or throws after the run is over: the pending answers were given at teardown.
     await new Promise(resolve => setTimeout(resolve, 60));
   });
   test("runTest() installs the stubs of the suite and of the test", async () => {
@@ -865,5 +865,60 @@ describe("survey-tester: stub validation", () => {
     const issues = validator.validate({ tests: [{ name: "t", functions: { f: {} }, steps: [] }] });
     const issue = issues.filter(item => item.code === SurveyTestIssueCodes.functionStubHasNoResult)[0];
     expect(issue.path).toBe("tests[0].functions.f");
+  });
+});
+
+// A choicesByUrl request is "running" from the moment it is sent until it answers, and the model
+// outlives the run. An answer that is still scheduled when the stubs are disposed is therefore given,
+// not dropped: dropping it leaves the question loading for as long as the model the host was handed
+// lives, and survey.getRunningAsyncOperations() reports it forever.
+describe("survey-tester: a web request that is still in flight at teardown", () => {
+  const slowUrl = "https://x/slow-items";
+  const slowJson = {
+    elements: [{ type: "dropdown", name: "q1", choicesByUrl: { url: slowUrl } }],
+  };
+  function captureModel(models: Array<SurveyModel>): ISurveyTestExecutionOptions {
+    return {
+      createSurvey: (surveyJson: any, context: ISurveyTestModelFactoryContext): SurveyModel => {
+        const survey = new SurveyModel();
+        survey.dateProvider = context.dateProvider;
+        context.attachProviders(survey);
+        survey.fromJSON(surveyJson);
+        models.push(survey);
+        return survey;
+      },
+    };
+  }
+  test("the request is answered and the question stops loading", async () => {
+    const models: Array<SurveyModel> = [];
+    const result = await run(slowJson, {
+      options: { asyncTimeout: 20 },
+      web: { [slowUrl]: { response: ["a", "b"], delay: 500 } },
+      tests: [{ name: "slow service", steps: [{ expect: { q1: { visible: true } } }] }],
+    }, captureModel(models));
+    expect(codes(result.tests[0]), "the step gave up waiting")
+      .toEqual([SurveyTestIssueCodes.asyncOperationTimeout]);
+    const question: any = models[0].getQuestionByName("q1");
+    expect(question.choicesByUrl.isRunning, "nothing is left running on the released model").toBe(false);
+    expect(models[0].getRunningAsyncOperations()).toEqual([]);
+  });
+});
+
+// The map of installed function names is process-wide and keyed by names a case writes: a name that
+// is a member of Object.prototype must not read back as a registration another run is holding.
+describe("survey-tester: a function stub named after an Object.prototype member", () => {
+  test("it installs without colliding with a test that does not exist", async () => {
+    const surveyJson = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "expression", name: "out", expression: "toString()" },
+      ],
+    };
+    const result = await run(surveyJson, {
+      functions: { toString: { async: false, result: "stubbed" } },
+      tests: [{ name: "t", steps: [{ expect: { out: { value: "stubbed" } } }] }],
+    });
+    expect(codes(result.tests[0])).toEqual([]);
+    expect(failedChecks(result.tests[0])).toEqual([]);
   });
 });

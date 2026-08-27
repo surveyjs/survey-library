@@ -63,7 +63,9 @@ export class SurveyTestDateProvider implements ISurveyDateProvider {
 export class SurveyTestContext implements ISurveyTestContext {
   private surveyValue: SurveyModel;
   private resolver: SurveyTestTargetResolver;
-  private targetCache: { [path: string]: ISurveyTestTarget } = {};
+  // Object.create(null): the keys are target names a case writes, and a question named "constructor"
+  // has to be addressable rather than resolve to a prototype member.
+  private targetCache: { [path: string]: ISurveyTestTarget } = Object.create(null);
   private dateProviderValue: SurveyTestDateProvider;
   private currentStep: ISurveyTestStepResult;
   private resetCacheFunc: () => void;

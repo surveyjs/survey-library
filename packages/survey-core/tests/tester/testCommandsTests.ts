@@ -525,3 +525,64 @@ describe("A command that throws never escapes run()", () => {
     }
   });
 });
+
+// A matrixdynamic whose rows are filtered by "rowsVisibleIf": the value of the question is indexed by
+// the generated rows, so the visible ones are a different list and indexing it would silently move a
+// value into the wrong row and drop the last one.
+describe("SurveyTestRunner: setting the value of a matrix with hidden rows", () => {
+  const hiddenRowMatrix = {
+    elements: [{
+      type: "matrixdynamic", name: "m", rowCount: 3,
+      rowsVisibleIf: "{row.a} <> 'skip'",
+      columns: [{ name: "a", cellType: "text" }],
+    }],
+  };
+  test("Every value lands in the row its index names", async () => {
+    const outcome = await runSteps(hiddenRowMatrix, [
+      { setDirectly: { m: [{ a: "keep" }, {}, {}] } },
+      { set: { m: [{ a: "1" }, { a: "2" }, { a: "3" }] } },
+    ]);
+    expect(outcome.codes, "nothing is reported: " + outcome.messages).toEqual([]);
+    expect(question(outcome, "m").value, "the rows keep the order of the value")
+      .toEqual([{ a: "1" }, { a: "2" }, { a: "3" }]);
+  });
+  test("A hidden row is refused instead of shifting the values into the wrong rows", async () => {
+    const outcome = await runSteps(hiddenRowMatrix, [
+      { setDirectly: { m: [{ a: "skip" }, {}, {}] } },
+      { set: { m: [{ a: "1" }, { a: "2" }, { a: "3" }] } },
+    ]);
+    expect(outcome.codes, "a respondent cannot fill in a hidden row")
+      .toEqual([SurveyTestIssueCodes.valueNotEnterable]);
+    expect(outcome.messages.indexOf("m[0]") > -1, "the message names the row").toBeTruthy();
+    expect(outcome.messages.indexOf("rowsVisibleIf") > -1, "and says what hides it").toBeTruthy();
+  });
+});
+
+// A step key that is a member of Object.prototype must reach the command registry as the unknown name
+// it is, and not read back as a function that lives on every object literal.
+describe("SurveyTestRunner: a command named after an Object.prototype member", () => {
+  test("A step key \"toString\" is an unknown command", async () => {
+    const outcome = await runSteps(twoQuestions, [<any>{ toString: { q1: "x" } }]);
+    expect(outcome.codes).toEqual([SurveyTestIssueCodes.unknownCommand]);
+  });
+});
+
+// A choice with "showCommentArea" is selected as { value, comment }: that is the form the model
+// produces and stores, so it is the form a case writes to select such a choice.
+describe("SurveyTestRunner: selecting a choice that carries a comment", () => {
+  const choiceComment = {
+    elements: [{
+      type: "radiogroup", name: "q1",
+      choices: [{ value: "a", showCommentArea: true }, "b"],
+    }],
+  };
+  test("The comment travels with the value and only the value is matched against the choices", async () => {
+    const outcome = await runSteps(choiceComment, [{ set: { q1: { value: "a", comment: "hello" } } }]);
+    expect(outcome.codes, "the value is a choice: " + outcome.messages).toEqual([]);
+    expect(question(outcome, "q1").value).toEqual({ value: "a", comment: "hello" });
+  });
+  test("A value that is not a choice is still refused in that form", async () => {
+    const outcome = await runSteps(choiceComment, [{ set: { q1: { value: "zzz", comment: "hello" } } }]);
+    expect(outcome.codes).toEqual([SurveyTestIssueCodes.invalidChoiceValue]);
+  });
+});

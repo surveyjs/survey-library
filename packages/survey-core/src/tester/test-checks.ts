@@ -48,7 +48,9 @@ export function isCheckAllowedForKind(check: ISurveyTestCheckHandler, kind: Surv
 
 export class SurveyTestCheckFactory {
   public static Instance: SurveyTestCheckFactory = new SurveyTestCheckFactory();
-  private checks: { [name: string]: ISurveyTestCheckHandler } = {};
+  // Object.create(null): a step names its checks, and "toString" must not resolve to a prototype
+  // member instead of failing with unknownCheck.
+  private checks: { [name: string]: ISurveyTestCheckHandler } = Object.create(null);
   public register(check: ISurveyTestCheckHandler): void {
     this.checks[check.name] = check;
   }
@@ -120,12 +122,36 @@ SurveyTestCommandFactory.Instance.register({
           target.name, { check: checkName, payloadType: handler.payloadType });
         continue;
       }
-      const outcome = await handler.check(context, target, expected);
+      // A handler is registered code, and a registration from untyped JavaScript can throw or answer
+      // with nothing. Either way it is this pair that failed, so it is reported like every refusal
+      // above it and the loop goes on: one broken check must not take the other checks of the step
+      // with it, which is the invariant this loop exists to keep.
+      let outcome: ISurveyTestCheckOutcome | Array<ISurveyTestCheckOutcome> = undefined;
+      try {
+        outcome = await handler.check(context, target, expected);
+      } catch(e) {
+        addPairIssue(context, SurveyTestIssueCodes.unexpectedError,
+          "The check \"" + checkName + "\" of the target \"" + target.name + "\" threw an error: " +
+          getErrorText(e), target.name, { check: checkName });
+        continue;
+      }
       const outcomes = Array.isArray(outcome) ? outcome : [outcome];
+      if (outcomes.some(item => !item)) {
+        addPairIssue(context, SurveyTestIssueCodes.unexpectedError,
+          "The check \"" + checkName + "\" of the target \"" + target.name +
+          "\" returned no outcome. A check answers with an outcome object, or with an array of them.",
+          target.name, { check: checkName });
+        continue;
+      }
       outcomes.forEach(item => addOutcome(context, target, checkName, expected, item));
     }
   },
 });
+
+function getErrorText(error: any): string {
+  if (!error) return "undefined";
+  return typeof error.message === "string" ? error.message : String(error);
+}
 
 function getCheckPayloadText(handler: ISurveyTestCheckHandler): string {
   return !!handler.payloadText ? handler.payloadText : getTestPayloadTypeText(handler.payloadType);
@@ -194,16 +220,24 @@ function createOutcome(subject: string, actual: any, expected: any, ignoreOrder?
 function getElementQuestions(obj: any): Array<any> {
   return !!obj && Array.isArray(obj.questions) ? obj.questions : [];
 }
+// getAllErrors() is what a matrix, a dynamic panel and a multipletext override to add the errors of
+// their cells, panels and items; "errors" holds the errors of the question itself only. Reading
+// "errors" here made the question checks contradict the survey check of the same run.
+function getQuestionErrors(question: any): Array<any> {
+  const errors: Array<any> = typeof question.getAllErrors === "function" ? question.getAllErrors() : question.errors;
+  return Array.isArray(errors) ? errors : [];
+}
 function getErrorTexts(target: ISurveyTestTarget): Array<string> {
   const obj: any = target.obj;
   const questions: Array<any> = target.kind === "question" ? [obj] : getElementQuestions(obj);
   const res: Array<string> = [];
   questions.forEach(question => {
-    const errors: Array<any> = Array.isArray(question.errors) ? question.errors : [];
-    errors.forEach(error => res.push(error.getText()));
+    getQuestionErrors(question).forEach(error => res.push(error.getText()));
   });
   return res;
 }
+// "errors" and not getAllErrors() here on purpose: the list already holds the nested questions, so
+// asking a container for the errors of its children would count every one of them twice.
 function getSurveyErrorTexts(context: ISurveyTestContext): Array<string> {
   const res: Array<string> = [];
   (<any>context.survey).getAllQuestions(false, false, true).forEach((question: any) => {

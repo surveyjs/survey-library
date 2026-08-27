@@ -77,7 +77,7 @@ const buildPlatformJson = {
       "require": "./i18n/*.js"
     },
     "./tester": {
-      "types": "./tester.d.ts",
+      "types": "./typings/entries/tester.d.ts",
       "import": "./fesm/tester.mjs",
       "require": "./tester.js"
     },

@@ -17,21 +17,10 @@ const inputs = {
 // specifier, the same way src/linter/** does, and both outputs declare it external - the UMD build
 // reads it off the "Survey" global.
 
-// build/tester.js and build/typings/entries/tester.d.ts are emitted by two different tools, and a
-// consumer that writes `import ... from "survey-core/tester"` looks for the declarations next to the
-// bundle. This file is that link; tsc -p tsconfig.tester.json writes what it points at.
-function pluginEmitTypesEntry() {
-  return {
-    name: "tester-types-entry",
-    generateBundle() {
-      this.emitFile({
-        type: "asset",
-        fileName: "tester.d.ts",
-        source: "export * from \"./typings/entries/tester\";\n"
-      });
-    }
-  };
-}
+// The declarations are written by tsc -p tsconfig.tester.json into build/typings/, and the "./tester"
+// entry of the exports map points straight at them. Nothing is emitted next to the bundle itself, so
+// the subpath is only typed for consumers on a modern moduleResolution - the classic "node" one
+// ignores the exports map and would find no declarations.
 
 export default () => {
   const emitMinified = process.env.emitMinified === "true";
@@ -55,7 +44,6 @@ export default () => {
       dir: buildPath,
       emitMinified: emitMinified,
       useEsbuild: true,
-      extraPlugins: [pluginEmitTypesEntry()],
       sourceMap: false,
       version: pkg.version
     })

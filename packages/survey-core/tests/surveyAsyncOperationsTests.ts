@@ -101,6 +101,27 @@ describe("SurveyModel.getRunningAsyncOperations", () => {
     expect(types(survey)).toEqual([]);
     expect(survey.getValue("rate")).toBe(1.1);
   });
+  test("Asking for the running operations does not render the pages that were never shown", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+        { name: "p3", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const shown: Array<string> = [];
+    survey.onUIStateChanged.add((_, options: any) => {
+      if (options.changedProperty === "shown" && !!options.element) shown.push(options.element.name);
+    });
+
+    survey.getRunningAsyncOperations();
+
+    // getAllQuestions(includeNested) runs page.onFirstRendering(), which is not repeatable: the page
+    // is marked rendered for good and the real first rendering becomes a no-op.
+    expect((<any>survey.pages[1]).wasRendered, "page 2 was never rendered").toBe(false);
+    expect((<any>survey.pages[2]).wasRendered, "page 3 was never rendered").toBe(false);
+    expect(shown, "no page was shown").toEqual([]);
+  });
   test("A choicesByUrl request that has not answered is reported with its question", () => {
     let respond: (response: any) => void = undefined;
     const survey = new SurveyModel();

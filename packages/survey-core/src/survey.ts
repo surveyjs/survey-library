@@ -3531,8 +3531,11 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidatingOnServer) res.push({ type: "serverValidation", owner: this });
     if (this.isNavigationBlocked) res.push({ type: "navigationHandler", owner: this });
     // Nested questions included: a matrix cell and a question inside a dynamic panel run validators
-    // and expressions of their own.
-    const questions = this.getAllQuestions(false, false, true);
+    // and expressions of their own. Collected by hand and not through getAllQuestions(includeNested):
+    // that overload renders every page first, and a page is rendered once - it is marked shown for
+    // good and its real first rendering becomes a no-op. Asking what is running must not move the
+    // survey forward.
+    const questions = this.getNestedQuestionsByQuestionArray(this.getAllQuestions(), false);
     questions.forEach(question => {
       if (question.isRunningValidators) res.push({ type: "validators", owner: question });
     });

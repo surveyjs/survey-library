@@ -24,7 +24,9 @@ export interface ISurveyTestExpressionTrace {
   // Only the names the expression reads. Start data is shared and can be large, and a failure that
   // dumps the whole data object buries the two values that mattered.
   values: { [name: string]: any };
-  result: any;
+  // What the expression evaluates to now, and undefined when it was not evaluated: an expression that
+  // calls a function is never re-run here, because running it would call that function a second time.
+  result?: any;
   // Names that resolve to nothing at all: no question, no calculated value, no variable.
   unknownNames?: Array<string>;
   // The closest existing name for an entry of unknownNames, when there is one.
@@ -331,7 +333,11 @@ export function getExpressionTrace(owner: any, expression: string): ISurveyTestE
     res.values[name] = processValue.getValue(name);
     if (!isKnownExpressionName(survey, processValue, name)) unknownNames.push(name);
   });
-  if (runner.canRun() && !runner.isAsync) {
+  // Only an expression that calls nothing is evaluated here. Running one that calls a function would
+  // call it a second time - the stub dispatcher routes by survey and its cache is off on purpose, so a
+  // stub that reports a failure reports it twice and a handler the application supplied runs twice.
+  // A diagnostic that changes the survey it explains is worse than no diagnostic.
+  if (runner.canRun() && !runner.isAsync && !runner.hasFunction()) {
     res.result = runner.runValues(values, !!survey ? survey.getFilteredProperties() : undefined);
   }
   if (unknownNames.length > 0) {
@@ -375,8 +381,10 @@ export class SurveyTestDiagnostics {
   private blocked: ISurveyTestBlockedRecord;
   // The question, not the record: a run that clears an invisible value and passes never pays for the
   // path of a node nobody asks about.
-  private cleared: { [name: string]: { stepIndex: number, question: any } } = {};
-  private reportedClears: { [key: string]: boolean } = {};
+  // Object.create(null) on both: the keys are value names of the survey, and a name like "toString"
+  // read back off Object.prototype would be reported as a record this recorder never made.
+  private cleared: { [name: string]: { stepIndex: number, question: any } } = Object.create(null);
+  private reportedClears: { [key: string]: boolean } = Object.create(null);
   private triggerFunc: (sender: any, options: any) => void;
   private valueFunc: (sender: any, options: any) => void;
   constructor(private context: ISurveyTestContext) {

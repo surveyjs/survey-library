@@ -619,13 +619,13 @@ export class SurveyTestRunner {
   // Merged per name and per url, exactly like the variables below: a test that overrides one entry
   // keeps the rest of the suite's.
   private resolveFunctions(test: ISurveyTest): { [name: string]: any } {
-    const res: { [name: string]: any } = {};
+    const res: { [name: string]: any } = Object.create(null);
     this.copyByPresence(res, !!this.tests ? this.tests.functions : undefined);
     this.copyByPresence(res, !!test ? test.functions : undefined);
     return res;
   }
   private resolveWeb(test: ISurveyTest): { [url: string]: any } {
-    const res: { [url: string]: any } = {};
+    const res: { [url: string]: any } = Object.create(null);
     this.copyByPresence(res, !!this.tests ? this.tests.web : undefined);
     this.copyByPresence(res, !!test ? test.web : undefined);
     return res;
@@ -654,18 +654,26 @@ export class SurveyTestRunner {
   // Merged per variable name: a test that overrides one root variable keeps the others. A test can
   // override a root variable but cannot remove one - null sets it to null, it does not unset it.
   private resolveVariables(test: ISurveyTest): { [name: string]: any } {
-    const res: { [name: string]: any } = {};
+    const res: { [name: string]: any } = Object.create(null);
     this.copyByPresence(res, !!this.tests ? this.tests.variables : undefined);
     this.copyByPresence(res, !!test ? test.variables : undefined);
     return res;
   }
+  // Cloned and not aliased, for the same reason cloneStart clones the start data: a suite entry is
+  // shared by every test of the run and it belongs to the caller, so a value one test mutates must
+  // not reach the next one - or the document the caller passed in. Only plain objects and arrays go
+  // through the JSON clone; a Date or an instance of a class is copied as it is.
   private copyByPresence(dest: any, source: any): void {
     if (!this.isObject(source)) return;
     Object.keys(source).forEach(key => {
       if (Object.prototype.hasOwnProperty.call(source, key)) {
-        dest[key] = source[key];
+        dest[key] = this.cloneValue(source[key]);
       }
     });
+  }
+  private cloneValue(val: any): any {
+    const isPlain = Array.isArray(val) || (!!val && typeof val === "object" && val.constructor === Object);
+    return isPlain ? this.cloneJson(val) : val;
   }
   private getDefinition(): any {
     const survey = this.surveyJson;

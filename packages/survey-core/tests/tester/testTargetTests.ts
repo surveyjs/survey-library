@@ -2,8 +2,8 @@ import { SurveyModel } from "../../src/survey";
 import { ISurveyTestIssue, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { ISurveyTestContext, ISurveyTestTarget, SurveyTestCaseError, SurveyTestContext } from "../../src/tester/test-context";
 import { SurveyTestRunner } from "../../src/tester/test-runner";
-import { SurveyTestCommandFactory } from "../../src/tester/test-commands";
-import { SurveyTestCheckFactory } from "../../src/tester/test-checks";
+import { ISurveyTestCommand, SurveyTestCommandFactory } from "../../src/tester/test-commands";
+import { ISurveyTestCheckHandler, SurveyTestCheckFactory } from "../../src/tester/test-checks";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
@@ -244,10 +244,17 @@ describe("SurveyTestRunner: targets in a case", () => {
   });
 });
 
+// The stand-ins below take the names of two built-ins. The registries are process-wide, so what was
+// registered under those names is put back afterwards - unregistering would delete the built-in for
+// every test file that runs after this one. Same shape as testRunnerTests.ts.
 describe("SurveyTestRunner: the payload is checked before the handler runs", () => {
   let calls: Array<string>;
+  let savedCommand: ISurveyTestCommand;
+  let savedCheck: ISurveyTestCheckHandler;
   beforeEach(() => {
     calls = [];
+    savedCommand = SurveyTestCommandFactory.Instance.get("addRow");
+    savedCheck = SurveyTestCheckFactory.Instance.get("visible");
     SurveyTestCommandFactory.Instance.register({
       name: "addRow",
       payloadType: "number",
@@ -263,8 +270,10 @@ describe("SurveyTestRunner: the payload is checked before the handler runs", () 
     });
   });
   afterEach(() => {
-    SurveyTestCommandFactory.Instance.unregister("addRow");
-    SurveyTestCheckFactory.Instance.unregister("visible");
+    if (!!savedCommand) SurveyTestCommandFactory.Instance.register(savedCommand);
+    else SurveyTestCommandFactory.Instance.unregister("addRow");
+    if (!!savedCheck) SurveyTestCheckFactory.Instance.register(savedCheck);
+    else SurveyTestCheckFactory.Instance.unregister("visible");
   });
   test("A command payload of the wrong type produces invalidCommandParams", async () => {
     const result = await run(targetSurvey, {

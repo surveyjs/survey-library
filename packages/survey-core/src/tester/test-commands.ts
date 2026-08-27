@@ -79,7 +79,9 @@ export function formatTestValue(val: any): string {
 
 export class SurveyTestCommandFactory {
   public static Instance: SurveyTestCommandFactory = new SurveyTestCommandFactory();
-  private commands: { [name: string]: ISurveyTestCommand } = {};
+  // Object.create(null): a step names its command, and "toString" must not resolve to a prototype
+  // member instead of failing with unknownCommand.
+  private commands: { [name: string]: ISurveyTestCommand } = Object.create(null);
   public register(command: ISurveyTestCommand): void {
     this.commands[command.name] = command;
   }
@@ -521,6 +523,15 @@ function hasChoices(question: any): boolean {
 function getChoiceValues(question: any): Array<any> {
   return question.visibleChoices.map((item: any) => item.value);
 }
+// A choice with "showCommentArea" is selected as { value, comment }: that is the form the model itself
+// produces and stores - QuestionSelectBase.getChoiceValue - and getItemByValue unwraps it exactly like
+// this before it looks the choice up. The comment travels with the value; only the value is a choice.
+function getSelectedChoiceValue(value: any): any {
+  if (!!value && typeof value === "object" && !Array.isArray(value) && !Helpers.isValueEmpty(value.value)) {
+    return value.value;
+  }
+  return value;
+}
 function isMultiSelectQuestion(question: any): boolean {
   if (typeof question.multiSelect === "boolean") return question.multiSelect;
   return typeof question.maxSelectedChoices === "number";
@@ -560,7 +571,7 @@ function checkChoices(context: ISurveyTestContext, question: any, value: any, pa
       "the question takes a single choice value, and the value is an array: " + formatTestValue(value) + ".");
   }
   const available = getChoiceValues(question);
-  const values: Array<any> = isMulti ? value : [value];
+  const values: Array<any> = (isMulti ? value : [value]).map((item: any) => getSelectedChoiceValue(item));
   values.forEach(item => {
     if (available.some(choice => Helpers.isTwoValueEquals(choice, item))) return;
     const availableText = available.map(choice => formatTestValue(choice)).join(", ");
@@ -731,11 +742,28 @@ function setDynamicMatrixValue(context: ISurveyTestContext, question: any, value
     canAdd: () => question.canAddRow !== false, canProperty: "canAddRow",
     getCount: () => question.rowCount,
   });
+  // The generated rows, not the visible ones: their order is the order of the question value, and
+  // "visibleRows" is that list filtered by "rowsVisibleIf". Indexing the filtered list would put the
+  // value of one row into another and drop the last one without saying so.
+  const rows: Array<any> = getGeneratedMatrixRows(question);
   value.forEach((rowValue: any, index: number) => {
-    const row = question.visibleRows[index];
+    const rowPath = path + "[" + index + "]";
+    const row = rows[index];
     if (!row) return;
-    setMatrixCellValues(context, question, row, rowValue, path + "[" + index + "]");
+    if (row.isVisible === false) {
+      throw notEnterable(rowPath, question,
+        "the row is hidden by the \"rowsVisibleIf\" condition (" + question.rowsVisibleIf +
+        "), so a respondent cannot fill it in.", { cause: "rowsVisibleIf", rowsVisibleIf: question.rowsVisibleIf });
+    }
+    setMatrixCellValues(context, question, row, rowValue, rowPath);
   });
+}
+// generatedVisibleRows holds every row the question created, in value order; it is undefined until
+// the rows are generated, and visibleRows generates them on read.
+function getGeneratedMatrixRows(question: any): Array<any> {
+  const visible = question.visibleRows;
+  const generated = question.generatedVisibleRows;
+  return Array.isArray(generated) ? generated : (Array.isArray(visible) ? visible : []);
 }
 
 function setCellMatrixValue(context: ISurveyTestContext, question: any, value: any, path: string): void {
@@ -1224,14 +1252,18 @@ function addBlockedWarning(context: ISurveyTestContext, code: string, action: st
   const page: any = survey.currentPage;
   if (!!page && Array.isArray(page.questions)) {
     page.questions.forEach((question: any) => {
-      if (!question.errors || question.errors.length === 0) return;
+      // getAllErrors() so that a matrix or a dynamic panel whose cells are the reason reports it;
+      // "errors" holds the errors of the question itself and stays empty for those types.
+      const errors: Array<any> = typeof question.getAllErrors === "function"
+        ? question.getAllErrors() : question.errors;
+      if (!Array.isArray(errors) || errors.length === 0) return;
       blocking.push({
         name: question.name,
         jsonPath: getJsonPath(question),
         isRequired: question.isRequired === true,
         isVisible: question.isVisibleInSurvey !== false,
         isEmpty: question.isEmpty(),
-        errors: question.errors.map((error: any) => error.getText()),
+        errors: errors.map((error: any) => error.getText()),
       });
     });
   }

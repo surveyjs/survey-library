@@ -1,5 +1,4 @@
-import { FunctionFactory } from "../../src/functionsfactory";
-import { SurveyModel } from "../../src/survey";
+import { FunctionFactory, SurveyModel } from "survey-core";
 import { ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { ISurveyTestModelFactoryContext } from "../../src/tester/test-execution";
 import { SurveyTestRunner } from "../../src/tester/test-runner";

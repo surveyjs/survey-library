@@ -1,4 +1,4 @@
-import { SurveyModel } from "../survey";
+import { SurveyModel } from "survey-core";
 import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStart, ISurveyTestStep } from "./test-json";
 import { getSurveyTestStepCommandNames } from "./test-authoring";
 import {

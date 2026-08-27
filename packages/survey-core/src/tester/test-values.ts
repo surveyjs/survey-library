@@ -1,4 +1,4 @@
-import { Helpers } from "../helpers";
+import { Helpers } from "survey-core";
 
 // How the tester compares a value a case wrote with a value the survey holds. It lives on its own
 // because more than one place has to compare exactly the same way: a check that reads a question, and

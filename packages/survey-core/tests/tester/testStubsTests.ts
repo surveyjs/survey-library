@@ -1,7 +1,4 @@
-import { FunctionFactory } from "../../src/functionsfactory";
-import { ChoicesRestful } from "../../src/choicesRestful";
-import { SurveyModel } from "../../src/survey";
-import { settings } from "../../src/settings";
+import { ChoicesRestful, FunctionFactory, settings, SurveyModel } from "survey-core";
 import { ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { ISurveyTestExecutionOptions, ISurveyTestModelFactoryContext, SurveyTestExecutionEvent } from "../../src/tester/test-execution";
 import { SurveyTestRunner } from "../../src/tester/test-runner";

@@ -1,5 +1,4 @@
-import { settings } from "../../src/settings";
-import { SurveyModel } from "../../src/survey";
+import { settings, SurveyModel } from "survey-core";
 import { ISurveyTestsResult } from "../../src/tester/test-result";
 import { SurveyTestRunner } from "../../src/tester/test-runner";
 import { ISurveyTestCommand, SurveyTestCommandFactory } from "../../src/tester/test-commands";

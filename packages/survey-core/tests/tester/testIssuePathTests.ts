@@ -3,7 +3,7 @@ import { ISurveyTestIssue, ISurveyTestsResult, SurveyTestIssueCodes } from "../.
 import { SurveyTestRunner } from "../../src/tester/test-runner";
 import { SurveyTestCommandFactory } from "../../src/tester/test-commands";
 import { SurveyTestExecutionEvent } from "../../src/tester/test-execution";
-import { SurveyModel } from "../../src/survey";
+import { SurveyModel } from "survey-core";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 

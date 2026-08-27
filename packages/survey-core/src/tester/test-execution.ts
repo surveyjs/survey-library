@@ -1,5 +1,5 @@
-import type { ISurveyDateProvider } from "../helpers";
-import { SurveyModel } from "../survey";
+import { SurveyModel } from "survey-core";
+import type { ISurveyDateProvider } from "survey-core";
 import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStep } from "./test-json";
 import {
   ISurveyTestCheckResult, ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, ISurveyTestStepResult,

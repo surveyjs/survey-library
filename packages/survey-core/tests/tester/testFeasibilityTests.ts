@@ -1,5 +1,4 @@
-import { ComponentCollection } from "../../src/question_custom";
-import { SurveyModel } from "../../src/survey";
+import { ComponentCollection, SurveyModel } from "survey-core";
 import { ISurveyTestContext } from "../../src/tester/test-context";
 import { ISurveyTestIssue, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { SurveyTestRunner } from "../../src/tester/test-runner";

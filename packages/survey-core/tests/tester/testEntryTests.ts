@@ -17,7 +17,7 @@ import { SurveyTestCheckFactory as InternalCheckFactory } from "../../src/tester
 import { SurveyTestRunner as InternalRunner } from "../../src/tester/test-runner";
 import { SurveyTestTargets as InternalTargets } from "../../src/tester/test-targets";
 import { parseSurveyTestStep as InternalParseStep } from "../../src/tester/test-authoring";
-import { SurveyModel } from "../../src/survey";
+import { SurveyModel } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 

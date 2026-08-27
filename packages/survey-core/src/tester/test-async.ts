@@ -1,4 +1,4 @@
-import type { IRunningAsyncOperation, SurveyAsyncOperationType } from "../survey";
+import type { IRunningAsyncOperation, SurveyAsyncOperationType } from "survey-core";
 import { ISurveyTestContext } from "./test-context";
 import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { ISurveyTestOptions } from "./test-json";

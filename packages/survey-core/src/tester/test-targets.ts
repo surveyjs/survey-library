@@ -1,4 +1,4 @@
-import type { SurveyModel } from "../survey";
+import type { SurveyModel } from "survey-core";
 import { getClosestName, getSurveyNames } from "./test-diagnostics";
 import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { RESERVED_TARGET_SURVEY } from "./test-json";

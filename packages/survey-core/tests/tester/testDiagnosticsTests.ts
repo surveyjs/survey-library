@@ -1,6 +1,4 @@
-import { SurveyModel } from "../../src/survey";
-import { settings } from "../../src/settings";
-import { QuestionTextModel } from "../../src/question_text";
+import { QuestionTextModel, settings, SurveyModel } from "survey-core";
 import { ISurveyTestContext } from "../../src/tester/test-context";
 import {
   getClosestName, getExpressionTrace, getJsonPath, getRowIndex,

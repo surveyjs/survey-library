@@ -1,7 +1,5 @@
-import { FunctionFactory } from "../functionsfactory";
-import type { IFunctionRegistration } from "../functionsfactory";
-import type { ISurveyWebProvider, ISurveyWebRequest, ISurveyWebResponse } from "../base-interfaces";
-import { SurveyModel } from "../survey";
+import { FunctionFactory, SurveyModel } from "survey-core";
+import type { IFunctionRegistration, ISurveyWebProvider, ISurveyWebRequest, ISurveyWebResponse } from "survey-core";
 import { isSameTestValue } from "./test-values";
 import { ISurveyTestFunctionResult, ISurveyTestFunctionStub, ISurveyTestWebStub } from "./test-json";
 import { SurveyTestIssueCodes } from "./test-result";

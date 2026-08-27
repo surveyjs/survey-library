@@ -6,32 +6,16 @@ import pkg from "./package.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
-const testerDir = toPosix(resolve(__dirname, "src", "tester")) + "/";
 
 const inputs = {
   "tester": resolve(__dirname, "entries", "tester.ts")
 };
 
-function toPosix(path) {
-  return path.replace(/\\/g, "/");
-}
-
-// src/tester/** reaches the rest of the library through relative imports, and this bundle must not
-// carry a second copy of it: a SurveyModel built by a second copy of the library is not the caller's
-// SurveyModel, and the two would not share the serializer, the settings or the class identity. Every
-// relative import that leaves src/tester/ is therefore redirected to the "survey-core" package, which
-// the output declares external and the UMD build reads off the "Survey" global.
-function pluginExternalSurveyCore() {
-  return {
-    name: "tester-external-survey-core",
-    resolveId(source, importer) {
-      if (!importer || source.charAt(0) !== ".") return null;
-      const id = toPosix(resolve(dirname(importer), source));
-      if (id.indexOf(testerDir) === 0) return null;
-      return { id: "survey-core", external: true };
-    }
-  };
-}
+// This bundle must not carry a second copy of the library: a SurveyModel built by a second copy is not
+// the caller's SurveyModel, and the two would not share the serializer, the settings or the class
+// identity. src/tester/** therefore reaches the rest of the library through the "survey-core" package
+// specifier, the same way src/linter/** does, and both outputs declare it external - the UMD build
+// reads it off the "Survey" global.
 
 // build/tester.js and build/typings/entries/tester.d.ts are emitted by two different tools, and a
 // consumer that writes `import ... from "survey-core/tester"` looks for the declarations next to the
@@ -59,7 +43,6 @@ export default () => {
       external: ["survey-core"],
       tsconfig: resolve(__dirname, "tsconfig.tester.json"),
       useEsbuild: true,
-      extraPlugins: [pluginExternalSurveyCore()],
       sourceMap: false,
       version: pkg.version
     }),
@@ -72,7 +55,7 @@ export default () => {
       dir: buildPath,
       emitMinified: emitMinified,
       useEsbuild: true,
-      extraPlugins: [pluginExternalSurveyCore(), pluginEmitTypesEntry()],
+      extraPlugins: [pluginEmitTypesEntry()],
       sourceMap: false,
       version: pkg.version
     })

@@ -1,7 +1,4 @@
-import { Helpers } from "../helpers";
-import { settings } from "../settings";
-import { ProcessValue, VariableGetterContext } from "../conditions/conditionProcessValue";
-import { ExpressionRunner } from "../expressions/expressionRunner";
+import { ExpressionRunner, Helpers, ProcessValue, settings, VariableGetterContext } from "survey-core";
 import { CHECK_COMMAND_NAME } from "./test-json";
 import { ISurveyTestCheckResult, ISurveyTestIssue, SurveyTestIssueCodes } from "./test-result";
 import type { ISurveyTestContext } from "./test-context";

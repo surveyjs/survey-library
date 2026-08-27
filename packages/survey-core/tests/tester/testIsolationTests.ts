@@ -5,7 +5,7 @@ import * as SurveyCore from "survey-core";
 import { describe, expect, test } from "vitest";
 
 // The tester ships as a separate bundle, and that only stays true while the dependency arrow points
-// one way: src/tester/** may import from src/**, nothing else in src/** may import from src/tester/**,
+// one way: src/tester/** may import from "survey-core", nothing else in src/** may import from src/tester/**,
 // and entries/index.ts must not reach it, directly or transitively. Nothing here builds anything -
 // the sources are read from disk and their import specifiers are inspected.
 
@@ -13,6 +13,8 @@ const packageRoot = findPackageRoot();
 const srcDir = join(packageRoot, "src");
 const testerDir = join(srcDir, "tester");
 const entriesDir = join(packageRoot, "entries");
+const testsDir = join(packageRoot, "tests", "tester");
+const SURVEY_CORE = "survey-core";
 
 function findPackageRoot(): string {
   const candidates: Array<string> = [];
@@ -102,6 +104,10 @@ function isInsideTester(path: string): boolean {
   return toPosix(path).indexOf(toPosix(testerDir) + "/") === 0;
 }
 
+function isInsideTests(path: string): boolean {
+  return toPosix(path).indexOf(toPosix(testsDir) + "/") === 0;
+}
+
 function resolveImport(record: IImportRecord): string {
   if (record.source.charAt(0) !== ".") return undefined;
   const base = resolve(dirname(record.file), record.source);
@@ -138,27 +144,47 @@ describe("The tester is isolated from the rest of the library", () => {
     });
   });
 
-  test("src/tester/ imports nothing but relative paths", () => {
+  test("src/tester/ imports nothing but its own files and the survey-core package", () => {
     const offenders: Array<string> = [];
     getTypeScriptFiles(testerDir).forEach(file => {
       getImports(file).forEach(record => {
-        if (record.source.charAt(0) !== ".") offenders.push(formatRecord(record));
+        if (record.source.charAt(0) !== ".") {
+          if (record.source !== SURVEY_CORE) offenders.push(formatRecord(record));
+          return;
+        }
+        const resolved = resolveImport(record);
+        if (!resolved || !isInsideTester(resolved)) offenders.push(formatRecord(record));
       });
     });
-    expect(offenders, "the tester must not depend on a node built-in or on a package outside survey-core").toEqual([]);
+    expect(offenders, "the tester must reach the rest of the library through \"survey-core\", and must not depend on a node built-in or on any other package").toEqual([]);
   });
 
-  // The separate bundle resolves every import that leaves src/tester/ to the "survey-core" package,
-  // so a symbol the public surface does not export becomes undefined at run time in the bundle while
-  // the unit tests, which import the sources directly, keep passing.
-  test("Everything src/tester/ imports from outside itself is exported by survey-core", () => {
+  // The unit tests read the tester the way its own sources do. A test that reached a src/ module
+  // directly would bind a class the tester itself no longer imports, and the pair would only look
+  // identical while the alias of vitest happens to resolve both to the same module.
+  test("tests/tester/ reaches the library only through survey-core", () => {
+    const offenders: Array<string> = [];
+    getTypeScriptFiles(testsDir).forEach(file => {
+      getImports(file).forEach(record => {
+        if (record.source.charAt(0) !== ".") return;
+        const resolved = resolveImport(record);
+        if (!resolved || isInsideTester(resolved) || isInsideTests(resolved)) return;
+        offenders.push(formatRecord(record));
+      });
+    });
+    expect(offenders, "a test must import the library through \"survey-core\", not through a src/ path").toEqual([]);
+  });
+
+  // The separate bundle declares "survey-core" external, so a symbol the public surface does not
+  // export becomes undefined at run time in the bundle while the unit tests, which resolve the same
+  // specifier to entries/index.ts, keep passing.
+  test("Everything src/tester/ imports from survey-core is exported by it", () => {
     const surface: any = SurveyCore;
     const offenders: Array<string> = [];
     getTypeScriptFiles(testerDir).forEach(file => {
       getImports(file).forEach(record => {
-        const resolved = resolveImport(record);
         // A type is erased before the bundle exists; only a value has to be reachable at run time.
-        if (!resolved || isInsideTester(resolved) || record.isTypeOnly) return;
+        if (record.source !== SURVEY_CORE || record.isTypeOnly) return;
         record.names.forEach(name => {
           if (surface[name] === undefined) {
             offenders.push(formatRecord(record) + " and uses \"" + name + "\", which survey-core does not export");

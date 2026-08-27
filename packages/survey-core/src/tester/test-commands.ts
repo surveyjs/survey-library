@@ -1,6 +1,4 @@
-import { Helpers } from "../helpers";
-import { Serializer } from "../jsonobject";
-import { settings } from "../settings";
+import { Helpers, Serializer, settings } from "survey-core";
 import { waitForSurvey } from "./test-async";
 import { ISurveyTestContext } from "./test-context";
 import { createCaseError, SurveyTestCaseError } from "./test-error";

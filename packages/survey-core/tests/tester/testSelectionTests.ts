@@ -1,4 +1,4 @@
-import { SurveyModel } from "../../src/survey";
+import { SurveyModel } from "survey-core";
 import { ISurveyTestIssue, ISurveyTestResult, ISurveyTestsResult, SurveyTestIssueCodes } from "../../src/tester/test-result";
 import { SurveyTestRunner } from "../../src/tester/test-runner";
 import { ISurveyTestExecutionOptions, SurveyTestExecutionEvent } from "../../src/tester/test-execution";

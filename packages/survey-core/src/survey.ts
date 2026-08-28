@@ -5573,7 +5573,7 @@ export class SurveyModel extends SurveyElementCore
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
-      const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
+      const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
         let screenOrientationType = DomWindowHelper.getScreenOrientationType();

@@ -1192,9 +1192,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
           const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
           if (visiblePage) {
             const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
-            this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
+            this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage)?.gap));
             if (firstVisibleItem) {
-              this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
+              this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem)?.width));
             }
           }
         }

@@ -327,7 +327,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
     while(currentElement !== this.container) {
-      if (DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+      if (DomDocumentHelper.getComputedStyle(currentElement)?.overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
         const { scrollHeight, scrollTop, clientHeight } = currentElement;
         if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
           return;

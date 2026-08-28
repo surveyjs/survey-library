@@ -2,6 +2,7 @@ import { FunctionFactory } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
 import { getFunctionOperands } from "../expression-utils";
 import { closestMatch } from "../levenshtein";
+import { SurveyLintReasons } from "../reasons";
 
 export const expressionUnknownFunctionRule: ILintRule = {
   id: "expression/unknown-function",
@@ -27,6 +28,7 @@ export const expressionUnknownFunctionRule: ILintRule = {
         ctx.report({
           message: message,
           path: site.path,
+          reason: SurveyLintReasons["expression/unknown-function"].notRegistered,
           messageData: { functionName: name, expression: site.text },
           elementName: site.owner ? site.owner.name : undefined,
           elementType: site.owner ? site.owner.type : undefined,

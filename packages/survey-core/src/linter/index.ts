@@ -5,6 +5,7 @@ import { buildIndex } from "./walker";
 import { LintMetadata } from "./metadata";
 
 export * from "./types";
+export * from "./reasons";
 export { renderFindings } from "./renderer";
 
 export function getRules(): Array<ILintRuleInfo> {

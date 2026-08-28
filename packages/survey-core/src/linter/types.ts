@@ -31,6 +31,8 @@ export type LintReproductionStep = { set: { [name: string]: any } } | { expect: 
 
 export interface ILintReproduction {
   description?: string;
+  // one of SurveyLintReproductionReasons - the localizable form of "description"
+  reason?: string;
   steps: Array<LintReproductionStep>;
 }
 
@@ -39,11 +41,24 @@ export interface ILintRelated {
   elementName?: string;
 }
 
+export interface ILintHint {
+  // one of SurveyLintHintReasons
+  reason: string;
+  // the expression variable the hint is about, as configured in settings.expressionVariables
+  name: string;
+}
+
 export interface ILintFinding {
   ruleId: string;
   severity: LintFindingSeverity;
+  // ready to show to a human, in English
   message: string;
+  // one of SurveyLintReasons[ruleId] - which branch of the rule's message this is. A host that
+  // localizes composes its own sentence from (ruleId, reason) plus messageData.
+  reason?: string;
   messageData: { [key: string]: any };
+  // the scope hint appended to the message, when there is one. Independent of "reason".
+  hint?: ILintHint;
   path: string;
   elementName?: string;
   elementType?: string;

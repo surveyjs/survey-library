@@ -1,5 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
 import { ILintRelated } from "../types";
+import { SurveyLintReasons } from "../reasons";
+
+const reasons = SurveyLintReasons["name/duplicate"];
 
 export const nameDuplicateRule: ILintRule = {
   id: "name/duplicate",
@@ -17,6 +20,7 @@ export const nameDuplicateRule: ILintRule = {
             message: "The name \"" + name + "\" is used by " + records.length + " elements" + scopeText +
               " (" + kinds.join(", ") + ") - element names must be unique.",
             path: rec.path,
+            reason: reasons.elementNames,
             messageData: { name: name, kinds: kinds, count: records.length, scope: namespace.label },
             elementName: rec.name,
             elementType: rec.type,
@@ -39,6 +43,7 @@ export const nameDuplicateRule: ILintRule = {
           ctx.report({
             message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
             path: path,
+            reason: reasons.calculatedValueNames,
             messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
             elementName: cv.name,
             elementType: "calculatedvalue",
@@ -53,6 +58,7 @@ export const nameDuplicateRule: ILintRule = {
             message: "The calculated value \"" + cv.name + "\" shares its name with a " + elements[0].kind +
               " - both are referenced as {" + cv.name + "}, so one of them shadows the other.",
             path: path,
+            reason: reasons.calculatedValueShadowsElement,
             messageData: { name: cv.name, kinds: ["calculatedvalue"].concat(elements.map(el => el.kind)), count: elements.length + 1 },
             elementName: cv.name,
             elementType: "calculatedvalue",

@@ -152,6 +152,9 @@ export interface ParsedRef {
   unknownSegmentIndex?: number;
   scopePrefix?: string;
   scopeHint?: string;
+  // the localizable form of scopeHint: one of SurveyLintHintReasons, plus the variable it is about
+  hintReason?: string;
+  hintName?: string;
   suggestion?: string;
 }
 

@@ -1,5 +1,5 @@
 import {
-  ILintFinding, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
+  ILintFinding, ILintHint, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
 } from "./types";
 import { SurveyIndex } from "./symbols";
 import { LintMetadata } from "./metadata";
@@ -45,7 +45,10 @@ export function isSuppressed(finding: ILintFinding, suppressions: Array<ISuppres
 export type ReportInput = {
   message: string,
   path: string,
+  // one of SurveyLintReasons[ruleId]
+  reason?: string,
   messageData?: { [key: string]: any },
+  hint?: ILintHint,
   elementName?: string,
   elementType?: string,
   suggestion?: string,
@@ -72,6 +75,8 @@ export class LintContext {
       messageData: input.messageData || {},
       path: input.path,
     };
+    if (input.reason) finding.reason = input.reason;
+    if (input.hint) finding.hint = input.hint;
     if (input.elementName) finding.elementName = input.elementName;
     if (input.elementType) finding.elementType = input.elementType;
     if (input.suggestion) finding.suggestion = input.suggestion;

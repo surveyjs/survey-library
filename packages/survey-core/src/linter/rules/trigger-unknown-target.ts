@@ -1,4 +1,7 @@
 import { closestMatch } from "../levenshtein";
+import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
+
+const reasons = SurveyLintReasons["trigger/unknown-target"];
 import { ILintRule, LintContext } from "../rule";
 import { buildTriggerSetStep, builtInVariableNames, classifyTargetName, equalsCI } from "../expression-utils";
 import { ParsedRef, TriggerRecord } from "../symbols";
@@ -36,6 +39,7 @@ function buildReproduction(trigger: TriggerRecord, targetName: string): ILintRep
   if (!step) return undefined;
   return {
     description: "This fires the trigger, which then targets the missing element \"" + targetName + "\".",
+    reason: SurveyLintReproductionReasons.missingTriggerTarget,
     steps: [step],
   };
 }
@@ -83,6 +87,7 @@ export const triggerUnknownTargetRule: ILintRule = {
           ctx.report({
             message: "The " + trigger.type + " trigger targets page \"" + target.name + "\", which does not exist.",
             path: target.path,
+            reason: reasons.pageNotFound,
             messageData: messageData,
             suggestion: rootSuggestion(ctx, ref, "page"),
             reproduction: buildReproduction(trigger, target.name),
@@ -93,11 +98,15 @@ export const triggerUnknownTargetRule: ILintRule = {
         if (ref.unknownSegmentIndex > 0 && ref.resolvedTo) {
           const segment = ref.segments[ref.unknownSegmentIndex];
           messageData.segment = segment.name;
+          messageData.root = root;
+          messageData.containerType = ref.resolvedTo.type;
+          messageData.segmentIndex = ref.unknownSegmentIndex;
           ctx.report({
             message: "The " + trigger.type + " trigger targets \"" + target.name + "\", but " +
               ref.resolvedTo.type + " \"" + root + "\" has no " +
               innerNoun(ref.resolvedTo.type, ref.unknownSegmentIndex) + " \"" + segment.name + "\".",
             path: target.path,
+            reason: reasons.segmentNotFound,
             messageData: messageData,
             suggestion: ref.suggestion,
             reproduction: buildReproduction(trigger, target.name),
@@ -113,6 +122,7 @@ export const triggerUnknownTargetRule: ILintRule = {
               ? " If it is a variable set at runtime, list it in options.knownVariables."
               : ""),
           path: target.path,
+          reason: reasons.rootNotFound,
           messageData: messageData,
           suggestion: rootSuggestion(ctx, ref, target.kind),
           reproduction: buildReproduction(trigger, target.name),

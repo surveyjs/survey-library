@@ -326,11 +326,16 @@ export class Cover extends Base implements ILayoutElementModel {
     return undefined;
   }
 
+  private isResponsivenessProcessed: boolean | undefined;
   public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
         const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
         if (!headerEl) return;
+        if (this.isResponsivenessProcessed) {
+          this.isResponsivenessProcessed = false;
+          return;
+        }
 
         let elWidth = headerEl.getBoundingClientRect().width;
         const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
@@ -338,7 +343,9 @@ export class Cover extends Base implements ILayoutElementModel {
         const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
         const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
         const columnGap = (parseFloat(headerComputedStyle.columnGap) || 0);
-        this.width = elWidth - paddingLeft - paddingRight - 2 * columnGap;
+        const newWidth = elWidth - paddingLeft - paddingRight - 2 * columnGap;
+        this.isResponsivenessProcessed = this.width !== newWidth;
+        this.width = newWidth;
       }
     }
   }

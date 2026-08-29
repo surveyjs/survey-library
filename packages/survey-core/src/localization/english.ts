@@ -124,7 +124,16 @@ export var englishStrings = {
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
   progressbar: "Progress bar",
-  progressbarPage: "Page {0}"
+  progressbarPage: "Page {0}",
+  maskPlaceholderDay: "d",
+  maskPlaceholderMonth: "m",
+  maskPlaceholderYear: "y",
+  maskPlaceholderHour12: "h",
+  maskPlaceholderHour24: "H",
+  maskPlaceholderMinute: "M",
+  maskPlaceholderSecond: "s",
+  maskPlaceholderTimeMarkerLower: "t",
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 /*

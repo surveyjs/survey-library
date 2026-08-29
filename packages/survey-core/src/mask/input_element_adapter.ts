@@ -21,7 +21,7 @@ export class InputElementAdapter {
     if (_value === null || _value === undefined) {
       _value = "";
     }
-    this.maskedEmptyValue = this.inputMaskInstance.getMaskedValue("");
+    this.updateMaskedEmptyValue();
     this.setInputValue(inputMaskInstance.getMaskedValueBySaveMode(_value));
     this.updateInputValue();
     this.prevUnmaskedValue = _value;
@@ -30,12 +30,24 @@ export class InputElementAdapter {
     this.addInputEventListener();
   }
 
+  private updateMaskedEmptyValue(): void {
+    this.maskedEmptyValue = this.inputMaskInstance.getMaskedValue("");
+  }
   inputMaskInstancePropertyChangedHandler = (sender: any, options: any) => {
     if (options.name !== "saveMaskedValue") {
+      // the empty mask depends on mask settings and on the locale, so the cache used for
+      // empty-value detection has to be refreshed together with the displayed value
+      this.updateMaskedEmptyValue();
       const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
       this.setInputValue(maskedValue);
+      this.updateInputValue();
     }
   };
+  // Displays an already masked text, e.g. an incomplete entry that is not stored as a value.
+  public updateInputElementText(value: string): void {
+    this.setInputValue(value);
+    this.updateInputValue();
+  }
   public updateInputElementValue(value: any): void {
     if (value === null || value === undefined) {
       value = "";

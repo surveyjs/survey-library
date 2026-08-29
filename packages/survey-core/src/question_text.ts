@@ -117,6 +117,25 @@ export class QuestionTextModel extends QuestionTextBase {
     this.maskSettings.fromJSON(val.toJSON());
     this.updateMaskAdapter();
   }
+  public localeChanged(): void {
+    super.localeChanged();
+    if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
+    // an incomplete entry is not stored in the question value and lives in _inputValue only
+    const enteredText = this.isEmpty() ? this._inputValue : undefined;
+    // Base.localeChanged() does not descend into the maskSettings property. The mask notifies
+    // this question and the input element adapter about the change via onPropertyChanged.
+    this.maskSettings.localeChanged();
+    if (!enteredText) return;
+    const res = this.maskInstance.processInput({
+      prevValue: enteredText,
+      insertedChars: "",
+      selectionStart: enteredText.length,
+      selectionEnd: enteredText.length,
+      inputDirection: "forward"
+    });
+    this._inputValue = res.value;
+    this.maskInputAdapter?.updateInputElementText(res.value);
+  }
   private setNewMaskSettingsProperty() {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
   }

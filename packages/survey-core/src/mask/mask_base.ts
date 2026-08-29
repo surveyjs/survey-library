@@ -22,6 +22,9 @@ export class InputMaskBase extends Base implements IInputMask {
 
   public owner: ISurveyImpl;
 
+  // Indicates that the displayed masked value depends on the survey locale.
+  public get isLocaleDependent(): boolean { return false; }
+
   public getSurvey(live: boolean = false): ISurvey {
     return this.owner?.getSurvey();
   }

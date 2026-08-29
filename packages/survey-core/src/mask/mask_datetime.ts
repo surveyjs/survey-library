@@ -12,6 +12,26 @@ export interface IDateTimeMaskLexem {
   upperCase: boolean;
 }
 
+// Placeholder symbols are display-only: they are rendered for an unfilled lexem and are never
+// used to parse the pattern or to detect the semantic type of a lexem.
+const placeholderSymbolLocalizationNames: { [key: string]: string } = {
+  day: "maskPlaceholderDay",
+  month: "maskPlaceholderMonth",
+  year: "maskPlaceholderYear",
+  hour12: "maskPlaceholderHour12",
+  hour24: "maskPlaceholderHour24",
+  minute: "maskPlaceholderMinute",
+  second: "maskPlaceholderSecond",
+  timeMarkerLower: "maskPlaceholderTimeMarkerLower",
+  timeMarkerUpper: "maskPlaceholderTimeMarkerUpper"
+};
+
+function getDateTimeLexemRole(lexem: IDateTimeMaskLexem): string {
+  if (lexem.type === "hour") return lexem.upperCase ? "hour24" : "hour12";
+  if (lexem.type === "timeMarker") return lexem.upperCase ? "timeMarkerUpper" : "timeMarkerLower";
+  return lexem.type;
+}
+
 interface IInputDateTimeData {
   lexem: IDateTimeMaskLexem;
   value: string;
@@ -181,6 +201,32 @@ export class InputMaskDateTime extends InputMaskPattern {
 
   protected updateLiterals(): void {
     this.lexems = getDateTimeLexems(this.pattern || "");
+  }
+
+  public get isLocaleDependent(): boolean { return true; }
+  public localeChanged(): void {
+    super.localeChanged();
+    // The empty mask and every unfilled part are rendered with the placeholder symbols. Notify
+    // the owner question and the input element adapter the same way a property change does.
+    this.onPropertyChanged.fire(this, { name: "placeholderSymbols", oldValue: undefined, newValue: undefined });
+  }
+  // The symbol is resolved on every call: it depends on the current locale, not on the pattern.
+  public getPlaceholderSymbol(lexem: IDateTimeMaskLexem): string {
+    if (!lexem) return "";
+    if (lexem.type === "separator") return lexem.value;
+    const role = getDateTimeLexemRole(lexem);
+    const locName = placeholderSymbolLocalizationNames[role];
+    if (!locName) return lexem.value;
+    const res = this.getLocalizationString(locName);
+    return this.isPlaceholderSymbolValid(res, role) ? res : lexem.value;
+  }
+  private isPlaceholderSymbolValid(symbol: any, role: string): boolean {
+    if (typeof symbol !== "string" || symbol.length !== 1) return false;
+    // a digit would be indistinguishable from entered data in getParts()
+    if (!!symbol.match(numberDefinition)) return false;
+    // "a", "p" and "m" are consumed by cleanTimeMarker() as entered data
+    if (role.indexOf("timeMarker") === 0 && "APM".indexOf(symbol.toUpperCase()) !== -1) return false;
+    return true;
   }
 
   private leaveOnlyNumbers(input: string): string {
@@ -459,7 +505,7 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     if (!!dataStr && lexem.type === "timeMarker") {
       if (matchWholeMask) {
-        dataStr = dataStr + this.getPlaceholder(lexem.count, dataStr, lexem.value);
+        dataStr = dataStr + this.getPlaceholder(lexem.count, dataStr, this.getPlaceholderSymbol(lexem));
       }
       return dataStr;
     }
@@ -474,7 +520,7 @@ export class InputMaskDateTime extends InputMaskPattern {
       // !!!
       dataStr = trimDatePart(lexem, dataStr);
       if (matchWholeMask) {
-        dataStr += this.getPlaceholder(lexem.count, dataStr, lexem.value);
+        dataStr += this.getPlaceholder(lexem.count, dataStr, this.getPlaceholderSymbol(lexem));
       }
     }
     return dataStr;
@@ -608,6 +654,12 @@ export class InputMaskDateTime extends InputMaskPattern {
     return result;
   }
 
+  // A part accepts both the canonical pattern character and the current display symbol: the
+  // re-parsed value may still contain symbols rendered before a locale change.
+  private isLexemSymbol(lexem: IDateTimeMaskLexem, inputChar: string): boolean {
+    if (!lexem) return false;
+    return inputChar === lexem.value || inputChar === this.getPlaceholderSymbol(lexem);
+  }
   private getParts(input: string): Array<string> {
     const inputParts: Array<string> = [];
     const lexemsWithValue = this.lexems.filter(l => l.type !== "separator");
@@ -617,7 +669,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     let foundPseudoSeparator = false;
     for (let i = 0; i < input.length; i++) {
       const inputChar = input[i];
-      if (inputChar.match(numberDefinition) || inputChar === lexemsWithValue[inputParts.length].value) {
+      if (inputChar.match(numberDefinition) || this.isLexemSymbol(lexemsWithValue[inputParts.length], inputChar)) {
         foundSeparator = false;
         foundPseudoSeparator = false;
         curPart += inputChar;

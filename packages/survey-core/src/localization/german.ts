@@ -246,7 +246,13 @@ export var germanSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Fortschrittsbalken",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Seite {0}"
+  progressbarPage: "Seite {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "T",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "M",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "J"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

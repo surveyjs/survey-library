@@ -5,7 +5,10 @@ import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
 import { settings } from "../../src/settings";
 
-import { describe, test, expect } from "vitest";
+import { surveyLocalization } from "../../src/surveyStrings";
+import { germanSurveyStrings } from "../../src/localization/german";
+
+import { describe, test, expect, afterEach } from "vitest";
 describe("Datetime mask", () => {
   test("Serialize InputMaskDateTime properties", () => {
     const q = new QuestionTextModel("q1");
@@ -1436,5 +1439,201 @@ describe("Datetime mask", () => {
     survey.data = { patient_dob: "1990-01-15" };
     expect(ageQuestion.value, "Age should be calculated as 35 via survey.data ISO format").toBe(35);
     settings.onDateCreated = savedOnDateCreated;
+  });
+});
+
+describe("Datetime mask: localized placeholder symbols", () => {
+  const enToDeSymbols = (str: string): string => str.replace(/d/g, "T").replace(/m/g, "M").replace(/y/g, "J");
+  const typeDigits = (maskInstance: InputMaskDateTime, chars: string): Array<{ value: string, caretPosition: number }> => {
+    const res: Array<{ value: string, caretPosition: number }> = [];
+    let value = maskInstance.getMaskedValue("");
+    let caret = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const step = maskInstance.processInput({ insertedChars: chars[i], selectionStart: caret, selectionEnd: caret, prevValue: value, inputDirection: "forward" });
+      value = step.value;
+      caret = step.caretPosition;
+      res.push({ value: value, caretPosition: caret });
+    }
+    return res;
+  };
+  const createQuestion = (maskSettings: any, locale?: string): QuestionTextModel => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime", maskSettings: maskSettings }] });
+    if (!!locale) survey.locale = locale;
+    return <QuestionTextModel>survey.getQuestionByName("q1");
+  };
+
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+    germanSurveyStrings["maskPlaceholderDay"] = "T";
+    germanSurveyStrings["maskPlaceholderMonth"] = "M";
+    germanSurveyStrings["maskPlaceholderYear"] = "J";
+  });
+
+  test("Placeholder symbols are resolved by semantic role", () => {
+    const maskInstance = new InputMaskDateTime();
+    maskInstance.pattern = "dd.mm.yyyy hh:HH:MM:ss:tt:TT";
+    const symbols = maskInstance["lexems"].filter(l => l.type !== "separator").map(l => maskInstance.getPlaceholderSymbol(l));
+    expect(symbols.join(""), "english symbols").toBe("dmyhHMstT");
+
+    surveyLocalization.currentLocale = "de";
+    maskInstance.localeChanged();
+    const deSymbols = maskInstance["lexems"].filter(l => l.type !== "separator").map(l => maskInstance.getPlaceholderSymbol(l));
+    expect(deSymbols.join(""), "german symbols, unlocalized roles fall back to english").toBe("TMJhHMstT");
+  });
+
+  test("Placeholder symbols follow the current locale of a mask without a survey", () => {
+    const maskInstance = new InputMaskDateTime();
+    maskInstance.pattern = "dd.mm.yyyy";
+    expect(maskInstance.getMaskedValue(""), "english").toBe("dd.mm.yyyy");
+
+    surveyLocalization.currentLocale = "de";
+    expect(maskInstance.getMaskedValue(""), "german").toBe("TT.MM.JJJJ");
+  });
+
+  test("A canonical pattern renders localized placeholder symbols", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy" });
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.getMaskedValue(""), "english").toBe("dd.mm.yyyy");
+    expect(maskInstance.pattern, "the authored pattern is canonical").toBe("dd.mm.yyyy");
+
+    q.survey.locale = "de";
+    expect(maskInstance.getMaskedValue(""), "german").toBe("TT.MM.JJJJ");
+    expect(maskInstance.pattern, "the authored pattern is not localized").toBe("dd.mm.yyyy");
+  });
+
+  test("Changing survey.locale at runtime updates an empty input", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy" });
+    expect(q.inputValue, "english").toBe("dd.mm.yyyy");
+
+    q.survey.locale = "de";
+    expect(q.inputValue, "german").toBe("TT.MM.JJJJ");
+
+    q.survey.locale = "";
+    expect(q.inputValue, "back to english").toBe("dd.mm.yyyy");
+  });
+
+  test("A partially entered value retains its digits when placeholder symbols change", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy" });
+    q.inputValue = "15.mm.yyyy";
+    expect(q.inputValue, "english").toBe("15.mm.yyyy");
+    expect(q.isEmpty(), "an incomplete value is not stored").toBe(true);
+
+    q.survey.locale = "de";
+    expect(q.inputValue, "german").toBe("15.MM.JJJJ");
+
+    q.survey.locale = "";
+    expect(q.inputValue, "back to english").toBe("15.mm.yyyy");
+  });
+
+  test("getParts accepts both the canonical and the displayed symbol", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy" }, "de");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance._getMaskedValue("15.MM.JJJJ"), "german symbols").toBe("15.MM.JJJJ");
+    expect(maskInstance._getMaskedValue("15.mm.yyyy"), "symbols rendered before the locale switch").toBe("15.MM.JJJJ");
+    expect(maskInstance._getMaskedValue("15.12.JJJJ"), "a filled month").toBe("15.12.JJJJ");
+    expect(maskInstance.getUnmaskedValue("15.12.2024"), "a complete value").toBe("2024-12-15");
+  });
+
+  test("Typing into a german-rendered mask fills the same semantic fields", () => {
+    const enMask = <InputMaskDateTime>createQuestion({ pattern: "dd.mm.yyyy" }).maskSettings;
+    const deMask = <InputMaskDateTime>createQuestion({ pattern: "dd.mm.yyyy" }, "de").maskSettings;
+    const enSteps = typeDigits(enMask, "15122024");
+    const deSteps = typeDigits(deMask, "15122024");
+
+    for (let i = 0; i < enSteps.length; i++) {
+      expect(deSteps[i].value, "displayed value after keystroke #" + i).toBe(enToDeSymbols(enSteps[i].value));
+      expect(deSteps[i].caretPosition, "caret position after keystroke #" + i).toBe(enSteps[i].caretPosition);
+    }
+    expect(deSteps[deSteps.length - 1].value, "the german value").toBe("15.12.2024");
+    expect(deMask.getUnmaskedValue(deSteps[deSteps.length - 1].value), "the unmasked value").toBe("2024-12-15");
+  });
+
+  test("Typing an invalid part is rejected in a german-rendered mask", () => {
+    const deMask = <InputMaskDateTime>createQuestion({ pattern: "dd.mm.yyyy" }, "de").maskSettings;
+    let res = deMask.processInput({ insertedChars: "4", selectionStart: 0, selectionEnd: 0, prevValue: "TT.MM.JJJJ", inputDirection: "forward" });
+    expect(res.value, "4 completes the day").toBe("04.MM.JJJJ");
+    expect(res.caretPosition, "the caret jumps to the month").toBe(3);
+
+    res = deMask.processInput({ insertedChars: "3", selectionStart: 0, selectionEnd: 0, prevValue: "TT.MM.JJJJ", inputDirection: "forward" });
+    expect(res.value, "3 is a valid first digit of a day").toBe("3T.MM.JJJJ");
+    expect(res.caretPosition, "the caret moves").toBe(1);
+
+    res = deMask.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 1, prevValue: "3T.MM.JJJJ", inputDirection: "forward" });
+    expect(res.value, "35 is not a valid day").toBe("3T.MM.JJJJ");
+    expect(res.caretPosition, "the caret does not move").toBe(1);
+  });
+
+  test("A complete value and survey data are identical in both locales", () => {
+    const enQuestion = createQuestion({ pattern: "dd.mm.yyyy" });
+    const deQuestion = createQuestion({ pattern: "dd.mm.yyyy" }, "de");
+    enQuestion.inputValue = "15.12.2024";
+    deQuestion.inputValue = "15.12.2024";
+
+    expect(enQuestion.value, "the english value").toBe("2024-12-15");
+    expect(deQuestion.value, "the german value").toBe("2024-12-15");
+    expect(deQuestion.survey.data, "german survey data").toEqual(enQuestion.survey.data);
+  });
+
+  test("saveMaskedValue stores a locale-independent value", () => {
+    const deQuestion = createQuestion({ pattern: "dd.mm.yyyy", saveMaskedValue: true }, "de");
+    deQuestion.inputValue = "15.MM.JJJJ";
+    expect(deQuestion.inputValue, "the incomplete value is displayed").toBe("15.MM.JJJJ");
+    expect(deQuestion.survey.data, "an incomplete value is not stored").toEqual({});
+
+    deQuestion.inputValue = "15.12.2024";
+    expect(deQuestion.survey.data, "german survey data").toEqual({ q1: "15.12.2024" });
+
+    const enQuestion = createQuestion({ pattern: "dd.mm.yyyy", saveMaskedValue: true });
+    enQuestion.inputValue = "15.12.2024";
+    expect(enQuestion.survey.data, "english survey data").toEqual(deQuestion.survey.data);
+  });
+
+  test("Month and minute are both rendered as M", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy HH:MM" }, "de");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.getMaskedValue(""), "the empty mask").toBe("TT.MM.JJJJ HH:MM");
+    expect(maskInstance.getMaskedValue("2024-12-15T13:45"), "a complete value").toBe("15.12.2024 13:45");
+    expect(maskInstance.getUnmaskedValue("15.12.2024 13:45"), "the unmasked value").toBe("2024-12-15T13:45");
+
+    const steps = typeDigits(maskInstance, "151220241345");
+    expect(steps[steps.length - 1].value, "the typed value").toBe("15.12.2024 13:45");
+    expect(maskInstance._getMaskedValue("15.12.2024 13:MM"), "an entered month with an empty minute").toBe("15.12.2024 13:MM");
+  });
+
+  test("12/24-hour behavior and time markers are unchanged in another locale", () => {
+    const mask12 = <InputMaskDateTime>createQuestion({ pattern: "hh:MM tt" }, "de").maskSettings;
+    expect(mask12.getMaskedValue(""), "the 12-hour empty mask").toBe("hh:MM tt");
+    expect(mask12.getMaskedValue("13:45"), "a pm value").toBe("01:45 pm");
+    expect(mask12.getUnmaskedValue("01:45 pm"), "the unmasked pm value").toBe("13:45");
+
+    const mask12Upper = <InputMaskDateTime>createQuestion({ pattern: "hh:MM TT" }, "de").maskSettings;
+    expect(mask12Upper.getMaskedValue(""), "the upper case empty mask").toBe("hh:MM TT");
+    expect(mask12Upper.getMaskedValue("13:45"), "an upper case pm value").toBe("01:45 PM");
+
+    const mask24 = <InputMaskDateTime>createQuestion({ pattern: "HH:MM" }, "de").maskSettings;
+    expect(mask24.getMaskedValue(""), "the 24-hour empty mask").toBe("HH:MM");
+    expect(mask24.getMaskedValue("13:45"), "a 24-hour value").toBe("13:45");
+  });
+
+  test("An invalid placeholder symbol falls back to the canonical character", () => {
+    const q = createQuestion({ pattern: "dd.mm.yyyy" }, "de");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.getMaskedValue(""), "a valid symbol").toBe("TT.MM.JJJJ");
+
+    germanSurveyStrings["maskPlaceholderDay"] = "1";
+    germanSurveyStrings["maskPlaceholderMonth"] = "Mon";
+    germanSurveyStrings["maskPlaceholderYear"] = "";
+    maskInstance.localeChanged();
+    expect(maskInstance.getMaskedValue(""), "a digit, a multi-character and an empty symbol").toBe("dd.mm.yyyy");
+  });
+
+  test("A time marker symbol that collides with entered data is invalid", () => {
+    const maskInstance = new InputMaskDateTime();
+    maskInstance.pattern = "hh:MM tt";
+    expect(maskInstance["isPlaceholderSymbolValid"]("v", "timeMarkerLower"), "a neutral symbol").toBe(true);
+    expect(maskInstance["isPlaceholderSymbolValid"]("a", "timeMarkerLower"), "cleanTimeMarker treats it as data").toBe(false);
+    expect(maskInstance["isPlaceholderSymbolValid"]("P", "timeMarkerUpper"), "cleanTimeMarker treats it as data").toBe(false);
+    expect(maskInstance["isPlaceholderSymbolValid"]("m", "timeMarkerLower"), "cleanTimeMarker treats it as data").toBe(false);
+    expect(maskInstance["isPlaceholderSymbolValid"]("m", "month"), "a month symbol may be any letter").toBe(true);
   });
 });

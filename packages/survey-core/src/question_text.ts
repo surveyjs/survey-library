@@ -11,7 +11,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
-import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
+import { getAvailableMaskTypeChoices, IInputMask, IMaskLocaleChange } from "./mask/mask_utils";
 import { getRootNode } from "./utils/dom-utils";
 
 /**
@@ -120,21 +120,22 @@ export class QuestionTextModel extends QuestionTextBase {
   public localeChanged(): void {
     super.localeChanged();
     if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
-    // an incomplete entry is not stored in the question value and lives in _inputValue only
-    const enteredText = this.isEmpty() ? this._inputValue : undefined;
+    const state: IMaskLocaleChange = {
+      // an incomplete entry is not stored in the question value and lives in _inputValue only
+      enteredText: this.isEmpty() ? this._inputValue : undefined,
+      // a masked value is stored in the format of the previous locale
+      value: this.maskSettings.saveMaskedValue ? this.value : undefined
+    };
     // Base.localeChanged() does not descend into the maskSettings property. The mask notifies
     // this question and the input element adapter about the change via onPropertyChanged.
-    this.maskSettings.localeChanged();
-    if (!enteredText) return;
-    const res = this.maskInstance.processInput({
-      prevValue: enteredText,
-      insertedChars: "",
-      selectionStart: enteredText.length,
-      selectionEnd: enteredText.length,
-      inputDirection: "forward"
-    });
-    this._inputValue = res.value;
-    this.maskInputAdapter?.updateInputElementText(res.value);
+    this.maskSettings.localeChanged(state);
+    if (!!state.value && state.value !== this.value) {
+      this.value = state.value;
+    }
+    if (!!state.enteredText) {
+      this._inputValue = state.enteredText;
+      this.maskInputAdapter?.updateInputElementText(state.enteredText);
+    }
   }
   private setNewMaskSettingsProperty() {
     this.setPropertyValue("maskSettings", this.createMaskSettings());

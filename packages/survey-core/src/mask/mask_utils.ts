@@ -16,6 +16,15 @@ export interface ITextInputParams {
   inputDirection?: "forward" | "backward";
 }
 
+// Carries the question state that a locale change may have to re-render. The mask reads the
+// values that apply to it and writes back what the question should display and store.
+export interface IMaskLocaleChange {
+  // an incomplete entry, which is displayed but not stored in the question value
+  enteredText?: string;
+  // the stored value, passed only when saveMaskedValue is enabled
+  value?: any;
+}
+
 export interface IInputMask {
   getMaskedValue(src: any): string;
   getUnmaskedValue(src: string): any;

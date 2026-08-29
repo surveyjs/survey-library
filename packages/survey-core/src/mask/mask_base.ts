@@ -2,7 +2,7 @@ import { Base } from "../base";
 import { ISurvey, ISurveyImpl } from "../base-interfaces";
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
-import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
+import { IInputMask, IMaskedInputResult, IMaskLocaleChange, ITextInputParams } from "./mask_utils";
 
 /**
  * A base class for classes that implement input masks:
@@ -24,6 +24,11 @@ export class InputMaskBase extends Base implements IInputMask {
 
   // Indicates that the displayed masked value depends on the survey locale.
   public get isLocaleDependent(): boolean { return false; }
+  // Rebuilds the locale dependent state of the mask. A locale dependent mask updates the passed
+  // state with the text to display and the value to store.
+  public localeChanged(state?: IMaskLocaleChange): void {
+    super.localeChanged();
+  }
 
   public getSurvey(live: boolean = false): ISurvey {
     return this.owner?.getSurvey();

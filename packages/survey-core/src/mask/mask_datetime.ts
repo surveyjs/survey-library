@@ -1,7 +1,9 @@
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { InputMaskPattern } from "./mask_pattern";
-import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
+import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
+import { getLocaleDatePattern } from "./mask_datetime_locale";
+import { surveyLocalization } from "../surveyStrings";
 
 type DateTimeMaskLexemType = "month" | "day" | "year" | "hour" | "minute" | "second" | "timeMarker" | "separator"
 export interface IDateTimeMaskLexem {
@@ -30,6 +32,10 @@ function getDateTimeLexemRole(lexem: IDateTimeMaskLexem): string {
   if (lexem.type === "hour") return lexem.upperCase ? "hour24" : "hour12";
   if (lexem.type === "timeMarker") return lexem.upperCase ? "timeMarkerUpper" : "timeMarkerLower";
   return lexem.type;
+}
+
+export interface IDateTimeInputFragments {
+  [key: string]: string;
 }
 
 interface IInputDateTimeData {
@@ -156,7 +162,8 @@ export class InputMaskDateTime extends InputMaskPattern {
   private defaultDate = "1970-01-01T";
   private turnOfTheCentury = 68;
   private twelve = 12;
-  private lexems: Array<IDateTimeMaskLexem> = [];
+  private lexemsValue: Array<IDateTimeMaskLexem>;
+  private activePatternValue: string;
   private inputDateTimeData: Array<IInputDateTimeData> = [];
   private validBeginningOfNumbers: { [key: string]: any } = {
     hour: 1,
@@ -166,6 +173,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     day: 3,
     month: 1,
   };
+  // "none" keeps the authored pattern; "localeDate" generates a numeric date pattern (field
+  // order and separators) for the current survey locale and falls back to the authored pattern.
+  @property({ defaultValue: "none" }) patternPreset: string;
   /**
    * A minimum date and time value that respondents can enter.
    * @see max
@@ -199,17 +209,84 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.hasTimePart ? "datetime-local" : "datetime";
   }
 
+  // The lexems are built on demand: fromJSON() runs before the mask is attached to a question,
+  // so the survey locale that a preset depends on is not known yet at that moment.
+  private ensureLexems(): void {
+    if (this.lexemsValue !== undefined) return;
+    this.activePatternValue = this.calcActivePattern();
+    this.lexemsValue = getDateTimeLexems(this.activePatternValue || "");
+  }
+  private get lexems(): Array<IDateTimeMaskLexem> {
+    this.ensureLexems();
+    return this.lexemsValue;
+  }
   protected updateLiterals(): void {
-    this.lexems = getDateTimeLexems(this.pattern || "");
+    this.lexemsValue = undefined;
+    this.activePatternValue = undefined;
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "patternPreset") {
+      this.updateLiterals();
+    }
+  }
+  private get patternLocale(): string {
+    return this.getLocale() || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
+  }
+  private calcActivePattern(): string {
+    if (this.patternPreset === "localeDate") {
+      const localePattern = getLocaleDatePattern(this.patternLocale);
+      if (!!localePattern) return localePattern;
+      // the authored pattern stays the fallback when the locale data cannot be resolved
+    }
+    return this.pattern;
+  }
+  // The canonical pattern that the mask currently parses. A preset generates it at runtime for
+  // the survey locale; it is never serialized.
+  public get activePattern(): string {
+    this.ensureLexems();
+    return this.activePatternValue;
+  }
+  public get isLocaleDependent(): boolean { return true; }
+  public localeChanged(state?: IMaskLocaleChange): void {
+    super.localeChanged();
+    const prevPattern = this.activePattern;
+    // captured with the lexems of the previous locale, before they are rebuilt
+    const fragments = !!state && !!state.enteredText ? this.getInputFragments(state.enteredText) : undefined;
+    const savedValue = !!state && !!state.value ? this.getUnmaskedValue(state.value) : undefined;
+    this.updateLiterals();
+    // The empty mask, every unfilled part and the field order are locale dependent. Notify the
+    // owner question and the input element adapter the same way a property change does.
+    this.onPropertyChanged.fire(this, { name: "locale", oldValue: prevPattern, newValue: this.activePattern });
+    if (!!fragments) {
+      state.enteredText = this.getMaskedValueByFragments(fragments);
+    }
+    if (!!savedValue && this.activePattern !== prevPattern) {
+      state.value = this.getMaskedValue(savedValue);
+    }
+  }
+  // Entered characters by semantic role, so that they can be restored into another field order.
+  public getInputFragments(src: string): IDateTimeInputFragments {
+    const res: IDateTimeInputFragments = {};
+    this.setInputDateTimeData(this.getParts(src || ""));
+    this.inputDateTimeData.forEach(inputData => {
+      if (inputData.lexem.type !== "separator" && !!inputData.value) {
+        res[inputData.lexem.type] = inputData.value;
+      }
+    });
+    return res;
+  }
+  public getMaskedValueByFragments(fragments: IDateTimeInputFragments): string {
+    this.initInputDateTimeData();
+    this.inputDateTimeData.forEach(inputData => {
+      const fragment = fragments[inputData.lexem.type];
+      if (fragment !== undefined) {
+        inputData.value = fragment.slice(0, inputData.lexem.maxCount);
+      }
+    });
+    return this.updateAndFormatInputDateTimeData(true);
   }
 
-  public get isLocaleDependent(): boolean { return true; }
-  public localeChanged(): void {
-    super.localeChanged();
-    // The empty mask and every unfilled part are rendered with the placeholder symbols. Notify
-    // the owner question and the input element adapter the same way a property change does.
-    this.onPropertyChanged.fire(this, { name: "placeholderSymbols", oldValue: undefined, newValue: undefined });
-  }
   // The symbol is resolved on every call: it depends on the current locale, not on the pattern.
   public getPlaceholderSymbol(lexem: IDateTimeMaskLexem): string {
     if (!lexem) return "";
@@ -591,12 +668,14 @@ export class InputMaskDateTime extends InputMaskPattern {
             const _matchWholeMask = matchWholeMask || lastItemWithDataIndex > index;
             const data = this.getCorrectDatePartFormat(inputData, _matchWholeMask);
             result += (prevSeparator + data);
+            prevSeparator = "";
             prevIsCompleted = inputData.isCompleted;
           }
           break;
 
         case "separator":
-          prevSeparator = inputData.lexem.value;
+          // a locale literal can be longer than one character ("dd. mm. yyyy")
+          prevSeparator += inputData.lexem.value;
           break;
       }
     }
@@ -642,6 +721,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     let input = (src === undefined || src === null) ? "" : src.toString();
     const inputParts = this.getParts(input);
     this.setInputDateTimeData(inputParts);
+    return this.updateAndFormatInputDateTimeData(matchWholeMask);
+  }
+  private updateAndFormatInputDateTimeData(matchWholeMask: boolean): string {
     const tempDateTime = this.createIDateTimeComposition();
     this.inputDateTimeData.forEach(itemData => {
       if (itemData.lexem.type === "timeMarker") {
@@ -650,8 +732,7 @@ export class InputMaskDateTime extends InputMaskPattern {
         this.updateInputDateTimeData(itemData, tempDateTime);
       }
     });
-    const result = this.getFormatedString(matchWholeMask);
-    return result;
+    return this.getFormatedString(matchWholeMask);
   }
 
   // A part accepts both the canonical pattern character and the current display symbol: the
@@ -660,13 +741,29 @@ export class InputMaskDateTime extends InputMaskPattern {
     if (!lexem) return false;
     return inputChar === lexem.value || inputChar === this.getPlaceholderSymbol(lexem);
   }
+  // The number of separator characters that follow every input part. A locale literal can be
+  // longer than one character ("dd. mm. yyyy"), and such a run splits the input only once.
+  private getSeparatorLengths(): Array<number> {
+    const res: Array<number> = [];
+    let partIndex = -1;
+    this.lexems.forEach(lexem => {
+      if (lexem.type !== "separator") {
+        partIndex++;
+      } else if (partIndex >= 0) {
+        res[partIndex] = (res[partIndex] || 0) + 1;
+      }
+    });
+    return res;
+  }
   private getParts(input: string): Array<string> {
     const inputParts: Array<string> = [];
     const lexemsWithValue = this.lexems.filter(l => l.type !== "separator");
     const separators = this.lexems.filter(l => l.type === "separator").map(s => s.value);
+    const separatorLengths = this.getSeparatorLengths();
     let curPart = "";
     let foundSeparator = false;
     let foundPseudoSeparator = false;
+    let separatorCharsLeft = 0;
     for (let i = 0; i < input.length; i++) {
       const inputChar = input[i];
       if (inputChar.match(numberDefinition) || this.isLexemSymbol(lexemsWithValue[inputParts.length], inputChar)) {
@@ -680,9 +777,15 @@ export class InputMaskDateTime extends InputMaskPattern {
       } else {
         if (separators.indexOf(inputChar) !== -1) {
           if (!foundPseudoSeparator) {
-            foundSeparator = true;
-            inputParts.push(curPart);
-            curPart = "";
+            if (foundSeparator && separatorCharsLeft > 0) {
+              // still inside the same multi-character literal
+              separatorCharsLeft--;
+            } else {
+              foundSeparator = true;
+              separatorCharsLeft = (separatorLengths[inputParts.length] || 1) - 1;
+              inputParts.push(curPart);
+              curPart = "";
+            }
           }
         } else {
           if (!foundSeparator) {
@@ -752,17 +855,22 @@ Serializer.addClass(
   "datetimemask",
   [
     {
+      name: "patternPreset",
+      default: "none",
+      choices: ["none", "localeDate"]
+    },
+    {
       name: "min",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.pattern;
+        return !!obj.activePattern;
       }
     },
     {
       name: "max",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.pattern;
+        return !!obj.activePattern;
       }
     }
   ],

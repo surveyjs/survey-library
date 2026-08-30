@@ -183,3 +183,107 @@ describe("the finding carries what a host needs to compose its own message", () 
     expect(findings[0].messageData.constants).toEqual({ c1: 2 });
   });
 });
+
+describe("an expression question is a constant source too", () => {
+  function withExpressionQuestion(source: any, condition: string): any {
+    return {
+      elements: [
+        Object.assign({ type: "expression", name: "total" }, source),
+        { type: "text", name: "q2", visibleIf: condition },
+      ],
+    };
+  }
+  test("its expression decides the condition", () => {
+    expect(verdictOf(withExpressionQuestion({ expression: "10" }, "{total} > 100"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+    expect(verdictOf(withExpressionQuestion({ expression: "10" }, "{total} = 10"))).toEqual(
+      { ruleId: "expression/meaningless-condition", reason: "alwaysTrueViaConstants" });
+  });
+  test("it is addressed by its valueName when it has one", () => {
+    expect(verdictOf(withExpressionQuestion(
+      { expression: "10", valueName: "sum" }, "{sum} > 100"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+  test("a calculated value may be built on it", () => {
+    expect(verdictOf({
+      calculatedValues: [{ name: "c1", expression: "{total} * 2" }],
+      elements: [
+        { type: "expression", name: "total", expression: "10" },
+        { type: "text", name: "q2", visibleIf: "{c1} = 5" },
+      ],
+    })).toEqual({ ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+});
+
+describe("a source that can be hidden proves nothing about alwaysTrue", () => {
+  // clearInvisibleValues: "onHidden" wipes the value of a hidden question, and then the
+  // condition the linter called always true is false at runtime. "Never holds" survives that.
+  function hidden(source: any, condition: string): any {
+    return {
+      elements: [
+        Object.assign({ type: "expression", name: "total", expression: "10" }, source),
+        { type: "text", name: "q2", visibleIf: condition },
+      ],
+    };
+  }
+  test("a source with visibleIf still proves a contradiction", () => {
+    expect(verdictOf(hidden({ visibleIf: "{q2} notempty" }, "{total} = 99"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+  test("a source with visibleIf never proves alwaysTrue", () => {
+    expect(verdictOf(hidden({ visibleIf: "{q2} notempty" }, "{total} = 10"))).toBeUndefined();
+  });
+  test("visible: false counts the same way", () => {
+    expect(verdictOf(hidden({ visible: false }, "{total} = 10"))).toBeUndefined();
+  });
+  test("a hidden ancestor counts too", () => {
+    expect(verdictOf({
+      elements: [{
+        type: "panel", name: "p1", visibleIf: "{q2} notempty",
+        elements: [{ type: "expression", name: "total", expression: "10" }],
+      }, { type: "text", name: "q2", visibleIf: "{total} = 10" }],
+    })).toBeUndefined();
+  });
+});
+
+describe("an expression question that is not a constant source", () => {
+  test("one a trigger can overwrite", () => {
+    expect(verdictOf({
+      elements: [
+        { type: "expression", name: "total", expression: "10" },
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{total} = 99" },
+      ],
+      triggers: [{ type: "setvalue", expression: "{q1} notempty", setToName: "total", setValue: 99 }],
+    })).toBeUndefined();
+  });
+  test("one carrying a value of its own", () => {
+    ["defaultValue", "defaultValueExpression", "setValueExpression"].forEach(prop => {
+      const source: any = { expression: "10" };
+      source[prop] = prop === "defaultValue" ? 99 : "99";
+      expect(verdictOf({
+        elements: [
+          Object.assign({ type: "expression", name: "total" }, source),
+          { type: "text", name: "q2", visibleIf: "{total} = 99" },
+        ],
+      })).toBeUndefined();
+    });
+  });
+  test("one inside a dynamic panel, whose name is not addressable from outside", () => {
+    expect(verdictOf({
+      elements: [{
+        type: "paneldynamic", name: "pd",
+        templateElements: [{ type: "expression", name: "total", expression: "10" }],
+      }, { type: "text", name: "q2", visibleIf: "{total} = 99" }],
+    })).toBeUndefined();
+  });
+  test("one whose name is taken by another question", () => {
+    expect(verdictOf({
+      elements: [
+        { type: "expression", name: "total", expression: "10" },
+        { type: "text", name: "total" },
+        { type: "text", name: "q2", visibleIf: "{total} = 99" },
+      ],
+    })).toBeUndefined();
+  });
+});

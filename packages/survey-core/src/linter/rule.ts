@@ -96,10 +96,10 @@ export class LintContext {
     if (!!core) return { verdict: core };
     const fold = foldCondition(site, this.getConstantEnv());
     if (!fold) return {};
-    return {
-      verdict: !!fold.value ? "alwaysTrueViaConstants" : "alwaysFalseViaConstants",
-      fold: fold,
-    };
+    if (!fold.value) return { verdict: "alwaysFalseViaConstants", fold: fold };
+    // "always holds" needs the value to be there at all: a source that can be hidden loses it
+    if (fold.used.some(source => !source.allowsAlwaysTrue)) return {};
+    return { verdict: "alwaysTrueViaConstants", fold: fold };
   }
   public setCurrentRule(ruleId: string, severity: LintFindingSeverity): void {
     this.currentRuleId = ruleId;

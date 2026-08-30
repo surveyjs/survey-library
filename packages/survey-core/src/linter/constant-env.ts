@@ -1,16 +1,22 @@
 import { ProcessValue, Variable, VariableGetterContext } from "survey-core";
 import { classifySiteRefs, splitRefSegments } from "./expression-utils";
 import {
-  CIMap, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
+  CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
 import { ISurveyLintOptions } from "./types";
 
 export interface ConstantSource {
+  // the name a condition addresses the source by: a valueName when the question has one
   name: string;
   // the path of the expression that makes the source constant, for the "related" of a finding
   path: string;
   expression: string;
   value: any;
+  // unset for a calculated value; set for the question that produces the value
+  record?: ElementRecord;
+  // false when the source can be hidden: a hidden question loses its value under
+  // clearInvisibleValues, so such a source can prove "never holds" but not "always holds"
+  allowsAlwaysTrue: boolean;
 }
 
 export interface ConstantEnv {
@@ -23,6 +29,35 @@ export interface ConstantEnv {
 export interface FoldedCondition {
   value: any;
   used: Array<ConstantSource>;
+}
+
+interface Candidate {
+  name: string;
+  site: ExpressionSite;
+  expression: string;
+  record?: ElementRecord;
+  allowsAlwaysTrue: boolean;
+}
+
+// Properties that give an element a value of its own, next to the one its expression computes.
+const OWN_VALUE_PROPS = ["defaultValue", "defaultValueExpression", "setValueExpression", "setValueIf"];
+
+function hasOwnValue(json: any): boolean {
+  if (!json) return false;
+  return OWN_VALUE_PROPS.some(prop => json[prop] !== undefined && json[prop] !== null && json[prop] !== "");
+}
+
+function canBeHidden(record: ElementRecord): boolean {
+  let current = record;
+  while(!!current) {
+    const json = current.json;
+    if (!!json) {
+      if (json.visible === false) return true;
+      if (typeof json.visibleIf === "string" && json.visibleIf.trim() !== "") return true;
+    }
+    current = current.parent;
+  }
+  return false;
 }
 
 // The names a trigger can write to. A source the author can overwrite at runtime is not a
@@ -39,21 +74,57 @@ function collectTriggerTargets(index: SurveyIndex): CIMap<boolean> {
   return res;
 }
 
-// A name registered twice is ambiguous: one declaration shadows the other, name/duplicate
-// reports that, and folding either of them would be a guess.
+// A name declared twice is ambiguous: one declaration shadows the other, name/duplicate reports
+// that, and folding either of them would be a guess. Counting every declaration - elements,
+// valueNames and calculated values alike - keeps the rule the same for all of them.
 function collectAmbiguousNames(index: SurveyIndex): CIMap<boolean> {
-  const res = new CIMap<boolean>();
+  const counts = new CIMap<number>();
+  const bump = (name: string) => {
+    if (!name) return;
+    counts.set(name, (counts.get(name) || 0) + 1);
+  };
+  index.byName.forEach((values, name) => values.forEach(() => bump(name)));
+  index.byValueName.forEach((values, name) => values.forEach(() => bump(name)));
   const json = index.json;
   if (Array.isArray(json.calculatedValues)) {
-    const seen = new CIMap<boolean>();
     json.calculatedValues.forEach((cv: any) => {
-      if (!cv || typeof cv !== "object" || typeof cv.name !== "string") return;
-      if (seen.has(cv.name)) res.set(cv.name, true);
-      seen.set(cv.name, true);
+      if (!!cv && typeof cv === "object" && typeof cv.name === "string") bump(cv.name);
     });
   }
-  index.calculatedValues.forEach((_, name) => {
-    if (index.byName.has(name) || index.byValueName.has(name)) res.set(name, true);
+  const res = new CIMap<boolean>();
+  counts.forEach((count, name) => {
+    if (count > 1) res.set(name, true);
+  });
+  return res;
+}
+
+function collectCandidates(index: SurveyIndex): Array<Candidate> {
+  const res: Array<Candidate> = [];
+  index.calculatedValues.forEach(record => {
+    if (!record.site) return;
+    res.push({
+      name: record.name, site: record.site, expression: record.expression,
+      allowsAlwaysTrue: true,
+    });
+  });
+  // An expression question is recomputed by the runtime the way a calculated value is, but only
+  // its own "expression" property makes it one, and only at the top level: a name nested in a
+  // matrix or a dynamic panel is not what {name} addresses from outside.
+  const siteByOwner = new Map<ElementRecord, ExpressionSite>();
+  index.expressionSites.forEach(site => {
+    if (site.kind !== "expression" || site.prop !== "expression" || !site.owner) return;
+    if (!siteByOwner.has(site.owner)) siteByOwner.set(site.owner, site);
+  });
+  index.allElements.forEach(record => {
+    if (record.kind !== "question" || record.type !== "expression") return;
+    if (!!record.scope && record.scope.length > 0) return;
+    if (hasOwnValue(record.json)) return;
+    const site = siteByOwner.get(record);
+    if (!site) return;
+    res.push({
+      name: record.valueName || record.name, site: site, expression: site.text,
+      record: record, allowsAlwaysTrue: !canBeHidden(record),
+    });
   });
   return res;
 }
@@ -63,8 +134,8 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
   const triggerTargets = collectTriggerTargets(index);
   const ambiguous = collectAmbiguousNames(index);
   // null-proto: the keys are user names, and VariableGetterContext walks them with for-in.
-  // The hash is handed to ProcessValue by reference, so filling it in later is what makes
-  // an already-resolved source visible to the sources resolved after it.
+  // The hash is handed to ProcessValue by reference, so filling it in later is what makes an
+  // already-resolved source visible to the sources resolved after it.
   const values: { [name: string]: any } = Object.create(null);
   const env: ConstantEnv = {
     index: index,
@@ -72,17 +143,19 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
     sources: sources,
     processValue: new ProcessValue(new VariableGetterContext(values)),
   };
+  const candidates = collectCandidates(index).filter(candidate =>
+    !triggerTargets.has(candidate.name) && !ambiguous.has(candidate.name));
 
-  // A source may be constant only because another one is, and the JSON is under no obligation
-  // to declare them in that order - so keep resolving until a pass adds nothing. A cycle never
+  // A source may be constant only because another one is, and the JSON is under no obligation to
+  // declare them in that order - so keep resolving until a pass adds nothing. A cycle never
   // settles and simply stays unresolved, which is what cycle/calculated-value reports.
   let added = true;
   while(added) {
     added = false;
-    index.calculatedValues.forEach((record, name) => {
-      if (sources.has(name) || triggerTargets.has(name) || ambiguous.has(name)) return;
-      const site = record.site;
-      if (!site || !site.ast || !!site.parseError) return;
+    candidates.forEach(candidate => {
+      if (sources.has(candidate.name)) return;
+      const site = candidate.site;
+      if (!site.ast || !!site.parseError) return;
       // a call is never constant, and nothing registered by the application runs at lint time
       if (site.ast.hasFunction()) return;
       const refs = classifySiteRefs(site, index, options);
@@ -93,10 +166,11 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
       } catch{
         return;
       }
-      sources.set(name, {
-        name: record.name, path: site.path, expression: record.expression, value: value,
+      sources.set(candidate.name, {
+        name: candidate.name, path: site.path, expression: candidate.expression, value: value,
+        record: candidate.record, allowsAlwaysTrue: candidate.allowsAlwaysTrue,
       });
-      values[record.name] = value;
+      values[candidate.name] = value;
       added = true;
     });
   }
@@ -115,12 +189,18 @@ function isShadowedByScope(name: string, scope: Array<ScopeFrame>): boolean {
   });
 }
 
+// The reference must resolve to the very declaration the source was built from: a name that
+// resolves elsewhere is a different value, however familiar it looks.
 function getFoldableSource(ref: ParsedRef, site: ExpressionSite, env: ConstantEnv): ConstantSource | undefined {
-  if (ref.status !== "resolved" || ref.resolvedKind !== "calculatedValue") return undefined;
+  if (ref.status !== "resolved") return undefined;
   if (ref.segments.length !== 1 || ref.segments[0].index !== undefined) return undefined;
   const name = ref.segments[0].name;
   if (isShadowedByScope(name, site.scope)) return undefined;
-  return env.sources.get(name);
+  const source = env.sources.get(name);
+  if (!source) return undefined;
+  if (ref.resolvedKind === "calculatedValue") return !source.record ? source : undefined;
+  if (ref.resolvedKind === "element") return ref.resolvedTo === source.record ? source : undefined;
+  return undefined;
 }
 
 // The English fragment naming what decided the condition, shared by the two condition rules.

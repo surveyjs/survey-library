@@ -61,6 +61,8 @@ export const SurveyLintReasons = Object.freeze({
     alwaysFalse: "alwaysFalse",
     // the constants are reached through a reference, e.g. a calculated value of "1 + 1"
     alwaysFalseViaConstants: "alwaysFalseViaConstants",
+    // no value the question is allowed to hold satisfies the comparison
+    outOfRange: "outOfRange",
   }),
   "expression/meaningless-condition": Object.freeze({
     alwaysTrue: "alwaysTrue",

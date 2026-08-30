@@ -208,6 +208,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "expression/contradiction", reason: "outOfRange",
+    json: {
+      elements: [
+        { type: "text", name: "age", inputType: "number", min: 1, max: 5 },
+        { type: "text", name: "q1", visibleIf: "{age} > 10" },
+      ],
+    },
+  },
+  {
     ruleId: "expression/meaningless-condition", reason: "alwaysTrue",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 1" }] },
   },

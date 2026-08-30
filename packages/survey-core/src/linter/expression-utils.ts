@@ -642,12 +642,13 @@ export function buildTriggerSetStep(trigger: TriggerRecord, operators?: { [op: s
 
 export type ConditionSemanticsVerdict =
   "alwaysFalse" | "alwaysTrue" | "notABoolean" | "meaninglessFragment" |
-  "alwaysFalseViaConstants" | "alwaysTrueViaConstants";
+  "alwaysFalseViaConstants" | "alwaysTrueViaConstants" | "outOfRange";
 
 // A condition that can never hold, however that was established. Rules that act on
 // unreachability test this instead of listing the verdicts themselves.
 export function isAlwaysFalseVerdict(verdict: ConditionSemanticsVerdict | undefined): boolean {
-  return verdict === "alwaysFalse" || verdict === "alwaysFalseViaConstants";
+  return verdict === "alwaysFalse" || verdict === "alwaysFalseViaConstants" ||
+    verdict === "outOfRange";
 }
 
 // The verdict the core's own semantic check gives a condition, refined into which defect it is.

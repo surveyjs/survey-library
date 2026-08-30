@@ -4,9 +4,8 @@ import {
 import { ExpressionSite, SurveyIndex } from "./symbols";
 import { LintMetadata } from "./metadata";
 import { ConditionSemanticsVerdict, ConstResolver, getConditionSemanticsVerdict } from "./expression-utils";
-import {
-  buildConstantEnv, ConstantEnv, FoldedCondition, foldCondition, getConstResolver,
-} from "./constant-env";
+import { buildConstantEnv, ConstantEnv } from "./constant-env";
+import { FoldedCondition, foldCondition, getConstResolver } from "./condition-eval";
 
 export interface ILintRule {
   id: string;
@@ -101,7 +100,11 @@ export class LintContext {
     if (!!core) return { verdict: core };
     const fold = foldCondition(site, this.getConstantEnv());
     if (!fold) return {};
-    if (!fold.value) return { verdict: "alwaysFalseViaConstants", fold: fold };
+    if (!fold.value) {
+      // the bounds of a question are the more concrete explanation when both took part
+      const verdict = fold.ranges.length > 0 ? "outOfRange" : "alwaysFalseViaConstants";
+      return { verdict: verdict, fold: fold };
+    }
     // "always holds" needs the value to be there at all: a source that can be hidden loses it
     if (fold.used.some(source => !source.allowsAlwaysTrue)) return {};
     return { verdict: "alwaysTrueViaConstants", fold: fold };

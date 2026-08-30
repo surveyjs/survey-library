@@ -54,7 +54,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
         const ref = getRef(match.variable);
         if (!ref) return;
         const domain = getValueDomain(ref, ctx.index);
-        if (!domain) return;
+        // a range says which values are allowed, not which ones exist: expression/contradiction
+        // is the rule that reads it
+        if (!domain || domain.kind !== "set") return;
         const record = domain.record;
         // containsCore (expressions.ts) does substring matching when the question
         // value is a scalar (numbers are stringified too): "{q} contains 'apr'" is

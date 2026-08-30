@@ -1,11 +1,17 @@
 import { ILintRule, LintContext } from "../rule";
 import { classifyTargetName } from "../expression-utils";
-import { getRecordValueDomain, getValueDomain, runtimeEquals, ValueDomain } from "../value-domain";
+import { getRecordValueDomain, getValueDomain, runtimeEquals, ValueDomain, ValueSetDomain } from "../value-domain";
 import { ElementRecord, SurveyIndex, TriggerRecord } from "../symbols";
 import { ISurveyLintOptions } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["value/not-a-choice"];
+
+// A range constrains a value without listing the ones that exist, so it says nothing about a
+// value being alien - only expression/contradiction reads it.
+function asSet(domain: ValueDomain | undefined): ValueSetDomain | undefined {
+  return !!domain && domain.kind === "set" ? domain : undefined;
+}
 
 // An empty value clears the answer and a boolean one is a switch, not a choice: neither says
 // anything about the set of values. The same filter expression/unknown-choice applies.
@@ -17,25 +23,25 @@ function toValueList(value: any): Array<any> {
   return Array.isArray(value) ? value : [value];
 }
 
-function findAlienValues(value: any, domain: ValueDomain): Array<any> {
+function findAlienValues(value: any, domain: ValueSetDomain): Array<any> {
   return toValueList(value).filter(item => isCheckable(item) &&
     !domain.values.some(allowed => runtimeEquals(allowed, item)));
 }
 
 // The question a trigger writes into: a plain name, or a matrix cell whose column owns the set.
 // An unresolvable target is trigger/unknown-target territory, not this rule.
-function getTargetDomain(name: string, index: SurveyIndex, options: ISurveyLintOptions): ValueDomain | undefined {
+function getTargetDomain(name: string, index: SurveyIndex, options: ISurveyLintOptions): ValueSetDomain | undefined {
   const ref = classifyTargetName(name, index, options);
   if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
-  if (ref.segments.length === 1) return getRecordValueDomain(ref.resolvedTo, index);
+  if (ref.segments.length === 1) return asSet(getRecordValueDomain(ref.resolvedTo, index));
   const columns = ref.resolvedTo.matrixColumns;
-  if (ref.segments.length !== 2 || !columns) return getValueDomain(ref, index);
+  if (ref.segments.length !== 2 || !columns) return asSet(getValueDomain(ref, index));
   const column = columns.first(ref.segments[1].name);
-  return !!column ? getRecordValueDomain(column, index) : undefined;
+  return !!column ? asSet(getRecordValueDomain(column, index)) : undefined;
 }
 
 function reportAlien(ctx: LintContext, params: {
-  values: Array<any>, domain: ValueDomain, path: string, prop: string, reason: string,
+  values: Array<any>, domain: ValueSetDomain, path: string, prop: string, reason: string,
   owner: string, ownerType: string, subject: string,
 }): void {
   const listed = params.domain.listed.map(v => "\"" + String(v) + "\"").join(", ");
@@ -62,7 +68,7 @@ function reportAlien(ctx: LintContext, params: {
 function checkElementProp(ctx: LintContext, record: ElementRecord, prop: string, reason: string): void {
   const value = record.json ? record.json[prop] : undefined;
   if (value === undefined) return;
-  const domain = getRecordValueDomain(record, ctx.index);
+  const domain = asSet(getRecordValueDomain(record, ctx.index));
   if (!domain) return;
   const alien = findAlienValues(value, domain);
   if (alien.length === 0) return;

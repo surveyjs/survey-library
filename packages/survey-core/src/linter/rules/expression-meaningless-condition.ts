@@ -1,4 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
+import { isAlwaysFalseVerdict } from "../expression-utils";
 import {
   ConstantSource, describeConstants, toConstantsData, toConstantsRelated,
 } from "../constant-env";
@@ -33,7 +34,7 @@ export const expressionMeaninglessConditionRule: ILintRule = {
   run(ctx: LintContext): void {
     ctx.index.expressionSites.forEach(site => {
       const { verdict, fold } = ctx.getConditionVerdict(site);
-      if (!verdict || verdict === "alwaysFalse" || verdict === "alwaysFalseViaConstants") return;
+      if (!verdict || isAlwaysFalseVerdict(verdict)) return;
       const messageData: { [key: string]: any } = { expression: site.text, prop: site.prop };
       if (verdict === reasons.alwaysTrue || verdict === reasons.alwaysTrueViaConstants) {
         messageData.value = true;

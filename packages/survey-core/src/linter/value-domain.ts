@@ -13,7 +13,35 @@ export interface ValueSetDomain {
   listed: Array<any>;
 }
 
-export type ValueDomain = ValueSetDomain;
+// The bounds a question keeps its value inside. Not a validator: canSetValueToSurvey refuses
+// to write a value outside min/max into the survey data, so a condition asking for one never
+// holds. Only "never holds" is concluded - an unanswered question makes any comparison false,
+// so nothing here can prove that a condition always holds.
+export interface ValueRangeDomain {
+  kind: "range";
+  record: ElementRecord;
+  min?: any;
+  max?: any;
+}
+
+export type ValueDomain = ValueSetDomain | ValueRangeDomain;
+
+// time and week are excluded on purpose: the runtime compares them with its own arithmetic
+// (getWeekTimeNumber), which a plain operator call does not reproduce.
+const RANGE_INPUT_TYPES: { [inputType: string]: boolean } = {
+  number: true, range: true, date: true, "datetime-local": true, month: true,
+};
+
+function getTextRangeDomain(record: ElementRecord): ValueDomain | undefined {
+  const json = record.json;
+  if (!json || !RANGE_INPUT_TYPES[(json.inputType || "text").toLowerCase()]) return undefined;
+  // a bound computed at runtime is unknown while linting
+  if (json.minValueExpression !== undefined || json.maxValueExpression !== undefined) return undefined;
+  const min = json.min;
+  const max = json.max;
+  if (min === undefined && max === undefined) return undefined;
+  return { kind: "range", record: record, min: min, max: max };
+}
 
 function toDomain(record: ElementRecord, values: Array<any>, listed?: Array<any>): ValueDomain | undefined {
   if (values.length === 0) return undefined;
@@ -58,6 +86,7 @@ export function getRecordValueDomain(record: ElementRecord, index: SurveyIndex):
   }
   if (record.type === "rating") return toDomain(record, getStaticChoiceValues(record.json ? record.json.rateValues : undefined));
   if (record.type === "boolean") return getBooleanDomain(record);
+  if (record.type === "text") return getTextRangeDomain(record);
   return undefined;
 }
 
@@ -77,4 +106,8 @@ export function getValueDomain(ref: ParsedRef, index: SurveyIndex): ValueDomain 
 // numeric conversion all behave as they do at runtime.
 export function runtimeEquals(a: any, b: any): boolean {
   return runBinaryOperator("equal", a, b) === true;
+}
+
+export function runtimeGreater(a: any, b: any): boolean {
+  return runBinaryOperator("greater", a, b) === true;
 }

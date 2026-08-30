@@ -32,6 +32,43 @@ const RANGE_INPUT_TYPES: { [inputType: string]: boolean } = {
   number: true, range: true, date: true, "datetime-local": true, month: true,
 };
 
+// The defaults of the model, which apply whenever the JSON states nothing: a rating runs 1..5
+// with a step of 1, a slider 0..100. They are as real as a written bound - the control offers
+// nothing outside them.
+const RATING_DEFAULTS = { min: 1, max: 5, step: 1 };
+const SLIDER_DEFAULTS = { min: 0, max: 100 };
+
+function toNumber(value: any, fallback: number): number {
+  return typeof value === "number" && isFinite(value) ? value : fallback;
+}
+
+function getRatingRangeDomain(record: ElementRecord): ValueDomain | undefined {
+  const json = record.json || {};
+  const min = toNumber(json.rateMin, RATING_DEFAULTS.min);
+  if (json.rateMax !== undefined) {
+    return { kind: "range", record: record, min: min, max: toNumber(json.rateMax, RATING_DEFAULTS.max) };
+  }
+  // rateCount and rateMax describe the same upper bound; the model recomputes one from the other
+  if (json.rateCount !== undefined) {
+    const step = toNumber(json.rateStep, RATING_DEFAULTS.step);
+    const count = toNumber(json.rateCount, RATING_DEFAULTS.max);
+    return { kind: "range", record: record, min: min, max: min + step * (count - 1) };
+  }
+  return { kind: "range", record: record, min: min, max: RATING_DEFAULTS.max };
+}
+
+function getSliderRangeDomain(record: ElementRecord): ValueDomain | undefined {
+  const json = record.json || {};
+  // a range slider answers with a pair of values, which no single bound describes
+  if (json.sliderType === "range") return undefined;
+  return {
+    kind: "range",
+    record: record,
+    min: toNumber(json.min, SLIDER_DEFAULTS.min),
+    max: toNumber(json.max, SLIDER_DEFAULTS.max),
+  };
+}
+
 function getTextRangeDomain(record: ElementRecord): ValueDomain | undefined {
   const json = record.json;
   if (!json || !RANGE_INPUT_TYPES[(json.inputType || "text").toLowerCase()]) return undefined;
@@ -84,9 +121,13 @@ export function getRecordValueDomain(record: ElementRecord, index: SurveyIndex):
     return toDomain(record, info.staticValues.concat(getSpecialChoiceValues(info, index.settings)),
       info.staticValues);
   }
-  if (record.type === "rating") return toDomain(record, getStaticChoiceValues(record.json ? record.json.rateValues : undefined));
+  if (record.type === "rating") {
+    const listed = toDomain(record, getStaticChoiceValues(record.json ? record.json.rateValues : undefined));
+    return listed || getRatingRangeDomain(record);
+  }
   if (record.type === "boolean") return getBooleanDomain(record);
   if (record.type === "text") return getTextRangeDomain(record);
+  if (record.type === "slider") return getSliderRangeDomain(record);
   return undefined;
 }
 

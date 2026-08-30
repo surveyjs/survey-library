@@ -95,3 +95,49 @@ describe("a comparison the range cannot decide", () => {
     }, "expression/type-mismatch")).toHaveLength(1);
   });
 });
+
+describe("a rating keeps its value between its bounds", () => {
+  test("the built-in bounds count, even when the JSON states none", () => {
+    expect(rangeVerdictOf({ type: "rating" }, "{v} = 7"))
+      .toBe("expression/contradiction/outOfRange");
+    expect(rangeVerdictOf({ type: "rating" }, "{v} = 3")).toBeUndefined();
+  });
+  test("rateMax moves the upper bound", () => {
+    expect(rangeVerdictOf({ type: "rating", rateMax: 10 }, "{v} = 7")).toBeUndefined();
+    expect(rangeVerdictOf({ type: "rating", rateMax: 10 }, "{v} > 10"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("rateCount sets the upper bound when rateMax does not", () => {
+    // rateMax = rateMin + rateStep * (rateCount - 1), the way the model recomputes it
+    expect(rangeVerdictOf({ type: "rating", rateCount: 3 }, "{v} = 5"))
+      .toBe("expression/contradiction/outOfRange");
+    expect(rangeVerdictOf({ type: "rating", rateCount: 3 }, "{v} = 3")).toBeUndefined();
+  });
+  test("rateMin moves the lower bound", () => {
+    expect(rangeVerdictOf({ type: "rating", rateMin: 0 }, "{v} = 0")).toBeUndefined();
+    expect(rangeVerdictOf({ type: "rating", rateMin: 2 }, "{v} = 1"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("rateValues make it a set, and the set rule reports it", () => {
+    expect(rangeVerdictOf({ type: "rating", rateValues: [1, 2, 3] }, "{v} = 7")).toBeUndefined();
+    expect(findingsOf({
+      elements: [{ type: "rating", name: "v", rateValues: [1, 2, 3] },
+        { type: "text", name: "guarded", visibleIf: "{v} = 7" }],
+    }, "expression/unknown-choice")).toHaveLength(1);
+  });
+});
+
+describe("a slider keeps its value between its bounds", () => {
+  test("the built-in 0..100 counts", () => {
+    expect(rangeVerdictOf({ type: "slider" }, "{v} > 200"))
+      .toBe("expression/contradiction/outOfRange");
+    expect(rangeVerdictOf({ type: "slider" }, "{v} > 50")).toBeUndefined();
+  });
+  test("min and max move them", () => {
+    expect(rangeVerdictOf({ type: "slider", min: 10, max: 20 }, "{v} < 5"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("a range slider holds an array, not a number", () => {
+    expect(rangeVerdictOf({ type: "slider", sliderType: "range" }, "{v} > 200")).toBeUndefined();
+  });
+});

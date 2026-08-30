@@ -148,7 +148,7 @@ interface ISurveyLintOptions {
 | `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
 | `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
 | `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
-| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition that evaluates to false because every operand deciding it is known at authoring time - written inline, or reached through a reference to a constant source. |
+| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition that evaluates to false because everything deciding it is known while authoring - constants written inline, a reference to a constant source, or a comparison no value the question is allowed to hold can satisfy. |
 | `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
 | `value/not-a-choice` | warning | A value written in the JSON that its question can never hold: a `defaultValue`, a `correctAnswer`, or the `setValue` of a `setvalue` trigger. The same sets of values as `expression/unknown-choice`, checked from the other side. |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. |
@@ -186,6 +186,14 @@ interface ISurveyLintOptions {
   left alone. A `defaultValue` outside the choices is a deliberate legacy value, so it widens what
   a *condition* may compare against — but it is exactly what `value/not-a-choice` reports, which
   is why the domain itself does not carry it.
+* **Bounds.** A question that keeps its value between two bounds — `min`/`max` on a numeric or
+  date `text`, `rateMin`/`rateMax`/`rateCount` on a rating, `min`/`max` on a slider — rules out
+  the comparisons no allowed value satisfies: `visibleIf: "{age} > 10"` against `max: 5` never
+  holds. These are not merely validators — `canSetValueToSurvey` refuses to write an out-of-range
+  value into the survey data — but the reasoning runs one way only: an unanswered question makes
+  any comparison false, so bounds can prove that a condition *never* holds and never that it
+  always does. `inputType: "time"` and `"week"` are left out, since the runtime compares them
+  with its own arithmetic, and so is a bound given as `minValueExpression`/`maxValueExpression`.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,

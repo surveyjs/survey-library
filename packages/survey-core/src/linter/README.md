@@ -148,7 +148,7 @@ interface ISurveyLintOptions {
 | `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
 | `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
 | `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
-| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition that evaluates to false because everything deciding it is known while authoring - constants written inline, a reference to a constant source, or a comparison no value the question is allowed to hold can satisfy. |
+| `expression/contradiction` | warning | A condition that can never hold: one that evaluates to false from constants written inline or reached through a reference, one asking for a value the question is not allowed to hold, and one that contradicts itself (`{q} = 'a' and {q} = 'b'`, `{q} empty and {q} notempty`, bounds with nothing between them, `anyof []`). |
 | `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
 | `value/not-a-choice` | warning | A value written in the JSON that its question can never hold: a `defaultValue`, a `correctAnswer`, or the `setValue` of a `setvalue` trigger. The same sets of values as `expression/unknown-choice`, checked from the other side. |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. |
@@ -194,6 +194,15 @@ interface ISurveyLintOptions {
   any comparison false, so bounds can prove that a condition *never* holds and never that it
   always does. `inputType: "time"` and `"week"` are left out, since the runtime compares them
   with its own arithmetic, and so is a bound given as `minValueExpression`/`maxValueExpression`.
+* **Conditions that contradict themselves.** Within one `and` chain, two requirements on the
+  same reference that cannot both hold — two different values, a value and its negation,
+  `empty` next to `notempty` or next to a value, a lower bound at or above an upper one, a value
+  outside a bound the same condition states — make the condition unreachable. Only an `and`
+  chain is taken apart: the branches of an `or` are alternatives. Tautologies are deliberately
+  not reported: `{q} = 'a' or {q} <> 'a'` is false for an unanswered question, so it is not
+  always true. The three mechanisms compose without knowing about each other, because each of
+  them settles a leaf of the same three-valued walk: `{age} > 3 and {age} > 10` against
+  `max: 5` is caught by the bounds of the question, not by the two conjuncts.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
@@ -220,17 +229,18 @@ always `2`. Such findings carry their own reasons (`alwaysFalseViaConstants`,
 `alwaysTrueViaConstants`), and the core's verdict wins whenever it has one — it names the more
 specific defect.
 
-`expression/contradiction` is the first instalment of the reachability group of #11693. It is
-named for the whole defect, so the satisfiability reasoning that group asks for extends this rule
-later instead of needing a new id.
+`expression/contradiction` is named for the whole defect rather than for one way of establishing
+it, which is why the satisfiability reasoning of the reachability group of #11693 extended it
+under new reasons instead of needing a new rule id.
 
 ## Limits
 
 * No runtime data: a defect that appears only for a particular set of answers is out of scope,
-  and conditions are not solved (a `cycle/trigger` loop may be unreachable — the message says so).
-  A condition decided entirely by values known while authoring is the exception: it has no answers
-  to depend on, so it is evaluated. `{q} = 'a' and {q} = 'b'` is a contradiction that needs
-  satisfiability and is not reported yet.
+  and a `cycle/trigger` loop may be unreachable — the message says so. A condition decided
+  entirely by what is known while authoring is the exception: it has no answers to depend on, so
+  it is evaluated. The satisfiability reasoning stays deliberately shallow — one reference at a
+  time, within one `and` chain — so a contradiction spread across several references, or one that
+  only holds for whole numbers, is not reported.
 * A custom question type without a `components` entry is analysed as an opaque element.
 * A custom trigger type is not covered by the target and cycle checks.
 

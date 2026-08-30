@@ -150,3 +150,38 @@ describe("a comparison against an empty set", () => {
     expect(findings[0].message).toContain("no value at all");
   });
 });
+
+describe("the bounds of a question and the ones a condition states work together", () => {
+  function withBounded(condition: string): any {
+    return {
+      elements: [
+        { type: "text", name: "age", inputType: "number", min: 1, max: 5 },
+        { type: "text", name: "q2" },
+        { type: "text", name: "guarded", visibleIf: condition },
+      ],
+    };
+  }
+  function boundedVerdictOf(condition: string): string | undefined {
+    const findings = findingsOf(withBounded(condition)).filter(f =>
+      f.ruleId === "expression/contradiction" || f.ruleId === "expression/meaningless-condition");
+    if (findings.length === 0) return undefined;
+    expect(findings).toHaveLength(1);
+    return findings[0].ruleId + "/" + findings[0].reason;
+  }
+  test("a conjunct the question bounds rule out sinks the condition", () => {
+    // no pair of conjuncts contradicts the other; the question is what rules one of them out
+    expect(boundedVerdictOf("{age} > 3 and {age} > 10"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("a conjunct outside the bounds is reported as such, not as a self-contradiction", () => {
+    expect(boundedVerdictOf("{q2} notempty and {age} = 7"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("conjuncts that contradict each other inside the bounds are still reported", () => {
+    expect(boundedVerdictOf("{age} > 4 and {age} < 2"))
+      .toBe("expression/contradiction/unsatisfiable");
+  });
+  test("a condition the bounds allow is left alone", () => {
+    expect(boundedVerdictOf("{age} > 2 and {age} < 5")).toBeUndefined();
+  });
+});

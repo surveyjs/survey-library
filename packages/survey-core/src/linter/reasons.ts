@@ -54,10 +54,13 @@ export const SurveyLintReasons = Object.freeze({
     "array-vs-scalar": "array-vs-scalar",
     "boolean-vs-const": "boolean-vs-const",
   }),
-  // today only the decidable part of "can never evaluate true": a condition built entirely from
-  // constants. Satisfiability reasoning extends this rule with its own reasons later.
+  // today only the decidable part of "can never evaluate true": a condition built from constants,
+  // either written inline or reached through a reference to a constant source. Satisfiability
+  // reasoning extends this rule with its own reasons later.
   "expression/contradiction": Object.freeze({
     alwaysFalse: "alwaysFalse",
+    // the constants are reached through a reference, e.g. a calculated value of "1 + 1"
+    alwaysFalseViaConstants: "alwaysFalseViaConstants",
   }),
   "expression/meaningless-condition": Object.freeze({
     alwaysTrue: "alwaysTrue",
@@ -65,6 +68,7 @@ export const SurveyLintReasons = Object.freeze({
     notABoolean: "notABoolean",
     // a constant branch, a comparison of two constants, or an operand compared with itself
     meaninglessFragment: "meaninglessFragment",
+    alwaysTrueViaConstants: "alwaysTrueViaConstants",
   }),
   // these values already shipped inside messageData.reason
   "choices/dead-source": Object.freeze({

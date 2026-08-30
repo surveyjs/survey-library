@@ -1,6 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
-import { ContainerRecord, ElementRecord, SurveyIndex } from "../symbols";
-import { getConditionSemanticsVerdict } from "../expression-utils";
+import { ContainerRecord, ElementRecord } from "../symbols";
+import { isAlwaysFalseVerdict } from "../expression-utils";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["page/empty"];
@@ -8,11 +8,11 @@ const reasons = SurveyLintReasons["page/empty"];
 // The elements whose own visibleIf can never hold. Only "visibleIf" counts: choicesVisibleIf and
 // rowsVisibleIf hide items inside a question, and templateVisibleIf hides single panels of a
 // dynamic panel - none of them stops the question itself from rendering.
-function buildNeverVisibleSet(index: SurveyIndex): Set<ElementRecord> {
+function buildNeverVisibleSet(ctx: LintContext): Set<ElementRecord> {
   const res = new Set<ElementRecord>();
-  index.expressionSites.forEach(site => {
+  ctx.index.expressionSites.forEach(site => {
     if (site.prop !== "visibleIf" || !site.owner) return;
-    if (getConditionSemanticsVerdict(site) === "alwaysFalse") res.add(site.owner);
+    if (isAlwaysFalseVerdict(ctx.getConditionVerdict(site).verdict)) res.add(site.owner);
   });
   return res;
 }
@@ -46,7 +46,7 @@ export const pageEmptyRule: ILintRule = {
   id: "page/empty",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    const isRenderable = buildRenderableCheck(ctx.index.containers, buildNeverVisibleSet(ctx.index));
+    const isRenderable = buildRenderableCheck(ctx.index.containers, buildNeverVisibleSet(ctx));
     ctx.index.containers.forEach(container => {
       if (container.kind === "panelDynamicTemplate") {
         if (container.children.length === 0) {

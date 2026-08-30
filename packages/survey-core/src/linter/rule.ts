@@ -1,8 +1,10 @@
 import {
   ILintFinding, ILintHint, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
 } from "./types";
-import { SurveyIndex } from "./symbols";
+import { ExpressionSite, SurveyIndex } from "./symbols";
 import { LintMetadata } from "./metadata";
+import { ConditionSemanticsVerdict, getConditionSemanticsVerdict } from "./expression-utils";
+import { buildConstantEnv, ConstantEnv, FoldedCondition, foldCondition } from "./constant-env";
 
 export interface ILintRule {
   id: string;
@@ -56,13 +58,49 @@ export type ReportInput = {
   reproduction?: ILintFinding["reproduction"],
 };
 
+// What the analysis concluded about one condition. "fold" is set only when the verdict came
+// from folding references to constant sources, and carries the values that decided it.
+export interface ConditionVerdict {
+  verdict?: ConditionSemanticsVerdict;
+  fold?: FoldedCondition;
+}
+
 export class LintContext {
   public findings: Array<ILintFinding> = [];
   public suppressed: Array<ILintFinding> = [];
   private currentRuleId: string;
   private currentSeverity: LintFindingSeverity;
+  private constantEnv: ConstantEnv;
+  // several rules ask about the same site, and a verdict now costs an evaluation
+  private verdicts = new Map<ExpressionSite, ConditionVerdict>();
   constructor(public index: SurveyIndex, public options: ISurveyLintOptions,
     public metadata: LintMetadata) {}
+  public getConstantEnv(): ConstantEnv {
+    if (!this.constantEnv) {
+      this.constantEnv = buildConstantEnv(this.index, this.options);
+    }
+    return this.constantEnv;
+  }
+  public getConditionVerdict(site: ExpressionSite): ConditionVerdict {
+    let res = this.verdicts.get(site);
+    if (!res) {
+      res = this.calcConditionVerdict(site);
+      this.verdicts.set(site, res);
+    }
+    return res;
+  }
+  // The core's own semantic check comes first: when it already names the defect, its verdict is
+  // the more specific one and folding must not restate it under a different reason.
+  private calcConditionVerdict(site: ExpressionSite): ConditionVerdict {
+    const core = getConditionSemanticsVerdict(site);
+    if (!!core) return { verdict: core };
+    const fold = foldCondition(site, this.getConstantEnv());
+    if (!fold) return {};
+    return {
+      verdict: !!fold.value ? "alwaysTrueViaConstants" : "alwaysFalseViaConstants",
+      fold: fold,
+    };
+  }
   public setCurrentRule(ruleId: string, severity: LintFindingSeverity): void {
     this.currentRuleId = ruleId;
     this.currentSeverity = severity;

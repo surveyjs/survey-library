@@ -201,8 +201,22 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 2" }] },
   },
   {
+    ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants",
+    json: {
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 5" }],
+    },
+  },
+  {
     ruleId: "expression/meaningless-condition", reason: "alwaysTrue",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 1" }] },
+  },
+  {
+    ruleId: "expression/meaningless-condition", reason: "alwaysTrueViaConstants",
+    json: {
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 2" }],
+    },
   },
   {
     ruleId: "expression/meaningless-condition", reason: "notABoolean",

@@ -148,7 +148,7 @@ interface ISurveyLintOptions {
 | `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
 | `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
 | `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
-| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition built entirely from constants that evaluates to false. |
+| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition that evaluates to false because every operand deciding it is known at authoring time - written inline, or reached through a reference to a constant source. |
 | `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. |
 
@@ -165,6 +165,17 @@ interface ISurveyLintOptions {
 * **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
   `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
   by my own value" idiom is not reported as a self reference.
+* **Constant sources.** A calculated value or an `expression` question whose expression contains
+  no answer and no function call has one value, known while authoring, so a condition reading it
+  is decided too: `visibleIf: "{c1} = 5"` against `"expression": "1 + 1"` never holds. Chains are
+  followed (a source built on another source), and a branch that settles decides the whole
+  condition — a false `and` branch sinks it whatever the other branch depends on. A source is
+  disqualified when a trigger can write to it, when it carries a `defaultValue` or a
+  `setValueExpression`, when its name is declared twice, or when it sits inside a matrix or a
+  dynamic panel, where the name is not what the reference addresses. A source that can be hidden
+  proves "never holds" but not "always holds": under `clearInvisibleValues: "onHidden"` the value
+  is gone. The folded value also reaches `expression/unknown-choice` and
+  `expression/type-mismatch`, so `{q1} = {c1}` is checked the way `{q1} = 'zzz'` is.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
@@ -182,7 +193,14 @@ same four over the **authored JSON**: syntax errors as `expression/syntax`, unkn
 (everything else). The semantic verdict is taken from the core itself — the rules call
 `Operand.addConditionSemanticErrors` rather than reimplementing it — so the two stay in step,
 including the deliberate silence on a lone boolean constant: `visibleIf: "false"` is how an author
-switches an element off, not a defect, and nothing reports it.
+switches an element off, not a defect, and nothing reports it. A lone reference to a constant
+source (`visibleIf: "{c1}"`) is left alone for the same reason.
+
+Where the linter goes further than `validateExpressions` is the constant sources above: the core
+judges one expression at a time, while the linter has the whole JSON and can tell that `{c1}` is
+always `2`. Such findings carry their own reasons (`alwaysFalseViaConstants`,
+`alwaysTrueViaConstants`), and the core's verdict wins whenever it has one — it names the more
+specific defect.
 
 `expression/contradiction` is the first instalment of the reachability group of #11693. It is
 named for the whole defect, so the satisfiability reasoning that group asks for extends this rule
@@ -192,9 +210,9 @@ later instead of needing a new id.
 
 * No runtime data: a defect that appears only for a particular set of answers is out of scope,
   and conditions are not solved (a `cycle/trigger` loop may be unreachable — the message says so).
-  A condition made **only** of constants is the exception: it has no answers to depend on, so it
-  is evaluated. `{q} = 'a' and {q} = 'b'` is a contradiction that needs satisfiability and is not
-  reported yet.
+  A condition decided entirely by values known while authoring is the exception: it has no answers
+  to depend on, so it is evaluated. `{q} = 'a' and {q} = 'b'` is a contradiction that needs
+  satisfiability and is not reported yet.
 * A custom question type without a `components` entry is analysed as an opaque element.
 * A custom trigger type is not covered by the target and cycle checks.
 

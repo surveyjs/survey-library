@@ -353,3 +353,20 @@ describe("a folded constant reaches the rules that read a variable against a con
     expect(findings.filter(f => f.ruleId === "expression/type-mismatch")).toHaveLength(0);
   });
 });
+
+describe("an element hidden by a folded condition does not render", () => {
+  test("a page whose only question is guarded by a dead condition is empty", () => {
+    const findings = findingsOf({
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      pages: [{ name: "p1", elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 5" }] }],
+    }, "page/empty");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("noRenderableElements");
+  });
+  test("a condition that may hold leaves the page alone", () => {
+    expect(findingsOf({
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      pages: [{ name: "p1", elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 2" }] }],
+    }, "page/empty")).toHaveLength(0);
+  });
+});

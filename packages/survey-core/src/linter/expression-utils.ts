@@ -601,6 +601,17 @@ export function matchVariableComparison(op: Operand, operators?: { [op: string]:
   return undefined;
 }
 
+// The operator as it reads from the variable side: "10 < {q}" constrains {q} from below just
+// as "{q} > 10" does, and a caller that reasons about bounds needs the second form.
+export function operatorFromVariableSide(op: BinaryOperand, match: VariableComparison): string {
+  if (match.constSide === op.rightOperand) return op.operator;
+  if (op.operator === "greater") return "less";
+  if (op.operator === "less") return "greater";
+  if (op.operator === "greaterorequal") return "lessorequal";
+  if (op.operator === "lessorequal") return "greaterorequal";
+  return op.operator;
+}
+
 // Variable extends Const, so a plain constant must exclude variables
 export function isPlainConst(op: Operand): boolean {
   return op instanceof Const && !(op instanceof Variable);

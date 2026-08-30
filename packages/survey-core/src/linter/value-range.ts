@@ -1,5 +1,7 @@
 import { BinaryOperand, Operand } from "survey-core";
-import { ConstResolver, getConstantOperandValue, matchVariableComparison } from "./expression-utils";
+import {
+  ConstResolver, getConstantOperandValue, matchVariableComparison, operatorFromVariableSide,
+} from "./expression-utils";
 import { ParsedRef, SurveyIndex } from "./symbols";
 import { getValueDomain, runtimeGreater, ValueRangeDomain } from "./value-domain";
 
@@ -52,16 +54,7 @@ export function getUnsatisfiableRange(node: Operand, index: SurveyIndex,
   const domain = getValueDomain(ref, index);
   if (!domain || domain.kind !== "range") return undefined;
   if (!isComparable(constant.value, domain)) return undefined;
-  // the operator is read left-to-right, and matchVariableComparison may have swapped the sides
-  const operator = match.constSide === node.rightOperand ? node.operator : flipOperator(node.operator);
+  const operator = operatorFromVariableSide(node, match);
   if (!RANGE_OPERATORS[operator]) return undefined;
   return isSatisfiable(operator, constant.value, domain) ? undefined : { domain: domain };
-}
-
-function flipOperator(operator: string): string {
-  if (operator === "greater") return "less";
-  if (operator === "less") return "greater";
-  if (operator === "greaterorequal") return "lessorequal";
-  if (operator === "lessorequal") return "greaterorequal";
-  return operator;
 }

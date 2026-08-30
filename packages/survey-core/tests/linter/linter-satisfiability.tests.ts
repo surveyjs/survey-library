@@ -98,3 +98,55 @@ describe("what is not a contradiction", () => {
     expect(verdictOf("{nope} = 'a' and {nope} = 'b'")).toBeUndefined();
   });
 });
+
+describe("bounds a condition puts on one reference itself", () => {
+  test("two bounds that leave nothing between them", () => {
+    expect(verdictOf("{q1} > 10 and {q1} < 5"))
+      .toBe("expression/contradiction/unsatisfiable");
+    expect(verdictOf("{q1} > 10 and {q1} <= 10"))
+      .toBe("expression/contradiction/unsatisfiable");
+    expect(verdictOf("{q1} >= 5 and {q1} < 5"))
+      .toBe("expression/contradiction/unsatisfiable");
+  });
+  test("a value outside a bound the same condition demands", () => {
+    expect(verdictOf("{q1} = 3 and {q1} > 5"))
+      .toBe("expression/contradiction/unsatisfiable");
+    expect(verdictOf("{q1} = 3 and {q1} >= 3")).toBeUndefined();
+  });
+  test("the sides may be written either way round", () => {
+    expect(verdictOf("10 < {q1} and 5 > {q1}"))
+      .toBe("expression/contradiction/unsatisfiable");
+  });
+  test("bounds that do leave room", () => {
+    expect(verdictOf("{q1} > 5 and {q1} < 10")).toBeUndefined();
+    expect(verdictOf("{q1} > 5 and {q1} > 10")).toBeUndefined();
+    expect(verdictOf("{q1} >= 5 and {q1} <= 5")).toBeUndefined();
+  });
+  test("the finding names the bounds that clash", () => {
+    const findings = findingsOf(guardedBy("{q1} > 10 and {q1} < 5"), "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.conflicts).toEqual([
+      { name: "q1", kind: "impossibleBounds", values: [10, 5] },
+    ]);
+    expect(findings[0].message).toContain("above 10 and below 5");
+  });
+});
+
+describe("a comparison against an empty set", () => {
+  test("anyof of nothing can never hold", () => {
+    expect(verdictOf("{q1} anyof []")).toBe("expression/contradiction/unsatisfiable");
+  });
+  test("it is found inside a branch too", () => {
+    expect(verdictOf("{q2} notempty and {q1} anyof []"))
+      .toBe("expression/contradiction/unsatisfiable");
+  });
+  test("a non-empty set is a normal comparison", () => {
+    expect(verdictOf("{q1} anyof ['a', 'b']")).toBeUndefined();
+  });
+  test("the finding says which reference was asked for nothing", () => {
+    const findings = findingsOf(guardedBy("{q1} anyof []"), "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.conflicts).toEqual([{ name: "q1", kind: "emptySet" }]);
+    expect(findings[0].message).toContain("no value at all");
+  });
+});

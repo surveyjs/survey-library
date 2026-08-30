@@ -38,6 +38,12 @@ function describeConflicts(conflicts: Array<ConditionConflict>): string {
     if (conflict.kind === "emptyAndValue") {
       return "{" + conflict.name + "} cannot be empty and be " + values[0];
     }
+    if (conflict.kind === "impossibleBounds") {
+      return "{" + conflict.name + "} cannot be above " + values[0] + " and below " + values[1];
+    }
+    if (conflict.kind === "emptySet") {
+      return "{" + conflict.name + "} is asked to be one of no value at all";
+    }
     return "{" + conflict.name + "} cannot be empty and not empty";
   }).join(", ");
 }

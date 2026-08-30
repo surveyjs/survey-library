@@ -4,7 +4,9 @@ import { ConstantEnv, ConstantSource, getFoldableSource } from "./constant-env";
 import { ExpressionSite, ParsedRef } from "./symbols";
 import { getUnsatisfiableRange } from "./value-range";
 import { ValueRangeDomain } from "./value-domain";
-import { ConditionConflict, findConjunctionConflict } from "./satisfiability";
+import {
+  ConditionConflict, findConjunctionConflict, findEmptySetComparison,
+} from "./satisfiability";
 
 // What decided a condition, next to the value it was decided to have. A rule turns these into
 // the facts its message names, so each mechanism that can settle a leaf adds its own list.
@@ -96,9 +98,19 @@ function evalRange(node: Operand, ctx: EvalContext): boolean | undefined {
   return false;
 }
 
+// A comparison against an empty set is false for every answer, so it settles a leaf too.
+function evalEmptySet(node: Operand, ctx: EvalContext): boolean | undefined {
+  const conflict = findEmptySetComparison(node, ctx.refOf, ctx.resolve);
+  if (!conflict) return undefined;
+  ctx.conflicts.push(conflict);
+  return false;
+}
+
 function evalLeaf(node: Operand, ctx: EvalContext): boolean | undefined {
   const folded = evalFolded(node, ctx);
-  return folded !== undefined ? folded : evalRange(node, ctx);
+  if (folded !== undefined) return folded;
+  const ranged = evalRange(node, ctx);
+  return ranged !== undefined ? ranged : evalEmptySet(node, ctx);
 }
 
 // Conjuncts that are each satisfiable on their own may still be impossible together, which no

@@ -576,19 +576,27 @@ export interface VariableComparison {
   operator: string;
 }
 
-// A BinaryOperand with exactly one Variable side; the other side is returned as-is
-// (it may be a Const, an ArrayOperand, or any non-Variable operand - callers narrow).
-// operators === undefined accepts any BinaryOperand.
-export function matchVariableComparison(op: Operand, operators?: { [op: string]: boolean }): VariableComparison | undefined {
+// Answers what a reference is worth when it names a source known at authoring time. Without
+// one, a Variable is only ever a variable - which is how the rules read expressions until the
+// constant sources are built.
+export type ConstResolver = (variable: Variable) => { value: any } | undefined;
+
+// A BinaryOperand with exactly one side that is still unknown at authoring time; the other side
+// is returned as-is (it may be a Const, an ArrayOperand, a folded Variable, or any other operand
+// - callers narrow). operators === undefined accepts any BinaryOperand.
+export function matchVariableComparison(op: Operand, operators?: { [op: string]: boolean },
+  resolve?: ConstResolver): VariableComparison | undefined {
   if (!(op instanceof BinaryOperand)) return undefined;
   if (operators && !operators[op.operator]) return undefined;
   const left = op.leftOperand;
   const right = op.rightOperand;
-  if (left instanceof Variable && !(right instanceof Variable)) {
-    return { variable: left, constSide: right, operator: op.operator };
+  const leftIsVar = left instanceof Variable && !getConstantOperandValue(left, resolve);
+  const rightIsVar = right instanceof Variable && !getConstantOperandValue(right, resolve);
+  if (leftIsVar && !rightIsVar) {
+    return { variable: <Variable>left, constSide: right, operator: op.operator };
   }
-  if (right instanceof Variable && !(left instanceof Variable)) {
-    return { variable: right, constSide: left, operator: op.operator };
+  if (rightIsVar && !leftIsVar) {
+    return { variable: <Variable>right, constSide: left, operator: op.operator };
   }
   return undefined;
 }
@@ -598,13 +606,22 @@ export function isPlainConst(op: Operand): boolean {
   return op instanceof Const && !(op instanceof Variable);
 }
 
-export function getConstValues(op: Operand): Array<any> | undefined {
-  if (isPlainConst(op)) return [(<Const>op).correctValue];
+// The value of a single operand known at authoring time: a literal, or a reference the resolver
+// folds. Wrapped rather than returned bare, because the value itself may be null or false.
+export function getConstantOperandValue(op: Operand, resolve?: ConstResolver): { value: any } | undefined {
+  if (op instanceof Variable) return !!resolve ? resolve(op) : undefined;
+  return isPlainConst(op) ? { value: (<Const>op).correctValue } : undefined;
+}
+
+export function getConstValues(op: Operand, resolve?: ConstResolver): Array<any> | undefined {
+  const single = getConstantOperandValue(op, resolve);
+  if (!!single) return [single.value];
   if (op instanceof ArrayOperand) {
     const values: Array<any> = [];
     for (let i = 0; i < op.values.length; i++) {
-      if (!isPlainConst(op.values[i])) return undefined;
-      values.push((<Const>op.values[i]).correctValue);
+      const item = getConstantOperandValue(op.values[i], resolve);
+      if (!item) return undefined;
+      values.push(item.value);
     }
     return values;
   }

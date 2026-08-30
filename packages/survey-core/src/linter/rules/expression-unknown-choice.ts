@@ -55,6 +55,7 @@ export const expressionUnknownChoiceRule: ILintRule = {
   run(ctx: LintContext): void {
     ctx.index.expressionSites.forEach(site => {
       if (site.kind !== "condition" || !site.ast) return;
+      const resolve = ctx.getConstResolver(site);
       // Map, not an object literal: keys are raw variable names from user expressions
       let refByRaw: Map<string, ParsedRef>;
       const getRef = (variable: Variable): ParsedRef => {
@@ -67,9 +68,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
         return refByRaw.get(variable.variable);
       };
       collectOperands(site.ast).forEach(op => {
-        const match = matchVariableComparison(op, CHOICE_OPERATORS);
+        const match = matchVariableComparison(op, CHOICE_OPERATORS, resolve);
         if (!match) return;
-        const constValues = getConstValues(match.constSide);
+        const constValues = getConstValues(match.constSide, resolve);
         if (!constValues || constValues.length === 0) return;
         const ref = getRef(match.variable);
         if (!ref) return;

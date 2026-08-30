@@ -1,7 +1,7 @@
-import { BinaryOperand, Const, Variable } from "survey-core";
+import { BinaryOperand, Variable } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
 import { SurveyLintSuggestionReasons } from "../reasons";
-import { classifySiteRefs, collectOperands, isPlainConst } from "../expression-utils";
+import { classifySiteRefs, collectOperands, getConstantOperandValue } from "../expression-utils";
 import { ElementRecord, ParsedRef } from "../symbols";
 import { isTextInputQuestion } from "../value-types";
 
@@ -81,6 +81,7 @@ export const expressionTypeMismatchRule: ILintRule = {
   run(ctx: LintContext): void {
     ctx.index.expressionSites.forEach(site => {
       if (site.kind !== "condition" || !site.ast) return;
+      const resolve = ctx.getConstResolver(site);
       let refByRaw: { [raw: string]: ParsedRef };
       const getRef = (variable: Variable): ParsedRef => {
         if (!refByRaw) {
@@ -98,14 +99,18 @@ export const expressionTypeMismatchRule: ILintRule = {
         if (!isOrdering && !isEquality) return;
         const left = op.leftOperand;
         const right = op.rightOperand;
+        // a reference to a constant source reads as the value it always has, so "{q} = {c1}"
+        // is typed the way "{q} = 2" is
+        const leftConst = getConstantOperandValue(left, resolve);
+        const rightConst = getConstantOperandValue(right, resolve);
         let variable: Variable;
-        let constant: Const;
-        if (left instanceof Variable && isPlainConst(right)) {
+        let constValue: any;
+        if (left instanceof Variable && !leftConst && !!rightConst) {
           variable = left;
-          constant = right;
-        } else if (right instanceof Variable && isPlainConst(left)) {
+          constValue = rightConst.value;
+        } else if (right instanceof Variable && !rightConst && !!leftConst) {
           variable = right;
-          constant = left;
+          constValue = leftConst.value;
         } else {
           return;
         }
@@ -119,7 +124,6 @@ export const expressionTypeMismatchRule: ILintRule = {
         // sub-path/indexed references ({q.item}, {q[0]}) compare against a sub-value
         // we do not type; scoped refs ({row.col}) resolve to the compared element itself
         if (ref.status === "resolved" && (ref.segments.length > 1 || ref.segments[0].index !== undefined)) return;
-        const constValue = constant.correctValue;
         const mismatch = isOrdering ? checkOrdering(record, constValue) : checkEquality(record, constValue);
         if (!mismatch) return;
         let message = "The condition applies \"" + op.operator +

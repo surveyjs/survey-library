@@ -321,3 +321,35 @@ describe("a branch decided by constants decides the whole condition", () => {
       { ruleId: "expression/meaningless-condition", reason: "meaninglessFragment" });
   });
 });
+
+describe("a folded constant reaches the rules that read a variable against a constant", () => {
+  test("a choice comparison against a folded value", () => {
+    const findings = findingsOf({
+      calculatedValues: [{ name: "c1", expression: "'zzz'" }],
+      elements: [
+        { type: "dropdown", name: "q1", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{q1} = {c1}" },
+      ],
+    }, "expression/unknown-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("notAmongChoices");
+    expect(findings[0].messageData.values).toEqual(["zzz"]);
+  });
+  test("a type comparison against a folded value", () => {
+    const findings = findingsOf({
+      calculatedValues: [{ name: "c1", expression: "'a'" }],
+      elements: [
+        { type: "checkbox", name: "tags", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{tags} = {c1}" },
+      ],
+    }, "expression/type-mismatch");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("array-vs-scalar");
+  });
+  test("two folded sides belong to the fold rules alone", () => {
+    const findings = findingsOf(withCalculated(
+      [{ name: "c1", expression: "1" }, { name: "c2", expression: "2" }], "{c1} = {c2}"));
+    expect(findings.filter(f => f.ruleId === "expression/unknown-choice")).toHaveLength(0);
+    expect(findings.filter(f => f.ruleId === "expression/type-mismatch")).toHaveLength(0);
+  });
+});

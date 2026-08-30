@@ -1,5 +1,5 @@
 import { BinaryOperand, Operand, ProcessValue, Variable, VariableGetterContext } from "survey-core";
-import { classifySiteRefs, getVariableOperands, splitRefSegments } from "./expression-utils";
+import { classifySiteRefs, ConstResolver, getVariableOperands, splitRefSegments } from "./expression-utils";
 import {
   CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
@@ -203,6 +203,33 @@ function getFoldableSource(ref: ParsedRef, site: ExpressionSite, env: ConstantEn
   return undefined;
 }
 
+// The classified references of a site, keyed by the raw name an operand carries. Lazy: a site
+// whose operands are never asked about is never classified.
+function makeSourceLookup(site: ExpressionSite, env: ConstantEnv): (raw: string) => ConstantSource | undefined {
+  // Map, not an object literal: the keys are raw variable names from user expressions
+  let refByRaw: Map<string, ParsedRef>;
+  return (raw: string) => {
+    if (!refByRaw) {
+      refByRaw = new Map<string, ParsedRef>();
+      classifySiteRefs(site, env.index, env.options).forEach(ref => {
+        if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
+      });
+    }
+    const ref = refByRaw.get(raw);
+    return !!ref ? getFoldableSource(ref, site, env) : undefined;
+  };
+}
+
+// The resolver the rules that read a variable against a constant are given: with it, a
+// reference to a constant source reads as the value it always has.
+export function getConstResolver(site: ExpressionSite, env: ConstantEnv): ConstResolver {
+  const lookup = makeSourceLookup(site, env);
+  return (variable: Variable) => {
+    const source = lookup(variable.variable);
+    return !!source ? { value: source.value } : undefined;
+  };
+}
+
 // The English fragment naming what decided the condition, shared by the two condition rules.
 export function describeConstants(used: Array<ConstantSource>): string {
   return used.map(source => "{" + source.name + "} is always " + JSON.stringify(source.value)).join(", ");
@@ -227,8 +254,7 @@ function evalLeaf(node: Operand, ctx: FoldContext): boolean | undefined {
   const vars = getVariableOperands(node);
   const found: Array<ConstantSource> = [];
   for (let i = 0; i < vars.length; i++) {
-    const ref = ctx.refByRaw.get(vars[i].variable);
-    const source = !!ref ? getFoldableSource(ref, ctx.site, ctx.env) : undefined;
+    const source = ctx.lookup(vars[i].variable);
     if (!source) return undefined;
     found.push(source);
   }
@@ -261,9 +287,8 @@ function evalPartial(node: Operand, ctx: FoldContext): boolean | undefined {
 }
 
 interface FoldContext {
-  site: ExpressionSite;
   env: ConstantEnv;
-  refByRaw: Map<string, ParsedRef>;
+  lookup: (raw: string) => ConstantSource | undefined;
   used: Array<ConstantSource>;
 }
 
@@ -273,12 +298,7 @@ export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCon
   const ast = site.ast;
   // a lone reference is a switch the author meant, the way a lone boolean constant is
   if (ast instanceof Variable) return undefined;
-  // Map, not an object literal: the keys are raw variable names from user expressions
-  const refByRaw = new Map<string, ParsedRef>();
-  classifySiteRefs(site, env.index, env.options).forEach(ref => {
-    if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
-  });
-  const ctx: FoldContext = { site: site, env: env, refByRaw: refByRaw, used: [] };
+  const ctx: FoldContext = { env: env, lookup: makeSourceLookup(site, env), used: [] };
   const value = evalPartial(ast, ctx);
   // no source used means the condition is constant on its own, which the core already reports
   if (value === undefined || ctx.used.length === 0) return undefined;

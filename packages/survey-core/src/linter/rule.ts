@@ -3,8 +3,10 @@ import {
 } from "./types";
 import { ExpressionSite, SurveyIndex } from "./symbols";
 import { LintMetadata } from "./metadata";
-import { ConditionSemanticsVerdict, getConditionSemanticsVerdict } from "./expression-utils";
-import { buildConstantEnv, ConstantEnv, FoldedCondition, foldCondition } from "./constant-env";
+import { ConditionSemanticsVerdict, ConstResolver, getConditionSemanticsVerdict } from "./expression-utils";
+import {
+  buildConstantEnv, ConstantEnv, FoldedCondition, foldCondition, getConstResolver,
+} from "./constant-env";
 
 export interface ILintRule {
   id: string;
@@ -80,6 +82,9 @@ export class LintContext {
       this.constantEnv = buildConstantEnv(this.index, this.options);
     }
     return this.constantEnv;
+  }
+  public getConstResolver(site: ExpressionSite): ConstResolver {
+    return getConstResolver(site, this.getConstantEnv());
   }
   public getConditionVerdict(site: ExpressionSite): ConditionVerdict {
     let res = this.verdicts.get(site);

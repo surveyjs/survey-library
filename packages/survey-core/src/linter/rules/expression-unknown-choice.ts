@@ -2,39 +2,25 @@ import { runBinaryOperator, Variable } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";
+import { getValueDomain } from "../value-domain";
 import { ElementRecord, ParsedRef } from "../symbols";
-import { getSpecialChoiceValues } from "../value-types";
 import { ILintReproduction } from "../types";
 import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["expression/unknown-choice"];
-import { ILintResolvedSettings } from "../lint-settings";
 
 const CHOICE_OPERATORS: { [op: string]: boolean } = {
   equal: true, notequal: true, anyof: true, allof: true, noneof: true,
   contains: true, notcontains: true,
 };
 
-function getComparableRecord(ref: ParsedRef): ElementRecord | undefined {
-  const record = ref.resolvedTo;
-  if (!record || record.isUnknownType) return undefined;
-  // subpath references ({q.item1}) compare against the sub-element, which we do not model
-  if (ref.status === "resolved" && ref.segments.length > 1) return undefined;
-  const info = record.choicesInfo;
-  if (!info) return undefined;
-  if (info.hasChoicesByUrl || info.lazy || info.carryForwardFrom ||
-    info.carryForwardValuesFrom || info.staticValues.length === 0) return undefined;
-  return record;
-}
-
-function getAllowedValues(record: ElementRecord, lintSettings: ILintResolvedSettings): Array<any> {
-  const info = record.choicesInfo;
-  const res = info.staticValues.slice();
-  res.push(...getSpecialChoiceValues(info, lintSettings));
+// The values the author explicitly put on the question next to its choices. A defaultValue
+// outside the choices is a deliberate legacy value, so a condition comparing against it is
+// meaningful - which is why it is added here and not inside the domain itself.
+function getAuthoredValues(record: ElementRecord): Array<any> {
   const defaultValue = record.json ? record.json.defaultValue : undefined;
-  if (Array.isArray(defaultValue)) res.push(...defaultValue);
-  else if (defaultValue !== undefined && defaultValue !== null) res.push(defaultValue);
-  return res;
+  if (Array.isArray(defaultValue)) return defaultValue.slice();
+  return defaultValue !== undefined && defaultValue !== null ? [defaultValue] : [];
 }
 
 // runBinaryOperator applies the very operator function the expression runtime applies,
@@ -74,20 +60,21 @@ export const expressionUnknownChoiceRule: ILintRule = {
         if (!constValues || constValues.length === 0) return;
         const ref = getRef(match.variable);
         if (!ref) return;
-        const record = getComparableRecord(ref);
-        if (!record) return;
+        const domain = getValueDomain(ref, ctx.index);
+        if (!domain) return;
+        const record = domain.record;
         // containsCore (expressions.ts) does substring matching when the question
         // value is a scalar (numbers are stringified too): "{q} contains 'apr'" is
         // true for the choice "apricot". Whole-value membership applies to arrays.
         const useSubstring = (match.operator === "contains" || match.operator === "notcontains") &&
           record.valueType.shape !== "array";
         const matches = useSubstring ? runtimeContains : runtimeEquals;
-        const allowed = getAllowedValues(record, ctx.index.settings);
+        const allowed = domain.values.concat(getAuthoredValues(record));
         const missing = constValues.filter(value =>
           value !== null && value !== undefined && value !== "" && typeof value !== "boolean" &&
           !allowed.some(choice => matches(choice, value)));
         if (missing.length === 0) return;
-        const availableText = record.choicesInfo.staticValues.map(v => "\"" + String(v) + "\"").join(", ");
+        const availableText = domain.listed.map(v => "\"" + String(v) + "\"").join(", ");
         const refName = ref.segments.map(s => s.name).join(".");
         const missingText = missing.map(v => "\"" + String(v) + "\"").join(", ");
         let reproduction: ILintReproduction;
@@ -99,7 +86,7 @@ export const expressionUnknownChoiceRule: ILintRule = {
             reason: useSubstring
               ? SurveyLintReproductionReasons.noChoiceContains
               : SurveyLintReproductionReasons.noChoiceEquals,
-            steps: record.choicesInfo.staticValues.slice(0, 3).map(value => ({ set: { [record.name]: value } })),
+            steps: domain.listed.slice(0, 3).map(value => ({ set: { [record.name]: value } })),
           };
           reproduction.steps.push({ expect: { visible: { [site.owner.name]: true } } });
         }
@@ -115,15 +102,15 @@ export const expressionUnknownChoiceRule: ILintRule = {
             reference: ref.raw,
             operator: match.operator,
             values: missing,
-            available: record.choicesInfo.staticValues,
+            available: domain.listed,
             semantics: useSubstring ? "substring" : "equality",
             expression: site.text,
           },
           elementName: site.owner ? site.owner.name : undefined,
           elementType: site.owner ? site.owner.type : undefined,
           suggestion: missing.length === 1 && typeof missing[0] === "string"
-            ? (record.choicesInfo.staticValues.length > 0
-              ? findClosestChoice(String(missing[0]), record.choicesInfo.staticValues)
+            ? (domain.listed.length > 0
+              ? findClosestChoice(String(missing[0]), domain.listed)
               : undefined)
             : undefined,
           reproduction: reproduction,

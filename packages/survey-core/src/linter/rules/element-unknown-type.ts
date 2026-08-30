@@ -1,5 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
 import { closestMatch } from "../levenshtein";
+import { SurveyLintReasons } from "../reasons";
 
 export const elementUnknownTypeRule: ILintRule = {
   id: "element/unknown-type",
@@ -17,6 +18,7 @@ export const elementUnknownTypeRule: ILintRule = {
       ctx.report({
         message: message,
         path: record.path,
+        reason: SurveyLintReasons["element/unknown-type"].unknownType,
         messageData: { name: record.name, type: record.type },
         elementName: record.name,
         elementType: record.type,

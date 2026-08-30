@@ -12,6 +12,8 @@ import { expressionTypeMismatchRule } from "./expression-type-mismatch";
 import { choicesDeadSourceRule } from "./choices-dead-source";
 import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
+import { expressionContradictionRule } from "./expression-contradiction";
+import { expressionMeaninglessConditionRule } from "./expression-meaningless-condition";
 import { pageEmptyRule } from "./page-empty";
 
 export const allRules: Array<ILintRule> = [
@@ -25,6 +27,8 @@ export const allRules: Array<ILintRule> = [
   cycleTriggerRule,
   expressionUnknownChoiceRule,
   expressionTypeMismatchRule,
+  expressionContradictionRule,
+  expressionMeaninglessConditionRule,
   choicesDeadSourceRule,
   triggerUnknownTargetRule,
   triggerUnknownTypeRule,

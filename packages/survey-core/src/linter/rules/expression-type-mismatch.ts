@@ -1,5 +1,6 @@
 import { BinaryOperand, Const, Variable } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
+import { SurveyLintSuggestionReasons } from "../reasons";
 import { classifySiteRefs, collectOperands, isPlainConst } from "../expression-utils";
 import { ElementRecord, ParsedRef } from "../symbols";
 import { isTextInputQuestion } from "../value-types";
@@ -14,6 +15,8 @@ interface Mismatch {
   reason: string;
   detail: string;
   suggestion?: string;
+  // one of SurveyLintSuggestionReasons - "suggestion" itself is prose, not an identifier
+  suggestionReason?: string;
 }
 
 function checkOrdering(record: ElementRecord, constValue: any): Mismatch | undefined {
@@ -36,6 +39,7 @@ function checkOrdering(record: ElementRecord, constValue: any): Mismatch | undef
       reason: "text-ordering",
       detail: "\"" + record.name + "\" is a text question - its value is a string, so numeric comparison relies on implicit conversion.",
       suggestion: "set inputType: \"number\" on \"" + record.name + "\" if it collects numbers",
+      suggestionReason: SurveyLintSuggestionReasons.setNumberInputType,
     };
   }
   if (valueType.scalarType === "date" && typeof constValue === "number") {
@@ -58,6 +62,7 @@ function checkEquality(record: ElementRecord, constValue: any): Mismatch | undef
       reason: "array-vs-scalar",
       detail: "\"" + record.name + "\" holds an array of selected values - \"=\" compares the whole array.",
       suggestion: "use \"contains\" or \"anyof\" for multi-select values",
+      suggestionReason: SurveyLintSuggestionReasons.useContainsOrAnyof,
     };
   }
   if (valueType.scalarType === "boolean" && typeof constValue !== "boolean" &&
@@ -124,14 +129,19 @@ export const expressionTypeMismatchRule: ILintRule = {
         ctx.report({
           message: message,
           path: site.path,
+          reason: mismatch.reason,
           messageData: {
             name: variable.variable,
+            // the detail sentences are about the element, and its name differs from the raw
+            // reference for valueName hits, "-Comment" keys, matrix "-total" keys and scoped refs
+            recordName: record.name,
             questionType: record.type,
             valueShape: record.valueType.shape,
             scalarType: record.valueType.scalarType,
             operator: op.operator,
             constValue: constValue,
             reason: mismatch.reason,
+            suggestionReason: mismatch.suggestionReason,
             expression: site.text,
           },
           elementName: site.owner ? site.owner.name : undefined,

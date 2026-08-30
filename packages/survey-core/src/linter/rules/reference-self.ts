@@ -3,6 +3,7 @@ import { classifySiteRefs, equalsCI } from "../expression-utils";
 import { ElementRecord, ExpressionSite, ParsedRef } from "../symbols";
 import { ILintReproduction } from "../types";
 import { ILintResolvedSettings } from "../lint-settings";
+import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
 const SELF_PROPS: { [prop: string]: boolean } = { visibleIf: true, enableIf: true, requiredIf: true };
 
@@ -32,6 +33,7 @@ function buildReproduction(owner: ElementRecord, prop: string): ILintReproductio
   const res: ILintReproduction = {
     description: "Answering \"" + owner.name + "\" re-evaluates its own " + prop +
       "; if the element becomes hidden its value is cleared, which flips the condition again.",
+    reason: SurveyLintReproductionReasons.selfReference,
     steps: [{ set: { [owner.name]: "<any value>" } }],
   };
   if (prop === "visibleIf") {
@@ -55,6 +57,7 @@ export const referenceSelfRule: ILintRule = {
         message: "The " + site.prop + " of \"" + owner.name + "\" references the element itself ({" +
           selfRef.raw + "} in \"" + site.text + "\").",
         path: site.path,
+        reason: SurveyLintReasons["reference/self"].selfReference,
         messageData: {
           name: owner.name,
           prop: site.prop,

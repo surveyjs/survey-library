@@ -1,4 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
+import { SurveyLintReasons } from "../reasons";
 
 export const expressionSyntaxRule: ILintRule = {
   id: "expression/syntax",
@@ -16,6 +17,7 @@ export const expressionSyntaxRule: ILintRule = {
       ctx.report({
         message: message,
         path: site.path,
+        reason: SurveyLintReasons["expression/syntax"].unparsable,
         messageData: {
           expression: site.text,
           at: at,

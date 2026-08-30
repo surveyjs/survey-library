@@ -43,6 +43,9 @@ linting and no configuration is needed.
 | `lintSurvey(json, options?): ISurveyLintResult` | Runs every enabled rule over the survey JSON. |
 | `getRules(): Array<ILintRuleInfo>` | The rule registry: `{ id, defaultSeverity }` per rule. |
 | `renderFindings(result \| findings, options?): string` | Human-readable text report (`{ includeSuppressed?: boolean }`). |
+| `SurveyLintReasons` | `reason` values per rule id — the localization key, see [Localization](#localization). |
+| `SurveyLintHintReasons` | `hint.reason` values. |
+| `SurveyLintReproductionReasons` | `reproduction.reason` values. |
 
 ### Result
 
@@ -59,8 +62,10 @@ interface ISurveyLintResult {
 interface ILintFinding {
   ruleId: string;
   severity: "error" | "warning" | "info";
-  message: string;                     // ready to show to a human
+  message: string;                     // ready to show to a human, in English
+  reason?: string;                     // which branch of the rule's message this is
   messageData: { [key: string]: any }; // the same facts, structured, for custom formatting
+  hint?: { reason: string, name: string };  // the scope hint appended to the message
   path: string;                        // "pages[0].elements[1].visibleIf"
   elementName?: string;
   elementType?: string;
@@ -69,6 +74,40 @@ interface ILintFinding {
   reproduction?: ILintReproduction;    // steps demonstrating the defect: { set } / { expect }
 }
 ```
+
+## Localization
+
+`message` is English. A host that shows findings in its own language does not translate that
+string: it composes its own sentence from **`(ruleId, reason)`** plus `messageData`.
+
+`reason` names the branch of the rule's message the finding took, and every value is listed in
+`SurveyLintReasons[ruleId]`. **The rule ids and the reason values are public API — they are
+frozen and they stay stable.** `getRules()` gives the rule ids on their own, for a host that
+also names the checks.
+
+```js
+import { lintSurvey, SurveyLintReasons } from "survey-core/linter";
+
+const key = finding.ruleId + "/" + finding.reason;   // "reference/unknown/notFound"
+const text = format(myStrings[key], finding.messageData);
+```
+
+Three things are composed on top of the base sentence, and none of them needs a channel of its
+own — a host appends them from fields it already has:
+
+* `finding.suggestion` — the *Did you mean "x"?* clause.
+* `messageData.expression` — the *(in "…")* clause.
+* `messageData.refKind` — for `reference/unknown`, whether the reference came from `bindings`
+  or from a `choicesByUrl` URL.
+
+`finding.hint` is the one part that is not a branch: any base message of `reference/unknown` can
+carry any of the `SurveyLintHintReasons`, so it travels separately. `reproduction.reason` and
+`messageData.suggestionReason` (`expression/type-mismatch` only, whose `suggestion` is prose
+rather than an identifier) work the same way.
+
+A rule interpolates only what it also reports in `messageData`, so a localized message never
+needs a fact the finding does not carry. `tests/linter/linter-reasons.tests.ts` pins that: every
+reason in the table is reachable, and every finding carries one.
 
 ### Options
 
@@ -109,7 +148,9 @@ interface ISurveyLintOptions {
 | `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
 | `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
 | `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
-| `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. |
+| `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition built entirely from constants that evaluates to false. |
+| `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
+| `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. |
 
 ## What the analysis understands
 
@@ -132,10 +173,28 @@ interface ISurveyLintOptions {
   analysed without touching this folder. `catalog.ts` holds only the handful of semantics the
   metadata cannot carry, and `tests/linter/linter-catalog-drift.tests.ts` guards it.
 
+## Relation to `Base.validateExpressions`
+
+`validateExpressions` reports four kinds of error over a **built model**. The linter reports the
+same four over the **authored JSON**: syntax errors as `expression/syntax`, unknown functions as
+`expression/unknown-function`, unknown variables as `reference/unknown`, and semantic errors as
+`expression/contradiction` (the condition is always false) or `expression/meaningless-condition`
+(everything else). The semantic verdict is taken from the core itself — the rules call
+`Operand.addConditionSemanticErrors` rather than reimplementing it — so the two stay in step,
+including the deliberate silence on a lone boolean constant: `visibleIf: "false"` is how an author
+switches an element off, not a defect, and nothing reports it.
+
+`expression/contradiction` is the first instalment of the reachability group of #11693. It is
+named for the whole defect, so the satisfiability reasoning that group asks for extends this rule
+later instead of needing a new id.
+
 ## Limits
 
 * No runtime data: a defect that appears only for a particular set of answers is out of scope,
   and conditions are not solved (a `cycle/trigger` loop may be unreachable — the message says so).
+  A condition made **only** of constants is the exception: it has no answers to depend on, so it
+  is evaluated. `{q} = 'a' and {q} = 'b'` is a contradiction that needs satisfiability and is not
+  reported yet.
 * A custom question type without a `components` entry is analysed as an opaque element.
 * A custom trigger type is not covered by the target and cycle checks.
 
@@ -183,6 +242,7 @@ WARN  expression/unknown-choice
 | `value-types.ts` | Per-question value shape and choice information. |
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
 | `rule.ts` | `ILintRule`, `LintContext.report`, severity resolution and suppression matching. |
+| `reasons.ts` | The frozen `(ruleId, reason)` tables a host localizes on. |
 | `rules/` | One file per rule, registered in `rules/index.ts`. |
 | `renderer.ts` | `renderFindings` — the text report. |
 
@@ -196,7 +256,10 @@ WARN  expression/unknown-choice
 3. Give every finding a `path`, a message a form author can act on, and the same facts in
    `messageData`; add a `suggestion` when the defect looks like a typo and a `reproduction`
    when the failure can be demonstrated with a few `set` steps.
-4. Add tests under `tests/linter/`.
+4. Add an entry for the rule to `SurveyLintReasons` in `reasons.ts`, with one value per branch
+   of its message, and pass it as `reason`. Interpolate nothing the finding does not also
+   report: a host composes the localized sentence from `(ruleId, reason)` and `messageData`.
+5. Add tests under `tests/linter/`.
 
 ## Build and test
 

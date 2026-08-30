@@ -5,6 +5,9 @@ import { classifySiteRefs, collectOperands, getConstValues, matchVariableCompari
 import { ElementRecord, ParsedRef } from "../symbols";
 import { getSpecialChoiceValues } from "../value-types";
 import { ILintReproduction } from "../types";
+import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
+
+const reasons = SurveyLintReasons["expression/unknown-choice"];
 import { ILintResolvedSettings } from "../lint-settings";
 
 const CHOICE_OPERATORS: { [op: string]: boolean } = {
@@ -92,6 +95,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
           reproduction = {
             description: "No selectable choice of \"" + record.name + "\" " +
               (useSubstring ? "contains " : "equals ") + missingText + ".",
+            reason: useSubstring
+              ? SurveyLintReproductionReasons.noChoiceContains
+              : SurveyLintReproductionReasons.noChoiceEquals,
             steps: record.choicesInfo.staticValues.slice(0, 3).map(value => ({ set: { [record.name]: value } })),
           };
           reproduction.steps.push({ expect: { visible: { [site.owner.name]: true } } });
@@ -101,8 +107,10 @@ export const expressionUnknownChoiceRule: ILintRule = {
             (useSubstring ? " - no choice value contains it." : " - not among its choices.") +
             " Available: " + availableText + ". (in \"" + site.text + "\")",
           path: site.path,
+          reason: useSubstring ? reasons.noChoiceContains : reasons.notAmongChoices,
           messageData: {
             name: refName,
+            recordName: record.name,
             reference: ref.raw,
             operator: match.operator,
             values: missing,

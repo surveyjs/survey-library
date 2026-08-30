@@ -1,18 +1,29 @@
 import { ILintRule, LintContext } from "../rule";
 import { classifyNameRef, classifySiteRefs } from "../expression-utils";
 import { ExpressionSite, NameRef, ParsedRef } from "../symbols";
+import { SurveyLintReasons } from "../reasons";
+import { ILintHint } from "../types";
+
+const reasons = SurveyLintReasons["reference/unknown"];
 
 function segmentName(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
   return ref.segments[idx] ? ref.segments[idx].name : ref.raw;
 }
 
-function buildMessage(ref: ParsedRef, context: string): string {
+function getReason(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
+  if (ref.status === "scoped-unknown") return reasons.scopedUnknown;
+  if (idx > 0 && ref.resolvedTo) return reasons.inContainer;
+  return reasons.notFound;
+}
+
+function buildMessage(ref: ParsedRef, context: string): string {
   let message: string;
-  if (ref.status === "scoped-unknown") {
+  const reason = getReason(ref);
+  if (reason === reasons.scopedUnknown) {
     message = "\"" + segmentName(ref) + "\" is not found in the \"" + ref.scopePrefix + "\" scope of {" + ref.raw + "}.";
-  } else if (idx > 0 && ref.resolvedTo) {
+  } else if (reason === reasons.inContainer) {
     message = "\"" + segmentName(ref) + "\" is not found in " + ref.resolvedTo.type + " \"" + ref.segments[0].name + "\" ({" + ref.raw + "}).";
   } else {
     message = "\"" + ref.raw + "\" is not found - no question, panel, page, calculated value, or variable with that name exists.";
@@ -23,15 +34,24 @@ function buildMessage(ref: ParsedRef, context: string): string {
   return message;
 }
 
+function getHint(ref: ParsedRef): ILintHint {
+  if (!ref.hintReason) return undefined;
+  return { reason: ref.hintReason, name: ref.hintName };
+}
+
 function reportRef(ctx: LintContext, ref: ParsedRef, path: string, site: ExpressionSite | undefined,
   expression: string, refKind: string): void {
   ctx.report({
     message: buildMessage(ref, expression ? "(in \"" + expression + "\")" : ""),
     path: path,
+    reason: getReason(ref),
+    hint: getHint(ref),
     messageData: {
       name: ref.raw,
       segment: segmentName(ref),
       segmentIndex: ref.unknownSegmentIndex || 0,
+      root: ref.segments[0].name,
+      containerType: ref.resolvedTo ? ref.resolvedTo.type : undefined,
       expression: expression,
       refKind: refKind,
       scopePrefix: ref.scopePrefix,
@@ -62,11 +82,16 @@ export const referenceUnknownRule: ILintRule = {
           message: buildMessage(ref, nameRef.kind === "binding"
             ? "(referenced in bindings)" : "(referenced in the choicesByUrl URL)"),
           path: nameRef.path,
+          reason: getReason(ref),
+          hint: getHint(ref),
           messageData: {
             name: ref.raw,
             segment: segmentName(ref),
             segmentIndex: ref.unknownSegmentIndex || 0,
+            root: ref.segments[0].name,
+            containerType: ref.resolvedTo ? ref.resolvedTo.type : undefined,
             refKind: nameRef.kind,
+            scopePrefix: ref.scopePrefix,
             note: "No case: the reference cannot be evaluated.",
           },
           elementName: nameRef.owner ? nameRef.owner.name : undefined,

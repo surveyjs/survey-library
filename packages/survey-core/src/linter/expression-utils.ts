@@ -1,5 +1,6 @@
 import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, Operand, ValueGetter, Variable } from "survey-core";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
+import { SurveyLintHintReasons } from "./reasons";
 import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
@@ -134,6 +135,13 @@ interface ScopeResolution {
   ref?: ParsedRef;
   // set when the root word looks like a scope prefix but the scope is not active
   inactiveHint?: string;
+  inactiveHintReason?: string;
+  inactiveHintName?: string;
+}
+
+// The text is what the English message shows; the reason is what a host localizes on.
+function inactiveScope(reason: string, name: string, text: string): ScopeResolution {
+  return { handled: false, inactiveHint: text, inactiveHintReason: reason, inactiveHintName: name };
 }
 
 function scopedResolved(ref: ParsedRef, prefix: string): ParsedRef {
@@ -190,14 +198,16 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   const rowPrefixes = [vars.row, vars.prevRow, vars.nextRow, vars.totalRow];
   for (let i = 0; i < rowPrefixes.length; i++) {
     if (equalsCI(root, rowPrefixes[i])) {
-      if (!matrixFrame) return { handled: false, inactiveHint: "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel." };
+      if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopePrefix, rowPrefixes[i],
+        "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel.");
       return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], matrixFrame.columns, lintSettings) };
     }
   }
   const rowStandalone = [vars.rowIndex, vars.visibleRowIndex, vars.rowValue, vars.rowName, vars.rowTitle, vars.matrix];
   for (let i = 0; i < rowStandalone.length; i++) {
     if (equalsCI(root, rowStandalone[i])) {
-      if (!matrixFrame) return { handled: false, inactiveHint: "\"" + rowStandalone[i] + "\" is only available inside a matrix cell or a matrix detail panel." };
+      if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopeStandalone, rowStandalone[i],
+        "\"" + rowStandalone[i] + "\" is only available inside a matrix cell or a matrix detail panel.");
       return { handled: true, ref: scopedResolved(ref, rowStandalone[i]) };
     }
   }
@@ -216,31 +226,36 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
       }
       return { handled: true, ref: scopedUnknown(ref, vars.panel, 1, staticPanel.panelDescendantNames.names()) };
     }
-    return { handled: false, inactiveHint: "\"" + vars.panel + ".\" references are only available inside a dynamic panel or a panel container." };
+    return inactiveScope(SurveyLintHintReasons.panelScopePrefix, vars.panel,
+      "\"" + vars.panel + ".\" references are only available inside a dynamic panel or a panel container.");
   }
   const panelSiblings = [vars.prevPanel, vars.nextPanel];
   for (let i = 0; i < panelSiblings.length; i++) {
     if (equalsCI(root, panelSiblings[i])) {
-      if (!panelFrame) return { handled: false, inactiveHint: "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel." };
+      if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelSiblingPrefix, panelSiblings[i],
+        "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel.");
       return { handled: true, ref: validateInnerName(ref, panelSiblings[i], panelFrame.templateNames, lintSettings) };
     }
   }
   const panelStandalone = [vars.parentPanel, vars.panelIndex, vars.visiblePanelIndex];
   for (let i = 0; i < panelStandalone.length; i++) {
     if (equalsCI(root, panelStandalone[i])) {
-      if (!panelFrame) return { handled: false, inactiveHint: "\"" + panelStandalone[i] + "\" is only available inside a dynamic panel." };
+      if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelStandalone, panelStandalone[i],
+        "\"" + panelStandalone[i] + "\" is only available inside a dynamic panel.");
       return { handled: true, ref: scopedResolved(ref, panelStandalone[i]) };
     }
   }
   const itemPrefixes = [vars.item, vars.choice, vars.column];
   for (let i = 0; i < itemPrefixes.length; i++) {
     if (equalsCI(root, itemPrefixes[i])) {
-      if (!itemFrame) return { handled: false, inactiveHint: "\"" + itemPrefixes[i] + "\" is only available inside choice/row/column conditions." };
+      if (!itemFrame) return inactiveScope(SurveyLintHintReasons.itemScope, itemPrefixes[i],
+        "\"" + itemPrefixes[i] + "\" is only available inside choice/row/column conditions.");
       return { handled: true, ref: scopedResolved(ref, itemPrefixes[i]) };
     }
   }
   if (equalsCI(root, vars.composite)) {
-    if (!compositeFrame) return { handled: false, inactiveHint: "\"" + vars.composite + ".\" references are only available inside a composite question." };
+    if (!compositeFrame) return inactiveScope(SurveyLintHintReasons.compositeScopePrefix, vars.composite,
+      "\"" + vars.composite + ".\" references are only available inside a composite question.");
     if (compositeFrame.fieldNames.size === 0 || ref.segments.length < 2) {
       return { handled: true, ref: scopedResolved(ref, vars.composite) };
     }
@@ -458,16 +473,24 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   ref.status = "unknown";
   ref.unknownSegmentIndex = 0;
   const inactiveHint = (<ScopeResolution>scopeRes).inactiveHint;
-  if (inactiveHint) ref.scopeHint = inactiveHint;
+  if (inactiveHint) {
+    ref.scopeHint = inactiveHint;
+    ref.hintReason = (<ScopeResolution>scopeRes).inactiveHintReason;
+    ref.hintName = (<ScopeResolution>scopeRes).inactiveHintName;
+  }
   // a bare name that exists in the enclosing template/matrix scope needs its prefix
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
   if (matrixFrame && matrixFrame.columns.has(root)) {
     ref.suggestion = index.settings.expressionVariables.row + "." + root;
     ref.scopeHint = "\"" + root + "\" is a column of this matrix - reference it as {" + ref.suggestion + "}.";
+    ref.hintReason = SurveyLintHintReasons.matrixColumn;
+    ref.hintName = root;
   } else if (panelFrame && panelFrame.templateNames.has(root)) {
     ref.suggestion = index.settings.expressionVariables.panel + "." + root;
     ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
+    ref.hintReason = SurveyLintHintReasons.panelQuestion;
+    ref.hintName = root;
   } else {
     const candidates = rootCandidates(index, options, nameOnly);
     let suggestion: string = undefined;
@@ -598,4 +621,42 @@ export function buildTriggerSetStep(trigger: TriggerRecord, operators?: { [op: s
   const root = splitRefSegments(match.variable.variable)[0];
   if (!root || !root.name || root.name.indexOf(":") > -1) return undefined;
   return { set: { [root.name]: (<Const>match.constSide).correctValue } };
+}
+
+export type ConditionSemanticsVerdict =
+  "alwaysFalse" | "alwaysTrue" | "notABoolean" | "meaninglessFragment";
+
+// The verdict the core's own semantic check gives a condition, refined into which defect it is.
+// Undefined when the core reports nothing, which keeps the linter at parity with
+// Base.validateExpressions - including its deliberate silence on a lone boolean constant, the one
+// form that is a switch the author meant rather than a defect.
+//
+// Only a condition is judged: a constant *expression* is legitimate (a calculated value of
+// "1 + 2"), a constant *condition* is not.
+export function getConditionSemanticsVerdict(site: ExpressionSite): ConditionSemanticsVerdict | undefined {
+  if (!site || site.kind !== "condition" || !!site.parseError || !site.ast) return undefined;
+  const ast = site.ast;
+  const errors: Array<any> = [];
+  ast.addConditionSemanticErrors(errors);
+  if (errors.length === 0) return undefined;
+  // A condition built only from constants has its result fixed at authoring time, so it can be
+  // evaluated without any answers: Const.evaluate() takes none, and the operands a constant tree
+  // is made of ignore the process value they are handed. A function call is never constant
+  // (FunctionOperand does not override isConstant), so nothing registered by the application runs
+  // here - hasFunction() states that intent rather than relying on it.
+  if (ast.isConstant() && !ast.hasFunction()) {
+    try {
+      return !!ast.evaluate() ? "alwaysTrue" : "alwaysFalse";
+    } catch{
+      return "meaninglessFragment";
+    }
+  }
+  // Knowing the value beats knowing the shape, so this runs after the branch above: a constant
+  // "1 + 1" is reported as alwaysTrue rather than as arithmetic. The core agrees - it adds the
+  // arithmetic error only when the operand is not constant.
+  const binary = <BinaryOperand>ast;
+  if (binary instanceof BinaryOperand && binary.isArithmetic && !binary.isConjunction) {
+    return "notABoolean";
+  }
+  return "meaninglessFragment";
 }

@@ -1,5 +1,8 @@
 import { Serializer } from "survey-core";
 import { closestMatch } from "../levenshtein";
+import { SurveyLintReasons } from "../reasons";
+
+const reasons = SurveyLintReasons["choices/dead-source"];
 import { ILintRule, LintContext } from "../rule";
 import { resolveCarryForwardSource } from "../expression-utils";
 import { CIMultiMap, ElementRecord } from "../symbols";
@@ -36,6 +39,7 @@ export const choicesDeadSourceRule: ILintRule = {
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName +
             "\", but no question with that name exists.",
           path: path,
+          reason: reasons.missing,
           messageData: { name: record.name, source: sourceName, reason: "missing" },
           elementName: record.name,
           elementType: record.type,
@@ -47,6 +51,7 @@ export const choicesDeadSourceRule: ILintRule = {
         ctx.report({
           message: "\"" + record.name + "\" copies its choices from itself.",
           path: path,
+          reason: reasons.self,
           messageData: { name: record.name, source: sourceName, reason: "self" },
           elementName: record.name,
           elementType: record.type,
@@ -64,6 +69,7 @@ export const choicesDeadSourceRule: ILintRule = {
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName + "\" (" + sourceType +
             "), which provides neither choices nor an array of values.",
           path: path,
+          reason: reasons["not-a-source"],
           messageData: { name: record.name, source: sourceName, sourceType: sourceType, reason: "not-a-source" },
           elementName: record.name,
           elementType: record.type,
@@ -82,7 +88,11 @@ export const choicesDeadSourceRule: ILintRule = {
               "\", but " + sourceType + " \"" + sourceName + "\" has no such " +
               (sourceType === "paneldynamic" ? "template question" : "column") + ".",
             path: fieldPath,
-            messageData: { name: record.name, source: sourceName, field: fieldValue, reason: "missing-field", prop: prop },
+            reason: reasons["missing-field"],
+            messageData: {
+              name: record.name, source: sourceName, sourceType: sourceType, field: fieldValue,
+              reason: "missing-field", prop: prop,
+            },
             elementName: record.name,
             elementType: record.type,
             suggestion: closestMatch(fieldValue, fields.names()),

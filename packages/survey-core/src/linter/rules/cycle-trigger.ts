@@ -2,6 +2,9 @@ import { ILintRule, LintContext } from "../rule";
 import { buildTriggerSetStep, classifySiteRefs } from "../expression-utils";
 import { TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
+import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
+
+const reasons = SurveyLintReasons["cycle/trigger"];
 import { findCycles } from "../graph";
 
 // Triggers write and expressions read DATA keys: a question's name and its
@@ -52,16 +55,25 @@ export const cycleTriggerRule: ILintRule = {
       const setStep = buildTriggerSetStep(first);
       const reproduction: ILintReproduction = setStep ? {
         description: "This fires the first trigger; each trigger in the cycle sets a value the next one reacts to.",
+        reason: SurveyLintReproductionReasons.triggerCycle,
         steps: [setStep],
       } : undefined;
+      const isSelf = cycle.length === 1;
       ctx.report({
-        message: (cycle.length === 1
+        message: (isSelf
           ? "The trigger at " + first.path + " reacts to the value it sets itself (\"" + first.setToName + "\")."
           : "Triggers form a loop through the values they set: " + labels.join(" -> ") + ".") +
           " The loop may be unreachable if the trigger conditions never hold together - verify the expressions.",
         path: first.path,
+        reason: isSelf ? reasons.self : reasons.loop,
         messageData: {
+          // "cycle" holds the rendered labels the English message lists. "members" holds the
+          // same triggers unformatted, so a host can compose its own labels.
           cycle: labels,
+          members: members.map(member => ({
+            path: member.path, type: member.type, setToName: member.setToName,
+          })),
+          setToName: first.setToName,
           triggerIndexes: members.map(member => member.index),
           setRoots: members.map(member => member.setRoot),
         },

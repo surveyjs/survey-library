@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "quantity": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/name"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/addressOrUser"
+      }
+    ]
+  }
+}

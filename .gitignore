@@ -61,4 +61,5 @@ packages/survey-js-ui/tests/bundle/*
 packages/survey-core/test_output.txt
 .claude/
 packages/survey-core/promts/
+packages/converter/promts/
 packages/survey-core/docs/

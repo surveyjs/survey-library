@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "title": "Data types",
+  "description": "One property per baseline type-mapping row.",
+  "properties": {
+    "fullName": { "type": "string", "title": "Full name", "minLength": 2, "maxLength": 80 },
+    "nickname": { "type": "string", "title": "Nickname", "pattern": "^[a-z]+$", "default": "anon" },
+    "country": { "type": "string", "title": "Country", "enum": ["us", "ee", "de"] },
+    "email": { "type": "string", "title": "Email", "format": "email" },
+    "birthDate": { "type": "string", "title": "Birth date", "format": "date" },
+    "homepage": { "type": "string", "title": "Homepage", "format": "uri" },
+    "age": { "type": "integer", "title": "Age", "minimum": 0, "maximum": 130 },
+    "score": { "type": "number", "title": "Score", "minimum": 0 },
+    "subscribe": { "type": "boolean", "title": "Subscribe" },
+    "hobbies": {
+      "type": "array",
+      "title": "Hobbies",
+      "items": { "type": "string", "enum": ["sports", "music", "reading"] }
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": { "type": "string" }
+    },
+    "contacts": {
+      "type": "array",
+      "title": "Contacts",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": { "type": "string", "title": "Kind", "enum": ["home", "work"] },
+          "value": { "type": "string", "title": "Value" }
+        },
+        "required": ["value"]
+      }
+    },
+    "address": {
+      "type": "object",
+      "title": "Address",
+      "properties": {
+        "street": { "type": "string", "title": "Street" },
+        "city": { "type": "string", "title": "City" },
+        "zip": { "type": "string", "title": "ZIP", "pattern": "^[0-9]{5}$" }
+      },
+      "required": ["street", "city"]
+    }
+  },
+  "required": ["fullName", "email"]
+}

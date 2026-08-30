@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "orderId": {
+        "type": "string"
+      },
+      "purchaseDate": {
+        "type": "string",
+        "format": "date"
+      },
+      "price": {
+        "type": "number"
+      },
+      "shippingAddress": {
+        "$ref": "#/definitions/shippingAddress"
+      }
+    },
+    "definitions": {
+      "shippingAddress": {
+        "type": "object",
+        "properties": {
+          "aptNo": {
+            "type": "integer"
+          },
+          "streetNumber": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/orderId"
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/purchaseDate"
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/price"
+          }
+        ]
+      },
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/shippingAddress/properties/aptNo"
+          },
+          {
+            "type": "Control",
+            "scope": "#/properties/shippingAddress/properties/streetNumber"
+          }
+        ]
+      }
+    ]
+  }
+}

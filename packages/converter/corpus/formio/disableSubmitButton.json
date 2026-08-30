@@ -1,0 +1,62 @@
+{
+  "type": "form",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "validate": {
+        "maxLength": 3
+      },
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "S3 Display",
+      "tableView": false,
+      "storage": "s3",
+      "image": true,
+      "webcam": true,
+      "fileTypes": [
+        {
+          "value": "",
+          "label": ""
+        }
+      ],
+      "multiple": true,
+      "validate": {
+        "multiple": true
+      },
+      "key": "upload",
+      "type": "file",
+      "input": true
+    },
+    {
+      "label": "Upload",
+      "tableView": false,
+      "storage": "s3",
+      "webcam": false,
+      "fileTypes": [
+        {
+          "label": "",
+          "value": ""
+        }
+      ],
+      "key": "file",
+      "type": "file",
+      "input": true
+    },
+    {
+      "label": "Submit",
+      "showValidations": false,
+      "disableOnInvalid": true,
+      "tableView": false,
+      "key": "submit",
+      "type": "button",
+      "input": true
+    }
+  ],
+  "title": "filesS3",
+  "display": "form",
+  "name": "disableSubmitButton"
+}

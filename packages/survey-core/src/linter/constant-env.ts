@@ -62,33 +62,45 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
   const sources = new CIMap<ConstantSource>();
   const triggerTargets = collectTriggerTargets(index);
   const ambiguous = collectAmbiguousNames(index);
-  // null-proto: the keys are user names, and VariableGetterContext walks them with for-in
+  // null-proto: the keys are user names, and VariableGetterContext walks them with for-in.
+  // The hash is handed to ProcessValue by reference, so filling it in later is what makes
+  // an already-resolved source visible to the sources resolved after it.
   const values: { [name: string]: any } = Object.create(null);
-
-  index.calculatedValues.forEach((record, name) => {
-    if (triggerTargets.has(name) || ambiguous.has(name)) return;
-    const site = record.site;
-    if (!site || !site.ast || !!site.parseError) return;
-    // a call is never constant, and nothing registered by the application runs at lint time
-    if (!site.ast.isConstant() || site.ast.hasFunction()) return;
-    let value: any;
-    try {
-      value = site.ast.evaluate();
-    } catch{
-      return;
-    }
-    sources.set(name, {
-      name: record.name, path: site.path, expression: record.expression, value: value,
-    });
-    values[record.name] = value;
-  });
-
-  return {
+  const env: ConstantEnv = {
     index: index,
     options: options,
     sources: sources,
     processValue: new ProcessValue(new VariableGetterContext(values)),
   };
+
+  // A source may be constant only because another one is, and the JSON is under no obligation
+  // to declare them in that order - so keep resolving until a pass adds nothing. A cycle never
+  // settles and simply stays unresolved, which is what cycle/calculated-value reports.
+  let added = true;
+  while(added) {
+    added = false;
+    index.calculatedValues.forEach((record, name) => {
+      if (sources.has(name) || triggerTargets.has(name) || ambiguous.has(name)) return;
+      const site = record.site;
+      if (!site || !site.ast || !!site.parseError) return;
+      // a call is never constant, and nothing registered by the application runs at lint time
+      if (site.ast.hasFunction()) return;
+      const refs = classifySiteRefs(site, index, options);
+      if (refs.some(ref => !getFoldableSource(ref, site, env))) return;
+      let value: any;
+      try {
+        value = site.ast.evaluate(env.processValue);
+      } catch{
+        return;
+      }
+      sources.set(name, {
+        name: record.name, path: site.path, expression: record.expression, value: value,
+      });
+      values[record.name] = value;
+      added = true;
+    });
+  }
+  return env;
 }
 
 // The runtime resolves a name inside a matrix row or a dynamic panel against that container

@@ -59,6 +59,49 @@ describe("a condition decided by a constant calculated value", () => {
   });
 });
 
+describe("a chain of constant sources", () => {
+  const chain = [
+    { name: "c1", expression: "1 + 1" },
+    { name: "c2", expression: "{c1} * 2" },
+    { name: "c3", expression: "{c2} + 1" },
+  ];
+  test("a source built from another constant source is constant too", () => {
+    expect(verdictOf(withCalculated(chain, "{c3} = 9"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+    expect(verdictOf(withCalculated(chain, "{c3} = 5"))).toEqual(
+      { ruleId: "expression/meaningless-condition", reason: "alwaysTrueViaConstants" });
+  });
+  test("the declaration order does not matter", () => {
+    expect(verdictOf(withCalculated(chain.slice().reverse(), "{c3} = 9"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+  test("only the sources the condition names are reported", () => {
+    const findings = findingsOf(withCalculated(chain, "{c3} = 9"), "expression/contradiction");
+    expect(findings[0].messageData.constants).toEqual({ c3: 5 });
+    expect(findings[0].related).toEqual([
+      { path: "calculatedValues[2].expression", elementName: "c3" },
+    ]);
+  });
+  test("a chain broken by an answer is not constant at any link", () => {
+    expect(verdictOf(withCalculated([
+      { name: "c1", expression: "{q1} + 1" },
+      { name: "c2", expression: "{c1} * 2" },
+    ], "{c2} = 9"))).toBeUndefined();
+  });
+  test("a cycle never settles, so nothing in it is constant", () => {
+    const json = withCalculated([
+      { name: "a", expression: "{b} + 1" },
+      { name: "b", expression: "{a} + 1" },
+    ], "{a} = 5");
+    expect(verdictOf(json)).toBeUndefined();
+    expect(findingsOf(json, "cycle/calculated-value")).toHaveLength(1);
+  });
+  test("a self-reference is not constant either", () => {
+    expect(verdictOf(withCalculated([{ name: "a", expression: "{a} + 1" }], "{a} = 5")))
+      .toBeUndefined();
+  });
+});
+
 describe("what stays clean", () => {
   test("a source that depends on an answer is not a constant", () => {
     expect(verdictFor("{q1} + 1", "{c1} = 5")).toBeUndefined();

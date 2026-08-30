@@ -1951,7 +1951,7 @@ describe("Datetime mask: locale date preset", () => {
 
     const presetProperty = Serializer.findProperty("datetimemask", "patternPreset");
     expect(presetProperty.visible, "hidden from the property grid for now").toBe(false);
-    expect(presetProperty.getChoices(null), "a single choice until the time presets arrive").toEqual(["localeDate"]);
+    expect(presetProperty.getChoices(null), "the pattern sources").toEqual(["localeDate", "localeTime", "localeDateTime"]);
   });
 
   test("A survey without the preset keeps its authored pattern", () => {
@@ -2055,5 +2055,181 @@ describe("Datetime mask: regionLocale", () => {
     survey.regionLocale = "en-GB";
     expect(editor.inputValue, "the british multiple text item").toBe("dd/mm/yyyy");
     expect(cell.inputValue, "the british matrix cell").toBe("dd/mm/yyyy");
+  });
+});
+
+describe("Datetime mask: locale time and datetime presets", () => {
+  const createPresetQuestion = (maskSettings: any, locale?: string): QuestionTextModel => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime", maskSettings: maskSettings }] });
+    if (!!locale) survey.locale = locale;
+    return <QuestionTextModel>survey.getQuestionByName("q1");
+  };
+
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  test("The pinned time pattern table for every locale-data entry", () => {
+    // 12-hour only where the locale writes the marker as the latin AM/PM the mask accepts
+    const hours12 = ["en", "en-au", "en-ca", "en-in", "en-nz", "fil"];
+    Object.keys(localeData).forEach(loc => {
+      const expected = hours12.indexOf(loc) !== -1 ? "hh:MM TT" : "HH:MM";
+      expect(getLocaleDataValue(loc, "timePattern"), loc).toBe(expected);
+      expect(localeData[loc].timePattern, "every entry defines a time pattern: " + loc).toBeDefined();
+    });
+    expect(getLocaleDataValue("de-CH", "timePattern"), "a regional locale falls back to its language").toBe("HH:MM");
+    expect(getLocaleDataValue("zz", "timePattern"), "an unknown locale resolves to english").toBe("hh:MM TT");
+    expect(localeData["en"].datePattern, "en defines every shipped field").toBeDefined();
+    expect(localeData["en"].timePattern, "en defines every shipped field").toBeDefined();
+  });
+
+  test("The localeTime preset renders the locale time pattern", () => {
+    const usQuestion = createPresetQuestion({ patternPreset: "localeTime" });
+    expect(usQuestion.inputValue, "the english empty mask").toBe("hh:MM TT");
+    usQuestion.inputValue = "03:30 PM";
+    expect(usQuestion.value, "the stored value").toBe("15:30");
+
+    const deQuestion = createPresetQuestion({ patternPreset: "localeTime" }, "de");
+    expect(deQuestion.inputValue, "the german empty mask is 24-hour").toBe("HH:MM");
+    deQuestion.inputValue = "15:30";
+    expect(deQuestion.value, "the stored value is identical across locales").toBe("15:30");
+  });
+
+  test("The localeDateTime preset composes the date and the time pattern", () => {
+    const usMask = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeDateTime" }).maskSettings;
+    expect(usMask.activePattern, "the composed english pattern").toBe("mm/dd/yyyy hh:MM TT");
+    expect(usMask.getMaskedValue("2000-12-25T15:30:00"), "a complete english value").toBe("12/25/2000 03:30 PM");
+    expect(usMask.getUnmaskedValue("12/25/2000 03:30 PM"), "the unmasked value").toBe("2000-12-25T15:30");
+
+    const csMask = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeDateTime" }, "cs").maskSettings;
+    expect(csMask.activePattern, "a multi-character separator survives the composition").toBe("dd. mm. yyyy HH:MM");
+    expect(csMask.getMaskedValue("2000-12-25T15:30:00"), "a complete czech value").toBe("25. 12. 2000 15:30");
+    expect(csMask.getUnmaskedValue("25. 12. 2000 15:30"), "the unmasked value").toBe("2000-12-25T15:30");
+  });
+
+  test("The time presets follow regionLocale and are outranked by an authored pattern", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", maskType: "datetime", maskSettings: { patternPreset: "localeTime" } }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.inputValue, "english").toBe("hh:MM TT");
+
+    survey.regionLocale = "en-GB";
+    expect(q.inputValue, "the british format locale").toBe("HH:MM");
+
+    const authored = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeTime", pattern: "HH:MM:ss" }).maskSettings;
+    expect(authored.activePattern, "the authored pattern wins").toBe("HH:MM:ss");
+  });
+
+  test("An invalid locale time pattern falls through the chain", () => {
+    const deData = localeData["de"];
+    try {
+      // a date lexem, a marker the mask cannot parse because it precedes the hour, and a
+      // pattern without a minute are all rejected in favour of the english entry
+      ["dd/mm/yyyy", "tt hh:MM", "HH"].forEach(pattern => {
+        localeData["de"] = { ...deData, timePattern: pattern };
+        const maskInstance = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeTime" }, "de").maskSettings;
+        expect(maskInstance.activePattern, "rejected: " + pattern).toBe("hh:MM TT");
+      });
+
+      localeData["de"] = { ...deData, timePattern: "HH:MM:ss" };
+      const withSeconds = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeTime" }, "de").maskSettings;
+      expect(withSeconds.activePattern, "a valid entry with seconds is accepted").toBe("HH:MM:ss");
+    } finally {
+      localeData["de"] = deData;
+    }
+  });
+
+  test("A partial time is converted between the 12- and the 24-hour clock", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", maskType: "datetime", maskSettings: { patternPreset: "localeTime" } }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "03:30 pm";
+    expect(q.isEmpty(), "an incomplete marker entry is not stored").toBe(false);
+
+    survey.regionLocale = "de";
+    expect(q.inputValue, "3:30 pm is 15:30 on a 24-hour clock").toBe("15:30");
+
+    survey.regionLocale = "";
+    expect(q.inputValue, "and back again").toBe("03:30 PM");
+  });
+
+  test("Midnight and noon survive the 12/24-hour conversion", () => {
+    const mask12 = new InputMaskDateTime();
+    mask12.pattern = "hh:MM TT";
+    const mask24 = new InputMaskDateTime();
+    mask24.pattern = "HH:MM";
+
+    const to24 = (entered: string): string => mask24.getMaskedValueByFragments(mask12.getInputFragments(entered), true);
+    expect(to24("12:30 AM"), "12:30 am is 00:30").toBe("00:30");
+    expect(to24("12:30 PM"), "12:30 pm is 12:30").toBe("12:30");
+    expect(to24("03:30 PM"), "3:30 pm is 15:30").toBe("15:30");
+    expect(to24("03:30 AM"), "3:30 am is 03:30").toBe("03:30");
+
+    const to12 = (entered: string): string => mask12.getMaskedValueByFragments(mask24.getInputFragments(entered), false);
+    expect(to12("00:30"), "00:30 is 12:30 am").toBe("12:30 AM");
+    expect(to12("12:30"), "12:30 is 12:30 pm").toBe("12:30 PM");
+    expect(to12("15:30"), "15:30 is 3:30 pm, not a rejected hour").toBe("03:30 PM");
+    expect(to12("09:30"), "09:30 is 9:30 am").toBe("09:30 AM");
+  });
+
+  test("An ambiguous partial hour is kept as entered", () => {
+    const mask12 = new InputMaskDateTime();
+    mask12.pattern = "hh:MM tt";
+    const mask24 = new InputMaskDateTime();
+    mask24.pattern = "HH:MM";
+
+    // no marker yet: the entry means either of two times, so the hour is not converted
+    expect(mask24.getMaskedValueByFragments(mask12.getInputFragments("03:30 tt"), true), "12-hour without a marker").toBe("03:30");
+    // "1" may still become 13, so it is restored as the single digit it is - the second digit
+    // is still the placeholder symbol, exactly as it was before the switch
+    expect(mask12.getMaskedValueByFragments(mask24.getInputFragments("1H:30"), false), "a half-typed 24-hour hour").toBe("1h:30 tt");
+  });
+
+  test("A 12-hour value round-trips through midnight", () => {
+    const maskInstance = new InputMaskDateTime();
+    maskInstance.pattern = "hh:MM TT";
+    expect(maskInstance.getMaskedValue("00:45"), "midnight is rendered as 12 am").toBe("12:45 AM");
+    expect(maskInstance.getMaskedValue("12:45"), "noon is rendered as 12 pm").toBe("12:45 PM");
+    expect(maskInstance.getUnmaskedValue("12:45 AM"), "12:45 am is the zero hour").toBe("00:45");
+    expect(maskInstance.getUnmaskedValue("12:45 PM"), "12:45 pm is noon").toBe("12:45");
+    expect(maskInstance.getUnmaskedValue(maskInstance.getMaskedValue("00:45")), "the round trip").toBe("00:45");
+  });
+
+  test("Unmasking an entry that stops before the time marker does not crash", () => {
+    const maskInstance = new InputMaskDateTime();
+    maskInstance.pattern = "hh:MM tt";
+    expect(maskInstance.getUnmaskedValue(""), "an empty entry").toBe("");
+    expect(maskInstance.getUnmaskedValue("03:"), "an entry that stops mid-mask").toBe("");
+    // a complete hour and minute make a time; an absent marker reads as the morning, as before
+    expect(maskInstance.getUnmaskedValue("03:30"), "an entry without the marker part").toBe("03:30");
+    expect(maskInstance.getUnmaskedValue("03:30 tt"), "an unfilled marker").toBe("03:30");
+
+    const dateTimeMask = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeDateTime" }).maskSettings;
+    expect(dateTimeMask.getUnmaskedValue("12/25/2000"), "only the date half is entered").toBe("");
+  });
+
+  test("min and max work on a time preset without an authored pattern", () => {
+    const maskInstance = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeTime", min: "09:00", max: "17:00" }, "de").maskSettings;
+    expect(maskInstance.activePattern, "the generated pattern").toBe("HH:MM");
+    expect(Serializer.findProperty("datetimemask", "min").isEnable(maskInstance), "min is enabled").toBe(true);
+    expect(maskInstance._getMaskedValue("10:30"), "a time in range").toBe("10:30");
+    expect(maskInstance._getMaskedValue("23:30"), "an hour above max is rejected").toBe("HH:30");
+  });
+
+  test("The time presets serialize because they are not the default", () => {
+    const q = new QuestionTextModel("q1");
+    q.maskType = "datetime";
+    (<InputMaskDateTime>q.maskSettings).patternPreset = "localeDateTime";
+    expect(q.toJSON(), "a non-default preset serializes").toEqual({
+      name: "q1",
+      maskType: "datetime",
+      maskSettings: { patternPreset: "localeDateTime" }
+    });
+
+    const q2 = new QuestionTextModel("q2");
+    q2.fromJSON({ name: "q2", maskType: "datetime", maskSettings: { patternPreset: "localeTime" } });
+    expect((<InputMaskDateTime>q2.maskSettings).activePattern, "loaded from JSON").toBe("hh:MM TT");
   });
 });

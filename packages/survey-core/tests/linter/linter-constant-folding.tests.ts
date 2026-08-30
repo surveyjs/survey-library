@@ -287,3 +287,37 @@ describe("an expression question that is not a constant source", () => {
     })).toBeUndefined();
   });
 });
+
+describe("a branch decided by constants decides the whole condition", () => {
+  function guarded(condition: string): any {
+    return withCalculated([{ name: "c1", expression: "1 + 1" }], condition);
+  }
+  test("a false and-branch sinks the condition", () => {
+    expect(verdictOf(guarded("{q1} notempty and {c1} = 5"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+    expect(verdictOf(guarded("{c1} = 5 and {q1} notempty"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+  test("a true or-branch settles the condition", () => {
+    expect(verdictOf(guarded("{q1} notempty or {c1} = 2"))).toEqual(
+      { ruleId: "expression/meaningless-condition", reason: "alwaysTrueViaConstants" });
+  });
+  test("nesting is followed", () => {
+    expect(verdictOf(guarded("({c1} = 5 or {c1} = 6) and {q1} notempty"))).toEqual(
+      { ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants" });
+  });
+  test("only the sources that were evaluated are reported", () => {
+    const findings = findingsOf(guarded("{q1} notempty and {c1} = 5"), "expression/contradiction");
+    expect(findings[0].messageData.constants).toEqual({ c1: 2 });
+  });
+  test("a false branch under or decides nothing", () => {
+    expect(verdictOf(guarded("{q1} notempty and ({q1} = 1 or {c1} = 5)"))).toBeUndefined();
+  });
+  test("a true and-branch is not a defect this rule reports", () => {
+    expect(verdictOf(guarded("{q1} notempty and {c1} = 2"))).toBeUndefined();
+  });
+  test("the core keeps the more specific verdict on a branch it already names", () => {
+    expect(verdictOf(guarded("{q1} = 1 and 2 = 3"))).toEqual(
+      { ruleId: "expression/meaningless-condition", reason: "meaninglessFragment" });
+  });
+});

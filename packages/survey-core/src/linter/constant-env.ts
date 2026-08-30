@@ -1,5 +1,5 @@
-import { ProcessValue, Variable, VariableGetterContext } from "survey-core";
-import { classifySiteRefs, splitRefSegments } from "./expression-utils";
+import { BinaryOperand, Operand, ProcessValue, Variable, VariableGetterContext } from "survey-core";
+import { classifySiteRefs, getVariableOperands, splitRefSegments } from "./expression-utils";
 import {
   CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
@@ -219,25 +219,68 @@ export function toConstantsRelated(used: Array<ConstantSource>): Array<{ path: s
   return used.map(source => ({ path: source.path, elementName: source.name }));
 }
 
-// The value a condition has at authoring time, when every reference in it resolves to a
-// constant source. Undefined when anything in the condition depends on an answer.
-export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCondition | undefined {
-  if (!site || site.kind !== "condition" || !!site.parseError || !site.ast) return undefined;
-  const ast = site.ast;
-  if (ast.hasFunction()) return undefined;
-  // a lone reference is a switch the author meant, the way a lone boolean constant is
-  if (ast instanceof Variable) return undefined;
-  const refs = classifySiteRefs(site, env.index, env.options);
-  if (refs.length === 0) return undefined;
-  const used: Array<ConstantSource> = [];
-  for (let i = 0; i < refs.length; i++) {
-    const source = getFoldableSource(refs[i], site, env);
+// A subtree with no reference left unresolved, evaluated as a whole. Undefined when anything
+// in it depends on an answer - evaluating then would read a missing name as null and turn
+// "{q1} = 5" into a confident false.
+function evalLeaf(node: Operand, ctx: FoldContext): boolean | undefined {
+  if (node.hasFunction()) return undefined;
+  const vars = getVariableOperands(node);
+  const found: Array<ConstantSource> = [];
+  for (let i = 0; i < vars.length; i++) {
+    const ref = ctx.refByRaw.get(vars[i].variable);
+    const source = !!ref ? getFoldableSource(ref, ctx.site, ctx.env) : undefined;
     if (!source) return undefined;
-    if (used.indexOf(source) < 0) used.push(source);
+    found.push(source);
   }
+  let value: any;
   try {
-    return { value: ast.evaluate(env.processValue), used: used };
+    value = node.evaluate(ctx.env.processValue);
   } catch{
     return undefined;
   }
+  found.forEach(source => {
+    if (ctx.used.indexOf(source) < 0) ctx.used.push(source);
+  });
+  return !!value;
+}
+
+// Three-valued evaluation over and/or: a branch whose value is known can decide the whole
+// condition even when the rest of it depends on the answers. Only and/or are taken apart -
+// everything else, a unary operator included, is a leaf, so no reasoning about the polarity
+// of a node is needed and an undecided branch costs a missed finding, never a wrong one.
+function evalPartial(node: Operand, ctx: FoldContext): boolean | undefined {
+  if (!(node instanceof BinaryOperand) || !node.isConjunction) return evalLeaf(node, ctx);
+  const left = evalPartial(node.leftOperand, ctx);
+  const right = evalPartial(node.rightOperand, ctx);
+  if (node.conjunction === "and") {
+    if (left === false || right === false) return false;
+    return left === true && right === true ? true : undefined;
+  }
+  if (left === true || right === true) return true;
+  return left === false && right === false ? false : undefined;
+}
+
+interface FoldContext {
+  site: ExpressionSite;
+  env: ConstantEnv;
+  refByRaw: Map<string, ParsedRef>;
+  used: Array<ConstantSource>;
+}
+
+// The value a condition has at authoring time, as far as the constant sources decide it.
+export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCondition | undefined {
+  if (!site || site.kind !== "condition" || !!site.parseError || !site.ast) return undefined;
+  const ast = site.ast;
+  // a lone reference is a switch the author meant, the way a lone boolean constant is
+  if (ast instanceof Variable) return undefined;
+  // Map, not an object literal: the keys are raw variable names from user expressions
+  const refByRaw = new Map<string, ParsedRef>();
+  classifySiteRefs(site, env.index, env.options).forEach(ref => {
+    if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
+  });
+  const ctx: FoldContext = { site: site, env: env, refByRaw: refByRaw, used: [] };
+  const value = evalPartial(ast, ctx);
+  // no source used means the condition is constant on its own, which the core already reports
+  if (value === undefined || ctx.used.length === 0) return undefined;
+  return { value: value, used: ctx.used };
 }

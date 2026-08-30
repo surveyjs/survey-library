@@ -246,7 +246,13 @@ export var swedishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Förloppsindikator",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sida {0}"
+  progressbarPage: "Sida {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å"
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });

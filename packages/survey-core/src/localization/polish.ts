@@ -246,7 +246,13 @@ export var polishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Pasek postępu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Strona {0}"
+  progressbarPage: "Strona {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

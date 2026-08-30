@@ -246,7 +246,13 @@ export var dutchSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Voortgangsbalk",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "j"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

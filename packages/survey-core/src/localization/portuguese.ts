@@ -246,7 +246,13 @@ export var portugueseSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Barra de progresso",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Página {0}"
+  progressbarPage: "Página {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "a"
 };
 
 setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "português", englishName: "Portuguese" });

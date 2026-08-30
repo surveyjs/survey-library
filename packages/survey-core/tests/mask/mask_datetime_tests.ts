@@ -1,7 +1,7 @@
 import { FunctionFactory } from "../../src/functionsfactory";
 import { JsonObject, Serializer } from "../../src/jsonobject";
 import { InputMaskDateTime, getDateTimeLexems } from "../../src/mask/mask_datetime";
-import { getBCP47LocaleName, getLocaleDatePattern } from "../../src/mask/mask_datetime_locale";
+import { getLocaleDataValue, localeData } from "../../src/locale-data";
 import { QuestionMultipleTextModel } from "../../src/question_multipletext";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionTextModel } from "../../src/question_text";
@@ -1653,67 +1653,129 @@ describe("Datetime mask: locale date preset", () => {
     surveyLocalization.currentLocale = "";
   });
 
-  test("A locale pattern is generated from the locale field order and separators", () => {
-    expect(getLocaleDatePattern("en"), "en").toBe("mm/dd/yyyy");
-    expect(getLocaleDatePattern("en-GB"), "en-GB").toBe("dd/mm/yyyy");
-    expect(getLocaleDatePattern("de"), "de").toBe("dd.mm.yyyy");
-    expect(getLocaleDatePattern("ja"), "ja").toBe("yyyy/mm/dd");
-    expect(getLocaleDatePattern("de-CH"), "a regional locale falls back to its language data").toBe("dd.mm.yyyy");
-    expect(getLocaleDatePattern(""), "an empty locale is not resolved").toBe(undefined);
-    // a locale whose default calendar is not gregorian and whose default digits are not latin
-    expect(getLocaleDatePattern("th"), "thai uses gregorian years, not buddhist").toBe("dd/mm/yyyy");
-    expect(getLocaleDatePattern("ar"), "the arabic directionality marks are removed").toBe("dd/mm/yyyy");
+  test("A locale date pattern is resolved from the locale-data registry", () => {
+    expect(getLocaleDataValue("en", "datePattern"), "en").toBe("mm/dd/yyyy");
+    expect(getLocaleDataValue("en-GB", "datePattern"), "a regional entry, case-insensitive").toBe("dd/mm/yyyy");
+    expect(getLocaleDataValue("de", "datePattern"), "de").toBe("dd.mm.yyyy");
+    expect(getLocaleDataValue("ja", "datePattern"), "ja").toBe("yyyy/mm/dd");
+    expect(getLocaleDataValue("de-CH", "datePattern"), "a regional locale falls back to its language entry").toBe("dd.mm.yyyy");
+    expect(getLocaleDataValue("", "datePattern"), "an empty locale resolves to english").toBe("mm/dd/yyyy");
+    expect(getLocaleDataValue("zz", "datePattern"), "an unknown locale resolves to english").toBe("mm/dd/yyyy");
   });
 
-  test("A non-BCP-47 SurveyJS locale code is normalized before the locale data is requested", () => {
-    // "mm" is Burmese in SurveyJS and Montenegro in BCP-47, "tel" is Telugu, "cz" is an alias of "cs"
-    expect(getBCP47LocaleName("mm"), "burmese").toBe("my");
-    expect(getBCP47LocaleName("tel"), "telugu").toBe("te");
-    expect(getBCP47LocaleName("cz"), "the surveyLocalization alias").toBe("cs");
-    expect(getBCP47LocaleName("de"), "a valid code is unchanged").toBe("de");
-
-    expect(getLocaleDatePattern("mm"), "burmese").toBe("dd/mm/yyyy");
-    expect(getLocaleDatePattern("tel"), "telugu").toBe("dd-mm-yyyy");
-    expect(getLocaleDatePattern("cz"), "czech").toBe("dd. mm. yyyy");
+  test("SurveyJS registry codes are the map keys, aliases are normalized", () => {
+    // "mm" is Burmese and "tel" is Telugu in the SurveyJS registry; "cz" is an alias of "cs"
+    expect(getLocaleDataValue("mm", "datePattern"), "burmese").toBe("dd/mm/yyyy");
+    expect(getLocaleDataValue("tel", "datePattern"), "telugu").toBe("dd-mm-yyyy");
+    expect(getLocaleDataValue("cz", "datePattern"), "czech via the alias").toBe("dd. mm. yyyy");
+    expect(getLocaleDataValue("ht", "datePattern"), "haitian creole is curated").toBe("dd/mm/yyyy");
   });
 
-  test("A locale without data is not resolved to the runtime default locale", () => {
-    // there is no ICU data for Haitian Creole, Intl silently resolves it to the runtime default
-    expect(getLocaleDatePattern("ht"), "haitian creole").toBe(undefined);
-    expect(getLocaleDatePattern("zz"), "an unknown locale").toBe(undefined);
-  });
-
-  test("A locale pattern is generated without any DOM access", () => {
-    const globals = <any>globalThis;
-    const window = globals.window;
-    const document = globals.document;
+  test("Per-field fallback and invalid entries fall through the chain", () => {
+    const enData = localeData["en"];
     try {
-      delete globals.window;
-      delete globals.document;
-      expect(getLocaleDatePattern("de"), "generated in a browserless environment").toBe("dd.mm.yyyy");
+      localeData["en"] = { ...enData, timePattern: "HH:MM" };
+      localeData["zz-yy"] = { datePattern: "!!!" };
+      expect(getLocaleDataValue("en-gb", "timePattern"), "a field the regional entry lacks resolves through en").toBe("HH:MM");
+      expect(getLocaleDataValue("en-gb", "datePattern"), "the field it defines stays regional").toBe("dd/mm/yyyy");
+      const hasDatePart = (pattern: string): boolean => getDateTimeLexems(pattern).some(l => l.type === "day" || l.type === "month" || l.type === "year");
+      expect(getLocaleDataValue("zz-yy", "datePattern", hasDatePart), "an entry the validator rejects is ignored").toBe("mm/dd/yyyy");
+      expect(getLocaleDataValue("zz-yy", "datePattern"), "without a validator the raw entry wins").toBe("!!!");
     } finally {
-      globals.window = window;
-      globals.document = document;
+      localeData["en"] = enData;
+      delete localeData["zz-yy"];
     }
   });
 
-  test("Missing locale data falls back to the authored pattern", () => {
-    const globals = <any>globalThis;
-    const originalDateTimeFormat = globals.Intl.DateTimeFormat;
-    try {
-      // an english-only ICU build resolves every locale to en-US instead of throwing
-      globals.Intl.DateTimeFormat = function (locale: any, options: any) {
-        return new originalDateTimeFormat("en-US", options);
-      };
-      expect(getLocaleDatePattern("de"), "german is not resolved").toBe(undefined);
-      expect(getLocaleDatePattern("en"), "english is still resolved").toBe("mm/dd/yyyy");
+  test("The pinned date pattern table for every locale-data entry", () => {
+    const expected: { [locale: string]: string } = {
+      "ar": "dd/mm/yyyy", "bg": "dd.mm.yyyy", "ca": "dd/mm/yyyy", "cs": "dd. mm. yyyy",
+      "cy": "dd/mm/yyyy", "da": "dd.mm.yyyy", "de": "dd.mm.yyyy", "el": "dd/mm/yyyy",
+      "en": "mm/dd/yyyy", "en-au": "dd/mm/yyyy", "en-ca": "yyyy-mm-dd", "en-gb": "dd/mm/yyyy",
+      "en-ie": "dd/mm/yyyy", "en-in": "dd/mm/yyyy", "en-nz": "dd/mm/yyyy", "en-za": "yyyy/mm/dd",
+      "es": "dd/mm/yyyy", "et": "dd.mm.yyyy", "eu": "yyyy/mm/dd", "fa": "yyyy/mm/dd",
+      "fi": "dd.mm.yyyy", "fil": "mm/dd/yyyy", "fr": "dd/mm/yyyy", "fr-ca": "yyyy-mm-dd",
+      "fr-ch": "dd.mm.yyyy", "he": "dd.mm.yyyy", "hi": "dd/mm/yyyy", "hr": "dd. mm. yyyy",
+      "ht": "dd/mm/yyyy", "hu": "yyyy. mm. dd", "id": "dd/mm/yyyy", "is": "dd.mm.yyyy",
+      "it": "dd/mm/yyyy", "ja": "yyyy/mm/dd", "ka": "dd.mm.yyyy", "kk": "dd.mm.yyyy",
+      "ko": "yyyy. mm. dd", "lt": "yyyy-mm-dd", "lv": "dd.mm.yyyy", "mk": "dd.mm.yyyy",
+      "mm": "dd/mm/yyyy", "ms": "dd/mm/yyyy", "nl": "dd-mm-yyyy", "nl-be": "dd/mm/yyyy",
+      "no": "dd.mm.yyyy", "pl": "dd.mm.yyyy", "pt": "dd/mm/yyyy", "pt-br": "dd/mm/yyyy",
+      "ro": "dd.mm.yyyy", "ru": "dd.mm.yyyy", "sk": "dd. mm. yyyy", "sl": "dd. mm. yyyy",
+      "sr": "dd.mm.yyyy", "sv": "yyyy-mm-dd", "sw": "dd/mm/yyyy", "tel": "dd-mm-yyyy",
+      "tg": "dd/mm/yyyy", "th": "dd/mm/yyyy", "tr": "dd.mm.yyyy", "uk": "dd.mm.yyyy",
+      "ur": "dd/mm/yyyy", "vi": "dd/mm/yyyy", "zh": "yyyy/mm/dd", "zh-cn": "yyyy/mm/dd",
+      "zh-tw": "yyyy/mm/dd"
+    };
+    Object.keys(expected).forEach(loc => {
+      expect(getLocaleDataValue(loc, "datePattern"), loc).toBe(expected[loc]);
+    });
+    Object.keys(localeData).forEach(loc => {
+      expect(expected[loc], "the pinned table misses the registry entry: " + loc).toBeDefined();
+      const pattern = localeData[loc].datePattern;
+      const lexems = getDateTimeLexems(pattern);
+      expect(lexems.some(l => l.type === "day" || l.type === "month" || l.type === "year"), loc + " is valid canonical grammar: " + pattern).toBe(true);
+    });
+    // the registered dictionary locales all resolve through the chain
+    ["nl-BE", "pt-br", "zh-cn", "zh-tw"].forEach(loc => {
+      expect(getLocaleDataValue(loc, "datePattern"), loc).toBeDefined();
+    });
+  });
 
-      const q = createPresetQuestion({ pattern: "yyyy-mm-dd" }, "de");
-      const maskInstance = <InputMaskDateTime>q.maskSettings;
-      expect(maskInstance.activePattern, "the authored pattern is the fallback").toBe("yyyy-mm-dd");
-      expect(q.inputValue, "the input is rendered with the authored pattern").toBe("JJJJ-MM-TT");
+  test("A locale date pattern is resolved without DOM or Intl access", () => {
+    const globals = <any>globalThis;
+    const window = globals.window;
+    const document = globals.document;
+    const dateTimeFormat = globals.Intl.DateTimeFormat;
+    try {
+      delete globals.window;
+      delete globals.document;
+      // a small-icu server or an edge runtime must produce the identical pattern
+      globals.Intl.DateTimeFormat = function () { throw new Error("Intl must not be used at runtime"); };
+      expect(getLocaleDataValue("de", "datePattern"), "resolved without Intl").toBe("dd.mm.yyyy");
+      const q = createPresetQuestion({}, "de");
+      expect(q.inputValue, "the mask renders without DOM or Intl").toBe("TT.MM.JJJJ");
     } finally {
-      globals.Intl.DateTimeFormat = originalDateTimeFormat;
+      globals.window = window;
+      globals.document = document;
+      globals.Intl.DateTimeFormat = dateTimeFormat;
+    }
+  });
+
+  test("An authored pattern outranks the preset", () => {
+    const q = createPresetQuestion({ pattern: "yyyy-mm-dd" }, "de");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.activePattern, "the authored pattern wins").toBe("yyyy-mm-dd");
+    expect(q.inputValue, "rendered with the authored pattern").toBe("JJJJ-MM-TT");
+  });
+
+  test("The preset is the default for a datetime mask without settings", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.patternPreset, "the default value").toBe("localeDate");
+    expect(maskInstance.activePattern, "the english locale pattern").toBe("mm/dd/yyyy");
+    expect(q.inputValue, "a working mask out of the box").toBe("mm/dd/yyyy");
+
+    survey.locale = "de";
+    expect(q.inputValue, "the german mask").toBe("TT.MM.JJJJ");
+    q.inputValue = "25.12.2000";
+    expect(q.value, "the stored value").toBe("2000-12-25");
+  });
+
+  test("The mask degrades to inert when no pattern can be resolved", () => {
+    const enData = localeData["en"];
+    const maskInstance = new InputMaskDateTime();
+    try {
+      delete localeData["en"];
+      expect(maskInstance.activePattern, "nothing resolves").toBe(undefined);
+      expect(maskInstance.getMaskedValue(""), "the empty mask").toBe("");
+      let res = maskInstance.processInput({ insertedChars: "a", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+      expect(res.value, "typing a letter does not crash").toBe("");
+      res = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+      expect(res.value, "typing a digit does not crash").toBe("");
+    } finally {
+      localeData["en"] = enData;
     }
   });
 
@@ -1868,27 +1930,28 @@ describe("Datetime mask: locale date preset", () => {
   test("Serialize and deserialize the patternPreset property", () => {
     const q = new QuestionTextModel("q1");
     q.maskType = "datetime";
+    expect((<InputMaskDateTime>q.maskSettings).patternPreset, "the default").toBe("localeDate");
     expect(q.toJSON(), "the default does not serialize").toEqual({ name: "q1", maskType: "datetime" });
 
-    q.maskSettings["patternPreset"] = "localeDate";
     q.maskSettings["pattern"] = "mm/dd/yyyy";
-    expect(q.toJSON(), "the preset and the authored pattern serialize").toEqual({
+    expect(q.toJSON(), "only the authored pattern serializes").toEqual({
       name: "q1",
       maskType: "datetime",
-      maskSettings: { pattern: "mm/dd/yyyy", patternPreset: "localeDate" }
+      maskSettings: { pattern: "mm/dd/yyyy" }
     });
 
     const q2 = new QuestionTextModel("q2");
+    // tier-02-era JSON with the value spelled out still loads and equals the new default
     q2.fromJSON({ name: "q2", maskType: "datetime", maskSettings: { patternPreset: "localeDate" } });
     const maskInstance = <InputMaskDateTime>q2.maskSettings;
-    expect(maskInstance["patternPreset"], "the preset is loaded").toBe("localeDate");
+    expect(maskInstance.patternPreset, "the preset is loaded").toBe("localeDate");
     expect(maskInstance.pattern, "the generated pattern is not stored as the authored one").toBeFalsy();
     expect(maskInstance.activePattern, "the generated pattern is runtime state").toBe("mm/dd/yyyy");
-    expect(q2.toJSON(), "the generated pattern is not serialized").toEqual({
-      name: "q2",
-      maskType: "datetime",
-      maskSettings: { patternPreset: "localeDate" }
-    });
+    expect(q2.toJSON(), "it re-serializes to nothing").toEqual({ name: "q2", maskType: "datetime" });
+
+    const presetProperty = Serializer.findProperty("datetimemask", "patternPreset");
+    expect(presetProperty.visible, "hidden from the property grid for now").toBe(false);
+    expect(presetProperty.getChoices(null), "a single choice until the time presets arrive").toEqual(["localeDate"]);
   });
 
   test("A survey without the preset keeps its authored pattern", () => {
@@ -1904,5 +1967,93 @@ describe("Datetime mask: locale date preset", () => {
     survey.locale = "de";
     expect((<InputMaskDateTime>surveyQuestion.maskSettings).activePattern, "the pattern does not follow the locale").toBe("mm/dd/yyyy");
     expect(surveyQuestion.inputValue, "only the placeholder symbols are localized").toBe("MM/TT/JJJJ");
+  });
+});
+
+describe("Datetime mask: regionLocale", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  test("Formats resolve with regionLocale || locale; strings and symbols do not follow it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", title: { en: "Enter a date", de: "Datum" }, maskType: "datetime" }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.inputValue, "no regionLocale: english order").toBe("mm/dd/yyyy");
+
+    survey.regionLocale = "en-GB";
+    expect(survey.getFormatLocale(), "the format locale").toBe("en-GB");
+    expect(q.inputValue, "british order with english symbols").toBe("dd/mm/yyyy");
+    expect(q.locTitle.renderedHtml, "strings follow locale").toBe("Enter a date");
+
+    survey.regionLocale = "de";
+    expect(q.inputValue, "german order, still english symbols").toBe("dd.mm.yyyy");
+    expect(q.locTitle.renderedHtml, "still the english title").toBe("Enter a date");
+
+    survey.locale = "de";
+    expect(q.inputValue, "the german locale brings the german symbols").toBe("TT.MM.JJJJ");
+    expect(q.locTitle.renderedHtml, "the german title").toBe("Datum");
+  });
+
+  test("Changing regionLocale rerenders and preserves a partial entry by semantic role", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "12/25/yyyy";
+    expect(q.isEmpty(), "an incomplete value is not stored").toBe(true);
+
+    survey.regionLocale = "en-GB";
+    expect(q.inputValue, "day and month keep their semantic roles").toBe("25/12/yyyy");
+
+    survey.regionLocale = "";
+    expect(q.inputValue, "back to the english order").toBe("12/25/yyyy");
+  });
+
+  test("regionLocale lookups are case-insensitive and alias-aware", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    survey.regionLocale = "EN-GB";
+    expect(q.inputValue, "upper-cased region code").toBe("dd/mm/yyyy");
+
+    survey.regionLocale = "cz";
+    expect(q.inputValue, "the cz alias resolves to czech").toBe("dd. mm. yyyy");
+  });
+
+  test("regionLocale is serializable but hidden from the property grid", () => {
+    const regionLocaleProperty = Serializer.findProperty("survey", "regionLocale");
+    expect(regionLocaleProperty.visible, "hidden").toBe(false);
+
+    const survey = new SurveyModel({ regionLocale: "en-GB", elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    expect(survey.regionLocale, "loaded from JSON").toBe("en-GB");
+    expect((<QuestionTextModel>survey.getQuestionByName("q1")).inputValue, "applied on load").toBe("dd/mm/yyyy");
+    expect(survey.toJSON().regionLocale, "round-trips").toBe("en-GB");
+
+    const plainSurvey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(plainSurvey.toJSON().regionLocale, "the empty default does not serialize").toBeUndefined();
+  });
+
+  test("regionLocale reaches a multiple text item and a matrix cell", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "multipletext", name: "q1",
+          items: [{ name: "i1", maskType: "datetime" }]
+        },
+        {
+          type: "matrixdropdown", name: "q2",
+          columns: [{ name: "c1", cellType: "text", maskType: "datetime" }],
+          rows: ["r1"]
+        }
+      ]
+    });
+    const editor = <QuestionTextModel>(<QuestionMultipleTextModel>survey.getQuestionByName("q1")).items[0].editor;
+    const cell = <QuestionTextModel>(<QuestionMatrixDropdownModel>survey.getQuestionByName("q2")).visibleRows[0].cells[0].question;
+    expect(editor.inputValue, "the english multiple text item").toBe("mm/dd/yyyy");
+    expect(cell.inputValue, "the english matrix cell").toBe("mm/dd/yyyy");
+
+    survey.regionLocale = "en-GB";
+    expect(editor.inputValue, "the british multiple text item").toBe("dd/mm/yyyy");
+    expect(cell.inputValue, "the british matrix cell").toBe("dd/mm/yyyy");
   });
 });

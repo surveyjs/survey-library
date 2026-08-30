@@ -2,7 +2,7 @@ import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { InputMaskPattern } from "./mask_pattern";
 import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
-import { getLocaleDatePattern } from "./mask_datetime_locale";
+import { getLocaleDataValue } from "../locale-data";
 import { surveyLocalization } from "../surveyStrings";
 
 type DateTimeMaskLexemType = "month" | "day" | "year" | "hour" | "minute" | "second" | "timeMarker" | "separator"
@@ -138,6 +138,12 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   return result;
 }
 
+// A locale-data date pattern must produce at least one date lexem; the canonical grammar has
+// no invalid characters (unknown ones become separators), so this is the whole check.
+function isValidLocaleDatePattern(pattern: string): boolean {
+  return getDateTimeLexems(pattern || "").some(l => l.type === "day" || l.type === "month" || l.type === "year");
+}
+
 /**
  * A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
  *
@@ -173,9 +179,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     day: 3,
     month: 1,
   };
-  // "none" keeps the authored pattern; "localeDate" generates a numeric date pattern (field
-  // order and separators) for the current survey locale and falls back to the authored pattern.
-  @property({ defaultValue: "none" }) patternPreset: string;
+  // An authored pattern always wins; while no pattern is set, the preset resolves the active
+  // pattern for the current format locale. "localeDate" is the only preset so far.
+  @property({ defaultValue: "localeDate" }) patternPreset: string;
   /**
    * A minimum date and time value that respondents can enter.
    * @see max
@@ -231,13 +237,14 @@ export class InputMaskDateTime extends InputMaskPattern {
     }
   }
   private get patternLocale(): string {
-    return this.getLocale() || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
+    const survey = this.getSurvey();
+    const res = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : this.getLocale();
+    return res || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
   }
   private calcActivePattern(): string {
+    if (!!this.pattern) return this.pattern;
     if (this.patternPreset === "localeDate") {
-      const localePattern = getLocaleDatePattern(this.patternLocale);
-      if (!!localePattern) return localePattern;
-      // the authored pattern stays the fallback when the locale data cannot be resolved
+      return getLocaleDataValue(this.patternLocale, "datePattern", isValidLocaleDatePattern);
     }
     return this.pattern;
   }
@@ -758,6 +765,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   private getParts(input: string): Array<string> {
     const inputParts: Array<string> = [];
     const lexemsWithValue = this.lexems.filter(l => l.type !== "separator");
+    if (lexemsWithValue.length === 0) return inputParts;
     const separators = this.lexems.filter(l => l.type === "separator").map(s => s.value);
     const separatorLengths = this.getSeparatorLengths();
     let curPart = "";
@@ -856,8 +864,10 @@ Serializer.addClass(
   [
     {
       name: "patternPreset",
-      default: "none",
-      choices: ["none", "localeDate"]
+      default: "localeDate",
+      choices: ["localeDate"],
+      // a single-choice dropdown is property-grid noise; surfaced once more presets exist
+      visible: false
     },
     {
       name: "min",

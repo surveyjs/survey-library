@@ -1282,6 +1282,11 @@ export class SurveyModel extends SurveyElementCore
     if (name === "locale") {
       this.onSurveyLocaleChanged();
     }
+    if (name === "regionLocale") {
+      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
+      // displayed strings the way a locale change does
+      this.localeChanged();
+    }
     if (name === "randomSeed") {
       this.randomSeedChanged();
     }
@@ -2126,6 +2131,18 @@ export class SurveyModel extends SurveyElementCore
       value = "";
     }
     this.setPropertyValue("locale", value);
+  }
+  // The respondent's regional locale. It drives formats only (e.g. the date order and
+  // separators of a locale-preset datetime mask); displayed strings keep following `locale`.
+  // Typically assigned at runtime by the host application.
+  public get regionLocale(): string {
+    return this.getPropertyValue("regionLocale", "");
+  }
+  public set regionLocale(value: string) {
+    this.setPropertyValue("regionLocale", value);
+  }
+  public getFormatLocale(): string {
+    return this.regionLocale || this.locale;
   }
   private onSurveyLocaleChanged(): void {
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
@@ -8618,6 +8635,9 @@ Serializer.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     },
   },
+  // formats-only regional locale; kept out of the property grid until the survey-creator
+  // side is designed
+  { name: "regionLocale", visible: false },
   { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
   {
     name: "description:text",

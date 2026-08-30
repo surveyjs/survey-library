@@ -246,7 +246,13 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Индикатор выполнения",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Страница {0}"
+  progressbarPage: "Страница {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "г"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

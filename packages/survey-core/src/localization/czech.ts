@@ -246,7 +246,13 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indikátor průběhu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stránka {0}"
+  progressbarPage: "Stránka {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

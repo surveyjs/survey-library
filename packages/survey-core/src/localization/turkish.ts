@@ -246,7 +246,13 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "İlerleme çubuğu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sayfa {0}"
+  progressbarPage: "Sayfa {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "a",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "y"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

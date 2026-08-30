@@ -246,7 +246,13 @@ export var norwegianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Fremdriftsindikator",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Side {0}"
+  progressbarPage: "Side {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å"
 };
 
 setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });

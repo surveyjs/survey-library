@@ -246,7 +246,13 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Індикатор прогресу",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Сторінка {0}"
+  progressbarPage: "Сторінка {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "р"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

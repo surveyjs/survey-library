@@ -246,7 +246,13 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indicatore",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "a"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

@@ -63,6 +63,8 @@ export const SurveyLintReasons = Object.freeze({
     alwaysFalseViaConstants: "alwaysFalseViaConstants",
     // no value the question is allowed to hold satisfies the comparison
     outOfRange: "outOfRange",
+    // two requirements on one reference that cannot hold together
+    unsatisfiable: "unsatisfiable",
   }),
   "expression/meaningless-condition": Object.freeze({
     alwaysTrue: "alwaysTrue",

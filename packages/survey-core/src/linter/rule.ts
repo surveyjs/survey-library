@@ -101,8 +101,10 @@ export class LintContext {
     const fold = foldCondition(site, this.getConstantEnv());
     if (!fold) return {};
     if (!fold.value) {
-      // the bounds of a question are the more concrete explanation when both took part
-      const verdict = fold.ranges.length > 0 ? "outOfRange" : "alwaysFalseViaConstants";
+      // whichever mechanism settled it gives the most concrete explanation of why
+      let verdict: ConditionSemanticsVerdict = "alwaysFalseViaConstants";
+      if (fold.conflicts.length > 0) verdict = "unsatisfiable";
+      else if (fold.ranges.length > 0) verdict = "outOfRange";
       return { verdict: verdict, fold: fold };
     }
     // "always holds" needs the value to be there at all: a source that can be hidden loses it

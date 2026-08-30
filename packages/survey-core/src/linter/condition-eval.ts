@@ -4,6 +4,7 @@ import { ConstantEnv, ConstantSource, getFoldableSource } from "./constant-env";
 import { ExpressionSite, ParsedRef } from "./symbols";
 import { getUnsatisfiableRange } from "./value-range";
 import { ValueRangeDomain } from "./value-domain";
+import { ConditionConflict, findConjunctionConflict } from "./satisfiability";
 
 // What decided a condition, next to the value it was decided to have. A rule turns these into
 // the facts its message names, so each mechanism that can settle a leaf adds its own list.
@@ -13,6 +14,8 @@ export interface FoldedCondition {
   used: Array<ConstantSource>;
   // the questions whose bounds ruled a comparison out
   ranges: Array<ValueRangeDomain>;
+  // the pairs of requirements that cannot hold together
+  conflicts: Array<ConditionConflict>;
 }
 
 interface EvalContext {
@@ -22,6 +25,7 @@ interface EvalContext {
   resolve: ConstResolver;
   used: Array<ConstantSource>;
   ranges: Array<ValueRangeDomain>;
+  conflicts: Array<ConditionConflict>;
 }
 
 // The classified references of a site, keyed by the raw name an operand carries. Lazy: a site
@@ -97,6 +101,15 @@ function evalLeaf(node: Operand, ctx: EvalContext): boolean | undefined {
   return folded !== undefined ? folded : evalRange(node, ctx);
 }
 
+// Conjuncts that are each satisfiable on their own may still be impossible together, which no
+// amount of evaluating one leaf at a time can see - so the and-node itself is asked.
+function evalConflict(node: Operand, ctx: EvalContext): boolean | undefined {
+  const conflict = findConjunctionConflict(node, ctx.refOf, ctx.resolve);
+  if (!conflict) return undefined;
+  ctx.conflicts.push(conflict);
+  return false;
+}
+
 // Three-valued evaluation over and/or: a branch whose value is known can decide the whole
 // condition even when the rest of it depends on the answers. Only and/or are taken apart -
 // everything else, a unary operator included, is a leaf, so no reasoning about the polarity
@@ -107,7 +120,8 @@ function evalPartial(node: Operand, ctx: EvalContext): boolean | undefined {
   const right = evalPartial(node.rightOperand, ctx);
   if (node.conjunction === "and") {
     if (left === false || right === false) return false;
-    return left === true && right === true ? true : undefined;
+    if (left === true && right === true) return true;
+    return evalConflict(node, ctx);
   }
   if (left === true || right === true) return true;
   return left === false && right === false ? false : undefined;
@@ -126,10 +140,11 @@ export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCon
     resolve: getConstResolver(site, env),
     used: [],
     ranges: [],
+    conflicts: [],
   };
   const value = evalPartial(ast, ctx);
   if (value === undefined) return undefined;
   // nothing of our own was used: the condition is constant on its own, which the core reports
-  if (ctx.used.length === 0 && ctx.ranges.length === 0) return undefined;
-  return { value: value, used: ctx.used, ranges: ctx.ranges };
+  if (ctx.used.length === 0 && ctx.ranges.length === 0 && ctx.conflicts.length === 0) return undefined;
+  return { value: value, used: ctx.used, ranges: ctx.ranges, conflicts: ctx.conflicts };
 }

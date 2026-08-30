@@ -217,6 +217,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "expression/contradiction", reason: "unsatisfiable",
+    json: {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'a' and {q1} = 'b'" },
+      ],
+    },
+  },
+  {
     ruleId: "expression/meaningless-condition", reason: "alwaysTrue",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 1" }] },
   },

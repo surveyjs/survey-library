@@ -120,9 +120,16 @@ export class QuestionTextModel extends QuestionTextBase {
   public localeChanged(): void {
     super.localeChanged();
     if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
+    // While the element is focused, an in-progress entry may exist only in it - masked
+    // keystrokes are written there directly and reach _inputValue on blur - so its text has to
+    // be captured before localeChanged() below rebuilds the mask and rerenders the element.
+    // Without focus a blur has already synchronized _inputValue, which stays authoritative
+    // (a programmatic inputValue assignment updates the model first, not the element).
+    const isEditing = !!this.maskInputAdapter && this.maskInputAdapter.isInputElementFocused;
+    const enteredText = isEditing ? this.maskInputAdapter.inputElementText : this._inputValue;
     const state: IMaskLocaleChange = {
-      // an incomplete entry is not stored in the question value and lives in _inputValue only
-      enteredText: this.isEmpty() ? this._inputValue : undefined,
+      // an incomplete entry is not stored in the question value
+      enteredText: this.isEmpty() ? enteredText : undefined,
       // a masked value is stored in the format of the previous locale
       value: this.maskSettings.saveMaskedValue ? this.value : undefined
     };

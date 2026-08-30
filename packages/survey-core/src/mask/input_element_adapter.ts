@@ -43,6 +43,19 @@ export class InputElementAdapter {
       this.updateInputValue();
     }
   };
+  // The text currently displayed in the element. While an entry is in progress it is ahead of
+  // the question model: masked keystrokes are written here directly and reach the model only
+  // on blur or change.
+  public get inputElementText(): string {
+    return !!this.inputElement ? this.inputElement.value : undefined;
+  }
+  // While the element is focused an entry may be in progress, so its text leads the model.
+  // getRootNode() resolves the focus owner inside a shadow root as well as in the document.
+  public get isInputElementFocused(): boolean {
+    if (!this.inputElement) return false;
+    const root: any = !!this.inputElement.getRootNode ? this.inputElement.getRootNode() : this.inputElement.ownerDocument;
+    return !!root && root.activeElement === this.inputElement;
+  }
   // Displays an already masked text, e.g. an incomplete entry that is not stored as a value.
   public updateInputElementText(value: string): void {
     this.setInputValue(value);

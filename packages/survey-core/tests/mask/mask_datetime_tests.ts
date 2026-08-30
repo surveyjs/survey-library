@@ -2056,6 +2056,60 @@ describe("Datetime mask: regionLocale", () => {
     expect(editor.inputValue, "the british multiple text item").toBe("dd/mm/yyyy");
     expect(cell.inputValue, "the british matrix cell").toBe("dd/mm/yyyy");
   });
+
+  test("A locale change preserves an entry that exists only in the input element", () => {
+    // under the on-blur update mode masked keystrokes go into the element directly and reach
+    // _inputValue only on blur; a programmatic locale change must not discard them
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    q.afterRenderQuestionElement(input);
+    try {
+      const adapter: any = q["maskInputAdapter"];
+      input.focus();
+      input.setSelectionRange(0, 0);
+      "1225".split("").forEach(ch => adapter.beforeInputHandler({ data: ch, inputType: "insertText", target: input, preventDefault: (): void => {} }));
+      expect(input.value, "the in-progress entry").toBe("12/25/yyyy");
+      expect(q.isEmpty(), "nothing is stored before the blur").toBe(true);
+
+      survey.regionLocale = "en-GB";
+      expect(input.value, "preserved by semantic role without a blur").toBe("25/12/yyyy");
+      expect(q.inputValue, "the model followed the element").toBe("25/12/yyyy");
+
+      survey.regionLocale = "";
+      expect(input.value, "and back").toBe("12/25/yyyy");
+
+      // without focus the element cannot be mid-entry: the model is authoritative, exactly as
+      // when inputValue is assigned programmatically and the element has not rerendered yet
+      input.blur();
+      q.inputValue = "03/15/yyyy";
+      survey.regionLocale = "en-GB";
+      expect(input.value, "an unfocused element follows the model").toBe("15/03/yyyy");
+    } finally {
+      q.beforeDestroyQuestionElement(input);
+      input.remove();
+    }
+  });
+
+  test("A locale change keeps an untouched input cleared for its placeholder", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    input.placeholder = "enter a date";
+    document.body.appendChild(input);
+    q.afterRenderQuestionElement(input);
+    try {
+      expect(input.value, "the element is cleared so the placeholder shows").toBe("");
+
+      survey.regionLocale = "en-GB";
+      expect(input.value, "still cleared").toBe("");
+      expect(q.inputValue, "the empty mask follows the new locale").toBe("dd/mm/yyyy");
+    } finally {
+      q.beforeDestroyQuestionElement(input);
+      input.remove();
+    }
+  });
 });
 
 describe("Datetime mask: locale time and datetime presets", () => {

@@ -143,13 +143,14 @@ interface ISurveyLintOptions {
 | `expression/unknown-function` | warning | A function call that `FunctionFactory.Instance` does not know and `options.knownFunctions` does not list. |
 | `cycle/calculated-value` | error | Calculated values that reference themselves or form a loop. |
 | `cycle/trigger` | warning | Triggers that form a loop through the values they set (a `valueName` and its question count as the same signal). |
-| `expression/unknown-choice` | warning | A condition comparing a choice-based question to a value none of its choices can match. The check runs the runtime operator functions, so `contains` against a scalar value matches as a substring, exactly as at runtime. |
+| `expression/unknown-choice` | warning | A condition comparing a question to a value none of the values it can hold matches: the `choices` of a select question, the `rateValues` of a rating, the `columns` a single-choice matrix row answers with, or the two values of a `boolean` with `valueTrue`/`valueFalse`. The check runs the runtime operator functions, so `contains` against a scalar value matches as a substring, exactly as at runtime. |
 | `expression/type-mismatch` | warning | An operator that cannot hold for the question's value type: `=` against a multi-select array, ordering on a boolean, a numeric question compared to a string, a date compared to a number, a text question used in arithmetic. |
 | `choices/dead-source` | error | `choicesFromQuestion` pointing at a missing question, at itself, or at a question that provides neither choices nor an array of values; `choiceValuesFromQuestion`/`choiceTextsFromQuestion` naming a column or template question that does not exist. |
 | `trigger/unknown-target` | error | `setToName`, `fromName`, `gotoName` or `runExpression` targets that do not exist. |
 | `trigger/unknown-type` | warning | A missing or unknown trigger `type` (silently dropped at runtime). |
 | `expression/contradiction` | warning | A condition that can never hold. Today the decidable part of it: a condition that evaluates to false because every operand deciding it is known at authoring time - written inline, or reached through a reference to a constant source. |
 | `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
+| `value/not-a-choice` | warning | A value written in the JSON that its question can never hold: a `defaultValue`, a `correctAnswer`, or the `setValue` of a `setvalue` trigger. The same sets of values as `expression/unknown-choice`, checked from the other side. |
 | `page/empty` | warning | A page or panel with no element that can ever render, and a dynamic panel with an empty template. An element is counted out when it is statically hidden or its own `visibleIf` can never hold. |
 
 ## What the analysis understands
@@ -176,6 +177,15 @@ interface ISurveyLintOptions {
   proves "never holds" but not "always holds": under `clearInvisibleValues: "onHidden"` the value
   is gone. The folded value also reaches `expression/unknown-choice` and
   `expression/type-mismatch`, so `{q1} = {c1}` is checked the way `{q1} = 'zzz'` is.
+* **Sets of values.** A question whose JSON lists every value it can hold — `choices`,
+  `rateValues`, the `columns` a single-choice matrix row answers with, the `valueTrue`/`valueFalse`
+  pair of a boolean — is checked from both sides: a condition comparing it to something outside
+  that set (`expression/unknown-choice`), and a value the JSON itself writes into it
+  (`value/not-a-choice`). The set is used only when it is exhaustive, so `choicesByUrl`,
+  `choicesLazyLoadEnabled`, `choicesFromQuestion` and a question with no listed choice at all are
+  left alone. A `defaultValue` outside the choices is a deliberate legacy value, so it widens what
+  a *condition* may compare against — but it is exactly what `value/not-a-choice` reports, which
+  is why the domain itself does not carry it.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,

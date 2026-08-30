@@ -1,3 +1,4 @@
+import { runBinaryOperator } from "survey-core";
 import { ElementRecord, ParsedRef, SurveyIndex } from "./symbols";
 import { equalsCI } from "./expression-utils";
 import { getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
@@ -44,11 +45,8 @@ function getBooleanDomain(record: ElementRecord): ValueDomain | undefined {
 
 // Undefined whenever the set is not exhaustive - a value may then come from anywhere and
 // nothing can be concluded from a value being absent.
-export function getValueDomain(ref: ParsedRef, index: SurveyIndex): ValueDomain | undefined {
-  const record = ref.resolvedTo;
+export function getRecordValueDomain(record: ElementRecord, index: SurveyIndex): ValueDomain | undefined {
   if (!record || record.isUnknownType) return undefined;
-  // a subpath reference compares against the sub-element, and only a matrix row is modelled
-  if (ref.status === "resolved" && ref.segments.length > 1) return getMatrixRowDomain(ref, record);
   const info = record.choicesInfo;
   if (!!info) {
     // no listed choice means they come from somewhere the JSON does not show - code, an API -
@@ -61,4 +59,22 @@ export function getValueDomain(ref: ParsedRef, index: SurveyIndex): ValueDomain 
   if (record.type === "rating") return toDomain(record, getStaticChoiceValues(record.json ? record.json.rateValues : undefined));
   if (record.type === "boolean") return getBooleanDomain(record);
   return undefined;
+}
+
+export function getValueDomain(ref: ParsedRef, index: SurveyIndex): ValueDomain | undefined {
+  const record = ref.resolvedTo;
+  if (!record) return undefined;
+  // a subpath reference compares against the sub-element, and only a matrix row is modelled
+  if (ref.status === "resolved" && ref.segments.length > 1) {
+    return record.isUnknownType ? undefined : getMatrixRowDomain(ref, record);
+  }
+  return getRecordValueDomain(record, index);
+}
+
+// runBinaryOperator applies the very operator function the expression runtime applies, so this
+// IS the runtime equality rather than an approximation of it: the "undefined"-string
+// normalization, settings.comparator (caseSensitive, trimStrings, normalizeTextCallback) and the
+// numeric conversion all behave as they do at runtime.
+export function runtimeEquals(a: any, b: any): boolean {
+  return runBinaryOperator("equal", a, b) === true;
 }

@@ -303,6 +303,21 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1" }], triggers: [{ expression: "{q1} notempty" }] },
   },
   {
+    ruleId: "value/not-a-choice", reason: "defaultValue",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], defaultValue: "z" }] },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "correctAnswer",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], correctAnswer: "z" }] },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "triggerSetValue",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "dropdown", name: "q2", choices: ["a"] }],
+      triggers: [{ type: "setvalue", expression: "{q1} notempty", setToName: "q2", setValue: "z" }],
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },

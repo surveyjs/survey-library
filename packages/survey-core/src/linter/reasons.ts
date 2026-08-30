@@ -86,6 +86,12 @@ export const SurveyLintReasons = Object.freeze({
     unknownType: "unknownType",
     noType: "noType",
   }),
+  // a value written in the JSON that the question it belongs to can never hold
+  "value/not-a-choice": Object.freeze({
+    defaultValue: "defaultValue",
+    correctAnswer: "correctAnswer",
+    triggerSetValue: "triggerSetValue",
+  }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",

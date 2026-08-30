@@ -2,7 +2,7 @@ import { runBinaryOperator, Variable } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";
-import { getValueDomain } from "../value-domain";
+import { getValueDomain, runtimeEquals } from "../value-domain";
 import { ElementRecord, ParsedRef } from "../symbols";
 import { ILintReproduction } from "../types";
 import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
@@ -23,14 +23,7 @@ function getAuthoredValues(record: ElementRecord): Array<any> {
   return defaultValue !== undefined && defaultValue !== null ? [defaultValue] : [];
 }
 
-// runBinaryOperator applies the very operator function the expression runtime applies,
-// so these ARE the runtime semantics rather than an approximation of them: the
-// "undefined"-string normalization, settings.comparator (caseSensitive, trimStrings,
-// normalizeTextCallback) and the numeric conversion all behave as they do at runtime.
-function runtimeEquals(a: any, b: any): boolean {
-  return runBinaryOperator("equal", a, b) === true;
-}
-
+// The substring counterpart of runtimeEquals, applied through the same runtime operator.
 function runtimeContains(haystack: any, needle: any): boolean {
   return runBinaryOperator("contains", haystack, needle) === true;
 }

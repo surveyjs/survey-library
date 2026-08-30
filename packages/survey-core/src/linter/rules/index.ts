@@ -14,6 +14,7 @@ import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
 import { expressionContradictionRule } from "./expression-contradiction";
 import { expressionMeaninglessConditionRule } from "./expression-meaningless-condition";
+import { valueNotAChoiceRule } from "./value-not-a-choice";
 import { pageEmptyRule } from "./page-empty";
 
 export const allRules: Array<ILintRule> = [
@@ -32,5 +33,6 @@ export const allRules: Array<ILintRule> = [
   choicesDeadSourceRule,
   triggerUnknownTargetRule,
   triggerUnknownTypeRule,
+  valueNotAChoiceRule,
   pageEmptyRule,
 ];

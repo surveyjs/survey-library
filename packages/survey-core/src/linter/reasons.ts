@@ -107,6 +107,9 @@ export const SurveyLintReasons = Object.freeze({
     unknownRowKey: "unknownRowKey",
     unknownColumnKey: "unknownColumnKey",
     unknownQuestionKey: "unknownQuestionKey",
+    // copyvalue source and target that cannot exchange a value
+    copyValueShape: "copyValueShape",
+    copyValueNoOverlap: "copyValueNoOverlap",
   }),
   // authored row/panel count constraints the runtime silently reconciles
   "element/count-contradiction": Object.freeze({

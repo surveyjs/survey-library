@@ -116,3 +116,63 @@ describe("what this rule stays out of", () => {
     })).toHaveLength(0);
   });
 });
+
+describe("value/not-a-choice - copyvalue compatibility", () => {
+  test("copying a multi-select array into a single-value question is flagged", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "checkbox", name: "tags", choices: ["a", "b"] },
+        { type: "dropdown", name: "city", choices: ["msk", "spb"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{tags} notempty", fromName: "tags", setToName: "city" }],
+    }, "value/not-a-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("copyValueShape");
+  });
+  test("copying between disjoint choice sets is flagged", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "dropdown", name: "src", choices: ["a", "b"] },
+        { type: "dropdown", name: "dst", choices: ["x", "y"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    }, "value/not-a-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("copyValueNoOverlap");
+  });
+  test("disjoint multi-select sets are flagged too", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "checkbox", name: "src", choices: ["a", "b"] },
+        { type: "checkbox", name: "dst", choices: ["x", "y"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    }, "value/not-a-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("copyValueNoOverlap");
+  });
+  test("an overlapping value keeps the copy legitimate", () => {
+    expect(findingsOf({
+      elements: [
+        { type: "dropdown", name: "src", choices: ["a", "b"] },
+        { type: "dropdown", name: "dst", choices: ["a", "c"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    }, "value/not-a-choice")).toHaveLength(0);
+  });
+  test("a source without a known domain stays undecided", () => {
+    expect(findingsOf({
+      elements: [
+        { type: "text", name: "src" },
+        { type: "dropdown", name: "dst", choices: ["a", "b"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    }, "value/not-a-choice")).toHaveLength(0);
+  });
+  test("unresolved names are trigger/unknown-target territory", () => {
+    expect(findingsOf({
+      elements: [{ type: "dropdown", name: "dst", choices: ["a"] }],
+      triggers: [{ type: "copyvalue", expression: "{dst} empty", fromName: "nosuch", setToName: "dst" }],
+    }, "value/not-a-choice")).toHaveLength(0);
+  });
+});

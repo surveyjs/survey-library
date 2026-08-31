@@ -377,6 +377,26 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "value/not-a-choice", reason: "copyValueShape",
+    json: {
+      elements: [
+        { type: "checkbox", name: "src", choices: ["a"] },
+        { type: "dropdown", name: "dst", choices: ["a"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "copyValueNoOverlap",
+    json: {
+      elements: [
+        { type: "dropdown", name: "src", choices: ["a"] },
+        { type: "dropdown", name: "dst", choices: ["b"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    },
+  },
+  {
     ruleId: "value/not-a-choice", reason: "triggerSetValue",
     json: {
       elements: [{ type: "text", name: "q1" }, { type: "dropdown", name: "q2", choices: ["a"] }],

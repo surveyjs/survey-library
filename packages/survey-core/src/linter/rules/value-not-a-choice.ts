@@ -139,6 +139,77 @@ function checkRowTemplateProp(ctx: LintContext, record: ElementRecord, prop: str
   if (issues) reportCompositeIssues(ctx, record, prop, reason, issues);
 }
 
+// The record a trigger name lands on: the question itself, or the column of a matrix cell.
+function resolveTargetRecord(ctx: LintContext, name: string): ElementRecord | undefined {
+  const ref = classifyTargetName(name, ctx.index, ctx.options);
+  if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
+  if (ref.segments.length === 1) return ref.resolvedTo;
+  const columns = ref.resolvedTo.matrixColumns;
+  if (!!columns && ref.segments.length === 2) return columns.first(ref.segments[1].name);
+  return undefined;
+}
+
+// A copyvalue trigger moves one answer verbatim, so its ends must be able to hold the same
+// value: matching shapes, and - when both sides list their values - at least one shared one.
+function checkCopyValueTrigger(ctx: LintContext, trigger: TriggerRecord): void {
+  if (trigger.type !== "copyvalue" || !trigger.json) return;
+  const fromName = trigger.json.fromName;
+  const toName = trigger.json.setToName;
+  if (typeof fromName !== "string" || !fromName || typeof toName !== "string" || !toName) return;
+  const source = resolveTargetRecord(ctx, fromName);
+  const target = resolveTargetRecord(ctx, toName);
+  if (!source || !target || source.isUnknownType || target.isUnknownType) return;
+  const sourceShape = source.valueType.shape;
+  const targetShape = target.valueType.shape;
+  const shapes = sourceShape + "/" + targetShape;
+  if (shapes === "array/scalar" || shapes === "scalar/array") {
+    ctx.report({
+      message: "The copyvalue trigger copies \"" + fromName + "\" into \"" + toName + "\": \"" +
+        fromName + "\" holds " + (sourceShape === "array" ? "an array of selected values" : "a single value") +
+        ", but \"" + toName + "\" holds " +
+        (targetShape === "array" ? "an array of selected values" : "a single value") + ".",
+      path: trigger.path,
+      reason: reasons.copyValueShape,
+      messageData: {
+        fromName: fromName, setToName: toName,
+        sourceShape: sourceShape, targetShape: targetShape,
+        sourceType: source.type, targetType: target.type,
+      },
+      elementName: target.name,
+      elementType: target.type,
+      related: [
+        { path: source.path, elementName: source.name },
+        { path: target.path, elementName: target.name },
+      ],
+    });
+    return;
+  }
+  const sourceSet = asSet(ctx.getRecordValueDomain(source));
+  const targetSet = asSet(ctx.getRecordValueDomain(target));
+  if (!sourceSet || !targetSet) return;
+  const overlaps = sourceSet.values.some(value =>
+    targetSet.values.some(allowed => runtimeEquals(allowed, value)));
+  if (overlaps) return;
+  ctx.report({
+    message: "The copyvalue trigger copies \"" + fromName + "\" into \"" + toName +
+      "\", but no value of \"" + fromName + "\" is among the values \"" + toName +
+      "\" can hold. Available: " + quoteValues(targetSet.listed) + ".",
+    path: trigger.path,
+    reason: reasons.copyValueNoOverlap,
+    messageData: {
+      fromName: fromName, setToName: toName,
+      sourceValues: sourceSet.listed, available: targetSet.listed,
+      sourceType: source.type, targetType: target.type,
+    },
+    elementName: target.name,
+    elementType: target.type,
+    related: [
+      { path: source.path, elementName: source.name },
+      { path: target.path, elementName: target.name },
+    ],
+  });
+}
+
 function checkTrigger(ctx: LintContext, trigger: TriggerRecord): void {
   if (trigger.type !== "setvalue" || !trigger.json) return;
   const target = trigger.json.setToName;
@@ -167,6 +238,9 @@ export const valueNotAChoiceRule: ILintRule = {
       checkRowTemplateProp(ctx, record, "defaultRowValue", reasons.defaultRowValue);
       checkRowTemplateProp(ctx, record, "defaultPanelValue", reasons.defaultPanelValue);
     });
-    ctx.index.triggers.forEach(trigger => checkTrigger(ctx, trigger));
+    ctx.index.triggers.forEach(trigger => {
+      checkTrigger(ctx, trigger);
+      checkCopyValueTrigger(ctx, trigger);
+    });
   },
 };

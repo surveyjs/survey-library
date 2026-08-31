@@ -267,3 +267,27 @@ describe("expression/type-mismatch - matrix and panel sub-paths", () => {
     })).toHaveLength(0);
   });
 });
+
+describe("expression/type-mismatch - scope index variables", () => {
+  test("{rowIndex} compared to a string is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdynamic", name: "m10", columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowIndex} = 'first'" },
+        ] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("number-vs-string");
+  });
+  test("{visiblePanelIndex} compared to a number is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p6", templateElements: [
+          { type: "text", name: "q", visibleIf: "{visiblePanelIndex} = 2" },
+        ] },
+      ],
+    })).toHaveLength(0);
+  });
+});

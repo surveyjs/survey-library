@@ -6,7 +6,8 @@ import { closestMatch } from "./levenshtein";
 import {
   ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
   ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
-  SurveyIndex, CIMultiMap, TriggerRecord,
+  SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
+  SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 
 export interface ParseOutcome {
@@ -242,6 +243,29 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
   return scopedUnknown(ref, prefix, 1, map.names());
 }
 
+// The synthetic element behind a standalone scope variable, memoized on the matrix/panel it
+// belongs to: the domain and verdict caches key off record identity. It is a plain record
+// literal (never a model object) that only the value-typing machinery reads.
+function getScopeValueRecord(owner: ElementRecord, name: string, type: string,
+  valueType: ValueTypeInfo, choices?: Array<any>): ElementRecord {
+  if (!owner.scopeValueRecords) owner.scopeValueRecords = new CIMap<ElementRecord>();
+  let record = owner.scopeValueRecords.get(name);
+  if (!record) {
+    record = {
+      name: name, type: type, kind: "question", path: owner.path, json: {},
+      parent: owner, scope: [], isUnknownType: false, valueType: valueType,
+    };
+    if (!!choices) {
+      record.choicesInfo = {
+        staticValues: choices.slice(), hasChoicesByUrl: false, lazy: false,
+        showOtherItem: false, showNoneItem: false, showRefuseItem: false, showDontKnowItem: false,
+      };
+    }
+    owner.scopeValueRecords.set(name, record);
+  }
+  return record;
+}
+
 function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, scope: Array<ScopeFrame> },
   lintSettings: ILintResolvedSettings): ScopeResolution {
   const vars = lintSettings.expressionVariables;
@@ -265,7 +289,19 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     if (equalsCI(root, rowStandalone[i])) {
       if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopeStandalone, rowStandalone[i],
         "\"" + rowStandalone[i] + "\" is only available inside a matrix cell or a matrix detail panel.");
-      return { handled: true, ref: scopedResolved(ref, rowStandalone[i]) };
+      const resolved = scopedResolved(ref, rowStandalone[i]);
+      if (ref.segments.length === 1) {
+        if (equalsCI(root, vars.rowIndex) || equalsCI(root, vars.visibleRowIndex)) {
+          resolved.resolvedTo = getScopeValueRecord(matrixFrame.owner, root,
+            SCOPE_INDEX_VARIABLE_TYPE, { shape: "scalar", scalarType: "number" });
+        } else if (equalsCI(root, vars.rowValue) &&
+          Array.isArray(matrixFrame.owner.matrixRowValues) && matrixFrame.owner.matrixRowValues.length > 0) {
+          // only a matrix with listed rows pins {rowValue} down - a matrixdynamic row has none
+          resolved.resolvedTo = getScopeValueRecord(matrixFrame.owner, root,
+            SCOPE_ROW_VALUE_TYPE, { shape: "scalar", scalarType: "any" }, matrixFrame.owner.matrixRowValues);
+        }
+      }
+      return { handled: true, ref: resolved };
     }
   }
   if (equalsCI(root, vars.panel)) {
@@ -299,7 +335,13 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     if (equalsCI(root, panelStandalone[i])) {
       if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelStandalone, panelStandalone[i],
         "\"" + panelStandalone[i] + "\" is only available inside a dynamic panel.");
-      return { handled: true, ref: scopedResolved(ref, panelStandalone[i]) };
+      const resolved = scopedResolved(ref, panelStandalone[i]);
+      if (ref.segments.length === 1 &&
+        (equalsCI(root, vars.panelIndex) || equalsCI(root, vars.visiblePanelIndex))) {
+        resolved.resolvedTo = getScopeValueRecord(panelFrame.owner, root,
+          SCOPE_INDEX_VARIABLE_TYPE, { shape: "scalar", scalarType: "number" });
+      }
+      return { handled: true, ref: resolved };
     }
   }
   const itemPrefixes = [vars.item, vars.choice, vars.column];

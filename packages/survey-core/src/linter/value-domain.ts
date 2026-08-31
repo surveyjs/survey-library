@@ -1,5 +1,5 @@
 import { runBinaryOperator } from "survey-core";
-import { ElementRecord, getEffectiveType, ParsedRef, SurveyIndex } from "./symbols";
+import { ElementRecord, getEffectiveType, ParsedRef, SCOPE_INDEX_VARIABLE_TYPE, SurveyIndex } from "./symbols";
 import { equalsCI, getSubPathRecord } from "./expression-utils";
 import { getInputType, getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
 
@@ -112,6 +112,10 @@ function getBooleanDomain(record: ElementRecord): ValueDomain | undefined {
 // nothing can be concluded from a value being absent.
 export function getRecordValueDomain(record: ElementRecord, index: SurveyIndex): ValueDomain | undefined {
   if (!record || record.isUnknownType) return undefined;
+  // rows and panels are numbered from 1, visible or not
+  if (record.type === SCOPE_INDEX_VARIABLE_TYPE) {
+    return { kind: "range", record: record, min: 1 };
+  }
   const info = record.choicesInfo;
   if (!!info) {
     // no listed choice means they come from somewhere the JSON does not show - code, an API -

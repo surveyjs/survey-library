@@ -131,6 +131,8 @@ export interface ElementRecord {
   matrixColumns?: CIMultiMap<ElementRecord>;
   // memoized descendant question names for static-panel {panel.x} resolution
   panelDescendantNames?: CIMap<ElementRecord>;
+  // memoized synthetic records for the standalone scope variables of this matrix/panel
+  scopeValueRecords?: CIMap<ElementRecord>;
 }
 
 // The type to dispatch question-kind logic on: a matrix column answers as its cell type,
@@ -138,6 +140,12 @@ export interface ElementRecord {
 export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
   return record.effectiveType || record.type;
 }
+
+// The synthetic record types behind standalone scope variables: {rowIndex}/{panelIndex} is
+// always a number counted from 1, {rowValue} holds one of the matrix rows. Synthetic records
+// live on ElementRecord.scopeValueRecords, never in the index.
+export const SCOPE_INDEX_VARIABLE_TYPE = "scopeindexvariable";
+export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
 
 export interface ParsedRefSegment {
   name: string;

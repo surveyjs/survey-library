@@ -246,3 +246,39 @@ describe("range checks through matrix and panel sub-paths", () => {
     }, "expression/contradiction")).toHaveLength(0);
   });
 });
+
+describe("row and panel index variables", () => {
+  test("{panelIndex} below 1 never holds", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "paneldynamic", name: "p6", templateElements: [
+          { type: "text", name: "q", visibleIf: "{panelIndex} <= 0" },
+        ] },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("{rowIndex} below 1 never holds", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "matrixdynamic", name: "m10", columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowIndex} < 1" },
+        ] },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("a satisfiable index comparison is clean", () => {
+    expect(findingsOf({
+      elements: [
+        { type: "matrixdynamic", name: "m10", columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowIndex} > 1" },
+        ] },
+      ],
+    }, "expression/contradiction")).toHaveLength(0);
+  });
+});

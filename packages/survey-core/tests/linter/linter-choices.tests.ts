@@ -488,3 +488,38 @@ describe("expression/unknown-choice - matrix and panel sub-paths", () => {
     }, "expression/unknown-choice")).toHaveLength(1);
   });
 });
+
+describe("expression/unknown-choice - {rowValue}", () => {
+  test("{rowValue} compared to an unknown row of a matrixdropdown is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1", "r2"], columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowValue} = 'nosuchrow'" },
+        ] },
+      ],
+    }, "expression/unknown-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("notAmongChoices");
+  });
+  test("{rowValue} compared to a listed row is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1", "r2"], columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowValue} = 'r1'" },
+        ] },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(0);
+  });
+  test("{rowValue} of a matrixdynamic stays undecided", () => {
+    expect(byRule({
+      elements: [
+        { type: "matrixdynamic", name: "m9", columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowValue} = 'anything'" },
+        ] },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(0);
+  });
+});

@@ -7,6 +7,7 @@ import {
   ConditionSemanticsVerdict, ConstResolver, getConditionSemanticsVerdict, isAlwaysFalseVerdict,
 } from "./expression-utils";
 import { buildConstantEnv, ConstantEnv } from "./constant-env";
+import { getIifConditionSubSites } from "./condition-subsites";
 import { FoldedCondition, foldCondition, getConstResolver } from "./condition-eval";
 import { getRecordValueDomain, getValueDomain, ValueDomain } from "./value-domain";
 
@@ -102,6 +103,11 @@ export class LintContext {
       }
       cb(site);
     });
+  }
+  // The synthesized iif() condition sub-sites of every parsed site, for the rules whose
+  // reasoning needs a condition root and cannot run on a whole expression.
+  public forEachIifCondition(cb: (site: ExpressionSite) => void): void {
+    this.forEachSite("parsed", site => getIifConditionSubSites(site).forEach(cb));
   }
   public getConstantEnv(): ConstantEnv {
     if (!this.constantEnv) {

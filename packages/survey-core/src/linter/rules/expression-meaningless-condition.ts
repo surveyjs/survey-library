@@ -1,4 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
+import { ExpressionSite } from "../symbols";
 import {
   ConditionSemanticsVerdict, isAlwaysFalseVerdict, verdictToReason,
 } from "../expression-utils";
@@ -6,21 +7,27 @@ import {
   ConstantSource, describeConstants, toConstantsData, toConstantsRelated,
 } from "../constant-env";
 
-function getMessage(verdict: ConditionSemanticsVerdict, prop: string, text: string,
+function getMessage(verdict: ConditionSemanticsVerdict, site: ExpressionSite,
   used?: Array<ConstantSource>): string {
+  // an iif() condition decides a branch of its expression, not whether an element shows
+  const subject = site.subOf
+    ? "the iif() condition \"" + site.text + "\" in the " + site.subOf.prop
+    : "the " + site.prop + " \"" + site.text + "\"";
+  const capitalized = "T" + subject.substring(1);
+  const alwaysTrueTail = site.subOf
+    ? " - only its first branch is ever taken."
+    : ", so it decides nothing - remove it.";
   if (verdict === "alwaysTrueViaConstants") {
-    return "The " + prop + " \"" + text + "\" always holds: " + describeConstants(used) +
-      ", so it decides nothing - remove it.";
+    return capitalized + " always holds: " + describeConstants(used) + alwaysTrueTail;
   }
   if (verdict === "alwaysTrue") {
-    return "The " + prop + " \"" + text + "\" is built from constants only and is always true," +
-      " so it decides nothing - remove it.";
+    return capitalized + " is built from constants only and is always true" + alwaysTrueTail;
   }
   if (verdict === "notABoolean") {
-    return "The " + prop + " \"" + text + "\" is arithmetic, not a comparison, so it never" +
+    return capitalized + " is arithmetic, not a comparison, so it never" +
       " produces a boolean result.";
   }
-  return "A part of the " + prop + " \"" + text + "\" has a result known upfront - a constant" +
+  return "A part of " + subject + " has a result known upfront - a constant" +
     " branch, a comparison of two constants, or an operand compared with itself.";
 }
 
@@ -32,20 +39,23 @@ export const expressionMeaninglessConditionRule: ILintRule = {
   id: "expression/meaningless-condition",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.forEachSite("condition", site => {
+    const check = (site: ExpressionSite) => {
       const { verdict, fold } = ctx.getConditionVerdict(site);
       if (!verdict || isAlwaysFalseVerdict(verdict)) return;
       const messageData: { [key: string]: any } = { expression: site.text, prop: site.prop };
+      if (!!site.subOf) messageData.parentExpression = site.subOf.text;
       if (verdict === "alwaysTrue" || verdict === "alwaysTrueViaConstants") {
         messageData.value = true;
       }
       if (!!fold) messageData.constants = toConstantsData(fold.used);
       ctx.reportAtSite(site, {
-        message: getMessage(verdict, site.prop, site.text, !!fold ? fold.used : undefined),
+        message: getMessage(verdict, site, !!fold ? fold.used : undefined),
         reason: verdictToReason(verdict),
         messageData: messageData,
         related: !!fold ? toConstantsRelated(fold.used) : undefined,
       });
-    });
+    };
+    ctx.forEachSite("condition", check);
+    ctx.forEachIifCondition(check);
   },
 };

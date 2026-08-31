@@ -179,6 +179,10 @@ export interface ExpressionSite {
   refs?: Array<ParsedRef>;
   // refs keyed by the raw name an operand carries, memoized like refs
   refByRaw?: Map<string, ParsedRef>;
+  // set on a synthesized condition sub-site (an iif() condition argument): the site it
+  // was carved out of. Sub-sites live only here, never in index.expressionSites.
+  subOf?: ExpressionSite;
+  subSites?: Array<ExpressionSite>;
 }
 
 export type NameRefKind = "choicesByUrlVariable" | "binding";

@@ -1,4 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
+import { ExpressionSite } from "../symbols";
 import { hasBound, isAlwaysFalseVerdict, verdictToReason } from "../expression-utils";
 import { quoteValue } from "../message-utils";
 import { describeConstants, toConstantsData, toConstantsRelated } from "../constant-env";
@@ -49,16 +50,22 @@ function describeConflicts(conflicts: Array<ConditionConflict>): string {
   }).join(", ");
 }
 
-function getMessage(prop: string, text: string, fold?: FoldedCondition): string {
+function getMessage(site: ExpressionSite, fold?: FoldedCondition): string {
+  // an iif() condition guards a branch of its expression, not an element
+  const subject = site.subOf
+    ? "The iif() condition \"" + site.text + "\" in the " + site.subOf.prop
+    : "The " + site.prop + " \"" + site.text + "\"";
+  const consequence = site.subOf
+    ? "its first branch is never taken"
+    : "the element it guards is never shown";
   if (!fold) {
-    return "The " + prop + " \"" + text + "\" is built from constants only and is always false," +
-      " so it never holds - the element it guards is never shown.";
+    return subject + " is built from constants only and is always false," +
+      " so it never holds - " + consequence + ".";
   }
   const facts = [
     describeConflicts(fold.conflicts), describeRanges(fold.ranges), describeConstants(fold.used),
   ].filter(part => !!part);
-  return "The " + prop + " \"" + text + "\" never holds: " + facts.join(", ") +
-    ", so the element it guards is never shown.";
+  return subject + " never holds: " + facts.join(", ") + ", so " + consequence + ".";
 }
 
 function getRelated(fold: FoldedCondition): Array<{ path: string, elementName: string }> {
@@ -75,7 +82,7 @@ export const expressionContradictionRule: ILintRule = {
   id: "expression/contradiction",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.forEachSite("condition", site => {
+    const check = (site: ExpressionSite) => {
       const { verdict, fold } = ctx.getConditionVerdict(site);
       if (!isAlwaysFalseVerdict(verdict)) return;
       const messageData: { [key: string]: any } = {
@@ -83,15 +90,18 @@ export const expressionContradictionRule: ILintRule = {
         prop: site.prop,
         value: false,
       };
+      if (!!site.subOf) messageData.parentExpression = site.subOf.text;
       if (!!fold && fold.used.length > 0) messageData.constants = toConstantsData(fold.used);
       if (!!fold && fold.ranges.length > 0) messageData.ranges = toRangesData(fold.ranges);
       if (!!fold && fold.conflicts.length > 0) messageData.conflicts = fold.conflicts;
       ctx.reportAtSite(site, {
-        message: getMessage(site.prop, site.text, fold),
+        message: getMessage(site, fold),
         reason: verdictToReason(verdict),
         messageData: messageData,
         related: !!fold ? getRelated(fold) : undefined,
       });
-    });
+    };
+    ctx.forEachSite("condition", check);
+    ctx.forEachIifCondition(check);
   },
 };

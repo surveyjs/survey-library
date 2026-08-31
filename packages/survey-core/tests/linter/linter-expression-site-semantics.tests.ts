@@ -138,3 +138,82 @@ describe("expression sites - expression/type-mismatch", () => {
     expect(findings[0].message).toContain("The condition");
   });
 });
+
+describe("iif() conditions - expression/contradiction", () => {
+  test("an unsatisfiable iif() condition in defaultValueExpression is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "dropdown", name: "color", choices: ["red", "green"] },
+        { type: "text", name: "q8",
+          defaultValueExpression: "iif({color} notempty and {color} empty, 1, 2)" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("unsatisfiable");
+    expect(findings[0].path).toContain(".iif[0]");
+  });
+  test("an out-of-range iif() condition in setValueExpression is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "rating", name: "score" },
+        { type: "text", name: "q7", setValueExpression: "iif({score} > 10, 1, 2)" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("outOfRange");
+  });
+  test("an unsatisfiable iif() condition inside a visibleIf is flagged once", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2",
+          visibleIf: "iif({q1} notempty and {q1} empty, 1, 0) = 1" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toContain(".iif[0]");
+  });
+  test("a satisfiable iif() condition is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "rating", name: "score" },
+        { type: "text", name: "q7", setValueExpression: "iif({score} > 3, 1, 2)" },
+      ],
+    }, "expression/contradiction")).toHaveLength(0);
+  });
+});
+
+describe("iif() conditions - expression/meaningless-condition", () => {
+  test("a constant true iif() condition is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "q7", setValueExpression: "iif(1 = 1, 'a', 'b')" },
+      ],
+    }, "expression/meaningless-condition");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("alwaysTrue");
+    expect(findings[0].path).toContain(".iif[0]");
+  });
+  test("an arithmetic iif() condition is flagged as not a boolean", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "age", inputType: "number" },
+        { type: "text", name: "q7", setValueExpression: "iif({age} + 1, 'a', 'b')" },
+      ],
+    }, "expression/meaningless-condition");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("notABoolean");
+  });
+  test("a constant boolean expression root without iif() stays legitimate", () => {
+    expect(byRule({
+      calculatedValues: [{ name: "flag", expression: "1 = 1" }],
+      elements: [{ type: "text", name: "q1" }],
+    }, "expression/meaningless-condition")).toHaveLength(0);
+  });
+  test("plain constant arithmetic in an expression stays legitimate", () => {
+    expect(byRule({
+      calculatedValues: [{ name: "sum", expression: "1 + 2" }],
+      elements: [{ type: "text", name: "q1" }],
+    }, "expression/meaningless-condition")).toHaveLength(0);
+  });
+});

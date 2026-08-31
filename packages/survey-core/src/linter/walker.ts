@@ -493,7 +493,9 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
       record.setRoot = root ? root.name : "";
     }
     if (def.extraExpressionProps) {
+      const before = state.index.expressionSites.length;
       addSitesFromProps(state, json, path, def.extraExpressionProps, undefined, []);
+      record.extraSites = state.index.expressionSites.slice(before);
     }
   }
   state.index.triggers.push(record);

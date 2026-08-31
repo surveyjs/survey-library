@@ -92,6 +92,11 @@ export const SurveyLintReasons = Object.freeze({
     unknownType: "unknownType",
     noType: "noType",
   }),
+  // value writers (setValue/reset/default expressions, triggers, calculated values) in a loop
+  "cycle/value-write": Object.freeze({
+    self: "self",
+    loop: "loop",
+  }),
   // a value written in the JSON that the question it belongs to can never hold
   "value/not-a-choice": Object.freeze({
     defaultValue: "defaultValue",

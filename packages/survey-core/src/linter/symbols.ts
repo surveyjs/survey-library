@@ -216,6 +216,8 @@ export interface TriggerRecord {
   path: string;
   json: any;
   expressionSite?: ExpressionSite;
+  // the sites of the trigger's extra expression properties (runExpression)
+  extraSites?: Array<ExpressionSite>;
   setRoot?: string;
   setToName?: string;
   targets: Array<TriggerTargetRef>;

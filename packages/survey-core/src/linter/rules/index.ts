@@ -7,6 +7,7 @@ import { elementUnknownTypeRule } from "./element-unknown-type";
 import { expressionUnknownFunctionRule } from "./expression-unknown-function";
 import { cycleCalculatedValueRule } from "./cycle-calculated-value";
 import { cycleTriggerRule } from "./cycle-trigger";
+import { cycleValueWriteRule } from "./cycle-value-write";
 import { expressionUnknownChoiceRule } from "./expression-unknown-choice";
 import { expressionTypeMismatchRule } from "./expression-type-mismatch";
 import { expressionContradictionRule } from "./expression-contradiction";
@@ -31,6 +32,7 @@ export const allRules: Array<ILintRule> = [
   expressionUnknownFunctionRule,
   cycleCalculatedValueRule,
   cycleTriggerRule,
+  cycleValueWriteRule,
   expressionUnknownChoiceRule,
   expressionTypeMismatchRule,
   expressionContradictionRule,

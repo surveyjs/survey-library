@@ -73,7 +73,7 @@ function collectTriggerTargets(index: SurveyIndex): CIMap<boolean> {
 // A name declared twice is ambiguous: one declaration shadows the other, name/duplicate reports
 // that, and folding either of them would be a guess. Counting every declaration - elements,
 // valueNames and calculated values alike - keeps the rule the same for all of them.
-function collectAmbiguousNames(index: SurveyIndex): CIMap<boolean> {
+export function collectAmbiguousNames(index: SurveyIndex): CIMap<boolean> {
   const counts = new CIMap<number>();
   const bump = (name: string) => {
     if (!name) return;

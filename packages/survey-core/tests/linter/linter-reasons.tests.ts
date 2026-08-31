@@ -384,6 +384,19 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "cycle/value-write", reason: "self",
+    json: { elements: [{ type: "text", name: "q1", resetValueIf: "{q1} = 'x'" }] },
+  },
+  {
+    ruleId: "cycle/value-write", reason: "loop",
+    json: {
+      elements: [
+        { type: "text", name: "a", setValueExpression: "{b} + 1" },
+        { type: "text", name: "b", setValueExpression: "{a} + 1" },
+      ],
+    },
+  },
+  {
     ruleId: "reference/unknown", reason: "keyNameNotFound",
     json: {
       elements: [{

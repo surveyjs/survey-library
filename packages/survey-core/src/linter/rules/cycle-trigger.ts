@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { buildTriggerSetStep, classifySiteRefs } from "../expression-utils";
+import { buildTriggerSetStep, classifySiteRefs, splitRefSegments } from "../expression-utils";
 import { reportCycles } from "../cycle-report";
 import { TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
@@ -15,13 +15,26 @@ function canonicalRoot(ctx: LintContext, root: string): string {
   return (record && record.name ? record.name : root).toLowerCase();
 }
 
+// Everything a trigger reads before writing: the guard condition, the extra expressions it
+// evaluates (runExpression), and the copyvalue source.
 function getExpressionRoots(ctx: LintContext, trigger: TriggerRecord): Array<string> {
-  if (!trigger.expressionSite || !trigger.expressionSite.ast) return [];
-  return classifySiteRefs(trigger.expressionSite, ctx.index, ctx.options)
-    .filter(ref => ref.status !== "skipped" && ref.segments.length > 0)
-    .map(ref => ref.resolvedTo && ref.resolvedTo.name
-      ? ref.resolvedTo.name.toLowerCase()
-      : canonicalRoot(ctx, ref.segments[0].name));
+  const sites = (trigger.expressionSite ? [trigger.expressionSite] : [])
+    .concat(trigger.extraSites || []);
+  const res: Array<string> = [];
+  sites.forEach(site => {
+    if (!site.ast) return;
+    classifySiteRefs(site, ctx.index, ctx.options)
+      .filter(ref => ref.status !== "skipped" && ref.segments.length > 0)
+      .forEach(ref => res.push(ref.resolvedTo && ref.resolvedTo.name
+        ? ref.resolvedTo.name.toLowerCase()
+        : canonicalRoot(ctx, ref.segments[0].name)));
+  });
+  const fromName = trigger.json ? trigger.json.fromName : undefined;
+  if (typeof fromName === "string" && fromName) {
+    const root = splitRefSegments(fromName)[0];
+    if (root && root.name) res.push(canonicalRoot(ctx, root.name));
+  }
+  return res;
 }
 
 function triggerLabel(trigger: TriggerRecord): string {

@@ -29,6 +29,40 @@ describe("Input mask", () => {
     testInput.remove();
   });
 
+  test("InputElementAdapter renders the empty mask when saveMaskedValue is set", () => {
+    const testInput = document.createElement("input");
+    const inputMask = new InputMaskDateTime();
+    inputMask.pattern = "mm/dd/yyyy";
+    inputMask.saveMaskedValue = true;
+
+    let adapter = new InputElementAdapter(inputMask, testInput, "");
+    expect(testInput.value, "an empty value").toBe("mm/dd/yyyy");
+
+    adapter = new InputElementAdapter(inputMask, testInput, undefined);
+    expect(testInput.value, "no value").toBe("mm/dd/yyyy");
+
+    adapter = new InputElementAdapter(inputMask, testInput, "12/25/2000");
+    expect(testInput.value, "a stored masked value is displayed as it is").toBe("12/25/2000");
+
+    adapter.updateInputElementValue("");
+    expect(testInput.value, "the empty mask returns when the value is cleared").toBe("mm/dd/yyyy");
+
+    testInput.remove();
+  });
+
+  test("getMaskedValueBySaveMode renders the empty mask in both save modes", () => {
+    const inputMask = new InputMaskPattern();
+    inputMask.pattern = "+1(999)-999";
+    expect(inputMask.getMaskedValueBySaveMode(""), "an empty value").toBe("+1(___)-___");
+    expect(inputMask.getMaskedValueBySaveMode("+1(123)-456"), "a value").toBe("+1(123)-456");
+
+    inputMask.saveMaskedValue = true;
+    expect(inputMask.getMaskedValueBySaveMode(""), "an empty value, saveMaskedValue").toBe("+1(___)-___");
+    expect(inputMask.getMaskedValueBySaveMode(undefined), "no value, saveMaskedValue").toBe("+1(___)-___");
+    expect(inputMask.getMaskedValueBySaveMode(null), "a null value, saveMaskedValue").toBe("+1(___)-___");
+    expect(inputMask.getMaskedValueBySaveMode("+1(123)-456"), "a stored masked value").toBe("+1(123)-456");
+  });
+
   test("InputElementAdapter createArgs insertText", () => {
     const testInput = document.createElement("input");
     const inputMaskPattern = new InputMaskPattern();

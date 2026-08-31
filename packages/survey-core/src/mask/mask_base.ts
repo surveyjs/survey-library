@@ -66,8 +66,10 @@ export class InputMaskBase extends Base implements IInputMask {
   public getMaskedValue(src: any): string { return src; }
   // Returns the string to display in the input for a stored model value.
   // When saveMaskedValue is enabled the stored value is already masked, so it is returned as is.
+  // An empty value has no masked text of its own: both save modes display the empty mask.
   public getMaskedValueBySaveMode(src: any): string {
-    return this.saveMaskedValue ? src : this.getMaskedValue(src);
+    const isEmpty = src === undefined || src === null || src === "";
+    return this.saveMaskedValue && !isEmpty ? src : this.getMaskedValue(src);
   }
   public getTextAlignment(): "left" | "right" | "auto" { return "auto"; }
 

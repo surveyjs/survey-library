@@ -2975,10 +2975,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
    *
+   * The default type is `"pages"`. However, when [`questionsOnPageMode`](#questionsOnPageMode) is set to `"questionPerPage"`, the progress bar uses `"questions"` by default.
+   *
    * Possible values:
    *
    * - `"pages"` (default) - The number of completed pages.
-   * - `"questions"` - The number of answered questions.
+   * - `"questions"` (default in question-per-page mode) - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    *

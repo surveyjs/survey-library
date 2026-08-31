@@ -14,6 +14,8 @@ export const SurveyLintReasons = Object.freeze({
     inContainer: "inContainer",
     // the name is not found inside the scope its prefix names
     scopedUnknown: "scopedUnknown",
+    // a keyName naming no column / template question, which disables duplicate-key validation
+    keyNameNotFound: "keyNameNotFound",
   }),
   "reference/self": Object.freeze({
     selfReference: "selfReference",

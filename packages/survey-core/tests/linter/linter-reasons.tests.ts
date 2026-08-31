@@ -384,6 +384,14 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "reference/unknown", reason: "keyNameNotFound",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", keyName: "colX", columns: [{ name: "col1" }],
+      }],
+    },
+  },
+  {
     ruleId: "element/count-contradiction", reason: "minAboveMax",
     json: {
       elements: [{

@@ -136,7 +136,7 @@ interface ISurveyLintOptions {
 | Rule id | Default | Reports |
 | --- | --- | --- |
 | `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties. |
-| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings` or in a `choicesByUrl` URL. |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings` or in a `choicesByUrl` URL; a `keyName` naming no column / template question. |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
 | `element/unknown-type` | info | A question `type` that is neither registered nor passed via `options.components`. |

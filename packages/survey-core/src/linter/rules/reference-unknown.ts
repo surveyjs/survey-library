@@ -1,6 +1,7 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifyNameRef, classifySiteRefs } from "../expression-utils";
-import { ElementRecord, NameRef, ParsedRef } from "../symbols";
+import { classifyNameRef, classifySiteRefs, equalsCI } from "../expression-utils";
+import { closestMatch } from "../levenshtein";
+import { CIMultiMap, ElementRecord, getEffectiveType, NameRef, ParsedRef } from "../symbols";
 import { didYouMean } from "../message-utils";
 import { SurveyLintReasons } from "../reasons";
 import { ILintHint } from "../types";
@@ -72,6 +73,47 @@ function reportRef(ctx: LintContext, ref: ParsedRef, params: {
   });
 }
 
+// A keyName is a runtime name lookup too: a typo silently disables duplicate-key validation.
+// The panel key is resolved by getQuestionByValueName, so a template question's valueName
+// counts; a matrix key is a column name.
+function checkKeyName(ctx: LintContext, record: ElementRecord): void {
+  const keyName = record.json ? record.json.keyName : undefined;
+  if (typeof keyName !== "string" || !keyName) return;
+  const type = getEffectiveType(record);
+  let map: CIMultiMap<ElementRecord> | undefined;
+  let label: string;
+  if (type === "matrixdynamic") {
+    map = record.matrixColumns;
+    label = "column";
+  } else if (type === "paneldynamic") {
+    map = record.templateNames;
+    label = "template question";
+  }
+  if (!map || map.has(keyName)) return;
+  let matchesValueName = false;
+  map.forEach(records => records.forEach(sub => {
+    if (sub.valueName && equalsCI(sub.valueName, keyName)) matchesValueName = true;
+  }));
+  if (matchesValueName) return;
+  const suggestion = closestMatch(keyName, map.names());
+  ctx.report({
+    message: "The keyName of \"" + record.name + "\" names \"" + keyName + "\" - no such " +
+      label + ", so duplicate-key validation never runs." + didYouMean(suggestion),
+    path: record.path + ".keyName",
+    reason: reasons.keyNameNotFound,
+    messageData: {
+      name: record.name,
+      questionType: record.type,
+      key: keyName,
+      available: map.names(),
+      note: "No case: the key is never matched.",
+    },
+    elementName: record.name,
+    elementType: record.type,
+    suggestion: suggestion,
+  });
+}
+
 export const referenceUnknownRule: ILintRule = {
   id: "reference/unknown",
   defaultSeverity: "error",
@@ -94,5 +136,6 @@ export const referenceUnknownRule: ILintRule = {
           ? "(referenced in bindings)" : "(referenced in the choicesByUrl URL)",
       });
     });
+    ctx.index.allElements.forEach(record => checkKeyName(ctx, record));
   },
 };

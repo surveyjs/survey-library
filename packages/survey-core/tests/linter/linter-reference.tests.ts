@@ -585,3 +585,54 @@ describe("reference/unknown - other reference sites", () => {
     expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
   });
 });
+
+describe("reference/unknown - keyName", () => {
+  test("a matrixdynamic keyName naming no column is flagged", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m6", keyName: "coll",
+        columns: [{ name: "col1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("keyNameNotFound");
+    expect(findings[0].suggestion).toBe("col1");
+    expect(findings[0].path).toContain("keyName");
+  });
+  test("a paneldynamic keyName naming no template question is flagged", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p4", keyName: "qTypo",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("keyNameNotFound");
+  });
+  test("a keyName matching a column is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m6", keyName: "col1",
+        columns: [{ name: "col1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a keyName matching a template question valueName is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p4", keyName: "v1",
+        templateElements: [{ type: "text", name: "q1", valueName: "v1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a keyName matching a question nested in a template panel is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p5", keyName: "q2",
+        templateElements: [{ type: "panel", name: "inner", elements: [
+          { type: "text", name: "q2" },
+        ] }],
+      }],
+    })).toHaveLength(0);
+  });
+});

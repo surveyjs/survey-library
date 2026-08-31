@@ -104,7 +104,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
 
     return (
       <React.Fragment key={key}>
-        {(reason == "row-footer") ? <tr>{matrixrow}</tr> : <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>}
+        {(reason == "row-footer") ? <tr className={row.className}>{matrixrow}</tr> : <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>}
       </React.Fragment>
     );
   }

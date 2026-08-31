@@ -81,7 +81,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
           <table className={this.question.getTableCss()} role="presentation">
             {header}
-            <tbody>{rows}</tbody>
+            <tbody className={this.question.getTableBodyCss()}>{rows}</tbody>
           </table>
         </fieldset>
       </div>

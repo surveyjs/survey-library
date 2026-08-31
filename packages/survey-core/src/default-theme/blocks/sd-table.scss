@@ -285,8 +285,8 @@
 }
 //alternative rows
 .sd-question:not(.sd-question--mobile) {
-  .sd-table--alternate-rows {
-    tbody .sd-table__row:nth-child(odd of .sd-table__row:not(.sd-table__row--detail)) {
+  .sd-table__body--alternative-rows {
+    & > .sd-table__row:nth-child(odd of .sd-table__row:not(.sd-table__row--detail)) {
       --sd-table-sticky-background-color: #{table-sticky-background(
           (#{$background-dark}, var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
         )};

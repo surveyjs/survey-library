@@ -86,7 +86,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses)
       );
     }
-    return <tbody>{rows}</tbody>;
+    return <tbody className={this.question.getTableBodyCss()}>{rows}</tbody>;
   }
   renderRow(
     keyValue: any,

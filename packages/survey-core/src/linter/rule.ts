@@ -9,6 +9,7 @@ import {
 import { buildConstantEnv, ConstantEnv } from "./constant-env";
 import { getIifConditionSubSites } from "./condition-subsites";
 import { FoldedCondition, foldCondition, getConstResolver } from "./condition-eval";
+import { analyzeNeverVisible, NeverVisibleAnalysis } from "./never-visible";
 import { getRecordValueDomain, getValueDomain, ValueDomain } from "./value-domain";
 
 export interface ILintRule {
@@ -91,7 +92,7 @@ export class LintContext {
   private verdicts = new Map<ExpressionSite, ConditionVerdict>();
   // several rules ask about the same record, and a domain costs rebuilding the value set
   private valueDomains = new Map<ElementRecord, ValueDomain | undefined>();
-  private neverVisible: Set<ElementRecord>;
+  private neverVisible: NeverVisibleAnalysis;
   constructor(public index: SurveyIndex, public options: ISurveyLintOptions,
     public metadata: LintMetadata) {}
   public forEachSite(filter: SiteFilter, cb: (site: ExpressionSite) => void): void {
@@ -130,16 +131,27 @@ export class LintContext {
   // The elements whose own visibleIf can never hold. Only "visibleIf" counts: choicesVisibleIf
   // and rowsVisibleIf hide items inside a question, and templateVisibleIf hides single panels
   // of a dynamic panel - none of them stops the element itself from rendering.
-  public getNeverVisibleElements(): Set<ElementRecord> {
+  // The base set comes from the memoized verdicts; analyzeNeverVisible then cascades it
+  // through conditions that demand a value of a dead-and-valueless question.
+  public getNeverVisibleAnalysis(): NeverVisibleAnalysis {
     if (!this.neverVisible) {
-      const res = new Set<ElementRecord>();
+      const baseDead = new Set<ElementRecord>();
       this.forEachSite("condition", site => {
         if (site.prop !== "visibleIf" || !site.owner) return;
-        if (isAlwaysFalseVerdict(this.getConditionVerdict(site).verdict)) res.add(site.owner);
+        if (isAlwaysFalseVerdict(this.getConditionVerdict(site).verdict)) baseDead.add(site.owner);
       });
-      this.neverVisible = res;
+      this.neverVisible = analyzeNeverVisible({
+        index: this.index,
+        options: this.options,
+        baseEnv: this.getConstantEnv(),
+        baseDead: baseDead,
+        recordDomain: record => this.getRecordValueDomain(record),
+      });
     }
     return this.neverVisible;
+  }
+  public getNeverVisibleElements(): Set<ElementRecord> {
+    return this.getNeverVisibleAnalysis().dead;
   }
   public getConditionVerdict(site: ExpressionSite): ConditionVerdict {
     let res = this.verdicts.get(site);

@@ -17,6 +17,7 @@ import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
 import { valueNotAChoiceRule } from "./value-not-a-choice";
 import { elementCountContradictionRule } from "./count-contradiction";
+import { elementNeverVisibleRule } from "./element-never-visible";
 import { pageEmptyRule } from "./page-empty";
 
 // The run order, which the findings are sorted out of anyway (by path, then rule id): a rule
@@ -42,5 +43,6 @@ export const allRules: Array<ILintRule> = [
   triggerUnknownTypeRule,
   valueNotAChoiceRule,
   elementCountContradictionRule,
+  elementNeverVisibleRule,
   pageEmptyRule,
 ];

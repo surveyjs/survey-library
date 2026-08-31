@@ -55,7 +55,9 @@ export function getConstResolver(site: ExpressionSite, env: ConstantEnv): ConstR
   const lookup = makeSourceLookup(site, env);
   return (variable: Variable) => {
     const source = lookup(variable.variable);
-    return !!source ? { value: source.value } : undefined;
+    // a never-assigned source has no value to compare against: it participates only in
+    // whole-leaf folds, never in range/satisfiability reasoning as "the constant undefined"
+    return !!source && !source.neverAssigned ? { value: source.value } : undefined;
   };
 }
 

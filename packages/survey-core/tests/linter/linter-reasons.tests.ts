@@ -423,6 +423,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "element/never-visible", reason: "dependsOnDeadValue",
+    json: {
+      elements: [
+        { type: "text", name: "q1", visibleIf: "1 = 2" },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'yes'" },
+      ],
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },

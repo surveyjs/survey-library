@@ -18,6 +18,10 @@ export interface ConstantSource {
   // false when the source can be hidden: a hidden question loses its value under
   // clearInvisibleValues, so such a source can prove "never holds" but not "always holds"
   allowsAlwaysTrue: boolean;
+  // set on a source that provably never holds a value at all (a never-visible question
+  // nothing writes to): folded as an absent answer, never treated as a constant to
+  // compare against
+  neverAssigned?: boolean;
 }
 
 export interface ConstantEnv {
@@ -38,7 +42,7 @@ interface Candidate {
 // Properties that give an element a value of its own, next to the one its expression computes.
 const OWN_VALUE_PROPS = ["defaultValue", "defaultValueExpression", "setValueExpression", "setValueIf"];
 
-function hasOwnValue(json: any): boolean {
+export function hasOwnValue(json: any): boolean {
   if (!json) return false;
   return OWN_VALUE_PROPS.some(prop => json[prop] !== undefined && json[prop] !== null && json[prop] !== "");
 }
@@ -58,7 +62,7 @@ function canBeHidden(record: ElementRecord): boolean {
 
 // The names a trigger can write to. A source the author can overwrite at runtime is not a
 // constant, whatever its expression says. Page targets are not values.
-function collectTriggerTargets(index: SurveyIndex): CIMap<boolean> {
+export function collectTriggerTargets(index: SurveyIndex): CIMap<boolean> {
   const res = new CIMap<boolean>();
   index.triggers.forEach(trigger => {
     trigger.targets.forEach(target => {
@@ -163,6 +167,34 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
     });
   }
   return env;
+}
+
+// A fresh environment extending "env" with never-assigned sources for the given questions.
+// The base env is left untouched: the verdicts folded against it stay valid. The values hash
+// deliberately has no entry for a never-assigned name - the runtime reads an unanswered
+// question as a missing key, and tryEvaluate then reproduces exactly the runtime semantics
+// ({q} = x is false, {q} empty is true).
+export function extendEnvWithNeverAssigned(env: ConstantEnv,
+  records: Array<ElementRecord>): ConstantEnv {
+  const values: { [name: string]: any } = Object.create(null);
+  const sources = new CIMap<ConstantSource>();
+  env.sources.forEach((source, name) => {
+    sources.set(name, source);
+    values[name] = source.value;
+  });
+  records.forEach(record => {
+    if (sources.has(record.name) || (!!record.valueName && sources.has(record.valueName))) return;
+    const source: ConstantSource = {
+      name: record.valueName || record.name, path: record.path, expression: "",
+      value: undefined, record: record, allowsAlwaysTrue: true, neverAssigned: true,
+    };
+    sources.set(record.name, source);
+    if (record.valueName) sources.set(record.valueName, source);
+  });
+  return {
+    index: env.index, options: env.options, sources: sources,
+    processValue: new ProcessValue(new VariableGetterContext(values)),
+  };
 }
 
 // The runtime resolves a name inside a matrix row or a dynamic panel against that container

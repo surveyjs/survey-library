@@ -113,6 +113,10 @@ export const SurveyLintReasons = Object.freeze({
     minAboveMax: "minAboveMax",
     countOutOfBounds: "countOutOfBounds",
   }),
+  // dead through the cascade: the visibleIf demands a value of a never-visible question
+  "element/never-visible": Object.freeze({
+    dependsOnDeadValue: "dependsOnDeadValue",
+  }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",

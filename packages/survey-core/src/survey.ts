@@ -2950,10 +2950,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
    *
+   * The default type is `"pages"`. However, when [`questionsOnPageMode`](#questionsOnPageMode) is set to `"questionPerPage"`, the progress bar uses `"questions"` by default.
+   *
    * Possible values:
    *
    * - `"pages"` (default) - The number of completed pages.
-   * - `"questions"` - The number of answered questions.
+   * - `"questions"` (default in question-per-page mode) - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    * - `"buttons"` - *(Obsolete)* Use the `"pages"` property value with the [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) property set to `true` instead.
@@ -2968,14 +2970,18 @@ export class SurveyModel extends SurveyElementCore
     if (val === "requiredquestion") return "requiredQuestion";
     return val;
   } }) progressBarType: string;
-  private get progressBarComponentName(): string {
-    let actualProgressBarType = this.progressBarType;
-    if (!settings.legacyProgressBarView && surveyCss.currentType === "default") {
-      if (isStrCiEqual(actualProgressBarType, "pages")) {
-        actualProgressBarType = "buttons";
-      }
-    }
-    return "progress-" + actualProgressBarType;
+  // In the "questionPerPage" mode a respondent moves from question to question rather than from
+  // page to page, so page-based progress ("Page 2 of 3") does not match what they see. The default
+  // "pages" type falls back to answered-question progress there. The "inputPerPage" mode is
+  // excluded on purpose: progress is meaningless when inputs are filled one by one, so the bar is
+  // hidden instead, the same way as in the "singlePage" mode - see
+  // SurveyProgressTextModel.isProgressBarInContainer.
+  // Every progress consumer (text, value, component name, css) must use this method, not the raw
+  // progressBarType property.
+  public getEffectiveProgressBarType(): string {
+    const res = this.progressBarType;
+    const isQuestionPerPage = this.isSingleVisibleQuestion && !this.isSingleVisibleInput;
+    return isQuestionPerPage && isStrCiEqual(res, "pages") ? "questions" : res;
   }
   /**
    * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
@@ -3025,7 +3031,7 @@ export class SurveyModel extends SurveyElementCore
     return this.progressBarLocation === "bottom" || this.progressBarLocation === "both" || this.progressBarLocation === "topbottom";
   }
   public getProgressTypeComponent(): string {
-    return "sv-progress-" + this.progressBarType.toLowerCase();
+    return "sv-progress-" + this.getEffectiveProgressBarType().toLowerCase();
   }
   public getProgressCssClasses(container: string = ""): string {
     return new CssClassBuilder()
@@ -4067,9 +4073,10 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgress(): number {
     if (this.currentPage == null) return 0;
-    if (this.progressBarType !== "pages") {
+    const progressBarType = this.getEffectiveProgressBarType();
+    if (progressBarType !== "pages") {
       var info = this.getProgressInfo();
-      if (this.progressBarType === "requiredQuestions") {
+      if (progressBarType === "requiredQuestions") {
         return info.requiredQuestionCount >= 1
           ? Math.floor(
             (info.requiredAnsweredQuestionCount * 100) /
@@ -5434,7 +5441,12 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
+<<<<<<< HEAD
       .append(this.css.rootProgress + "--" + this.progressBarType)
+=======
+      .append(this.css.rootTheme)
+      .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
+>>>>>>> ffcdb9f95 ([backport:V2] Default progress bar doesn't work with question-per-pag… (#11789))
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)

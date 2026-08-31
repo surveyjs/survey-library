@@ -259,23 +259,25 @@ export class InputMaskDateTime extends InputMaskPattern {
   private calcActivePattern(): string {
     if (!!this.pattern) return this.pattern;
     const locale = this.patternLocale;
-    const preset = this.patternPreset;
-    if (preset === "localeTime") {
-      return getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern);
+    // a JSON author may spell the preset in any case
+    const preset = (this.patternPreset || "").toLowerCase();
+    if (preset === "localetime") {
+      return getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern) || "";
     }
-    if (preset === "localeDateTime") {
+    if (preset === "localedatetime") {
       const datePattern = getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern);
       const timePattern = getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern);
       // composed from the two resolved fields rather than curated as one: a locale that defined
       // a date and a time pattern but no combined one would otherwise fall back to the english
       // field order and separators for the whole pattern
       if (!!datePattern && !!timePattern) return datePattern + " " + timePattern;
-      return datePattern || timePattern;
+      return datePattern || timePattern || "";
     }
-    if (preset === "localeDate") {
-      return getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern);
+    if (preset === "localedate") {
+      return getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern) || "";
     }
-    return this.pattern;
+    // an unrecognized preset leaves the mask without a pattern, as if none were set
+    return this.pattern || "";
   }
   // The canonical pattern that the mask currently parses. A preset generates it at runtime for
   // the survey locale; it is never serialized.

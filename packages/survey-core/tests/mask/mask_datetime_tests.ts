@@ -1774,7 +1774,7 @@ describe("Datetime mask: locale date preset", () => {
     const maskInstance = new InputMaskDateTime();
     try {
       delete localeData["en"];
-      expect(maskInstance.activePattern, "nothing resolves").toBe(undefined);
+      expect(maskInstance.activePattern, "nothing resolves").toBe("");
       expect(maskInstance.getMaskedValue(""), "the empty mask").toBe("");
       let res = maskInstance.processInput({ insertedChars: "a", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
       expect(res.value, "typing a letter does not crash").toBe("");
@@ -2179,6 +2179,32 @@ describe("Datetime mask: locale time and datetime presets", () => {
 
     const authored = <InputMaskDateTime>createPresetQuestion({ patternPreset: "localeTime", pattern: "HH:MM:ss" }).maskSettings;
     expect(authored.activePattern, "the authored pattern wins").toBe("HH:MM:ss");
+  });
+
+  test("A preset value is resolved whatever its case", () => {
+    const cases: Array<[string, string]> = [
+      ["localedate", "dd.mm.yyyy"],
+      ["LOCALEDATE", "dd.mm.yyyy"],
+      ["localetime", "HH:MM"],
+      ["localedatetime", "dd.mm.yyyy HH:MM"],
+      ["localeDateTime", "dd.mm.yyyy HH:MM"]
+    ];
+    cases.forEach(([preset, pattern]) => {
+      const q = createPresetQuestion({ patternPreset: preset }, "de");
+      expect((<InputMaskDateTime>q.maskSettings).activePattern, preset).toBe(pattern);
+    });
+  });
+
+  test("An unrecognized preset leaves the mask without a pattern", () => {
+    const q = createPresetQuestion({ patternPreset: "localeWeek" }, "de");
+    const maskInstance = <InputMaskDateTime>q.maskSettings;
+    expect(maskInstance.activePattern, "no pattern is generated").toBe("");
+    expect(maskInstance.getMaskedValue(""), "the empty mask").toBe("");
+    expect(q.inputValue, "the rendered input").toBe("");
+
+    maskInstance.pattern = "dd.mm.yyyy";
+    expect(maskInstance.activePattern, "an authored pattern still applies").toBe("dd.mm.yyyy");
+    expect(maskInstance.getMaskedValue(""), "the empty mask").toBe("TT.MM.JJJJ");
   });
 
   test("An invalid locale time pattern falls through the chain", () => {

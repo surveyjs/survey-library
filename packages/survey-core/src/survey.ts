@@ -2089,7 +2089,10 @@ export class SurveyModel extends SurveyElementCore
       delete data[key];
     }
     if (hasChanges) {
-      this.data = data;
+      /* bypass the data setter: this only filters incorrect keys out of the current state
+      and should not mark pages as shown the way an external data assignment does */
+      this.valuesHash = {};
+      this.setDataCore(data);
     }
   }
   private iscorrectValueWithPostPrefix(
@@ -3210,6 +3213,7 @@ export class SurveyModel extends SurveyElementCore
   public set data(data: any) {
     this.valuesHash = {};
     this.setDataCore(data, !data);
+    this.markAnsweredPagesAsShown();
   }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
@@ -3224,6 +3228,18 @@ export class SurveyModel extends SurveyElementCore
     const newData = this.data;
     this.mergeValues(data, newData);
     this.setDataCore(newData);
+    this.markAnsweredPagesAsShown();
+  }
+  /* Assigning or merging data restores a previously saved survey state, so pages that
+  already contain answers are shown as passed in the progress bar. Values changed via
+  code (setValue), triggers or expressions do not affect the pages' wasShown state. */
+  private markAnsweredPagesAsShown(): void {
+    if (this.isDesignMode) return;
+    this.pages.forEach(page => {
+      if (!page.wasShown && page.hasValueAnyQuestion(false, false)) {
+        page.setWasShown(true);
+      }
+    });
   }
   /**
    * Represents the current state of the survey UI.

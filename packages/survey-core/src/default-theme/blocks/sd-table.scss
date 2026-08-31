@@ -286,6 +286,16 @@
 //alternative rows
 .sd-question:not(.sd-question--mobile) {
   .sd-table__body--alternative-rows {
+    & > .sd-table__row--error:nth-child(odd of .sd-table__row--error) {
+      .sd-table__cell--error-top {
+        padding-bottom: var(--sjs2-spacing-x100);
+      }
+    }
+    & > .sd-table__row--error:nth-child(even of .sd-table__row--error) {
+      .sd-table__cell--error-top {
+        padding-top: var(--sjs2-spacing-x200);
+      }
+    }
     & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
       --sd-table-sticky-background-color: #{table-sticky-background(
           (#{$background-dark}, var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))

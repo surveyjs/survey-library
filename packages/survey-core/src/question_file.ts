@@ -193,6 +193,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
+  // Specifies the camera that opens by default: "user" (front) or "environment" (rear).
+  // When it is not set, the camera selected by a respondent earlier is used.
+  @property() cameraFacingMode: string;
   /**
    * Specifies the source of uploaded files.
    *
@@ -423,6 +426,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private videoStream: MediaStream;
   public startVideo(): void {
     if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    this.camera.setFacingMode(this.cameraFacingMode);
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
@@ -823,7 +827,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     );
   }
   public get renderCapture(): string {
-    return this.allowCameraAccess ? "user" : undefined;
+    if (!this.allowCameraAccess) return undefined;
+    return this.cameraFacingMode === "environment" ? "environment" : "user";
   }
 
   get multipleRendered() {
@@ -1366,6 +1371,7 @@ Serializer.addClass(
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
+    { name: "cameraFacingMode", choices: ["user", "environment"], visible: false },
   ],
   function () {
     return new QuestionFileModel("");

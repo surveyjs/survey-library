@@ -3,6 +3,14 @@ import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 const envStr = "environment";
 const userStr = "user";
+const getDeviceType = function(device: MediaDeviceInfo): string {
+  const lbl = device.label.toLocaleLowerCase();
+  if (lbl.indexOf(userStr) > -1) return userStr;
+  if (lbl.indexOf(envStr) > -1) return envStr;
+  if (lbl.indexOf("front") > -1) return userStr;
+  if (lbl.indexOf("back") > -1) return envStr;
+  return "";
+};
 export class Camera {
   public static mediaDevicesCallback: ((callback: (devices: Array<MediaDeviceInfo>) => void) => void) | undefined;
   public static clear(): void {
@@ -10,14 +18,6 @@ export class Camera {
     Camera.cameraIndex = -1;
   }
   public static setCameraList(list: Array<MediaDeviceInfo>): void {
-    const getDeviceType = function(device: MediaDeviceInfo): string {
-      const lbl = device.label.toLocaleLowerCase();
-      if (lbl.indexOf(userStr) > -1) return userStr;
-      if (lbl.indexOf(envStr) > -1) return envStr;
-      if (lbl.indexOf("front") > -1) return userStr;
-      if (lbl.indexOf("back") > -1) return envStr;
-      return "";
-    };
     Camera.clear();
     if (Array.isArray(list) && list.length > 0) {
       Camera.cameraIndex = -1;
@@ -74,10 +74,25 @@ export class Camera {
       this.hasCameraCallback(callback);
     }
   }
+  // Sets the camera that should be used when the video starts. The user still can switch to another
+  // camera by calling flip(). An unknown mode is ignored, so the previously selected camera is kept.
+  public setFacingMode(mode: string): void {
+    if (mode !== userStr && mode !== envStr) return;
+    Camera.cameraFacingMode = mode;
+    Camera.cameraIndex = -1;
+  }
+  private getStartCameraIndex(devices: Array<MediaDeviceInfo>): number {
+    if (Camera.cameraFacingMode === envStr) {
+      for (let i = 0; i < devices.length; i++) {
+        if (getDeviceType(devices[i]) === envStr) return i;
+      }
+    }
+    return 0;
+  }
   public getMediaConstraints(videoSize?: { width?: number, height?: number }): MediaStreamConstraints {
     const devices = Camera.cameraList;
     if (!Array.isArray(devices) || devices.length < 1) return undefined;
-    if (Camera.cameraIndex < 0) Camera.cameraIndex = 0;
+    if (Camera.cameraIndex < 0) Camera.cameraIndex = this.getStartCameraIndex(devices);
     const selDevice = devices[Camera.cameraIndex];
     const videoConstraints: any = {};
     if (selDevice && selDevice.deviceId) {

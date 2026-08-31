@@ -134,3 +134,43 @@ describe("page/empty", () => {
     expect(findings[0].path).toBe("elements");
   });
 });
+
+describe("page/empty - detail elements hidden by detailPanelMode", () => {
+  test("detailElements with the default detailPanelMode never render", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdropdown", name: "m7", rows: ["r1"], columns: [{ name: "col1" }],
+        detailElements: [{ type: "text", name: "detail1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("detailElementsHidden");
+    expect(findings[0].elementName).toBe("m7");
+  });
+  test("detailElements with detailPanelMode none never render", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m7", columns: [{ name: "col1" }],
+        detailPanelMode: "none",
+        detailElements: [{ type: "text", name: "detail1" }],
+      }],
+    })).toHaveLength(1);
+  });
+  test("detailElements with detailPanelMode underRow are fine", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdropdown", name: "m7", rows: ["r1"], columns: [{ name: "col1" }],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "detail1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("an empty detailElements array is fine", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdropdown", name: "m7", rows: ["r1"], columns: [{ name: "col1" }],
+        detailElements: [],
+      }],
+    })).toHaveLength(0);
+  });
+});

@@ -112,6 +112,8 @@ export const SurveyLintReasons = Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",
     noRenderableElements: "noRenderableElements",
+    // detailElements while detailPanelMode stays "none" (the default) - never rendered
+    detailElementsHidden: "detailElementsHidden",
   }),
 });
 

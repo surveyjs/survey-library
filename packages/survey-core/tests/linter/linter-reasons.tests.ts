@@ -421,6 +421,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     ruleId: "page/empty", reason: "noRenderableElements",
     json: { pages: [{ name: "p1", elements: [{ type: "text", name: "q1", visible: false }] }] },
   },
+  {
+    ruleId: "page/empty", reason: "detailElementsHidden",
+    json: {
+      elements: [{
+        type: "matrixdropdown", name: "m1", rows: ["r1"], columns: [{ name: "c1" }],
+        detailElements: [{ type: "text", name: "d1" }],
+      }],
+    },
+  },
 ];
 
 describe("linter reasons - the (ruleId, reason) table", () => {

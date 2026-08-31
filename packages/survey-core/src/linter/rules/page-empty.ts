@@ -29,10 +29,33 @@ function buildRenderableCheck(containers: Array<ContainerRecord>,
   return isRenderable;
 }
 
+// detailElements render only when detailPanelMode says so; with the default "none" they are
+// authored content no respondent ever sees.
+function checkHiddenDetailElements(ctx: LintContext, record: ElementRecord): void {
+  const json = record.json;
+  if (!record.matrixColumns || !json) return;
+  if (!Array.isArray(json.detailElements) || json.detailElements.length === 0) return;
+  if (json.detailPanelMode !== undefined && json.detailPanelMode !== "none") return;
+  ctx.report({
+    message: "The detailElements of \"" + record.name + "\" are never shown: its" +
+      " detailPanelMode is \"none\" (the default).",
+    path: record.path + ".detailElements",
+    reason: reasons.detailElementsHidden,
+    messageData: {
+      name: record.name,
+      questionType: record.type,
+      childCount: json.detailElements.length,
+    },
+    elementName: record.name,
+    elementType: record.type,
+  });
+}
+
 export const pageEmptyRule: ILintRule = {
   id: "page/empty",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
+    ctx.index.allElements.forEach(record => checkHiddenDetailElements(ctx, record));
     const isRenderable = buildRenderableCheck(ctx.index.containers, ctx.getNeverVisibleElements());
     ctx.index.containers.forEach(container => {
       if (container.kind === "panelDynamicTemplate") {

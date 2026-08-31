@@ -659,6 +659,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.splice(index, 0, renderedRow);
     } else {
       renderedRows.splice(index, 0, ...(this.showCellErrorsTop ? [errorRow, renderedRow] : [renderedRow, errorRow]));
+      index++;
     }
     if (row.isDetailPanelShowing) {
       renderedRows.splice(index + 1, 0, this.createDetailPanelRow(row, renderedRow));

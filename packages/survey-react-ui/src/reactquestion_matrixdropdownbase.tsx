@@ -4,7 +4,7 @@ import {
   SurveyElementBase,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { ISurveyCreator, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
 import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
@@ -176,11 +176,6 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       const str = this.renderLocString(cell.locTitle);
       const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question} /> : null;
       cellContent = (<>{str}{require}</>);
-    }
-    if (cell.isDragHandlerCell) {
-      cellContent = (<>
-        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }} />
-      </>);
     }
     if (cell.isActionsCell) {
       cellContent = (
@@ -398,9 +393,12 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   protected renderCellContent() {
     const content = super.renderCellContent();
     const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}<SurveyQuestionMatrixHeaderRequired column={this.cell.column} question={this.cell.matrix} /></span>) : null;
+    const errors = this.cell.matrix.isMobile ? <SurveyElementErrors element={this.cell.question} creator={this.props.creator} cssClasses={this.question.cssClasses}></SurveyElementErrors> : null;
     return <>
+      {this.cell.matrix.getErrorLocation() === "top" ? errors : null }
       {responsiveTitle}
       {content}
+      {this.cell.matrix.getErrorLocation() === "bottom" ? errors : null }
     </>;
   }
   protected renderQuestion(): React.JSX.Element {

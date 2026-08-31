@@ -33,7 +33,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
   id: "expression/unknown-choice",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.forEachSite("condition", site => {
+    // expression-kind sites carry comparisons too - inside iif() conditions and boolean
+    // fragments - and collectOperands walks into function arguments, so one pass covers both
+    ctx.forEachSite("parsed", site => {
       const resolve = ctx.getConstResolver(site);
       collectOperands(site.ast).forEach(op => {
         const match = matchVariableComparison(op, CHOICE_OPERATORS, resolve);
@@ -73,8 +75,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
           };
           reproduction.steps.push({ expect: { visible: { [site.owner.name]: true } } });
         }
+        const siteWord = site.kind === "condition" ? "The condition" : "The expression";
         ctx.reportAtSite(site, {
-          message: "The condition compares \"" + refName + "\" to " + missingText +
+          message: siteWord + " compares \"" + refName + "\" to " + missingText +
             (useSubstring ? " - no choice value contains it." : " - not among its choices.") +
             " Available: " + availableText + ". (in \"" + site.text + "\")",
           reason: useSubstring ? reasons.noChoiceContains : reasons.notAmongChoices,
@@ -82,6 +85,7 @@ export const expressionUnknownChoiceRule: ILintRule = {
             name: refName,
             recordName: record.name,
             reference: ref.raw,
+            prop: site.prop,
             operator: match.operator,
             values: missing,
             available: domain.listed,

@@ -112,7 +112,9 @@ export const expressionTypeMismatchRule: ILintRule = {
   id: "expression/type-mismatch",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.forEachSite("condition", site => {
+    // expression-kind sites carry typed comparisons too, inside iif() conditions and
+    // boolean fragments, so the same per-operand scan applies to them
+    ctx.forEachSite("parsed", site => {
       const resolve = ctx.getConstResolver(site);
       collectOperands(site.ast).forEach(op => {
         if (!(op instanceof BinaryOperand)) return;
@@ -137,7 +139,12 @@ export const expressionTypeMismatchRule: ILintRule = {
           ? checkEquality(record, constValue)
           : checkOrdering(record, constValue, operatorClass));
         if (!mismatch) return;
-        let message = "The condition applies \"" + op.operator +
+        // summing free-text fields is a widespread legitimate pattern in computed expressions,
+        // unlike in conditions where a numeric comparison on text hints at a missing inputType
+        if (site.kind !== "condition" && operatorClass === "arithmetic" &&
+          mismatch.reason === "text-ordering") return;
+        let message = (site.kind === "condition" ? "The condition" : "The expression") +
+          " applies \"" + op.operator +
           "\" to \"" + variable.variable + "\": " + mismatch.detail;
         if (mismatch.suggestion) message += " Consider: " + mismatch.suggestion + ".";
         message += " (in \"" + site.text + "\")";
@@ -146,6 +153,7 @@ export const expressionTypeMismatchRule: ILintRule = {
           reason: mismatch.reason,
           messageData: {
             name: variable.variable,
+            prop: site.prop,
             // the detail sentences are about the element, and its name differs from the raw
             // reference for valueName hits, "-Comment" keys, matrix "-total" keys and scoped refs
             recordName: record.name,

@@ -436,3 +436,55 @@ describe("expression/unknown-choice - comparator parity", () => {
     expect(unknownChoices("{q1} = '4'", [1, 2, 3])).toHaveLength(1);
   });
 });
+
+describe("expression/unknown-choice - matrix and panel sub-paths", () => {
+  test("a matrixdropdown cell compared to a value outside the column choices", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"],
+          columns: [{ name: "col1", cellType: "dropdown", choices: ["a", "b"] }] },
+        { type: "text", name: "q2", visibleIf: "{m8.r1.col1} = 'zzz'" },
+      ],
+    }, "expression/unknown-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("notAmongChoices");
+    expect(findings[0].reproduction).toBeUndefined();
+  });
+  test("an indexed matrixdynamic cell compared to a value outside the column choices", () => {
+    expect(byRule({
+      elements: [
+        { type: "matrixdynamic", name: "m9",
+          columns: [{ name: "col1", cellType: "dropdown", choices: ["a", "b"] }] },
+        { type: "text", name: "q2", visibleIf: "{m9[0].col1} = 'zzz'" },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(1);
+  });
+  test("an indexed dynamic panel question compared to a value outside its choices", () => {
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p1", templateElements: [
+          { type: "dropdown", name: "q1", choices: ["x", "y"] },
+        ] },
+        { type: "text", name: "q2", visibleIf: "{p1[0].q1} = 'zzz'" },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(1);
+  });
+  test("a listed choice value through a sub-path is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"],
+          columns: [{ name: "col1", cellType: "dropdown", choices: ["a", "b"] }] },
+        { type: "text", name: "q2", visibleIf: "{m8.r1.col1} = 'a'" },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(0);
+  });
+  test("a column inheriting the matrix-level choices is checked against them", () => {
+    expect(byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"], choices: ["a", "b"],
+          columns: [{ name: "col1", cellType: "dropdown" }] },
+        { type: "text", name: "q2", visibleIf: "{m8.r1.col1} = 'zzz'" },
+      ],
+    }, "expression/unknown-choice")).toHaveLength(1);
+  });
+});

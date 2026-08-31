@@ -1,7 +1,9 @@
 import { runBinaryOperator } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { collectOperands, getConstValues, getSiteRefByRaw, matchVariableComparison } from "../expression-utils";
+import {
+  collectOperands, getConstValues, getSiteRefByRaw, isSimpleValueRef, matchVariableComparison,
+} from "../expression-utils";
 import { isCheckableValue, runtimeEquals } from "../value-domain";
 import { ElementRecord } from "../symbols";
 import { quoteValues } from "../message-utils";
@@ -63,8 +65,10 @@ export const expressionUnknownChoiceRule: ILintRule = {
         const refName = ref.segments.map(s => s.name).join(".");
         const missingText = quoteValues(missing);
         let reproduction: ILintReproduction;
+        // a sub-path value sits inside a row/panel, where a survey-level "set" step
+        // cannot place it - no reproduction for those
         if (site.prop === "visibleIf" && site.owner && site.owner.name &&
-          ref.status === "resolved" && record.name) {
+          ref.status === "resolved" && isSimpleValueRef(ref) && record.name) {
           reproduction = {
             description: "No selectable choice of \"" + record.name + "\" " +
               (useSubstring ? "contains " : "equals ") + missingText + ".",

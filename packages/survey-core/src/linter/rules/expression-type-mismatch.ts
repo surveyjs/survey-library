@@ -3,7 +3,7 @@ import { ILintRule, LintContext } from "../rule";
 import { SurveyLintReasons, SurveyLintSuggestionReasons } from "../reasons";
 import {
   ARITHMETIC_OPERATORS, collectOperands, EQUALITY_OPERATORS, getConstantOperandValue,
-  getSiteRefByRaw, isSimpleValueRef, matchVariableComparison, ORDERING_OPERATORS,
+  getRefValueRecord, getSiteRefByRaw, matchVariableComparison, ORDERING_OPERATORS,
 } from "../expression-utils";
 import { quoteValue } from "../message-utils";
 import { ElementRecord } from "../symbols";
@@ -129,11 +129,11 @@ export const expressionTypeMismatchRule: ILintRule = {
         const variable = match.variable;
         const constValue = constant.value;
         const ref = getSiteRefByRaw(site, ctx.index, ctx.options).get(variable.variable);
-        // type only confidently resolved references reading the element's own value: an
-        // unknown sub-segment keeps resolvedTo set but is already reported by reference/unknown,
-        // and a sub-path compares against a sub-value the linter does not type
-        if (!isSimpleValueRef(ref)) return;
-        const record = ref.resolvedTo;
+        // type only confidently resolved references: the element's own value, or the matrix
+        // cell / template question a modelled sub-path lands on. An unknown sub-segment keeps
+        // resolvedTo set but is already reported by reference/unknown, and getRefValueRecord
+        // rejects it.
+        const record = getRefValueRecord(ref);
         if (!record || record.isUnknownType || record.valueType.shape === "unknown") return;
         const mismatch = checkNoValue(record) || (operatorClass === "equality"
           ? checkEquality(record, constValue)

@@ -598,6 +598,42 @@ export function isSimpleValueRef(ref: ParsedRef | undefined): boolean {
     ref.segments.length === 1 && ref.segments[0].index === undefined;
 }
 
+// The element whose own value a sub-path reference reads: a matrix cell path lands on the
+// column record (typed as its cell type), a dynamic panel path on the template question.
+// Only the shapes where every row/panel shares one sub-element are modelled - which row or
+// panel the index picks does not change what the cell can hold. Undefined elsewhere, and for
+// a path reference/unknown already reports.
+export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | undefined {
+  if (!ref || ref.status !== "resolved" || !ref.resolvedTo) return undefined;
+  if (ref.unknownSegmentIndex !== undefined) return undefined;
+  const record = ref.resolvedTo;
+  if (record.isUnknownType) return undefined;
+  const segments = ref.segments;
+  const type = getEffectiveType(record);
+  if (type === "matrixdropdown" && record.matrixColumns) {
+    if (segments.length !== 3 || segments.some(seg => seg.index !== undefined)) return undefined;
+    return record.matrixColumns.first(segments[2].name);
+  }
+  if (type === "matrixdynamic" && record.matrixColumns) {
+    if (segments.length !== 2 || segments[0].index === undefined ||
+      segments[1].index !== undefined) return undefined;
+    return record.matrixColumns.first(segments[1].name);
+  }
+  if (type === "paneldynamic" && record.templateNames) {
+    if (segments.length !== 2 || segments[0].index === undefined ||
+      segments[1].index !== undefined) return undefined;
+    const sub = record.templateNames.first(segments[1].name);
+    return !!sub && sub.kind === "question" ? sub : undefined;
+  }
+  return undefined;
+}
+
+// The element a reference compares against, sub-paths included: the referenced element itself
+// for a simple ref, the cell column / template question for a modelled sub-path.
+export function getRefValueRecord(ref: ParsedRef | undefined): ElementRecord | undefined {
+  return isSimpleValueRef(ref) ? ref.resolvedTo : getSubPathRecord(ref);
+}
+
 // A site whose result gates something and which parsed: the walker sets exactly one of
 // ast/parseError, so the ast test alone covers the parse failure.
 export function isAnalyzableCondition(site: ExpressionSite): boolean {

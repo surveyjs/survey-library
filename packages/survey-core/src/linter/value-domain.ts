@@ -1,6 +1,6 @@
 import { runBinaryOperator } from "survey-core";
 import { ElementRecord, getEffectiveType, ParsedRef, SurveyIndex } from "./symbols";
-import { equalsCI } from "./expression-utils";
+import { equalsCI, getSubPathRecord } from "./expression-utils";
 import { getInputType, getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
 
 // The set of values a reference can hold, when the JSON pins it down completely.
@@ -139,9 +139,13 @@ export function getValueDomain(ref: ParsedRef, index: SurveyIndex,
   recordDomain?: (record: ElementRecord) => ValueDomain | undefined): ValueDomain | undefined {
   const record = ref.resolvedTo;
   if (!record) return undefined;
-  // a subpath reference compares against the sub-element, and only a matrix row is modelled
+  // a subpath reference compares against the sub-element: a matrix cell / dynamic panel
+  // question when the path lands on one, a single-choice matrix row otherwise
   if (ref.status === "resolved" && ref.segments.length > 1) {
-    return record.isUnknownType ? undefined : getMatrixRowDomain(ref, record);
+    if (record.isUnknownType) return undefined;
+    const sub = getSubPathRecord(ref);
+    if (!!sub) return recordDomain ? recordDomain(sub) : getRecordValueDomain(sub, index);
+    return getMatrixRowDomain(ref, record);
   }
   return recordDomain ? recordDomain(record) : getRecordValueDomain(record, index);
 }

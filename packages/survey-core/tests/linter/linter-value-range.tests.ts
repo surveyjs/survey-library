@@ -194,3 +194,55 @@ describe("a matrix column holds the domain of its cell type", () => {
       .toBe("expression/unknown-choice/notAmongChoices");
   });
 });
+
+describe("range checks through matrix and panel sub-paths", () => {
+  test("a matrixdynamic cell path with an index reads the column bounds", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "matrixdynamic", name: "m9", columns: [{ name: "score", cellType: "rating" }] },
+        { type: "text", name: "q3", visibleIf: "{m9[0].score} > 10" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("a matrixdropdown cell path reads the column bounds", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"],
+          columns: [{ name: "score", cellType: "rating" }] },
+        { type: "text", name: "q3", visibleIf: "{m8.r1.score} > 10" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("a dynamic panel question path reads the template question bounds", () => {
+    const findings = findingsOf({
+      elements: [
+        { type: "paneldynamic", name: "p5", templateElements: [
+          { type: "text", name: "age", inputType: "number", min: 0, max: 5 },
+        ] },
+        { type: "text", name: "q4", visibleIf: "{p5[0].age} > 10" },
+      ],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("a matrixdynamic path without an index stays undecided", () => {
+    expect(findingsOf({
+      elements: [
+        { type: "matrixdynamic", name: "m9", columns: [{ name: "score", cellType: "rating" }] },
+        { type: "text", name: "q3", visibleIf: "{m9.score} > 10" },
+      ],
+    }, "expression/contradiction")).toHaveLength(0);
+  });
+  test("a satisfiable comparison through a sub-path is clean", () => {
+    expect(findingsOf({
+      elements: [
+        { type: "matrixdynamic", name: "m9", columns: [{ name: "score", cellType: "rating" }] },
+        { type: "text", name: "q3", visibleIf: "{m9[0].score} > 3" },
+      ],
+    }, "expression/contradiction")).toHaveLength(0);
+  });
+});

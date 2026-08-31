@@ -1,6 +1,6 @@
 import { BinaryOperand, Operand } from "survey-core";
 import {
-  ConstResolver, getConstantOperandValue, hasBound, isSimpleValueRef, matchVariableComparison,
+  ConstResolver, getConstantOperandValue, getRefValueRecord, hasBound, matchVariableComparison,
   operatorFromVariableSide, RANGE_OPERATORS,
 } from "./expression-utils";
 import { ElementRecord, ParsedRef, SurveyIndex } from "./symbols";
@@ -39,7 +39,7 @@ export function getUnsatisfiableRange(node: Operand, index: SurveyIndex,
   const constant = getConstantOperandValue(match.constSide, resolve);
   if (!constant) return undefined;
   const ref = refOf(match.variable.variable);
-  if (!isSimpleValueRef(ref)) return undefined;
+  if (!getRefValueRecord(ref)) return undefined;
   const domain = getValueDomain(ref, index, recordDomain);
   if (!domain || domain.kind !== "range") return undefined;
   if (!isComparable(constant.value, domain)) return undefined;

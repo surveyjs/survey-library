@@ -233,3 +233,37 @@ describe("expression/type-mismatch - indexed and sub-path references", () => {
     })).toHaveLength(1);
   });
 });
+
+describe("expression/type-mismatch - matrix and panel sub-paths", () => {
+  test("a numeric template question compared to a string is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "paneldynamic", name: "p5", templateElements: [
+          { type: "text", name: "age", inputType: "number" },
+        ] },
+        { type: "text", name: "q4", visibleIf: "{p5[0].age} > 'ten'" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("number-vs-string");
+  });
+  test("a checkbox column compared to a scalar is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"],
+          columns: [{ name: "tags", cellType: "checkbox", choices: ["a", "b"] }] },
+        { type: "text", name: "q2", visibleIf: "{m8.r1.tags} = 'a'" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("array-vs-scalar");
+  });
+  test("an indexed single-segment reference stays untyped", () => {
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "tags", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{tags[0]} = 'a'" },
+      ],
+    })).toHaveLength(0);
+  });
+});

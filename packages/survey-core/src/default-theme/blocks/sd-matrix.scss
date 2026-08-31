@@ -43,3 +43,27 @@
   font-weight: $font-questiontitle-weight;
   text-align: start;
 }
+
+.sd-question--mobile {
+  .sd-matrix__row {
+    gap: 0;
+  }
+  .sd-matrix__cell {
+    display: flex;
+    align-items: flex-start;
+    border-top: none;
+    border-bottom: none;
+
+    .sd-matrix__responsive-title {
+      margin-left: var(--sjs2-spacing-x100);
+      text-align: start;
+    }
+
+    &:first-of-type {
+      padding-bottom: var(--sjs2-spacing-x100);
+    }
+  }
+  .sd-matrix__label {
+    justify-content: flex-start;
+  }
+}

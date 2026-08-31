@@ -84,3 +84,19 @@ export interface ILintRuleInfo {
 export interface IRenderOptions {
   includeSuppressed?: boolean;
 }
+
+export interface SeverityCounts {
+  error: number;
+  warning: number;
+  info: number;
+}
+
+export function countBySeverity(findings: Array<ILintFinding>): SeverityCounts {
+  const res: SeverityCounts = { error: 0, warning: 0, info: 0 };
+  findings.forEach(finding => {
+    if (finding.severity === "error") res.error++;
+    else if (finding.severity === "warning") res.warning++;
+    else res.info++;
+  });
+  return res;
+}

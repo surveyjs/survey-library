@@ -1,7 +1,7 @@
 import { runBinaryOperator } from "survey-core";
-import { ElementRecord, ParsedRef, SurveyIndex } from "./symbols";
+import { ElementRecord, getEffectiveType, ParsedRef, SurveyIndex } from "./symbols";
 import { equalsCI } from "./expression-utils";
-import { getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
+import { getInputType, getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
 
 // The set of values a reference can hold, when the JSON pins it down completely.
 export interface ValueSetDomain {
@@ -71,7 +71,7 @@ function getSliderRangeDomain(record: ElementRecord): ValueDomain | undefined {
 
 function getTextRangeDomain(record: ElementRecord): ValueDomain | undefined {
   const json = record.json;
-  if (!json || !RANGE_INPUT_TYPES[(json.inputType || "text").toLowerCase()]) return undefined;
+  if (!json || !RANGE_INPUT_TYPES[getInputType(json)]) return undefined;
   // a bound computed at runtime is unknown while linting
   if (json.minValueExpression !== undefined || json.maxValueExpression !== undefined) return undefined;
   const min = json.min;
@@ -121,24 +121,29 @@ export function getRecordValueDomain(record: ElementRecord, index: SurveyIndex):
     return toDomain(record, info.staticValues.concat(getSpecialChoiceValues(info, index.settings)),
       info.staticValues);
   }
-  if (record.type === "rating") {
+  // by effective type: a matrix column holds the domain of its cell type
+  const type = getEffectiveType(record);
+  if (type === "rating") {
     const listed = toDomain(record, getStaticChoiceValues(record.json ? record.json.rateValues : undefined));
     return listed || getRatingRangeDomain(record);
   }
-  if (record.type === "boolean") return getBooleanDomain(record);
-  if (record.type === "text") return getTextRangeDomain(record);
-  if (record.type === "slider") return getSliderRangeDomain(record);
+  if (type === "boolean") return getBooleanDomain(record);
+  if (type === "text") return getTextRangeDomain(record);
+  if (type === "slider") return getSliderRangeDomain(record);
   return undefined;
 }
 
-export function getValueDomain(ref: ParsedRef, index: SurveyIndex): ValueDomain | undefined {
+// recordDomain lets a caller pass its memoized getRecordValueDomain; without one the
+// domain is rebuilt on every call.
+export function getValueDomain(ref: ParsedRef, index: SurveyIndex,
+  recordDomain?: (record: ElementRecord) => ValueDomain | undefined): ValueDomain | undefined {
   const record = ref.resolvedTo;
   if (!record) return undefined;
   // a subpath reference compares against the sub-element, and only a matrix row is modelled
   if (ref.status === "resolved" && ref.segments.length > 1) {
     return record.isUnknownType ? undefined : getMatrixRowDomain(ref, record);
   }
-  return getRecordValueDomain(record, index);
+  return recordDomain ? recordDomain(record) : getRecordValueDomain(record, index);
 }
 
 // runBinaryOperator applies the very operator function the expression runtime applies, so this
@@ -151,4 +156,10 @@ export function runtimeEquals(a: any, b: any): boolean {
 
 export function runtimeGreater(a: any, b: any): boolean {
   return runBinaryOperator("greater", a, b) === true;
+}
+
+// An empty value clears the answer and a boolean one is a switch, not a choice: neither says
+// anything about which values a question can hold, so neither is checked against a value set.
+export function isCheckableValue(value: any): boolean {
+  return value !== null && value !== undefined && value !== "" && typeof value !== "boolean";
 }

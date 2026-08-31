@@ -1,5 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
-import { isAlwaysFalseVerdict } from "../expression-utils";
+import { hasBound, isAlwaysFalseVerdict, verdictToReason } from "../expression-utils";
+import { quoteValue } from "../message-utils";
 import { describeConstants, toConstantsData, toConstantsRelated } from "../constant-env";
 import { FoldedCondition } from "../condition-eval";
 import { ConditionConflict } from "../satisfiability";
@@ -11,8 +12,8 @@ const reasons = SurveyLintReasons["expression/contradiction"];
 function describeRanges(ranges: Array<ValueRangeDomain>): string {
   return ranges.map(range => {
     const bounds: Array<string> = [];
-    if (range.min !== undefined && range.min !== null && range.min !== "") bounds.push("at least " + JSON.stringify(range.min));
-    if (range.max !== undefined && range.max !== null && range.max !== "") bounds.push("at most " + JSON.stringify(range.max));
+    if (hasBound(range.min)) bounds.push("at least " + quoteValue(range.min));
+    if (hasBound(range.max)) bounds.push("at most " + quoteValue(range.max));
     return "{" + range.record.name + "} is " + bounds.join(" and ");
   }).join(", ");
 }
@@ -28,7 +29,7 @@ function toRangesData(ranges: Array<ValueRangeDomain>): Array<any> {
 
 function describeConflicts(conflicts: Array<ConditionConflict>): string {
   return conflicts.map(conflict => {
-    const values = (conflict.values || []).map(value => JSON.stringify(value));
+    const values = (conflict.values || []).map(quoteValue);
     if (conflict.kind === "equalValues") {
       return "{" + conflict.name + "} cannot be both " + values.join(" and ");
     }
@@ -46,12 +47,6 @@ function describeConflicts(conflicts: Array<ConditionConflict>): string {
     }
     return "{" + conflict.name + "} cannot be empty and not empty";
   }).join(", ");
-}
-
-function getReason(verdict: string): string {
-  if (verdict === "unsatisfiable") return reasons.unsatisfiable;
-  if (verdict === "outOfRange") return reasons.outOfRange;
-  return verdict === "alwaysFalseViaConstants" ? reasons.alwaysFalseViaConstants : reasons.alwaysFalse;
 }
 
 function getMessage(prop: string, text: string, fold?: FoldedCondition): string {
@@ -80,7 +75,7 @@ export const expressionContradictionRule: ILintRule = {
   id: "expression/contradiction",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
+    ctx.forEachSite("condition", site => {
       const { verdict, fold } = ctx.getConditionVerdict(site);
       if (!isAlwaysFalseVerdict(verdict)) return;
       const messageData: { [key: string]: any } = {
@@ -91,13 +86,10 @@ export const expressionContradictionRule: ILintRule = {
       if (!!fold && fold.used.length > 0) messageData.constants = toConstantsData(fold.used);
       if (!!fold && fold.ranges.length > 0) messageData.ranges = toRangesData(fold.ranges);
       if (!!fold && fold.conflicts.length > 0) messageData.conflicts = fold.conflicts;
-      ctx.report({
+      ctx.reportAtSite(site, {
         message: getMessage(site.prop, site.text, fold),
-        path: site.path,
-        reason: getReason(verdict),
+        reason: verdictToReason(verdict),
         messageData: messageData,
-        elementName: site.owner ? site.owner.name : undefined,
-        elementType: site.owner ? site.owner.type : undefined,
         related: !!fold ? getRelated(fold) : undefined,
       });
     });

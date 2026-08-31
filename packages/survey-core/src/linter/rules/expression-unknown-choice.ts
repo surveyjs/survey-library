@@ -1,9 +1,10 @@
-import { runBinaryOperator, Variable } from "survey-core";
+import { runBinaryOperator } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs, collectOperands, getConstValues, matchVariableComparison } from "../expression-utils";
-import { getValueDomain, runtimeEquals } from "../value-domain";
-import { ElementRecord, ParsedRef } from "../symbols";
+import { collectOperands, getConstValues, getSiteRefByRaw, matchVariableComparison } from "../expression-utils";
+import { isCheckableValue, runtimeEquals } from "../value-domain";
+import { ElementRecord } from "../symbols";
+import { quoteValues } from "../message-utils";
 import { ILintReproduction } from "../types";
 import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
@@ -32,28 +33,16 @@ export const expressionUnknownChoiceRule: ILintRule = {
   id: "expression/unknown-choice",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
-      if (site.kind !== "condition" || !site.ast) return;
+    ctx.forEachSite("condition", site => {
       const resolve = ctx.getConstResolver(site);
-      // Map, not an object literal: keys are raw variable names from user expressions
-      let refByRaw: Map<string, ParsedRef>;
-      const getRef = (variable: Variable): ParsedRef => {
-        if (!refByRaw) {
-          refByRaw = new Map<string, ParsedRef>();
-          classifySiteRefs(site, ctx.index, ctx.options).forEach(ref => {
-            if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
-          });
-        }
-        return refByRaw.get(variable.variable);
-      };
       collectOperands(site.ast).forEach(op => {
         const match = matchVariableComparison(op, CHOICE_OPERATORS, resolve);
         if (!match) return;
         const constValues = getConstValues(match.constSide, resolve);
         if (!constValues || constValues.length === 0) return;
-        const ref = getRef(match.variable);
+        const ref = getSiteRefByRaw(site, ctx.index, ctx.options).get(match.variable.variable);
         if (!ref) return;
-        const domain = getValueDomain(ref, ctx.index);
+        const domain = ctx.getValueDomain(ref);
         // a range says which values are allowed, not which ones exist: expression/contradiction
         // is the rule that reads it
         if (!domain || domain.kind !== "set") return;
@@ -65,13 +54,12 @@ export const expressionUnknownChoiceRule: ILintRule = {
           record.valueType.shape !== "array";
         const matches = useSubstring ? runtimeContains : runtimeEquals;
         const allowed = domain.values.concat(getAuthoredValues(record));
-        const missing = constValues.filter(value =>
-          value !== null && value !== undefined && value !== "" && typeof value !== "boolean" &&
+        const missing = constValues.filter(value => isCheckableValue(value) &&
           !allowed.some(choice => matches(choice, value)));
         if (missing.length === 0) return;
-        const availableText = domain.listed.map(v => "\"" + String(v) + "\"").join(", ");
+        const availableText = quoteValues(domain.listed);
         const refName = ref.segments.map(s => s.name).join(".");
-        const missingText = missing.map(v => "\"" + String(v) + "\"").join(", ");
+        const missingText = quoteValues(missing);
         let reproduction: ILintReproduction;
         if (site.prop === "visibleIf" && site.owner && site.owner.name &&
           ref.status === "resolved" && record.name) {
@@ -85,11 +73,10 @@ export const expressionUnknownChoiceRule: ILintRule = {
           };
           reproduction.steps.push({ expect: { visible: { [site.owner.name]: true } } });
         }
-        ctx.report({
+        ctx.reportAtSite(site, {
           message: "The condition compares \"" + refName + "\" to " + missingText +
             (useSubstring ? " - no choice value contains it." : " - not among its choices.") +
             " Available: " + availableText + ". (in \"" + site.text + "\")",
-          path: site.path,
           reason: useSubstring ? reasons.noChoiceContains : reasons.notAmongChoices,
           messageData: {
             name: refName,
@@ -101,12 +88,9 @@ export const expressionUnknownChoiceRule: ILintRule = {
             semantics: useSubstring ? "substring" : "equality",
             expression: site.text,
           },
-          elementName: site.owner ? site.owner.name : undefined,
-          elementType: site.owner ? site.owner.type : undefined,
-          suggestion: missing.length === 1 && typeof missing[0] === "string"
-            ? (domain.listed.length > 0
-              ? findClosestChoice(String(missing[0]), domain.listed)
-              : undefined)
+          suggestion: missing.length === 1 && typeof missing[0] === "string" &&
+            domain.listed.length > 0
+            ? closestMatch(missing[0], domain.listed.map(choice => String(choice)))
             : undefined,
           reproduction: reproduction,
         });
@@ -114,7 +98,3 @@ export const expressionUnknownChoiceRule: ILintRule = {
     });
   },
 };
-
-function findClosestChoice(value: string, choices: Array<any>): string | undefined {
-  return closestMatch(value, choices.map(choice => String(choice)));
-}

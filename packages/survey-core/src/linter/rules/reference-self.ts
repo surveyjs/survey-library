@@ -5,7 +5,7 @@ import { ILintReproduction } from "../types";
 import { ILintResolvedSettings } from "../lint-settings";
 import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
-const SELF_PROPS: { [prop: string]: boolean } = { visibleIf: true, enableIf: true, requiredIf: true };
+const SELF_PROPS = new Set<string>(["visibleIf", "enableIf", "requiredIf"]);
 
 function hasItemValueFrame(site: ExpressionSite): boolean {
   return site.scope.some(frame => frame.kind === "itemValue");
@@ -46,17 +46,16 @@ export const referenceSelfRule: ILintRule = {
   id: "reference/self",
   defaultSeverity: "error",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
-      if (site.parseError || !site.owner || !SELF_PROPS[site.prop]) return;
+    ctx.forEachSite("parsed", site => {
+      if (!site.owner || !SELF_PROPS.has(site.prop)) return;
       const owner = site.owner;
       if (!owner.name) return;
       const refs = classifySiteRefs(site, ctx.index, ctx.options);
       const selfRef = refs.filter(ref => isSelfRef(ref, owner, site, ctx.index.settings))[0];
       if (!selfRef) return;
-      ctx.report({
+      ctx.reportAtSite(site, {
         message: "The " + site.prop + " of \"" + owner.name + "\" references the element itself ({" +
           selfRef.raw + "} in \"" + site.text + "\").",
-        path: site.path,
         reason: SurveyLintReasons["reference/self"].selfReference,
         messageData: {
           name: owner.name,
@@ -64,8 +63,6 @@ export const referenceSelfRule: ILintRule = {
           reference: selfRef.raw,
           expression: site.text,
         },
-        elementName: owner.name,
-        elementType: owner.type,
         reproduction: owner.kind === "question" ? buildReproduction(owner, site.prop) : undefined,
       });
     });

@@ -539,6 +539,12 @@ describe("linter reasons - the data a localized message needs", () => {
       { path: "triggers[1]", type: "setvalue", setToName: "q2" },
     ]);
     expect(findings[0].messageData.setToName).toBe("q1");
+    // the loop is recorded the way cycle/calculated-value records it: identities, closed
+    expect(findings[0].messageData.cycle).toEqual(["triggers[0]", "triggers[1]", "triggers[0]"]);
+    expect(findings[0].messageData.names).toEqual(["triggers[0]", "triggers[1]"]);
+    expect(findings[0].messageData.labels).toEqual([
+      "triggers[0] (setvalue -> q1)", "triggers[1] (setvalue -> q2)",
+    ]);
   });
   test("cycle/calculated-value reports the loop without the repeated first name", () => {
     const findings = findingsOf({

@@ -1,5 +1,5 @@
 import { isSelectBase } from "./metadata";
-import { ChoicesInfo, ValueTypeInfo, ScalarType } from "./symbols";
+import { ChoicesInfo, getEffectiveType, ValueTypeInfo, ScalarType } from "./symbols";
 import { ILintResolvedSettings } from "./lint-settings";
 
 const NUMERIC_INPUT_TYPES: { [inputType: string]: boolean } = { number: true, range: true };
@@ -64,10 +64,15 @@ export function getSpecialChoiceValues(info: ChoicesInfo, lintSettings: ILintRes
   return res;
 }
 
+// The inputType a text question collects with, defaulted the way the model defaults it.
+export function getInputType(json: any): string {
+  return ((json ? json.inputType : undefined) || "text").toLowerCase();
+}
+
 export function getValueTypeInfo(type: string, json: any): ValueTypeInfo {
   switch(type) {
     case "text": {
-      const inputType = (json.inputType || "text").toLowerCase();
+      const inputType = getInputType(json);
       if (NUMERIC_INPUT_TYPES[inputType]) return { shape: "scalar", scalarType: "number" };
       if (DATE_INPUT_TYPES[inputType]) return { shape: "scalar", scalarType: "date" };
       return { shape: "scalar", scalarType: "string" };
@@ -117,9 +122,10 @@ export function getValueTypeInfo(type: string, json: any): ValueTypeInfo {
   }
 }
 
-export function isTextInputQuestion(record: { type: string, json: any }): boolean {
-  if (record.type === "comment") return true;
-  if (record.type !== "text") return false;
-  const inputType = (record.json.inputType || "text").toLowerCase();
+export function isTextInputQuestion(record: { type: string, effectiveType?: string, json: any }): boolean {
+  const type = getEffectiveType(record);
+  if (type === "comment") return true;
+  if (type !== "text") return false;
+  const inputType = getInputType(record.json);
   return !NUMERIC_INPUT_TYPES[inputType] && !DATE_INPUT_TYPES[inputType];
 }

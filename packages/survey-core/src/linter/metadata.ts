@@ -196,24 +196,27 @@ export class LintMetadata {
   // registers as question descendants. ElementFactory is NOT the source here: it
   // holds only what the Creator toolbox offers (buttongroup, flowpanel and imagemap
   // are missing from it, yet all three deserialize).
+  private ensureElementTypes(): void {
+    if (!!this.elementTypes) return;
+    const res: Array<string> = [];
+    Serializer.getAllClasses().forEach(name => {
+      if (!isElementClass(name)) return;
+      res.push(name);
+      const alias = Serializer.getAliasByType(name);
+      if (!!alias) res.push(alias);
+    });
+    this.elementTypes = res;
+    this.elementTypeSet = new Set<string>(res);
+  }
+
   public getElementTypes(): Array<string> {
-    if (!this.elementTypes) {
-      const res: Array<string> = [];
-      Serializer.getAllClasses().forEach(name => {
-        if (!isElementClass(name)) return;
-        res.push(name);
-        const alias = Serializer.getAliasByType(name);
-        if (!!alias) res.push(alias);
-      });
-      this.elementTypes = res;
-      this.elementTypeSet = new Set<string>(res);
-    }
+    this.ensureElementTypes();
     return this.elementTypes;
   }
 
   public isKnownElementType(type: string): boolean {
     if (!type) return false;
-    this.getElementTypes();
+    this.ensureElementTypes();
     // findClass resolves aliases, so an aliased type is known even when the alias
     // itself is not a registered class
     return this.elementTypeSet.has(type.toLowerCase()) || isElementClass(type);

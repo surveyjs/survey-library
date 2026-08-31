@@ -1,29 +1,58 @@
-import { BinaryOperand, Variable } from "survey-core";
+import { BinaryOperand } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
-import { SurveyLintSuggestionReasons } from "../reasons";
-import { classifySiteRefs, collectOperands, getConstantOperandValue } from "../expression-utils";
-import { ElementRecord, ParsedRef } from "../symbols";
+import { SurveyLintReasons, SurveyLintSuggestionReasons } from "../reasons";
+import {
+  ARITHMETIC_OPERATORS, collectOperands, EQUALITY_OPERATORS, getConstantOperandValue,
+  getSiteRefByRaw, isSimpleValueRef, matchVariableComparison, ORDERING_OPERATORS,
+} from "../expression-utils";
+import { quoteValue } from "../message-utils";
+import { ElementRecord } from "../symbols";
 import { isTextInputQuestion } from "../value-types";
 
-const ORDERING_OPERATORS: { [op: string]: boolean } = {
-  less: true, greater: true, lessorequal: true, greaterorequal: true,
-  plus: true, minus: true, mul: true, div: true, mod: true, power: true,
-};
-const EQUALITY_OPERATORS: { [op: string]: boolean } = { equal: true, notequal: true };
+const reasons = SurveyLintReasons["expression/type-mismatch"];
+
+// Which family the operator belongs to. Ordering and arithmetic reject the same value types
+// but say so differently: "{q} > 1" is a comparison that cannot rank, "{q} + 1" is arithmetic
+// on something that is not a number.
+type OperatorClass = "ordering" | "arithmetic" | "equality";
 
 interface Mismatch {
-  reason: string;
+  reason: keyof typeof reasons;
   detail: string;
   suggestion?: string;
   // one of SurveyLintSuggestionReasons - "suggestion" itself is prose, not an identifier
   suggestionReason?: string;
 }
 
-function checkOrdering(record: ElementRecord, constValue: any): Mismatch | undefined {
-  const valueType = record.valueType;
-  if (valueType.shape === "none") {
-    return { reason: "no-value", detail: "\"" + record.name + "\" (" + record.type + ") has no value to compare." };
+function getOperatorClass(operator: string): OperatorClass | undefined {
+  if (ORDERING_OPERATORS[operator]) return "ordering";
+  if (ARITHMETIC_OPERATORS[operator]) return "arithmetic";
+  return EQUALITY_OPERATORS[operator] ? "equality" : undefined;
+}
+
+// A value the operator has nothing to work with, whichever family it belongs to.
+function checkNoValue(record: ElementRecord): Mismatch | undefined {
+  if (record.valueType.shape !== "none") return undefined;
+  return {
+    reason: "no-value",
+    detail: "\"" + record.name + "\" (" + record.type + ") has no value to compare.",
+  };
+}
+
+function checkNumberVsString(record: ElementRecord, constValue: any): Mismatch | undefined {
+  if (record.valueType.scalarType !== "number" || typeof constValue !== "string" || constValue === "") {
+    return undefined;
   }
+  return {
+    reason: "number-vs-string",
+    detail: "\"" + record.name + "\" is numeric - comparing it to the string \"" + constValue + "\" cannot hold.",
+  };
+}
+
+function checkOrdering(record: ElementRecord, constValue: any,
+  operatorClass: OperatorClass): Mismatch | undefined {
+  const valueType = record.valueType;
+  const isArithmetic = operatorClass === "arithmetic";
   if (valueType.shape === "array" || valueType.shape === "object") {
     return {
       reason: "non-scalar",
@@ -32,30 +61,33 @@ function checkOrdering(record: ElementRecord, constValue: any): Mismatch | undef
     };
   }
   if (valueType.scalarType === "boolean") {
-    return { reason: "boolean-ordering", detail: "\"" + record.name + "\" is a boolean question - ordering operators do not apply to it." };
+    return {
+      reason: "boolean-ordering",
+      detail: "\"" + record.name + "\" is a boolean question - " +
+        (isArithmetic ? "it is not a number to compute with." : "ordering operators do not apply to it."),
+    };
   }
   if (valueType.scalarType === "string" && isTextInputQuestion(record)) {
     return {
       reason: "text-ordering",
-      detail: "\"" + record.name + "\" is a text question - its value is a string, so numeric comparison relies on implicit conversion.",
+      detail: "\"" + record.name + "\" is a text question - its value is a string, so " +
+        (isArithmetic ? "arithmetic" : "numeric comparison") + " relies on implicit conversion.",
       suggestion: "set inputType: \"number\" on \"" + record.name + "\" if it collects numbers",
       suggestionReason: SurveyLintSuggestionReasons.setNumberInputType,
     };
   }
   if (valueType.scalarType === "date" && typeof constValue === "number") {
-    return { reason: "date-vs-number", detail: "\"" + record.name + "\" holds a date string - comparing it to the number " + constValue + " cannot hold." };
+    return {
+      reason: "date-vs-number",
+      detail: "\"" + record.name + "\" holds a date string - comparing it to the number " +
+        constValue + " cannot hold.",
+    };
   }
-  if (valueType.scalarType === "number" && typeof constValue === "string" && constValue !== "") {
-    return { reason: "number-vs-string", detail: "\"" + record.name + "\" is numeric - comparing it to the string \"" + constValue + "\" cannot hold." };
-  }
-  return undefined;
+  return checkNumberVsString(record, constValue);
 }
 
 function checkEquality(record: ElementRecord, constValue: any): Mismatch | undefined {
   const valueType = record.valueType;
-  if (valueType.shape === "none") {
-    return { reason: "no-value", detail: "\"" + record.name + "\" (" + record.type + ") has no value to compare." };
-  }
   if (valueType.shape === "array" && constValue !== null && constValue !== undefined &&
     constValue !== "" && typeof constValue !== "object") {
     return {
@@ -67,72 +99,50 @@ function checkEquality(record: ElementRecord, constValue: any): Mismatch | undef
   }
   if (valueType.scalarType === "boolean" && typeof constValue !== "boolean" &&
     constValue !== null && constValue !== undefined && constValue !== "") {
-    return { reason: "boolean-vs-const", detail: "\"" + record.name + "\" is a boolean question - comparing it to " + JSON.stringify(constValue) + " cannot hold." };
+    return {
+      reason: "boolean-vs-const",
+      detail: "\"" + record.name + "\" is a boolean question - comparing it to " +
+        quoteValue(constValue) + " cannot hold.",
+    };
   }
-  if (valueType.scalarType === "number" && typeof constValue === "string" && constValue !== "") {
-    return { reason: "number-vs-string", detail: "\"" + record.name + "\" is numeric - comparing it to the string \"" + constValue + "\" cannot hold." };
-  }
-  return undefined;
+  return checkNumberVsString(record, constValue);
 }
 
 export const expressionTypeMismatchRule: ILintRule = {
   id: "expression/type-mismatch",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.index.expressionSites.forEach(site => {
-      if (site.kind !== "condition" || !site.ast) return;
+    ctx.forEachSite("condition", site => {
       const resolve = ctx.getConstResolver(site);
-      let refByRaw: { [raw: string]: ParsedRef };
-      const getRef = (variable: Variable): ParsedRef => {
-        if (!refByRaw) {
-          refByRaw = {};
-          classifySiteRefs(site, ctx.index, ctx.options).forEach(ref => {
-            if (!refByRaw[ref.raw]) refByRaw[ref.raw] = ref;
-          });
-        }
-        return refByRaw[variable.variable];
-      };
       collectOperands(site.ast).forEach(op => {
         if (!(op instanceof BinaryOperand)) return;
-        const isOrdering = ORDERING_OPERATORS[op.operator];
-        const isEquality = EQUALITY_OPERATORS[op.operator];
-        if (!isOrdering && !isEquality) return;
-        const left = op.leftOperand;
-        const right = op.rightOperand;
+        const operatorClass = getOperatorClass(op.operator);
+        if (!operatorClass) return;
         // a reference to a constant source reads as the value it always has, so "{q} = {c1}"
         // is typed the way "{q} = 2" is
-        const leftConst = getConstantOperandValue(left, resolve);
-        const rightConst = getConstantOperandValue(right, resolve);
-        let variable: Variable;
-        let constValue: any;
-        if (left instanceof Variable && !leftConst && !!rightConst) {
-          variable = left;
-          constValue = rightConst.value;
-        } else if (right instanceof Variable && !rightConst && !!leftConst) {
-          variable = right;
-          constValue = leftConst.value;
-        } else {
-          return;
-        }
-        const ref = getRef(variable);
-        if (!ref) return;
+        const match = matchVariableComparison(op, undefined, resolve);
+        if (!match) return;
+        const constant = getConstantOperandValue(match.constSide, resolve);
+        if (!constant) return;
+        const variable = match.variable;
+        const constValue = constant.value;
+        const ref = getSiteRefByRaw(site, ctx.index, ctx.options).get(variable.variable);
+        // type only confidently resolved references reading the element's own value: an
+        // unknown sub-segment keeps resolvedTo set but is already reported by reference/unknown,
+        // and a sub-path compares against a sub-value the linter does not type
+        if (!isSimpleValueRef(ref)) return;
         const record = ref.resolvedTo;
         if (!record || record.isUnknownType || record.valueType.shape === "unknown") return;
-        // type only confidently resolved references - an unknown sub-segment keeps
-        // resolvedTo set but is already reported by reference/unknown
-        if (ref.status !== "resolved" && ref.status !== "scoped-resolved") return;
-        // sub-path/indexed references ({q.item}, {q[0]}) compare against a sub-value
-        // we do not type; scoped refs ({row.col}) resolve to the compared element itself
-        if (ref.status === "resolved" && (ref.segments.length > 1 || ref.segments[0].index !== undefined)) return;
-        const mismatch = isOrdering ? checkOrdering(record, constValue) : checkEquality(record, constValue);
+        const mismatch = checkNoValue(record) || (operatorClass === "equality"
+          ? checkEquality(record, constValue)
+          : checkOrdering(record, constValue, operatorClass));
         if (!mismatch) return;
         let message = "The condition applies \"" + op.operator +
           "\" to \"" + variable.variable + "\": " + mismatch.detail;
         if (mismatch.suggestion) message += " Consider: " + mismatch.suggestion + ".";
         message += " (in \"" + site.text + "\")";
-        ctx.report({
+        ctx.reportAtSite(site, {
           message: message,
-          path: site.path,
           reason: mismatch.reason,
           messageData: {
             name: variable.variable,
@@ -144,12 +154,9 @@ export const expressionTypeMismatchRule: ILintRule = {
             scalarType: record.valueType.scalarType,
             operator: op.operator,
             constValue: constValue,
-            reason: mismatch.reason,
             suggestionReason: mismatch.suggestionReason,
             expression: site.text,
           },
-          elementName: site.owner ? site.owner.name : undefined,
-          elementType: site.owner ? site.owner.type : undefined,
           suggestion: mismatch.suggestion,
         });
       });

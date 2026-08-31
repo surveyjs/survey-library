@@ -141,3 +141,56 @@ describe("a slider keeps its value between its bounds", () => {
     expect(rangeVerdictOf({ type: "slider", sliderType: "range" }, "{v} > 200")).toBeUndefined();
   });
 });
+
+// The walker stores a column's cell type in effectiveType (type stays the wrapper
+// "matrixdropdowncolumn"), so the domain must dispatch on the effective type.
+describe("a matrix column holds the domain of its cell type", () => {
+  function columnVerdictOf(column: any, condition: string): string | undefined {
+    const findings = findingsOf({
+      elements: [{
+        type: "matrixdropdown",
+        name: "m",
+        rows: ["r1"],
+        columns: [
+          Object.assign({ name: "score" }, column),
+          { name: "note", cellType: "text", visibleIf: condition },
+        ],
+      }],
+    }).filter(f => f.ruleId === "expression/contradiction" ||
+      f.ruleId === "expression/unknown-choice");
+    if (findings.length === 0) return undefined;
+    expect(findings).toHaveLength(1);
+    return findings[0].ruleId + "/" + findings[0].reason;
+  }
+
+  test("a rating column runs 1..5 by default", () => {
+    expect(columnVerdictOf({ cellType: "rating" }, "{row.score} > 10"))
+      .toBe("expression/contradiction/outOfRange");
+    expect(columnVerdictOf({ cellType: "rating" }, "{row.score} > 3")).toBeUndefined();
+  });
+  test("a numeric text column reads min/max", () => {
+    expect(columnVerdictOf({ cellType: "text", inputType: "number", min: 1, max: 5 }, "{row.score} > 10"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("a slider column keeps the built-in 0..100", () => {
+    expect(columnVerdictOf({ cellType: "slider" }, "{row.score} > 200"))
+      .toBe("expression/contradiction/outOfRange");
+  });
+  test("the matrix-level cellType reaches the column", () => {
+    const findings = findingsOf({
+      elements: [{
+        type: "matrixdropdown", name: "m", rows: ["r1"], cellType: "rating",
+        columns: [
+          { name: "score" },
+          { name: "note", cellType: "text", visibleIf: "{row.score} > 10" },
+        ],
+      }],
+    }, "expression/contradiction");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("outOfRange");
+  });
+  test("a rating column's rateValues are a value set", () => {
+    expect(columnVerdictOf({ cellType: "rating", rateValues: [1, 2, 3] }, "{row.score} = 7"))
+      .toBe("expression/unknown-choice/notAmongChoices");
+  });
+});

@@ -284,10 +284,16 @@ WARN  expression/unknown-choice
 | `metadata.ts` | Everything read from the `Serializer` at runtime (types, expression properties, trigger definitions, container keys). |
 | `catalog.ts` | The few linter semantics the serializer metadata cannot express. |
 | `lint-settings.ts` | Snapshot of the `settings` the analysis depends on, taken once per run. |
-| `expression-utils.ts` | Expression parsing, reference splitting and reference classification (resolved / unknown / scoped / skipped). |
+| `expression-utils.ts` | Expression parsing, reference splitting and reference classification (resolved / unknown / scoped / skipped), the operator sets, and the constant-value extraction the analysis modules share. |
 | `value-types.ts` | Per-question value shape and choice information. |
+| `value-domain.ts` | The set of values a reference can hold, or the bounds it stays inside. |
+| `value-range.ts` | Whether a comparison against those bounds can hold at all. |
+| `satisfiability.ts` | Conjuncts of one `and` chain that demand contradictory things of the same reference. |
+| `constant-env.ts` | The values known at authoring time: calculated values and expression questions nothing else writes to. |
+| `condition-eval.ts` | Three-valued evaluation of a condition over the modules above. |
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
-| `rule.ts` | `ILintRule`, `LintContext.report`, severity resolution and suppression matching. |
+| `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
+| `rule.ts` | `ILintRule`, `LintContext` (site iteration, memoized verdicts and domains, `report`), severity resolution and suppression matching. |
 | `reasons.ts` | The frozen `(ruleId, reason)` tables a host localizes on. |
 | `rules/` | One file per rule, registered in `rules/index.ts`. |
 | `renderer.ts` | `renderFindings` — the text report. |

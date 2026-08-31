@@ -1,7 +1,7 @@
 import { BinaryOperand, Operand, UnaryOperand, Variable } from "survey-core";
 import {
-  ConstResolver, getConstValues, getConstantOperandValue, matchVariableComparison,
-  operatorFromVariableSide,
+  ConstResolver, EQUALITY_OPERATORS, getConstValues, getConstantOperandValue, isUsableRef,
+  matchVariableComparison, operatorFromVariableSide, ORDERING_OPERATORS,
 } from "./expression-utils";
 import { ParsedRef } from "./symbols";
 import { runtimeEquals, runtimeGreater } from "./value-domain";
@@ -24,10 +24,6 @@ export interface ConditionConflict {
   values?: Array<any>;
 }
 
-const EQUALITY_OPERATORS: { [op: string]: boolean } = { equal: true, notequal: true };
-const ORDER_OPERATORS: { [op: string]: boolean } = {
-  greater: true, greaterorequal: true, less: true, lessorequal: true,
-};
 const ORDER_KINDS: { [op: string]: ConstraintKind } = {
   greater: "gt", greaterorequal: "ge", less: "lt", lessorequal: "le",
 };
@@ -57,10 +53,6 @@ function refKey(ref: ParsedRef): string {
   return ref.segments.map(segment =>
     segment.name.toLowerCase() + (segment.index === undefined ? "" : "[" + segment.index + "]")
   ).join(".");
-}
-
-function isUsableRef(ref: ParsedRef | undefined): boolean {
-  return !!ref && (ref.status === "resolved" || ref.status === "scoped-resolved");
 }
 
 function readEmptiness(node: Operand, refOf: (raw: string) => ParsedRef | undefined): Constraint | undefined {
@@ -93,7 +85,7 @@ function readEquality(node: Operand, refOf: (raw: string) => ParsedRef | undefin
 function readOrdering(node: Operand, refOf: (raw: string) => ParsedRef | undefined,
   resolve?: ConstResolver): Constraint | undefined {
   if (!(node instanceof BinaryOperand)) return undefined;
-  const match = matchVariableComparison(node, ORDER_OPERATORS, resolve);
+  const match = matchVariableComparison(node, ORDERING_OPERATORS, resolve);
   if (!match) return undefined;
   const constant = getConstantOperandValue(match.constSide, resolve);
   if (!constant) return undefined;

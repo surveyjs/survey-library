@@ -64,6 +64,18 @@ describe("expression/type-mismatch - ordering operators", () => {
       ],
     })).toHaveLength(1);
   });
+  test("arithmetic says arithmetic, not ordering", () => {
+    const findings = byRule({
+      elements: [
+        { type: "boolean", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{q1} + 1 > 2" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("boolean-ordering");
+    expect(findings[0].message).toContain("not a number to compute with");
+    expect(findings[0].message).not.toContain("ordering operators do not apply");
+  });
   test("ordering on html (no value) is flagged", () => {
     const findings = byRule({
       elements: [

@@ -1,5 +1,6 @@
 import { ProcessValue, VariableGetterContext } from "survey-core";
-import { classifySiteRefs, splitRefSegments } from "./expression-utils";
+import { classifySiteRefs, splitRefSegments, tryEvaluate } from "./expression-utils";
+import { quoteValue } from "./message-utils";
 import {
   CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
@@ -80,12 +81,7 @@ function collectAmbiguousNames(index: SurveyIndex): CIMap<boolean> {
   };
   index.byName.forEach((values, name) => values.forEach(() => bump(name)));
   index.byValueName.forEach((values, name) => values.forEach(() => bump(name)));
-  const json = index.json;
-  if (Array.isArray(json.calculatedValues)) {
-    json.calculatedValues.forEach((cv: any) => {
-      if (!!cv && typeof cv === "object" && typeof cv.name === "string") bump(cv.name);
-    });
-  }
+  index.calculatedValueList.forEach(cv => bump(cv.name));
   const res = new CIMap<boolean>();
   counts.forEach((count, name) => {
     if (count > 1) res.set(name, true);
@@ -155,17 +151,14 @@ export function buildConstantEnv(index: SurveyIndex, options: ISurveyLintOptions
       if (site.ast.hasFunction()) return;
       const refs = classifySiteRefs(site, index, options);
       if (refs.some(ref => !getFoldableSource(ref, site, env))) return;
-      let value: any;
-      try {
-        value = site.ast.evaluate(env.processValue);
-      } catch{
-        return;
-      }
+      const evaluated = tryEvaluate(site.ast, env.processValue);
+      if (!evaluated) return;
       sources.set(candidate.name, {
-        name: candidate.name, path: site.path, expression: candidate.expression, value: value,
-        record: candidate.record, allowsAlwaysTrue: candidate.allowsAlwaysTrue,
+        name: candidate.name, path: site.path, expression: candidate.expression,
+        value: evaluated.value, record: candidate.record,
+        allowsAlwaysTrue: candidate.allowsAlwaysTrue,
       });
-      values[candidate.name] = value;
+      values[candidate.name] = evaluated.value;
       added = true;
     });
   }
@@ -200,7 +193,7 @@ export function getFoldableSource(ref: ParsedRef, site: ExpressionSite, env: Con
 
 // The English fragment naming what decided the condition, shared by the two condition rules.
 export function describeConstants(used: Array<ConstantSource>): string {
-  return used.map(source => "{" + source.name + "} is always " + JSON.stringify(source.value)).join(", ");
+  return used.map(source => "{" + source.name + "} is always " + quoteValue(source.value)).join(", ");
 }
 
 export function toConstantsData(used: Array<ConstantSource>): { [name: string]: any } {

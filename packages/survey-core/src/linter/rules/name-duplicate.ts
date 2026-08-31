@@ -1,4 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
+import { CalculatedValueRecord } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -30,42 +31,37 @@ export const nameDuplicateRule: ILintRule = {
       });
     });
     // duplicate calculated-value names and calculated values shadowing element names
-    const json = ctx.index.json;
     // Map, not an object literal: calculated-value names come from user JSON
-    const seenCalc = new Map<string, { name: string, path: string }>();
-    if (Array.isArray(json.calculatedValues)) {
-      json.calculatedValues.forEach((cv: any, i: number) => {
-        if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
-        const key = cv.name.toLowerCase();
-        const path = "calculatedValues[" + i + "]";
-        const prev = seenCalc.get(key);
-        if (prev) {
-          ctx.report({
-            message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
-            path: path,
-            reason: reasons.calculatedValueNames,
-            messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
-            elementName: cv.name,
-            elementType: "calculatedvalue",
-            related: [{ path: prev.path, elementName: prev.name }, { path: path, elementName: cv.name }],
-          });
-        } else {
-          seenCalc.set(key, { name: cv.name, path: path });
-        }
-        const elements = ctx.index.byName.get(cv.name);
-        if (elements.length > 0) {
-          ctx.report({
-            message: "The calculated value \"" + cv.name + "\" shares its name with a " + elements[0].kind +
-              " - both are referenced as {" + cv.name + "}, so one of them shadows the other.",
-            path: path,
-            reason: reasons.calculatedValueShadowsElement,
-            messageData: { name: cv.name, kinds: ["calculatedvalue"].concat(elements.map(el => el.kind)), count: elements.length + 1 },
-            elementName: cv.name,
-            elementType: "calculatedvalue",
-            related: elements.map(el => ({ path: el.path, elementName: el.name })),
-          });
-        }
-      });
-    }
+    const seenCalc = new Map<string, CalculatedValueRecord>();
+    ctx.index.calculatedValueList.forEach(cv => {
+      const key = cv.name.toLowerCase();
+      const prev = seenCalc.get(key);
+      if (prev) {
+        ctx.report({
+          message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
+          path: cv.path,
+          reason: reasons.calculatedValueNames,
+          messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
+          elementName: cv.name,
+          elementType: "calculatedvalue",
+          related: [{ path: prev.path, elementName: prev.name }, { path: cv.path, elementName: cv.name }],
+        });
+      } else {
+        seenCalc.set(key, cv);
+      }
+      const elements = ctx.index.byName.get(cv.name);
+      if (elements.length > 0) {
+        ctx.report({
+          message: "The calculated value \"" + cv.name + "\" shares its name with a " + elements[0].kind +
+            " - both are referenced as {" + cv.name + "}, so one of them shadows the other.",
+          path: cv.path,
+          reason: reasons.calculatedValueShadowsElement,
+          messageData: { name: cv.name, kinds: ["calculatedvalue"].concat(elements.map(el => el.kind)), count: elements.length + 1 },
+          elementName: cv.name,
+          elementType: "calculatedvalue",
+          related: elements.map(el => ({ path: el.path, elementName: el.name })),
+        });
+      }
+    });
   },
 };

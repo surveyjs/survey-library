@@ -46,6 +46,28 @@ describe("expression/unknown-choice", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].messageData.values).toEqual(["poor"]);
   });
+  test("anyof against a constant array reference reads its members", () => {
+    // a reference folding to an array must compare member-by-member, not as
+    // one array-valued constant that never equals any single choice
+    expect(byRule({
+      elements: [
+        { type: "radiogroup", name: "satisfaction", choices: ["low", "medium", "high"] },
+        { type: "comment", name: "followUp", visibleIf: "{satisfaction} anyof {goodOnes}" },
+      ],
+      calculatedValues: [{ name: "goodOnes", expression: "['low', 'medium']" }],
+    }, "expression/unknown-choice")).toHaveLength(0);
+  });
+  test("anyof against a constant array reference still flags a missing member", () => {
+    const findings = byRule({
+      elements: [
+        { type: "radiogroup", name: "satisfaction", choices: ["low", "medium", "high"] },
+        { type: "comment", name: "followUp", visibleIf: "{satisfaction} anyof {mixed}" },
+      ],
+      calculatedValues: [{ name: "mixed", expression: "['low', 'poor']" }],
+    }, "expression/unknown-choice");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.values).toEqual(["poor"]);
+  });
   test("contains against checkbox choices is checked", () => {
     const findings = byRule({
       elements: [

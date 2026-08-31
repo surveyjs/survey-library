@@ -5,11 +5,11 @@ import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBas
 import { parseExpressionText, splitRefSegments } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
-  CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite, ExpressionSiteKind,
-  ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex,
-  TriggerRecord, TriggerTargetRef,
+  CalculatedValueRecord, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
+  ExpressionSiteKind, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow,
+  ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
-import { getChoicesInfo, getItemValueRaw, getValueTypeInfo } from "./value-types";
+import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 
 const MAX_DEPTH = 128;
 
@@ -17,8 +17,10 @@ interface WalkState {
   index: SurveyIndex;
   options: ISurveyLintOptions;
   metadata: LintMetadata;
-  visited: any;
+  visited: WeakSet<object>;
   depth: number;
+  // one component definition is walked once, however many questions instantiate it
+  componentFields: Map<IComponentDef, CIMap<boolean>>;
 }
 
 function joinPath(base: string, key: string): string {
@@ -27,6 +29,10 @@ function joinPath(base: string, key: string): string {
 
 function isNonEmptyString(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
+}
+
+function itemValueFrame(owner: ElementRecord): ScopeFrameItemValue {
+  return { kind: "itemValue", owner: owner };
 }
 
 function addSite(state: WalkState, text: string, kind: ExpressionSiteKind, path: string, prop: string,
@@ -57,7 +63,7 @@ function addSitesFromProps(state: WalkState, json: any, basePath: string, props:
       if (!templateScope) return;
       siteScope = templateScope;
     } else if (ITEMVALUE_SCOPED_PROPS.has(key)) {
-      if (!itemScope) itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
+      if (!itemScope) itemScope = scope.concat([itemValueFrame(owner)]);
       siteScope = itemScope;
     }
     addSite(state, json[def.name], def.kind, joinPath(basePath, def.name), def.name, owner, siteScope);
@@ -83,7 +89,7 @@ function addItemValueSites(state: WalkState, json: any, propName: string, ownerT
   if (!Array.isArray(arr)) return;
   const props = state.metadata.getItemExpressionProps(ownerType, propName);
   if (props.length === 0) return;
-  const itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
+  const itemScope = scope.concat([itemValueFrame(owner)]);
   arr.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return;
     addSitesFromProps(state, item, basePath + "." + propName + "[" + i + "]", props, owner, itemScope);
@@ -120,7 +126,12 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
+// The field names a composite definition declares. Memoized per definition: the JSON is
+// static, and a survey with many questions of one component type would otherwise walk it
+// once per question.
 function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boolean> {
+  const cached = state.componentFields.get(def);
+  if (cached) return cached;
   const res = new CIMap<boolean>();
   const elementsKeys = state.metadata.getElementsKeys();
   const templateKeys = state.metadata.getTemplateElementsKeys();
@@ -134,6 +145,7 @@ function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boo
     });
   };
   collect(def.elementsJSON);
+  state.componentFields.set(def, res);
   return res;
 }
 
@@ -149,9 +161,10 @@ function walkComponentDefs(state: WalkState): void {
   Object.keys(components).forEach(typeName => {
     const def = components[typeName];
     if (!def || !Array.isArray(def.elementsJSON)) return;
-    const scope: Array<ScopeFrame> = [<ScopeFrameComposite>{
+    const frame: ScopeFrameComposite = {
       kind: "composite", fieldNames: getComponentFieldNames(state, def),
-    }];
+    };
+    const scope: Array<ScopeFrame> = [frame];
     def.elementsJSON.forEach((el: any, i: number) => {
       if (!el || typeof el !== "object") return;
       const path = "components." + typeName + ".elementsJSON[" + i + "]";
@@ -260,7 +273,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       if (choicesInfo) {
         // a column without own choices uses the matrix-level shared "choices"
         if (choicesInfo.staticValues.length === 0 && Array.isArray(json.choices)) {
-          choicesInfo.staticValues = json.choices.map((item: any) => getItemValueRaw(item)).filter((v: any) => v !== undefined && v !== null);
+          choicesInfo.staticValues = getStaticChoiceValues(json.choices);
         }
         columnRecord.choicesInfo = choicesInfo;
       }
@@ -351,13 +364,13 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     }
   }
   if (type === "matrix") {
-    record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
+    record.matrixRowValues = getStaticChoiceValues(json.rows);
     addItemValueSites(state, json, "rows", type, path, record, scope);
     addItemValueSites(state, json, "columns", type, path, record, scope);
   }
   if (isMatrixDropdown(type)) {
     if (type === "matrixdropdown") {
-      record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
+      record.matrixRowValues = getStaticChoiceValues(json.rows);
       addItemValueSites(state, json, "rows", type, path, record, scope);
     }
     walkMatrixColumns(state, json, path, record, scope);
@@ -492,6 +505,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
+    calculatedValueList: [],
     triggers: [],
     expressionSites: [],
     nameRefs: [],
@@ -499,10 +513,14 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     containers: [],
     namespaces: [],
     settings: resolveLintSettings(),
+    findByDataName(name: string): ElementRecord | undefined {
+      return this.byName.first(name) || this.byValueName.first(name);
+    },
   };
   index.namespaces.push({ label: "", map: index.byName });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
+    componentFields: new Map<IComponentDef, CIMap<boolean>>(),
   };
 
   if (Array.isArray(json.pages)) {
@@ -522,13 +540,15 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   if (Array.isArray(json.calculatedValues)) {
     json.calculatedValues.forEach((cv: any, i: number) => {
-      if (!cv || typeof cv !== "object" || !isNonEmptyString(cv.name)) return;
+      if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
       const path = "calculatedValues[" + i + "]";
-      const record = {
-        name: cv.name, path: path,
-        expression: isNonEmptyString(cv.expression) ? cv.expression : undefined,
-        site: <ExpressionSite>undefined,
-      };
+      const record: CalculatedValueRecord = { name: cv.name, path: path };
+      // the list records every declaration, the map only the first of a repeated name;
+      // a name that is only whitespace addresses nothing, so it gets neither a site nor
+      // a place in the map - name/duplicate still sees it in the list
+      index.calculatedValueList.push(record);
+      if (!isNonEmptyString(cv.name)) return;
+      record.expression = isNonEmptyString(cv.expression) ? cv.expression : undefined;
       if (record.expression) {
         record.site = addSite(state, record.expression, "expression",
           joinPath(path, "expression"), "expression", undefined, []);

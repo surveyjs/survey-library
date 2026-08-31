@@ -1,22 +1,14 @@
 import { Serializer } from "survey-core";
 import { closestMatch } from "../levenshtein";
+import { ILintRule, LintContext } from "../rule";
+import { nameCandidates, resolveCarryForwardSource } from "../expression-utils";
+import { CIMultiMap, ElementRecord, getEffectiveType } from "../symbols";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["choices/dead-source"];
-import { ILintRule, LintContext } from "../rule";
-import { resolveCarryForwardSource } from "../expression-utils";
-import { CIMultiMap, ElementRecord } from "../symbols";
 
 // carry-forward sources that provide an array of objects to pick fields from
 const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
-
-function questionCandidates(ctx: LintContext): Array<string> {
-  const res: Array<string> = [];
-  ctx.index.byName.forEach((records, name) => {
-    if (records.some(rec => rec.kind === "question")) res.push(name);
-  });
-  return res;
-}
 
 function getFields(source: ElementRecord): CIMultiMap<ElementRecord> | undefined {
   return source.matrixColumns || source.templateNames || undefined;
@@ -40,10 +32,11 @@ export const choicesDeadSourceRule: ILintRule = {
             "\", but no question with that name exists.",
           path: path,
           reason: reasons.missing,
-          messageData: { name: record.name, source: sourceName, reason: "missing" },
+          messageData: { name: record.name, source: sourceName },
           elementName: record.name,
           elementType: record.type,
-          suggestion: closestMatch(sourceName, resolved.candidates || questionCandidates(ctx)),
+          suggestion: closestMatch(sourceName, resolved.candidates ||
+            nameCandidates(ctx.index, ctx.options, { accepts: rec => rec.kind === "question" })),
         });
         return;
       }
@@ -52,16 +45,15 @@ export const choicesDeadSourceRule: ILintRule = {
           message: "\"" + record.name + "\" copies its choices from itself.",
           path: path,
           reason: reasons.self,
-          messageData: { name: record.name, source: sourceName, reason: "self" },
+          messageData: { name: record.name, source: sourceName },
           elementName: record.name,
           elementType: record.type,
         });
         return;
       }
-      // a matrix column carries its cell type in effectiveType; record.type is the wrapper.
       // Mirrors question_baseselect.ts getQuestionWithChoicesCore, which accepts any
       // selectbase descendant rather than a fixed list of type names.
-      const sourceType = source.effectiveType || source.type;
+      const sourceType = getEffectiveType(source);
       const isSelectSource = Serializer.isDescendantOf(sourceType, "selectbase");
       const isArraySource = ARRAY_SOURCE_TYPES.has(sourceType);
       if (!isSelectSource && !isArraySource && !source.isUnknownType && !source.componentDef) {
@@ -70,7 +62,7 @@ export const choicesDeadSourceRule: ILintRule = {
             "), which provides neither choices nor an array of values.",
           path: path,
           reason: reasons["not-a-source"],
-          messageData: { name: record.name, source: sourceName, sourceType: sourceType, reason: "not-a-source" },
+          messageData: { name: record.name, source: sourceName, sourceType: sourceType },
           elementName: record.name,
           elementType: record.type,
           related: [{ path: source.path, elementName: source.name }],
@@ -91,7 +83,7 @@ export const choicesDeadSourceRule: ILintRule = {
             reason: reasons["missing-field"],
             messageData: {
               name: record.name, source: sourceName, sourceType: sourceType, field: fieldValue,
-              reason: "missing-field", prop: prop,
+              prop: prop,
             },
             elementName: record.name,
             elementType: record.type,

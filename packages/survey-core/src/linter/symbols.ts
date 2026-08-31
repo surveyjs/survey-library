@@ -133,6 +133,12 @@ export interface ElementRecord {
   panelDescendantNames?: CIMap<ElementRecord>;
 }
 
+// The type to dispatch question-kind logic on: a matrix column answers as its cell type,
+// every other record as its own type.
+export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
+  return record.effectiveType || record.type;
+}
+
 export interface ParsedRefSegment {
   name: string;
   index?: number;
@@ -171,6 +177,8 @@ export interface ExpressionSite {
   ast?: Operand;
   parseError?: { at?: number, message?: string };
   refs?: Array<ParsedRef>;
+  // refs keyed by the raw name an operand carries, memoized like refs
+  refByRaw?: Map<string, ParsedRef>;
 }
 
 export type NameRefKind = "choicesByUrlVariable" | "binding";
@@ -226,6 +234,9 @@ export interface SurveyIndex {
   byName: CIMultiMap<ElementRecord>;
   byValueName: CIMultiMap<ElementRecord>;
   calculatedValues: CIMap<CalculatedValueRecord>;
+  // every calculated value in declaration order, duplicates included: the map keeps only
+  // the first of a repeated name, which is the defect name/duplicate reports
+  calculatedValueList: Array<CalculatedValueRecord>;
   triggers: Array<TriggerRecord>;
   expressionSites: Array<ExpressionSite>;
   nameRefs: Array<NameRef>;
@@ -234,4 +245,7 @@ export interface SurveyIndex {
   namespaces: Array<Namespace>;
   // effective settings for this run, snapshotted from the shared survey-core settings
   settings: ILintResolvedSettings;
+  // The element a data key names: the runtime reads a value by name, and a valueName
+  // replaces the name as that key.
+  findByDataName(name: string): ElementRecord | undefined;
 }

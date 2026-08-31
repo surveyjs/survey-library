@@ -1,9 +1,11 @@
 import { BinaryOperand, Operand, Variable } from "survey-core";
-import { classifySiteRefs, ConstResolver, getVariableOperands } from "./expression-utils";
+import {
+  ConstResolver, getSiteRefByRaw, getVariableOperands, isAnalyzableCondition, tryEvaluate,
+} from "./expression-utils";
 import { ConstantEnv, ConstantSource, getFoldableSource } from "./constant-env";
-import { ExpressionSite, ParsedRef } from "./symbols";
+import { ElementRecord, ExpressionSite, ParsedRef } from "./symbols";
 import { getUnsatisfiableRange } from "./value-range";
-import { ValueRangeDomain } from "./value-domain";
+import { ValueDomain, ValueRangeDomain } from "./value-domain";
 import {
   ConditionConflict, findConjunctionConflict, findEmptySetComparison,
 } from "./satisfiability";
@@ -25,25 +27,18 @@ interface EvalContext {
   refOf: (raw: string) => ParsedRef | undefined;
   sourceOf: (raw: string) => ConstantSource | undefined;
   resolve: ConstResolver;
+  // the caller's memoized value-domain lookup, when it has one
+  recordDomain?: (record: ElementRecord) => ValueDomain | undefined;
   used: Array<ConstantSource>;
   ranges: Array<ValueRangeDomain>;
   conflicts: Array<ConditionConflict>;
 }
 
 // The classified references of a site, keyed by the raw name an operand carries. Lazy: a site
-// whose operands are never asked about is never classified.
+// whose operands are never asked about is never classified. The map itself is memoized on the
+// site, so the ref/source/resolver lookups of one fold share it.
 function makeRefLookup(site: ExpressionSite, env: ConstantEnv): (raw: string) => ParsedRef | undefined {
-  // Map, not an object literal: the keys are raw variable names from user expressions
-  let refByRaw: Map<string, ParsedRef>;
-  return (raw: string) => {
-    if (!refByRaw) {
-      refByRaw = new Map<string, ParsedRef>();
-      classifySiteRefs(site, env.index, env.options).forEach(ref => {
-        if (!refByRaw.has(ref.raw)) refByRaw.set(ref.raw, ref);
-      });
-    }
-    return refByRaw.get(raw);
-  };
+  return (raw: string) => getSiteRefByRaw(site, env.index, env.options).get(raw);
 }
 
 function makeSourceLookup(site: ExpressionSite, env: ConstantEnv): (raw: string) => ConstantSource | undefined {
@@ -76,25 +71,21 @@ function evalFolded(node: Operand, ctx: EvalContext): boolean | undefined {
     if (!source) return undefined;
     found.push(source);
   }
-  let value: any;
-  try {
-    value = node.evaluate(ctx.env.processValue);
-  } catch{
-    return undefined;
-  }
+  const evaluated = tryEvaluate(node, ctx.env.processValue);
+  if (!evaluated) return undefined;
   found.forEach(source => {
     if (ctx.used.indexOf(source) < 0) ctx.used.push(source);
   });
-  return !!value;
+  return !!evaluated.value;
 }
 
 // A comparison the bounds of a question rule out is false whatever the answer is, so it settles
 // a leaf the same way a folded constant does. Only "never" comes out of bounds: an unanswered
 // question makes any comparison false, so they can never prove that a condition always holds.
 function evalRange(node: Operand, ctx: EvalContext): boolean | undefined {
-  const verdict = getUnsatisfiableRange(node, ctx.env.index, ctx.refOf, ctx.resolve);
-  if (!verdict) return undefined;
-  if (ctx.ranges.indexOf(verdict.domain) < 0) ctx.ranges.push(verdict.domain);
+  const domain = getUnsatisfiableRange(node, ctx.env.index, ctx.refOf, ctx.resolve, ctx.recordDomain);
+  if (!domain) return undefined;
+  if (ctx.ranges.indexOf(domain) < 0) ctx.ranges.push(domain);
   return false;
 }
 
@@ -140,8 +131,9 @@ function evalPartial(node: Operand, ctx: EvalContext): boolean | undefined {
 }
 
 // The value a condition has at authoring time, as far as anything known then decides it.
-export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCondition | undefined {
-  if (!site || site.kind !== "condition" || !!site.parseError || !site.ast) return undefined;
+export function foldCondition(site: ExpressionSite, env: ConstantEnv,
+  recordDomain?: (record: ElementRecord) => ValueDomain | undefined): FoldedCondition | undefined {
+  if (!isAnalyzableCondition(site)) return undefined;
   const ast = site.ast;
   // a lone reference is a switch the author meant, the way a lone boolean constant is
   if (ast instanceof Variable) return undefined;
@@ -150,6 +142,7 @@ export function foldCondition(site: ExpressionSite, env: ConstantEnv): FoldedCon
     refOf: makeRefLookup(site, env),
     sourceOf: makeSourceLookup(site, env),
     resolve: getConstResolver(site, env),
+    recordDomain: recordDomain,
     used: [],
     ranges: [],
     conflicts: [],

@@ -874,6 +874,182 @@ describe("Survey", () => {
     rows[1].getQuestionByName("col3").value = "abc";
     expect(survey.progressText, "#3").toBe("Answered 6/6 questions");
   });
+  test("progressText and getProgress use answered questions in questionPerPage mode, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" }
+      ]
+    });
+    expect(survey.progressBarType, "the property itself is not modified").toBe("pages");
+    expect(survey.getEffectiveProgressBarType(), "effective type").toBe("questions");
+    expect(survey.progressText, "#1").toBe("Answered 0/3 questions");
+    expect(survey.getProgress(), "progress #1").toBe(0);
+    survey.setValue("q1", "a");
+    expect(survey.progressText, "#2").toBe("Answered 1/3 questions");
+    expect(survey.getProgress(), "progress #2").toBe(33);
+    survey.setValue("q2", "b");
+    expect(survey.getProgress(), "progress #3").toBe(66);
+    survey.setValue("q3", "c");
+    expect(survey.getProgress(), "progress #4").toBe(100);
+  });
+  test("progressText counts questions on all pages in questionPerPage mode, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      pages: [
+        { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+        { elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] }
+      ]
+    });
+    expect(survey.progressText, "#1").toBe("Answered 0/4 questions");
+    survey.setValue("q1", "a");
+    expect(survey.progressText, "#2").toBe("Answered 1/4 questions");
+  });
+  test("progress bar does not advance when an optional question is skipped, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" }
+      ]
+    });
+    expect(survey.currentSingleQuestion.name, "the first question is current").toBe("q1");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "moved to the second question").toBe("q2");
+    // answered-count semantics: navigating without answering does not change the progress
+    expect(survey.progressText, "text is unchanged").toBe("Answered 0/3 questions");
+    expect(survey.getProgress(), "progress is unchanged").toBe(0);
+  });
+  test("inputPerPage mode keeps the page progress type, the bar itself is hidden, Bug#11773", () => {
+    // The bar is not displayed in this mode at all (see the layout element tests), so there is
+    // nothing to remap: inputPerPage behaves exactly like the singlePage mode.
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    expect(survey.getEffectiveProgressBarType(), "effective type").toBe("pages");
+    expect(survey.progressText, "text").toBe("Page 1 of 2");
+  });
+  test("An explicit questions progress type still works in inputPerPage mode, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      progressBarType: "questions",
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: 1,
+          columns: [{ cellType: "text", name: "col1" }, { cellType: "text", name: "col2" }]
+        }
+      ]
+    });
+    expect(survey.progressText, "#1").toBe("Answered 0/3 questions");
+    survey.setValue("q1", "a");
+    expect(survey.progressText, "#2").toBe("Answered 1/3 questions");
+    expect(survey.getProgressInfo().questionCount, "#3").toBe(3);
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("matrix")).addRow();
+    expect(survey.getProgressInfo().questionCount, "the new row cells are counted").toBe(5);
+    // the same as the "questions" type in the standard mode: the rendered text picks the new total
+    // up on the next update, adding a row alone does not reset it
+    survey.updateProgressText();
+    expect(survey.progressText, "#4").toBe("Answered 1/5 questions");
+  });
+  test("explicit progressBarType is not affected by questionPerPage/inputPerPage, Bug#11773", () => {
+    const json = {
+      showProgressBar: true,
+      progressBarType: "requiredQuestions",
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3", isRequired: true }
+      ]
+    };
+    const survey = new SurveyModel({ ...json, questionsOnPageMode: "questionPerPage" });
+    expect(survey.getEffectiveProgressBarType(), "questionPerPage, effective type").toBe("requiredQuestions");
+    expect(survey.progressText, "questionPerPage, text").toBe("Answered 0/2 questions");
+    expect(survey.getProgressTypeComponent(), "questionPerPage, component").toBe("sv-progress-requiredquestions");
+
+    const survey2 = new SurveyModel({ ...json, questionsOnPageMode: "inputPerPage" });
+    expect(survey2.getEffectiveProgressBarType(), "inputPerPage, effective type").toBe("requiredQuestions");
+    expect(survey2.progressText, "inputPerPage, text").toBe("Answered 0/2 questions");
+
+    const survey3 = new SurveyModel({ ...json, progressBarType: "questions", questionsOnPageMode: "questionPerPage" });
+    expect(survey3.progressText, "questions type, text").toBe("Answered 0/3 questions");
+  });
+  test("progressText is updated on a value change in questionPerPage mode, Bug#11773", () => {
+    // updateProgressText() skips the value-changed update for the "pages" type. The raw property is
+    // still "pages" here, so the check has to run against the effective type.
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+    });
+    expect(survey.progressText, "#1").toBe("Answered 0/2 questions");
+    survey.getQuestionByName("q1").value = "a";
+    expect(survey.progressText, "#2").toBe("Answered 1/2 questions");
+  });
+  test("progressText follows a runtime questionsOnPageMode change, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    expect(survey.progressText, "standard").toBe("Page 1 of 2");
+    survey.questionsOnPageMode = "questionPerPage";
+    expect(survey.progressText, "questionPerPage").toBe("Answered 0/2 questions");
+    survey.questionsOnPageMode = "standard";
+    expect(survey.progressText, "back to standard").toBe("Page 1 of 2");
+  });
+  test("onGetProgressText gets question counts in questionPerPage mode, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+    });
+    let counts: any = undefined;
+    survey.onGetProgressText.add((sender, options) => {
+      counts = { questionCount: options.questionCount, answeredQuestionCount: options.answeredQuestionCount };
+      options.text = "custom text";
+    });
+    survey.updateProgressText();
+    expect(survey.progressText, "the event overrides the text").toBe("custom text");
+    expect(counts, "the event gets the question counts").toStrictEqual({ questionCount: 2, answeredQuestionCount: 0 });
+  });
+  test("design mode keeps the page progress in questionPerPage mode, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    survey.setDesignMode(true);
+    expect(survey.getEffectiveProgressBarType(), "effective type").toBe("pages");
+    expect(survey.progressText, "text").toBe("Page 1 of 2");
+  });
+  test("getRootCss and getProgressTypeComponent use the effective progress type, Bug#11773", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "questionPerPage",
+      elements: [{ type: "text", name: "q1" }]
+    });
+    expect(survey.getProgressTypeComponent(), "component").toBe("sv-progress-questions");
+    expect(survey.getRootCss().indexOf("sd-progress--questions") > -1, "root css modifier").toBe(true);
+    expect(survey.getRootCss().indexOf("sd-progress--pages") > -1, "no pages modifier").toBe(false);
+  });
   test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", () => {
     const survey = new SurveyModel({
       progressBarType: "requiredQuestions",

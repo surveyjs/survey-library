@@ -214,6 +214,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public get className(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.row)
+      .append(this.cssClasses.dataRow, !this.isDetailRow && !this.isErrorsRow)
       .append(this.cssClasses.detailRow, this.isDetailRow)
       .append(this.cssClasses.rowHasPanel, this.row?.hasPanel)
       .append(this.cssClasses.expandedRow, this.row?.isDetailPanelShowing && !this.isDetailRow)

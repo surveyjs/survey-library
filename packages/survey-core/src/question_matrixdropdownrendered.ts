@@ -387,7 +387,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.footerRowValue;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.matrix.isRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal;
+    return this.matrix.isRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal && !this.matrix.isMobile;
   }
 
   private get showCellErrorsTop() {
@@ -537,9 +537,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
-    if (this.isRowsDragAndDrop) {
-      this.headerRow.cells.push(this.createHeaderCell(null, "action", this.cssClasses.actionsCellDrag));
-    }
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
@@ -577,9 +574,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected buildFooter() {
     if (!this.showFooter) return;
     this.footerRowValue = this.createRenderedRow(this.cssClasses);
-    if (this.isRowsDragAndDrop) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
-    }
     if (this.hasActionCellInRows("start")) {
       this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
@@ -662,21 +656,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       index = renderedRows.length;
     }
     if (this.matrix.isMobile) {
-      const cells = [];
-      for (let i = 0; i < renderedRow.cells.length; i++) {
-        if (this.showCellErrorsTop && !errorRow.cells[i].isEmpty) {
-          cells.push(errorRow.cells[i]);
-        }
-        cells.push(renderedRow.cells[i]);
-        if (this.showCellErrorsBottom && !errorRow.cells[i].isEmpty) {
-          cells.push(errorRow.cells[i]);
-        }
-      }
-      renderedRow.cells = cells;
       renderedRows.splice(index, 0, renderedRow);
     } else {
       renderedRows.splice(index, 0, ...(this.showCellErrorsTop ? [errorRow, renderedRow] : [renderedRow, errorRow]));
-      index++;
     }
     if (row.isDetailPanelShowing) {
       renderedRows.splice(index + 1, 0, this.createDetailPanelRow(row, renderedRow));
@@ -762,6 +744,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     actions: Array<IAction>
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
+    if (this.isRowsDragAndDrop) {
+      actions.push(new Action({
+        id: "drag-drop",
+        action: () => {},
+        data: { row, question: this.matrix },
+        iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
+        component: "sv-matrix-drag-drop-icon"
+      }));
+    }
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
       actions.push(
         new Action({
@@ -833,10 +824,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private createHorizontalRow(row: MatrixDropdownRowModelBase): QuestionMatrixDropdownRenderedRow {
     var res = this.createRenderedRow(this.cssClasses);
-    if (this.isRowsDragAndDrop) {
-      var rowIndex = this.matrix.visibleRows.indexOf(row);
-      res.cells.push(this.getRowDragCell(rowIndex));
-    }
     this.addRowActionsCell(row, res, "start");
     if (this.matrix.hasRowText) {
       var renderedCell = this.createTextCell(row.locText);

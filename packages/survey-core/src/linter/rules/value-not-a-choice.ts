@@ -1,6 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
 import { classifyTargetName } from "../expression-utils";
+import { CompositeValueIssue, findCompositeValueIssues } from "../composite-values";
 import { isCheckableValue, runtimeEquals, ValueDomain, ValueSetDomain } from "../value-domain";
+import { closestMatch } from "../levenshtein";
 import { ElementRecord, TriggerRecord } from "../symbols";
 import { quoteValues } from "../message-utils";
 import { SurveyLintReasons } from "../reasons";
@@ -66,9 +68,59 @@ function reportAlien(ctx: LintContext, params: {
   });
 }
 
+const KEY_LABELS: { [kind: string]: string } = {
+  unknownRowKey: "row",
+  unknownColumnKey: "column",
+  unknownQuestionKey: "template question",
+};
+
+function reportCompositeIssues(ctx: LintContext, record: ElementRecord, prop: string,
+  alienReason: string, issues: Array<CompositeValueIssue>): void {
+  issues.forEach(issue => {
+    if (issue.kind === "alienCell") {
+      reportAlien(ctx, {
+        values: issue.values, domain: issue.domain, path: record.path + "." + prop,
+        prop: prop, reason: alienReason,
+        owner: record.name, ownerType: record.type, subject: issue.domain.record.name,
+      });
+      return;
+    }
+    ctx.report({
+      message: "The " + prop + " of \"" + record.name + "\" names \"" + issue.key +
+        "\" - no such " + KEY_LABELS[issue.kind] + ". Available: " +
+        quoteValues(issue.candidates) + ".",
+      path: record.path + "." + prop,
+      reason: reasons[issue.kind],
+      messageData: {
+        prop: prop,
+        name: record.name,
+        questionType: record.type,
+        key: issue.key,
+        available: issue.candidates,
+      },
+      elementName: record.name,
+      elementType: record.type,
+      suggestion: closestMatch(issue.key, issue.candidates),
+    });
+  });
+}
+
+function findCompositeIssues(ctx: LintContext, record: ElementRecord, value: any,
+  shape?: "row"): Array<CompositeValueIssue> | undefined {
+  return findCompositeValueIssues(record, value, r => ctx.getRecordValueDomain(r),
+    ctx.index.settings, isCheckableValue, runtimeEquals, shape);
+}
+
 function checkElementProp(ctx: LintContext, record: ElementRecord, prop: string, reason: string): void {
   const value = record.json ? record.json[prop] : undefined;
   if (value === undefined) return;
+  // a composite value is taken apart per row/panel key; the whole-value check below covers
+  // the questions whose own domain is the value set
+  const issues = findCompositeIssues(ctx, record, value);
+  if (issues) {
+    reportCompositeIssues(ctx, record, prop, reason, issues);
+    return;
+  }
   const domain = asSet(ctx.getRecordValueDomain(record));
   if (!domain) return;
   const alien = findAlienValues(value, domain);
@@ -77,6 +129,14 @@ function checkElementProp(ctx: LintContext, record: ElementRecord, prop: string,
     values: alien, domain: domain, path: record.path + "." + prop, prop: prop, reason: reason,
     owner: record.name, ownerType: record.type, subject: record.name,
   });
+}
+
+// defaultRowValue/defaultPanelValue hold one row/panel object outside any array
+function checkRowTemplateProp(ctx: LintContext, record: ElementRecord, prop: string, reason: string): void {
+  const value = record.json ? record.json[prop] : undefined;
+  if (value === undefined) return;
+  const issues = findCompositeIssues(ctx, record, value, "row");
+  if (issues) reportCompositeIssues(ctx, record, prop, reason, issues);
 }
 
 function checkTrigger(ctx: LintContext, trigger: TriggerRecord): void {
@@ -104,6 +164,8 @@ export const valueNotAChoiceRule: ILintRule = {
     ctx.index.allElements.forEach(record => {
       checkElementProp(ctx, record, "defaultValue", reasons.defaultValue);
       checkElementProp(ctx, record, "correctAnswer", reasons.correctAnswer);
+      checkRowTemplateProp(ctx, record, "defaultRowValue", reasons.defaultRowValue);
+      checkRowTemplateProp(ctx, record, "defaultPanelValue", reasons.defaultPanelValue);
     });
     ctx.index.triggers.forEach(trigger => checkTrigger(ctx, trigger));
   },

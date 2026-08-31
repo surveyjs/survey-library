@@ -95,6 +95,11 @@ export const SurveyLintReasons = Object.freeze({
     defaultValue: "defaultValue",
     correctAnswer: "correctAnswer",
     triggerSetValue: "triggerSetValue",
+    defaultRowValue: "defaultRowValue",
+    defaultPanelValue: "defaultPanelValue",
+    unknownRowKey: "unknownRowKey",
+    unknownColumnKey: "unknownColumnKey",
+    unknownQuestionKey: "unknownQuestionKey",
   }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",

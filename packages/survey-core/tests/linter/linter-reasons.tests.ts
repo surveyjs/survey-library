@@ -329,6 +329,54 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], correctAnswer: "z" }] },
   },
   {
+    ruleId: "value/not-a-choice", reason: "defaultRowValue",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "col1", cellType: "dropdown", choices: ["a"] }],
+        defaultRowValue: { col1: "z" },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "defaultPanelValue",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "dropdown", name: "q1", choices: ["a"] }],
+        defaultPanelValue: { q1: "z" },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownRowKey",
+    json: {
+      elements: [{
+        type: "matrix", name: "m1", rows: ["r1"], columns: [1, 2],
+        defaultValue: { rX: 1 },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownColumnKey",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }],
+        defaultValue: [{ colX: 1 }],
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownQuestionKey",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "text", name: "q1" }],
+        defaultValue: [{ qX: 1 }],
+      }],
+    },
+  },
+  {
     ruleId: "value/not-a-choice", reason: "triggerSetValue",
     json: {
       elements: [{ type: "text", name: "q1" }, { type: "dropdown", name: "q2", choices: ["a"] }],

@@ -99,7 +99,7 @@ function endsWithCI(text: string, suffix: string): boolean {
 // The runtime stores a question's comment under name + settings.commentSuffix and
 // exposes that key next to the value - in the survey data, in a matrix row and in a
 // dynamic-panel value alike. Returns the base name, or undefined when the suffix is absent.
-function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
+export function stripCommentSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
   const suffix = lintSettings.commentSuffix;
   if (!endsWithCI(name, suffix)) return undefined;
   return name.substring(0, name.length - suffix.length);

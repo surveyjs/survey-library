@@ -109,7 +109,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
       draggedElementShortcut.appendChild(clone);
 
-      const rect = draggedElementNode.getBoundingClientRect();
+      const rect = row.getBoundingClientRect();
+
       draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
       draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
     }

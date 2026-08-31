@@ -359,4 +359,26 @@ describe("ProgressButtons", () => {
     // Restored on page3 (the active page), NOT page4 (the furthest visited).
     expect(survey2.currentPageNo, "restored on the active page, not the furthest visited").toBe(2);
   });
+
+  test("The page buttons view is not used in the questionPerPage mode, Bug#11773", () => {
+    const json: any = {
+      showProgressBar: true,
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    expect(survey.getProgressTypeComponent(), "standard mode").toBe("sv-progress-pages");
+
+    survey.questionsOnPageMode = "questionPerPage";
+    expect(survey.getProgressTypeComponent(), "questionPerPage").toBe("sv-progress-questions");
+
+    // inputPerPage does not remap the type - the bar is hidden there instead
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.getProgressTypeComponent(), "inputPerPage").toBe("sv-progress-pages");
+
+    survey.questionsOnPageMode = "standard";
+    expect(survey.getProgressTypeComponent(), "back to standard").toBe("sv-progress-pages");
+  });
 });

@@ -2992,14 +2992,18 @@ export class SurveyModel extends SurveyElementCore
     if (val === "requiredquestion") return "requiredQuestion";
     return val;
   } }) progressBarType: string;
-  private get progressBarComponentName(): string {
-    let actualProgressBarType = this.progressBarType;
-    if (!settings.legacyProgressBarView && surveyCss.currentType === "default") {
-      if (isStrCiEqual(actualProgressBarType, "pages")) {
-        actualProgressBarType = "buttons";
-      }
-    }
-    return "progress-" + actualProgressBarType;
+  // In the "questionPerPage" mode a respondent moves from question to question rather than from
+  // page to page, so page-based progress ("Page 2 of 3") does not match what they see. The default
+  // "pages" type falls back to answered-question progress there. The "inputPerPage" mode is
+  // excluded on purpose: progress is meaningless when inputs are filled one by one, so the bar is
+  // hidden instead, the same way as in the "singlePage" mode - see
+  // SurveyProgressTextModel.isProgressBarInContainer.
+  // Every progress consumer (text, value, component name, css) must use this method, not the raw
+  // progressBarType property.
+  public getEffectiveProgressBarType(): string {
+    const res = this.progressBarType;
+    const isQuestionPerPage = this.isSingleVisibleQuestion && !this.isSingleVisibleInput;
+    return isQuestionPerPage && isStrCiEqual(res, "pages") ? "questions" : res;
   }
   /**
    * Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
@@ -3071,7 +3075,7 @@ export class SurveyModel extends SurveyElementCore
     return this.progressBarLocation === "bottom" || this.progressBarLocation === "both" || this.progressBarLocation === "topbottom";
   }
   public getProgressTypeComponent(): string {
-    return "sv-progress-" + this.progressBarType.toLowerCase();
+    return "sv-progress-" + this.getEffectiveProgressBarType().toLowerCase();
   }
   public getProgressCssClasses(container: string = ""): string {
     return new CssClassBuilder()
@@ -4179,9 +4183,10 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgress(): number {
     if (this.currentPage == null) return 0;
-    if (this.progressBarType !== "pages") {
+    const progressBarType = this.getEffectiveProgressBarType();
+    if (progressBarType !== "pages") {
       var info = this.getProgressInfo();
-      if (this.progressBarType === "requiredQuestions") {
+      if (progressBarType === "requiredQuestions") {
         return info.requiredQuestionCount >= 1
           ? Math.floor(
             (info.requiredAnsweredQuestionCount * 100) /
@@ -5550,7 +5555,7 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder()
       .append(this.css.root)
       .append(this.css.rootTheme)
-      .append(this.css.rootProgress + "--" + this.progressBarType)
+      .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)

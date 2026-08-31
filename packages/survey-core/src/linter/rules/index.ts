@@ -15,6 +15,7 @@ import { choicesDeadSourceRule } from "./choices-dead-source";
 import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
 import { valueNotAChoiceRule } from "./value-not-a-choice";
+import { elementCountContradictionRule } from "./count-contradiction";
 import { pageEmptyRule } from "./page-empty";
 
 // The run order, which the findings are sorted out of anyway (by path, then rule id): a rule
@@ -38,5 +39,6 @@ export const allRules: Array<ILintRule> = [
   triggerUnknownTargetRule,
   triggerUnknownTypeRule,
   valueNotAChoiceRule,
+  elementCountContradictionRule,
   pageEmptyRule,
 ];

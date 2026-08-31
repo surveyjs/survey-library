@@ -101,6 +101,11 @@ export const SurveyLintReasons = Object.freeze({
     unknownColumnKey: "unknownColumnKey",
     unknownQuestionKey: "unknownQuestionKey",
   }),
+  // authored row/panel count constraints the runtime silently reconciles
+  "element/count-contradiction": Object.freeze({
+    minAboveMax: "minAboveMax",
+    countOutOfBounds: "countOutOfBounds",
+  }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",

@@ -384,6 +384,24 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "element/count-contradiction", reason: "minAboveMax",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [{ name: "c" }],
+        minRowCount: 5, maxRowCount: 3,
+      }],
+    },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "countOutOfBounds",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q" }],
+        panelCount: 0, minPanelCount: 2,
+      }],
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },

@@ -279,6 +279,25 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     });
   }
 
+  /* Converts the result of a panelCountExpression/rowCountExpression into an item count.
+     Invalid results (NaN, undefined, negative) become 0 and fractional results are rounded
+     down. The clamping is done here, before the count is assigned, because the panelCount
+     setter clamps in design mode only and the rowCount setter rejects out-of-range values
+     instead of clamping them. */
+  public static getItemCountByExpressionValue(value: any, minCount: number, maxCount: number): number {
+    let res = Math.floor(Helpers.getNumber(value));
+    if (!(res > 0)) {
+      res = 0;
+    }
+    if (res < minCount) {
+      res = minCount;
+    }
+    if (maxCount >= 0 && res > maxCount) {
+      res = maxCount;
+    }
+    return res;
+  }
+
   public static setDefaultValueCore(
     question: Question,
     defaultItemValue: any,

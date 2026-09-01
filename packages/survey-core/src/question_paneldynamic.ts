@@ -248,6 +248,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         this.propertyValueChanged("templateDescription", options.oldValue, options.newValue);
       }
     });
+    this.addExpressionProperty("panelCountExpression",
+      (obj: Base, res: any) => { this.setPanelCountByExpression(res); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -258,8 +260,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (footerProps.indexOf(name) > -1) {
       this.updateFooterActions();
     }
-    if (name === "allowAddPanel") {
+    if (name === "allowAddPanel" || name === "panelCountExpression") {
       this.updateNoEntriesTextDefaultLoc();
+      this.updateFooterActions();
     }
     if (name === "minPanelCount") {
       this.onMinPanelCountChanged();
@@ -1101,6 +1104,30 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.value = value;
     this.isValueChangingInternally = false;
   }
+  @property() panelCountExpression: string;
+  /* While panelCountExpression is set, the panel count is calculated one-way: users cannot
+     add or remove panels and the panelCount binding, if any, is ignored in both directions */
+  private get hasPanelCountExpression(): boolean {
+    return !!this.panelCountExpression;
+  }
+  private setPanelCountByExpression(val: any): void {
+    this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.maxPanelCount);
+  }
+  /* The result is clamped by minPanelCount/maxPanelCount, so changing a limit has to
+     recalculate it: the raw expression result is not stored anywhere */
+  private rerunPanelCountExpression(): void {
+    if (this.isLoadingFromJson || !this.canRunConditions()) return;
+    this.runExpressionByProperty("panelCountExpression", this.getDataFilteredProperties(),
+      (val: any): void => { this.setPanelCountByExpression(val); });
+  }
+  protected updateBindings(propertyName: string, value: any): void {
+    if (propertyName === "panelCount" && this.hasPanelCountExpression) return;
+    super.updateBindings(propertyName, value);
+  }
+  protected updateBindingProp(propName: string, value: any): void {
+    if (propName === "panelCount" && this.hasPanelCountExpression) return;
+    super.updateBindingProp(propName, value);
+  }
   /**
    * A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
    *
@@ -1115,6 +1142,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const val = this.minPanelCount;
     if (val > this.maxPanelCount)this.maxPanelCount = val;
     if (this.panelCount < val)this.panelCount = val;
+    this.rerunPanelCountExpression();
   }
   /**
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
@@ -1132,6 +1160,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const val = this.maxPanelCount;
     if (val < this.minPanelCount)this.minPanelCount = val;
     if (this.panelCount > val)this.panelCount = val;
+    this.rerunPanelCountExpression();
     this.updateFooterActions();
   }
   /**
@@ -1424,7 +1453,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
-    if (this.isDesignMode) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression) return false;
     if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
@@ -1450,7 +1479,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
-    if (this.isDesignMode) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression) return false;
     return (
       this.allowRemovePanel &&
       !this.isReadOnly &&
@@ -1738,6 +1767,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!panel) {
       panel = this.panelsCore[index];
     }
+    // The panel may be gone by now: adding one programmatically while panelCountExpression is
+    // set re-evaluates the expression, which drops the panel again before this notification
+    if (!panel) return;
     const sQN = this.getShowQuestionNumbers();
     if (this.survey) {
       const updateIndeces = sQN === "default";
@@ -1918,7 +1950,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     loc.localizationName = this.getNoEntriesLocalizationName();
   }
   private getNoEntriesLocalizationName(): string {
-    return (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
+    return !this.showAddPanelButton ? "noEntriesReadonlyText" : "noEntriesText";
   }
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
@@ -1980,7 +2012,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       settings.expressionVariables.panel
     );
   }
-  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly; }
+  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression; }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;
   }
@@ -2929,6 +2961,7 @@ Serializer.addClass(
         return val;
       },
     },
+    "panelCountExpression:expression",
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {
       name: "maxPanelCount:number",

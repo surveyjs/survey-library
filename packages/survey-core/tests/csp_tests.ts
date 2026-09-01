@@ -11,8 +11,9 @@ import {
   resetBaseThemeProbeCache
 } from "../src/utils/base-theme-init";
 import { getStylesNonce, resetStylesNonceCache, createStyleElement, applyNonceToElement } from "../src/utils/csp-nonce";
-import { generateBaseThemeCss } from "../scripts/build-base-theme-css.mjs";
+import { generateBaseThemeCss, renderBaseThemeScss, BASE_THEME_SCSS_PATH } from "../scripts/build-base-theme-css.mjs";
 import { SurveyModel } from "../src/survey";
+import * as fs from "fs";
 
 const RESET_VARIABLE = "--sjs2-border-effect-surface-default-reset";
 
@@ -31,6 +32,13 @@ describe("CSP: base theme variables shipped as a stylesheet", () => {
 
   it("the build-time generator emits exactly what the runtime would inject", () => {
     expect(generateBaseThemeCss()).toBe(createBaseThemeStyle());
+  });
+
+  // The generated scss is committed so that a fresh checkout compiles without a build;
+  // every build rewrites it (see writeBaseThemeScss in rollup.config.mjs), and this
+  // test catches a base-theme.ts edit committed without the regenerated file.
+  it("the committed base-theme-variables.generated.scss is in sync with base-theme.ts", () => {
+    expect(fs.readFileSync(BASE_THEME_SCSS_PATH, "utf8")).toBe(renderBaseThemeScss());
   });
 
   it("the generated css defines the variables under the theme root class", () => {

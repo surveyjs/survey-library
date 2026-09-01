@@ -260,7 +260,7 @@ export function createEsmConfig(options) {
 
 export function createCssConfig(options) {
 
-  const { input, dir, emitMinified, version, onCloseBundle } = options;
+  const { input, dir, emitMinified, version } = options;
 
   if (Object.keys(input).length > 1) throw Error("css config accepts only one input");
 
@@ -286,10 +286,7 @@ export function createCssConfig(options) {
         ],
       }),
       pluginOmit(e => e.endsWith(".omitted")),
-      emitMinified && pluginMinify(),
-      onCloseBundle && {
-        closeBundle: onCloseBundle,
-      }
+      emitMinified && pluginMinify()
     ]
   };
 }

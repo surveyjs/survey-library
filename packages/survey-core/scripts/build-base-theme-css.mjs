@@ -3,8 +3,13 @@
 // `style-src` Content-Security-Policy, while the runtime <style> injection is -
 // see src/utils/base-theme-init.ts for the runtime counterpart (kept as a fallback).
 //
+// The variables reach the bundles through src/default-theme/base-theme-variables.generated.scss,
+// which writeBaseThemeScss() rewrites on every build and default.fontless.scss @use-s.
+// The file is committed so that a fresh checkout compiles without a build; csp_tests.ts
+// asserts it stays in sync with base-theme.ts.
+//
 // The declaration-building logic mirrors buildBaseThemeCss() in
-// src/utils/base-theme-init.ts; tests/base-theme-css.tests.ts asserts they agree.
+// src/utils/base-theme-init.ts; csp_tests.ts asserts they agree.
 
 import fs from "fs";
 import { resolve, dirname } from "node:path";
@@ -14,7 +19,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const VARIABLES_PER_RULE = 300;
 const THEME_ROOT_CLASS = "sd-theme-root";
-export const BASE_THEME_CSS_MARKER = "/* survey-core base theme variables */";
+export const BASE_THEME_SCSS_PATH = resolve(__dirname, "../src/default-theme/base-theme-variables.generated.scss");
 
 const baseThemePath = resolve(__dirname, "../src/default-theme/base-theme.ts");
 
@@ -56,4 +61,19 @@ export function buildBaseThemeCss(cssVariables) {
 
 export function generateBaseThemeCss() {
   return buildBaseThemeCss(readBaseThemeVariables());
+}
+
+// Sass copies custom property values into the output verbatim (only #{} interpolation
+// is evaluated), so values like `hsl(from var(--x) h s calc(l * 1.2))` survive as-is.
+export function renderBaseThemeScss() {
+  return "/* Auto-generated from src/default-theme/base-theme.ts by scripts/build-base-theme-css.mjs. Do not edit. */\n"
+    + generateBaseThemeCss() + "\n";
+}
+
+// Skips the write when nothing changed, so a rollup watch session is not retriggered
+// by its own config load.
+export function writeBaseThemeScss() {
+  const content = renderBaseThemeScss();
+  if (fs.existsSync(BASE_THEME_SCSS_PATH) && fs.readFileSync(BASE_THEME_SCSS_PATH, "utf8") === content) return;
+  fs.writeFileSync(BASE_THEME_SCSS_PATH, content);
 }

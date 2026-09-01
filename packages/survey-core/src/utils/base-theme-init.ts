@@ -18,7 +18,8 @@ const RESET_TARGET_VARIABLES = [
 let cachedCss: string | undefined;
 
 // Kept in sync with scripts/build-base-theme-css.mjs, which emits the same CSS into
-// survey-core.css at build time; base-theme-css.tests.ts asserts both agree.
+// base-theme-variables.generated.scss (shipped inside survey-core.css) at build time;
+// csp_tests.ts asserts both agree.
 export function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
   const themeRootClass = "sd-theme-root";
   const names = Object.keys(cssVariables);

@@ -5441,12 +5441,7 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
-<<<<<<< HEAD
-      .append(this.css.rootProgress + "--" + this.progressBarType)
-=======
-      .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
->>>>>>> ffcdb9f95 ([backport:V2] Default progress bar doesn't work with question-per-pag… (#11789))
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)

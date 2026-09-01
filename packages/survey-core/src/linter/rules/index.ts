@@ -17,6 +17,7 @@ import { choicesDeadSourceRule } from "./choices-dead-source";
 import { choicesDuplicateRule } from "./choices-duplicate";
 import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
+import { validatorUnknownTypeRule } from "./validator-unknown-type";
 import { valueNotAChoiceRule } from "./value-not-a-choice";
 import { elementCountContradictionRule } from "./count-contradiction";
 import { elementNeverVisibleRule } from "./element-never-visible";
@@ -45,6 +46,7 @@ export const allRules: Array<ILintRule> = [
   choicesDuplicateRule,
   triggerUnknownTargetRule,
   triggerUnknownTypeRule,
+  validatorUnknownTypeRule,
   valueNotAChoiceRule,
   elementCountContradictionRule,
   elementNeverVisibleRule,

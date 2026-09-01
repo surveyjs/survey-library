@@ -89,6 +89,7 @@ export class LintMetadata {
   private elementTypes: Array<string>;
   private elementTypeSet: Set<string>;
   private triggerTypes: Array<string>;
+  private validatorTypes: Array<string>;
   private classNameParts = new Map<string, string>();
   private elementsKeys: Array<string>;
   private templateElementsKeys: Array<string>;
@@ -107,11 +108,35 @@ export class LintMetadata {
   }
 
   // A validator "type" is accepted both as "expression" and as the full class name
-  // "expressionvalidator".
-  public getValidatorExpressionProps(type: string): Array<ExpressionPropDef> {
+  // "expressionvalidator": the class name the deserializer resolves it to.
+  public getValidatorClassName(type: string): string {
     const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
     const lower = (type || "").toLowerCase();
-    return this.getExpressionProps(!lower || lower.indexOf(suffix) > -1 ? lower : lower + suffix);
+    return !lower || lower.indexOf(suffix) > -1 ? lower : lower + suffix;
+  }
+
+  public getValidatorExpressionProps(type: string): Array<ExpressionPropDef> {
+    return this.getExpressionProps(this.getValidatorClassName(type));
+  }
+
+  // The class a validator "type" loads as, or undefined when the type names no validator -
+  // which the deserializer answers by dropping the validator.
+  public getValidatorClass(type: string): string | undefined {
+    const className = this.getValidatorClassName(type);
+    return isDescendantOf(className, "surveyvalidator") ? className : undefined;
+  }
+
+  // The type names a validator may carry, in the short form the JSON usually spells.
+  public getValidatorTypes(): Array<string> {
+    if (!this.validatorTypes) {
+      const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
+      this.validatorTypes = Serializer.getChildrenClasses("surveyvalidator", true)
+        .map(cls => {
+          const name = (cls.name || "").toLowerCase();
+          return !!suffix && name.endsWith(suffix) ? name.substring(0, name.length - suffix.length) : name;
+        });
+    }
+    return this.validatorTypes;
   }
 
   // The JSON trigger type with the class-name suffix stripped, the way SurveyModel

@@ -481,6 +481,14 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "validator/unknown-type", reason: "unknownType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "nosuch" }] }] },
+  },
+  {
+    ruleId: "validator/unknown-type", reason: "noType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] },
+  },
+  {
     ruleId: "element/count-contradiction", reason: "stepAboveRange",
     json: { elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 4, rateStep: 10 }] },
   },

@@ -101,6 +101,10 @@ export const SurveyLintReasons = Object.freeze({
     unknownType: "unknownType",
     noType: "noType",
   }),
+  "validator/unknown-type": Object.freeze({
+    unknownType: "unknownType",
+    noType: "noType",
+  }),
   // value writers (setValue/reset/default expressions, triggers, calculated values) in a loop
   "cycle/value-write": Object.freeze({
     self: "self",

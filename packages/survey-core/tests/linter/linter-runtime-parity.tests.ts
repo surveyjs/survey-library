@@ -4,6 +4,8 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { lintSurvey } from "../../src/linter/index";
+import { getSupportedValidators } from "../../src/linter/validator-utils";
+import { resolveLintSettings } from "../../src/linter/lint-settings";
 import { getBuiltInVariableNames } from "../../src/survey";
 
 // A finding at "error" severity claims the survey cannot work. These tests build a
@@ -270,5 +272,32 @@ describe("built-in variables: the core table vs the linter", () => {
     expect(errors({
       elements: [{ type: "text", name: "q1", visibleIf: "{pageno.title} notempty" }],
     })).toEqual(["reference/unknown @ elements[0].visibleIf"]);
+  });
+});
+
+// The supported-validator table the linter rebuilds from settings and the serializer against
+// the model's own answer. question_text.ts narrows the list by inputType through a private
+// hash, so the mirror in validator-utils.ts is only trustworthy while this test holds.
+describe("linter vs runtime: supported validators", () => {
+  const INPUT_TYPES = ["text", "email", "tel", "password", "url", "number", "range", "date"];
+  INPUT_TYPES.forEach(inputType => {
+    test("a text question with inputType \"" + inputType + "\" supports the same validators", () => {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "q1", inputType: inputType }],
+      });
+      const question = survey.getQuestionByName("q1");
+      const record: any = { kind: "question", type: "text", json: { inputType: inputType } };
+      expect(getSupportedValidators(record, resolveLintSettings()).sort())
+        .toEqual(question.getSupportedValidators().sort());
+    });
+  });
+  ["comment", "checkbox", "radiogroup", "imagepicker", "rating"].forEach(type => {
+    test("a " + type + " question supports the same validators", () => {
+      const survey = new SurveyModel({ elements: [{ type: type, name: "q1", choices: ["a"] }] });
+      const question = survey.getQuestionByName("q1");
+      const record: any = { kind: "question", type: type, json: {} };
+      expect(getSupportedValidators(record, resolveLintSettings()).sort())
+        .toEqual(question.getSupportedValidators().sort());
+    });
   });
 });

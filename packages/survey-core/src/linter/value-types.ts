@@ -151,6 +151,24 @@ export function getValueTypeInfo(type: string, json: any): ValueTypeInfo {
   }
 }
 
+// How many choices can be selected at once, or undefined when the JSON does not list them all.
+// The None/Refuse/Don't know items are exclusive - selecting one clears the rest - and so is a
+// choice marked isExclusive; Other is an ordinary selection.
+export function getSelectableChoiceCount(record: { choicesInfo?: ChoicesInfo, json: any }): number | undefined {
+  const info = record.choicesInfo;
+  if (!info || info.hasChoicesByUrl || info.lazy || info.carryForwardFrom ||
+    info.carryForwardValuesFrom || info.staticValues.length === 0) return undefined;
+  const items = record.json ? record.json.choices : undefined;
+  if (!Array.isArray(items)) return undefined;
+  let count = 0;
+  items.forEach(item => {
+    if (getItemValueRaw(item) === undefined) return;
+    if (!!item && typeof item === "object" && item.isExclusive === true) return;
+    count++;
+  });
+  return count + (info.showOtherItem ? 1 : 0);
+}
+
 export function isTextInputQuestion(record: { type: string, effectiveType?: string, json: any }): boolean {
   const type = getEffectiveType(record);
   if (type === "comment") return true;

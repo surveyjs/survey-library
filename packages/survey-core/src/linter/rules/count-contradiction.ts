@@ -2,7 +2,7 @@ import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
 import { isDescendantOf } from "../metadata";
 import { RATING_DEFAULTS, runtimeGreater, SLIDER_DEFAULTS } from "../value-domain";
-import { getInputType, getItemValueRaw, isComparableRangeInputType } from "../value-types";
+import { getInputType, getSelectableChoiceCount, isComparableRangeInputType } from "../value-types";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["element/count-contradiction"];
@@ -174,23 +174,6 @@ function checkRateCount(ctx: LintContext, record: ElementRecord, type: string): 
     elementName: record.name,
     elementType: record.type,
   });
-}
-
-// How many choices can be selected at once: the special items are exclusive - selecting one
-// clears the rest - and so is a choice marked isExclusive. "Other" is an ordinary selection.
-function getSelectableChoiceCount(record: ElementRecord): number | undefined {
-  const info = record.choicesInfo;
-  if (!info || info.hasChoicesByUrl || info.lazy || info.carryForwardFrom ||
-    info.carryForwardValuesFrom || info.staticValues.length === 0) return undefined;
-  const items = record.json.choices;
-  if (!Array.isArray(items)) return undefined;
-  let count = 0;
-  items.forEach(item => {
-    if (getItemValueRaw(item) === undefined) return;
-    if (!!item && typeof item === "object" && item.isExclusive === true) return;
-    count++;
-  });
-  return count + (info.showOtherItem ? 1 : 0);
 }
 
 function checkMinSelectedChoices(ctx: LintContext, record: ElementRecord, type: string): void {

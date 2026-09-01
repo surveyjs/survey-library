@@ -105,6 +105,14 @@ export const SurveyLintReasons = Object.freeze({
     unknownType: "unknownType",
     noType: "noType",
   }),
+  // a validator that cannot do the job it was written for
+  "validator/dead": Object.freeze({
+    unsupportedForQuestion: "unsupportedForQuestion",
+    minAboveMax: "minAboveMax",
+    minCountAboveChoices: "minCountAboveChoices",
+    invalidRegex: "invalidRegex",
+    emptyExpression: "emptyExpression",
+  }),
   // value writers (setValue/reset/default expressions, triggers, calculated values) in a loop
   "cycle/value-write": Object.freeze({
     self: "self",

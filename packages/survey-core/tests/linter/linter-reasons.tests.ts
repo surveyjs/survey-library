@@ -489,6 +489,40 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] },
   },
   {
+    ruleId: "validator/dead", reason: "unsupportedForQuestion",
+    json: {
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a"], validators: [{ type: "numeric", minValue: 1 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "minAboveMax",
+    json: {
+      elements: [{
+        type: "text", name: "q1", inputType: "number",
+        validators: [{ type: "numeric", minValue: 100, maxValue: 10 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "minCountAboveChoices",
+    json: {
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"],
+        validators: [{ type: "answercount", minCount: 3 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "invalidRegex",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "regex", regex: "([0-9" }] }] },
+  },
+  {
+    ruleId: "validator/dead", reason: "emptyExpression",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "expression" }] }] },
+  },
+  {
     ruleId: "element/count-contradiction", reason: "stepAboveRange",
     json: { elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 4, rateStep: 10 }] },
   },

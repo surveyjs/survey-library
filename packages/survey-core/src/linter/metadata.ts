@@ -1,4 +1,4 @@
-import { JsonObjectProperty, Serializer } from "survey-core";
+import { ComponentCollection, JsonObjectProperty, Serializer } from "survey-core";
 import { PROP_KIND_OVERRIDES, TRIGGER_TARGET_KINDS } from "./catalog";
 import { ExpressionSiteKind, TriggerTargetRef } from "./symbols";
 
@@ -69,6 +69,26 @@ export function isDescendantOf(type: string, ancestor: string): boolean {
   return !!findMetaClass(type) && Serializer.isDescendantOf(type, ancestor);
 }
 
+// A type registered through ComponentCollection. It is a question class like any other, but
+// what it does with a property is the component's own business, so reasoning that holds for
+// the core types does not automatically hold for it.
+export function isComponentType(type: string): boolean {
+  return !!type && !!ComponentCollection.Instance.getCustomQuestionByName(type);
+}
+
+// The class chain of a type, from the type itself up to the root.
+export function getClassChain(type: string): Array<string> {
+  const res: Array<string> = [];
+  let name = (type || "").toLowerCase();
+  while(!!name) {
+    const cls = findMetaClass(name);
+    if (!cls) break;
+    res.push(cls.name || name);
+    name = cls.parentName;
+  }
+  return res;
+}
+
 export function isSelectBase(type: string): boolean {
   return isDescendantOf(type, "selectbase");
 }
@@ -126,15 +146,20 @@ export class LintMetadata {
     return isDescendantOf(className, "surveyvalidator") ? className : undefined;
   }
 
+  // The JSON validator type with the class-name suffix stripped, the short form
+  // settings.supportedValidators lists.
+  public normalizeValidatorType(type: string): string {
+    const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
+    const res = (type || "").toLowerCase();
+    if (!!suffix && res.endsWith(suffix)) return res.substring(0, res.length - suffix.length);
+    return res;
+  }
+
   // The type names a validator may carry, in the short form the JSON usually spells.
   public getValidatorTypes(): Array<string> {
     if (!this.validatorTypes) {
-      const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
       this.validatorTypes = Serializer.getChildrenClasses("surveyvalidator", true)
-        .map(cls => {
-          const name = (cls.name || "").toLowerCase();
-          return !!suffix && name.endsWith(suffix) ? name.substring(0, name.length - suffix.length) : name;
-        });
+        .map(cls => this.normalizeValidatorType(cls.name));
     }
     return this.validatorTypes;
   }

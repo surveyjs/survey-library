@@ -151,7 +151,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       const row = this.dropTarget;
       const matrix = row.data;
       const renderedRow = matrix.renderedTable.rows.filter(r => r.row == row)[0];
-      const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+      const startAction = renderedRow?.cells[0]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
       const endAction = renderedRow?.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
 
       if ((startAction?.visible || endAction?.visible)) {

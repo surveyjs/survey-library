@@ -40,7 +40,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public isShowHideDetail: boolean;
   public isActionsCell: boolean = false;
   public isErrorsCell: boolean = false;
-  public isDragHandlerCell: boolean = false;
   public isDetailRowCell: boolean = false;
   private classNameValue: string = "";
   public constructor() {
@@ -667,20 +666,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedRows.splice(index + 1, 0, this.createDetailPanelRow(row, renderedRow));
     }
   }
-  private getRowDragCell(rowIndex: number) {
-    const cell = new QuestionMatrixDropdownRenderedCell();
-    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
-    cell.isDragHandlerCell = lockedRows < 1 || rowIndex >= lockedRows;
-    cell.isEmpty = !cell.isDragHandlerCell;
-    cell.className = this.getActionsCellClassName(cell);
-    cell.row = this.matrix.visibleRows[rowIndex];
-    return cell;
-  }
   private getActionsCellClassName(cell: QuestionMatrixDropdownRenderedCell = null): string {
     const classBuilder =
       new CssClassBuilder()
         .append(this.cssClasses.actionsCell)
-        .append(this.cssClasses.actionsCellDrag, cell?.isDragHandlerCell)
         .append(this.cssClasses.detailRowCell, cell?.isDetailRowCell)
         .append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal);
     if (cell.isActionsCell) {
@@ -707,7 +696,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       const itemValue = new ItemValue(actionContainer);
       cell.item = itemValue;
       cell.isActionsCell = true;
-      cell.isDragHandlerCell = false;
       cell.isDetailRowCell = isDetailRow;
       cell.className = this.getActionsCellClassName(cell);
       cell.row = this.matrix.visibleRows[rowIndex];
@@ -747,7 +735,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     actions: Array<IAction>
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
-    if (this.isRowsDragAndDrop) {
+    var rowIndex = this.matrix.visibleRows.indexOf(row);
+    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
+    if (this.isRowsDragAndDrop && (lockedRows < 1 || rowIndex >= lockedRows)) {
       actions.push(new Action({
         id: "drag-drop",
         action: () => {},

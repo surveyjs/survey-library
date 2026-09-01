@@ -34,6 +34,10 @@ export const SurveyLintReasons = Object.freeze({
     totalKeyCollision: "totalKeyCollision",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
+  // a key that matches no property of the class the JSON says it belongs to
+  "property/unknown": Object.freeze({
+    unknownProperty: "unknownProperty",
+  }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",
   }),

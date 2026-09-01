@@ -19,6 +19,27 @@ export interface TriggerTypeDef {
   extraExpressionProps: Array<ExpressionPropDef>;
 }
 
+// The keys a class accepts in JSON: the deserializer matches a key against a property name or
+// its alternativeName, exactly as spelled. "names" is the pool a typo suggestion draws from.
+export interface KnownKeys {
+  byKey: Map<string, JsonObjectProperty>;
+  names: Array<string>;
+}
+
+function buildKnownKeys(props: Array<JsonObjectProperty>): KnownKeys {
+  // a Map, not an object literal: the keys are property names an application may register,
+  // which must not collide with Object.prototype keys
+  const byKey = new Map<string, JsonObjectProperty>();
+  const names: Array<string> = [];
+  props.forEach(prop => {
+    if (!prop.name) return;
+    byKey.set(prop.name, prop);
+    names.push(prop.name);
+    if (!!prop.alternativeName) byKey.set(prop.alternativeName, prop);
+  });
+  return { byKey: byKey, names: names };
+}
+
 const COLUMN_CLASS = "matrixdropdowncolumn";
 const DEFAULT_ITEM_CLASS = "itemvalue";
 // Fallbacks for the class-name suffixes and container array keys the walker needs.
@@ -110,6 +131,8 @@ export class LintMetadata {
   private elementTypeSet: Set<string>;
   private triggerTypes: Array<string>;
   private validatorTypes: Array<string>;
+  private knownKeys = new Map<string, KnownKeys | undefined>();
+  private columnKnownKeys = new Map<string, KnownKeys>();
   private classNameParts = new Map<string, string>();
   private elementsKeys: Array<string>;
   private templateElementsKeys: Array<string>;
@@ -144,6 +167,34 @@ export class LintMetadata {
   public getValidatorClass(type: string): string | undefined {
     const className = this.getValidatorClassName(type);
     return isDescendantOf(className, "surveyvalidator") ? className : undefined;
+  }
+
+  // Undefined for a class the registry does not know: the JSON then describes nothing the
+  // deserializer can build, which the */unknown-type rules report on their own.
+  public getKnownKeys(className: string): KnownKeys | undefined {
+    const key = (className || "").toLowerCase();
+    if (!this.knownKeys.has(key)) {
+      const metaClass = findMetaClass(key);
+      this.knownKeys.set(key, metaClass ? buildKnownKeys(metaClass.getAllProperties()) : undefined);
+    }
+    return this.knownKeys.get(key);
+  }
+
+  // A matrix column carries the properties of its cell question type on top of its own, the
+  // way getDynamicProperties exposes them at runtime.
+  public getColumnKnownKeys(cellType: string): KnownKeys {
+    const key = (cellType || "").toLowerCase();
+    if (!this.columnKnownKeys.has(key)) {
+      const own = findMetaClass(COLUMN_CLASS).getAllProperties();
+      const dynamic = !!findMetaClass(key)
+        ? Serializer.getDynamicPropertiesByTypes(COLUMN_CLASS, key) : [];
+      this.columnKnownKeys.set(key, buildKnownKeys(own.concat(dynamic)));
+    }
+    return this.columnKnownKeys.get(key);
+  }
+
+  public isComponentType(type: string): boolean {
+    return isComponentType(type);
   }
 
   // The JSON validator type with the class-name suffix stripped, the short form

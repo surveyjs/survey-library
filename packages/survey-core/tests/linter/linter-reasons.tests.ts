@@ -98,6 +98,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "property/unknown", reason: "unknownProperty",
+    json: { elements: [{ type: "text", name: "q1", visibileIf: "1 = 1" }] },
+  },
+  {
     ruleId: "element/unknown-type", reason: "unknownType",
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
   },

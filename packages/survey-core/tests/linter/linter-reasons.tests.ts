@@ -443,6 +443,14 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "choices/duplicate", reason: "duplicateValue",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "a"] }] },
+  },
+  {
+    ruleId: "choices/duplicate", reason: "specialItemCollision",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "none"], showNoneItem: true }] },
+  },
+  {
     ruleId: "element/never-visible", reason: "dependsOnDeadValue",
     json: {
       elements: [

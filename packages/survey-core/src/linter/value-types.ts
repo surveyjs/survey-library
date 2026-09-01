@@ -54,14 +54,26 @@ export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined
   };
 }
 
+export interface SpecialChoiceDef {
+  // which built-in item this is, independent of the value it carries
+  item: string;
+  value: any;
+}
+
+// The built-in items the question adds to its listed choices, with the value each one holds.
+export function getSpecialChoiceDefs(info: ChoicesInfo,
+  lintSettings: ILintResolvedSettings): Array<SpecialChoiceDef> {
+  const res: Array<SpecialChoiceDef> = [];
+  if (info.showOtherItem) res.push({ item: "other", value: "other" });
+  if (info.showNoneItem) res.push({ item: "none", value: lintSettings.noneItemValue });
+  if (info.showRefuseItem) res.push({ item: "refuse", value: lintSettings.refuseItemValue });
+  if (info.showDontKnowItem) res.push({ item: "dontknow", value: lintSettings.dontKnowItemValue });
+  return res;
+}
+
 // Values a comparison against this question may legitimately use besides static choices.
 export function getSpecialChoiceValues(info: ChoicesInfo, lintSettings: ILintResolvedSettings): Array<any> {
-  const res: Array<any> = [];
-  if (info.showOtherItem) res.push("other");
-  if (info.showNoneItem) res.push(lintSettings.noneItemValue);
-  if (info.showRefuseItem) res.push(lintSettings.refuseItemValue);
-  if (info.showDontKnowItem) res.push(lintSettings.dontKnowItemValue);
-  return res;
+  return getSpecialChoiceDefs(info, lintSettings).map(def => def.value);
 }
 
 // The inputType a text question collects with, defaulted the way the model defaults it.

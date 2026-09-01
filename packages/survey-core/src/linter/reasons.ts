@@ -117,6 +117,12 @@ export const SurveyLintReasons = Object.freeze({
     countOutOfBounds: "countOutOfBounds",
   }),
   // dead through the cascade: the visibleIf demands a value of a never-visible question
+  // two items of one itemvalue array holding the same value, and a listed choice colliding
+  // with a built-in item the question also shows
+  "choices/duplicate": Object.freeze({
+    duplicateValue: "duplicateValue",
+    specialItemCollision: "specialItemCollision",
+  }),
   "element/never-visible": Object.freeze({
     dependsOnDeadValue: "dependsOnDeadValue",
   }),

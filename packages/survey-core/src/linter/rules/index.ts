@@ -13,6 +13,7 @@ import { expressionTypeMismatchRule } from "./expression-type-mismatch";
 import { expressionContradictionRule } from "./expression-contradiction";
 import { expressionMeaninglessConditionRule } from "./expression-meaningless-condition";
 import { choicesDeadSourceRule } from "./choices-dead-source";
+import { choicesDuplicateRule } from "./choices-duplicate";
 import { triggerUnknownTargetRule } from "./trigger-unknown-target";
 import { triggerUnknownTypeRule } from "./trigger-unknown-type";
 import { valueNotAChoiceRule } from "./value-not-a-choice";
@@ -39,6 +40,7 @@ export const allRules: Array<ILintRule> = [
   expressionContradictionRule,
   expressionMeaninglessConditionRule,
   choicesDeadSourceRule,
+  choicesDuplicateRule,
   triggerUnknownTargetRule,
   triggerUnknownTypeRule,
   valueNotAChoiceRule,

@@ -578,6 +578,41 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "mask/mismatch", reason: "unknownMaskType",
+    json: { elements: [{ type: "text", name: "q1", maskType: "nosuch" }] },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "unknownSettingsKey",
+    json: {
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { pattern: "9" } }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "settingsWithoutMask",
+    json: { elements: [{ type: "text", name: "q1", maskSettings: { precision: 2 } }] },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "maskInertForInputType",
+    json: {
+      elements: [{ type: "text", name: "q1", inputType: "number", maskType: "numeric" }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "minMaxWithoutPattern",
+    json: {
+      elements: [{
+        type: "text", name: "q1", maskType: "datetime",
+        maskSettings: { min: "2020-01-01", max: "2025-01-01" },
+      }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "minAboveMax",
+    json: {
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { min: 100, max: 1 } }],
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },

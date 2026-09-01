@@ -47,6 +47,9 @@ const DEFAULT_ITEM_CLASS = "itemvalue";
 // the linter working if a property is ever renamed out from under it.
 const TRIGGER_SUFFIX = "trigger";
 const VALIDATOR_SUFFIX = "validator";
+const MASK_SUFFIX = "mask";
+const MASK_BASE_CLASS = "masksettings";
+const MASK_NONE = "none";
 
 // Element, cell, trigger and validator type names come straight from the linted JSON,
 // so a type may be anything - including "" or a name the registry does not know.
@@ -131,6 +134,7 @@ export class LintMetadata {
   private elementTypeSet: Set<string>;
   private triggerTypes: Array<string>;
   private validatorTypes: Array<string>;
+  private maskTypes: Array<string>;
   private knownKeys = new Map<string, KnownKeys | undefined>();
   private columnKnownKeys = new Map<string, KnownKeys>();
   private classNameParts = new Map<string, string>();
@@ -195,6 +199,29 @@ export class LintMetadata {
 
   public isComponentType(type: string): boolean {
     return isComponentType(type);
+  }
+
+  // createMaskSettings (question_text.ts): the class is maskType + "mask", and an unregistered
+  // one falls back to the bare settings class, which keeps none of the mask's own properties.
+  public resolveMaskClass(maskType: string): string | undefined {
+    const type = (maskType || "").toLowerCase();
+    if (!type || type === MASK_NONE) return MASK_BASE_CLASS;
+    const className = type + MASK_SUFFIX;
+    return !!findMetaClass(className) ? className : undefined;
+  }
+
+  // "none" plus every registered mask class, in the short form maskType spells.
+  public getMaskTypes(): Array<string> {
+    if (!this.maskTypes) {
+      const res = Serializer.getChildrenClasses(MASK_BASE_CLASS).map((cls: any) => {
+        const name = (cls.name || "").toLowerCase();
+        const at = name.indexOf(MASK_SUFFIX);
+        return at > -1 ? name.substring(0, at) : name;
+      });
+      res.unshift(MASK_NONE);
+      this.maskTypes = res;
+    }
+    return this.maskTypes;
   }
 
   // The JSON validator type with the class-name suffix stripped, the short form

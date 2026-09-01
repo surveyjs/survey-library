@@ -170,6 +170,15 @@ export const SurveyLintReasons = Object.freeze({
   "element/never-visible": Object.freeze({
     dependsOnDeadValue: "dependsOnDeadValue",
   }),
+  // an input mask the runtime resolves to something else than the JSON describes
+  "mask/mismatch": Object.freeze({
+    unknownMaskType: "unknownMaskType",
+    unknownSettingsKey: "unknownSettingsKey",
+    settingsWithoutMask: "settingsWithoutMask",
+    maskInertForInputType: "maskInertForInputType",
+    minMaxWithoutPattern: "minMaxWithoutPattern",
+    minAboveMax: "minAboveMax",
+  }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",

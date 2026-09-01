@@ -1,8 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
 import { isDescendantOf } from "../metadata";
-import { runtimeGreater } from "../value-domain";
-import { getInputType, isComparableRangeInputType } from "../value-types";
+import { RATING_DEFAULTS, runtimeGreater, SLIDER_DEFAULTS } from "../value-domain";
+import { getInputType, getItemValueRaw, isComparableRangeInputType } from "../value-types";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["element/count-contradiction"];
@@ -97,16 +97,130 @@ const BOUND_PAIRS: Array<BoundPair> = [
   },
 ];
 
+// A step has to fit inside the range it steps through; both scales default to a real range,
+// which the control offers whether the JSON states it or not.
+interface StepDef {
+  step: string;
+  min: string;
+  max: string;
+  defaults: { min: number, max: number };
+  appliesTo(record: ElementRecord, type: string): boolean;
+}
+
+const STEP_DEFS: Array<StepDef> = [
+  {
+    step: "rateStep", min: "rateMin", max: "rateMax", defaults: RATING_DEFAULTS,
+    // with rateCount the model computes the maximum out of the step, so the two always fit
+    appliesTo: (record, type) => isGeneratedRating(record, type) && record.json.rateCount === undefined,
+  },
+  {
+    step: "step", min: "min", max: "max", defaults: SLIDER_DEFAULTS,
+    appliesTo: (record, type) => type === "slider",
+  },
+];
+
+function checkSteps(ctx: LintContext, record: ElementRecord, type: string): void {
+  STEP_DEFS.forEach(def => {
+    if (!def.appliesTo(record, type)) return;
+    const step = authored(record.json, def.step);
+    if (step === undefined || step <= 0) return;
+    const min = authored(record.json, def.min);
+    const max = authored(record.json, def.max);
+    const range = (max !== undefined ? max : def.defaults.max) - (min !== undefined ? min : def.defaults.min);
+    if (step <= range) return;
+    ctx.report({
+      message: "The " + def.step + " of \"" + record.name + "\" is " + step +
+        ", above the whole range " + def.max + " - " + def.min + " of " + range +
+        " - the runtime clamps it.",
+      path: record.path + "." + def.step,
+      reason: reasons.stepAboveRange,
+      messageData: {
+        name: record.name, questionType: record.type,
+        stepProp: def.step, step: step, minProp: def.min, maxProp: def.max, range: range,
+      },
+      elementName: record.name,
+      elementType: record.type,
+    });
+  });
+}
+
+// The bound rateCount is clamped to (question_rating.ts): never below two, and never above the
+// settings maximum - which listed rateValues lift, since they are the scale then.
+function getRateCountBound(record: ElementRecord, count: number, maxCount: number): number | undefined {
+  if (count < 2) return 2;
+  const rateValues = record.json.rateValues;
+  const listed = Array.isArray(rateValues) ? rateValues.length : 0;
+  if (count > maxCount && count > listed) return maxCount;
+  if (count > 10 && record.json.rateType === "smileys") return 10;
+  return undefined;
+}
+
+function checkRateCount(ctx: LintContext, record: ElementRecord, type: string): void {
+  if (type !== "rating") return;
+  const count = authored(record.json, "rateCount");
+  if (count === undefined) return;
+  const bound = getRateCountBound(record, count, ctx.index.settings.ratingMaximumRateValueCount);
+  if (bound === undefined) return;
+  ctx.report({
+    message: "The rateCount of \"" + record.name + "\" is " + count + ", " +
+      (count < bound ? "below" : "above") + " the " + (count < bound ? "minimum" : "maximum") +
+      " of " + bound + " - the runtime clamps it.",
+    path: record.path + ".rateCount",
+    reason: reasons.countOutOfBounds,
+    messageData: {
+      name: record.name, questionType: record.type,
+      countProp: "rateCount", count: count, bound: bound,
+    },
+    elementName: record.name,
+    elementType: record.type,
+  });
+}
+
+// How many choices can be selected at once: the special items are exclusive - selecting one
+// clears the rest - and so is a choice marked isExclusive. "Other" is an ordinary selection.
+function getSelectableChoiceCount(record: ElementRecord): number | undefined {
+  const info = record.choicesInfo;
+  if (!info || info.hasChoicesByUrl || info.lazy || info.carryForwardFrom ||
+    info.carryForwardValuesFrom || info.staticValues.length === 0) return undefined;
+  const items = record.json.choices;
+  if (!Array.isArray(items)) return undefined;
+  let count = 0;
+  items.forEach(item => {
+    if (getItemValueRaw(item) === undefined) return;
+    if (!!item && typeof item === "object" && item.isExclusive === true) return;
+    count++;
+  });
+  return count + (info.showOtherItem ? 1 : 0);
+}
+
+function checkMinSelectedChoices(ctx: LintContext, record: ElementRecord, type: string): void {
+  if (!isSelectionLimited(record, type)) return;
+  const min = readEnabledCount(record.json, "minSelectedChoices");
+  if (min === undefined) return;
+  const selectable = getSelectableChoiceCount(record);
+  if (selectable === undefined || min <= selectable) return;
+  ctx.report({
+    message: "The minSelectedChoices of \"" + record.name + "\" is " + min + ", above the " +
+      selectable + " choices that can be selected together - the question can never be answered.",
+    path: record.path + ".minSelectedChoices",
+    reason: reasons.minAboveChoicesCount,
+    messageData: {
+      name: record.name, questionType: record.type,
+      minProp: "minSelectedChoices", min: min, selectable: selectable,
+    },
+    elementName: record.name,
+    elementType: record.type,
+  });
+}
+
 function isAbove(min: any, max: any): boolean {
   if (typeof min === "number" && typeof max === "number") return min > max;
   return runtimeGreater(min, max);
 }
 
-function checkBoundPairs(ctx: LintContext, record: ElementRecord): void {
-  const json = record.json;
-  if (!json) return;
-  const type = getEffectiveType(record);
+function checkBoundPairs(ctx: LintContext, record: ElementRecord, type: string): void {
   BOUND_PAIRS.forEach(pair => {
+    const json = record.json;
     if (!pair.appliesTo(record, type)) return;
     const min = pair.read(json, pair.min);
     const max = pair.read(json, pair.max);
@@ -183,8 +297,13 @@ export const elementCountContradictionRule: ILintRule = {
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
     ctx.index.allElements.forEach(record => {
+      if (!record.json) return;
+      const type = getEffectiveType(record);
       checkRecord(ctx, record);
-      checkBoundPairs(ctx, record);
+      checkBoundPairs(ctx, record, type);
+      checkSteps(ctx, record, type);
+      checkRateCount(ctx, record, type);
+      checkMinSelectedChoices(ctx, record, type);
     });
   },
 };

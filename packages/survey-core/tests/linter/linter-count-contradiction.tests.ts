@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
+import { withSettings } from "./lint-test-helpers";
 
 function byRule(json: any): Array<ILintFinding> {
   return lintSurvey(json).findings.filter(f => f.ruleId === "element/count-contradiction");
@@ -104,6 +105,120 @@ describe("element/count-contradiction - rating bounds", () => {
   });
   test("a consistent pair is clean", () => {
     expect(byRule({ elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 10 }] })).toHaveLength(0);
+  });
+});
+
+describe("element/count-contradiction - step above the range", () => {
+  test("a rating step wider than the authored range is flagged", () => {
+    const findings = byRule({
+      elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 4, rateStep: 10 }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("stepAboveRange");
+    expect(findings[0].path).toBe("elements[0].rateStep");
+    expect(findings[0].messageData.range).toBe(3);
+  });
+  test("the default rating scale is a real range for the step", () => {
+    expect(byRule({ elements: [{ type: "rating", name: "r1", rateStep: 10 }] })).toHaveLength(1);
+  });
+  test("a step inside the range is clean", () => {
+    expect(byRule({
+      elements: [{ type: "rating", name: "r1", rateMin: 0, rateMax: 10, rateStep: 2 }],
+    })).toHaveLength(0);
+  });
+  test("a scale sized by rateCount recomputes its own maximum", () => {
+    expect(byRule({
+      elements: [{ type: "rating", name: "r1", rateCount: 4, rateStep: 10 }],
+    })).toHaveLength(0);
+  });
+  test("a slider step wider than the range is flagged", () => {
+    const findings = byRule({ elements: [{ type: "slider", name: "s1", step: 200 }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("stepAboveRange");
+  });
+});
+
+describe("element/count-contradiction - rateCount bounds", () => {
+  test("a rateCount above the settings maximum is flagged", () => {
+    const findings = byRule({ elements: [{ type: "rating", name: "r1", rateCount: 30 }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("countOutOfBounds");
+    expect(findings[0].messageData.bound).toBe(20);
+  });
+  test("a rateCount below two is flagged", () => {
+    const findings = byRule({ elements: [{ type: "rating", name: "r1", rateCount: 1 }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.bound).toBe(2);
+  });
+  test("listed rateValues lift the settings maximum, as the model does", () => {
+    const rateValues: Array<number> = [];
+    for (let i = 1; i <= 30; i++) rateValues.push(i);
+    expect(byRule({
+      elements: [{ type: "rating", name: "r1", rateCount: 30, rateValues: rateValues }],
+    })).toHaveLength(0);
+  });
+  test("the smileys scale stops at ten", () => {
+    const findings = byRule({
+      elements: [{ type: "rating", name: "r1", rateType: "smileys", rateCount: 12 }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.bound).toBe(10);
+  });
+  test("a customized maximum is honoured", () => {
+    withSettings({ ratingMaximumRateValueCount: 30 }, () => {
+      expect(byRule({ elements: [{ type: "rating", name: "r1", rateCount: 25 }] })).toHaveLength(0);
+    });
+  });
+  test("a rateCount inside the bounds is clean", () => {
+    expect(byRule({ elements: [{ type: "rating", name: "r1", rateCount: 7 }] })).toHaveLength(0);
+  });
+});
+
+describe("element/count-contradiction - selection above the choices", () => {
+  test("minSelectedChoices above the number of choices is flagged", () => {
+    const findings = byRule({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", "b"], minSelectedChoices: 5 }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("minAboveChoicesCount");
+    expect(findings[0].messageData.selectable).toBe(2);
+  });
+  test("the Other item counts as selectable, the exclusive ones do not", () => {
+    expect(byRule({
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"], showOtherItem: true, minSelectedChoices: 3,
+      }],
+    })).toHaveLength(0);
+    expect(byRule({
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"], showNoneItem: true, minSelectedChoices: 3,
+      }],
+    })).toHaveLength(1);
+  });
+  test("an exclusive choice does not count towards the minimum", () => {
+    expect(byRule({
+      elements: [{
+        type: "checkbox", name: "q1", minSelectedChoices: 3,
+        choices: ["a", "b", { value: "c", isExclusive: true }],
+      }],
+    })).toHaveLength(1);
+  });
+  test("choices the JSON does not list are left alone", () => {
+    expect(byRule({
+      elements: [
+        {
+          type: "checkbox", name: "q1", minSelectedChoices: 5,
+          choicesByUrl: { url: "https://example.com/choices" },
+        },
+        { type: "checkbox", name: "src", choices: ["a", "b"] },
+        { type: "checkbox", name: "q2", choicesFromQuestion: "src", minSelectedChoices: 5 },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a minimum the choices can satisfy is clean", () => {
+    expect(byRule({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", "b", "c"], minSelectedChoices: 2 }],
+    })).toHaveLength(0);
   });
 });
 

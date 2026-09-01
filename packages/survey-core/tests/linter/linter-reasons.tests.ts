@@ -443,6 +443,14 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "element/count-contradiction", reason: "stepAboveRange",
+    json: { elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 4, rateStep: 10 }] },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "minAboveChoicesCount",
+    json: { elements: [{ type: "checkbox", name: "q1", choices: ["a", "b"], minSelectedChoices: 5 }] },
+  },
+  {
     ruleId: "choices/duplicate", reason: "duplicateValue",
     json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "a"] }] },
   },

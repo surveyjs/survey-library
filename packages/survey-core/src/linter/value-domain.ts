@@ -31,8 +31,8 @@ export type ValueDomain = ValueSetDomain | ValueRangeDomain;
 // The defaults of the model, which apply whenever the JSON states nothing: a rating runs 1..5
 // with a step of 1, a slider 0..100. They are as real as a written bound - the control offers
 // nothing outside them.
-const RATING_DEFAULTS = { min: 1, max: 5, step: 1 };
-const SLIDER_DEFAULTS = { min: 0, max: 100 };
+export const RATING_DEFAULTS = { min: 1, max: 5, step: 1 };
+export const SLIDER_DEFAULTS = { min: 0, max: 100 };
 
 function toNumber(value: any, fallback: number): number {
   return typeof value === "number" && isFinite(value) ? value : fallback;

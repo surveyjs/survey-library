@@ -10,6 +10,7 @@ export interface ILintResolvedSettings {
   commentSuffix: string;
   matrixTotalsSuffix: string;
   matrixDefaultCellType: string;
+  ratingMaximumRateValueCount: number;
 }
 
 // Snapshot taken once per lint run. The linter shares the application's module
@@ -28,5 +29,6 @@ export function resolveLintSettings(): ILintResolvedSettings {
     commentSuffix: settings.commentSuffix,
     matrixTotalsSuffix: settings.matrix.totalsSuffix,
     matrixDefaultCellType: settings.matrix.defaultCellType,
+    ratingMaximumRateValueCount: settings.ratingMaximumRateValueCount,
   };
 }

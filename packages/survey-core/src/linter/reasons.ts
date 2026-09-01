@@ -111,10 +111,14 @@ export const SurveyLintReasons = Object.freeze({
     copyValueShape: "copyValueShape",
     copyValueNoOverlap: "copyValueNoOverlap",
   }),
-  // authored row/panel count constraints the runtime silently reconciles
+  // authored count and bound constraints the runtime silently reconciles
   "element/count-contradiction": Object.freeze({
     minAboveMax: "minAboveMax",
     countOutOfBounds: "countOutOfBounds",
+    // a step wider than the whole range it steps through
+    stepAboveRange: "stepAboveRange",
+    // more selections required than the choices can offer together
+    minAboveChoicesCount: "minAboveChoicesCount",
   }),
   // dead through the cascade: the visibleIf demands a value of a never-visible question
   // two items of one itemvalue array holding the same value, and a listed choice colliding

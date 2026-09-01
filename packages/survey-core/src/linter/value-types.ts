@@ -7,6 +7,23 @@ const DATE_INPUT_TYPES: { [inputType: string]: boolean } = {
   date: true, "datetime-local": true, month: true, time: true, week: true,
 };
 
+// time and week are excluded on purpose: the runtime compares them with its own arithmetic
+// (getWeekTimeNumber in question_text.ts), which a plain operator call does not reproduce.
+const COMPARABLE_RANGE_INPUT_TYPES: { [inputType: string]: boolean } = {
+  number: true, range: true, date: true, "datetime-local": true, month: true,
+};
+
+// Mirrors isMinMaxType (question_text.ts): the inputTypes whose editor offers min/max, and the
+// only ones whose min/max/step properties the runtime applies at all.
+export function isMinMaxInputType(inputType: string): boolean {
+  return !!NUMERIC_INPUT_TYPES[inputType] || !!DATE_INPUT_TYPES[inputType];
+}
+
+// The min/max bounds a plain operator compares the way the runtime does.
+export function isComparableRangeInputType(inputType: string): boolean {
+  return !!COMPARABLE_RANGE_INPUT_TYPES[inputType];
+}
+
 export function getItemValueRaw(item: any): any {
   if (item === null || item === undefined) return undefined;
   if (typeof item === "object") return item.value;

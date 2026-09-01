@@ -1,7 +1,9 @@
 import { runBinaryOperator } from "survey-core";
 import { ElementRecord, getEffectiveType, ParsedRef, SCOPE_INDEX_VARIABLE_TYPE, SurveyIndex } from "./symbols";
 import { equalsCI, getSubPathRecord } from "./expression-utils";
-import { getInputType, getSpecialChoiceValues, getStaticChoiceValues } from "./value-types";
+import {
+  getInputType, getSpecialChoiceValues, getStaticChoiceValues, isComparableRangeInputType,
+} from "./value-types";
 
 // The set of values a reference can hold, when the JSON pins it down completely.
 export interface ValueSetDomain {
@@ -25,12 +27,6 @@ export interface ValueRangeDomain {
 }
 
 export type ValueDomain = ValueSetDomain | ValueRangeDomain;
-
-// time and week are excluded on purpose: the runtime compares them with its own arithmetic
-// (getWeekTimeNumber), which a plain operator call does not reproduce.
-const RANGE_INPUT_TYPES: { [inputType: string]: boolean } = {
-  number: true, range: true, date: true, "datetime-local": true, month: true,
-};
 
 // The defaults of the model, which apply whenever the JSON states nothing: a rating runs 1..5
 // with a step of 1, a slider 0..100. They are as real as a written bound - the control offers
@@ -71,7 +67,7 @@ function getSliderRangeDomain(record: ElementRecord): ValueDomain | undefined {
 
 function getTextRangeDomain(record: ElementRecord): ValueDomain | undefined {
   const json = record.json;
-  if (!json || !RANGE_INPUT_TYPES[getInputType(json)]) return undefined;
+  if (!json || !isComparableRangeInputType(getInputType(json))) return undefined;
   // a bound computed at runtime is unknown while linting
   if (json.minValueExpression !== undefined || json.maxValueExpression !== undefined) return undefined;
   const min = json.min;

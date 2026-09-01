@@ -1,5 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
+import { isDescendantOf } from "../metadata";
+import { runtimeGreater } from "../value-domain";
+import { getInputType, isComparableRangeInputType } from "../value-types";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["element/count-contradiction"];
@@ -11,9 +14,119 @@ const COUNT_PROPS: { [type: string]: CountProps } = {
   paneldynamic: { count: "panelCount", min: "minPanelCount", max: "maxPanelCount" },
 };
 
+// A bound pair the runtime reconciles behind the author's back: whichever of the two is set
+// last wins, so the JSON says one thing and the survey does another.
+interface BoundPair {
+  min: string;
+  max: string;
+  // the pair needs a value between the bounds, so equal bounds are a conflict too
+  needsGap?: boolean;
+  appliesTo(record: ElementRecord, type: string): boolean;
+  read(json: any, prop: string): any;
+}
+
 function authored(json: any, prop: string): number | undefined {
   const value = json ? json[prop] : undefined;
   return typeof value === "number" && isFinite(value) ? value : undefined;
+}
+
+// A count of items, where the model reads anything below 1 as "no limit".
+function readEnabledCount(json: any, prop: string): number | undefined {
+  const value = authored(json, prop);
+  return value !== undefined && value > 0 ? value : undefined;
+}
+
+// minimumFractionDigits/maximumFractionDigits, where the -1 default means "unset".
+function readFractionDigits(json: any, prop: string): number | undefined {
+  const value = authored(json, prop);
+  return value !== undefined && value >= 0 ? value : undefined;
+}
+
+// A text bound is a number or a date string, so the value is taken as authored.
+function readTextBound(json: any, prop: string): any {
+  const value = json ? json[prop] : undefined;
+  return value === undefined || value === null || value === "" ? undefined : value;
+}
+
+function isTextWithBounds(record: ElementRecord, type: string): boolean {
+  if (type !== "text" && type !== "multipletextitem") return false;
+  const json = record.json;
+  // a bound computed at runtime is unknown while linting
+  if (!json || json.minValueExpression !== undefined || json.maxValueExpression !== undefined) return false;
+  return isComparableRangeInputType(getInputType(json));
+}
+
+// The rating bounds only describe the scale while the model generates it: rateValues list
+// the scale themselves, and then the model reads the items instead of the bounds.
+function isGeneratedRating(record: ElementRecord, type: string): boolean {
+  return type === "rating" && !Array.isArray(record.json.rateValues);
+}
+
+function isSelectionLimited(record: ElementRecord, type: string): boolean {
+  // ranking descends from checkbox, but reads the pair only in its select-to-rank mode
+  if (isDescendantOf(type, "ranking")) return record.json.selectToRankEnabled === true;
+  return isDescendantOf(type, "checkbox");
+}
+
+const BOUND_PAIRS: Array<BoundPair> = [
+  {
+    min: "rateMin", max: "rateMax", needsGap: true,
+    appliesTo: isGeneratedRating, read: authored,
+  },
+  { min: "min", max: "max", appliesTo: isTextWithBounds, read: readTextBound },
+  {
+    min: "min", max: "max",
+    appliesTo: (record, type) => type === "slider", read: authored,
+  },
+  {
+    min: "minRangeLength", max: "maxRangeLength",
+    appliesTo: (record, type) => type === "slider" && record.json.sliderType === "range",
+    read: authored,
+  },
+  {
+    min: "minSelectedChoices", max: "maxSelectedChoices",
+    appliesTo: isSelectionLimited, read: readEnabledCount,
+  },
+  {
+    min: "minimumFractionDigits", max: "maximumFractionDigits",
+    appliesTo: (record, type) => type === "expression", read: readFractionDigits,
+  },
+  {
+    min: "totalMinimumFractionDigits", max: "totalMaximumFractionDigits",
+    appliesTo: record => record.kind === "column", read: readFractionDigits,
+  },
+];
+
+function isAbove(min: any, max: any): boolean {
+  if (typeof min === "number" && typeof max === "number") return min > max;
+  return runtimeGreater(min, max);
+}
+
+function checkBoundPairs(ctx: LintContext, record: ElementRecord): void {
+  const json = record.json;
+  if (!json) return;
+  const type = getEffectiveType(record);
+  BOUND_PAIRS.forEach(pair => {
+    if (!pair.appliesTo(record, type)) return;
+    const min = pair.read(json, pair.min);
+    const max = pair.read(json, pair.max);
+    if (min === undefined || max === undefined) return;
+    const above = isAbove(min, max);
+    if (!above && !(pair.needsGap && !isAbove(max, min))) return;
+    ctx.report({
+      message: "The " + pair.min + " of \"" + record.name + "\" is " + min + ", " +
+        (above ? "above" : "equal to") + " its " + pair.max + " of " + max +
+        " - the runtime silently adjusts one of them.",
+      path: record.path + "." + pair.min,
+      reason: reasons.minAboveMax,
+      messageData: {
+        name: record.name, questionType: record.type,
+        minProp: pair.min, maxProp: pair.max, min: min, max: max,
+      },
+      elementName: record.name,
+      elementType: record.type,
+    });
+  });
 }
 
 // The setters' own normalization (question_matrixdynamic.ts, question_paneldynamic.ts):
@@ -69,6 +182,9 @@ export const elementCountContradictionRule: ILintRule = {
   id: "element/count-contradiction",
   defaultSeverity: "warning",
   run(ctx: LintContext): void {
-    ctx.index.allElements.forEach(record => checkRecord(ctx, record));
+    ctx.index.allElements.forEach(record => {
+      checkRecord(ctx, record);
+      checkBoundPairs(ctx, record);
+    });
   },
 };

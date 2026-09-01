@@ -38,6 +38,13 @@ export const SurveyLintReasons = Object.freeze({
   "property/unknown": Object.freeze({
     unknownProperty: "unknownProperty",
   }),
+  // a value the property cannot hold, or one the runtime reads as something else
+  "property/invalid-value": Object.freeze({
+    notInChoices: "notInChoices",
+    outOfRange: "outOfRange",
+    // a valueName with a "." in it, which references read as a path
+    valueNameDotted: "valueNameDotted",
+  }),
   // a property the JSON states and the runtime does not keep
   "property/dead": Object.freeze({
     notSerializable: "notSerializable",

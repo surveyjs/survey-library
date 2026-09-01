@@ -102,6 +102,18 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", visibileIf: "1 = 1" }] },
   },
   {
+    ruleId: "property/invalid-value", reason: "notInChoices",
+    json: { elements: [{ type: "text", name: "q1", titleLocation: "topp" }] },
+  },
+  {
+    ruleId: "property/invalid-value", reason: "outOfRange",
+    json: { backgroundOpacity: 5, elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/invalid-value", reason: "valueNameDotted",
+    json: { elements: [{ type: "text", name: "q1", valueName: "user.email" }] },
+  },
+  {
     ruleId: "property/dead", reason: "notSerializable",
     json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
   },

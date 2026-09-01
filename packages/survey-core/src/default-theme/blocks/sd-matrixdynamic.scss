@@ -113,7 +113,6 @@
     }
   }
 }
-
 .sd-table__row--enter {
   --move-animation-delay: 0s;
   --move-animation-duration: #{$matrix-row-move-in-duration};
@@ -162,6 +161,27 @@
     --animation-timing-function: #{$reverse-ease-out};
   }
 }
+
+.sd-question--mobile {
+  .sd-table__row--leave,
+  .sd-table__row--enter {
+    animation-name: fadeIn, moveInWithOverflow;
+    opacity: 0;
+    animation-direction: var(--animation-direction);
+    animation-timing-function: var(--animation-timing-function);
+    animation-fill-mode: forwards;
+    animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+    animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
+    & > td {
+      animation: none;
+      & > div {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  }
+}
+
 .sd-question--mobile {
   .sd-matrixdynamic__footer {
     border-top: 1px solid $border-light;

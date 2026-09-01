@@ -307,14 +307,22 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
     const onBeforeRunAnimation = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
+      if (this.matrix.isMobile) {
         prepareElementForVerticalAnimation(el);
-      });
+      } else {
+        el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
+          prepareElementForVerticalAnimation(el);
+        });
+      }
     };
     const onAfterRunAnimation = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
+      if (this.matrix.isMobile) {
         cleanHtmlElementAfterAnimation(el);
-      });
+      } else {
+        el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
+          cleanHtmlElementAfterAnimation(el);
+        });
+      }
     };
     return {
       isAnimationEnabled: () => {

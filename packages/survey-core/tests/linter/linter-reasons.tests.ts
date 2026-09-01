@@ -60,6 +60,44 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "name/shadowing", reason: "builtInVariable",
+    json: { elements: [{ type: "text", name: "pageno" }] },
+  },
+  {
+    ruleId: "name/shadowing", reason: "valueNameShadowsElement",
+    json: { elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "text", name: "q2" }] },
+  },
+  {
+    ruleId: "name/shadowing", reason: "commentKeyCollision",
+    json: {
+      elements: [
+        { type: "text", name: "q1", showCommentArea: true },
+        { type: "text", name: "q1-Comment" },
+      ],
+    },
+  },
+  {
+    ruleId: "name/shadowing", reason: "totalKeyCollision",
+    json: {
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "text", name: "m1-total" },
+      ],
+    },
+  },
+  {
+    ruleId: "name/shadowing", reason: "variableShadowsQuestion",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{
+        type: "setvalue", expression: "{q2} = 1", setToName: "q1", setValue: "x", isVariable: true,
+      }],
+    },
+  },
+  {
     ruleId: "element/unknown-type", reason: "unknownType",
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
   },

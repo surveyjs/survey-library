@@ -118,7 +118,7 @@ export function builtInVariableNames(): Array<string> {
   return getBuiltInVariableNames();
 }
 
-function isBuiltInVariable(name: string): boolean {
+export function isBuiltInVariable(name: string): boolean {
   return !!name && builtInVariableNames().some(v => equalsCI(v, name));
 }
 

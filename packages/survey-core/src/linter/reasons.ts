@@ -25,6 +25,15 @@ export const SurveyLintReasons = Object.freeze({
     calculatedValueNames: "calculatedValueNames",
     calculatedValueShadowsElement: "calculatedValueShadowsElement",
   }),
+  // a name that resolves somewhere else than the JSON suggests: the survey answers it first,
+  // or a second declaration writes the same data key
+  "name/shadowing": Object.freeze({
+    builtInVariable: "builtInVariable",
+    valueNameShadowsElement: "valueNameShadowsElement",
+    commentKeyCollision: "commentKeyCollision",
+    totalKeyCollision: "totalKeyCollision",
+    variableShadowsQuestion: "variableShadowsQuestion",
+  }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",
   }),

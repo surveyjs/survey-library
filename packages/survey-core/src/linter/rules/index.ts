@@ -3,6 +3,7 @@ import { expressionSyntaxRule } from "./expression-syntax";
 import { referenceUnknownRule } from "./reference-unknown";
 import { referenceSelfRule } from "./reference-self";
 import { nameDuplicateRule } from "./name-duplicate";
+import { nameShadowingRule } from "./name-shadowing";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { expressionUnknownFunctionRule } from "./expression-unknown-function";
 import { cycleCalculatedValueRule } from "./cycle-calculated-value";
@@ -30,6 +31,7 @@ export const allRules: Array<ILintRule> = [
   referenceUnknownRule,
   referenceSelfRule,
   nameDuplicateRule,
+  nameShadowingRule,
   elementUnknownTypeRule,
   expressionUnknownFunctionRule,
   cycleCalculatedValueRule,

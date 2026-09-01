@@ -1,5 +1,6 @@
 export * from "./survey.component";
 export * from "./survey-content.component";
+export * from "./theme-style.component";
 export * from "./popup.survey.component";
 export * from "./page.component";
 export * from "./question.component";

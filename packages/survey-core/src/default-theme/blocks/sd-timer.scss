@@ -46,6 +46,16 @@
   transition: stroke-dashoffset 1s linear;
 }
 
+// The background circle of TimerCircle.svg. Styled through a class instead of an
+// inline style attribute on the svg source: the icon reaches the page through
+// innerHTML, and a parser-applied style attribute is refused under a strict
+// `style-src` CSP. Rules that match the <symbol> content propagate into its
+// <use> clones, so a document-level class rule is enough.
+.sd-timer__stroke-background {
+  stroke: var(--sd-timer-stroke-background-color);
+  stroke-width: var(--sd-timer-stroke-background-width);
+}
+
 .sd-timer__text-container {
   display: flex;
   flex-direction: column;

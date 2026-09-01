@@ -11,12 +11,27 @@ import postcssUrl from "postcss-url";
 import postcssBanner from "postcss-banner";
 import postcssDiscardComments from "postcss-discard-comments";
 
-import { resolve, parse, format } from "node:path";
+import { resolve, parse, format, basename } from "node:path";
 import rollupEsbuild from "rollup-plugin-esbuild";
 
 import postcss from "postcss";
 import cssnano from "cssnano";
 import { minify } from "terser";
+
+// Fonts are referenced as files instead of being inlined as data: URIs: an inlined
+// font is refused under `font-src 'self'` (and the fonts used to come from
+// fonts.gstatic.com, which that policy refuses too). Anything else keeps the previous
+// inlining behavior. The url is rewritten by hand rather than with postcss-url's
+// "copy" mode, which silently skips assets whose url escapes the stylesheet folder
+// with "../"; the filter is a regexp, not a glob, for the same "../" reason. The
+// files themselves are copied next to the emitted css by the package's rollup config
+// (see the fs.copySync call in survey-core/rollup.config.mjs).
+const rewriteAssetUrl = (folder) => (asset) => folder + "/" + basename(asset.pathname || asset.url);
+
+const postcssUrlRules = [
+  { filter: /\.woff2(\?.*)?$/, url: rewriteAssetUrl("fonts") },
+  { url: "inline" },
+];
 
 function getOwnBanner(version) {
   return [
@@ -140,7 +155,7 @@ export function createUmdConfig(options) {
             }
           },
           plugins: [
-            postcssUrl({ url: "inline" }),
+            postcssUrl(postcssUrlRules),
             postcssBanner({ banner: getOwnBanner(version), important: true }),
           ],
         })
@@ -213,7 +228,7 @@ export function createEsmConfig(options) {
             }
           },
           plugins: [
-            postcssUrl({ url: "inline" }),
+            postcssUrl(postcssUrlRules),
             postcssBanner({ banner: getOwnBanner(version), important: true }),
           ],
         })
@@ -266,7 +281,7 @@ export function createCssConfig(options) {
           }
         },
         plugins: [
-          postcssUrl({ url: "inline" }),
+          postcssUrl(postcssUrlRules),
           postcssBanner({ banner: getOwnBanner(version), important: true }),
         ],
       }),

@@ -45,12 +45,6 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
       this.model.startTimerFromUI();
     }
   }
-  get themeStyle(): string {
-    return this.model ? `<style>${this.model.themeStyle}</style>` : "";
-  }
-  get resetVariablesStyle(): string {
-    return this.model ? `<style>${this.model.resetVariablesStyle}</style>` : "";
-  }
 }
 
 AngularComponentFactory.Instance.registerComponent("survey", SurveyContentComponent);

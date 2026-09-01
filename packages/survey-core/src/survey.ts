@@ -89,7 +89,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createResetVariablesStyle, applyBoxShadowResetVars, clearBoxShadowResetVars, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -5576,7 +5576,8 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
-    this.clearResetVariablesStyle();
+    this.clearResetVariablesStyle(observedElement);
+    this.applyResetVariables(observedElement);
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -8485,6 +8486,13 @@ export class SurveyModel extends SurveyElementCore
       this.insertAdvancedHeader(advHeader);
     }
     this.clearResetVariablesStyle();
+    if (!!this.rootElement) {
+      // The renderers deliver the new cssVariables to the DOM on their next render,
+      // so the resets are recalculated a frame later, against the updated style.
+      // Without this the box-shadow resets would stay cleared until a remount: no
+      // renderer reads the resetVariablesStyle getter anymore.
+      DomWindowHelper.requestAnimationFrame(() => this.applyResetVariables(this.rootElement));
+    }
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
@@ -8492,8 +8500,10 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() private _themeStyle: string;
   public get themeStyle(): string {
-    if (!this._themeStyle) {
-      this._themeStyle = createBaseThemeStyle();
+    if (this._themeStyle === undefined) {
+      // Empty when survey-core.css already delivers the variables: the renderers then
+      // emit no <style> at all, which a strict `style-src` CSP would refuse.
+      this._themeStyle = areBaseThemeVariablesInDocument() ? "" : createBaseThemeStyle();
     }
     return this._themeStyle;
   }
@@ -8504,8 +8514,22 @@ export class SurveyModel extends SurveyElementCore
     }
     return this._resetVariablesStyle;
   }
-  private clearResetVariablesStyle(): void {
+  private clearResetVariablesStyle(htmlElement?: Element): void {
     this._resetVariablesStyle = undefined;
+    clearBoxShadowResetVars(htmlElement || this.rootElement);
+  }
+  // The box-shadow resets are derived from the element's computed style and set on it
+  // directly through CSSOM, so the renderers do not have to emit a second <style>.
+  // ensureBaseThemeStyles additionally heals a root the document stylesheet cannot
+  // reach (a shadow root carrying its own, older css): when the per-element probe
+  // finds the base variables missing, it injects them locally, with the CSP nonce.
+  private applyResetVariables(htmlElement: HTMLElement): void {
+    if (!htmlElement) return;
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(htmlElement);
+    } else {
+      applyBoxShadowResetVars(htmlElement);
+    }
   }
 
   private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();

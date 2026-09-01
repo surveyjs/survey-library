@@ -3,10 +3,41 @@ import { fileURLToPath, URL } from "node:url";
 import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.helpers.mjs";
 import fs from "fs-extra";
 import process from "process";
+import postcss from "postcss";
+import cssnano from "cssnano";
 import pkg from "./package.json" with { type: "json" };
+import { generateBaseThemeCss, BASE_THEME_CSS_MARKER } from "./scripts/build-base-theme-css.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
+
+// The base theme variables have to reach the page as a stylesheet: the runtime
+// <style> injection they used to rely on is refused under a strict `style-src` CSP,
+// and survey-core.css consumes ~900 of these variables while defining none.
+async function appendBaseThemeCssToBundles() {
+  const css = generateBaseThemeCss();
+  const minifiedCss = (await postcss([cssnano()]).process(css, { from: undefined })).css;
+  const targets = [
+    { file: "survey-core.css", css },
+    { file: "survey-core.min.css", css: minifiedCss },
+    { file: "survey-core.fontless.css", css },
+    { file: "survey-core.fontless.min.css", css: minifiedCss },
+  ];
+  for (const target of targets) {
+    const path = resolve(buildPath, target.file);
+    if (!fs.existsSync(path)) continue;
+    const content = fs.readFileSync(path, "utf8");
+    // Idempotent: a watch-mode rebuild must not append the block twice.
+    if (content.indexOf(BASE_THEME_CSS_MARKER) !== -1) continue;
+    const block = `\n${BASE_THEME_CSS_MARKER}\n${target.css}\n`;
+    // Keep the trailing sourceMappingURL comment last so source maps keep working.
+    const sourceMapIndex = content.lastIndexOf("/*# sourceMappingURL=");
+    const updated = sourceMapIndex === -1
+      ? content + block
+      : content.substring(0, sourceMapIndex) + block + content.substring(sourceMapIndex);
+    fs.writeFileSync(path, updated);
+  }
+}
 
 const buildPlatformJson = {
   "name": pkg.name,
@@ -64,6 +95,7 @@ const buildPlatformJson = {
       "require": "./linter/index.js"
     },
     "./*.css": "./*.css",
+    "./fonts/*": "./fonts/*",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
@@ -113,6 +145,11 @@ const buildPlatformJson = {
   },
   "typings": "./typings/entries/index.d.ts"
 };
+
+// The stylesheets reference these as url(fonts/...) instead of inlining them, so the
+// files have to sit next to the emitted CSS. Copied unconditionally: a dev build needs
+// them just as much as a release one. The Open Sans subsets ship with their license.
+fs.copySync(resolve(__dirname, "src/fonts"), resolve(buildPath, "fonts"));
 
 if (process.env.emitNonSourceFiles === "true") {
   fs.mkdirSync(buildPath, { recursive: true });
@@ -167,6 +204,11 @@ export default (options = {}) => {
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
       version: pkg.version,
+      // Rollup builds the configs of this array sequentially, so by the time this
+      // hook fires every CSS bundle is already on disk. Keep this config the LAST
+      // css config in the array - a config added after it would miss the append
+      // (the shipped_css_variables tests would catch that).
+      onCloseBundle: appendBaseThemeCssToBundles,
     })
   ];
 

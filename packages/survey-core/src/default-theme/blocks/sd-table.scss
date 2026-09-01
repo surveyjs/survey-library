@@ -188,6 +188,9 @@
     min-width: var(--sd-table-cell-min-width);
   }
 }
+.sd-table__cell--header.sd-table__cell--action {
+  width: 0;
+}
 
 .sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
   padding-left: var(--sjs2-spacing-x500);
@@ -198,7 +201,6 @@
 
 .sd-table__cell--actions {
   white-space: nowrap;
-  width: 0;
 
   &.sd-table__cell--vertical .sd-action-bar {
     justify-content: center;

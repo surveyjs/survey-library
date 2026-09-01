@@ -8522,7 +8522,8 @@ export class SurveyModel extends SurveyElementCore
   // directly through CSSOM, so the renderers do not have to emit a second <style>.
   // ensureBaseThemeStyles additionally heals a root the document stylesheet cannot
   // reach (a shadow root carrying its own, older css): when the per-element probe
-  // finds the base variables missing, it injects them locally, with the CSP nonce.
+  // finds the base variables missing, it delivers them through CSSOM as well (an
+  // adopted stylesheet on the element's root node, or per-element properties).
   private applyResetVariables(htmlElement: HTMLElement): void {
     if (!htmlElement) return;
     if (this.generateStylesheet) {

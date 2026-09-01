@@ -128,24 +128,23 @@ frameworks.forEach((framework) => {
       expect(await getCspViolations(page)).toEqual([]);
     });
 
-    test("the injected base theme <style> works through the nonce when no stylesheet is present", async ({ page }) => {
+    test("no stylesheet: the variables arrive through CSSOM, with no injected <style> and no configuration", async ({ page }) => {
       test.skip(framework === "angular", angularSkipReason);
       test.skip(framework === "survey-js-ui", "covered by the shadow-root test below");
       await setupCspPage(page, framework);
-      await page.evaluate((nonce) => {
-        // No stylesheet on the page: the runtime falls back to injecting the base
-        // theme variables and must stamp the nonce onto the injected <style>.
+      await page.evaluate(() => {
+        // No stylesheet on the page: the runtime falls back to an adopted
+        // stylesheet, which a strict `style-src` does not police - no nonce needed.
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         document.querySelectorAll("link[rel=stylesheet]").forEach((el) => el.remove());
-        (window as any).Survey.settings.cspNonce = nonce;
         (window as any).Survey.resetBaseThemeProbeCache();
-      }, NONCE);
+      });
       await initSurvey(page, framework, json);
 
       await expect(page.locator(".sd-root-modern")).toBeVisible();
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      expect(await page.evaluate(() => !!document.querySelector(".sd-root-modern style"))).toBeTruthy();
-      // The variable resolving proves the browser accepted the nonce'd <style>.
+      expect(await page.evaluate(() => !!document.querySelector(".sd-root-modern style"))).toBeFalsy();
+      expect(await page.evaluate(() => (document as any).adoptedStyleSheets.length)).toBeGreaterThan(0);
       expect(await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         return getComputedStyle(document.querySelector(".sd-root-modern")).getPropertyValue("--sjs2-base-unit-size").trim();
@@ -153,12 +152,12 @@ frameworks.forEach((framework) => {
       expect(await getCspViolations(page)).toEqual([]);
     });
 
-    test("shadow root: the injected <style> picks the page nonce up automatically", async ({ page }) => {
+    test("shadow root: the variables are adopted onto the shadow root itself", async ({ page }) => {
       test.skip(framework !== "survey-js-ui", "the shadow-root setup is specific to survey-js-ui");
       await setupCspPage(page, framework);
       // A trimmed copy of the js-ui branch of initSurvey: no harness <style> injection
-      // and no stylesheet in the shadow root, so the library has to inject the base
-      // theme variables itself and detect the nonce from the page.
+      // and no stylesheet in the shadow root, so the library has to deliver the base
+      // theme variables itself - through the shadow root's adoptedStyleSheets.
       await page.evaluate((surveyJson) => {
         const self: any = window;
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
@@ -180,9 +179,9 @@ frameworks.forEach((framework) => {
       })).toBeTruthy();
       expect(await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const style: any = document.getElementById("surveyElement")!.shadowRoot!.querySelector("style");
-        return !!style && (style.nonce || style.getAttribute("nonce"));
-      })).toBe(NONCE);
+        const shadowRoot: any = document.getElementById("surveyElement")!.shadowRoot!;
+        return !shadowRoot.querySelector("style") && shadowRoot.adoptedStyleSheets.length > 0;
+      })).toBeTruthy();
       expect(await getCspViolations(page)).toEqual([]);
     });
   });

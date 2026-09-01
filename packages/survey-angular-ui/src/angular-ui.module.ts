@@ -107,7 +107,6 @@ import { QuestionErrorComponent } from "./components/question-error/question-err
 import { CustomQuestionComponent } from "./questions/custom.component";
 import { CompositeQuestionComponent } from "./questions/composite.component";
 import { SurveyContentComponent } from "./survey-content.component";
-import { ThemeStyleComponent } from "./theme-style.component";
 import { TemplateRendererComponent } from "./template-renderer.component";
 import { ModalComponent } from "./components/popup/modal-container.component";
 import { ButtonGroupQuestionComponent } from "./questions/button-group/button-group.component";
@@ -137,7 +136,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
-    SurveyComponent, SurveyContentComponent, ThemeStyleComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
+    SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
@@ -160,7 +159,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
   ],
   exports: [
     VisibleDirective, Key2ClickDirective, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
-    SurveyComponent, SurveyContentComponent, ThemeStyleComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
+    SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     CharacterCounterComponent,

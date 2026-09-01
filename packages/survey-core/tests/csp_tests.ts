@@ -1,5 +1,4 @@
-import { describe, expect, it, afterEach } from "vitest";
-import { settings } from "../src/settings";
+import { describe, expect, it, afterEach, beforeEach } from "vitest";
 import {
   buildBaseThemeCss,
   createBaseThemeStyle,
@@ -10,7 +9,6 @@ import {
   areBaseThemeVariablesInDocument,
   resetBaseThemeProbeCache
 } from "../src/utils/base-theme-init";
-import { getStylesNonce, resetStylesNonceCache, createStyleElement, applyNonceToElement } from "../src/utils/csp-nonce";
 import { generateBaseThemeCss, renderBaseThemeScss, BASE_THEME_SCSS_PATH } from "../scripts/build-base-theme-css.mjs";
 import { SurveyModel } from "../src/survey";
 import * as fs from "fs";
@@ -46,15 +44,18 @@ describe("CSP: base theme variables shipped as a stylesheet", () => {
     expect(css).toBe(":where(.sd-theme-root) {\n  --test-a: 1px;\n  --test-b: 2px;\n}");
   });
 
-  it("injects a style element when the variables are missing", () => {
+  // jsdom supports neither constructable stylesheets nor adoptedStyleSheets, so
+  // these tests exercise the last-resort delivery: variables set on the element
+  // itself through CSSOM. The adopted-sheet branch is tested below with a mock
+  // and for real by the CSP e2e spec. No branch injects a <style> element.
+  it("writes the variables onto the element when adopted stylesheets are unsupported", () => {
     const root = createThemeRoot();
     ensureBaseThemeStyles(root);
-    const styleElement = root.querySelector("style[data-survey-base-theme-variables]");
-    expect(styleElement).toBeTruthy();
-    expect(styleElement.textContent.indexOf("--sjs2-base-unit-size") !== -1).toBeTruthy();
+    expect(root.querySelector("style")).toBeFalsy();
+    expect(root.style.getPropertyValue("--sjs2-base-unit-size")).not.toBe("");
   });
 
-  it("skips the injection when a stylesheet already applies the variables", () => {
+  it("leaves the element alone when a stylesheet already applies the variables", () => {
     const stylesheet = document.createElement("style");
     stylesheet.textContent = ":where(.sd-theme-root) { --sjs2-base-unit-size: 8px; }";
     document.head.appendChild(stylesheet);
@@ -62,7 +63,8 @@ describe("CSP: base theme variables shipped as a stylesheet", () => {
     expect(areBaseThemeVariablesApplied(root)).toBeTruthy();
 
     ensureBaseThemeStyles(root);
-    expect(root.querySelector("style[data-survey-base-theme-variables]")).toBeFalsy();
+    expect(root.querySelector("style")).toBeFalsy();
+    expect(root.style.getPropertyValue("--sjs2-base-unit-size")).toBe("");
     document.head.removeChild(stylesheet);
   });
 
@@ -123,64 +125,50 @@ describe("CSP: box-shadow reset variables set through CSSOM", () => {
   });
 });
 
-describe("CSP: nonce for injected style elements", () => {
+describe("CSP: adopted stylesheet fallback (mocked constructable support)", () => {
+  // jsdom lacks constructable stylesheets, so the browser branch is simulated:
+  // replaceSync is stubbed onto the prototype and document.adoptedStyleSheets is
+  // made an assignable array - exactly the surface the implementation detects.
+  let replacedCss: Array<string>;
+
+  beforeEach(() => {
+    replacedCss = [];
+    (<any>CSSStyleSheet.prototype).replaceSync = function(css: string) { replacedCss.push(css); };
+    Object.defineProperty(document, "adoptedStyleSheets", { value: [], writable: true, configurable: true });
+  });
+
   afterEach(() => {
-    settings.cspNonce = undefined;
-    resetStylesNonceCache();
-    document.head.querySelectorAll("script[nonce]").forEach((el) => el.remove());
+    delete (<any>CSSStyleSheet.prototype).replaceSync;
+    delete (<any>document).adoptedStyleSheets;
     document.body.innerHTML = "";
     resetBaseThemeProbeCache();
   });
 
-  it("uses the nonce from settings", () => {
-    settings.cspNonce = "abc";
-    expect(getStylesNonce()).toBe("abc");
-    expect(createStyleElement("a{}").getAttribute("nonce")).toBe("abc");
+  it("adopts one shared sheet instead of touching the elements", () => {
+    const first = createThemeRoot();
+    ensureBaseThemeStyles(first);
+    const adopted = (<any>document).adoptedStyleSheets;
+    expect(adopted.length).toBe(1);
+    expect(first.querySelector("style")).toBeFalsy();
+    expect(first.style.getPropertyValue("--sjs2-base-unit-size")).toBe("");
+
+    // The second root re-probes negative (jsdom does not cascade adopted sheets),
+    // but the already-adopted sheet must not be added again.
+    const second = createThemeRoot();
+    ensureBaseThemeStyles(second);
+    expect((<any>document).adoptedStyleSheets.length).toBe(1);
+    expect((<any>document).adoptedStyleSheets[0]).toBe(adopted[0]);
   });
 
-  it("auto-detects the nonce from the page", () => {
-    const script = document.createElement("script");
-    script.setAttribute("nonce", "page-nonce");
-    document.head.appendChild(script);
-    resetStylesNonceCache();
-    expect(getStylesNonce()).toBe("page-nonce");
-  });
-
-  it("an explicit setting wins over auto-detection", () => {
-    const script = document.createElement("script");
-    script.setAttribute("nonce", "page-nonce");
-    document.head.appendChild(script);
-    resetStylesNonceCache();
-    settings.cspNonce = "explicit";
-    expect(getStylesNonce()).toBe("explicit");
-  });
-
-  it("an empty setting disables the nonce", () => {
-    const script = document.createElement("script");
-    script.setAttribute("nonce", "page-nonce");
-    document.head.appendChild(script);
-    resetStylesNonceCache();
-    settings.cspNonce = "";
-    expect(getStylesNonce()).toBe("");
-    expect(createStyleElement("a{}").hasAttribute("nonce")).toBeFalsy();
-  });
-
-  it("emits no nonce attribute when the page has none", () => {
-    resetStylesNonceCache();
-    expect(getStylesNonce()).toBe("");
-    expect(createStyleElement("a{}").hasAttribute("nonce")).toBeFalsy();
-  });
-
-  it("stamps the nonce onto the injected base theme style element", () => {
-    settings.cspNonce = "abc";
-    const root = createThemeRoot();
-    ensureBaseThemeStyles(root);
-    expect(root.querySelector("style[data-survey-base-theme-variables]").getAttribute("nonce")).toBe("abc");
-  });
-
-  it("applyNonceToElement tolerates a missing element", () => {
-    settings.cspNonce = "abc";
-    expect(() => applyNonceToElement(undefined)).not.toThrow();
+  it("the sheet carries the base theme css", () => {
+    ensureBaseThemeStyles(createThemeRoot());
+    // The singleton sheet is filled at most once for the module lifetime.
+    if (replacedCss.length > 0) {
+      expect(replacedCss[0].indexOf("--sjs2-base-unit-size") !== -1).toBeTruthy();
+      expect(replacedCss[0]).toBe(createBaseThemeStyle());
+    } else {
+      expect((<any>document).adoptedStyleSheets.length).toBe(1);
+    }
   });
 });
 

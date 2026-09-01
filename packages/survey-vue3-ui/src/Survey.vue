@@ -6,11 +6,6 @@
     :dir="vueSurvey.localeDir"
     ref="root"
   >
-    <component
-      :is="'style'"
-      v-if="vueSurvey.generateStylesheet && !!vueSurvey.themeStyle"
-      :nonce="stylesNonce"
-    >{{vueSurvey.themeStyle}}</component>
     <SvComponent :is="'sv-scroll'" :disabled="vueSurvey.rootScrollDisabled">
       <SvComponent
         :is="'sv-svg-bundle'"
@@ -148,7 +143,7 @@ SvgRegistry.registerIcons(iconsV2);
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { getStylesNonce, type SurveyModel } from "survey-core";
+import { type SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,
@@ -188,7 +183,6 @@ const hasCompletedPage = computed(
 );
 const css = computed(() => vueSurvey.value.css);
 const pageKey = computed(() => "page" + getActivePageId());
-const stylesNonce = computed(() => getStylesNonce() || undefined);
 
 const setupSurvey = (model: SurveyModel) => {
   if (!model) return;

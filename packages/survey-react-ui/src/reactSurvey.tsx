@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, Helpers, doKey2ClickUp, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, addIconsToThemeSet, getStylesNonce } from "survey-core";
+import { Base, Question, PageModel, SurveyError, Helpers, doKey2ClickUp, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -108,9 +108,6 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
-        { this.survey.generateStylesheet && !!this.survey.themeStyle ?
-          <style nonce={getStylesNonce() || undefined}>{this.survey.themeStyle}</style>
-          : null }
         <Scroll disabled={this.survey.rootScrollDisabled}>
           {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
           {<PopupModal></PopupModal>}

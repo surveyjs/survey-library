@@ -1,6 +1,5 @@
 <ng-template #template>
   <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables" [lang]="model.locale || 'en'" [dir]="model.localeDir">
-    <sv-ng-theme-style *ngIf="model.generateStylesheet && !!model.themeStyle" [css]="model.themeStyle"></sv-ng-theme-style>
     <sv-scroll [disabled]="model.rootScrollDisabled">
       <sv-svg-bundle *ngIf="model.needRenderIcons"></sv-svg-bundle>
       <div [class]="model.wrapperFormCss">

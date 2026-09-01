@@ -1,9 +1,7 @@
 import baseTheme from "../default-theme/base-theme";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { createBoxShadowReset } from "./shadow-effects";
-import { createStyleElement } from "./csp-nonce";
 
-const STYLE_ELEMENT_ATTR = "data-survey-base-theme-variables";
 const VARIABLES_PER_RULE = 300;
 // A variable that is always present in the base theme: used to detect whether the
 // variables have already been delivered by a stylesheet (survey-core.css ships them).
@@ -34,27 +32,6 @@ export function buildBaseThemeCss(cssVariables: { [index: string]: string }): st
   }
 
   return rules.join("\n");
-}
-
-function findStyleElement(htmlElement: Element): HTMLStyleElement | null {
-  for (let i = 0; i < htmlElement.children.length; i++) {
-    const child = htmlElement.children[i];
-    if (child.tagName === "STYLE" && child.hasAttribute(STYLE_ELEMENT_ATTR)) {
-      return child as HTMLStyleElement;
-    }
-  }
-  return null;
-}
-
-export function ensureStyleElement(htmlElement: Element): HTMLStyleElement | null {
-  let styleElement = findStyleElement(htmlElement);
-  if (!styleElement) {
-    styleElement = createStyleElement();
-    if (!styleElement) return null;
-    styleElement.setAttribute(STYLE_ELEMENT_ATTR, "");
-    htmlElement.insertBefore(styleElement, htmlElement.firstChild);
-  }
-  return styleElement;
 }
 
 export function createBaseThemeStyle(): string {
@@ -106,15 +83,58 @@ export function resetBaseThemeProbeCache(): void {
   cachedDocumentProbe = undefined;
 }
 
+let constructedSheet: CSSStyleSheet | undefined;
+
+// Both fallback deliveries below go through CSSOM, which a `style-src` CSP does not
+// police - an injected <style> element would be refused without a nonce.
+function adoptBaseThemeStyleSheet(rootNode: any): boolean {
+  try {
+    if (typeof CSSStyleSheet !== "function" || typeof (<any>CSSStyleSheet.prototype).replaceSync !== "function") return false;
+    if (!rootNode || !("adoptedStyleSheets" in rootNode)) return false;
+    if (!constructedSheet) {
+      const sheet = new CSSStyleSheet();
+      if (cachedCss === undefined) {
+        cachedCss = createBaseThemeStyle();
+      }
+      (<any>sheet).replaceSync(cachedCss);
+      constructedSheet = sheet;
+    }
+    if (rootNode.adoptedStyleSheets.indexOf(constructedSheet) === -1) {
+      // Reassigned rather than pushed: adoptedStyleSheets was a frozen array in the
+      // first browser generations that shipped it.
+      rootNode.adoptedStyleSheets = [...rootNode.adoptedStyleSheets, constructedSheet];
+    }
+    return true;
+  } catch(e) {
+    // E.g. a sheet constructed for another document realm - fall back to inline.
+    return false;
+  }
+}
+
+function applyBaseThemeVariablesInline(htmlElement: Element): void {
+  const style = (<HTMLElement>htmlElement).style;
+  const cssVariables = baseTheme.cssVariables;
+  if (!style || !cssVariables) return;
+  Object.keys(cssVariables).forEach((name) => {
+    // A value already set on the element (by the page, or by themeVariables) wins -
+    // the way it would win over a stylesheet delivery too.
+    if (style.getPropertyValue(name) === "") {
+      style.setProperty(name, (<any>cssVariables)[name]);
+    }
+  });
+}
+
 export function ensureBaseThemeStyles(htmlElement?: Element): void {
   if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
   if (!areBaseThemeVariablesApplied(htmlElement)) {
-    const styleElement = ensureStyleElement(htmlElement);
-    if (cachedCss === undefined) {
-      cachedCss = createBaseThemeStyle();
-    }
-    if (!!styleElement && styleElement.textContent !== cachedCss) {
-      styleElement.textContent = cachedCss;
+    const rootNode = typeof (<any>htmlElement).getRootNode === "function"
+      ? (<any>htmlElement).getRootNode()
+      : DomDocumentHelper.getDocument();
+    if (!adoptBaseThemeStyleSheet(rootNode)) {
+      // Last resort for engines without constructable stylesheets. Inline custom
+      // properties out-precede any stylesheet rule on this element, but in this
+      // branch no stylesheet defines the variables anyway.
+      applyBaseThemeVariablesInline(htmlElement);
     }
   }
   applyBoxShadowResetVars(htmlElement);

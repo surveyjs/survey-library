@@ -719,11 +719,6 @@ export var settings = {
 
   environment: defaultEnvironment,
 
-  // A cryptographic nonce stamped onto every <style> element SurveyJS injects, for
-  // pages served with a strict `style-src` Content-Security-Policy. When undefined,
-  // the nonce is auto-detected from the page; set "" to never emit one.
-  cspNonce: <string | undefined>undefined,
-
   /**
    * Allows you to hide the maximum length indicator in text input questions.
    *

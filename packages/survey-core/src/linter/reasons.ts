@@ -38,6 +38,14 @@ export const SurveyLintReasons = Object.freeze({
   "property/unknown": Object.freeze({
     unknownProperty: "unknownProperty",
   }),
+  // a property the JSON states and the runtime does not keep
+  "property/dead": Object.freeze({
+    notSerializable: "notSerializable",
+    // one property written under both its names, where only the later key survives
+    aliasDuplicate: "aliasDuplicate",
+    // min/max/step on an inputType that has no bounds
+    inertMinMax: "inertMinMax",
+  }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",
   }),

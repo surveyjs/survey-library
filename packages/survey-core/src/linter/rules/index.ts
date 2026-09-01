@@ -6,6 +6,7 @@ import { nameDuplicateRule } from "./name-duplicate";
 import { nameShadowingRule } from "./name-shadowing";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
+import { propertyDeadRule } from "./property-dead";
 import { expressionUnknownFunctionRule } from "./expression-unknown-function";
 import { cycleCalculatedValueRule } from "./cycle-calculated-value";
 import { cycleTriggerRule } from "./cycle-trigger";
@@ -37,6 +38,7 @@ export const allRules: Array<ILintRule> = [
   nameShadowingRule,
   elementUnknownTypeRule,
   propertyUnknownRule,
+  propertyDeadRule,
   expressionUnknownFunctionRule,
   cycleCalculatedValueRule,
   cycleTriggerRule,

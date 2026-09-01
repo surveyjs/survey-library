@@ -102,6 +102,20 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", visibileIf: "1 = 1" }] },
   },
   {
+    ruleId: "property/dead", reason: "notSerializable",
+    json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/dead", reason: "aliasDuplicate",
+    json: {
+      elements: [{ type: "checkbox", name: "q1", choices: ["a"], showOtherItem: true, hasOther: false }],
+    },
+  },
+  {
+    ruleId: "property/dead", reason: "inertMinMax",
+    json: { elements: [{ type: "text", name: "q1", min: 1 }] },
+  },
+  {
     ruleId: "element/unknown-type", reason: "unknownType",
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
   },

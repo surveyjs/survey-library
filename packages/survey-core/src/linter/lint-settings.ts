@@ -11,16 +11,6 @@ export interface ILintResolvedSettings {
   matrixTotalsSuffix: string;
   matrixDefaultCellType: string;
   ratingMaximumRateValueCount: number;
-  supportedValidators: { [className: string]: Array<string> };
-}
-
-function copySupportedValidators(): { [className: string]: Array<string> } {
-  const res: { [className: string]: Array<string> } = {};
-  const source: any = settings.supportedValidators;
-  Object.keys(source).forEach(key => {
-    if (Array.isArray(source[key])) res[key] = source[key].slice();
-  });
-  return res;
 }
 
 // Snapshot taken once per lint run. The linter shares the application's module
@@ -40,6 +30,5 @@ export function resolveLintSettings(): ILintResolvedSettings {
     matrixTotalsSuffix: settings.matrix.totalsSuffix,
     matrixDefaultCellType: settings.matrix.defaultCellType,
     ratingMaximumRateValueCount: settings.ratingMaximumRateValueCount,
-    supportedValidators: copySupportedValidators(),
   };
 }

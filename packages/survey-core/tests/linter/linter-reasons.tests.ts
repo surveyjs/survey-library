@@ -519,7 +519,7 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] },
   },
   {
-    ruleId: "validator/dead", reason: "unsupportedForQuestion",
+    ruleId: "validator/dead", reason: "wrongValueShape",
     json: {
       elements: [{
         type: "checkbox", name: "q1", choices: ["a"], validators: [{ type: "numeric", minValue: 1 }],

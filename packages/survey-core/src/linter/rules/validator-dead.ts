@@ -1,6 +1,7 @@
 import { ILintRule, LintContext } from "../rule";
-import { forEachValidator, getSupportedValidators, getValidatorOwnerType, ValidatorEntry } from "../validator-utils";
+import { forEachValidator, getValidatorOwnerType, ValidatorEntry } from "../validator-utils";
 import { isComponentType } from "../metadata";
+import { ValueTypeInfo } from "../symbols";
 import { getInputType, getSelectableChoiceCount } from "../value-types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -34,23 +35,81 @@ function report(ctx: LintContext, entry: ValidatorEntry, message: string, reason
   });
 }
 
-// A validator the question does not support runs anyway: depending on the pair, it either
-// rejects every answer or never fires - and either way it is not the check that was meant.
-function checkSupported(ctx: LintContext, entry: ValidatorEntry, type: string): void {
+// Which value shapes a validator can actually check. This is behaviour, not the Creator's
+// settings.supportedValidators table: that one leaves out pairs the runtime handles fine (a
+// regex validator reads a number as its digits), and a validator outside it runs anyway.
+// Every entry here is pinned against a live model in linter-runtime-parity.tests.ts.
+type ValidatorEffect = "neverFires" | "rejectsEveryAnswer";
+
+interface ShapeVerdict {
+  effect: ValidatorEffect;
+  // what the runtime does, as the message says it
+  because: string;
+}
+
+// A length check reads value.length: undefined on a number, so the comparison never holds.
+function textVerdict(entry: ValidatorEntry, value: ValueTypeInfo): ShapeVerdict | undefined {
+  const hasLengthBound = entry.json.minLength > 0 || entry.json.maxLength > 0;
+  if (!hasLengthBound) return undefined;
+  if (value.shape === "object" || (value.shape === "scalar" && value.scalarType === "number")) {
+    return { effect: "neverFires", because: "a length is read off a text value, and this answer has none" };
+  }
+  return undefined;
+}
+
+// Helpers.isNumber says no to every array of more than one value and to every object, and the
+// validator answers that with RequreNumericError.
+function numericVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+  if (value.shape !== "array" && value.shape !== "object") return undefined;
+  return { effect: "rejectsEveryAnswer", because: "the answer is not a number and never can be" };
+}
+
+// The email pattern is tested against the value as text; digits never match it.
+function emailVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+  if (value.shape !== "scalar" || value.scalarType !== "number") return undefined;
+  return { effect: "rejectsEveryAnswer", because: "a number never matches an e-mail address" };
+}
+
+// AnswerCountValidator returns at once for anything that is not an array.
+function answerCountVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
+  if (value.shape === "array" || value.shape === "unknown") return undefined;
+  return { effect: "neverFires", because: "the answer is not a list of values" };
+}
+
+function getShapeVerdict(entry: ValidatorEntry, type: string, value: ValueTypeInfo): ShapeVerdict | undefined {
+  // a question that holds no value runs no validator at all
+  if (value.shape === "none") {
+    return { effect: "neverFires", because: "the question holds no answer to validate" };
+  }
+  if (type === "text") return textVerdict(entry, value);
+  if (type === "numeric") return numericVerdict(value);
+  if (type === "email") return emailVerdict(value);
+  if (type === "answercount") return answerCountVerdict(value);
+  // regex reads any value as text, and expression does not look at the answer's shape
+  return undefined;
+}
+
+function checkValueShape(ctx: LintContext, entry: ValidatorEntry, type: string): void {
   const owner = entry.owner;
-  // what a component does with a value is its own business, so the core's table says nothing
+  // what a component does with its value is its own business
   if (owner.isUnknownType || !!owner.componentDef) return;
   const questionType = getValidatorOwnerType(owner);
   if (isComponentType(questionType)) return;
-  const supported = getSupportedValidators(owner, ctx.index.settings);
-  if (supported.indexOf(type) > -1) return;
+  const value = owner.valueType;
+  if (!value) return;
+  const verdict = getShapeVerdict(entry, type, value);
+  if (!verdict) return;
   const inputType = questionType === "text" ? getInputType(owner.json) : undefined;
   report(ctx, entry,
-    "A \"" + type + "\" validator is attached to \"" + owner.name + "\" (" + questionType +
-    (inputType ? ", inputType \"" + inputType + "\"" : "") +
-    "), which does not support it - it either never fires or rejects every answer.",
-    reasons.unsupportedForQuestion,
-    { questionType: questionType, inputType: inputType, supported: supported });
+    "The " + type + " validator of \"" + owner.name + "\" " +
+    (verdict.effect === "neverFires" ? "never fires" : "rejects every answer") + ": " +
+    verdict.because + " (" + questionType +
+    (inputType ? ", inputType \"" + inputType + "\"" : "") + ").",
+    reasons.wrongValueShape,
+    {
+      questionType: questionType, inputType: inputType,
+      valueShape: value.shape, scalarType: value.scalarType, effect: verdict.effect,
+    });
 }
 
 function checkBounds(ctx: LintContext, entry: ValidatorEntry, type: string): void {
@@ -115,7 +174,7 @@ export const validatorDeadRule: ILintRule = {
       // an unresolvable type is dropped whole, which validator/unknown-type reports
       if (!ctx.metadata.getValidatorClass(entry.type)) return;
       const type = ctx.metadata.normalizeValidatorType(entry.type);
-      checkSupported(ctx, entry, type);
+      checkValueShape(ctx, entry, type);
       checkBounds(ctx, entry, type);
       checkAnswerCount(ctx, entry, type);
       checkRegex(ctx, entry, type);

@@ -126,7 +126,8 @@ export const SurveyLintReasons = Object.freeze({
   }),
   // a validator that cannot do the job it was written for
   "validator/dead": Object.freeze({
-    unsupportedForQuestion: "unsupportedForQuestion",
+    // the answer's shape is one this validator either never checks or always rejects
+    wrongValueShape: "wrongValueShape",
     minAboveMax: "minAboveMax",
     minCountAboveChoices: "minCountAboveChoices",
     invalidRegex: "invalidRegex",

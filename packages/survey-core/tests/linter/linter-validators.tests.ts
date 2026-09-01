@@ -74,8 +74,12 @@ describe("validator/unknown-type", () => {
   });
 });
 
-describe("validator/dead - unsupported for the question", () => {
-  test("a numeric validator on an array-valued question is flagged", () => {
+// What this group reports is pinned against the runtime in linter-runtime-parity.tests.ts:
+// a validator is reported only where the model demonstrably never fires it or rejects every
+// answer. settings.supportedValidators is NOT the criterion - it lists what the Creator UI
+// offers, and a regex validator works on a number input the table leaves out.
+describe("validator/dead - a value shape the validator cannot check", () => {
+  test("a numeric validator on an array-valued question rejects every answer", () => {
     const findings = dead({
       elements: [{
         type: "checkbox", name: "q1", choices: [1, 2, 3],
@@ -83,35 +87,63 @@ describe("validator/dead - unsupported for the question", () => {
       }],
     });
     expect(findings).toHaveLength(1);
-    expect(findings[0].reason).toBe("unsupportedForQuestion");
+    expect(findings[0].reason).toBe("wrongValueShape");
     expect(findings[0].messageData.validatorType).toBe("numeric");
-    expect(findings[0].messageData.questionType).toBe("checkbox");
+    expect(findings[0].messageData.effect).toBe("rejectsEveryAnswer");
   });
-  test("an email validator needs the email inputType", () => {
+  test("an email validator on a numeric input rejects every answer", () => {
+    const findings = dead({
+      elements: [{ type: "text", name: "q1", inputType: "number", validators: [{ type: "email" }] }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.effect).toBe("rejectsEveryAnswer");
     expect(dead({
-      elements: [{
-        type: "text", name: "q1", inputType: "number", validators: [{ type: "email" }],
-      }],
-    })).toHaveLength(1);
-    expect(dead({
-      elements: [{
-        type: "text", name: "q1", inputType: "email", validators: [{ type: "email" }],
-      }],
+      elements: [{ type: "text", name: "q1", inputType: "email", validators: [{ type: "email" }] }],
     })).toHaveLength(0);
   });
-  test("a text validator needs a text-like inputType", () => {
-    expect(dead({
+  test("a length check on a numeric input never fires", () => {
+    const findings = dead({
       elements: [{
         type: "text", name: "q1", inputType: "number", validators: [{ type: "text", minLength: 2 }],
       }],
-    })).toHaveLength(1);
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.effect).toBe("neverFires");
   });
-  test("an answercount validator needs a multi-select question", () => {
+  test("a text validator without a length bound is left alone", () => {
     expect(dead({
+      elements: [{
+        type: "text", name: "q1", inputType: "number",
+        validators: [{ type: "text", allowDigits: false }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("an answercount validator on a single-value question never fires", () => {
+    const findings = dead({
       elements: [{
         type: "radiogroup", name: "q1", choices: ["a"], validators: [{ type: "answercount", minCount: 1 }],
       }],
-    })).toHaveLength(1);
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.effect).toBe("neverFires");
+  });
+  test("a regex validator is never reported - it works on any value", () => {
+    expect(dead({
+      elements: [
+        { type: "text", name: "q1", inputType: "number", validators: [{ type: "regex", regex: "^4" }] },
+        { type: "checkbox", name: "q2", choices: ["ab"], validators: [{ type: "regex", regex: "^a" }] },
+        { type: "text", name: "q3", inputType: "date", validators: [{ type: "regex", regex: "^2" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a numeric validator on a numeric question is clean", () => {
+    expect(dead({
+      elements: [
+        { type: "text", name: "q1", inputType: "number", validators: [{ type: "numeric", minValue: 1 }] },
+        { type: "rating", name: "q2", validators: [{ type: "numeric", minValue: 1 }] },
+        { type: "text", name: "q3", validators: [{ type: "numeric", minValue: 1 }] },
+      ],
+    })).toHaveLength(0);
   });
   test("a column is judged by its cell type", () => {
     const findings = dead({
@@ -133,6 +165,13 @@ describe("validator/dead - unsupported for the question", () => {
         items: [{ name: "i1", inputType: "number", validators: [{ type: "email" }] }],
       }],
     })).toHaveLength(1);
+  });
+  test("a question that holds no value never runs a validator", () => {
+    const findings = dead({
+      elements: [{ type: "html", name: "h1", html: "hi", validators: [{ type: "text", minLength: 2 }] }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.effect).toBe("neverFires");
   });
   test("an expression validator fits every question", () => {
     expect(dead({

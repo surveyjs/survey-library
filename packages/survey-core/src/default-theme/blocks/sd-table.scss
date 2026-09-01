@@ -281,51 +281,49 @@
     )};
 }
 //alternative rows
-.sd-question:not(.sd-question--mobile) {
-  .sd-table__body--alternative-rows {
-    & > .sd-table__row--error:nth-child(odd of .sd-table__row--error) {
-      .sd-table__cell--error-top {
-        padding-bottom: var(--sjs2-spacing-x100);
-      }
+.sd-table__body--alternative-rows {
+  & > .sd-table__row--error:nth-child(odd of .sd-table__row--error) {
+    .sd-table__cell--error-top {
+      padding-bottom: var(--sjs2-spacing-x100);
     }
-    & > .sd-table__row--error:nth-child(even of .sd-table__row--error) {
-      .sd-table__cell--error-top {
-        padding-top: var(--sjs2-spacing-x200);
-      }
+  }
+  & > .sd-table__row--error:nth-child(even of .sd-table__row--error) {
+    .sd-table__cell--error-top {
+      padding-top: var(--sjs2-spacing-x200);
     }
-    & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
-      --sd-table-sticky-background-color: #{table-sticky-background(
-          (#{$background-dark}, var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
-        )};
+  }
+  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
+    --sd-table-sticky-background-color: #{table-sticky-background(
+        (#{$background-dark}, var(--sjs2-color-utility-surface-survey), var(--sjs2-color-utility-body))
+      )};
 
-      & > td.sd-table__cell:not(.sd-table__cell--actions),
-      td:first-of-type {
-        background-color: $background-dark;
-        &.sd-matrix__text--checked {
-          background-color: var(--sjs2-color-bg-brand-secondary);
+    & > td.sd-table__cell:not(.sd-table__cell--actions),
+    td:first-of-type {
+      background-color: $background-dark;
+      &.sd-matrix__text--checked {
+        background-color: var(--sjs2-color-bg-brand-secondary);
+      }
+
+      .sd-formbox {
+        background-color: $primary-foreground;
+      }
+
+      .sd-item:not(.sd-item--error) {
+        .sd-item__decorator {
+          background-color: var(--sjs2-color-bg-basic-primary);
         }
 
-        .sd-formbox {
-          background-color: $primary-foreground;
+        &.sd-checkbox--checked .sd-checkbox__decorator {
+          background-color: var(--sjs2-color-component-checkbox-true-default-bg);
         }
-
-        .sd-item:not(.sd-item--error) {
-          .sd-item__decorator {
-            background-color: var(--sjs2-color-bg-basic-primary);
-          }
-
-          &.sd-checkbox--checked .sd-checkbox__decorator {
-            background-color: var(--sjs2-color-component-checkbox-true-default-bg);
-          }
-          &.sd-radio--checked .sd-radio__decorator {
-            background-color: var(--sjs2-color-component-radio-true-default-bg);
-          }
-          &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
-            background-color: transparent;
-          }
-          &.sd-item--preview.sd-item--preview .sd-item__decorator {
-            background-color: transparent;
-          }
+        &.sd-radio--checked .sd-radio__decorator {
+          background-color: var(--sjs2-color-component-radio-true-default-bg);
+        }
+        &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+          background-color: transparent;
+        }
+        &.sd-item--preview.sd-item--preview .sd-item__decorator {
+          background-color: transparent;
         }
       }
     }

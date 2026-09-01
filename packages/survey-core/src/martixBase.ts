@@ -186,7 +186,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
   }
   public getTableBodyCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.body).append(this.cssClasses.bodyAlternativeRows, this.alternateRows).toString();
+    return new CssClassBuilder().append(this.cssClasses.body).append(this.cssClasses.bodyAlternativeRows, this.alternateRows && !this.isMobile).toString();
   }
   public getTableWrapperCss(): string {
     return new CssClassBuilder()

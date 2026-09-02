@@ -46,6 +46,10 @@ export class Camera {
   private static canSwitchFacingMode: boolean = false;
   private cameraIndex: number = -1;
   private cameraFacingMode: string = userStr;
+  // The mode passed to the last effective setFacingMode() call. It is compared with the new mode,
+  // so that re-applying the same mode (for example, on every camera opening) doesn't discard
+  // the camera the user has switched to via flip().
+  private appliedFacingMode: string;
   public hasCamera(callback: (res: boolean) => void): void {
     if (Camera.cameraList !== undefined) {
       this.hasCameraCallback(callback);
@@ -78,8 +82,12 @@ export class Camera {
   }
   // Sets the camera that should be used when the video starts. The user still can switch to another
   // camera by calling flip(). An unknown mode is ignored, so the previously selected camera is kept.
+  // The same mode applied again is ignored too: the camera selected by the user sticks to this instance
+  // until a different mode is set.
   public setFacingMode(mode: string): void {
     if (mode !== userStr && mode !== envStr) return;
+    if (mode === this.appliedFacingMode) return;
+    this.appliedFacingMode = mode;
     this.cameraFacingMode = mode;
     this.cameraIndex = -1;
   }

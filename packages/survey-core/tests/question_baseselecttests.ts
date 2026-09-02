@@ -4921,7 +4921,7 @@ describe("baseselect", () => {
     expect(q1.defaultValue, "radiogroup defaultValue is cleared").toBe(undefined);
     expect(q2.defaultValue, "checkbox keeps existing defaultValue values").toEqual(["item2"]);
   });
-  test("Do not clear defaultValue if defaultValueExpression is set, Bug#11800", () => {
+  test("Clear defaultValue on removing a referenced choice even if defaultValueExpression is set, Bug#11800", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({
@@ -4931,6 +4931,7 @@ describe("baseselect", () => {
     });
     const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     q1.choices.splice(0, 1);
-    expect(q1.defaultValue, "defaultValue is calculated by the expression").toBe("item1");
+    expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
+    expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
   });
 });

@@ -800,7 +800,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   private updateValuePropertiesOnChoicesChanged(): void {
     const hasCorrectAnswer = !this.isValueEmpty(this.correctAnswer);
-    const hasDefaultValue = !this.defaultValueExpression && !this.isValueEmpty(this.defaultValue);
+    const hasDefaultValue = !this.isValueEmpty(this.defaultValue);
     if (!hasCorrectAnswer && !hasDefaultValue) return;
     if (this.activeChoices.length === 0 || !this.canClearIncorrectValues()) return;
     if (hasCorrectAnswer) {

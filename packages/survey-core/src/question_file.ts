@@ -193,17 +193,27 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
-  // Specifies the camera that opens by default: "user" (front) or "environment" (rear).
-  // When it is not set, the camera selected by a respondent earlier is used.
-  @property() cameraFacingMode: string;
   /**
-   * Specifies the source of uploaded files.
+   * Specifies the preferred camera to open for the File Upload question. Applies only if [`sourceType`](#sourceType) is `"camera"` or `"file-camera"`.
    *
    * Possible values:
    *
-   * - `"file"` (default) - Allows respondents to select a local file.
-   * - `"camera"` - Allows respondents to capture and upload a photo.
-   * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   * - `"user"` &ndash; Prefer the front-facing camera
+   * - `"environment"` &ndash; Prefer the rear-facing camera
+   *
+   * If this property is not set, the question prefers the front-facing camera on first use and retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+   */
+  @property() cameraFacingMode: string;
+  /**
+   * Specifies which sources respondents can use to upload files.
+   *
+   * Possible values:
+   *
+   * - `"file"` (default) &ndash; Allows respondents to select local files.
+   * - `"camera"` &ndash; Uses the device camera to capture and upload a photo. If no camera is available, the question falls back to file selection.
+   * - `"file-camera"` &ndash; Allows respondents to select local files or capture and upload a photo with the device camera. If no camera is available, file selection remains available.
+   *
+   * Use [`cameraFacingMode`](#cameraFacingMode) to specify the preferred camera for photo capture.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
    * @see filePlaceholder

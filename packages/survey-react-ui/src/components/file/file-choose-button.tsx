@@ -1,5 +1,5 @@
 import * as React from "react";
-import { attachKey2click } from "../../reactSurvey";
+import { attachKey2click } from "../../attach-key2click";
 import { ReactSurveyElement } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { SvgIcon } from "../svg-icon/svg-icon";

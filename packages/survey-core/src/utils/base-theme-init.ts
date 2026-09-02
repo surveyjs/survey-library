@@ -53,24 +53,29 @@ export function areBaseThemeVariablesApplied(htmlElement?: Element): boolean {
 
 let cachedBaseResetVariables: { [index: string]: string };
 
-// The reset counterparts of the base theme's border effects, derived from the RAW
-// theme values rather than from a computed style: parseBoxShadow zeroes the length
-// components (a `var()` length parses to 0) and keeps the color as a live `var()`
-// reference, so the reset follows the active theme through the cascade without ever
-// being recomputed. Static delivery matters: a value set on the element through CSSOM
-// is wiped whenever a framework re-renders the root's style attribute from a binding.
-export function createBaseThemeBoxShadowResetVariables(): { [index: string]: string } {
-  if (!cachedBaseResetVariables) {
-    cachedBaseResetVariables = {};
-    const cssVariables = baseTheme.cssVariables || {};
-    RESET_TARGET_VARIABLES.forEach((varName) => {
-      const boxShadow = (<any>cssVariables)[varName];
-      if (typeof boxShadow === "string" && boxShadow.trim() !== "") {
-        cachedBaseResetVariables[`${varName}-reset`] = createBoxShadowReset(boxShadow);
-      }
-    });
+// The reset counterparts of the border effects, derived from the RAW theme values
+// rather than from a computed style: parseBoxShadow zeroes the length components (a
+// `var()` length parses to 0) and keeps the color - a live `var()` reference for the
+// base theme, a literal for themes that override the composite (flat, borderless) -
+// so the reset matches the active theme without ever being recomputed from the DOM.
+// Static delivery matters: a value set on the element through CSSOM is wiped whenever
+// a framework re-renders the root's style attribute from a binding, so the models
+// merge this map into the very `themeVariables` object the renderers bind.
+export function createBoxShadowResetVariables(themeCssVariables?: { [index: string]: string }): { [index: string]: string } {
+  const isThemed = !!themeCssVariables && Object.keys(themeCssVariables).length > 0;
+  if (!isThemed && cachedBaseResetVariables) return cachedBaseResetVariables;
+  const cssVariables: any = Object.assign({}, baseTheme.cssVariables, themeCssVariables);
+  const result: { [index: string]: string } = {};
+  RESET_TARGET_VARIABLES.forEach((varName) => {
+    const boxShadow = cssVariables[varName];
+    if (typeof boxShadow === "string" && boxShadow.trim() !== "") {
+      result[`${varName}-reset`] = createBoxShadowReset(boxShadow);
+    }
+  });
+  if (!isThemed) {
+    cachedBaseResetVariables = result;
   }
-  return cachedBaseResetVariables;
+  return result;
 }
 
 let cachedDocumentProbe: boolean | undefined;
@@ -84,7 +89,7 @@ let cachedDocumentProbe: boolean | undefined;
 // lifetime), and a stylesheet that loads after the first survey renders leaves the
 // cache negative, so the runtime keeps injecting the variables - a harmless
 // duplication, never a loss of styling. SurveyModel.afterRenderSurvey() re-probes
-// per root element and heals the opposite case (see applyResetVariables).
+// per root element and heals the opposite case (see ensureBaseThemeStyles).
 export function areBaseThemeVariablesInDocument(): boolean {
   if (cachedDocumentProbe !== undefined) return cachedDocumentProbe;
   if (!DomDocumentHelper.isAvailable()) return false;
@@ -158,45 +163,4 @@ export function ensureBaseThemeStyles(htmlElement?: Element): void {
       applyBaseThemeVariablesInline(htmlElement);
     }
   }
-  applyBoxShadowResetVars(htmlElement);
-}
-
-function getBoxShadowResetVars(htmlElement: Element): { [index: string]: string } {
-  const cssVariables: { [index: string]: string } = {};
-  const computedStyle = getComputedStyle(htmlElement);
-  RESET_TARGET_VARIABLES.forEach((varName) => {
-    const boxShadow = computedStyle.getPropertyValue(varName);
-    // An empty value means the base variables have not been applied yet; emitting a
-    // reset from it would silently produce "0px 0px 0px 0px #000000".
-    if (typeof boxShadow === "string" && boxShadow.trim() !== "") {
-      cssVariables[`${varName}-reset`] = createBoxShadowReset(boxShadow);
-    }
-  });
-  return cssVariables;
-}
-
-export function createResetVariablesStyle(htmlElement?:Element): string {
-  if (!DomDocumentHelper.isAvailable() || !htmlElement) return "";
-  return buildBaseThemeCss(getBoxShadowResetVars(htmlElement));
-}
-
-// The reset variables are computed per root, so they are set on the element itself
-// through CSSOM: that is not policed by CSP, and it also stops two surveys with
-// different themes from overwriting each other through the shared class selector.
-export function applyBoxShadowResetVars(htmlElement?: Element): void {
-  if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
-  const style = (<HTMLElement>htmlElement).style;
-  if (!style) return;
-  const cssVariables = getBoxShadowResetVars(htmlElement);
-  Object.keys(cssVariables).forEach((name) => style.setProperty(name, cssVariables[name]));
-}
-
-export function clearBoxShadowResetVars(htmlElement?: Element): void {
-  const style = !!htmlElement ? (<HTMLElement>htmlElement).style : undefined;
-  if (!style) return;
-  RESET_TARGET_VARIABLES.forEach((varName) => style.removeProperty(`${varName}-reset`));
-}
-
-export function addBoxShadowResetVarsIntoStyles(htmlElement?:Element): void {
-  applyBoxShadowResetVars(htmlElement);
 }

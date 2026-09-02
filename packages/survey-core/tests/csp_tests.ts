@@ -3,9 +3,7 @@ import {
   buildBaseThemeCss,
   createBaseThemeStyle,
   ensureBaseThemeStyles,
-  applyBoxShadowResetVars,
-  clearBoxShadowResetVars,
-  createBaseThemeBoxShadowResetVariables,
+  createBoxShadowResetVariables,
   areBaseThemeVariablesApplied,
   areBaseThemeVariablesInDocument,
   resetBaseThemeProbeCache
@@ -86,52 +84,13 @@ describe("CSP: base theme variables shipped as a stylesheet", () => {
   });
 });
 
-describe("CSP: box-shadow reset variables set through CSSOM", () => {
-  afterEach(() => {
-    document.body.innerHTML = "";
-    resetBaseThemeProbeCache();
-  });
-
-  it("sets the reset variables on the element instead of a style element", () => {
-    const root = createThemeRoot();
-    root.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #123456");
-    applyBoxShadowResetVars(root);
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("0px 0px 0px 0px #123456");
-    expect(root.querySelector("style")).toBeFalsy();
-  });
-
-  it("keeps two roots independent", () => {
-    const first = createThemeRoot();
-    const second = createThemeRoot();
-    first.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #111111");
-    second.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #222222");
-    applyBoxShadowResetVars(first);
-    applyBoxShadowResetVars(second);
-    expect(first.style.getPropertyValue(RESET_VARIABLE)).toBe("0px 0px 0px 0px #111111");
-    expect(second.style.getPropertyValue(RESET_VARIABLE)).toBe("0px 0px 0px 0px #222222");
-  });
-
-  it("emits nothing when the source variable is empty", () => {
-    const root = createThemeRoot();
-    applyBoxShadowResetVars(root);
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("");
-  });
-
-  it("clears the reset variables", () => {
-    const root = createThemeRoot();
-    root.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #123456");
-    applyBoxShadowResetVars(root);
-    clearBoxShadowResetVars(root);
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("");
-  });
-});
-
-describe("CSP: static reset variables derived from the raw base theme values", () => {
+describe("CSP: static reset variables derived from the raw theme values", () => {
   // These need no DOM at all: the lengths of the raw values zero out (a `var()`
-  // length parses to 0) and the color survives as a live `var()` reference, so a
-  // consumer can merge the map into a style binding once and never recompute it.
+  // length parses to 0) and the color survives - as a live `var()` reference for
+  // the base theme, as a literal for themes overriding the composite - so the
+  // models merge the map into the style binding they expose to the renderers.
   it("builds a reset for every border effect the css consumes", () => {
-    const resets = createBaseThemeBoxShadowResetVariables();
+    const resets = createBoxShadowResetVariables();
     expect(resets["--sjs2-border-effect-component-formbox-default-reset"])
       .toBe("inset 0px 0px 0px 0px var(--sjs2-color-component-formbox-default-border)");
     expect(resets["--sjs2-border-effect-component-formbox-focused-reset"])
@@ -140,8 +99,25 @@ describe("CSP: static reset variables derived from the raw base theme values", (
       .toBe("0px 0px 0px 0px var(--sjs2-color-utility-shadow-surface-default)");
   });
 
-  it("returns the same cached map on every call", () => {
-    expect(createBaseThemeBoxShadowResetVariables()).toBe(createBaseThemeBoxShadowResetVariables());
+  it("returns the same cached map on every base-only call", () => {
+    expect(createBoxShadowResetVariables()).toBe(createBoxShadowResetVariables());
+    expect(createBoxShadowResetVariables({})).toBe(createBoxShadowResetVariables());
+  });
+
+  it("a theme overriding a composite border effect overrides its reset too", () => {
+    // The flat/borderless themes replace the composite with a literal, non-inset
+    // shadow; the reset must mirror that structure or a focus transition jumps.
+    const resets = createBoxShadowResetVariables({
+      "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1px rgba(255, 255, 255, 0.07)",
+    });
+    expect(resets["--sjs2-border-effect-component-formbox-default-reset"])
+      .toBe("0px 0px 0px 0px rgba(255, 255, 255, 0.07)");
+    // Untouched effects still derive from the base theme values.
+    expect(resets["--sjs2-border-effect-surface-default-reset"])
+      .toBe("0px 0px 0px 0px var(--sjs2-color-utility-shadow-surface-default)");
+    // The themed call must not poison the cached base-only map.
+    expect(createBoxShadowResetVariables()["--sjs2-border-effect-component-formbox-default-reset"])
+      .toBe("inset 0px 0px 0px 0px var(--sjs2-color-component-formbox-default-border)");
   });
 });
 
@@ -192,36 +168,36 @@ describe("CSP: adopted stylesheet fallback (mocked constructable support)", () =
   });
 });
 
-describe("CSP: reset variables survive a runtime applyTheme", () => {
+describe("CSP: reset variables ride inside SurveyModel.themeVariables", () => {
   afterEach(() => {
     document.body.innerHTML = "";
     resetBaseThemeProbeCache();
   });
 
-  it("recalculates the reset variables after applyTheme on a mounted survey", async () => {
-    const root = createThemeRoot();
-    root.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #111111");
+  it("a fresh survey exposes the base theme resets through themeVariables", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    survey.afterRenderSurvey(root);
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("0px 0px 0px 0px #111111");
-
-    // A runtime theme switch clears the reset variables; they must be recalculated
-    // even though no renderer reads the resetVariablesStyle getter anymore.
-    root.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #222222");
-    survey.applyTheme(<any>{ cssVariables: { "--sjs-test": "val" } });
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("0px 0px 0px 0px #222222");
+    expect(survey.themeVariables[RESET_VARIABLE])
+      .toBe("0px 0px 0px 0px var(--sjs2-color-utility-shadow-surface-default)");
     survey.dispose();
   });
 
-  it("does not reapply onto a disposed survey", async () => {
-    const root = createThemeRoot();
-    root.style.setProperty("--sjs2-border-effect-surface-default", "0px 2px 4px 0px #111111");
+  it("applyTheme recomputes the resets synchronously, in the same binding value", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    survey.afterRenderSurvey(root);
-    survey.applyTheme(<any>{ cssVariables: { "--sjs-test": "val" } });
+    survey.applyTheme(<any>{ cssVariables: {
+      "--sjs-test": "val",
+      "--sjs2-border-effect-surface-default": "0px 2px 4px 0px #222222",
+    } });
+    // No frame to wait for: the very object the renderers bind carries both the
+    // new theme variables and the resets matching them.
+    expect(survey.themeVariables["--sjs-test"]).toBe("val");
+    expect(survey.themeVariables[RESET_VARIABLE]).toBe("0px 0px 0px 0px #222222");
     survey.dispose();
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("");
+  });
+
+  it("a theme's own reset value wins over the derived one", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.applyTheme(<any>{ cssVariables: { [RESET_VARIABLE]: "0px 0px 0px 0px #abcdef" } });
+    expect(survey.themeVariables[RESET_VARIABLE]).toBe("0px 0px 0px 0px #abcdef");
+    survey.dispose();
   });
 });

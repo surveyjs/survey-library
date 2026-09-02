@@ -9,8 +9,9 @@ import * as path from "path";
 // the stylesheet, and this test keeps it that way.
 const buildPath = path.resolve(__dirname, "../build");
 
-// These are set per root element at runtime (see applyBoxShadowResetVars), so no
-// stylesheet can define them.
+// These are derived from the raw theme values at runtime and travel inside the
+// themeVariables style binding (see createBoxShadowResetVariables), so no
+// stylesheet defines them.
 const runtimeOnlyVariables = [
   "--sjs2-border-effect-surface-default-reset",
   "--sjs2-border-effect-surface-focused-reset",

@@ -125,6 +125,15 @@ export class QuestionMatrixDropdownRenderedCell {
   public get responsiveTitleCss(): string {
     return new CssClassBuilder().append(this.matrix.cssClasses.cellResponsiveTitle).toString();
   }
+  public get showErrors(): boolean {
+    return this.hasQuestion && this.matrix.isMobile;
+  }
+  public get showErrorsTop(): boolean {
+    return this.showErrors && this.matrix.getErrorLocation() === "top";
+  }
+  public get showErrorsBottom(): boolean {
+    return this.showErrors && this.matrix.getErrorLocation() === "bottom";
+  }
   public get responsiveLocTitle(): LocalizableString {
     return this.cell.column.locTitle;
   }

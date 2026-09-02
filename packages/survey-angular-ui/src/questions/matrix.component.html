@@ -5,7 +5,7 @@
       <table [class]="model.getTableCss()" role="presentation">
         <thead *ngIf="model.showHeader" role="presentation">
           <tr>
-            <td *ngIf="model.hasRows"></td>
+            <td *ngIf="model.hasRows" [class]="model.emptyCellCss"></td>
             <th
               *ngFor="let column of model.visibleColumns" [style]="{ minWidth: model.columnMinWidth, width: model.columnMinWidth }" [class]="model.cssClasses.headerCell">
               <ng-template [component]="{ name: model.getColumnHeaderWrapperComponentName(column), data: { componentData: model.getColumnHeaderWrapperComponentData(column) } }">
@@ -14,7 +14,7 @@
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody [class]="model.getTableBodyCss()">
           <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
            <td [class]="row.rowTextClasses" [style]="{ minWidth: model.rowTitleWidth, width: model.rowTitleWidth }" *ngIf="model.hasRows">
               <ng-template [component]="{ name: model.getRowHeaderWrapperComponentName($any(row)), data: { componentData: model.getRowHeaderWrapperComponentData($any(row)) } }">

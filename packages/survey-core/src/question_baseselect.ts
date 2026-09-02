@@ -265,7 +265,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.onVisibleChoicesChanged();
     }
     if (visibleChoicesChangedProps.indexOf(name) > -1) {
-      this.updateCorrectAnswerOnChoicesChanged();
+      this.updateValuePropertiesOnChoicesChanged();
     }
     if (name === "hideIfChoicesEmpty") {
       this.onVisibleChanged();
@@ -798,25 +798,40 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected isCorrectAnswerValueExists(val: any): boolean {
     return !!this.getItemByValue(val, this.visibleChoices);
   }
-  private updateCorrectAnswerOnChoicesChanged(): void {
-    if (this.isValueEmpty(this.correctAnswer) || this.activeChoices.length === 0 ||
-      !this.canClearIncorrectValues()) return;
-    const newValue = this.getCorrectAnswerOnChoicesChanged(this.correctAnswer);
-    if (Helpers.isTwoValueEquals(this.correctAnswer, newValue)) return;
-    if (this.isValueEmpty(newValue)) {
-      this.correctAnswer = undefined;
-      //an array-valued property keeps an empty array on resetting, so remove it explicitly
-      if (Array.isArray(this.getPropertyValue("correctAnswer"))) {
-        this.clearPropertyValue("correctAnswer");
-      }
-    } else {
-      this.correctAnswer = newValue;
+  private updateValuePropertiesOnChoicesChanged(): void {
+    const hasCorrectAnswer = !this.isValueEmpty(this.correctAnswer);
+    const hasDefaultValue = !this.defaultValueExpression && !this.isValueEmpty(this.defaultValue);
+    if (!hasCorrectAnswer && !hasDefaultValue) return;
+    if (this.activeChoices.length === 0 || !this.canClearIncorrectValues()) return;
+    if (hasCorrectAnswer) {
+      this.updateValuePropertyOnChoicesChanged("correctAnswer");
+    }
+    if (hasDefaultValue) {
+      this.updateValuePropertyOnChoicesChanged("defaultValue");
     }
   }
-  protected getCorrectAnswerOnChoicesChanged(val: any): any {
-    return this.correctAnswerValueExistsInChoices(val) ? val : undefined;
+  private updateValuePropertyOnChoicesChanged(propName: string): void {
+    const val = (<any>this)[propName];
+    const newValue = this.getValueOnChoicesChanged(val);
+    if (Helpers.isTwoValueEquals(val, newValue)) return;
+    if (this.isValueEmpty(newValue)) {
+      (<any>this)[propName] = undefined;
+      //an array-valued property keeps an empty array on resetting, so remove it explicitly
+      if (Array.isArray(this.getPropertyValue(propName))) {
+        this.clearPropertyValue(propName);
+      }
+    } else {
+      (<any>this)[propName] = newValue;
+    }
   }
-  protected correctAnswerValueExistsInChoices(val: any): boolean {
+  protected getValueOnChoicesChanged(val: any): any {
+    if (Array.isArray(val)) {
+      const res = val.filter((item) => this.valueExistsInChoices(item));
+      return res.length > 0 ? res : undefined;
+    }
+    return this.valueExistsInChoices(val) ? val : undefined;
+  }
+  protected valueExistsInChoices(val: any): boolean {
     return !this.hasUnknownValueItem(val, true, false);
   }
   protected filterItems(): boolean {

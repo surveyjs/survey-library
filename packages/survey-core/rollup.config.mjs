@@ -4,17 +4,9 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
-import { writeBaseThemeScss } from "./scripts/build-base-theme-css.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
-
-// The base theme variables have to reach the page as a stylesheet: the runtime
-// <style> injection they used to rely on is refused under a strict `style-src` CSP,
-// and survey-core.css consumes ~900 of these variables while defining none. The
-// variables travel as a generated scss partial @use-d by default.fontless.scss, so
-// they have to be (re)generated before sass compiles.
-writeBaseThemeScss();
 
 const buildPlatformJson = {
   "name": pkg.name,

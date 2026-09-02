@@ -5,13 +5,14 @@ import {
   ensureBaseThemeStyles,
   applyBoxShadowResetVars,
   clearBoxShadowResetVars,
+  createBaseThemeBoxShadowResetVariables,
   areBaseThemeVariablesApplied,
   areBaseThemeVariablesInDocument,
   resetBaseThemeProbeCache
 } from "../src/utils/base-theme-init";
-import { generateBaseThemeCss, renderBaseThemeScss, BASE_THEME_SCSS_PATH } from "../scripts/build-base-theme-css.mjs";
 import { SurveyModel } from "../src/survey";
 import * as fs from "fs";
+import * as path from "path";
 
 const RESET_VARIABLE = "--sjs2-border-effect-surface-default-reset";
 
@@ -28,15 +29,15 @@ describe("CSP: base theme variables shipped as a stylesheet", () => {
     resetBaseThemeProbeCache();
   });
 
-  it("the build-time generator emits exactly what the runtime would inject", () => {
-    expect(generateBaseThemeCss()).toBe(createBaseThemeStyle());
-  });
-
-  // The generated scss is committed so that a fresh checkout compiles without a build;
-  // every build rewrites it (see writeBaseThemeScss in rollup.config.mjs), and this
-  // test catches a base-theme.ts edit committed without the regenerated file.
-  it("the committed base-theme-variables.generated.scss is in sync with base-theme.ts", () => {
-    expect(fs.readFileSync(BASE_THEME_SCSS_PATH, "utf8")).toBe(renderBaseThemeScss());
+  // base-theme.scss is emitted by the theme generation tooling (alongside
+  // src/themes/*.ts) and committed; nothing rewrites it at build time. This test
+  // catches base-theme.ts and the scss regenerating out of step - the stylesheet
+  // delivery and the runtime fallback must carry the same variables.
+  it("the committed base-theme.scss is in sync with base-theme.ts", () => {
+    const scssPath = path.resolve(__dirname, "../src/default-theme/base-theme.scss");
+    const scss = fs.readFileSync(scssPath, "utf8").replace(/\r\n/g, "\n");
+    const withoutHeaderComment = scss.substring(scss.indexOf("\n") + 1);
+    expect(withoutHeaderComment).toBe(createBaseThemeStyle() + "\n");
   });
 
   it("the generated css defines the variables under the theme root class", () => {
@@ -122,6 +123,25 @@ describe("CSP: box-shadow reset variables set through CSSOM", () => {
     applyBoxShadowResetVars(root);
     clearBoxShadowResetVars(root);
     expect(root.style.getPropertyValue(RESET_VARIABLE)).toBe("");
+  });
+});
+
+describe("CSP: static reset variables derived from the raw base theme values", () => {
+  // These need no DOM at all: the lengths of the raw values zero out (a `var()`
+  // length parses to 0) and the color survives as a live `var()` reference, so a
+  // consumer can merge the map into a style binding once and never recompute it.
+  it("builds a reset for every border effect the css consumes", () => {
+    const resets = createBaseThemeBoxShadowResetVariables();
+    expect(resets["--sjs2-border-effect-component-formbox-default-reset"])
+      .toBe("inset 0px 0px 0px 0px var(--sjs2-color-component-formbox-default-border)");
+    expect(resets["--sjs2-border-effect-component-formbox-focused-reset"])
+      .toBe("inset 0px 0px 0px 0px var(--sjs2-color-component-formbox-focused-border)");
+    expect(resets["--sjs2-border-effect-surface-default-reset"])
+      .toBe("0px 0px 0px 0px var(--sjs2-color-utility-shadow-surface-default)");
+  });
+
+  it("returns the same cached map on every call", () => {
+    expect(createBaseThemeBoxShadowResetVariables()).toBe(createBaseThemeBoxShadowResetVariables());
   });
 });
 

@@ -15,9 +15,8 @@ const RESET_TARGET_VARIABLES = [
 
 let cachedCss: string | undefined;
 
-// Kept in sync with scripts/build-base-theme-css.mjs, which emits the same CSS into
-// base-theme-variables.generated.scss (shipped inside survey-core.css) at build time;
-// csp_tests.ts asserts both agree.
+// The same CSS ships inside survey-core.css via the committed, tooling-generated
+// src/default-theme/base-theme.scss; csp_tests.ts asserts both stay in sync.
 export function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
   const themeRootClass = "sd-theme-root";
   const names = Object.keys(cssVariables);
@@ -50,6 +49,28 @@ export function areBaseThemeVariablesApplied(htmlElement?: Element): boolean {
   if (!DomDocumentHelper.isAvailable() || !htmlElement) return false;
   const value = DomDocumentHelper.getComputedStyle(htmlElement)?.getPropertyValue(PROBE_VARIABLE);
   return typeof value === "string" && value.trim() !== "";
+}
+
+let cachedBaseResetVariables: { [index: string]: string };
+
+// The reset counterparts of the base theme's border effects, derived from the RAW
+// theme values rather than from a computed style: parseBoxShadow zeroes the length
+// components (a `var()` length parses to 0) and keeps the color as a live `var()`
+// reference, so the reset follows the active theme through the cascade without ever
+// being recomputed. Static delivery matters: a value set on the element through CSSOM
+// is wiped whenever a framework re-renders the root's style attribute from a binding.
+export function createBaseThemeBoxShadowResetVariables(): { [index: string]: string } {
+  if (!cachedBaseResetVariables) {
+    cachedBaseResetVariables = {};
+    const cssVariables = baseTheme.cssVariables || {};
+    RESET_TARGET_VARIABLES.forEach((varName) => {
+      const boxShadow = (<any>cssVariables)[varName];
+      if (typeof boxShadow === "string" && boxShadow.trim() !== "") {
+        cachedBaseResetVariables[`${varName}-reset`] = createBoxShadowReset(boxShadow);
+      }
+    });
+  }
+  return cachedBaseResetVariables;
 }
 
 let cachedDocumentProbe: boolean | undefined;

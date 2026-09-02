@@ -1019,4 +1019,29 @@ describe("question slider", () => {
     q1.handlePointerDown({ } as any);
     expect(q1.focusedThumb).toBeNull();
   });
+
+  test("Recalculate min/maxValueExpression when they are assigned at runtime, Bug#11798", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "slider", name: "q" }
+      ]
+    });
+    survey.setValue("n", 50);
+    const q = <QuestionSliderModel>survey.getQuestionByName("q");
+    expect(q.max, "the default max").toBe(100);
+    expect(q.min, "the default min").toBe(0);
+
+    q.maxValueExpression = "{n}";
+    expect(q.max, "max is calculated on assignment").toBe(50);
+    expect(q.renderedMax, "renderedMax is calculated on assignment").toBe(50);
+
+    q.minValueExpression = "{n} - 40";
+    expect(q.min, "min is calculated on assignment").toBe(10);
+    expect(q.renderedMin, "renderedMin is calculated on assignment").toBe(10);
+
+    survey.setValue("n", 60);
+    expect(q.max, "max is calculated on a value change").toBe(60);
+    expect(q.min, "min is calculated on a value change").toBe(20);
+  });
 });

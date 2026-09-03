@@ -194,13 +194,26 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
   /**
-   * Specifies the source of uploaded files.
+   * Specifies the preferred camera to open for the File Upload question. Applies only if [`sourceType`](#sourceType) is `"camera"` or `"file-camera"`.
    *
    * Possible values:
    *
-   * - `"file"` (default) - Allows respondents to select a local file.
-   * - `"camera"` - Allows respondents to capture and upload a photo.
-   * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   * - `"user"` (default) &ndash; Prefer the front-facing camera
+   * - `"environment"` &ndash; Prefer the rear-facing camera
+   *
+   * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+   */
+  @property({ defaultValue: "user" }) cameraFacingMode: string;
+  /**
+   * Specifies which sources respondents can use to upload files.
+   *
+   * Possible values:
+   *
+   * - `"file"` (default) &ndash; Allows respondents to select local files.
+   * - `"camera"` &ndash; Uses the device camera to capture and upload a photo. If no camera is available, the question falls back to file selection.
+   * - `"file-camera"` &ndash; Allows respondents to select local files or capture and upload a photo with the device camera. If no camera is available, file selection remains available.
+   *
+   * Use [`cameraFacingMode`](#cameraFacingMode) to specify the preferred camera for photo capture.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
    * @see filePlaceholder
@@ -423,6 +436,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private videoStream: MediaStream;
   public startVideo(): void {
     if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    this.camera.setFacingMode(this.cameraFacingMode);
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
@@ -823,7 +837,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     );
   }
   public get renderCapture(): string {
-    return this.allowCameraAccess ? "user" : undefined;
+    if (!this.allowCameraAccess) return undefined;
+    return this.cameraFacingMode === "environment" ? "environment" : "user";
   }
 
   get multipleRendered() {
@@ -1366,6 +1381,11 @@ Serializer.addClass(
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
+    {
+      name: "cameraFacingMode", default: "user", choices: ["user", "environment"],
+      dependsOn: "sourceType",
+      visibleIf: (obj: any): boolean => obj.sourceType !== "file"
+    },
   ],
   function () {
     return new QuestionFileModel("");

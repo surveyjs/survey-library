@@ -140,6 +140,20 @@ describe("mask/mismatch - ownership", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].path).toBe("elements[0].columns[0].maskSettings.pattern");
   });
+  // the Creator lints the JSON its own JSON5 parser produced, which marks every object
+  // literal with a "pos" key - the same key property-walk already leaves alone
+  test("the position key a host annotates the JSON with is not a setting", () => {
+    const settings: any = { precision: 2, pos: { start: 10, end: 20 } };
+    expect(byRule({
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: settings }],
+    })).toHaveLength(0);
+    expect(byRule({
+      elements: [{
+        type: "text", name: "q1",
+        maskSettings: { saveMaskedValue: true, pos: { start: 10, end: 20 } },
+      }],
+    })).toHaveLength(0);
+  });
   test("property/unknown stays out of maskSettings", () => {
     const result = lintSurvey({
       elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { pattern: "9999" } }],

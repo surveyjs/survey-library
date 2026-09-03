@@ -117,9 +117,15 @@ describe("element/count-contradiction - step above the range", () => {
     expect(findings[0].reason).toBe("stepAboveRange");
     expect(findings[0].path).toBe("elements[0].rateStep");
     expect(findings[0].messageData.range).toBe(3);
+    expect(findings[0].messageData.min).toBe(1);
+    expect(findings[0].messageData.max).toBe(4);
   });
   test("the default rating scale is a real range for the step", () => {
-    expect(byRule({ elements: [{ type: "rating", name: "r1", rateStep: 10 }] })).toHaveLength(1);
+    const findings = byRule({ elements: [{ type: "rating", name: "r1", rateStep: 10 }] });
+    expect(findings).toHaveLength(1);
+    // the bounds the control offers when the JSON states none
+    expect(findings[0].messageData.min).toBe(1);
+    expect(findings[0].messageData.max).toBe(5);
   });
   test("a step inside the range is clean", () => {
     expect(byRule({

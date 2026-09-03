@@ -127,6 +127,35 @@ describe("validator/dead - a value shape the validator cannot check", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].messageData.effect).toBe("neverFires");
   });
+  test("every value-shape verdict carries the cause a localized message needs", () => {
+    const causeOf = (json: any): string => {
+      const findings = dead(json);
+      expect(findings).toHaveLength(1);
+      return findings[0].messageData.cause;
+    };
+    expect(causeOf({
+      elements: [{ type: "html", name: "q1", validators: [{ type: "numeric", minValue: 1 }] }],
+    })).toBe("noAnswer");
+    expect(causeOf({
+      elements: [{
+        type: "text", name: "q1", inputType: "number", validators: [{ type: "text", minLength: 2 }],
+      }],
+    })).toBe("textLength");
+    expect(causeOf({
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"], validators: [{ type: "numeric", minValue: 1 }],
+      }],
+    })).toBe("notANumber");
+    expect(causeOf({
+      elements: [{ type: "text", name: "q1", inputType: "number", validators: [{ type: "email" }] }],
+    })).toBe("numberVsEmail");
+    expect(causeOf({
+      elements: [{
+        type: "radiogroup", name: "q1", choices: ["a"],
+        validators: [{ type: "answercount", minCount: 1 }],
+      }],
+    })).toBe("notAList");
+  });
   test("a regex validator is never reported - it works on any value", () => {
     expect(dead({
       elements: [

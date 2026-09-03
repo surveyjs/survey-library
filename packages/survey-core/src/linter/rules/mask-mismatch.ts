@@ -3,6 +3,7 @@ import { ElementRecord, getEffectiveType } from "../symbols";
 import { getInputType } from "../value-types";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
+import { POSITION_KEY } from "../property-walk";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["mask/mismatch"];
@@ -47,7 +48,7 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
   const known = ctx.metadata.getKnownKeys(maskClass);
   if (!known) return;
   Object.keys(settings).forEach(key => {
-    if (known.byKey.has(key)) return;
+    if (key === POSITION_KEY || known.byKey.has(key)) return;
     report(ctx, record,
       "The maskSettings of \"" + record.name + "\" set \"" + key + "\", which is not a property of the \"" +
       maskType + "\" mask - the runtime drops it silently." +
@@ -61,7 +62,7 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
 
 // Without a maskType the settings resolve to the bare base class, which carries one property.
 function checkSettingsWithoutMask(ctx: LintContext, record: ElementRecord, settings: any): void {
-  const keys = Object.keys(settings).filter(key => key !== BASE_MASK_KEY);
+  const keys = Object.keys(settings).filter(key => key !== BASE_MASK_KEY && key !== POSITION_KEY);
   if (keys.length === 0) return;
   report(ctx, record,
     "The maskSettings of \"" + record.name + "\" are set without a maskType - the runtime keeps " +

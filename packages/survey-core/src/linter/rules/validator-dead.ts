@@ -41,8 +41,13 @@ function report(ctx: LintContext, entry: ValidatorEntry, message: string, reason
 // Every entry here is pinned against a live model in linter-runtime-parity.tests.ts.
 type ValidatorEffect = "neverFires" | "rejectsEveryAnswer";
 
+// what the runtime does, one key per branch below: the message spells it out in English,
+// while a host that localizes reads the key out of messageData.cause
+type ValidatorCause = "noAnswer" | "textLength" | "notANumber" | "numberVsEmail" | "notAList";
+
 interface ShapeVerdict {
   effect: ValidatorEffect;
+  cause: ValidatorCause;
   // what the runtime does, as the message says it
   because: string;
 }
@@ -52,7 +57,10 @@ function textVerdict(entry: ValidatorEntry, value: ValueTypeInfo): ShapeVerdict 
   const hasLengthBound = entry.json.minLength > 0 || entry.json.maxLength > 0;
   if (!hasLengthBound) return undefined;
   if (value.shape === "object" || (value.shape === "scalar" && value.scalarType === "number")) {
-    return { effect: "neverFires", because: "a length is read off a text value, and this answer has none" };
+    return {
+      effect: "neverFires", cause: "textLength",
+      because: "a length is read off a text value, and this answer has none",
+    };
   }
   return undefined;
 }
@@ -61,25 +69,37 @@ function textVerdict(entry: ValidatorEntry, value: ValueTypeInfo): ShapeVerdict 
 // validator answers that with RequreNumericError.
 function numericVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape !== "array" && value.shape !== "object") return undefined;
-  return { effect: "rejectsEveryAnswer", because: "the answer is not a number and never can be" };
+  return {
+    effect: "rejectsEveryAnswer", cause: "notANumber",
+    because: "the answer is not a number and never can be",
+  };
 }
 
 // The email pattern is tested against the value as text; digits never match it.
 function emailVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape !== "scalar" || value.scalarType !== "number") return undefined;
-  return { effect: "rejectsEveryAnswer", because: "a number never matches an e-mail address" };
+  return {
+    effect: "rejectsEveryAnswer", cause: "numberVsEmail",
+    because: "a number never matches an e-mail address",
+  };
 }
 
 // AnswerCountValidator returns at once for anything that is not an array.
 function answerCountVerdict(value: ValueTypeInfo): ShapeVerdict | undefined {
   if (value.shape === "array" || value.shape === "unknown") return undefined;
-  return { effect: "neverFires", because: "the answer is not a list of values" };
+  return {
+    effect: "neverFires", cause: "notAList",
+    because: "the answer is not a list of values",
+  };
 }
 
 function getShapeVerdict(entry: ValidatorEntry, type: string, value: ValueTypeInfo): ShapeVerdict | undefined {
   // a question that holds no value runs no validator at all
   if (value.shape === "none") {
-    return { effect: "neverFires", because: "the question holds no answer to validate" };
+    return {
+      effect: "neverFires", cause: "noAnswer",
+      because: "the question holds no answer to validate",
+    };
   }
   if (type === "text") return textVerdict(entry, value);
   if (type === "numeric") return numericVerdict(value);
@@ -108,7 +128,8 @@ function checkValueShape(ctx: LintContext, entry: ValidatorEntry, type: string):
     reasons.wrongValueShape,
     {
       questionType: questionType, inputType: inputType,
-      valueShape: value.shape, scalarType: value.scalarType, effect: verdict.effect,
+      valueShape: value.shape, scalarType: value.scalarType,
+      effect: verdict.effect, cause: verdict.cause,
     });
 }
 

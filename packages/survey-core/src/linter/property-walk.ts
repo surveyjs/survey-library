@@ -64,7 +64,10 @@ const COLUMN_CLASS = "matrixdropdowncolumn";
 // mask/mismatch resolves these against the sibling maskType and owns every finding about them
 const MASK_SETTINGS_CLASS = "masksettings";
 const TYPE_KEY = "type";
-const POSITION_KEY = "pos";
+// A host may hand the linter a JSON its own parser annotated: the Creator's JSON tab marks
+// every object literal with its position in the text under this key. It is not something an
+// author wrote, so no rule reports it.
+export const POSITION_KEY = "pos";
 const MAX_DEPTH = 30;
 
 function isPlainObject(value: any): boolean {

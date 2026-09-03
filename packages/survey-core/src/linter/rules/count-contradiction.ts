@@ -124,19 +124,23 @@ function checkSteps(ctx: LintContext, record: ElementRecord, type: string): void
     if (!def.appliesTo(record, type)) return;
     const step = authored(record.json, def.step);
     if (step === undefined || step <= 0) return;
-    const min = authored(record.json, def.min);
-    const max = authored(record.json, def.max);
-    const range = (max !== undefined ? max : def.defaults.max) - (min !== undefined ? min : def.defaults.min);
+    // the bounds the control offers, whether the JSON states them or not
+    const authoredMin = authored(record.json, def.min);
+    const authoredMax = authored(record.json, def.max);
+    const min = authoredMin !== undefined ? authoredMin : def.defaults.min;
+    const max = authoredMax !== undefined ? authoredMax : def.defaults.max;
+    const range = max - min;
     if (step <= range) return;
     ctx.report({
       message: "The " + def.step + " of \"" + record.name + "\" is " + step +
-        ", above the whole range " + def.max + " - " + def.min + " of " + range +
-        " - the runtime clamps it.",
+        ", but the range it steps through (" + def.min + ".." + def.max +
+        ") spans only " + range + " - the runtime clamps it.",
       path: record.path + "." + def.step,
       reason: reasons.stepAboveRange,
       messageData: {
         name: record.name, questionType: record.type,
-        stepProp: def.step, step: step, minProp: def.min, maxProp: def.max, range: range,
+        stepProp: def.step, step: step, minProp: def.min, maxProp: def.max,
+        min: min, max: max, range: range,
       },
       elementName: record.name,
       elementType: record.type,

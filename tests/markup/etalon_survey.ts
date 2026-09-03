@@ -51,6 +51,16 @@ registerMarkupTests(
         el.removeAttribute("data-bind");
         el.removeAttribute("lang");
         el.removeAttribute("dir");
+        // The box-shadow reset variables are computed from the environment (resolved
+        // colors in a real browser, raw var() tokens in jsdom), so they are stripped
+        // to keep the snapshot deterministic; the reset behavior itself is covered by
+        // the csp unit tests and the CSP e2e spec.
+        [
+          "--sjs2-border-effect-surface-default-reset",
+          "--sjs2-border-effect-surface-focused-reset",
+          "--sjs2-border-effect-component-formbox-default-reset",
+          "--sjs2-border-effect-component-formbox-focused-reset"
+        ].forEach((name) => el.style.removeProperty(name));
         return el.outerHTML;
       },
       snapshot: "survey-theme-variables"

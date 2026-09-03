@@ -89,7 +89,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -2410,8 +2410,17 @@ export class SurveyModel extends SurveyElementCore
   //#endregion
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
+  // The box-shadow reset variables travel inside the style binding itself: anything
+  // set imperatively on the root element's style can be wiped whenever a renderer
+  // re-renders the attribute from themeVariables. They are derived from the raw
+  // base + theme values (no DOM read), so a theme switch recomputes them
+  // synchronously with the cssVariables they accompany (see _applyTheme).
+  private resetVariables: { [index: string]: string };
   public get themeVariables() {
-    return Object.assign({}, this.cssVariables);
+    if (!this.resetVariables) {
+      this.resetVariables = createBoxShadowResetVariables(this.cssVariables);
+    }
+    return Object.assign({}, this.resetVariables, this.cssVariables);
   }
 
   @property() _isMobile = false;
@@ -5592,7 +5601,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
-    this.clearResetVariablesStyle();
+    // Heals a root the document stylesheet cannot reach (a shadow root carrying its
+    // own, older css): when the per-element probe finds the base variables missing,
+    // they are delivered through CSSOM (an adopted stylesheet on the element's root
+    // node, or per-element properties). The box-shadow resets need no per-element
+    // work: they ride inside the themeVariables style binding.
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(observedElement);
+    }
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -8500,7 +8516,9 @@ export class SurveyModel extends SurveyElementCore
       advHeader.fromTheme(theme);
       this.insertAdvancedHeader(advHeader);
     }
-    this.clearResetVariablesStyle();
+    // Recomputed from the new theme's raw values on the next themeVariables read,
+    // so the renderers deliver the fresh resets in the same render as the theme.
+    this.resetVariables = undefined;
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
@@ -8508,22 +8526,13 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() private _themeStyle: string;
   public get themeStyle(): string {
-    if (!this._themeStyle) {
-      this._themeStyle = createBaseThemeStyle();
+    if (this._themeStyle === undefined) {
+      // Empty when survey-core.css already delivers the variables: the renderers then
+      // emit no <style> at all, which a strict `style-src` CSP would refuse.
+      this._themeStyle = areBaseThemeVariablesInDocument() ? "" : createBaseThemeStyle();
     }
     return this._themeStyle;
   }
-  @property() private _resetVariablesStyle: string;
-  public get resetVariablesStyle(): string {
-    if (!this._resetVariablesStyle) {
-      this._resetVariablesStyle = createResetVariablesStyle(this.rootElement);
-    }
-    return this._resetVariablesStyle;
-  }
-  private clearResetVariablesStyle(): void {
-    this._resetVariablesStyle = undefined;
-  }
-
   private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
   public waitAndExecute(action: any): void {
     this.taskManager.waitAndExecute(action);

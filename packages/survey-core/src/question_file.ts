@@ -198,12 +198,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Possible values:
    *
+   * - `"auto"` (default) &ndash; Let the browser open the camera that the device settings define as the default one
    * - `"user"` &ndash; Prefer the front-facing camera
    * - `"environment"` &ndash; Prefer the rear-facing camera
    *
-   * If this property is not set, the question prefers the front-facing camera on first use and retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+   * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
    */
-  @property() cameraFacingMode: string;
+  @property({ defaultValue: "auto" }) cameraFacingMode: string;
   /**
    * Specifies which sources respondents can use to upload files.
    *
@@ -838,7 +839,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public get renderCapture(): string {
     if (!this.allowCameraAccess) return undefined;
-    return this.cameraFacingMode === "environment" ? "environment" : "user";
+    const mode = this.cameraFacingMode;
+    // The empty value keeps the capture attribute in the markup, so that the browser opens a camera
+    // instead of the file dialog, but doesn't tell it which camera to open.
+    return mode === "user" || mode === "environment" ? mode : "";
   }
 
   get multipleRendered() {
@@ -1381,7 +1385,7 @@ Serializer.addClass(
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
-    { name: "cameraFacingMode", choices: ["user", "environment"], visible: false },
+    { name: "cameraFacingMode", default: "auto", choices: ["auto", "user", "environment"], visible: false },
   ],
   function () {
     return new QuestionFileModel("");

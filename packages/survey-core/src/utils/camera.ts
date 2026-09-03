@@ -3,6 +3,7 @@ import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 const envStr = "environment";
 const userStr = "user";
+const autoStr = "auto";
 const getDeviceType = function(device: MediaDeviceInfo): string {
   const lbl = device.label.toLocaleLowerCase();
   if (lbl.indexOf(userStr) > -1) return userStr;
@@ -45,7 +46,7 @@ export class Camera {
   private static cameraList: Array<MediaDeviceInfo>;
   private static canSwitchFacingMode: boolean = false;
   private cameraIndex: number = -1;
-  private cameraFacingMode: string = userStr;
+  private cameraFacingMode: string = autoStr;
   // The mode passed to the last effective setFacingMode() call. It is compared with the new mode,
   // so that re-applying the same mode (for example, on every camera opening) doesn't discard
   // the camera the user has switched to via flip().
@@ -80,16 +81,29 @@ export class Camera {
       this.hasCameraCallback(callback);
     }
   }
-  // Sets the camera that should be used when the video starts. The user still can switch to another
-  // camera by calling flip(). An unknown mode is ignored, so the previously selected camera is kept.
-  // The same mode applied again is ignored too: the camera selected by the user sticks to this instance
-  // until a different mode is set.
+  // Sets the camera that should be used when the video starts. The "auto" mode selects no camera at all,
+  // so that the browser opens the camera that the device settings define as the default one.
+  // The user still can switch to another camera by calling flip(). An unknown mode is ignored, so the
+  // previously selected camera is kept. The same mode applied again is ignored too: the camera selected
+  // by the user sticks to this instance until a different mode is set.
   public setFacingMode(mode: string): void {
-    if (mode !== userStr && mode !== envStr) return;
+    if (mode !== userStr && mode !== envStr && mode !== autoStr) return;
     if (mode === this.appliedFacingMode) return;
     this.appliedFacingMode = mode;
     this.cameraFacingMode = mode;
     this.cameraIndex = -1;
+  }
+  private get isAutoFacingMode(): boolean {
+    return this.cameraFacingMode === autoStr;
+  }
+  // The auto mode keeps no camera selected. As soon as the user flips the camera, the selection has to
+  // become a concrete one, otherwise flip() could switch to the camera that is already running: the
+  // browser starts from the camera that this method assumes, the front one or the first in the list.
+  private resolveAutoFacingMode(): void {
+    if (!this.isAutoFacingMode) return;
+    this.cameraFacingMode = userStr;
+    const devices = Camera.cameraList;
+    this.cameraIndex = Array.isArray(devices) ? this.getStartCameraIndex(devices) : -1;
   }
   private getStartCameraIndex(devices: Array<MediaDeviceInfo>): number {
     if (this.cameraFacingMode === envStr) {
@@ -102,17 +116,21 @@ export class Camera {
   public getMediaConstraints(videoSize?: { width?: number, height?: number }): MediaStreamConstraints {
     const devices = Camera.cameraList;
     if (!Array.isArray(devices) || devices.length < 1) return undefined;
-    // The device list can be replaced after this camera selected a device in it, for example when
-    // the browser grants the permission and reports the devices again.
-    if (this.cameraIndex < 0 || this.cameraIndex >= devices.length) {
-      this.cameraIndex = this.getStartCameraIndex(devices);
-    }
-    const selDevice = devices[this.cameraIndex];
     const videoConstraints: any = {};
-    if (selDevice && selDevice.deviceId) {
-      videoConstraints.deviceId = { exact: selDevice.deviceId };
-    } else {
-      videoConstraints.facingMode = this.cameraFacingMode;
+    // The auto mode requests neither a device nor a facing mode, so that the browser opens the camera
+    // that the device settings define as the default one.
+    if (!this.isAutoFacingMode) {
+      // The device list can be replaced after this camera selected a device in it, for example when
+      // the browser grants the permission and reports the devices again.
+      if (this.cameraIndex < 0 || this.cameraIndex >= devices.length) {
+        this.cameraIndex = this.getStartCameraIndex(devices);
+      }
+      const selDevice = devices[this.cameraIndex];
+      if (selDevice && selDevice.deviceId) {
+        videoConstraints.deviceId = { exact: selDevice.deviceId };
+      } else {
+        videoConstraints.facingMode = this.cameraFacingMode;
+      }
     }
     if (videoSize) {
       if (videoSize?.height) {
@@ -201,6 +219,7 @@ export class Camera {
   }
   public flip(): void {
     if (!this.canFlip()) return;
+    this.resolveAutoFacingMode();
     if (Camera.canSwitchFacingMode) {
       this.cameraFacingMode = this.cameraFacingMode === userStr ? envStr : userStr;
     } else if (this.cameraIndex >= Camera.cameraList.length - 1) {

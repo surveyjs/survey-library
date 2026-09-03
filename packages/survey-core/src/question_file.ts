@@ -200,7 +200,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * - `"user"` (default) &ndash; Prefer the front-facing camera
    * - `"environment"` &ndash; Prefer the rear-facing camera
-   * - `"auto"` &ndash; Do not select a camera, let the browser open the camera that the device settings define as the default one
    *
    * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
    */
@@ -839,10 +838,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public get renderCapture(): string {
     if (!this.allowCameraAccess) return undefined;
-    const mode = this.cameraFacingMode;
-    // The empty value keeps the capture attribute in the markup, so that the browser opens a camera
-    // instead of the file dialog, but doesn't tell it which camera to open.
-    return mode === "user" || mode === "environment" ? mode : "";
+    return this.cameraFacingMode === "environment" ? "environment" : "user";
   }
 
   get multipleRendered() {
@@ -1386,7 +1382,7 @@ Serializer.addClass(
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
     {
-      name: "cameraFacingMode", default: "user", choices: ["user", "environment", "auto"],
+      name: "cameraFacingMode", default: "user", choices: ["user", "environment"],
       dependsOn: "sourceType",
       visibleIf: (obj: any): boolean => obj.sourceType !== "file"
     },

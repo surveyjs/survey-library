@@ -21,10 +21,45 @@ export const ITEMVALUE_SCOPED_PROPS = new Set<string>([
 // its paneldynamic branch, once the template frame exists, and skips them elsewhere.
 export const TEMPLATE_SCOPED_PROPS = new Set<string>(["templatevisibleif"]);
 
+// Localizable strings processed in the scope of a collection item rather than in the
+// scope of the question that owns them: a dynamic-panel title is rendered per panel
+// (QuestionPanelDynamicItem), and a matrix single-input title per row
+// (processSingleInputTitle runs it through row.getTextProcessor()).
+export const TEXT_SCOPED_PROPS = new Map<string, "template" | "row">([
+  ["templatetitle", "template"],
+  ["templatedescription", "template"],
+  ["templatetabtitle", "template"],
+  ["tabtitleplaceholder", "template"],
+  ["singleinputtitletemplate", "row"],
+]);
+
+// Localizable strings that are not piping texts at all: the runtime takes them apart itself
+// ({no}/{title}/{require} of a question title pattern) and never runs them through the text
+// processor, so a {...} in them names nothing.
+export const TEXT_TEMPLATE_PROPS = new Set<string>(["questiontitletemplate"]);
+
 // Properties whose registered type does not match their runtime semantics.
 // templateVisibleIf is registered as "expression", but is a per-panel condition.
 export const PROP_KIND_OVERRIDES = new Map<string, ExpressionSiteKind>([
   ["templatevisibleif", "condition"],
+]);
+
+// Functions that take an element name as a plain string argument, and the space that name is
+// looked up in. "arrayItem" is resolved against the columns / template questions of the
+// element the first argument names (what getArrayContextVarNames does in the core),
+// "container" walks up from the expression owner the way getQuestionValueByContext does, and
+// "survey" is a survey-level getQuestionByName / getPanelByName / getPageByName.
+export type FunctionArgNameScope = "arrayItem" | "container" | "survey";
+export const FUNCTION_NAME_ARGS = new Map<string, { indexes: Array<number>, scope: FunctionArgNameScope }>([
+  ["suminarray", { indexes: [1, 2], scope: "arrayItem" }],
+  ["mininarray", { indexes: [1, 2], scope: "arrayItem" }],
+  ["maxinarray", { indexes: [1, 2], scope: "arrayItem" }],
+  ["countinarray", { indexes: [1, 2], scope: "arrayItem" }],
+  ["avginarray", { indexes: [1, 2], scope: "arrayItem" }],
+  ["displayvalue", { indexes: [0], scope: "container" }],
+  ["propertyvalue", { indexes: [0], scope: "container" }],
+  ["getcomment", { indexes: [0], scope: "survey" }],
+  ["iscontainerready", { indexes: [0], scope: "survey" }],
 ]);
 
 // Serializer property type -> the kind of reference a trigger target carries.

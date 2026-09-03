@@ -1,4 +1,6 @@
-import { ILintFinding, ILintRuleInfo, ISurveyLintOptions, ISurveyLintResult } from "./types";
+import {
+  countBySeverity, ILintFinding, ILintRuleInfo, ISurveyLintOptions, ISurveyLintResult,
+} from "./types";
 import { LintContext, resolveSeverity } from "./rule";
 import { allRules } from "./rules/index";
 import { buildIndex } from "./walker";
@@ -36,11 +38,12 @@ export function lintSurvey(json: any, options?: ISurveyLintOptions): ISurveyLint
   });
   ctx.findings.sort(compareFindings);
   ctx.suppressed.sort(compareFindings);
+  const counts = countBySeverity(ctx.findings);
   const result: ISurveyLintResult = {
     findings: ctx.findings,
-    errorCount: ctx.findings.filter(f => f.severity === "error").length,
-    warningCount: ctx.findings.filter(f => f.severity === "warning").length,
-    infoCount: ctx.findings.filter(f => f.severity === "info").length,
+    errorCount: counts.error,
+    warningCount: counts.warning,
+    infoCount: counts.info,
     suppressedCount: ctx.suppressed.length,
   };
   if (opts.reportSuppressed) result.suppressed = ctx.suppressed;

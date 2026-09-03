@@ -1,4 +1,4 @@
-import { JsonObjectProperty, Serializer } from "survey-core";
+import { ComponentCollection, JsonObjectProperty, Serializer } from "survey-core";
 import { PROP_KIND_OVERRIDES, TRIGGER_TARGET_KINDS } from "./catalog";
 import { ExpressionSiteKind, TriggerTargetRef } from "./symbols";
 
@@ -19,6 +19,27 @@ export interface TriggerTypeDef {
   extraExpressionProps: Array<ExpressionPropDef>;
 }
 
+// The keys a class accepts in JSON: the deserializer matches a key against a property name or
+// its alternativeName, exactly as spelled. "names" is the pool a typo suggestion draws from.
+export interface KnownKeys {
+  byKey: Map<string, JsonObjectProperty>;
+  names: Array<string>;
+}
+
+function buildKnownKeys(props: Array<JsonObjectProperty>): KnownKeys {
+  // a Map, not an object literal: the keys are property names an application may register,
+  // which must not collide with Object.prototype keys
+  const byKey = new Map<string, JsonObjectProperty>();
+  const names: Array<string> = [];
+  props.forEach(prop => {
+    if (!prop.name) return;
+    byKey.set(prop.name, prop);
+    names.push(prop.name);
+    if (!!prop.alternativeName) byKey.set(prop.alternativeName, prop);
+  });
+  return { byKey: byKey, names: names };
+}
+
 const COLUMN_CLASS = "matrixdropdowncolumn";
 const DEFAULT_ITEM_CLASS = "itemvalue";
 // Fallbacks for the class-name suffixes and container array keys the walker needs.
@@ -26,6 +47,9 @@ const DEFAULT_ITEM_CLASS = "itemvalue";
 // the linter working if a property is ever renamed out from under it.
 const TRIGGER_SUFFIX = "trigger";
 const VALIDATOR_SUFFIX = "validator";
+const MASK_SUFFIX = "mask";
+const MASK_BASE_CLASS = "masksettings";
+const MASK_NONE = "none";
 
 // Element, cell, trigger and validator type names come straight from the linted JSON,
 // so a type may be anything - including "" or a name the registry does not know.
@@ -65,8 +89,37 @@ function toPropDefs(props: Array<JsonObjectProperty>): Array<ExpressionPropDef> 
   return res;
 }
 
+function toLocPropNames(props: Array<JsonObjectProperty>): Array<string> {
+  const res: Array<string> = [];
+  props.forEach(prop => {
+    // an array of localizable strings (text.dataList) carries no piping reference
+    if (prop.isLocalizable && !prop.isArray) res.push(prop.name);
+  });
+  return res;
+}
+
 export function isDescendantOf(type: string, ancestor: string): boolean {
   return !!findMetaClass(type) && Serializer.isDescendantOf(type, ancestor);
+}
+
+// A type registered through ComponentCollection. It is a question class like any other, but
+// what it does with a property is the component's own business, so reasoning that holds for
+// the core types does not automatically hold for it.
+export function isComponentType(type: string): boolean {
+  return !!type && !!ComponentCollection.Instance.getCustomQuestionByName(type);
+}
+
+// The class chain of a type, from the type itself up to the root.
+export function getClassChain(type: string): Array<string> {
+  const res: Array<string> = [];
+  let name = (type || "").toLowerCase();
+  while(!!name) {
+    const cls = findMetaClass(name);
+    if (!cls) break;
+    res.push(cls.name || name);
+    name = cls.parentName;
+  }
+  return res;
 }
 
 export function isSelectBase(type: string): boolean {
@@ -85,10 +138,16 @@ export function isPanel(type: string): boolean {
 export class LintMetadata {
   private propsByClass = new Map<string, Array<ExpressionPropDef>>();
   private cellPropsByType = new Map<string, Array<ExpressionPropDef>>();
+  private locPropsByClass = new Map<string, Array<string>>();
+  private cellLocPropsByType = new Map<string, Array<string>>();
   private triggerDefs = new Map<string, TriggerTypeDef>();
   private elementTypes: Array<string>;
   private elementTypeSet: Set<string>;
   private triggerTypes: Array<string>;
+  private validatorTypes: Array<string>;
+  private maskTypes: Array<string>;
+  private knownKeys = new Map<string, KnownKeys | undefined>();
+  private columnKnownKeys = new Map<string, KnownKeys>();
   private classNameParts = new Map<string, string>();
   private elementsKeys: Array<string>;
   private templateElementsKeys: Array<string>;
@@ -107,11 +166,91 @@ export class LintMetadata {
   }
 
   // A validator "type" is accepted both as "expression" and as the full class name
-  // "expressionvalidator".
-  public getValidatorExpressionProps(type: string): Array<ExpressionPropDef> {
+  // "expressionvalidator": the class name the deserializer resolves it to.
+  public getValidatorClassName(type: string): string {
     const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
     const lower = (type || "").toLowerCase();
-    return this.getExpressionProps(!lower || lower.indexOf(suffix) > -1 ? lower : lower + suffix);
+    return !lower || lower.indexOf(suffix) > -1 ? lower : lower + suffix;
+  }
+
+  public getValidatorExpressionProps(type: string): Array<ExpressionPropDef> {
+    return this.getExpressionProps(this.getValidatorClassName(type));
+  }
+
+  // The class a validator "type" loads as, or undefined when the type names no validator -
+  // which the deserializer answers by dropping the validator.
+  public getValidatorClass(type: string): string | undefined {
+    const className = this.getValidatorClassName(type);
+    return isDescendantOf(className, "surveyvalidator") ? className : undefined;
+  }
+
+  // Undefined for a class the registry does not know: the JSON then describes nothing the
+  // deserializer can build, which the */unknown-type rules report on their own.
+  public getKnownKeys(className: string): KnownKeys | undefined {
+    const key = (className || "").toLowerCase();
+    if (!this.knownKeys.has(key)) {
+      const metaClass = findMetaClass(key);
+      this.knownKeys.set(key, metaClass ? buildKnownKeys(metaClass.getAllProperties()) : undefined);
+    }
+    return this.knownKeys.get(key);
+  }
+
+  // A matrix column carries the properties of its cell question type on top of its own, the
+  // way getDynamicProperties exposes them at runtime.
+  public getColumnKnownKeys(cellType: string): KnownKeys {
+    const key = (cellType || "").toLowerCase();
+    if (!this.columnKnownKeys.has(key)) {
+      const own = findMetaClass(COLUMN_CLASS).getAllProperties();
+      const dynamic = !!findMetaClass(key)
+        ? Serializer.getDynamicPropertiesByTypes(COLUMN_CLASS, key) : [];
+      this.columnKnownKeys.set(key, buildKnownKeys(own.concat(dynamic)));
+    }
+    return this.columnKnownKeys.get(key);
+  }
+
+  public isComponentType(type: string): boolean {
+    return isComponentType(type);
+  }
+
+  // createMaskSettings (question_text.ts): the class is maskType + "mask", and an unregistered
+  // one falls back to the bare settings class, which keeps none of the mask's own properties.
+  public resolveMaskClass(maskType: string): string | undefined {
+    const type = (maskType || "").toLowerCase();
+    if (!type || type === MASK_NONE) return MASK_BASE_CLASS;
+    const className = type + MASK_SUFFIX;
+    return !!findMetaClass(className) ? className : undefined;
+  }
+
+  // "none" plus every registered mask class, in the short form maskType spells.
+  public getMaskTypes(): Array<string> {
+    if (!this.maskTypes) {
+      const res = Serializer.getChildrenClasses(MASK_BASE_CLASS).map((cls: any) => {
+        const name = (cls.name || "").toLowerCase();
+        const at = name.indexOf(MASK_SUFFIX);
+        return at > -1 ? name.substring(0, at) : name;
+      });
+      res.unshift(MASK_NONE);
+      this.maskTypes = res;
+    }
+    return this.maskTypes;
+  }
+
+  // The JSON validator type with the class-name suffix stripped, the short form
+  // settings.supportedValidators lists.
+  public normalizeValidatorType(type: string): string {
+    const suffix = this.getClassNamePart("question", "validators", VALIDATOR_SUFFIX);
+    const res = (type || "").toLowerCase();
+    if (!!suffix && res.endsWith(suffix)) return res.substring(0, res.length - suffix.length);
+    return res;
+  }
+
+  // The type names a validator may carry, in the short form the JSON usually spells.
+  public getValidatorTypes(): Array<string> {
+    if (!this.validatorTypes) {
+      this.validatorTypes = Serializer.getChildrenClasses("surveyvalidator", true)
+        .map(cls => this.normalizeValidatorType(cls.name));
+    }
+    return this.validatorTypes;
   }
 
   // The JSON trigger type with the class-name suffix stripped, the way SurveyModel
@@ -181,6 +320,43 @@ export class LintMetadata {
     return res;
   }
 
+  // Localizable properties carry text piping ({q1} in a title), which resolves names
+  // through the same chain an expression does. isLocalizable covers a property declared
+  // with serializationProperty: "locXxx" too (templateTitle), so the list is complete.
+  public getLocalizableProps(className: string): Array<string> {
+    const key = (className || "").toLowerCase();
+    let res = this.locPropsByClass.get(key);
+    if (!res) {
+      const metaClass = findMetaClass(key);
+      res = metaClass ? toLocPropNames(metaClass.getAllProperties()) : [];
+      this.locPropsByClass.set(key, res);
+    }
+    return res;
+  }
+
+  public getElementLocalizableProps(type: string, fallbackClass: string): Array<string> {
+    return this.getLocalizableProps(!!findMetaClass(type) ? type : fallbackClass);
+  }
+
+  public getCellLocalizableProps(cellType: string): Array<string> {
+    const key = (cellType || "").toLowerCase();
+    let res = this.cellLocPropsByType.get(key);
+    if (!res) {
+      res = this.getLocalizableProps(COLUMN_CLASS).slice();
+      if (!!findMetaClass(key)) {
+        res = res.concat(toLocPropNames(Serializer.getDynamicPropertiesByTypes(COLUMN_CLASS, key)));
+      }
+      this.cellLocPropsByType.set(key, res);
+    }
+    return res;
+  }
+
+  public getItemLocalizableProps(ownerType: string, propName: string): Array<string> {
+    const prop = findProperty(ownerType, propName);
+    const className = !!prop && !!prop.className ? prop.className : DEFAULT_ITEM_CLASS;
+    return this.getLocalizableProps(className);
+  }
+
   // Expression properties of the items in an itemvalue-like array ("choices:choiceitem[]",
   // "areas:imagemaparea[]", "customLabels:sliderlabel[]"): the item class comes from the
   // array property itself, so a subclass with extra conditions is scanned too.
@@ -196,24 +372,27 @@ export class LintMetadata {
   // registers as question descendants. ElementFactory is NOT the source here: it
   // holds only what the Creator toolbox offers (buttongroup, flowpanel and imagemap
   // are missing from it, yet all three deserialize).
+  private ensureElementTypes(): void {
+    if (!!this.elementTypes) return;
+    const res: Array<string> = [];
+    Serializer.getAllClasses().forEach(name => {
+      if (!isElementClass(name)) return;
+      res.push(name);
+      const alias = Serializer.getAliasByType(name);
+      if (!!alias) res.push(alias);
+    });
+    this.elementTypes = res;
+    this.elementTypeSet = new Set<string>(res);
+  }
+
   public getElementTypes(): Array<string> {
-    if (!this.elementTypes) {
-      const res: Array<string> = [];
-      Serializer.getAllClasses().forEach(name => {
-        if (!isElementClass(name)) return;
-        res.push(name);
-        const alias = Serializer.getAliasByType(name);
-        if (!!alias) res.push(alias);
-      });
-      this.elementTypes = res;
-      this.elementTypeSet = new Set<string>(res);
-    }
+    this.ensureElementTypes();
     return this.elementTypes;
   }
 
   public isKnownElementType(type: string): boolean {
     if (!type) return false;
-    this.getElementTypes();
+    this.ensureElementTypes();
     // findClass resolves aliases, so an aliased type is known even when the alias
     // itself is not a registered class
     return this.elementTypeSet.has(type.toLowerCase()) || isElementClass(type);

@@ -272,3 +272,150 @@ describe("built-in variables: the core table vs the linter", () => {
     })).toEqual(["reference/unknown @ elements[0].visibleIf"]);
   });
 });
+
+// validator/dead claims a validator either never fires or rejects every answer. The claim is
+// about behaviour, so it is pinned against behaviour: each case feeds the question a valid
+// answer and asks the model what the validator did with it.
+//
+// settings.supportedValidators is deliberately NOT the criterion. It lists what the Creator
+// offers, and the runtime runs whatever is attached: the "regex on a number input" rows below
+// pass validation, which is why the linter stays silent about them.
+describe("linter vs runtime: validators that cannot validate", () => {
+  function runtimeRejects(question: any, validator: any, value: any): boolean {
+    const survey = new SurveyModel({
+      elements: [Object.assign({}, question, { name: "q1", validators: [validator] })],
+    });
+    const q = survey.getQuestionByName("q1");
+    q.value = value;
+    return q.hasErrors(false);
+  }
+  function lintReports(question: any, validator: any): Array<string> {
+    const json = { elements: [Object.assign({}, question, { name: "q1", validators: [validator] })] };
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "validator/dead" && f.reason === "wrongValueShape")
+      .map(f => f.messageData.effect);
+  }
+  const CASES: Array<{
+    title: string, question: any, validator: any,
+    // answers the validator is meant to accept, plus one it is meant to reject
+    good: any, bad: any, effect?: string,
+  }> = [
+    {
+      title: "numeric on a checkbox", question: { type: "checkbox", choices: [1, 2] },
+      validator: { type: "numeric", minValue: 1 }, good: [1, 2], bad: [1, 2],
+      effect: "rejectsEveryAnswer",
+    },
+    {
+      title: "email on a number input", question: { type: "text", inputType: "number" },
+      validator: { type: "email" }, good: 42, bad: 42, effect: "rejectsEveryAnswer",
+    },
+    {
+      title: "a length check on a number input", question: { type: "text", inputType: "number" },
+      validator: { type: "text", minLength: 5 }, good: 42, bad: 4, effect: "neverFires",
+    },
+    {
+      title: "answercount on a single-value question", question: { type: "radiogroup", choices: ["a"] },
+      validator: { type: "answercount", minCount: 2 }, good: "a", bad: "a", effect: "neverFires",
+    },
+    {
+      title: "regex on a number input", question: { type: "text", inputType: "number" },
+      validator: { type: "regex", regex: "^4" }, good: 42, bad: 91,
+    },
+    {
+      title: "regex on a checkbox", question: { type: "checkbox", choices: ["ab"] },
+      validator: { type: "regex", regex: "^a" }, good: ["ab"], bad: undefined,
+    },
+    {
+      title: "numeric on a rating", question: { type: "rating" },
+      validator: { type: "numeric", minValue: 1 }, good: 3, bad: undefined,
+    },
+    {
+      title: "a length check on a text input", question: { type: "text" },
+      validator: { type: "text", minLength: 5 }, good: "abcdef", bad: "ab",
+    },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + (entry.effect ? " is reported as " + entry.effect : " stays clean"), () => {
+      expect(lintReports(entry.question, entry.validator)).toEqual(entry.effect ? [entry.effect] : []);
+      if (entry.effect === "rejectsEveryAnswer") {
+        // the answer the validator was written for is rejected all the same
+        expect(runtimeRejects(entry.question, entry.validator, entry.good)).toBe(true);
+      } else if (entry.effect === "neverFires") {
+        // the answer the validator was written to reject passes
+        expect(runtimeRejects(entry.question, entry.validator, entry.bad)).toBe(false);
+      } else {
+        expect(runtimeRejects(entry.question, entry.validator, entry.good)).toBe(false);
+        if (entry.bad !== undefined) {
+          expect(runtimeRejects(entry.question, entry.validator, entry.bad)).toBe(true);
+        }
+      }
+    });
+  });
+});
+
+// property/unknown rebuilds the deserializer's own key matching. The runtime answer is
+// survey.jsonErrors: a JsonUnknownPropertyError per key it could not place.
+describe("linter vs runtime: unknown properties", () => {
+  function runtimeUnknownKeys(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    // jsonErrors is null while the JSON loads without a complaint
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "unknownproperty")
+      .map((e: any) => e.propertyName)
+      .sort();
+  }
+  function lintUnknownKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/unknown")
+      .map(f => f.messageData.key)
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    {
+      title: "misspelled keys on a question and on the survey",
+      json: { titlee: "t", elements: [{ type: "text", name: "q1", visibileIf: "1=1", nosuch: 2 }] },
+    },
+    {
+      title: "keys of a page, a panel and a trigger",
+      json: {
+        pages: [{
+          name: "p1", nosuchpageprop: 1,
+          elements: [{ type: "panel", name: "pan1", nosuchpanelprop: 1, elements: [] }],
+        }],
+        triggers: [{ type: "complete", expression: "1=1", nosuchtriggerprop: 1 }],
+      },
+    },
+    {
+      title: "keys inside a matrix column and a multipletext item",
+      json: {
+        elements: [
+          { type: "matrixdynamic", name: "m1", columns: [{ name: "c1", nosuchcolumnprop: 1 }] },
+          { type: "multipletext", name: "mt1", items: [{ name: "i1", nosuchitemprop: 1 }] },
+        ],
+      },
+    },
+    {
+      title: "an object-form choice next to a scalar one",
+      json: {
+        elements: [{ type: "dropdown", name: "q1", choices: ["a", { value: "b", nosuchchoiceprop: 1 }] }],
+      },
+    },
+    {
+      title: "a survey the serializer accepts whole",
+      json: {
+        title: "t",
+        elements: [
+          { type: "text", name: "q1", inputType: "number", min: 1, max: 5 },
+          { type: "checkbox", name: "q2", choices: ["a"], hasOther: true },
+          { type: "matrixdynamic", name: "m1", columns: [{ name: "c1", cellType: "dropdown", choices: ["x"] }] },
+        ],
+        triggers: [{ type: "setvalue", expression: "{q1} > 1", setToName: "q2", setValue: ["a"] }],
+      },
+    },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer drops", () => {
+      expect(lintUnknownKeys(entry.json)).toEqual(runtimeUnknownKeys(entry.json));
+    });
+  });
+});

@@ -64,6 +64,18 @@ describe("expression/type-mismatch - ordering operators", () => {
       ],
     })).toHaveLength(1);
   });
+  test("arithmetic says arithmetic, not ordering", () => {
+    const findings = byRule({
+      elements: [
+        { type: "boolean", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{q1} + 1 > 2" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("boolean-ordering");
+    expect(findings[0].message).toContain("not a number to compute with");
+    expect(findings[0].message).not.toContain("ordering operators do not apply");
+  });
   test("ordering on html (no value) is flagged", () => {
     const findings = byRule({
       elements: [
@@ -219,5 +231,63 @@ describe("expression/type-mismatch - indexed and sub-path references", () => {
         { type: "text", name: "q2", visibleIf: "{mt} > 5" },
       ],
     })).toHaveLength(1);
+  });
+});
+
+describe("expression/type-mismatch - matrix and panel sub-paths", () => {
+  test("a numeric template question compared to a string is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "paneldynamic", name: "p5", templateElements: [
+          { type: "text", name: "age", inputType: "number" },
+        ] },
+        { type: "text", name: "q4", visibleIf: "{p5[0].age} > 'ten'" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("number-vs-string");
+  });
+  test("a checkbox column compared to a scalar is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdropdown", name: "m8", rows: ["r1"],
+          columns: [{ name: "tags", cellType: "checkbox", choices: ["a", "b"] }] },
+        { type: "text", name: "q2", visibleIf: "{m8.r1.tags} = 'a'" },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("array-vs-scalar");
+  });
+  test("an indexed single-segment reference stays untyped", () => {
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "tags", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{tags[0]} = 'a'" },
+      ],
+    })).toHaveLength(0);
+  });
+});
+
+describe("expression/type-mismatch - scope index variables", () => {
+  test("{rowIndex} compared to a string is flagged", () => {
+    const findings = byRule({
+      elements: [
+        { type: "matrixdynamic", name: "m10", columns: [
+          { name: "col1" },
+          { name: "col2", visibleIf: "{rowIndex} = 'first'" },
+        ] },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reason).toBe("number-vs-string");
+  });
+  test("{visiblePanelIndex} compared to a number is clean", () => {
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p6", templateElements: [
+          { type: "text", name: "q", visibleIf: "{visiblePanelIndex} = 2" },
+        ] },
+      ],
+    })).toHaveLength(0);
   });
 });

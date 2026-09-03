@@ -38,6 +38,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "reference/unknown", reason: "functionArgNotFound",
+    json: {
+      elements: [
+        { type: "matrixdynamic", name: "m", columns: [{ name: "col1", cellType: "text" }] },
+        { type: "expression", name: "e1", expression: "sumInArray({m}, 'nosuchcol')" },
+      ],
+    },
+  },
+  {
     ruleId: "reference/self", reason: "selfReference",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "{q1} notempty" }] },
   },
@@ -58,6 +67,74 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
       elements: [{ type: "text", name: "q1" }],
       calculatedValues: [{ name: "q1", expression: "1" }],
     },
+  },
+  {
+    ruleId: "name/shadowing", reason: "builtInVariable",
+    json: { elements: [{ type: "text", name: "pageno" }] },
+  },
+  {
+    ruleId: "name/shadowing", reason: "valueNameShadowsElement",
+    json: { elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "text", name: "q2" }] },
+  },
+  {
+    ruleId: "name/shadowing", reason: "commentKeyCollision",
+    json: {
+      elements: [
+        { type: "text", name: "q1", showCommentArea: true },
+        { type: "text", name: "q1-Comment" },
+      ],
+    },
+  },
+  {
+    ruleId: "name/shadowing", reason: "totalKeyCollision",
+    json: {
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "text", name: "m1-total" },
+      ],
+    },
+  },
+  {
+    ruleId: "name/shadowing", reason: "variableShadowsQuestion",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{
+        type: "setvalue", expression: "{q2} = 1", setToName: "q1", setValue: "x", isVariable: true,
+      }],
+    },
+  },
+  {
+    ruleId: "property/unknown", reason: "unknownProperty",
+    json: { elements: [{ type: "text", name: "q1", visibileIf: "1 = 1" }] },
+  },
+  {
+    ruleId: "property/invalid-value", reason: "notInChoices",
+    json: { elements: [{ type: "text", name: "q1", titleLocation: "topp" }] },
+  },
+  {
+    ruleId: "property/invalid-value", reason: "outOfRange",
+    json: { backgroundOpacity: 5, elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/invalid-value", reason: "valueNameDotted",
+    json: { elements: [{ type: "text", name: "q1", valueName: "user.email" }] },
+  },
+  {
+    ruleId: "property/dead", reason: "notSerializable",
+    json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/dead", reason: "aliasDuplicate",
+    json: {
+      elements: [{ type: "checkbox", name: "q1", choices: ["a"], showOtherItem: true, hasOther: false }],
+    },
+  },
+  {
+    ruleId: "property/dead", reason: "inertMinMax",
+    json: { elements: [{ type: "text", name: "q1", min: 1 }] },
   },
   {
     ruleId: "element/unknown-type", reason: "unknownType",
@@ -201,8 +278,40 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 2" }] },
   },
   {
+    ruleId: "expression/contradiction", reason: "alwaysFalseViaConstants",
+    json: {
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 5" }],
+    },
+  },
+  {
+    ruleId: "expression/contradiction", reason: "outOfRange",
+    json: {
+      elements: [
+        { type: "text", name: "age", inputType: "number", min: 1, max: 5 },
+        { type: "text", name: "q1", visibleIf: "{age} > 10" },
+      ],
+    },
+  },
+  {
+    ruleId: "expression/contradiction", reason: "unsatisfiable",
+    json: {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'a' and {q1} = 'b'" },
+      ],
+    },
+  },
+  {
     ruleId: "expression/meaningless-condition", reason: "alwaysTrue",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "1 = 1" }] },
+  },
+  {
+    ruleId: "expression/meaningless-condition", reason: "alwaysTrueViaConstants",
+    json: {
+      calculatedValues: [{ name: "c1", expression: "1 + 1" }],
+      elements: [{ type: "text", name: "q1", visibleIf: "{c1} = 2" }],
+    },
   },
   {
     ruleId: "expression/meaningless-condition", reason: "notABoolean",
@@ -289,6 +398,230 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     json: { elements: [{ type: "text", name: "q1" }], triggers: [{ expression: "{q1} notempty" }] },
   },
   {
+    ruleId: "value/not-a-choice", reason: "defaultValue",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], defaultValue: "z" }] },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "correctAnswer",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b"], correctAnswer: "z" }] },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "defaultRowValue",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "col1", cellType: "dropdown", choices: ["a"] }],
+        defaultRowValue: { col1: "z" },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "defaultPanelValue",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "dropdown", name: "q1", choices: ["a"] }],
+        defaultPanelValue: { q1: "z" },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownRowKey",
+    json: {
+      elements: [{
+        type: "matrix", name: "m1", rows: ["r1"], columns: [1, 2],
+        defaultValue: { rX: 1 },
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownColumnKey",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }],
+        defaultValue: [{ colX: 1 }],
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "unknownQuestionKey",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "text", name: "q1" }],
+        defaultValue: [{ qX: 1 }],
+      }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "copyValueShape",
+    json: {
+      elements: [
+        { type: "checkbox", name: "src", choices: ["a"] },
+        { type: "dropdown", name: "dst", choices: ["a"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "copyValueNoOverlap",
+    json: {
+      elements: [
+        { type: "dropdown", name: "src", choices: ["a"] },
+        { type: "dropdown", name: "dst", choices: ["b"] },
+      ],
+      triggers: [{ type: "copyvalue", expression: "{src} notempty", fromName: "src", setToName: "dst" }],
+    },
+  },
+  {
+    ruleId: "value/not-a-choice", reason: "triggerSetValue",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "dropdown", name: "q2", choices: ["a"] }],
+      triggers: [{ type: "setvalue", expression: "{q1} notempty", setToName: "q2", setValue: "z" }],
+    },
+  },
+  {
+    ruleId: "cycle/value-write", reason: "self",
+    json: { elements: [{ type: "text", name: "q1", resetValueIf: "{q1} = 'x'" }] },
+  },
+  {
+    ruleId: "cycle/value-write", reason: "loop",
+    json: {
+      elements: [
+        { type: "text", name: "a", setValueExpression: "{b} + 1" },
+        { type: "text", name: "b", setValueExpression: "{a} + 1" },
+      ],
+    },
+  },
+  {
+    ruleId: "reference/unknown", reason: "keyNameNotFound",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", keyName: "colX", columns: [{ name: "col1" }],
+      }],
+    },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "minAboveMax",
+    json: {
+      elements: [{
+        type: "matrixdynamic", name: "m1", columns: [{ name: "c" }],
+        minRowCount: 5, maxRowCount: 3,
+      }],
+    },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "countOutOfBounds",
+    json: {
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q" }],
+        panelCount: 0, minPanelCount: 2,
+      }],
+    },
+  },
+  {
+    ruleId: "validator/unknown-type", reason: "unknownType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "nosuch" }] }] },
+  },
+  {
+    ruleId: "validator/unknown-type", reason: "noType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] },
+  },
+  {
+    ruleId: "validator/dead", reason: "wrongValueShape",
+    json: {
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a"], validators: [{ type: "numeric", minValue: 1 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "minAboveMax",
+    json: {
+      elements: [{
+        type: "text", name: "q1", inputType: "number",
+        validators: [{ type: "numeric", minValue: 100, maxValue: 10 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "minCountAboveChoices",
+    json: {
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"],
+        validators: [{ type: "answercount", minCount: 3 }],
+      }],
+    },
+  },
+  {
+    ruleId: "validator/dead", reason: "invalidRegex",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "regex", regex: "([0-9" }] }] },
+  },
+  {
+    ruleId: "validator/dead", reason: "emptyExpression",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "expression" }] }] },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "stepAboveRange",
+    json: { elements: [{ type: "rating", name: "r1", rateMin: 1, rateMax: 4, rateStep: 10 }] },
+  },
+  {
+    ruleId: "element/count-contradiction", reason: "minAboveChoicesCount",
+    json: { elements: [{ type: "checkbox", name: "q1", choices: ["a", "b"], minSelectedChoices: 5 }] },
+  },
+  {
+    ruleId: "choices/duplicate", reason: "duplicateValue",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "a"] }] },
+  },
+  {
+    ruleId: "choices/duplicate", reason: "specialItemCollision",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "none"], showNoneItem: true }] },
+  },
+  {
+    ruleId: "element/never-visible", reason: "dependsOnDeadValue",
+    json: {
+      elements: [
+        { type: "text", name: "q1", visibleIf: "1 = 2" },
+        { type: "text", name: "q2", visibleIf: "{q1} = 'yes'" },
+      ],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "unknownMaskType",
+    json: { elements: [{ type: "text", name: "q1", maskType: "nosuch" }] },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "unknownSettingsKey",
+    json: {
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { pattern: "9" } }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "settingsWithoutMask",
+    json: { elements: [{ type: "text", name: "q1", maskSettings: { precision: 2 } }] },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "maskInertForInputType",
+    json: {
+      elements: [{ type: "text", name: "q1", inputType: "number", maskType: "numeric" }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "minMaxWithoutPattern",
+    json: {
+      elements: [{
+        type: "text", name: "q1", maskType: "datetime",
+        maskSettings: { min: "2020-01-01", max: "2025-01-01" },
+      }],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", reason: "minAboveMax",
+    json: {
+      elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: { min: 100, max: 1 } }],
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },
@@ -299,6 +632,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
   {
     ruleId: "page/empty", reason: "noRenderableElements",
     json: { pages: [{ name: "p1", elements: [{ type: "text", name: "q1", visible: false }] }] },
+  },
+  {
+    ruleId: "page/empty", reason: "detailElementsHidden",
+    json: {
+      elements: [{
+        type: "matrixdropdown", name: "m1", rows: ["r1"], columns: [{ name: "c1" }],
+        detailElements: [{ type: "text", name: "d1" }],
+      }],
+    },
   },
 ];
 
@@ -492,6 +834,12 @@ describe("linter reasons - the data a localized message needs", () => {
       { path: "triggers[1]", type: "setvalue", setToName: "q2" },
     ]);
     expect(findings[0].messageData.setToName).toBe("q1");
+    // the loop is recorded the way cycle/calculated-value records it: identities, closed
+    expect(findings[0].messageData.cycle).toEqual(["triggers[0]", "triggers[1]", "triggers[0]"]);
+    expect(findings[0].messageData.names).toEqual(["triggers[0]", "triggers[1]"]);
+    expect(findings[0].messageData.labels).toEqual([
+      "triggers[0] (setvalue -> q1)", "triggers[1] (setvalue -> q2)",
+    ]);
   });
   test("cycle/calculated-value reports the loop without the repeated first name", () => {
     const findings = findingsOf({

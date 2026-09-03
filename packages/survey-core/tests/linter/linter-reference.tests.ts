@@ -585,3 +585,394 @@ describe("reference/unknown - other reference sites", () => {
     expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
   });
 });
+
+describe("reference/unknown - keyName", () => {
+  test("a matrixdynamic keyName naming no column is flagged", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m6", keyName: "coll",
+        columns: [{ name: "col1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("keyNameNotFound");
+    expect(findings[0].suggestion).toBe("col1");
+    expect(findings[0].path).toContain("keyName");
+  });
+  test("a paneldynamic keyName naming no template question is flagged", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p4", keyName: "qTypo",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("keyNameNotFound");
+  });
+  test("a keyName matching a column is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m6", keyName: "col1",
+        columns: [{ name: "col1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a keyName matching a template question valueName is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p4", keyName: "v1",
+        templateElements: [{ type: "text", name: "q1", valueName: "v1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a keyName matching a question nested in a template panel is clean", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p5", keyName: "q2",
+        templateElements: [{ type: "panel", name: "inner", elements: [
+          { type: "text", name: "q2" },
+        ] }],
+      }],
+    })).toHaveLength(0);
+  });
+});
+
+describe("reference/unknown - text piping", () => {
+  test("a name in a title is validated", () => {
+    const findings = unknownRefs({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "radiogroup", name: "question3", title: "{someVarIs} is here " },
+          { type: "text", name: "question4", visibleIf: "{someVarIs}" },
+          {
+            type: "paneldynamic", name: "question1", templateTitle: "{someVarIs} is here ",
+            templateElements: [{ type: "text", name: "question2" }],
+          },
+        ],
+      }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "pages[0].elements[0].title",
+      "pages[0].elements[1].visibleIf",
+      "pages[0].elements[2].templateTitle",
+    ]);
+    expect(findings[0].messageData.refKind).toBe("textPiping");
+    expect(findings[0].reason).toBe("notFound");
+  });
+  test("a title naming an existing question is clean", () => {
+    expect(unknownRefs({
+      elements: [
+        { type: "text", name: "question4" },
+        { type: "text", name: "q2", title: "{question4} is here" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("piping is validated in every localizable property", () => {
+    const findings = unknownRefs({
+      elements: [
+        { type: "text", name: "q1", description: "{nosuch1}", placeholder: "{nosuch2}" },
+        { type: "html", name: "h1", html: "{nosuch3}" },
+        { type: "dropdown", name: "d1", choices: [{ value: 1, text: "{nosuch4}" }] },
+        {
+          type: "matrixdropdown", name: "m1", rows: ["r1"],
+          columns: [{ name: "col1", cellHint: "{nosuch5}" }],
+        },
+        { type: "multipletext", name: "mt1", items: [{ name: "i1", title: "{nosuch6}" }] },
+        { type: "panel", name: "p1", title: "{nosuch7}" },
+      ],
+    });
+    expect(findings.map(f => f.messageData.name).sort()).toEqual([
+      "nosuch1", "nosuch2", "nosuch3", "nosuch4", "nosuch5", "nosuch6", "nosuch7",
+    ]);
+  });
+  test("piping is validated in page and survey properties", () => {
+    const findings = unknownRefs({
+      completedHtml: "<b>{nosuch1}</b>",
+      pages: [{ name: "page1", title: "{nosuch2}", elements: [{ type: "text", name: "q1" }] }],
+    });
+    expect(findings.map(f => f.path)).toEqual(["completedHtml", "pages[0].title"]);
+  });
+  test("a dynamic panel template resolves its own scope", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateTitle: "{panel.q1} {panelIndex} {visiblePanelIndex}",
+        templateDescription: "{panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a template question named without its prefix is reported with a hint", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateTitle: "{q1}",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("panel.q1");
+    expect(findings[0].hint.reason).toBe("panelQuestion");
+  });
+  test("a matrix single input title resolves the row scope", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        singleInputTitleTemplate: "Row {rowIndex}: {row.col1}",
+        columns: [{ name: "col1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("an unknown column in a matrix single input title is reported", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        singleInputTitleTemplate: "{row.nosuchcol}",
+        columns: [{ name: "col1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("scopedUnknown");
+  });
+  test("a per-locale title object is walked", () => {
+    const findings = unknownRefs({
+      elements: [{ type: "text", name: "q1", title: { default: "{bad1}", de: "{bad2}" } }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "elements[0].title.de", "elements[0].title.default",
+    ]);
+  });
+  test("format placeholders are not references", () => {
+    expect(unknownRefs({
+      elements: [
+        { type: "expression", name: "e1", expression: "1", format: "{0} items" },
+        { type: "text", name: "q1", inputType: "number", min: 1, minErrorText: "at least {0}" },
+        {
+          type: "matrixdynamic", name: "m1", showTotal: true,
+          columns: [{ name: "col1", totalType: "sum", totalFormat: "Total: {0}" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  // the survey reads these out of the template itself, and processText never sees the string
+  test("the question title template is not a piping text", () => {
+    expect(unknownRefs({
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [{ type: "text", name: "q1" }],
+    })).toHaveLength(0);
+  });
+  test("a token with a colon is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{ type: "text", name: "q1", title: "{nosuch:x}" }],
+    })).toHaveLength(0);
+  });
+  test("inline css in html is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "html", name: "h1",
+        html: "<style>p { color: red } @media print { .a { margin: 0 } }</style><p>ok</p>",
+      }],
+    })).toHaveLength(0);
+  });
+  test("a regex quantifier is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "text", name: "q1",
+        validators: [{ type: "regex", regex: "^\d{2,3}$", text: "wrong" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a dataList entry is not scanned", () => {
+    expect(unknownRefs({
+      elements: [{ type: "text", name: "q1", dataList: ["{bad}"] }],
+    })).toHaveLength(0);
+  });
+  test("piping names are found through custom expression delimiters", () => {
+    withSettings({ expressionVariableDelimiters: { start: "[[", end: "]]" } }, () => {
+      const findings = unknownRefs({
+        elements: [
+          { type: "text", name: "country" },
+          { type: "text", name: "q2", title: "[[countryy]]" },
+        ],
+      });
+      expect(findings).toHaveLength(1);
+      expect(findings[0].suggestion).toBe("country");
+    });
+  });
+  test("knownVariables and suppress silence a piping finding", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", title: "{someVarIs}" }],
+    };
+    expect(unknownRefs(json, { knownVariables: ["someVarIs"] })).toHaveLength(0);
+    expect(unknownRefs(json, { suppress: [{ path: "elements[0].title" }] })).toHaveLength(0);
+  });
+});
+
+describe("reference/unknown - piped properties outside the localizable ones", () => {
+  // path is processed with the very same processor as url, and a name missing from either of
+  // them blanks both, so the request never runs
+  test("the choicesByUrl path is validated", () => {
+    const findings = unknownRefs({
+      elements: [
+        { type: "text", name: "country" },
+        {
+          type: "dropdown", name: "city",
+          choicesByUrl: { url: "https://api.example.com/{country}/cities", path: "data.{countryy}" },
+        },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[1].choicesByUrl.path");
+    expect(findings[0].suggestion).toBe("country");
+    expect(findings[0].messageData.refKind).toBe("choicesByUrlVariable");
+  });
+  test("survey navigation and completion texts are validated", () => {
+    const findings = unknownRefs({
+      navigateToUrl: "https://x/{nosuch1}",
+      completedHtmlOnCondition: [{ expression: "{q1} notempty", html: "{nosuch2}" }],
+      navigateToUrlOnCondition: [{ expression: "{q1} notempty", url: "https://x/{nosuch3}" }],
+      elements: [{ type: "text", name: "q1" }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "completedHtmlOnCondition[0].html",
+      "navigateToUrl",
+      "navigateToUrlOnCondition[0].url",
+    ]);
+  });
+  test("a known name in those texts is clean", () => {
+    expect(unknownRefs({
+      navigateToUrl: "https://x/{q1}",
+      completedHtmlOnCondition: [{ expression: "{q1} notempty", html: "{q1}" }],
+      navigateToUrlOnCondition: [{ expression: "{q1} notempty", url: "https://x/{q1}" }],
+      elements: [{ type: "text", name: "q1" }],
+    })).toHaveLength(0);
+  });
+});
+
+describe("reference/unknown - names in function arguments", () => {
+  const matrixJson = {
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "col1", cellType: "text" }] },
+    ],
+  };
+  function withExpression(expression: string, json: any = matrixJson): Array<ILintFinding> {
+    const copy = JSON.parse(JSON.stringify(json));
+    copy.elements.push({ type: "expression", name: "e1", expression: expression });
+    return unknownRefs(copy);
+  }
+  test("an unknown column of an inArray function is reported", () => {
+    const findings = withExpression("sumInArray({m1}, 'nosuchcol')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("functionArgNotFound");
+    expect(findings[0].messageData.refKind).toBe("functionArgument");
+    expect(findings[0].messageData.containerName).toBe("m1");
+    expect(withExpression("sumInArray({m1}, 'col11')")[0].suggestion).toBe("col1");
+  });
+  test("a listed column of an inArray function is clean", () => {
+    expect(withExpression("sumInArray({m1}, 'col1')")).toHaveLength(0);
+    expect(withExpression("avgInArray({m1}, 'col1', '{row.col1} > 1')")).toHaveLength(0);
+  });
+  test("a template question of an inArray function resolves", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "text", name: "tq1", inputType: "number" }],
+      }],
+    };
+    expect(withExpression("sumInArray({p1}, 'tq1')", json)).toHaveLength(0);
+    expect(withExpression("sumInArray({p1}, 'tq2')", json)).toHaveLength(1);
+  });
+  test("the return-column argument of an inArray function is resolved too", () => {
+    expect(withExpression("minInArray({m1}, 'col1', 'col1')")).toHaveLength(0);
+    expect(withExpression("minInArray({m1}, 'col1', 'nosuchcol')")).toHaveLength(1);
+  });
+  test("an unresolved first argument is reported once", () => {
+    const findings = withExpression("sumInArray({nosuchq}, 'anything')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("nosuchq");
+  });
+  test("displayValue, getComment, propertyValue and isContainerReady are resolved", () => {
+    expect(withExpression("displayValue('q1')")).toHaveLength(0);
+    expect(withExpression("displayValue('nosuchq')")).toHaveLength(1);
+    expect(withExpression("getComment('nosuchq')")).toHaveLength(1);
+    expect(withExpression("propertyValue('nosuchq', 'isVisible')")).toHaveLength(1);
+    expect(withExpression("isContainerReady('nosuchpanel')")).toHaveLength(1);
+  });
+  test("a computed argument is not a name", () => {
+    expect(withExpression("displayValue({q1})")).toHaveLength(0);
+    expect(withExpression("sumInArray({m1}, {q1})")).toHaveLength(0);
+  });
+  test("a cell expression names a sibling column without a prefix", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "expression", expression: "displayValue('col1')" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a page and a panel answer isContainerReady", () => {
+    expect(unknownRefs({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }] },
+          { type: "text", name: "q2", visibleIf: "isContainerReady('page1')" },
+          { type: "text", name: "q3", visibleIf: "isContainerReady('p1')" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+});
+
+describe("nested conditions of inArray functions", () => {
+  function lint(expression: string): Array<ILintFinding> {
+    return lintSurvey({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "col1", cellType: "text", inputType: "number" }],
+        },
+        { type: "expression", name: "e1", expression: expression },
+      ],
+    }).findings;
+  }
+  test("an unknown column inside the condition is reported", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{row.nosuchcol} > 5')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("reference/unknown");
+    expect(findings[0].reason).toBe("scopedUnknown");
+    expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
+  });
+  test("a listed column inside the condition is clean", () => {
+    expect(lint("sumInArray({m1}, 'col1', '{row.col1} > 5')")).toHaveLength(0);
+    expect(lint("countInArray({m1}, 'col1', '{q1} notempty')")).toHaveLength(0);
+  });
+  test("an unknown survey name inside the condition is reported", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{nosuchq} > 5')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("reference/unknown");
+    expect(findings[0].messageData.name).toBe("nosuchq");
+  });
+  test("an unparsable condition is reported as a syntax error", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{row.col1} ===')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("expression/syntax");
+    expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
+  });
+  test("a dynamic panel template question resolves inside the condition", () => {
+    expect(lintSurvey({
+      elements: [
+        {
+          type: "paneldynamic", name: "p1",
+          templateElements: [{ type: "text", name: "tq1", inputType: "number" }],
+        },
+        { type: "expression", name: "e1", expression: "sumInArray({p1}, 'tq1', '{panel.tq1} > 1')" },
+      ],
+    }).findings).toHaveLength(0);
+  });
+});

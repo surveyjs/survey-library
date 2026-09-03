@@ -1,37 +1,23 @@
-import { closestMatch } from "../levenshtein";
+import { ILintRule, LintContext } from "../rule";
+import {
+  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, suggestForRef,
+} from "../expression-utils";
+import { ParsedRef, TriggerRecord } from "../symbols";
+import { ILintReproduction } from "../types";
 import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["trigger/unknown-target"];
-import { ILintRule, LintContext } from "../rule";
-import { buildTriggerSetStep, builtInVariableNames, classifyTargetName, equalsCI } from "../expression-utils";
-import { ParsedRef, TriggerRecord } from "../symbols";
-import { ILintReproduction } from "../types";
 
-// Kind-filtered pools: classifyRef's own suggestion pool is unfiltered, which would
-// offer question names for a page target.
-function candidates(ctx: LintContext, kind: "questionvalue" | "question" | "page"): Array<string> {
-  const res: Array<string> = [];
-  ctx.index.byName.forEach((records, name) => {
-    const wantPage = kind === "page";
-    if (records.some(rec => wantPage ? rec.kind === "page" : rec.kind === "question")) res.push(name);
-  });
-  if (kind === "questionvalue") {
-    ctx.index.byValueName.forEach((_, name) => res.push(name));
-    ctx.index.calculatedValues.forEach((_, name) => res.push(name));
-    if (Array.isArray(ctx.options.knownVariables)) res.push(...ctx.options.knownVariables);
-    res.push(...builtInVariableNames());
-  }
-  return res;
-}
+type TargetKind = "questionvalue" | "question" | "page";
 
-function rootSuggestion(ctx: LintContext, ref: ParsedRef, kind: "questionvalue" | "question" | "page"): string | undefined {
-  const pool = candidates(ctx, kind);
-  // a typo inside a dotted name ("address.cty") is closest to the full registered name
-  if (ref.segments.length > 1) {
-    const joined = closestMatch(ref.segments.map(seg => seg.name).join("."), pool);
-    if (joined) return joined;
-  }
-  return closestMatch(ref.segments[0].name, pool);
+// Kind-filtered pools: the pool classifyRef draws from is the one an expression reference
+// may name, which would offer a question name for a page target.
+function rootSuggestion(ctx: LintContext, ref: ParsedRef, kind: TargetKind): string | undefined {
+  const wantPage = kind === "page";
+  return suggestForRef(ref, nameCandidates(ctx.index, ctx.options, {
+    accepts: record => record.kind === (wantPage ? "page" : "question"),
+    values: kind === "questionvalue",
+  }));
 }
 
 function buildReproduction(trigger: TriggerRecord, targetName: string): ILintReproduction | undefined {
@@ -54,7 +40,7 @@ function innerNoun(type: string, segmentIndex: number): string {
   return "field";
 }
 
-function isAcceptedTarget(ref: ParsedRef, kind: "questionvalue" | "question" | "page"): boolean {
+function isAcceptedTarget(ref: ParsedRef, kind: TargetKind): boolean {
   if (ref.status !== "resolved") return false;
   if (kind === "page") return ref.resolvedKind === "page";
   const record = ref.resolvedTo;

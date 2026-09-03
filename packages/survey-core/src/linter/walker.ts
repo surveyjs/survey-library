@@ -1,15 +1,17 @@
 import { TextPreProcessor, buildTriggerExpression } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
-import { ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS } from "./catalog";
+import {
+  ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
+} from "./catalog";
 import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBase } from "./metadata";
-import { parseExpressionText, splitRefSegments } from "./expression-utils";
+import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
-  CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite, ExpressionSiteKind,
-  ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex,
-  TriggerRecord, TriggerTargetRef,
+  CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
+  ExpressionSiteKind, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow,
+  ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
-import { getChoicesInfo, getItemValueRaw, getValueTypeInfo } from "./value-types";
+import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 
 const MAX_DEPTH = 128;
 
@@ -17,8 +19,10 @@ interface WalkState {
   index: SurveyIndex;
   options: ISurveyLintOptions;
   metadata: LintMetadata;
-  visited: any;
+  visited: WeakSet<object>;
   depth: number;
+  // one component definition is walked once, however many questions instantiate it
+  componentFields: Map<IComponentDef, CIMap<boolean>>;
 }
 
 function joinPath(base: string, key: string): string {
@@ -27,6 +31,10 @@ function joinPath(base: string, key: string): string {
 
 function isNonEmptyString(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
+}
+
+function itemValueFrame(owner: ElementRecord): ScopeFrameItemValue {
+  return { kind: "itemValue", owner: owner };
 }
 
 function addSite(state: WalkState, text: string, kind: ExpressionSiteKind, path: string, prop: string,
@@ -57,7 +65,7 @@ function addSitesFromProps(state: WalkState, json: any, basePath: string, props:
       if (!templateScope) return;
       siteScope = templateScope;
     } else if (ITEMVALUE_SCOPED_PROPS.has(key)) {
-      if (!itemScope) itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
+      if (!itemScope) itemScope = scope.concat([itemValueFrame(owner)]);
       siteScope = itemScope;
     }
     addSite(state, json[def.name], def.kind, joinPath(basePath, def.name), def.name, owner, siteScope);
@@ -70,8 +78,11 @@ function addValidatorSites(state: WalkState, json: any, basePath: string, owner:
   json.validators.forEach((validator: any, i: number) => {
     if (!validator || typeof validator !== "object") return;
     const props = state.metadata.getValidatorExpressionProps(validator.type);
-    if (props.length === 0) return;
-    addSitesFromProps(state, validator, basePath + ".validators[" + i + "]", props, owner, scope);
+    const className = state.metadata.getValidatorClassName(validator.type);
+    const locProps = state.metadata.getLocalizableProps(className);
+    const validatorPath = basePath + ".validators[" + i + "]";
+    addSitesFromProps(state, validator, validatorPath, props, owner, scope);
+    addTextRefsFromProps(state, validator, validatorPath, locProps, owner, scope);
   });
 }
 
@@ -82,11 +93,14 @@ function addItemValueSites(state: WalkState, json: any, propName: string, ownerT
   const arr = json[propName];
   if (!Array.isArray(arr)) return;
   const props = state.metadata.getItemExpressionProps(ownerType, propName);
-  if (props.length === 0) return;
-  const itemScope = scope.concat([<ScopeFrameItemValue>{ kind: "itemValue", owner: owner }]);
+  const locProps = state.metadata.getItemLocalizableProps(ownerType, propName);
+  if (props.length === 0 && locProps.length === 0) return;
+  const itemScope = scope.concat([itemValueFrame(owner)]);
   arr.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return;
-    addSitesFromProps(state, item, basePath + "." + propName + "[" + i + "]", props, owner, itemScope);
+    const itemPath = basePath + "." + propName + "[" + i + "]";
+    addSitesFromProps(state, item, itemPath, props, owner, itemScope);
+    addTextRefsFromProps(state, item, itemPath, locProps, owner, itemScope);
   });
 }
 
@@ -120,7 +134,12 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   }
 }
 
+// The field names a composite definition declares. Memoized per definition: the JSON is
+// static, and a survey with many questions of one component type would otherwise walk it
+// once per question.
 function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boolean> {
+  const cached = state.componentFields.get(def);
+  if (cached) return cached;
   const res = new CIMap<boolean>();
   const elementsKeys = state.metadata.getElementsKeys();
   const templateKeys = state.metadata.getTemplateElementsKeys();
@@ -134,6 +153,7 @@ function getComponentFieldNames(state: WalkState, def: IComponentDef): CIMap<boo
     });
   };
   collect(def.elementsJSON);
+  state.componentFields.set(def, res);
   return res;
 }
 
@@ -149,9 +169,10 @@ function walkComponentDefs(state: WalkState): void {
   Object.keys(components).forEach(typeName => {
     const def = components[typeName];
     if (!def || !Array.isArray(def.elementsJSON)) return;
-    const scope: Array<ScopeFrame> = [<ScopeFrameComposite>{
+    const frame: ScopeFrameComposite = {
       kind: "composite", fieldNames: getComponentFieldNames(state, def),
-    }];
+    };
+    const scope: Array<ScopeFrame> = [frame];
     def.elementsJSON.forEach((el: any, i: number) => {
       if (!el || typeof el !== "object") return;
       const path = "components." + typeName + ".elementsJSON[" + i + "]";
@@ -217,6 +238,8 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   registerRecord(state, record, ancestorPanels);
   addSitesFromProps(state, json, path,
     state.metadata.getElementExpressionProps(record.type, "panel"), record, scope);
+  addTextRefsFromProps(state, json, path,
+    state.metadata.getElementLocalizableProps(record.type, "panel"), record, scope);
   const container: ContainerRecord = {
     kind: "panel", record: record, name: record.name, path: path, children: [],
   };
@@ -231,7 +254,7 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
 }
 
 function walkMatrixColumns(state: WalkState, json: any, path: string, record: ElementRecord,
-  scope: Array<ScopeFrame>): void {
+  scope: Array<ScopeFrame>): Array<ScopeFrame> {
   const frame: ScopeFrameMatrixRow = { kind: "matrixRow", owner: record, columns: new CIMultiMap<ElementRecord>() };
   record.matrixColumns = frame.columns;
   const rowScope = scope.concat([frame]);
@@ -260,7 +283,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       if (choicesInfo) {
         // a column without own choices uses the matrix-level shared "choices"
         if (choicesInfo.staticValues.length === 0 && Array.isArray(json.choices)) {
-          choicesInfo.staticValues = json.choices.map((item: any) => getItemValueRaw(item)).filter((v: any) => v !== undefined && v !== null);
+          choicesInfo.staticValues = getStaticChoiceValues(json.choices);
         }
         columnRecord.choicesInfo = choicesInfo;
       }
@@ -268,6 +291,8 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       if (columnRecord.name) frame.columns.add(columnRecord.name, columnRecord);
       addSitesFromProps(state, columnJson, columnPath,
         state.metadata.getCellExpressionProps(effectiveCellType), columnRecord, rowScope);
+      addTextRefsFromProps(state, columnJson, columnPath,
+        state.metadata.getCellLocalizableProps(effectiveCellType), columnRecord, rowScope);
       addValidatorSites(state, columnJson, columnPath, columnRecord, rowScope);
       addItemValueSites(state, columnJson, "choices", effectiveCellType, columnPath, columnRecord, rowScope);
     });
@@ -275,6 +300,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
   if (Array.isArray(json.detailElements)) {
     walkElementsArray(state, json.detailElements, path + ".detailElements", record, rowScope, [], undefined);
   }
+  return rowScope;
 }
 
 function walkMultipleTextItems(state: WalkState, json: any, path: string, record: ElementRecord,
@@ -282,6 +308,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
   const itemProps = state.metadata.getItemExpressionProps("multipletext", "items");
+  const locProps = state.metadata.getLocalizableProps("multipletextitem");
   json.items.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object") return;
     const itemPath = path + ".items[" + i + "]";
@@ -293,6 +320,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
     state.index.allElements.push(itemRecord);
     if (itemRecord.name) record.multipleTextItems.set(itemRecord.name, itemRecord);
     addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
+    addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, scope);
     addValidatorSites(state, item, itemPath, itemRecord, scope);
   });
 }
@@ -321,6 +349,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   // the dynamic-panel template frame is built before the expression pass because
   // templateVisibleIf is evaluated inside it (see TEMPLATE_SCOPED_PROPS)
   let templateScope: Array<ScopeFrame> = undefined;
+  let rowScope: Array<ScopeFrame> = undefined;
   if (type === "paneldynamic") {
     const frame: ScopeFramePanelDynamic = {
       kind: "panelDynamic", owner: record, templateNames: new CIMultiMap<ElementRecord>(),
@@ -346,21 +375,26 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
           record, scope, ancestorPanels, undefined);
       });
     }
-    if (json.choicesByUrl && isNonEmptyString(json.choicesByUrl.url)) {
-      collectUrlRefs(state, json.choicesByUrl.url, path + ".choicesByUrl.url", record, scope);
+    if (json.choicesByUrl && typeof json.choicesByUrl === "object") {
+      // path is processed with the very same processor as url, and a name missing from
+      // either of them blanks both, so the request never runs (ChoicesRestful.processedText)
+      ["url", "path"].forEach(key => {
+        collectTextRefs(state, json.choicesByUrl[key], path + ".choicesByUrl." + key,
+          key, record, scope, "choicesByUrlVariable");
+      });
     }
   }
   if (type === "matrix") {
-    record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
+    record.matrixRowValues = getStaticChoiceValues(json.rows);
     addItemValueSites(state, json, "rows", type, path, record, scope);
     addItemValueSites(state, json, "columns", type, path, record, scope);
   }
   if (isMatrixDropdown(type)) {
     if (type === "matrixdropdown") {
-      record.matrixRowValues = Array.isArray(json.rows) ? json.rows.map(getItemValueRaw).filter((v: any) => v !== undefined && v !== null) : [];
+      record.matrixRowValues = getStaticChoiceValues(json.rows);
       addItemValueSites(state, json, "rows", type, path, record, scope);
     }
-    walkMatrixColumns(state, json, path, record, scope);
+    rowScope = walkMatrixColumns(state, json, path, record, scope);
   }
   if (type === "rating") {
     addItemValueSites(state, json, "rateValues", type, path, record, scope);
@@ -386,6 +420,10 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
         templateScope, [], container);
     }
   }
+  // after the matrix/panel branches: a title template scoped to a row or a panel needs the
+  // frame those branches build
+  addTextRefsFromProps(state, json, path, state.metadata.getElementLocalizableProps(type, "question"),
+    record, scope, { template: templateScope, row: rowScope });
   if (json.bindings && typeof json.bindings === "object") {
     Object.keys(json.bindings).forEach(key => {
       const target = json.bindings[key];
@@ -402,20 +440,54 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
 
 // TextPreProcessor is a text utility, not a model object: it owns how the runtime finds
 // {...} references in a string - the delimiters come from settings.expressionVariableDelimiters
-// and "a:b" is not a reference - so the URL is scanned with it instead of with a regex of
+// and "a:b" is not a reference - so a text is scanned with it instead of with a regex of
 // our own. process() substitutes nothing while every value stays isExists: false, and it
 // walks the items back to front, hence the reverse() to restore document order.
-function collectUrlRefs(state: WalkState, url: string, path: string, owner: ElementRecord,
-  scope: Array<ScopeFrame>): void {
+function collectTextRefs(state: WalkState, text: string, path: string, prop: string,
+  owner: ElementRecord, scope: Array<ScopeFrame>, kind: NameRefKind): void {
+  if (!isNonEmptyString(text)) return;
+  // the runtime skips the whole processing for a text without a delimiter, and so do we:
+  // a survey carries thousands of localizable strings and almost none of them pipes
+  if (text.indexOf(state.index.settings.expressionVariableStartDelimiter) < 0) return;
   const names: Array<string> = [];
   const processor = new TextPreProcessor();
   processor.onProcess = (textValue: any) => {
     if (isNonEmptyString(textValue.name)) names.push(textValue.name);
   };
-  processor.process(url);
+  processor.process(text);
   names.reverse().forEach(name => {
+    // {0}/{1} are format placeholders: expression format, minErrorText, a column totalFormat
+    if (/^[0-9]+$/.test(name)) return;
     state.index.nameRefs.push({
-      name: name, path: path, owner: owner, scope: scope.slice(), kind: "choicesByUrlVariable",
+      name: name, path: path, prop: prop, owner: owner, scope: scope.slice(), kind: kind,
+    });
+  });
+}
+
+// One reference set per localizable property. A value is either a string or a per-locale
+// object, and a property rendered inside a collection item (a dynamic-panel title, a matrix
+// single-input title) is scanned in that item's scope, where {panel.q} and {rowIndex} live.
+function addTextRefsFromProps(state: WalkState, json: any, basePath: string, props: Array<string>,
+  owner: ElementRecord, scope: Array<ScopeFrame>, itemScopes?: { template?: Array<ScopeFrame>, row?: Array<ScopeFrame> }): void {
+  props.forEach(prop => {
+    const value = json[prop];
+    if (!value || typeof value !== "object" && typeof value !== "string") return;
+    if (TEXT_TEMPLATE_PROPS.has(prop.toLowerCase())) return;
+    let siteScope = scope;
+    const scoped = TEXT_SCOPED_PROPS.get(prop.toLowerCase());
+    if (scoped) {
+      const itemScope = itemScopes ? itemScopes[scoped] : undefined;
+      if (!itemScope) return;
+      siteScope = itemScope;
+    }
+    const path = joinPath(basePath, prop);
+    if (typeof value === "string") {
+      collectTextRefs(state, value, path, prop, owner, siteScope, "textPiping");
+      return;
+    }
+    if (Array.isArray(value)) return;
+    Object.keys(value).forEach(locale => {
+      collectTextRefs(state, value[locale], joinPath(path, locale), prop, owner, siteScope, "textPiping");
     });
   });
 }
@@ -428,6 +500,7 @@ function walkPage(state: WalkState, json: any, path: string): void {
   };
   registerRecord(state, record, []);
   addSitesFromProps(state, json, path, state.metadata.getExpressionProps("page"), record, []);
+  addTextRefsFromProps(state, json, path, state.metadata.getLocalizableProps("page"), record, []);
   const container: ContainerRecord = {
     kind: "page", record: record, name: record.name, path: path, children: [],
   };
@@ -480,10 +553,27 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
       record.setRoot = root ? root.name : "";
     }
     if (def.extraExpressionProps) {
+      const before = state.index.expressionSites.length;
       addSitesFromProps(state, json, path, def.extraExpressionProps, undefined, []);
+      record.extraSites = state.index.expressionSites.slice(before);
     }
   }
   state.index.triggers.push(record);
+}
+
+// The string condition of an inArray call is a site of its own: unlike an iif() condition, it
+// is not part of the parent's AST, so nothing else looks inside it. Added in a pass of its own,
+// after the walk, because the element the call reads is only known once the index is complete.
+function addInArrayConditionSites(state: WalkState): void {
+  state.index.expressionSites.slice().forEach(site => {
+    getInArrayConditions(site, state.index).forEach((condition, i) => {
+      const frame: ScopeFrame = condition.container.templateNames
+        ? { kind: "panelDynamic", owner: condition.container, templateNames: condition.map }
+        : { kind: "matrixRow", owner: condition.container, columns: condition.map };
+      addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
+        site.prop, site.owner, (site.scope || []).concat([frame]), true);
+    });
+  });
 }
 
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata): SurveyIndex {
@@ -492,6 +582,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
+    calculatedValueList: [],
     triggers: [],
     expressionSites: [],
     nameRefs: [],
@@ -499,10 +590,14 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     containers: [],
     namespaces: [],
     settings: resolveLintSettings(),
+    findByDataName(name: string): ElementRecord | undefined {
+      return this.byName.first(name) || this.byValueName.first(name);
+    },
   };
   index.namespaces.push({ label: "", map: index.byName });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
+    componentFields: new Map<IComponentDef, CIMap<boolean>>(),
   };
 
   if (Array.isArray(json.pages)) {
@@ -520,15 +615,22 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     }
   }
 
+  // survey-level texts (completedHtml, the navigation captions), plus navigateToUrl - the one
+  // piped property that is not localizable (SurveyModel.getNavigateToUrl processes it)
+  addTextRefsFromProps(state, json, "",
+    metadata.getLocalizableProps("survey").concat(["navigateToUrl"]), undefined, []);
+
   if (Array.isArray(json.calculatedValues)) {
     json.calculatedValues.forEach((cv: any, i: number) => {
-      if (!cv || typeof cv !== "object" || !isNonEmptyString(cv.name)) return;
+      if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
       const path = "calculatedValues[" + i + "]";
-      const record = {
-        name: cv.name, path: path,
-        expression: isNonEmptyString(cv.expression) ? cv.expression : undefined,
-        site: <ExpressionSite>undefined,
-      };
+      const record: CalculatedValueRecord = { name: cv.name, path: path };
+      // the list records every declaration, the map only the first of a repeated name;
+      // a name that is only whitespace addresses nothing, so it gets neither a site nor
+      // a place in the map - name/duplicate still sees it in the list
+      index.calculatedValueList.push(record);
+      if (!isNonEmptyString(cv.name)) return;
+      record.expression = isNonEmptyString(cv.expression) ? cv.expression : undefined;
       if (record.expression) {
         record.site = addSite(state, record.expression, "expression",
           joinPath(path, "expression"), "expression", undefined, []);
@@ -543,15 +645,21 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   ["completedHtmlOnCondition", "navigateToUrlOnCondition"].forEach(prop => {
     if (!Array.isArray(json[prop])) return;
+    // the html/url the item carries is piped like the survey-level one it replaces
+    const locProps = metadata.getItemLocalizableProps("survey", prop);
     json[prop].forEach((item: any, i: number) => {
-      if (item && typeof item === "object" && isNonEmptyString(item.expression)) {
-        addSite(state, item.expression, "condition", prop + "[" + i + "].expression",
+      if (!item || typeof item !== "object") return;
+      const path = prop + "[" + i + "]";
+      if (isNonEmptyString(item.expression)) {
+        addSite(state, item.expression, "condition", joinPath(path, "expression"),
           "expression", undefined, []);
       }
+      addTextRefsFromProps(state, item, path, locProps, undefined, []);
     });
   });
 
   walkComponentDefs(state);
+  addInArrayConditionSites(state);
 
   return index;
 }

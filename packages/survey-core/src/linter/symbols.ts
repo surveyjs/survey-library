@@ -131,7 +131,21 @@ export interface ElementRecord {
   matrixColumns?: CIMultiMap<ElementRecord>;
   // memoized descendant question names for static-panel {panel.x} resolution
   panelDescendantNames?: CIMap<ElementRecord>;
+  // memoized synthetic records for the standalone scope variables of this matrix/panel
+  scopeValueRecords?: CIMap<ElementRecord>;
 }
+
+// The type to dispatch question-kind logic on: a matrix column answers as its cell type,
+// every other record as its own type.
+export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
+  return record.effectiveType || record.type;
+}
+
+// The synthetic record types behind standalone scope variables: {rowIndex}/{panelIndex} is
+// always a number counted from 1, {rowValue} holds one of the matrix rows. Synthetic records
+// live on ElementRecord.scopeValueRecords, never in the index.
+export const SCOPE_INDEX_VARIABLE_TYPE = "scopeindexvariable";
+export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
 
 export interface ParsedRefSegment {
   name: string;
@@ -171,13 +185,24 @@ export interface ExpressionSite {
   ast?: Operand;
   parseError?: { at?: number, message?: string };
   refs?: Array<ParsedRef>;
+  // refs keyed by the raw name an operand carries, memoized like refs
+  refByRaw?: Map<string, ParsedRef>;
+  // element names the site's function calls take as plain string arguments, memoized too.
+  // Typed as any[] here: the shape lives in expression-utils, which imports this file.
+  functionArgRefs?: Array<any>;
+  // set on a synthesized condition sub-site (an iif() condition argument): the site it
+  // was carved out of. Sub-sites live only here, never in index.expressionSites.
+  subOf?: ExpressionSite;
+  subSites?: Array<ExpressionSite>;
 }
 
-export type NameRefKind = "choicesByUrlVariable" | "binding";
+export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";
 
 export interface NameRef {
   name: string;
   path: string;
+  // the property the reference was written in; the other kinds name it through their kind
+  prop?: string;
   owner?: ElementRecord;
   scope: Array<ScopeFrame>;
   kind: NameRefKind;
@@ -196,6 +221,8 @@ export interface TriggerRecord {
   path: string;
   json: any;
   expressionSite?: ExpressionSite;
+  // the sites of the trigger's extra expression properties (runExpression)
+  extraSites?: Array<ExpressionSite>;
   setRoot?: string;
   setToName?: string;
   targets: Array<TriggerTargetRef>;
@@ -226,6 +253,9 @@ export interface SurveyIndex {
   byName: CIMultiMap<ElementRecord>;
   byValueName: CIMultiMap<ElementRecord>;
   calculatedValues: CIMap<CalculatedValueRecord>;
+  // every calculated value in declaration order, duplicates included: the map keeps only
+  // the first of a repeated name, which is the defect name/duplicate reports
+  calculatedValueList: Array<CalculatedValueRecord>;
   triggers: Array<TriggerRecord>;
   expressionSites: Array<ExpressionSite>;
   nameRefs: Array<NameRef>;
@@ -234,4 +264,7 @@ export interface SurveyIndex {
   namespaces: Array<Namespace>;
   // effective settings for this run, snapshotted from the shared survey-core settings
   settings: ILintResolvedSettings;
+  // The element a data key names: the runtime reads a value by name, and a valueName
+  // replaces the name as that key.
+  findByDataName(name: string): ElementRecord | undefined;
 }

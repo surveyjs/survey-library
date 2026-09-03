@@ -1,5 +1,6 @@
 // react
-export { Survey, attachKey2click } from "../src/reactSurvey";
+export { Survey } from "../src/reactSurvey";
+export { attachKey2click } from "../src/attach-key2click";
 export { ReactSurveyElementsWrapper } from "../src/reactsurveymodel";
 export { SurveyNavigationBase } from "../src/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../src/reacttimerpanel";
@@ -93,6 +94,8 @@ export { List } from "../src/components/list/list";
 export { TitleActions } from "../src/components/title/title-actions";
 export { TitleElement } from "../src/components/title/title-element";
 export { SurveyActionBar } from "../src/components/action-bar/action-bar";
+export { SurveyActionBarItemDropdown } from "../src/components/action-bar/action-bar-item-dropdown";
+export { SurveyActionBarSeparator } from "../src/components/action-bar/action-bar-separator";
 export { LogoImage } from "../src/components/survey-header/logo-image";
 export { SurveyHeader } from "../src/components/survey-header/survey-header";
 export { SvgIcon } from "../src/components/svg-icon/svg-icon";

@@ -3,7 +3,7 @@ import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
 import { SurveyElementBase } from "./reactquestion_element";
-import { attachKey2click } from "./reactSurvey";
+import { attachKey2click } from "./attach-key2click";
 
 export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
   constructor(props: any) {

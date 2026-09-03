@@ -797,6 +797,35 @@ export function classifyFunctionArgRefs(site: ExpressionSite, index: SurveyIndex
   return res;
 }
 
+// The condition an inArray function takes as a written-out string: it runs as a ConditionRunner
+// over every entry of the element the first argument names, so it is analysed as a site of its
+// own, in that element's scope. Which argument holds it is decided the way getInArrayParams
+// decides it - the third one is the condition unless it names a return column.
+export interface InArrayCondition {
+  text: string;
+  container: ElementRecord;
+  map: CIMultiMap<ElementRecord>;
+}
+
+export function getInArrayConditions(site: ExpressionSite, index: SurveyIndex): Array<InArrayCondition> {
+  const res: Array<InArrayCondition> = [];
+  if (!site.ast) return res;
+  getFunctionOperands(site.ast).forEach(fn => {
+    const def = FUNCTION_NAME_ARGS.get((fn.functionName || "").toLowerCase());
+    if (!def || def.scope !== "arrayItem") return;
+    const source = getArrayItemSource(fn.paramValues[0], index);
+    if (!source) return;
+    const params = fn.paramValues || [];
+    let conditionIndex = 2;
+    const third = getConstString(params[2]);
+    if (!!third && isReturnColumnParam(third, params[2])) conditionIndex = 3;
+    const text = getConstString(params[conditionIndex]);
+    if (!text) return;
+    res.push({ text: text, container: source.record, map: source.map });
+  });
+  return res;
+}
+
 export function classifyNameRef(nameRef: NameRef, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   return classifyRef(nameRef.name, { owner: nameRef.owner, scope: nameRef.scope }, index, options);
 }

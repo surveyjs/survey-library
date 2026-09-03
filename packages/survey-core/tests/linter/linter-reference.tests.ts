@@ -927,3 +927,52 @@ describe("reference/unknown - names in function arguments", () => {
     })).toHaveLength(0);
   });
 });
+
+describe("nested conditions of inArray functions", () => {
+  function lint(expression: string): Array<ILintFinding> {
+    return lintSurvey({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "col1", cellType: "text", inputType: "number" }],
+        },
+        { type: "expression", name: "e1", expression: expression },
+      ],
+    }).findings;
+  }
+  test("an unknown column inside the condition is reported", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{row.nosuchcol} > 5')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("reference/unknown");
+    expect(findings[0].reason).toBe("scopedUnknown");
+    expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
+  });
+  test("a listed column inside the condition is clean", () => {
+    expect(lint("sumInArray({m1}, 'col1', '{row.col1} > 5')")).toHaveLength(0);
+    expect(lint("countInArray({m1}, 'col1', '{q1} notempty')")).toHaveLength(0);
+  });
+  test("an unknown survey name inside the condition is reported", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{nosuchq} > 5')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("reference/unknown");
+    expect(findings[0].messageData.name).toBe("nosuchq");
+  });
+  test("an unparsable condition is reported as a syntax error", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{row.col1} ===')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("expression/syntax");
+    expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
+  });
+  test("a dynamic panel template question resolves inside the condition", () => {
+    expect(lintSurvey({
+      elements: [
+        {
+          type: "paneldynamic", name: "p1",
+          templateElements: [{ type: "text", name: "tq1", inputType: "number" }],
+        },
+        { type: "expression", name: "e1", expression: "sumInArray({p1}, 'tq1', '{panel.tq1} > 1')" },
+      ],
+    }).findings).toHaveLength(0);
+  });
+});

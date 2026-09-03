@@ -4,7 +4,7 @@ import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
 } from "./catalog";
 import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBase } from "./metadata";
-import { parseExpressionText, splitRefSegments } from "./expression-utils";
+import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
@@ -561,6 +561,21 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
   state.index.triggers.push(record);
 }
 
+// The string condition of an inArray call is a site of its own: unlike an iif() condition, it
+// is not part of the parent's AST, so nothing else looks inside it. Added in a pass of its own,
+// after the walk, because the element the call reads is only known once the index is complete.
+function addInArrayConditionSites(state: WalkState): void {
+  state.index.expressionSites.slice().forEach(site => {
+    getInArrayConditions(site, state.index).forEach((condition, i) => {
+      const frame: ScopeFrame = condition.container.templateNames
+        ? { kind: "panelDynamic", owner: condition.container, templateNames: condition.map }
+        : { kind: "matrixRow", owner: condition.container, columns: condition.map };
+      addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
+        site.prop, site.owner, (site.scope || []).concat([frame]), true);
+    });
+  });
+}
+
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata): SurveyIndex {
   const index: SurveyIndex = {
     json: json,
@@ -644,6 +659,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   });
 
   walkComponentDefs(state);
+  addInArrayConditionSites(state);
 
   return index;
 }

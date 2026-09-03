@@ -135,7 +135,7 @@ interface ISurveyLintOptions {
 
 | Rule id | Default | Reports |
 | --- | --- | --- |
-| `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties. |
+| `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties, and the condition an inArray function carries as a string argument. |
 | `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question; an element name a function takes as a plain string (`sumInArray({m1}, 'col')`, `displayValue('q1')`, `getComment`, `propertyValue`, `isContainerReady`). |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
@@ -174,6 +174,12 @@ interface ISurveyLintOptions {
 * **Data keys, not just names.** `valueName`, the `-Comment` suffix, matrix `-total` keys, the
   built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
   special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
+* **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{row.col1} > 5')` runs its
+  third (or fourth) argument as a condition over every row of `m1`, and that string is not part
+  of the enclosing expression's syntax tree - so it becomes a site of its own, analysed in the
+  scope of the element the call reads. `{row.col}` and `{panel.q}` resolve there, and both the
+  syntax and the references of the string are checked, under the path
+  `<property>.inArray[<n>]`.
 * **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
   `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
   by my own value" idiom is not reported as a self reference.

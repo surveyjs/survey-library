@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { attachKey2click } from "../../reactSurvey";
+import { attachKey2click } from "../../attach-key2click";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
 import { SurveyLocStringViewer } from "../../string-viewer";

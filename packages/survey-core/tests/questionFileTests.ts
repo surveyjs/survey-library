@@ -1549,19 +1549,14 @@ describe("Survey_QuestionFile", () => {
     Camera.clear();
   });
   test("new Camera().getMediaConstraints", () => {
-    const createUserCamera = (): Camera => {
-      const camera = new Camera();
-      camera.setFacingMode("user");
-      return camera;
-    };
     Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
-    let mConst: any = createUserCamera().getMediaConstraints();
+    let mConst: any = new Camera().getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Device is correct").toBe("2");
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
-    mConst = createUserCamera().getMediaConstraints();
+    mConst = new Camera().getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Device is correct").toBe("3");
     Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "environment" }]));
-    mConst = createUserCamera().getMediaConstraints();
+    mConst = new Camera().getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Device is correct").toBe("2");
     Camera.clear();
   });
@@ -1569,7 +1564,7 @@ describe("Survey_QuestionFile", () => {
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
     const camera = new Camera();
     let mConst: any = camera.getMediaConstraints();
-    expect(mConst.video.deviceId, "No camera is selected by default").toBeUndefined();
+    expect(mConst.video.deviceId.exact, "Front camera is used by default").toBe("3");
     camera.setFacingMode("environment");
     mConst = camera.getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Back camera is used").toBe("2");
@@ -1594,10 +1589,7 @@ describe("Survey_QuestionFile", () => {
     Camera.setCameraList(devices);
     const camera = new Camera();
     let mConst: any = camera.getMediaConstraints();
-    expect(mConst.video.facingMode, "No facing mode is requested by default").toBeUndefined();
-    camera.setFacingMode("user");
-    mConst = camera.getMediaConstraints();
-    expect(mConst.video.facingMode, "Front camera is requested").toBe("user");
+    expect(mConst.video.facingMode, "Front camera is used by default").toBe("user");
     camera.setFacingMode("environment");
     mConst = camera.getMediaConstraints();
     expect(mConst.video.facingMode, "Back camera is requested").toBe("environment");
@@ -1613,12 +1605,12 @@ describe("Survey_QuestionFile", () => {
     });
     const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
     const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
-    expect(q1.cameraFacingMode, "The default property value").toBe("auto");
+    expect(q1.cameraFacingMode, "The default property value").toBe("user");
     expect(q2.cameraFacingMode, "The property is loaded from JSON").toBe("environment");
 
     q1.startVideo();
     let mConst: any = q1["camera"].getMediaConstraints();
-    expect(mConst.video.deviceId, "No camera is selected for q1").toBeUndefined();
+    expect(mConst.video.deviceId.exact, "Front camera for q1").toBe("3");
     q1.stopVideo();
 
     q2.startVideo();
@@ -1660,7 +1652,7 @@ describe("Survey_QuestionFile", () => {
     const q = new QuestionFileModel("q1");
     expect(q.renderCapture, "allowCameraAccess is false").toBeUndefined();
     q.allowCameraAccess = true;
-    expect(q.renderCapture, "the default value, the browser selects the camera").toBe("");
+    expect(q.renderCapture, "the default value").toBe("user");
     q.cameraFacingMode = "environment";
     expect(q.renderCapture, "the rear camera").toBe("environment");
     q.cameraFacingMode = "user";
@@ -1676,7 +1668,7 @@ describe("Survey_QuestionFile", () => {
     const camera = new Camera();
     expect(camera.canFlip(), "There are 3 devices").toBe(true);
     let mConst: any = camera.getMediaConstraints();
-    expect(mConst.video.deviceId, "No camera is selected by default").toBeUndefined();
+    expect(mConst.video.deviceId.exact, "Device is correct").toBe("3");
     camera.flip();
     mConst = camera.getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Flip #1").toBe("2");
@@ -1722,8 +1714,6 @@ describe("Survey_QuestionFile", () => {
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
     const cameraA = new Camera();
     const cameraB = new Camera();
-    cameraA.setFacingMode("user");
-    cameraB.setFacingMode("user");
     expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "A starts from the first camera").toBe("3");
     cameraA.flip();
     expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "A is flipped").toBe("2");
@@ -1741,9 +1731,7 @@ describe("Survey_QuestionFile", () => {
     Camera["canSwitchFacingMode"] = true;
     const cameraA = new Camera();
     const cameraB = new Camera();
-    cameraA.setFacingMode("user");
-    cameraB.setFacingMode("user");
-    expect((<any>cameraA.getMediaConstraints()).video.facingMode, "A uses the front camera").toBe("user");
+    expect((<any>cameraA.getMediaConstraints()).video.facingMode, "A uses the front camera by default").toBe("user");
     cameraA.flip();
     expect((<any>cameraA.getMediaConstraints()).video.facingMode, "A is flipped").toBe("environment");
     expect((<any>cameraB.getMediaConstraints()).video.facingMode, "B keeps its own facing mode").toBe("user");
@@ -1812,7 +1800,7 @@ describe("Survey_QuestionFile", () => {
     q2.stopVideo();
 
     q1.startVideo();
-    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId, "q1 doesn't select a camera by default").toBeUndefined();
+    expect(getDeviceId(q1), "q1 starts from the front camera by default").toBe("3");
     q1.flipCamera();
     expect(getDeviceId(q1), "q1 is flipped").toBe("2");
     q1.stopVideo();
@@ -1833,6 +1821,7 @@ describe("Survey_QuestionFile", () => {
   test("Camera doesn't select a camera in the auto mode, Bug#11784", () => {
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
     const camera = new Camera();
+    camera.setFacingMode("auto");
     let mConst: any = camera.getMediaConstraints();
     expect(mConst.video.deviceId, "No device is requested in the auto mode").toBeUndefined();
     expect(mConst.video.facingMode, "No facing mode is requested in the auto mode").toBeUndefined();
@@ -1852,12 +1841,14 @@ describe("Survey_QuestionFile", () => {
     devices.forEach(device => (<any>device).deviceId = "");
     Camera.setCameraList(devices);
     const camera = new Camera();
+    camera.setFacingMode("auto");
     expect((<any>camera.getMediaConstraints()).video.facingMode, "The browser selects the camera").toBeUndefined();
     Camera.clear();
   });
   test("Camera.flip switches to another camera from the auto mode, Bug#11784", () => {
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
     const camera = new Camera();
+    camera.setFacingMode("auto");
     expect((<any>camera.getMediaConstraints()).video.deviceId, "No camera is selected").toBeUndefined();
     camera.flip();
     expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "Flipped to the camera next to the first one").toBe("2");
@@ -1871,6 +1862,7 @@ describe("Survey_QuestionFile", () => {
     Camera.setCameraList(devices);
     Camera["canSwitchFacingMode"] = true;
     const camera = new Camera();
+    camera.setFacingMode("auto");
     expect((<any>camera.getMediaConstraints()).video.facingMode, "The browser selects the camera").toBeUndefined();
     camera.flip();
     expect((<any>camera.getMediaConstraints()).video.facingMode, "The browser starts from the front camera, flip to the back one").toBe("environment");
@@ -1878,32 +1870,46 @@ describe("Survey_QuestionFile", () => {
     expect((<any>camera.getMediaConstraints()).video.facingMode, "Flipped back to the front camera").toBe("user");
     Camera.clear();
   });
+  test("QuestionFile cameraFacingMode is visible for the camera source types only", () => {
+    const q = new QuestionFileModel("q1");
+    const prop = Serializer.findProperty("file", "cameraFacingMode");
+    expect(q.sourceType, "The default source type").toBe("file");
+    expect(prop.isVisible("", q), "The property is hidden for the file source").toBeFalsy();
+    q.sourceType = "camera";
+    expect(prop.isVisible("", q), "The property is visible for the camera source").toBeTruthy();
+    q.sourceType = "file-camera";
+    expect(prop.isVisible("", q), "The property is visible for the file-camera source").toBeTruthy();
+    q.sourceType = "file";
+    expect(prop.isVisible("", q), "The property is hidden for the file source again").toBeFalsy();
+    expect(prop.dependsOn.indexOf("sourceType") > -1, "The property is recalculated on changing sourceType").toBeTruthy();
+  });
   test("QuestionFile cameraFacingMode auto value, Bug#11784", () => {
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
     const survey = new SurveyModel({
       elements: [{ type: "file", name: "q1", sourceType: "camera" }]
     });
     const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-    expect(q1.cameraFacingMode, "The default value").toBe("auto");
+    expect(q1.cameraFacingMode, "The default value").toBe("user");
     expect(q1.toJSON().cameraFacingMode, "The default value is not serialized").toBeUndefined();
+    expect(q1.renderCapture, "The capture attribute is not rendered without allowCameraAccess").toBeUndefined();
 
+    q1.startVideo();
+    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "The front camera by default").toBe("3");
+    q1.stopVideo();
+
+    q1.cameraFacingMode = "auto";
+    expect(q1.toJSON().cameraFacingMode, "The auto value is serialized").toBe("auto");
     q1.startVideo();
     expect((<any>q1["camera"].getMediaConstraints()).video.deviceId, "The browser selects the camera").toBeUndefined();
     q1.stopVideo();
 
     q1.cameraFacingMode = "environment";
-    expect(q1.toJSON().cameraFacingMode, "A non-default value is serialized").toBe("environment");
     q1.startVideo();
     expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "The back camera is selected").toBe("2");
     q1.stopVideo();
 
-    q1.cameraFacingMode = "auto";
-    q1.startVideo();
-    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId, "The browser selects the camera again").toBeUndefined();
-    q1.stopVideo();
-
     q1.cameraFacingMode = undefined;
-    expect(q1.cameraFacingMode, "Resetting the property restores the default value").toBe("auto");
+    expect(q1.cameraFacingMode, "Resetting the property restores the default value").toBe("user");
     Camera.clear();
   });
   test("Camera selects a valid device after the device list is replaced, Bug#11784", () => {

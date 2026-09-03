@@ -198,13 +198,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Possible values:
    *
-   * - `"auto"` (default) &ndash; Let the browser open the camera that the device settings define as the default one
-   * - `"user"` &ndash; Prefer the front-facing camera
+   * - `"user"` (default) &ndash; Prefer the front-facing camera
    * - `"environment"` &ndash; Prefer the rear-facing camera
+   * - `"auto"` &ndash; Do not select a camera, let the browser open the camera that the device settings define as the default one
    *
    * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
    */
-  @property({ defaultValue: "auto" }) cameraFacingMode: string;
+  @property({ defaultValue: "user" }) cameraFacingMode: string;
   /**
    * Specifies which sources respondents can use to upload files.
    *
@@ -1385,7 +1385,11 @@ Serializer.addClass(
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
     { name: "allowCameraAccess:switch", visible: false },
-    { name: "cameraFacingMode", default: "auto", choices: ["auto", "user", "environment"], visible: false },
+    {
+      name: "cameraFacingMode", default: "user", choices: ["user", "environment", "auto"],
+      dependsOn: "sourceType",
+      visibleIf: (obj: any): boolean => obj.sourceType !== "file"
+    },
   ],
   function () {
     return new QuestionFileModel("");

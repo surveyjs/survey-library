@@ -46,7 +46,7 @@ export class Camera {
   private static cameraList: Array<MediaDeviceInfo>;
   private static canSwitchFacingMode: boolean = false;
   private cameraIndex: number = -1;
-  private cameraFacingMode: string = autoStr;
+  private cameraFacingMode: string = userStr;
   // The mode passed to the last effective setFacingMode() call. It is compared with the new mode,
   // so that re-applying the same mode (for example, on every camera opening) doesn't discard
   // the camera the user has switched to via flip().

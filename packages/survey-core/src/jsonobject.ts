@@ -581,6 +581,7 @@ export class JsonMetadataClass {
   static requiredSymbol = "!";
   static typeSymbol = ":";
   properties: Array<JsonObjectProperty>;
+  public getInheritedPropertiesCallback: () => Array<JsonObjectProperty>;
   private isCustomValue: boolean;
   private allProperties: Array<JsonObjectProperty>;
   private requiredProperties: Array<JsonObjectProperty>;
@@ -981,6 +982,7 @@ export class JsonMetadata {
     if (!metaClass) return;
     this.classes.delete(metaClass.name);
     this.removeFromParentClass(metaClass);
+    this.clearDynamicPropsCache(metaClass);
   }
   private removeFromParentClass(metaClass: JsonMetadataClass) {
     if (!metaClass.parentName) return;
@@ -1058,7 +1060,7 @@ export class JsonMetadata {
     if (!dynamicType) return [];
     const cacheType = dynamicType + "-" + objType;
     if (this.dynamicPropsCache.has(cacheType)) return this.dynamicPropsCache.get(cacheType);
-    var dynamicProps = this.getProperties(dynamicType);
+    var dynamicProps = this.getPropertiesForDynamicType(dynamicType);
     if (!dynamicProps || dynamicProps.length == 0) return [];
     const hash = new Map<string, JsonObjectProperty>();
     const props = this.getProperties(objType);
@@ -1081,6 +1083,22 @@ export class JsonMetadata {
       }
     }
     this.dynamicPropsCache.set(cacheType, res);
+    return res;
+  }
+  private getPropertiesForDynamicType(dynamicType: string): Array<JsonObjectProperty> {
+    const props = this.getProperties(dynamicType);
+    const metaClass = this.findClass(dynamicType);
+    const inheritedProps = !!metaClass && !!metaClass.getInheritedPropertiesCallback
+      ? metaClass.getInheritedPropertiesCallback() : undefined;
+    if (!inheritedProps || inheritedProps.length === 0) return props;
+    const hash = new Map<string, JsonObjectProperty>();
+    props.forEach(prop => hash.set(prop.name, prop));
+    const res = [].concat(props);
+    inheritedProps.forEach(prop => {
+      if (!hash.has(prop.name)) {
+        res.push(prop);
+      }
+    });
     return res;
   }
   private canAddDynamicProp(dProp: JsonObjectProperty, orgProp: JsonObjectProperty): boolean {

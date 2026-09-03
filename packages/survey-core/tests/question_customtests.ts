@@ -10,6 +10,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
@@ -4032,6 +4033,54 @@ describe("custom questions", () => {
       description: { default: "Description", de: "Beschreibung" },
       myChoices: [{ value: 1, text: { default: "item en", de: "item de" } }]
     });
+    ComponentCollection.Instance.clear();
+  });
+  test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
+    ComponentCollection.Instance.add({
+      name: "imageupload",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    matrixDropdownColumnTypes["imageupload"] = {};
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "imageupload" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    const props = Serializer.getDynamicPropertiesByObj(column);
+    const propNames = props.map(prop => prop.name);
+    expect(propNames.indexOf("allowMultiple") > -1, "allowMultiple property is in the column dynamic properties").toBeTruthy();
+    expect(propNames.indexOf("maxSize") > -1, "maxSize property is in the column dynamic properties").toBeTruthy();
+
+    column["allowMultiple"] = true;
+    column["maxSize"] = 1000;
+    expect(column.templateQuestion["allowMultiple"], "templateQuestion.allowMultiple").toBe(true);
+    expect(column.templateQuestion["maxSize"], "templateQuestion.maxSize").toBe(1000);
+    expect(column.toJSON(), "column.toJSON()").toEqual({ name: "col1", cellType: "imageupload", allowMultiple: true, maxSize: 1000 });
+
+    const cellQuestion = <QuestionCustomModel>matrix.visibleRows[0].cells[0].question;
+    expect(cellQuestion.getType(), "cell question type").toBe("imageupload");
+    const contentQuestion = <QuestionFileModel>cellQuestion.contentQuestion;
+    expect(contentQuestion.allowMultiple, "contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion.maxSize, "contentQuestion.maxSize").toBe(1000);
+
+    const survey2 = new SurveyModel(survey.toJSON());
+    const matrix2 = <QuestionMatrixDynamicModel>survey2.getQuestionByName("matrix");
+    const column2 = matrix2.columns[0];
+    expect(column2["allowMultiple"], "load from json, column.allowMultiple").toBe(true);
+    expect(column2["maxSize"], "load from json, column.maxSize").toBe(1000);
+    const contentQuestion2 = <QuestionFileModel>(<QuestionCustomModel>matrix2.visibleRows[0].cells[0].question).contentQuestion;
+    expect(contentQuestion2.allowMultiple, "load from json, contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion2.maxSize, "load from json, contentQuestion.maxSize").toBe(1000);
+
+    delete matrixDropdownColumnTypes["imageupload"];
     ComponentCollection.Instance.clear();
   });
 });

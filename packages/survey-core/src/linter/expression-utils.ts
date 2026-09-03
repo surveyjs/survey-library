@@ -1,4 +1,5 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, IExpressionError, Operand, ValueGetter, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, ValueGetter, Variable } from "survey-core";
+import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
 import { ILintResolvedSettings } from "./lint-settings";
@@ -695,6 +696,105 @@ export function getSiteRefByRaw(site: ExpressionSite, index: SurveyIndex,
     site.refByRaw = refByRaw;
   }
   return site.refByRaw;
+}
+
+// A name a function takes as a plain string argument: sumInArray({m1}, 'col1'),
+// displayValue('q1'), isContainerReady('page1'). The runtime looks such a name up at call
+// time, so a typo silently turns the call into undefined/0/"" instead of failing.
+export interface FunctionArgRef {
+  ref: ParsedRef;
+  functionName: string;
+  argIndex: number;
+  // the element whose entries the name is read from, for an inArray call
+  container?: ElementRecord;
+}
+
+// Variable extends Const, so the type tag - not instanceof - tells a written-out string from
+// a {reference}: only the former is a name the author typed.
+function getConstString(operand: Operand | undefined): string | undefined {
+  if (!operand || operand.getType() !== "const") return undefined;
+  const value = (<Const>operand).correctValue;
+  return typeof value === "string" && !!value ? value : undefined;
+}
+
+// The names the item of an array-valued element answers with: matrix columns or the
+// questions of a dynamic-panel template - the same two lists getArrayContextVarNames
+// collects in the core.
+function getArrayItemSource(operand: Operand | undefined, index: SurveyIndex):
+  { record: ElementRecord, map: CIMultiMap<ElementRecord> } | undefined {
+  if (!operand || !(operand instanceof Variable)) return undefined;
+  const record = index.findByDataName(operand.variable);
+  if (!record) return undefined;
+  const map = record.matrixColumns || record.templateNames;
+  return map ? { record: record, map: map } : undefined;
+}
+
+function classifyArrayItemName(name: string, map: CIMultiMap<ElementRecord>): ParsedRef {
+  const ref: ParsedRef = { raw: name, segments: [{ name: name }], status: "resolved" };
+  const record = map.first(name);
+  if (record) {
+    ref.resolvedTo = record;
+    ref.resolvedKind = "element";
+    return ref;
+  }
+  ref.status = "unknown";
+  ref.unknownSegmentIndex = 0;
+  ref.suggestion = closestMatch(name, map.names());
+  return ref;
+}
+
+// getQuestionValueByContext walks up from the question the expression belongs to before it
+// asks the survey, so a sibling column or a template question answers its bare name here.
+function classifyContainerName(name: string, site: { scope: Array<ScopeFrame> },
+  index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
+  const scope = site.scope || [];
+  const panelFrame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
+  const matrixFrame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
+  const local = matrixFrame && matrixFrame.columns.has(name) ? matrixFrame.columns
+    : panelFrame && panelFrame.templateNames.has(name) ? panelFrame.templateNames : undefined;
+  if (local) return classifyArrayItemName(name, local);
+  return classifyTargetName(name, index, options);
+}
+
+function classifyFunctionArgName(name: string, scope: FunctionArgNameScope, fn: FunctionOperand,
+  site: { scope: Array<ScopeFrame> }, index: SurveyIndex, options: ISurveyLintOptions):
+  { ref: ParsedRef, container?: ElementRecord } | undefined {
+  if (scope === "arrayItem") {
+    const source = getArrayItemSource(fn.paramValues[0], index);
+    // an unresolved first argument is reported on its own; what it holds is unknown here
+    if (!source) return undefined;
+    return { ref: classifyArrayItemName(name, source.map), container: source.record };
+  }
+  if (scope === "container") return { ref: classifyContainerName(name, site, index, options) };
+  return { ref: classifyTargetName(name, index, options) };
+}
+
+export function classifyFunctionArgRefs(site: ExpressionSite, index: SurveyIndex,
+  options: ISurveyLintOptions): Array<FunctionArgRef> {
+  if (site.functionArgRefs) return site.functionArgRefs;
+  const res: Array<FunctionArgRef> = [];
+  if (site.ast) {
+    getFunctionOperands(site.ast).forEach(fn => {
+      const def = FUNCTION_NAME_ARGS.get((fn.functionName || "").toLowerCase());
+      if (!def) return;
+      const params = fn.paramValues || [];
+      def.indexes.forEach(argIndex => {
+        const name = getConstString(params[argIndex]);
+        if (!name) return;
+        // the third argument of an inArray function is a column only when it is not the
+        // condition, which the runtime decides with this very function
+        if (def.scope === "arrayItem" && argIndex > 1 &&
+          !isReturnColumnParam(name, params[argIndex])) return;
+        const arg = classifyFunctionArgName(name, def.scope, fn, site, index, options);
+        if (!arg) return;
+        res.push({
+          ref: arg.ref, functionName: fn.functionName, argIndex: argIndex, container: arg.container,
+        });
+      });
+    });
+  }
+  site.functionArgRefs = res;
+  return res;
 }
 
 export function classifyNameRef(nameRef: NameRef, index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {

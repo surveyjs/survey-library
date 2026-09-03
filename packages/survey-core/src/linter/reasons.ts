@@ -16,6 +16,9 @@ export const SurveyLintReasons = Object.freeze({
     scopedUnknown: "scopedUnknown",
     // a keyName naming no column / template question, which disables duplicate-key validation
     keyNameNotFound: "keyNameNotFound",
+    // a function argument naming an element that does not exist: sumInArray reading a column,
+    // displayValue reading a question
+    functionArgNotFound: "functionArgNotFound",
   }),
   "reference/self": Object.freeze({
     selfReference: "selfReference",

@@ -848,3 +848,82 @@ describe("reference/unknown - piped properties outside the localizable ones", ()
     })).toHaveLength(0);
   });
 });
+
+describe("reference/unknown - names in function arguments", () => {
+  const matrixJson = {
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "col1", cellType: "text" }] },
+    ],
+  };
+  function withExpression(expression: string, json: any = matrixJson): Array<ILintFinding> {
+    const copy = JSON.parse(JSON.stringify(json));
+    copy.elements.push({ type: "expression", name: "e1", expression: expression });
+    return unknownRefs(copy);
+  }
+  test("an unknown column of an inArray function is reported", () => {
+    const findings = withExpression("sumInArray({m1}, 'nosuchcol')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("functionArgNotFound");
+    expect(findings[0].messageData.refKind).toBe("functionArgument");
+    expect(findings[0].messageData.containerName).toBe("m1");
+    expect(withExpression("sumInArray({m1}, 'col11')")[0].suggestion).toBe("col1");
+  });
+  test("a listed column of an inArray function is clean", () => {
+    expect(withExpression("sumInArray({m1}, 'col1')")).toHaveLength(0);
+    expect(withExpression("avgInArray({m1}, 'col1', '{row.col1} > 1')")).toHaveLength(0);
+  });
+  test("a template question of an inArray function resolves", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateElements: [{ type: "text", name: "tq1", inputType: "number" }],
+      }],
+    };
+    expect(withExpression("sumInArray({p1}, 'tq1')", json)).toHaveLength(0);
+    expect(withExpression("sumInArray({p1}, 'tq2')", json)).toHaveLength(1);
+  });
+  test("the return-column argument of an inArray function is resolved too", () => {
+    expect(withExpression("minInArray({m1}, 'col1', 'col1')")).toHaveLength(0);
+    expect(withExpression("minInArray({m1}, 'col1', 'nosuchcol')")).toHaveLength(1);
+  });
+  test("an unresolved first argument is reported once", () => {
+    const findings = withExpression("sumInArray({nosuchq}, 'anything')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.name).toBe("nosuchq");
+  });
+  test("displayValue, getComment, propertyValue and isContainerReady are resolved", () => {
+    expect(withExpression("displayValue('q1')")).toHaveLength(0);
+    expect(withExpression("displayValue('nosuchq')")).toHaveLength(1);
+    expect(withExpression("getComment('nosuchq')")).toHaveLength(1);
+    expect(withExpression("propertyValue('nosuchq', 'isVisible')")).toHaveLength(1);
+    expect(withExpression("isContainerReady('nosuchpanel')")).toHaveLength(1);
+  });
+  test("a computed argument is not a name", () => {
+    expect(withExpression("displayValue({q1})")).toHaveLength(0);
+    expect(withExpression("sumInArray({m1}, {q1})")).toHaveLength(0);
+  });
+  test("a cell expression names a sibling column without a prefix", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "expression", expression: "displayValue('col1')" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a page and a panel answer isContainerReady", () => {
+    expect(unknownRefs({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }] },
+          { type: "text", name: "q2", visibleIf: "isContainerReady('page1')" },
+          { type: "text", name: "q3", visibleIf: "isContainerReady('p1')" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+});

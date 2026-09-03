@@ -136,7 +136,7 @@ interface ISurveyLintOptions {
 | Rule id | Default | Reports |
 | --- | --- | --- |
 | `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties. |
-| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question. |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question; an element name a function takes as a plain string (`sumInArray({m1}, 'col')`, `displayValue('q1')`, `getComment`, `propertyValue`, `isContainerReady`). |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
 | `name/shadowing` | warning | A name that answers somewhere else than the JSON suggests: a question, `valueName` or calculated value spelling a built-in variable (`{pageno}`, `{locale}`, the quiz counters), which the survey answers first; a `valueName` landing on the name another question already writes under; a data key spelling the `-Comment` or `-total` key the runtime derives for another element; and a `setvalue` trigger with `isVariable` writing a variable named after a question, whose answer then stops answering its own name. Two questions deliberately sharing a `valueName` is not reported — that is how they answer as one. |
@@ -229,6 +229,18 @@ interface ISurveyLintOptions {
   `title.de`. Three piped properties are not localizable and are scanned by name:
   `navigateToUrl`, and the `url`/`path` pair of `choicesByUrl` — a name missing from either of
   those two blanks both, so the request never runs at all.
+* **Names inside function calls.** Several functions take an element name as a written-out
+  string, and the runtime resolves it at call time, so a typo turns the call into `undefined`,
+  `0` or `""` rather than failing. The second argument of `sumInArray`/`minInArray`/
+  `maxInArray`/`countInArray`/`avgInArray` — and its third, when that one is a column rather
+  than the condition, split with the runtime's own `isReturnColumnParam` — is resolved against
+  the columns or template questions of the element the first argument names, exactly as
+  `getArrayContextVarNames` does in the core. `displayValue` and `propertyValue` resolve their
+  argument the way `getQuestionValueByContext` does, walking up from the owner, so a sibling
+  column answers its bare name; `getComment` and `isContainerReady` resolve theirs against the
+  survey. A computed argument (`displayValue({q1})`) names nothing at lint time and is left
+  alone, and so is an inArray call whose first argument does not resolve — that one is already
+  reported on its own.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,

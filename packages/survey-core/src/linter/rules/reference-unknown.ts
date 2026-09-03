@@ -1,7 +1,11 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifyNameRef, classifySiteRefs, equalsCI } from "../expression-utils";
+import {
+  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, equalsCI, FunctionArgRef,
+} from "../expression-utils";
 import { closestMatch } from "../levenshtein";
-import { CIMultiMap, ElementRecord, getEffectiveType, NameRef, ParsedRef } from "../symbols";
+import {
+  CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef,
+} from "../symbols";
 import { didYouMean } from "../message-utils";
 import { SurveyLintReasons } from "../reasons";
 import { ILintHint } from "../types";
@@ -42,6 +46,42 @@ function getNameRefContext(nameRef: NameRef): string {
   if (nameRef.kind === "binding") return "(referenced in bindings)";
   if (nameRef.kind === "choicesByUrlVariable") return "(referenced in the choicesByUrl " + nameRef.prop + ")";
   return "(in the \"" + nameRef.prop + "\" text)";
+}
+
+// A name a function reads at call time. Reported apart from the expression references around
+// it: the sentence has to name the function, and for an inArray call the name is looked up in
+// one element rather than among the survey names, so the generic "not found" would mislead.
+function reportFunctionArg(ctx: LintContext, site: ExpressionSite, argRef: FunctionArgRef): void {
+  const ref = argRef.ref;
+  const name = ref.segments[0].name;
+  const container = argRef.container;
+  const call = argRef.functionName + "()";
+  let message = "\"" + name + "\" is not found";
+  if (container) {
+    message += " in " + container.type + " \"" + container.name + "\" - " + call +
+      " reads that name from every entry.";
+  } else {
+    message += " - the " + call + " argument names no question, panel or page.";
+  }
+  message += didYouMean(ref.suggestion) + " (in \"" + site.text + "\")";
+  ctx.report({
+    message: message,
+    path: site.path,
+    reason: reasons.functionArgNotFound,
+    messageData: {
+      name: name,
+      functionName: argRef.functionName,
+      argIndex: argRef.argIndex,
+      containerName: container ? container.name : undefined,
+      containerType: container ? container.type : undefined,
+      expression: site.text,
+      refKind: "functionArgument",
+      note: "No case: the function returns nothing for that name.",
+    },
+    elementName: site.owner ? site.owner.name : undefined,
+    elementType: site.owner ? site.owner.type : undefined,
+    suggestion: ref.suggestion,
+  });
 }
 
 function isUnknown(ref: ParsedRef): boolean {
@@ -135,6 +175,9 @@ export const referenceUnknownRule: ILintRule = {
           path: site.path, owner: site.owner, refKind: "expression",
           expression: site.text, context: site.text ? "(in \"" + site.text + "\")" : "",
         });
+      });
+      classifyFunctionArgRefs(site, ctx.index, ctx.options).forEach((argRef: FunctionArgRef) => {
+        if (isUnknown(argRef.ref)) reportFunctionArg(ctx, site, argRef);
       });
     });
     ctx.index.nameRefs.forEach((nameRef: NameRef) => {

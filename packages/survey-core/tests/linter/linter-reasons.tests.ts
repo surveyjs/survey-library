@@ -38,6 +38,15 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "reference/unknown", reason: "functionArgNotFound",
+    json: {
+      elements: [
+        { type: "matrixdynamic", name: "m", columns: [{ name: "col1", cellType: "text" }] },
+        { type: "expression", name: "e1", expression: "sumInArray({m}, 'nosuchcol')" },
+      ],
+    },
+  },
+  {
     ruleId: "reference/self", reason: "selfReference",
     json: { elements: [{ type: "text", name: "q1", visibleIf: "{q1} notempty" }] },
   },

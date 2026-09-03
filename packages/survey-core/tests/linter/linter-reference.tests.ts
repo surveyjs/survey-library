@@ -807,3 +807,44 @@ describe("reference/unknown - text piping", () => {
     expect(unknownRefs(json, { suppress: [{ path: "elements[0].title" }] })).toHaveLength(0);
   });
 });
+
+describe("reference/unknown - piped properties outside the localizable ones", () => {
+  // path is processed with the very same processor as url, and a name missing from either of
+  // them blanks both, so the request never runs
+  test("the choicesByUrl path is validated", () => {
+    const findings = unknownRefs({
+      elements: [
+        { type: "text", name: "country" },
+        {
+          type: "dropdown", name: "city",
+          choicesByUrl: { url: "https://api.example.com/{country}/cities", path: "data.{countryy}" },
+        },
+      ],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[1].choicesByUrl.path");
+    expect(findings[0].suggestion).toBe("country");
+    expect(findings[0].messageData.refKind).toBe("choicesByUrlVariable");
+  });
+  test("survey navigation and completion texts are validated", () => {
+    const findings = unknownRefs({
+      navigateToUrl: "https://x/{nosuch1}",
+      completedHtmlOnCondition: [{ expression: "{q1} notempty", html: "{nosuch2}" }],
+      navigateToUrlOnCondition: [{ expression: "{q1} notempty", url: "https://x/{nosuch3}" }],
+      elements: [{ type: "text", name: "q1" }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "completedHtmlOnCondition[0].html",
+      "navigateToUrl",
+      "navigateToUrlOnCondition[0].url",
+    ]);
+  });
+  test("a known name in those texts is clean", () => {
+    expect(unknownRefs({
+      navigateToUrl: "https://x/{q1}",
+      completedHtmlOnCondition: [{ expression: "{q1} notempty", html: "{q1}" }],
+      navigateToUrlOnCondition: [{ expression: "{q1} notempty", url: "https://x/{q1}" }],
+      elements: [{ type: "text", name: "q1" }],
+    })).toHaveLength(0);
+  });
+});

@@ -600,8 +600,10 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     }
   }
 
-  // survey-level texts (completedHtml, questionTitleTemplate, the navigation captions)
-  addTextRefsFromProps(state, json, "", metadata.getLocalizableProps("survey"), undefined, []);
+  // survey-level texts (completedHtml, the navigation captions), plus navigateToUrl - the one
+  // piped property that is not localizable (SurveyModel.getNavigateToUrl processes it)
+  addTextRefsFromProps(state, json, "",
+    metadata.getLocalizableProps("survey").concat(["navigateToUrl"]), undefined, []);
 
   if (Array.isArray(json.calculatedValues)) {
     json.calculatedValues.forEach((cv: any, i: number) => {
@@ -628,11 +630,16 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   ["completedHtmlOnCondition", "navigateToUrlOnCondition"].forEach(prop => {
     if (!Array.isArray(json[prop])) return;
+    // the html/url the item carries is piped like the survey-level one it replaces
+    const locProps = metadata.getItemLocalizableProps("survey", prop);
     json[prop].forEach((item: any, i: number) => {
-      if (item && typeof item === "object" && isNonEmptyString(item.expression)) {
-        addSite(state, item.expression, "condition", prop + "[" + i + "].expression",
+      if (!item || typeof item !== "object") return;
+      const path = prop + "[" + i + "]";
+      if (isNonEmptyString(item.expression)) {
+        addSite(state, item.expression, "condition", joinPath(path, "expression"),
           "expression", undefined, []);
       }
+      addTextRefsFromProps(state, item, path, locProps, undefined, []);
     });
   });
 

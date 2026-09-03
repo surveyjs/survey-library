@@ -136,7 +136,7 @@ interface ISurveyLintOptions {
 | Rule id | Default | Reports |
 | --- | --- | --- |
 | `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties. |
-| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` URL, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question. |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question. |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
 | `name/shadowing` | warning | A name that answers somewhere else than the JSON suggests: a question, `valueName` or calculated value spelling a built-in variable (`{pageno}`, `{locale}`, the quiz counters), which the survey answers first; a `valueName` landing on the name another question already writes under; a data key spelling the `-Comment` or `-total` key the runtime derives for another element; and a `setvalue` trigger with `isVariable` writing a variable named after a question, whose answer then stops answering its own name. Two questions deliberately sharing a `valueName` is not reported — that is how they answer as one. |
@@ -226,7 +226,9 @@ interface ISurveyLintOptions {
   question `format`, a `minErrorText`, a column `totalFormat`) and a property the runtime takes
   apart itself instead of piping it (`questionTitleTemplate` and its `{no}`/`{title}`/`{require}`,
   listed in `catalog.ts`). A per-locale object is walked per locale, so the finding points at
-  `title.de`.
+  `title.de`. Three piped properties are not localizable and are scanned by name:
+  `navigateToUrl`, and the `url`/`path` pair of `choicesByUrl` — a name missing from either of
+  those two blanks both, so the request never runs at all.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,

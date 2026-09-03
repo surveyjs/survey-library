@@ -246,7 +246,25 @@ export var finnishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Edistymispalkki",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sivu {0}"
+  progressbarPage: "Sivu {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "p",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "k",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "v",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "m",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "i",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "I"
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });

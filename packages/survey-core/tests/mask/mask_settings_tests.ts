@@ -2,10 +2,13 @@ import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
+import { InputMaskDateTime } from "../../src/mask/mask_datetime";
 import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
 import { ArrayChanges, Base } from "../../src/base";
+
+import "../../src/localization/german";
 
 import { describe, test, expect } from "vitest";
 describe("Question text: Input mask", () => {
@@ -682,5 +685,105 @@ describe("Question text: Input mask", () => {
     q.inputValue = "+12-56";
     expect(q.value, "complete value again").toBe("1256");
     expect(q.errors.length, "errors cleared").toBe(0);
+  });
+
+  test("Only the datetime mask is locale dependent", () => {
+    expect(new InputMaskBase().isLocaleDependent, "base").toBe(false);
+    expect(new InputMaskPattern().isLocaleDependent, "pattern").toBe(false);
+    expect(new InputMaskNumeric().isLocaleDependent, "numeric").toBe(false);
+    expect(new InputMaskCurrency().isLocaleDependent, "currency").toBe(false);
+    expect(new InputMaskDateTime().isLocaleDependent, "datetime").toBe(true);
+  });
+
+  test("The rendered datetime input is updated when the survey locale changes", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "datetime",
+          maskSettings: { pattern: "dd.mm.yyyy" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    expect(testInput.value, "the english empty mask is rendered").toBe("dd.mm.yyyy");
+
+    survey.locale = "de";
+    expect(testInput.value, "the german empty mask is rendered").toBe("TT.MM.JJJJ");
+
+    survey.locale = "";
+    expect(testInput.value, "the english empty mask is rendered again").toBe("dd.mm.yyyy");
+
+    testInput.remove();
+  });
+
+  test("An entered datetime value is re-rendered in the input when the survey locale changes", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "datetime",
+          maskSettings: { pattern: "dd.mm.yyyy" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+
+    q.inputValue = "15.mm.yyyy";
+    survey.locale = "de";
+    expect(testInput.value, "an incomplete value keeps the entered digits").toBe("15.MM.JJJJ");
+
+    q.inputValue = "15.12.2024";
+    expect(q.value, "the complete value").toBe("2024-12-15");
+    survey.locale = "";
+    expect(testInput.value, "a complete value does not depend on the locale").toBe("15.12.2024");
+
+    testInput.remove();
+  });
+
+  test("Focus, click and blur on an empty datetime input after the survey locale has changed", () => {
+    const testInput = document.createElement("input");
+    testInput.placeholder = "enter a date";
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          placeholder: "enter a date",
+          maskType: "datetime",
+          maskSettings: { pattern: "dd.mm.yyyy" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    expect(testInput.value, "the placeholder is shown instead of the empty mask").toBe("");
+
+    survey.locale = "de";
+    expect(testInput.value, "the placeholder is still shown after the locale change").toBe("");
+
+    testInput.dispatchEvent(new Event("focus"));
+    expect(testInput.value, "the german empty mask is shown on focus").toBe("TT.MM.JJJJ");
+
+    testInput.setSelectionRange(5, 5);
+    testInput.dispatchEvent(new Event("click"));
+    expect(testInput.selectionStart, "the caret is moved to the first part").toBe(0);
+
+    testInput.dispatchEvent(new Event("blur"));
+    expect(testInput.value, "the placeholder is shown again on blur").toBe("");
+
+    testInput.remove();
   });
 });

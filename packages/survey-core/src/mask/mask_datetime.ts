@@ -1,7 +1,9 @@
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { InputMaskPattern } from "./mask_pattern";
-import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
+import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
+import { getLocaleDataValue } from "../locale-data";
+import { surveyLocalization } from "../surveyStrings";
 
 type DateTimeMaskLexemType = "month" | "day" | "year" | "hour" | "minute" | "second" | "timeMarker" | "separator"
 export interface IDateTimeMaskLexem {
@@ -10,6 +12,30 @@ export interface IDateTimeMaskLexem {
   count: number;
   maxCount: number;
   upperCase: boolean;
+}
+
+// Placeholder symbols are display-only: they are rendered for an unfilled lexem and are never
+// used to parse the pattern or to detect the semantic type of a lexem.
+const placeholderSymbolLocalizationNames: { [key: string]: string } = {
+  day: "maskPlaceholderDay",
+  month: "maskPlaceholderMonth",
+  year: "maskPlaceholderYear",
+  hour12: "maskPlaceholderHour12",
+  hour24: "maskPlaceholderHour24",
+  minute: "maskPlaceholderMinute",
+  second: "maskPlaceholderSecond",
+  timeMarkerLower: "maskPlaceholderTimeMarkerLower",
+  timeMarkerUpper: "maskPlaceholderTimeMarkerUpper"
+};
+
+function getDateTimeLexemRole(lexem: IDateTimeMaskLexem): string {
+  if (lexem.type === "hour") return lexem.upperCase ? "hour24" : "hour12";
+  if (lexem.type === "timeMarker") return lexem.upperCase ? "timeMarkerUpper" : "timeMarkerLower";
+  return lexem.type;
+}
+
+export interface IDateTimeInputFragments {
+  [key: string]: string;
 }
 
 interface IInputDateTimeData {
@@ -112,6 +138,27 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   return result;
 }
 
+// A locale-data date pattern must produce at least one date lexem; the canonical grammar has
+// no invalid characters (unknown ones become separators), so this is the whole check.
+function isValidLocaleDatePattern(pattern: string): boolean {
+  return getDateTimeLexems(pattern || "").some(l => l.type === "day" || l.type === "month" || l.type === "year");
+}
+
+function isValidLocaleTimePattern(pattern: string): boolean {
+  const lexems = getDateTimeLexems(pattern || "");
+  if (lexems.some(l => l.type === "day" || l.type === "month" || l.type === "year")) return false;
+  if (!lexems.some(l => l.type === "hour") || !lexems.some(l => l.type === "minute")) return false;
+  let lastTimeIndex = -1;
+  let markerIndex = -1;
+  lexems.forEach((lexem, index) => {
+    if (lexem.type === "hour" || lexem.type === "minute" || lexem.type === "second") lastTimeIndex = index;
+    if (lexem.type === "timeMarker" && markerIndex < 0) markerIndex = index;
+  });
+  // getParts() consumes any character while the expected lexem is a time marker, so a marker
+  // placed before a time field would swallow that field's digits
+  return markerIndex < 0 || markerIndex > lastTimeIndex;
+}
+
 /**
  * A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
  *
@@ -136,7 +183,8 @@ export class InputMaskDateTime extends InputMaskPattern {
   private defaultDate = "1970-01-01T";
   private turnOfTheCentury = 68;
   private twelve = 12;
-  private lexems: Array<IDateTimeMaskLexem> = [];
+  private lexemsValue: Array<IDateTimeMaskLexem>;
+  private activePatternValue: string;
   private inputDateTimeData: Array<IInputDateTimeData> = [];
   private validBeginningOfNumbers: { [key: string]: any } = {
     hour: 1,
@@ -146,6 +194,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     day: 3,
     month: 1,
   };
+  // An authored pattern always wins; while no pattern is set, the preset resolves the active
+  // pattern for the current format locale.
+  @property({ defaultValue: "localeDate" }) patternPreset: string;
   /**
    * A minimum date and time value that respondents can enter.
    * @see max
@@ -179,8 +230,148 @@ export class InputMaskDateTime extends InputMaskPattern {
     return this.hasTimePart ? "datetime-local" : "datetime";
   }
 
+  // The lexems are built on demand: fromJSON() runs before the mask is attached to a question,
+  // so the survey locale that a preset depends on is not known yet at that moment.
+  private ensureLexems(): void {
+    if (this.lexemsValue !== undefined) return;
+    this.activePatternValue = this.calcActivePattern();
+    this.lexemsValue = getDateTimeLexems(this.activePatternValue || "");
+  }
+  private get lexems(): Array<IDateTimeMaskLexem> {
+    this.ensureLexems();
+    return this.lexemsValue;
+  }
   protected updateLiterals(): void {
-    this.lexems = getDateTimeLexems(this.pattern || "");
+    this.lexemsValue = undefined;
+    this.activePatternValue = undefined;
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "patternPreset") {
+      this.updateLiterals();
+    }
+  }
+  private get patternLocale(): string {
+    const survey = this.getSurvey();
+    const res = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : this.getLocale();
+    return res || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
+  }
+  private calcActivePattern(): string {
+    if (!!this.pattern) return this.pattern;
+    const locale = this.patternLocale;
+    // a JSON author may spell the preset in any case
+    const preset = (this.patternPreset || "").toLowerCase();
+    if (preset === "localetime") {
+      return getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern) || "";
+    }
+    if (preset === "localedatetime") {
+      const datePattern = getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern);
+      const timePattern = getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern);
+      // composed from the two resolved fields rather than curated as one: a locale that defined
+      // a date and a time pattern but no combined one would otherwise fall back to the english
+      // field order and separators for the whole pattern
+      if (!!datePattern && !!timePattern) return datePattern + " " + timePattern;
+      return datePattern || timePattern || "";
+    }
+    if (preset === "localedate") {
+      return getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern) || "";
+    }
+    // an unrecognized preset leaves the mask without a pattern, as if none were set
+    return this.pattern || "";
+  }
+  // The canonical pattern that the mask currently parses. A preset generates it at runtime for
+  // the survey locale; it is never serialized.
+  public get activePattern(): string {
+    this.ensureLexems();
+    return this.activePatternValue;
+  }
+  public get isLocaleDependent(): boolean { return true; }
+  public localeChanged(state?: IMaskLocaleChange): void {
+    super.localeChanged();
+    const prevPattern = this.activePattern;
+    // captured with the lexems of the previous locale, before they are rebuilt
+    const fragments = !!state && !!state.enteredText ? this.getInputFragments(state.enteredText) : undefined;
+    const prevIs12Hours = this.is12Hours;
+    const savedValue = !!state && !!state.value ? this.getUnmaskedValue(state.value) : undefined;
+    this.updateLiterals();
+    // The empty mask, every unfilled part and the field order are locale dependent. Notify the
+    // owner question and the input element adapter the same way a property change does.
+    this.onPropertyChanged.fire(this, { name: "locale", oldValue: prevPattern, newValue: this.activePattern });
+    if (!!fragments) {
+      state.enteredText = this.getMaskedValueByFragments(fragments, prevIs12Hours);
+    }
+    if (!!savedValue && this.activePattern !== prevPattern) {
+      state.value = this.getMaskedValue(savedValue);
+    }
+  }
+  // Entered characters by semantic role, so that they can be restored into another field order.
+  public getInputFragments(src: string): IDateTimeInputFragments {
+    const res: IDateTimeInputFragments = {};
+    this.setInputDateTimeData(this.getParts(src || ""));
+    this.inputDateTimeData.forEach(inputData => {
+      if (inputData.lexem.type !== "separator" && !!inputData.value) {
+        res[inputData.lexem.type] = inputData.value;
+      }
+    });
+    return res;
+  }
+  public getMaskedValueByFragments(fragments: IDateTimeInputFragments, sourceIs12Hours?: boolean): string {
+    const data = sourceIs12Hours === undefined || sourceIs12Hours === this.is12Hours ? fragments
+      : this.convertHourFragment(fragments, sourceIs12Hours);
+    this.initInputDateTimeData();
+    this.inputDateTimeData.forEach(inputData => {
+      let fragment = data[inputData.lexem.type];
+      if (fragment !== undefined) {
+        // the marker case follows the target lexem: a "pm" captured from "tt" fills "TT" as "PM"
+        if (inputData.lexem.type === "timeMarker") fragment = this.cleanTimeMarker(fragment, inputData.lexem.upperCase);
+        inputData.value = fragment.slice(0, inputData.lexem.maxCount);
+      }
+    });
+    return this.updateAndFormatInputDateTimeData(true);
+  }
+  // A 12-hour and a 24-hour lexem hold different numbers for the same time, so an entered hour
+  // is converted rather than copied. Without this, restoring "15" into a 12-hour lexem is
+  // rejected as an invalid hour and rendered as the placeholder symbol.
+  private convertHourFragment(fragments: IDateTimeInputFragments, sourceIs12Hours: boolean): IDateTimeInputFragments {
+    const res: IDateTimeInputFragments = {};
+    Object.keys(fragments).forEach(key => { res[key] = fragments[key]; });
+    const hourStr = res["hour"];
+    const hour = parseInt(hourStr);
+    if (!hourStr || isNaN(hour)) return res;
+    if (sourceIs12Hours) {
+      const marker = (res["timeMarker"] || "").toLowerCase()[0];
+      // the entry means either of two times until its marker is entered: keep the hour as typed
+      if (marker !== "a" && marker !== "p") return res;
+      const hour24 = hour % this.twelve + (marker === "p" ? this.twelve : 0);
+      res["hour"] = (hour24 < 10 ? "0" : "") + hour24;
+      delete res["timeMarker"];
+    } else {
+      // a half-typed 24-hour hour ("1" may still become 13) is a valid 12-hour hour as it is
+      if (hourStr.length < 2) return res;
+      const hour12 = hour % this.twelve === 0 ? this.twelve : hour % this.twelve;
+      res["hour"] = (hour12 < 10 ? "0" : "") + hour12;
+      res["timeMarker"] = hour >= this.twelve ? "pm" : "am";
+    }
+    return res;
+  }
+
+  // The symbol is resolved on every call: it depends on the current locale, not on the pattern.
+  public getPlaceholderSymbol(lexem: IDateTimeMaskLexem): string {
+    if (!lexem) return "";
+    if (lexem.type === "separator") return lexem.value;
+    const role = getDateTimeLexemRole(lexem);
+    const locName = placeholderSymbolLocalizationNames[role];
+    if (!locName) return lexem.value;
+    const res = this.getLocalizationString(locName);
+    return this.isPlaceholderSymbolValid(res, role) ? res : lexem.value;
+  }
+  private isPlaceholderSymbolValid(symbol: any, role: string): boolean {
+    if (typeof symbol !== "string" || symbol.length !== 1) return false;
+    // a digit would be indistinguishable from entered data in getParts()
+    if (!!symbol.match(numberDefinition)) return false;
+    // "a", "p" and "m" are consumed by cleanTimeMarker() as entered data
+    if (role.indexOf("timeMarker") === 0 && "APM".indexOf(symbol.toUpperCase()) !== -1) return false;
+    return true;
   }
 
   private leaveOnlyNumbers(input: string): string {
@@ -213,7 +404,8 @@ export class InputMaskDateTime extends InputMaskPattern {
             if (!this.is12Hours) {
               inputData.value = date.getHours().toString();
             } else {
-              inputData.value = ((date.getHours() - 1) % this.twelve + 1).toString();
+              // midnight and noon are both "12" on a 12-hour clock
+              inputData.value = ((date.getHours() + this.twelve - 1) % this.twelve + 1).toString();
             }
             break;
           }
@@ -459,7 +651,7 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     if (!!dataStr && lexem.type === "timeMarker") {
       if (matchWholeMask) {
-        dataStr = dataStr + this.getPlaceholder(lexem.count, dataStr, lexem.value);
+        dataStr = dataStr + this.getPlaceholder(lexem.count, dataStr, this.getPlaceholderSymbol(lexem));
       }
       return dataStr;
     }
@@ -474,7 +666,7 @@ export class InputMaskDateTime extends InputMaskPattern {
       // !!!
       dataStr = trimDatePart(lexem, dataStr);
       if (matchWholeMask) {
-        dataStr += this.getPlaceholder(lexem.count, dataStr, lexem.value);
+        dataStr += this.getPlaceholder(lexem.count, dataStr, this.getPlaceholderSymbol(lexem));
       }
     }
     return dataStr;
@@ -545,12 +737,14 @@ export class InputMaskDateTime extends InputMaskPattern {
             const _matchWholeMask = matchWholeMask || lastItemWithDataIndex > index;
             const data = this.getCorrectDatePartFormat(inputData, _matchWholeMask);
             result += (prevSeparator + data);
+            prevSeparator = "";
             prevIsCompleted = inputData.isCompleted;
           }
           break;
 
         case "separator":
-          prevSeparator = inputData.lexem.value;
+          // a locale literal can be longer than one character ("dd. mm. yyyy")
+          prevSeparator += inputData.lexem.value;
           break;
       }
     }
@@ -558,6 +752,10 @@ export class InputMaskDateTime extends InputMaskPattern {
     return result;
   }
 
+  // The accepted marker characters stay english a/p(m) in every locale: they are part of the
+  // canonical grammar's input alphabet, and localizing them would make parsing locale
+  // dependent. Locales that write the marker in another script are curated as 24-hour in
+  // locale-data instead, so their respondents are never asked to type a latin marker.
   private cleanTimeMarker(str: string, upperCase: boolean) {
     let result = "";
     str = str.toUpperCase();
@@ -596,6 +794,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     let input = (src === undefined || src === null) ? "" : src.toString();
     const inputParts = this.getParts(input);
     this.setInputDateTimeData(inputParts);
+    return this.updateAndFormatInputDateTimeData(matchWholeMask);
+  }
+  private updateAndFormatInputDateTimeData(matchWholeMask: boolean): string {
     const tempDateTime = this.createIDateTimeComposition();
     this.inputDateTimeData.forEach(itemData => {
       if (itemData.lexem.type === "timeMarker") {
@@ -604,20 +805,42 @@ export class InputMaskDateTime extends InputMaskPattern {
         this.updateInputDateTimeData(itemData, tempDateTime);
       }
     });
-    const result = this.getFormatedString(matchWholeMask);
-    return result;
+    return this.getFormatedString(matchWholeMask);
   }
 
+  // A part accepts both the canonical pattern character and the current display symbol: the
+  // re-parsed value may still contain symbols rendered before a locale change.
+  private isLexemSymbol(lexem: IDateTimeMaskLexem, inputChar: string): boolean {
+    if (!lexem) return false;
+    return inputChar === lexem.value || inputChar === this.getPlaceholderSymbol(lexem);
+  }
+  // The number of separator characters that follow every input part. A locale literal can be
+  // longer than one character ("dd. mm. yyyy"), and such a run splits the input only once.
+  private getSeparatorLengths(): Array<number> {
+    const res: Array<number> = [];
+    let partIndex = -1;
+    this.lexems.forEach(lexem => {
+      if (lexem.type !== "separator") {
+        partIndex++;
+      } else if (partIndex >= 0) {
+        res[partIndex] = (res[partIndex] || 0) + 1;
+      }
+    });
+    return res;
+  }
   private getParts(input: string): Array<string> {
     const inputParts: Array<string> = [];
     const lexemsWithValue = this.lexems.filter(l => l.type !== "separator");
+    if (lexemsWithValue.length === 0) return inputParts;
     const separators = this.lexems.filter(l => l.type === "separator").map(s => s.value);
+    const separatorLengths = this.getSeparatorLengths();
     let curPart = "";
     let foundSeparator = false;
     let foundPseudoSeparator = false;
+    let separatorCharsLeft = 0;
     for (let i = 0; i < input.length; i++) {
       const inputChar = input[i];
-      if (inputChar.match(numberDefinition) || inputChar === lexemsWithValue[inputParts.length].value) {
+      if (inputChar.match(numberDefinition) || this.isLexemSymbol(lexemsWithValue[inputParts.length], inputChar)) {
         foundSeparator = false;
         foundPseudoSeparator = false;
         curPart += inputChar;
@@ -628,9 +851,15 @@ export class InputMaskDateTime extends InputMaskPattern {
       } else {
         if (separators.indexOf(inputChar) !== -1) {
           if (!foundPseudoSeparator) {
-            foundSeparator = true;
-            inputParts.push(curPart);
-            curPart = "";
+            if (foundSeparator && separatorCharsLeft > 0) {
+              // still inside the same multi-character literal
+              separatorCharsLeft--;
+            } else {
+              foundSeparator = true;
+              separatorCharsLeft = (separatorLengths[inputParts.length] || 1) - 1;
+              inputParts.push(curPart);
+              curPart = "";
+            }
           }
         } else {
           if (!foundSeparator) {
@@ -658,7 +887,9 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     this.setInputDateTimeData(inputParts);
 
-    const timeMarker = this.inputDateTimeData.filter(idtd => idtd.lexem.type === "timeMarker")[0]?.value.toLowerCase()[0];
+    // the marker lexem has no value at all when the input ends before it
+    const timeMarkerData = this.inputDateTimeData.filter(idtd => idtd.lexem.type === "timeMarker")[0];
+    const timeMarker = (timeMarkerData?.value || "").toLowerCase()[0];
 
     const tempDateTime = this.createIDateTimeComposition();
     let uncompleted = false;
@@ -670,7 +901,11 @@ export class InputMaskDateTime extends InputMaskPattern {
         return;
       }
       let value = parseInt(this.parseTwoDigitYear(inputData));
-      if (inputData.lexem.type == "hour" && timeMarker === "p" && value != this.twelve) value += this.twelve;
+      if (inputData.lexem.type == "hour") {
+        if (timeMarker === "p" && value != this.twelve) value += this.twelve;
+        // 12 am is midnight, the zero hour of the day
+        else if (timeMarker === "a" && value === this.twelve) value = 0;
+      }
       (tempDateTime as any)[inputData.lexem.type] = value;
     });
 
@@ -700,17 +935,24 @@ Serializer.addClass(
   "datetimemask",
   [
     {
+      name: "patternPreset",
+      default: "localeDate",
+      choices: ["localeDate", "localeTime", "localeDateTime"],
+      // surfacing this in the property grid, with display strings, is a survey-creator task
+      visible: false
+    },
+    {
       name: "min",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.pattern;
+        return !!obj.activePattern;
       }
     },
     {
       name: "max",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.pattern;
+        return !!obj.activePattern;
       }
     }
   ],

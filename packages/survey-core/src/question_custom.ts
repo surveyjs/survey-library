@@ -300,6 +300,10 @@ export class ComponentQuestionJSON {
       },
       "question"
     );
+    const metaClass = Serializer.findClass(name);
+    if (!!metaClass) {
+      metaClass.getInheritedPropertiesCallback = (): Array<JsonObjectProperty> => self.getDynamicProperties();
+    }
     this.onInit();
   }
   public onInit() {

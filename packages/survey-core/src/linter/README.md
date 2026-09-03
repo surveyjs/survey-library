@@ -136,7 +136,7 @@ interface ISurveyLintOptions {
 | Rule id | Default | Reports |
 | --- | --- | --- |
 | `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties. |
-| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings` or in a `choicesByUrl` URL; a `keyName` naming no column / template question. |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` URL, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question. |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
 | `name/shadowing` | warning | A name that answers somewhere else than the JSON suggests: a question, `valueName` or calculated value spelling a built-in variable (`{pageno}`, `{locale}`, the quiz counters), which the survey answers first; a `valueName` landing on the name another question already writes under; a data key spelling the `-Comment` or `-total` key the runtime derives for another element; and a `setvalue` trigger with `isVariable` writing a variable named after a question, whose answer then stops answering its own name. Two questions deliberately sharing a `valueName` is not reported — that is how they answer as one. |
@@ -214,6 +214,19 @@ interface ISurveyLintOptions {
   always true. The three mechanisms compose without knowing about each other, because each of
   them settles a leaf of the same three-valued walk: `{age} > 3 and {age} > 10` against
   `max: 5` is caught by the bounds of the question, not by the two conjuncts.
+* **Text piping.** A `{name}` written in a localizable string — a question or page `title`, a
+  `description`, a `templateTitle`, an `html`, a choice `text`, a matrix `cellHint`, the survey
+  `completedHtml` — is resolved through the very same chain an expression reference is, scope
+  prefixes included: a dynamic-panel `templateTitle` resolves `{panel.q1}` and `{panelIndex}`,
+  a matrix `singleInputTitleTemplate` resolves `{rowIndex}` and `{row.col}`, and a bare
+  `{q1}` inside a template gets the *reference it as `{panel.q1}`* hint. The string is scanned
+  with `TextPreProcessor`, the runtime's own scanner, so custom
+  `settings.expressionVariableDelimiters` apply and `{a:b}` is not a reference. Two kinds of
+  `{...}` are deliberately not references: a format placeholder (`{0}`, `{1}` — an `expression`
+  question `format`, a `minErrorText`, a column `totalFormat`) and a property the runtime takes
+  apart itself instead of piping it (`questionTitleTemplate` and its `{no}`/`{title}`/`{require}`,
+  listed in `catalog.ts`). A per-locale object is walked per locale, so the finding points at
+  `title.de`.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
@@ -233,6 +246,9 @@ same four over the **authored JSON**: syntax errors as `expression/syntax`, unkn
 including the deliberate silence on a lone boolean constant: `visibleIf: "false"` is how an author
 switches an element off, not a defect, and nothing reports it. A lone reference to a constant
 source (`visibleIf: "{c1}"`) is left alone for the same reason.
+
+`validateExpressions` also walks only the properties the serializer marks as expressions, so text
+piping is outside it entirely: an unknown name in a `title` is reported here and nowhere else.
 
 Where the linter goes further than `validateExpressions` is the constant sources above: the core
 judges one expression at a time, while the linter has the whole JSON and can tell that `{c1}` is

@@ -36,6 +36,14 @@ function buildMessage(ref: ParsedRef, context: string): string {
   return message;
 }
 
+// The sentence tail that says where the name was written. Text piping names the property:
+// unlike bindings or a choicesByUrl URL, any of dozens of localizable strings can carry it.
+function getNameRefContext(nameRef: NameRef): string {
+  if (nameRef.kind === "binding") return "(referenced in bindings)";
+  if (nameRef.kind === "choicesByUrlVariable") return "(referenced in the choicesByUrl " + nameRef.prop + ")";
+  return "(in the \"" + nameRef.prop + "\" text)";
+}
+
 function isUnknown(ref: ParsedRef): boolean {
   return ref.status === "unknown" || ref.status === "scoped-unknown";
 }
@@ -50,6 +58,7 @@ function getHint(ref: ParsedRef): ILintHint {
 // where only the context sentence differs.
 function reportRef(ctx: LintContext, ref: ParsedRef, params: {
   path: string, owner?: ElementRecord, context: string, expression?: string, refKind: string,
+  prop?: string,
 }): void {
   ctx.report({
     message: buildMessage(ref, params.context),
@@ -64,6 +73,7 @@ function reportRef(ctx: LintContext, ref: ParsedRef, params: {
       containerType: ref.resolvedTo ? ref.resolvedTo.type : undefined,
       expression: params.expression,
       refKind: params.refKind,
+      prop: params.prop,
       scopePrefix: ref.scopePrefix,
       note: "No case: the reference cannot be evaluated.",
     },
@@ -131,9 +141,8 @@ export const referenceUnknownRule: ILintRule = {
       const ref = classifyNameRef(nameRef, ctx.index, ctx.options);
       if (!isUnknown(ref)) return;
       reportRef(ctx, ref, {
-        path: nameRef.path, owner: nameRef.owner, refKind: nameRef.kind,
-        context: nameRef.kind === "binding"
-          ? "(referenced in bindings)" : "(referenced in the choicesByUrl URL)",
+        path: nameRef.path, owner: nameRef.owner, refKind: nameRef.kind, prop: nameRef.prop,
+        context: getNameRefContext(nameRef),
       });
     });
     ctx.index.allElements.forEach(record => checkKeyName(ctx, record));

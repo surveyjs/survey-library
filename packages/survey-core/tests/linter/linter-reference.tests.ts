@@ -636,3 +636,174 @@ describe("reference/unknown - keyName", () => {
     })).toHaveLength(0);
   });
 });
+
+describe("reference/unknown - text piping", () => {
+  test("a name in a title is validated", () => {
+    const findings = unknownRefs({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "radiogroup", name: "question3", title: "{someVarIs} is here " },
+          { type: "text", name: "question4", visibleIf: "{someVarIs}" },
+          {
+            type: "paneldynamic", name: "question1", templateTitle: "{someVarIs} is here ",
+            templateElements: [{ type: "text", name: "question2" }],
+          },
+        ],
+      }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "pages[0].elements[0].title",
+      "pages[0].elements[1].visibleIf",
+      "pages[0].elements[2].templateTitle",
+    ]);
+    expect(findings[0].messageData.refKind).toBe("textPiping");
+    expect(findings[0].reason).toBe("notFound");
+  });
+  test("a title naming an existing question is clean", () => {
+    expect(unknownRefs({
+      elements: [
+        { type: "text", name: "question4" },
+        { type: "text", name: "q2", title: "{question4} is here" },
+      ],
+    })).toHaveLength(0);
+  });
+  test("piping is validated in every localizable property", () => {
+    const findings = unknownRefs({
+      elements: [
+        { type: "text", name: "q1", description: "{nosuch1}", placeholder: "{nosuch2}" },
+        { type: "html", name: "h1", html: "{nosuch3}" },
+        { type: "dropdown", name: "d1", choices: [{ value: 1, text: "{nosuch4}" }] },
+        {
+          type: "matrixdropdown", name: "m1", rows: ["r1"],
+          columns: [{ name: "col1", cellHint: "{nosuch5}" }],
+        },
+        { type: "multipletext", name: "mt1", items: [{ name: "i1", title: "{nosuch6}" }] },
+        { type: "panel", name: "p1", title: "{nosuch7}" },
+      ],
+    });
+    expect(findings.map(f => f.messageData.name).sort()).toEqual([
+      "nosuch1", "nosuch2", "nosuch3", "nosuch4", "nosuch5", "nosuch6", "nosuch7",
+    ]);
+  });
+  test("piping is validated in page and survey properties", () => {
+    const findings = unknownRefs({
+      completedHtml: "<b>{nosuch1}</b>",
+      pages: [{ name: "page1", title: "{nosuch2}", elements: [{ type: "text", name: "q1" }] }],
+    });
+    expect(findings.map(f => f.path)).toEqual(["completedHtml", "pages[0].title"]);
+  });
+  test("a dynamic panel template resolves its own scope", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p1",
+        templateTitle: "{panel.q1} {panelIndex} {visiblePanelIndex}",
+        templateDescription: "{panel.q1}",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a template question named without its prefix is reported with a hint", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateTitle: "{q1}",
+        templateElements: [{ type: "text", name: "q1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].suggestion).toBe("panel.q1");
+    expect(findings[0].hint.reason).toBe("panelQuestion");
+  });
+  test("a matrix single input title resolves the row scope", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        singleInputTitleTemplate: "Row {rowIndex}: {row.col1}",
+        columns: [{ name: "col1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("an unknown column in a matrix single input title is reported", () => {
+    const findings = unknownRefs({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        singleInputTitleTemplate: "{row.nosuchcol}",
+        columns: [{ name: "col1" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("scopedUnknown");
+  });
+  test("a per-locale title object is walked", () => {
+    const findings = unknownRefs({
+      elements: [{ type: "text", name: "q1", title: { default: "{bad1}", de: "{bad2}" } }],
+    });
+    expect(findings.map(f => f.path)).toEqual([
+      "elements[0].title.de", "elements[0].title.default",
+    ]);
+  });
+  test("format placeholders are not references", () => {
+    expect(unknownRefs({
+      elements: [
+        { type: "expression", name: "e1", expression: "1", format: "{0} items" },
+        { type: "text", name: "q1", inputType: "number", min: 1, minErrorText: "at least {0}" },
+        {
+          type: "matrixdynamic", name: "m1", showTotal: true,
+          columns: [{ name: "col1", totalType: "sum", totalFormat: "Total: {0}" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  // the survey reads these out of the template itself, and processText never sees the string
+  test("the question title template is not a piping text", () => {
+    expect(unknownRefs({
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [{ type: "text", name: "q1" }],
+    })).toHaveLength(0);
+  });
+  test("a token with a colon is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{ type: "text", name: "q1", title: "{nosuch:x}" }],
+    })).toHaveLength(0);
+  });
+  test("inline css in html is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "html", name: "h1",
+        html: "<style>p { color: red } @media print { .a { margin: 0 } }</style><p>ok</p>",
+      }],
+    })).toHaveLength(0);
+  });
+  test("a regex quantifier is not a reference", () => {
+    expect(unknownRefs({
+      elements: [{
+        type: "text", name: "q1",
+        validators: [{ type: "regex", regex: "^\d{2,3}$", text: "wrong" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a dataList entry is not scanned", () => {
+    expect(unknownRefs({
+      elements: [{ type: "text", name: "q1", dataList: ["{bad}"] }],
+    })).toHaveLength(0);
+  });
+  test("piping names are found through custom expression delimiters", () => {
+    withSettings({ expressionVariableDelimiters: { start: "[[", end: "]]" } }, () => {
+      const findings = unknownRefs({
+        elements: [
+          { type: "text", name: "country" },
+          { type: "text", name: "q2", title: "[[countryy]]" },
+        ],
+      });
+      expect(findings).toHaveLength(1);
+      expect(findings[0].suggestion).toBe("country");
+    });
+  });
+  test("knownVariables and suppress silence a piping finding", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", title: "{someVarIs}" }],
+    };
+    expect(unknownRefs(json, { knownVariables: ["someVarIs"] })).toHaveLength(0);
+    expect(unknownRefs(json, { suppress: [{ path: "elements[0].title" }] })).toHaveLength(0);
+  });
+});

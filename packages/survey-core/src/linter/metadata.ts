@@ -89,6 +89,15 @@ function toPropDefs(props: Array<JsonObjectProperty>): Array<ExpressionPropDef> 
   return res;
 }
 
+function toLocPropNames(props: Array<JsonObjectProperty>): Array<string> {
+  const res: Array<string> = [];
+  props.forEach(prop => {
+    // an array of localizable strings (text.dataList) carries no piping reference
+    if (prop.isLocalizable && !prop.isArray) res.push(prop.name);
+  });
+  return res;
+}
+
 export function isDescendantOf(type: string, ancestor: string): boolean {
   return !!findMetaClass(type) && Serializer.isDescendantOf(type, ancestor);
 }
@@ -129,6 +138,8 @@ export function isPanel(type: string): boolean {
 export class LintMetadata {
   private propsByClass = new Map<string, Array<ExpressionPropDef>>();
   private cellPropsByType = new Map<string, Array<ExpressionPropDef>>();
+  private locPropsByClass = new Map<string, Array<string>>();
+  private cellLocPropsByType = new Map<string, Array<string>>();
   private triggerDefs = new Map<string, TriggerTypeDef>();
   private elementTypes: Array<string>;
   private elementTypeSet: Set<string>;
@@ -307,6 +318,43 @@ export class LintMetadata {
       this.cellPropsByType.set(key, res);
     }
     return res;
+  }
+
+  // Localizable properties carry text piping ({q1} in a title), which resolves names
+  // through the same chain an expression does. isLocalizable covers a property declared
+  // with serializationProperty: "locXxx" too (templateTitle), so the list is complete.
+  public getLocalizableProps(className: string): Array<string> {
+    const key = (className || "").toLowerCase();
+    let res = this.locPropsByClass.get(key);
+    if (!res) {
+      const metaClass = findMetaClass(key);
+      res = metaClass ? toLocPropNames(metaClass.getAllProperties()) : [];
+      this.locPropsByClass.set(key, res);
+    }
+    return res;
+  }
+
+  public getElementLocalizableProps(type: string, fallbackClass: string): Array<string> {
+    return this.getLocalizableProps(!!findMetaClass(type) ? type : fallbackClass);
+  }
+
+  public getCellLocalizableProps(cellType: string): Array<string> {
+    const key = (cellType || "").toLowerCase();
+    let res = this.cellLocPropsByType.get(key);
+    if (!res) {
+      res = this.getLocalizableProps(COLUMN_CLASS).slice();
+      if (!!findMetaClass(key)) {
+        res = res.concat(toLocPropNames(Serializer.getDynamicPropertiesByTypes(COLUMN_CLASS, key)));
+      }
+      this.cellLocPropsByType.set(key, res);
+    }
+    return res;
+  }
+
+  public getItemLocalizableProps(ownerType: string, propName: string): Array<string> {
+    const prop = findProperty(ownerType, propName);
+    const className = !!prop && !!prop.className ? prop.className : DEFAULT_ITEM_CLASS;
+    return this.getLocalizableProps(className);
   }
 
   // Expression properties of the items in an itemvalue-like array ("choices:choiceitem[]",

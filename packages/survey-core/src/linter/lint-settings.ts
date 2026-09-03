@@ -4,6 +4,7 @@ export interface ILintResolvedSettings {
   expressionVariables: typeof settings.expressionVariables;
   expressionElementPropertyPrefix: string;
   expressionDisableConversionChar: string;
+  expressionVariableStartDelimiter: string;
   noneItemValue: string;
   refuseItemValue: string;
   dontKnowItemValue: string;
@@ -23,6 +24,7 @@ export function resolveLintSettings(): ILintResolvedSettings {
     expressionVariables: Helpers.createCopy(settings.expressionVariables),
     expressionElementPropertyPrefix: settings.expressionElementPropertyPrefix,
     expressionDisableConversionChar: settings.expressionDisableConversionChar,
+    expressionVariableStartDelimiter: settings.expressionVariableDelimiters.start,
     noneItemValue: settings.noneItemValue,
     refuseItemValue: settings.refuseItemValue,
     dontKnowItemValue: settings.dontKnowItemValue,

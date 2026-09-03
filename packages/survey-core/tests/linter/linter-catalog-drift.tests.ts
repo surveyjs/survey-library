@@ -6,10 +6,12 @@
 // populates the Serializer registry.
 import "survey-core";
 import { Serializer } from "../../src/jsonobject";
+import { SurveyModel } from "../../src/survey";
 import { settings } from "../../src/settings";
 import { describe, test, expect } from "vitest";
 import {
-  ITEMVALUE_SCOPED_PROPS, PROP_KIND_OVERRIDES, TEMPLATE_SCOPED_PROPS, TRIGGER_TARGET_KINDS,
+  ITEMVALUE_SCOPED_PROPS, PROP_KIND_OVERRIDES, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS,
+  TEXT_TEMPLATE_PROPS, TRIGGER_TARGET_KINDS,
 } from "../../src/linter/catalog";
 import { LintMetadata } from "../../src/linter/metadata";
 
@@ -27,6 +29,16 @@ const CORE_TRIGGER_TYPES = ["complete", "copyvalue", "runexpression", "setvalue"
 // A trigger property whose type names an element or a page is a reference the linter
 // has to resolve, so an unmapped one is a coverage hole rather than a plain property.
 const REFERENCE_PROP_TYPE = /question|page/;
+
+function isLocalizableProp(propName: string): boolean {
+  let res = false;
+  Serializer.getAllClasses().forEach(className => {
+    Serializer.getProperties(className).forEach(prop => {
+      if (prop.isLocalizable && prop.name.toLowerCase() === propName) res = true;
+    });
+  });
+  return res;
+}
 
 function findExpressionProp(propName: string): Array<string> {
   const types: Array<string> = [];
@@ -127,5 +139,35 @@ describe("linter catalog drift guard", () => {
     });
     expect(Serializer.findProperty("skiptrigger", "gotoName")).toBeTruthy();
     expect(Serializer.findProperty("survey", "calculatedValues")).toBeTruthy();
+  });
+
+  test("every text-scoped property in the catalog is still a localizable property", () => {
+    const missing: Array<string> = [];
+    TEXT_SCOPED_PROPS.forEach((scope, propName) => {
+      if (!isLocalizableProp(propName)) missing.push(propName);
+    });
+    expect(missing, "These properties are gone or no longer localizable; update " +
+      "TEXT_SCOPED_PROPS in src/linter/catalog.ts: " + missing.join(", ")).toEqual([]);
+  });
+
+  // A template property is taken apart by the runtime instead of being piped: the survey
+  // reads {no}/{title}/{require} out of questionTitleTemplate into its own title pattern.
+  // Pinned by behaviour - the day the string is piped instead, a {...} in it becomes a
+  // reference the linter has to report.
+  test("template properties are taken apart by the runtime, not piped", () => {
+    TEXT_TEMPLATE_PROPS.forEach(propName => {
+      expect(isLocalizableProp(propName), "survey." + propName + " is gone or no longer " +
+        "localizable - update TEXT_TEMPLATE_PROPS in src/linter/catalog.ts").toBe(true);
+    });
+    const survey = new SurveyModel({
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [{ type: "text", name: "q1", title: "My title", isRequired: true }],
+    });
+    // a variable of that name would answer the placeholder if the template were piped
+    ["no", "title", "require"].forEach(name => survey.setVariable(name, "substituted"));
+    expect(survey.questionTitlePattern, "questionTitleTemplate is no longer parsed into a " +
+      "title pattern - drop it from TEXT_TEMPLATE_PROPS in src/linter/catalog.ts")
+      .toBe("numTitleRequire");
+    expect(survey.getQuestionByName("q1").locTitle.renderedHtml).toBe("My title");
   });
 });

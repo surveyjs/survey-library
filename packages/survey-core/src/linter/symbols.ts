@@ -193,11 +193,13 @@ export interface ExpressionSite {
   subSites?: Array<ExpressionSite>;
 }
 
-export type NameRefKind = "choicesByUrlVariable" | "binding";
+export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";
 
 export interface NameRef {
   name: string;
   path: string;
+  // the property the reference was written in; the other kinds name it through their kind
+  prop?: string;
   owner?: ElementRecord;
   scope: Array<ScopeFrame>;
   kind: NameRefKind;

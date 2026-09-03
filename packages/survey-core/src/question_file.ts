@@ -198,9 +198,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Possible values:
    *
-   * - `"auto"` (default) &ndash; Let the browser open the camera that the device settings define as the default one
-   * - `"user"` &ndash; Prefer the front-facing camera
-   * - `"environment"` &ndash; Prefer the rear-facing camera
+   * - `"user"` &ndash; Prefer the front-facing camera.
+   * - `"environment"` &ndash; Prefer the rear-facing camera.
+   * - `"auto"` (default) &ndash; Let the browser open the camera that the device settings define as the default one.
    *
    * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
    */

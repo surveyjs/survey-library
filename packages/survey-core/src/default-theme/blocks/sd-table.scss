@@ -308,22 +308,11 @@
 }
 //alternative rows
 .sd-table__body--alternative-rows {
-  &
-    > .sd-table__row--error:has(
-      + sv-ng-matrix-row + .sd-table__row--data:nth-child(odd of .sd-table__row--data),
-      + .sd-table__row--data:nth-child(odd of .sd-table__row--data)
-    ) {
-    .sd-table__cell--error-top {
-      padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
-    }
+  .sd-table__cell--error-top {
+    padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
   }
-  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
-    & + sv-ng-matrix-row + .sd-table__row--error,
-    & + .sd-table__row--error {
-      .sd-table__cell--error-bottom {
-        padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
-      }
-    }
+  .sd-table__cell--error-bottom {
+    padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
   }
   & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
     --sd-table-sticky-background-color: #{table-sticky-background(
@@ -449,6 +438,13 @@
     padding: 0;
     text-align: start;
     gap: var(--sjs2-layout-component-question-box-gap-vertical);
+  }
+
+  .sd-table__row--data {
+    & > .sd-table__cell {
+      border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
+        var(--sjs2-color-component-matrix-default-separator);
+    }
   }
 
   .sd-table__cell:first-of-type,

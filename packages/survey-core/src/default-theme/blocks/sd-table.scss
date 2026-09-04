@@ -280,6 +280,12 @@
     var(--sjs2-layout-component-matrix-cell-padding-right);
 }
 
+.sd-table--columnsautowidth {
+  .sd-table__cell:not(.sd-table__cell--actions, .sd-table__cell--action, .sd-table__cell--empty.sd-table__cell--error) {
+    width: var(--sd-table-cell-width);
+  }
+}
+
 //align
 .sd-table--align-top {
   .sd-table__cell {

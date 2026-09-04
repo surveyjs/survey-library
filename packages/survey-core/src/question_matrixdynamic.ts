@@ -280,6 +280,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see minRowCount
    * @see maxRowCount
+   * @see rowCountExpression
    */
   public get rowCount(): number {
     return this.rowCountValue;
@@ -314,9 +315,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.onRowsChanged();
   }
+  /**
+   * An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
+   *
+   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. The global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+   *
+   * While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @since 3.0.4
+   */
   @property() rowCountExpression: string;
-  /* While rowCountExpression is set, the row count is calculated one-way: users cannot add or
-     remove rows and the rowCount binding, if any, is ignored in both directions */
   private get hasRowCountExpression(): boolean {
     return !!this.rowCountExpression;
   }

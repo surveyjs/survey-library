@@ -964,6 +964,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see minPanelCount
    * @see maxPanelCount
+   * @see panelCountExpression
    */
   public get panelCount(): number {
     return !this.canBuildPanels || this.wasNotRenderedInSurvey
@@ -1104,9 +1105,17 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.value = value;
     this.isValueChangingInternally = false;
   }
+  /**
+   * An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
+   *
+   * The calculation result is clamped to the [`minPanelCount`](#minPanelCount) and [`maxPanelCount`](#maxPanelCount) limits: a value below the minimum is set to `minPanelCount`, and a value above the maximum is capped at `maxPanelCount`. The global [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel) setting also limits the maximum.
+   *
+   * While this property is set, users cannot add or remove panels manually. The expression is reevaluated when its referenced values or panel limits change.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @since 3.0.4
+   */
   @property() panelCountExpression: string;
-  /* While panelCountExpression is set, the panel count is calculated one-way: users cannot
-     add or remove panels and the panelCount binding, if any, is ignored in both directions */
   private get hasPanelCountExpression(): boolean {
     return !!this.panelCountExpression;
   }

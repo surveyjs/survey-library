@@ -15,6 +15,21 @@ export function hasStrongRtlText(text: string): boolean {
   return typeof text === "string" && strongRtlRegex.test(text);
 }
 
+// Arabic-Indic (U+0660-U+0669) and extended Arabic-Indic (U+06F0-U+06F9) digits, which the Arabic
+// and Persian keyboard layouts produce. The mask grammar knows ASCII digits only, so the input
+// element adapter maps these positionally before the text reaches processInput; a mask itself
+// keeps an ASCII contract. Every other character passes through unchanged, and so does a null
+// event.data. No locale-sensitive normalization is used: it could alter unrelated characters.
+const localizedDigitRegex = /[\u0660-\u0669\u06F0-\u06F9]/g;
+export function normalizeInputDigits(text: string | null): string | null {
+  if (typeof text !== "string") return text;
+  return text.replace(localizedDigitRegex, (ch: string): string => {
+    const code = ch.charCodeAt(0);
+    const digit = code >= 0x06F0 ? code - 0x06F0 : code - 0x0660;
+    return String.fromCharCode(0x30 + digit);
+  });
+}
+
 export interface IMaskedInputResult {
   value: string;
   caretPosition: number;

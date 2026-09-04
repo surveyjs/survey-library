@@ -84,6 +84,68 @@ frameworks.forEach((framework) => {
       expect(surveyResult).toEqual({ phone: "15551234567" });
     });
 
+    test("RTL survey: Arabic-Indic digits are accepted and stored as ASCII", async ({ page }) => {
+      await initSurvey(page, framework, {
+        locale: "ar",
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "phone",
+            type: "text",
+            maskType: "pattern",
+            maskSettings: { pattern: "+1 (999) 999-9999" }
+          },
+          {
+            name: "date",
+            type: "text",
+            maskType: "datetime"
+          }]
+      });
+      const phoneInput = page.locator(".sd-formbox__input").first();
+      const dateInput = page.locator(".sd-formbox__input").nth(1);
+      const getCursor = async () => {
+        return await page.evaluate(() => {
+          return ((window as any).survey.rootElement.getRootNode().activeElement as HTMLInputElement).selectionStart;
+        });
+      };
+
+      await expect(phoneInput).toBeFocused();
+      await page.keyboard.type("٥٥٥"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      expect(await phoneInput.inputValue()).toBe("+1 (555) ___-____");
+      expect(await getCursor()).toBe(9);
+      await page.keyboard.type("۱۲۳"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      expect(await phoneInput.inputValue()).toBe("+1 (555) 123-____");
+      expect(await getCursor()).toBe(13);
+
+      // replace a selected digit, then Delete and Backspace in the middle
+      await phoneInput.evaluate((el: HTMLInputElement) => el.setSelectionRange(5, 6));
+      await page.keyboard.type("٩"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      expect(await phoneInput.inputValue()).toBe("+1 (595) 123-____");
+      expect(await getCursor()).toBe(6);
+      await page.keyboard.press("Delete");
+      expect(await phoneInput.inputValue()).toBe("+1 (591) 23_-____");
+      await page.keyboard.press("Backspace");
+      expect(await phoneInput.inputValue()).toBe("+1 (512) 3__-____");
+      expect(await getCursor()).toBe(5);
+      await page.keyboard.press("End");
+      await page.keyboard.type("٤٥٦٧٨٩"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      expect(await phoneInput.inputValue()).toBe("+1 (512) 345-6789");
+
+      // the paste / autofill path goes through the change event with the whole element text;
+      // the arabic locale preset is day-first
+      await dateInput.click();
+      await expect(dateInput).toHaveValue("dd/mm/yyyy");
+      await dateInput.evaluate((el: HTMLInputElement) => {
+        el.value = "٢٥/١٢/٢٠٠٠"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      await expect(dateInput).toHaveValue("25/12/2000");
+
+      await getButtonByText(page, "إرسال البيانات").click(); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ phone: "15123456789", date: "2000-12-25" });
+    });
+
     test("Cursor position on click", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

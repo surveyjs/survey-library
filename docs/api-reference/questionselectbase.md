@@ -26,7 +26,8 @@ Gets or sets choice items. This property accepts an array of objects with the fo
 {
   "value": any, // A unique value to be saved in the survey results.
   "text": string, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
-  "imageLink": string // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
+  "imageLink": string, // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
+  "elements": Array<object>, // JSON configurations of questions and panels nested within this choice
   "customProperty": any // Any property that you find useful.
 }
 ```
@@ -48,6 +49,8 @@ If you need to specify only the `value` property, you can set the `choices` prop
 [Image Picker Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
 
 [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
+
+[Nest Content Within Choice Options](https://surveyjs.io/form-library/examples/nest-follow-up-questions-within-choice-options/ (linkStyle))
 
 **Related APIs:** [`choicesByUrl`](#choicesByUrl), [`choicesFromQuestion`](#choicesFromQuestion), [`settings.specialChoicesOrder`](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
 

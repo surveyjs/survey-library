@@ -8,9 +8,6 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
 
-export * from "./action-bar-item-dropdown";
-export * from "./action-bar-separator";
-
 interface IActionBarProps {
   model: ActionContainer<Action>;
   handleClick?: boolean;

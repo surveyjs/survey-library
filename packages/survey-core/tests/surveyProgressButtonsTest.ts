@@ -287,7 +287,7 @@ describe("ProgressButtons", () => {
     // The survey is restored on the last passed page.
     expect(survey2.currentPageNo, "currentPageNo is restored to the last passed page").toBe(2);
   });
-  test("Progress bar 'passed' style marks a page with entered values, even if not yet visited", () => {
+  test("Progress bar 'passed' style is not applied to a not-yet-visited page when its value is set via code, Issue#11740", () => {
     const json: any = {
       progressBarType: "pages",
       pages: [
@@ -304,10 +304,10 @@ describe("ProgressButtons", () => {
     expect(progress.isListElementPassed(1), "history page is not passed after init").toBe(false);
     expect(progress.isListElementPassed(2), "consent page is not passed after init").toBe(false);
 
-    // Entering a value on a not-yet-visited page marks it as passed via hasValueAnyQuestion().
+    // Setting a value via code on a not-yet-visited page does not mark it as passed.
     survey.setValue("currentMedications", "Aspirin");
-    expect(progress.isListElementPassed(1), "history page becomes passed once it has a value").toBe(true);
-    expect(survey.visiblePages[1].wasShown, "but it is still not marked as visited").toBe(false);
+    expect(progress.isListElementPassed(1), "history page is still not passed - the value was set via code").toBe(false);
+    expect(survey.visiblePages[1].wasShown, "it is not marked as visited").toBe(false);
   });
   test("Progress bar does not mark an unvisited page as passed just because of a default value", () => {
     const survey: SurveyModel = new SurveyModel({
@@ -330,6 +330,58 @@ describe("ProgressButtons", () => {
     const progress: ProgressButtons = new ProgressButtons(survey);
     expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
     expect(progress.isListElementPassed(1), "the unvisited page with an expression question is not passed").toBe(false);
+  });
+  test("Progress bar does not mark unvisited pages as passed when their values are set via API, Issue#11740", () => {
+    const survey: SurveyModel = new SurveyModel({
+      progressBarType: "pages",
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+        { name: "page3", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    // Custom application logic loads data from its API and puts it into questions
+    // that live on pages the respondent has not visited yet.
+    survey.setValue("q2", "value from API");
+    survey.setValue("q3", "value from API");
+    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(1), "page2 got its value via API and is not passed").toBe(false);
+    expect(progress.isListElementPassed(2), "page3 got its value via API and is not passed").toBe(false);
+    survey.nextPage();
+    expect(progress.isListElementPassed(1), "page2 is passed once it is shown").toBe(true);
+    expect(progress.isListElementPassed(2), "page3 is still not passed").toBe(false);
+  });
+  test("Setting and merging survey.data marks pages with answers as visited, Issue#11740", () => {
+    const survey: SurveyModel = new SurveyModel({
+      progressBarType: "pages",
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+        { name: "page3", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    // Assigning survey.data restores a previously saved state: answered pages are passed.
+    survey.data = { q2: "stored answer" };
+    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(1), "page2 answer is restored from data - the page is passed").toBe(true);
+    expect(progress.isListElementPassed(2), "page3 has no answer - it is not passed").toBe(false);
+    survey.mergeData({ q3: "merged answer" });
+    expect(progress.isListElementPassed(2), "page3 answer is merged into data - the page is passed").toBe(true);
+  });
+  test("Progress bar does not mark unvisited pages as passed when a trigger sets their values, Issue#11740", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      ],
+      triggers: [{ type: "setvalue", expression: "{q1} = 'a'", setToName: "q2", setValue: "value from trigger" }],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    survey.setValue("q1", "a");
+    expect(survey.getValue("q2"), "the trigger has set the value").toBe("value from trigger");
+    expect(progress.isListElementPassed(1), "page2 got its value from a trigger and is not passed").toBe(false);
   });
   test("ProgressButtons restores the actually active page, not the furthest visited", () => {
     const json: any = {

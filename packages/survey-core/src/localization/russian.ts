@@ -246,7 +246,25 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Индикатор выполнения",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Страница {0}"
+  progressbarPage: "Страница {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "г",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "ч",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "Ч",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "М",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "с",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "п",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "П"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

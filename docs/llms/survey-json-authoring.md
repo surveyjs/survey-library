@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.0.2 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.0.3 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.2/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.3/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -71,6 +71,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `completedHtmlOnCondition` | `array` of `htmlconditionitem` |  | An array of objects that allows you to specify different HTML content for the complete page. |
 | `navigateToUrlOnCondition` | `array` of `urlconditionitem` |  | An array of objects that allows you to navigate respondents to different URLs after survey completion. |
 | `pages` | `array` of `page` |  | Returns an array of all pages in the survey. |
+| `triggers` | `array` of `surveytrigger` |  | A list of triggers in the survey. |
 | `checkErrorsMode` | `onNextPage, onValueChanged, onComplete` | `"onNextPage"` | Specifies when the survey validates answers. |
 | `clearInvisibleValues` | `none, onComplete, onHidden, onHiddenContainer` | `"onComplete"` | Specifies when to remove values of invisible questions from survey results. |
 | `logoFit` | `none, contain, cover, fill` | `"contain"` | Specifies how to resize a logo to fit it into its container. |
@@ -140,7 +141,6 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `timeLimit` | `number` | `0` | A time period that a respondent has to complete the survey; measured in seconds. |
 | `timeLimitPerPage` | `number` | `0` | A time period that a respondent has to complete each survey page; measured in seconds. |
 | `title` *(loc)* | `string` |  | A title for the survey element. |
-| `triggers` | `array` |  | A list of triggers in the survey. |
 | `validateVisitedEmptyFields` | `boolean` |  | Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. |
 | `width` | `string` |  | A survey width in CSS values. |
 
@@ -181,6 +181,7 @@ A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicMod
 | --- | --- | --- | --- |
 | `choices` | `array` of `itemvalue` | `[]` | Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. |
 | `columns` | `array` of `matrixdropdowncolumn` |  | An array of matrix columns. |
+| `detailElements` | `array` of `question` |  | An array of survey elements (questions and panels) to be displayed in detail sections. |
 | `cellErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position relative to matrix cells. |
 | `cellType` | `dropdown, checkbox, radiogroup, tagbox, text, comment, boolean, expression, rating, slider` | `"dropdown"` | Specifies the type of matrix cells. |
 | `columnColCount` | `0, 1, 2, 3, 4` | `0` | Specifies the number of columns in Radiogroup and Checkbox cells. |
@@ -205,6 +206,7 @@ A base class for the `PanelModel` and `PageModel` classes.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `elements` | `array` of `question` |  | An array of all survey elements (questions or panels) within this panel/page. |
 | `gridLayoutColumns` | `array` of `panellayoutcolumn` |  | An array of columns used to arrange survey elements within this page or panel. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
@@ -228,6 +230,7 @@ A base class for all questions. Required: `name`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `name` | `string` |  | A survey element identifier. |
+| `validators` | `array` of `surveyvalidator` |  | Question validators. |
 | `defaultValueExpression` | `expression` |  | An expression used to calculate the `defaultValue`. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
@@ -256,7 +259,6 @@ A base class for all questions. Required: `name`.
 | `startWithNewLine` | `boolean` | `true` | Disable this property if you want to render the current question on the same line or row with the previous question or panel. |
 | `title` *(loc)* | `string` |  | A title for the survey element. |
 | `useDisplayValuesInDynamicTexts` | `boolean` | `true` | Specifies whether to use display names for question values in placeholders. |
-| `validators` | `array` |  | Question validators. |
 | `valueName` | `string` |  | Specifies an object property that should store the question value. |
 | `visible` | `boolean` | `true` | Gets or sets question visibility. |
 | `width` | `string` |  | Sets survey element width in CSS values. |
@@ -715,6 +717,7 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `templateElements` | `array` of `question` |  | An array of questions and panels included in a panel template. |
 | `templateVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each panel. |
 | `displayMode` | `list, carousel, tab` | `"list"` | Specifies how to display panels. |
 | `newPanelPosition` | `next, last` | `"last"` | Specifies the position of newly added panels. |
@@ -1435,6 +1438,7 @@ Inherits the properties of `itemvalue`.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `elements` | `array` of `question` |  |  |
 | `commentPlaceholder` *(loc)* | `string` |  |  |
 | `isCommentRequired` | `boolean` |  |  |
 | `showCommentArea` | `boolean` |  |  |
@@ -1514,6 +1518,7 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `name` | `string` |  | A column ID that is not visible to respondents. Unique. |
+| `validators` | `array` of `surveyvalidator` |  | Column validators. |
 | `enableIf` | `expression` |  | A Boolean expression. |
 | `requiredIf` | `expression` |  | A Boolean expression. |
 | `resetValueIf` | `expression` |  | A Boolean expression. |
@@ -1536,7 +1541,6 @@ An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic M
 | `showInMultipleColumns` | `boolean` |  | Specifies whether to create an individual column for each choice option. |
 | `title` *(loc)* | `string` |  | A user-friendly column caption to display. |
 | `totalFormat` *(loc)* | `string` |  | A string pattern used to display column totals. |
-| `validators` | `array` |  | Column validators. |
 | `visible` | `boolean` | `true` | Gets or sets column visibility. |
 | `width` | `string` |  | Gets or sets column width in CSS values. |
 | `totalMaximumFractionDigits` | `number` | `-1` |  |
@@ -1552,6 +1556,7 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 | --- | --- | --- | --- |
 | `name` | `string` |  | An item ID that is not visible to respondents. Unique. |
 | `maskSettings` | `masksettings` |  | An object with properties that configure the mask applied to the input. |
+| `validators` | `array` of `surveyvalidator` |  | Item validators. |
 | `defaultValueExpression` | `expression` |  | An expression used to calculate the default item value. |
 | `maxValueExpression` | `expression` |  | An expression used to calculate the maximum item value. |
 | `minValueExpression` | `expression` |  | An expression used to calculate the minimum item value. |
@@ -1564,7 +1569,6 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 | `placeholder` *(loc)* | `string` |  | A placeholder for the input field. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required item. |
 | `title` *(loc)* | `string` |  | A user-friendly item label to display. |
-| `validators` | `array` |  | Item validators. |
 
 ### `panellayoutcolumn`
 

@@ -191,10 +191,16 @@
 }
 
 .sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
-  padding-left: var(--sjs2-spacing-x500);
+  padding-block: var(--sjs2-layout-component-matrix-cell-left-padding-top, 8px)
+    var(--sjs2-layout-component-matrix-cell-left-padding-bottom, 8px);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-left-padding-left, 40px)
+    var(--sjs2-layout-component-matrix-cell-left-padding-right, 8px);
 }
 .sd-table__cell:where(:nth-last-child(1 of .sd-table__cell)) {
-  padding-right: var(--sjs2-spacing-x500);
+  padding-block: var(--sjs2-layout-component-matrix-cell-right-padding-top, 8px)
+    var(--sjs2-layout-component-matrix-cell-right-padding-bottom, 8px);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-right-padding-left, 8px)
+    var(--sjs2-layout-component-matrix-cell-right-padding-right, 40px);
 }
 
 .sd-table__cell--actions {
@@ -382,6 +388,7 @@
     width: auto;
     padding: 0;
     margin: 0;
+    --sd-table-sticky-background-color: transparent;
   }
   .sd-table__row {
     display: flex;
@@ -412,13 +419,6 @@
 
   .sd-table thead {
     display: none;
-  }
-
-  .sd-table:not(.sd-table--has-footer) .sd-table__row:last-of-type {
-    .sd-table__cell-action--show-detail,
-    .sd-table__cell-action--remove-row {
-      margin-bottom: var(--sjs2-spacing-negative-x200);
-    }
   }
 
   .sd-table__cell {

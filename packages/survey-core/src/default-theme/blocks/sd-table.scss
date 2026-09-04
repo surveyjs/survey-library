@@ -137,10 +137,10 @@
   //todo
   --sjs2-layout-component-panel-content-area-padding-horizontal: 0;
   //
-  padding-inline-start: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
-  padding-inline-end: var(--sjs2-layout-component-panel-content-area-padding-horizontal);
-  padding-top: var(--sjs2-layout-component-panel-content-area-padding-top);
-  padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-box-padding-left)
+    var(--sjs2-layout-component-matrix-box-padding-right);
+  padding-block: var(--sjs2-layout-component-matrix-box-padding-top)
+    var(--sjs2-layout-component-matrix-box-padding-bottom);
   row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
   column-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal);
 }
@@ -160,7 +160,10 @@
   font-weight: normal;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  padding: var(--sjs2-spacing-x100);
+  padding-block: var(--sjs2-layout-component-matrix-cell-padding-top)
+    var(--sjs2-layout-component-matrix-cell-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-padding-left)
+    var(--sjs2-layout-component-matrix-cell-padding-right);
   color: $foreground;
   text-align: center;
 
@@ -178,7 +181,10 @@
   font-weight: 600;
   color: $font-questiontitle-color;
   vertical-align: top;
-  padding-block: var(--sjs2-spacing-x150);
+  padding-block: var(--sjs2-layout-component-matrix-header-cell-padding-top)
+    var(--sjs2-layout-component-matrix-header-cell-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-header-cell-padding-left)
+    var(--sjs2-layout-component-matrix-header-cell-padding-right);
   span {
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
@@ -221,11 +227,11 @@
 }
 .sd-table__cell--error-top {
   vertical-align: bottom;
-  padding-top: var(--sjs2-spacing-x100);
+  padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
 }
 .sd-table__cell--error-bottom {
   vertical-align: top;
-  padding-bottom: var(--sjs2-spacing-x100);
+  padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
 }
 .sd-table__cell--item {
   .sd-selectbase__item {
@@ -268,7 +274,10 @@
 }
 
 .sd-table__cell--detail-panel {
-  padding: var(--sjs2-spacing-x100);
+  padding-block: var(--sjs2-layout-component-matrix-cell-padding-top)
+    var(--sjs2-layout-component-matrix-cell-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-padding-left)
+    var(--sjs2-layout-component-matrix-cell-padding-right);
 }
 
 //align
@@ -286,12 +295,12 @@
 .sd-table__body--alternative-rows {
   & > .sd-table__row--error:nth-child(odd of .sd-table__row--error) {
     .sd-table__cell--error-top {
-      padding-bottom: var(--sjs2-spacing-x100);
+      padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
     }
   }
   & > .sd-table__row--error:nth-child(even of .sd-table__row--error) {
     .sd-table__cell--error-top {
-      padding-top: var(--sjs2-spacing-x200);
+      padding-top: calc(2 * var(--sjs2-layout-component-matrix-cell-padding-top));
     }
   }
   & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {

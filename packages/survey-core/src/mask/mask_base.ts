@@ -2,7 +2,7 @@ import { Base } from "../base";
 import { ISurvey, ISurveyImpl } from "../base-interfaces";
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
-import { IInputMask, IMaskedInputResult, IMaskLocaleChange, ITextInputParams } from "./mask_utils";
+import { IInputMask, IMaskedInputResult, IMaskLocaleChange, ITextInputParams, hasStrongRtlText } from "./mask_utils";
 
 /**
  * A base class for classes that implement input masks:
@@ -72,6 +72,18 @@ export class InputMaskBase extends Base implements IInputMask {
     return this.saveMaskedValue && !isEmpty ? src : this.getMaskedValue(src);
   }
   public getTextAlignment(): "left" | "right" | "auto" { return "auto"; }
+  // "ltr": the masked text is a structured sequence whose field order is defined by the mask, so the
+  // question renders it as a left-to-right run whatever the survey direction. "auto": leave the
+  // paragraph direction alone. The base (no mask) has no opinion.
+  public getInputDirection(): "ltr" | "auto" { return "auto"; }
+  // The text a mask renders by itself, apart from what the respondent types: literals, separators,
+  // affixes, placeholder symbols. Masks that own such text override this.
+  protected getLiteralText(): string { return ""; }
+  // Shared rule for every structured mask: a left-to-right run, unless the mask's own literal text is
+  // strong right-to-left, in which case the natural bidi rendering is already the readable one.
+  protected getInputDirectionByLiterals(): "ltr" | "auto" {
+    return hasStrongRtlText(this.getLiteralText()) ? "auto" : "ltr";
+  }
 
   public getTypeForExpressions(): string {
     return "text";

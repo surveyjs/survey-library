@@ -33,6 +33,57 @@ frameworks.forEach((framework) => {
       });
     });
 
+    test("RTL survey: masked value keeps its field order and the caret stays logical", async ({ page }) => {
+      await initSurvey(page, framework, {
+        locale: "ar",
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "phone",
+            type: "text",
+            maskType: "pattern",
+            maskSettings: { pattern: "+1 (999) 999-9999" }
+          },
+          {
+            name: "date",
+            type: "text",
+            maskType: "datetime"
+          }]
+      });
+      const input = page.locator(".sd-formbox__input").first();
+      const dateInput = page.locator(".sd-formbox__input").nth(1);
+      const getCursor = async () => {
+        return await page.evaluate(() => {
+          return ((window as any).survey.rootElement.getRootNode().activeElement as HTMLInputElement).selectionStart;
+        });
+      };
+
+      await expect(input).toBeFocused();
+      await expect(page.locator("[dir='rtl']").first()).toBeVisible();
+      await expect(input).toHaveClass(/sd-formbox__input--mask/);
+      await expect(input).toHaveCSS("direction", "ltr");
+      await expect(input).toHaveCSS("text-align", "right");
+
+      await page.keyboard.type("555");
+      expect(await input.inputValue()).toBe("+1 (555) ___-____");
+      expect(await getCursor()).toBe(9);
+
+      // the input is a left-to-right run now, so ArrowLeft moves the caret back logically as well as visually
+      await page.keyboard.press("ArrowLeft");
+      expect(await getCursor()).toBe(8);
+      await page.keyboard.press("End");
+      await page.keyboard.type("1234567");
+      expect(await input.inputValue()).toBe("+1 (555) 123-4567");
+
+      // the datetime mask keeps the latin placeholder symbols in an rtl locale, so it is a left-to-right run too
+      await expect(dateInput).toHaveValue("dd/mm/yyyy");
+      await expect(dateInput).toHaveCSS("direction", "ltr");
+
+      await getButtonByText(page, "إرسال البيانات").click(); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ phone: "15551234567" });
+    });
+
     test("Cursor position on click", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

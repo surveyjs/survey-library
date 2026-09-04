@@ -308,14 +308,21 @@
 }
 //alternative rows
 .sd-table__body--alternative-rows {
-  & > .sd-table__row--error:nth-child(odd of .sd-table__row--error) {
+  &
+    > .sd-table__row--error:has(
+      + sv-ng-matrix-row + .sd-table__row--data:nth-child(odd of .sd-table__row--data),
+      + .sd-table__row--data:nth-child(odd of .sd-table__row--data)
+    ) {
     .sd-table__cell--error-top {
       padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
     }
   }
-  & > .sd-table__row--error:nth-child(even of .sd-table__row--error) {
-    .sd-table__cell--error-top {
-      padding-top: calc(2 * var(--sjs2-layout-component-matrix-cell-padding-top));
+  & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {
+    & + sv-ng-matrix-row + .sd-table__row--error,
+    & + .sd-table__row--error {
+      .sd-table__cell--error-bottom {
+        padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
+      }
     }
   }
   & > .sd-table__row--data:nth-child(odd of .sd-table__row--data) {

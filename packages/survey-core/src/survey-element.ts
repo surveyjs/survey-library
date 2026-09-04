@@ -304,14 +304,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   @property({ defaultValue: 1 }) colSpan: number;
 
+  private static updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
+
   constructor(name: string) {
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
-    if (updateRootStyleProps.indexOf(name) > -1) {
+    if (SurveyElement.updateRootStyleProps.indexOf(name) > -1) {
       this.updateRootStyle();
     }
     if (name === "state") {
@@ -580,6 +581,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
+    // a container question value change (matrix, dynamic panel, custom component)
+    // can affect row/panel/composite-scoped variables even when the value getter
+    // context cannot map the changed key onto them (e.g. a matrix inside a custom
+    // component), so never skip in this case
+    if (this.isAnyParentQuestionValueChanged(keys)) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
@@ -588,6 +594,32 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars);
+  }
+  private isAnyParentQuestionValueChanged(keys: any): boolean {
+    let q: any = SurveyElement.getParentQuestionOrDataOwner(this);
+    while(!!q) {
+      const valueName: string = typeof q.getValueName === "function" ? q.getValueName() : q.name;
+      if (!!valueName && (keys.hasOwnProperty(valueName) || keys.hasOwnProperty(valueName.toLowerCase()))) return true;
+      q = SurveyElement.getParentQuestionOrDataOwner(q);
+    }
+    return false;
+  }
+  // a custom component (ComponentCollection) content question has no parentQuestion,
+  // but its data owner is the wrapper question that stores the value
+  private static getParentQuestionOrDataOwner(el: any): any {
+    if (!!el.parentQuestion) return el.parentQuestion;
+    const data: any = el.data;
+    return !!data && data !== el && data.isQuestion === true ? data : undefined;
+  }
+  // Elements nested into matrices, dynamic panels or custom components resolve expression
+  // variables relative to their parent question value and cannot share condition results
+  protected canShareConditionResults(): boolean {
+    if (!!SurveyElement.getParentQuestionOrDataOwner(this)) return false;
+    // the data owner of an element nested into a matrix row is the row itself, not a question:
+    // a matrix row detail panel resolves {row1} against the row value while a survey-level
+    // element resolves the same name against the survey data
+    const data: any = this.data;
+    return !!data && data === this.getSurvey();
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();

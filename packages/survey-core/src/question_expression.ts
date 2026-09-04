@@ -44,10 +44,15 @@ export class QuestionExpressionModel extends Question {
   public unlocCalculation() {
     this.isExecutionLocked = false;
   }
+  // Set to false for expressions whose result depends on more than the expression
+  // variables (e.g. matrix totals depend on row visibility and totalType), so the
+  // dependency tracking below cannot be applied to them
+  public trackDependencies: boolean;
   protected runConditionCore(properties: HashTable<any>) {
     super.runConditionCore(properties);
     if (this.isExecutionLocked || !this.runIfReadOnly && this.isReadOnly) return;
-    if (settings.expressionQuestionTrackDependencies && this.canSkipRunningExpression("expression")) return;
+    if (this.trackDependencies !== false && settings.expressionQuestionTrackDependencies &&
+      this.canSkipRunningExpression("expression")) return;
     this.runExpressionByProperty("expression", properties, (val: any) => {
       this.value = this.roundValue(val);
     });

@@ -165,6 +165,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
     this.question.unlocCalculation();
     this.question.runIfReadOnly = true;
+    // the total value depends on rows visibility and totalType, not only on the
+    // expression variables, so it must recalculate on every value change
+    this.question.trackDependencies = false;
   }
   public getQuestionWrapperClassName(className: string): string {
     let result = super.getQuestionWrapperClassName(className);
@@ -1572,6 +1575,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         }
       }
     }
+  }
+  // Cells are full-featured questions whose expressions can be customized per
+  // cell in code (e.g. via onMatrixCellCreated, see Bug#736), so the rows/cells
+  // walk cannot be skipped by static column analysis; individual cell
+  // expressions are guarded by their own strict-dependency checks instead
+  protected canSkipItemsConditions(keys: any): boolean {
+    return false;
   }
   protected runItemsCondition(properties: HashTable<any>): void {
     let counter = 0;

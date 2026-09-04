@@ -90,10 +90,6 @@ export class BinaryOperand extends Operand {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
   }
-  private get requireStrictCompare(): boolean {
-    return this.getIsOperandRequireStrict(this.left) ||
-    this.getIsOperandRequireStrict(this.right);
-  }
   private getIsOperandRequireStrict(op: any): boolean {
     return !!op && op.requireStrictCompare;
   }
@@ -129,11 +125,18 @@ export class BinaryOperand extends Operand {
   }
 
   public evaluate(processValue?: ProcessValue): any {
+    // requireStrictCompare is state that evaluate() leaves on the operand, and operand trees are
+    // shared between runners (see ExpressionExecutor.parsedExpressions). Evaluating the second
+    // operand can re-enter the same expression - an application function is enough - and reset the
+    // flag of the first one, so every flag is read right after the operand it belongs to.
+    const leftValue = this.evaluateParam(this.left, processValue);
+    const isStrict = this.getIsOperandRequireStrict(this.left);
+    const rightValue = this.evaluateParam(this.right, processValue);
     return this.consumer.call(
       this,
-      this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue),
-      this.requireStrictCompare
+      leftValue,
+      rightValue,
+      isStrict || this.getIsOperandRequireStrict(this.right)
     );
   }
 
@@ -414,7 +417,10 @@ export class Const extends Operand {
 export class Variable extends Const {
   public static get DisableConversionChar(): string { return settings.expressionDisableConversionChar; }
   public static set DisableConversionChar(val: string) { settings.expressionDisableConversionChar = val; }
-  private valueInfo: any = {};
+  // Only the flag is kept between the runs, not the whole value info object: the operand trees are
+  // shared between runners (see ExpressionExecutor.parsedExpressions) and live as long as the
+  // process does, so a reference to a value would keep the data of a disposed survey alive
+  private strictCompareValue: boolean = false;
   private useValueAsItIs: boolean = false;
   private returnOriginalValue: boolean = false;
   constructor(private variableName: string) {
@@ -429,7 +435,7 @@ export class Variable extends Const {
     }
   }
   public get requireStrictCompare(): boolean {
-    return this.valueInfo.strictCompare === true;
+    return this.strictCompareValue;
   }
   public getType(): string {
     return "variable";
@@ -451,15 +457,18 @@ export class Variable extends Const {
     this.returnOriginalValue = val;
   }
   public evaluate(processValue?: ProcessValue): any {
-    this.valueInfo.name = this.variableName;
-    this.valueInfo.isOriginalValue = this.returnOriginalValue;
-    processValue.getValueInfo(this.valueInfo);
-    if (!this.valueInfo.hasValue) {
+    // operand trees are shared between runners (see ExpressionExecutor.parsedExpressions),
+    // so the evaluation scratch object must be local to the call
+    const valueInfo: any = { name: this.variableName, isOriginalValue: this.returnOriginalValue };
+    processValue.getValueInfo(valueInfo);
+    // BinaryOperand.evaluate reads requireStrictCompare right after evaluating its operands
+    this.strictCompareValue = valueInfo.strictCompare === true;
+    if (!valueInfo.hasValue) {
       return this.returnJSONObject(this.variableName);
     }
-    let val = this.valueInfo.value;
-    if (this.valueInfo.onProcessValue) {
-      val = this.valueInfo.onProcessValue(val);
+    let val = valueInfo.value;
+    if (valueInfo.onProcessValue) {
+      val = valueInfo.onProcessValue(val);
     }
     return this.getCorrectValue(val);
   }
@@ -511,16 +520,21 @@ export class FunctionOperand extends Operand {
     if (!!asyncVal) return asyncVal.value;
     return this.evaluateCore(processValue);
   }
+  // The operand tree is shared between runners and outlives them, so the flag set here has to be
+  // reset as well - the function can be re-registered with another originalValueParams list
+  private hasMarkedOriginalValueParams: boolean = false;
   private markOriginalValueParams(): void {
     const indexes = FunctionFactory.Instance.getOriginalValueParams(this.functionName);
-    if (!Array.isArray(indexes) || indexes.length === 0) return;
+    const hasIndexes = Array.isArray(indexes) && indexes.length > 0;
+    if (!hasIndexes && !this.hasMarkedOriginalValueParams) return;
     const values = this.parameters.values;
-    for (let i = 0; i < indexes.length; i++) {
-      const operand: any = values[indexes[i]];
+    for (let i = 0; i < values.length; i++) {
+      const operand: any = values[i];
       if (operand && typeof operand.setReturnOriginalValue === "function") {
-        operand.setReturnOriginalValue(true);
+        operand.setReturnOriginalValue(hasIndexes && indexes.indexOf(i) > -1);
       }
     }
+    this.hasMarkedOriginalValueParams = hasIndexes;
   }
   private evaluateCore(processValue?: ProcessValue): any {
     let properties = processValue.properties;

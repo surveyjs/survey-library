@@ -210,6 +210,18 @@
     justify-content: center;
   }
 }
+.sd-table__cell--actions:first-of-type {
+  .sd-action-bar {
+    padding-inline-end: var(--sjs2-layout-component-matrix-action-group-left-padding-right);
+    --sd-action-bar-gap: var(--sjs2-layout-component-matrix-action-group-left-gap-horizontal);
+  }
+}
+.sd-table__cell--actions:last-of-type {
+  .sd-action-bar {
+    padding-inline-start: var(--sjs2-layout-component-matrix-action-group-right-padding-left);
+    --sd-action-bar-gap: var(--sjs2-layout-component-matrix-action-group-right-gap-horizontal);
+  }
+}
 
 .sd-table__cell--row-text {
   @include sjs2--typography--component--question--title;

@@ -39,11 +39,6 @@
   }
 }
 
-.sd-matrix__cell:first-of-type {
-  font-weight: $font-questiontitle-weight;
-  text-align: start;
-}
-
 .sd-question--mobile {
   .sd-matrix__row {
     gap: 0;

@@ -176,20 +176,12 @@
   }
 }
 .sd-table__cell--header {
-  font-size: 0;
-  line-height: 0;
-  font-weight: 600;
-  color: $font-questiontitle-color;
+  @include sjs2--typography--component--question--title;
   vertical-align: top;
   padding-block: var(--sjs2-layout-component-matrix-header-cell-padding-top)
     var(--sjs2-layout-component-matrix-header-cell-padding-bottom);
   padding-inline: var(--sjs2-layout-component-matrix-header-cell-padding-left)
     var(--sjs2-layout-component-matrix-header-cell-padding-right);
-  span {
-    font-size: $font-editorfont-size;
-    line-height: multiply(1.5, $font-editorfont-size);
-    font-weight: $font-questiontitle-weight;
-  }
   &:not(.sd-table__cell--empty) {
     min-width: var(--sd-table-cell-min-width);
   }
@@ -214,8 +206,7 @@
 }
 
 .sd-table__cell--row-text {
-  font-weight: $font-questiontitle-weight;
-  color: $font-questiontitle-color;
+  @include sjs2--typography--component--question--title;
   text-align: start;
   min-width: var(--sjs2-size-x1200);
 }
@@ -248,10 +239,9 @@
   padding-top: var(--sjs2-spacing-x100);
   .sd-table__question-wrapper--expression {
     .sd-expression {
+      @include sjs2--typography--default-strong;
       padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
       border-bottom: 1px solid $border-light;
-      @include sjs2--typography--default-strong;
-      line-height: var(--sjs2-line-height-x300);
     }
   }
 }

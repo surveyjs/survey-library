@@ -355,6 +355,11 @@ export class InputMaskDateTime extends InputMaskPattern {
     return res;
   }
 
+  // Separator literals plus the placeholder symbol of every field, resolved for the current locale.
+  protected getLiteralText(): string {
+    return this.lexems.map(lexem => this.getPlaceholderSymbol(lexem)).join("");
+  }
+
   // The symbol is resolved on every call: it depends on the current locale, not on the pattern.
   public getPlaceholderSymbol(lexem: IDateTimeMaskLexem): string {
     if (!lexem) return "";

@@ -2,6 +2,34 @@ import { JsonMetadataClass, Serializer } from "../jsonobject";
 
 export var numberDefinition = /[0-9]/;
 
+// Letters of the right-to-left scripts in current use (Hebrew, Arabic, Syriac, Thaana, NKo, Samaritan,
+// Mandaic, Adlam), selected by Unicode script property so the presentation forms and the supplementary
+// planes are covered. Only letters count: the digits, marks and punctuation of these scripts (Arabic-Indic
+// digits, the Arabic decimal and thousands separators, the harakat) are numeric, neutral or combining and
+// do not reverse a field order. Historic right-to-left scripts are not classified.
+// A mask asks this about the text it renders by itself (literals, separators, affixes, placeholder
+// symbols) to decide whether it may declare its content a left-to-right run. It is never asked about
+// a respondent value or about a pattern definition regex, which cannot be inspected for the scripts it admits.
+const strongRtlRegex = /(?=\p{L})[\p{Script=Hebrew}\p{Script=Arabic}\p{Script=Syriac}\p{Script=Thaana}\p{Script=Nko}\p{Script=Samaritan}\p{Script=Mandaic}\p{Script=Adlam}]/u;
+export function hasStrongRtlText(text: string): boolean {
+  return typeof text === "string" && strongRtlRegex.test(text);
+}
+
+// Arabic-Indic (U+0660-U+0669) and extended Arabic-Indic (U+06F0-U+06F9) digits, which the Arabic
+// and Persian keyboard layouts produce. The mask grammar knows ASCII digits only, so the input
+// element adapter maps these positionally before the text reaches processInput; a mask itself
+// keeps an ASCII contract. Every other character passes through unchanged, and so does a null
+// event.data. No locale-sensitive normalization is used: it could alter unrelated characters.
+const localizedDigitRegex = /[\u0660-\u0669\u06F0-\u06F9]/g;
+export function normalizeInputDigits(text: string | null): string | null {
+  if (typeof text !== "string") return text;
+  return text.replace(localizedDigitRegex, (ch: string): string => {
+    const code = ch.charCodeAt(0);
+    const digit = code >= 0x06F0 ? code - 0x06F0 : code - 0x0660;
+    return String.fromCharCode(0x30 + digit);
+  });
+}
+
 export interface IMaskedInputResult {
   value: string;
   caretPosition: number;
@@ -30,6 +58,7 @@ export interface IInputMask {
   getUnmaskedValue(src: string): any;
   processInput(args: ITextInputParams): IMaskedInputResult;
   getTextAlignment(): "left" | "right" | "auto";
+  getInputDirection(): "ltr" | "auto";
 }
 
 export function getAvailableMaskTypeChoices() {

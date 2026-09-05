@@ -3,9 +3,142 @@ import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { InputMaskDateTime } from "../../src/mask/mask_datetime";
+import { normalizeInputDigits } from "../../src/mask/mask_utils";
 
 import { describe, test, expect } from "vitest";
+// the Arabic-Indic (U+0660) and extended Arabic-Indic (U+06F0) spellings of an ASCII digit string,
+// built from code points so the tests stay readable and lint-clean
+const arabicIndic = (text: string): string => text.replace(/[0-9]/g, (d: string) => String.fromCharCode(0x0660 + Number(d)));
+const extendedArabicIndic = (text: string): string => text.replace(/[0-9]/g, (d: string) => String.fromCharCode(0x06F0 + Number(d)));
+
 describe("Input mask", () => {
+  test("normalizeInputDigits maps Arabic-Indic and extended Arabic-Indic digits to ASCII", () => {
+    expect(normalizeInputDigits(arabicIndic("0123456789")), "Arabic-Indic").toBe("0123456789");
+    expect(normalizeInputDigits(extendedArabicIndic("0123456789")), "extended Arabic-Indic").toBe("0123456789");
+    expect(normalizeInputDigits("1" + arabicIndic("2/") + extendedArabicIndic("3") + arabicIndic("4/") + "2" + arabicIndic("0") + extendedArabicIndic("0") + arabicIndic("6")), "mixed with ASCII digits and literals").toBe("12/34/2006");
+    expect(normalizeInputDigits("abc 123 -+()/.:_"), "ASCII passes through").toBe("abc 123 -+()/.:_");
+    const arabicText = "ر.س ٫٬"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(normalizeInputDigits(arabicText), "Arabic letters and the Arabic separators are not digits").toBe(arabicText);
+    expect(normalizeInputDigits(""), "empty").toBe("");
+    expect(normalizeInputDigits(null), "a deletion carries null data").toBeNull();
+    expect(normalizeInputDigits(undefined), "no data").toBeUndefined();
+  });
+
+  test("InputElementAdapter createArgs normalizes Arabic-Indic digits in the inserted text", () => {
+    const testInput = document.createElement("input");
+    const inputMaskPattern = new InputMaskPattern();
+    inputMaskPattern.pattern = "999";
+    const adapter = new InputElementAdapter(inputMaskPattern, testInput);
+    const target = { selectionStart: 1, selectionEnd: 1, value: "1__" };
+    let args = adapter.createArgs({ data: arabicIndic("5"), inputType: "insertText", target: target });
+    expect(args.insertedChars, "a typed Arabic-Indic digit").toBe("5");
+    expect(args.prevValue, "the element text is not touched").toBe("1__");
+    args = adapter.createArgs({ data: extendedArabicIndic("78"), inputType: "insertFromPaste", target: target });
+    expect(args.insertedChars, "pasted extended Arabic-Indic digits").toBe("78");
+    args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
+    expect(args.insertedChars, "null data stays null").toBeNull();
+    testInput.remove();
+  });
+
+  test("Arabic-Indic digits typed into numeric, pattern and datetime masks are stored as ASCII", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const type = (text: string) => {
+      text.split("").forEach(ch => adapter.beforeInputHandler({ data: ch, inputType: "insertText", target: testInput, preventDefault: (): void => {} }));
+    };
+    const pattern = new InputMaskPattern();
+    pattern.pattern = "+1 (999) 999-9999";
+    let adapter = new InputElementAdapter(pattern, testInput, "");
+    testInput.focus();
+    testInput.setSelectionRange(0, 0);
+    type(arabicIndic("555"));
+    expect(testInput.value, "pattern: half typed").toBe("+1 (555) ___-____");
+    expect(testInput.selectionStart, "pattern: the caret follows the ASCII value").toBe(9);
+    type(extendedArabicIndic("1234567"));
+    expect(testInput.value, "pattern: complete").toBe("+1 (555) 123-4567");
+    expect(pattern.getUnmaskedValue(testInput.value), "pattern: the unmasked value is ASCII").toBe("15551234567");
+    adapter.dispose();
+
+    const datetime = new InputMaskDateTime();
+    datetime.pattern = "mm/dd/yyyy";
+    adapter = new InputElementAdapter(datetime, testInput, "");
+    testInput.setSelectionRange(0, 0);
+    type(arabicIndic("12252000"));
+    expect(testInput.value, "datetime: complete").toBe("12/25/2000");
+    expect(datetime.getUnmaskedValue(testInput.value), "datetime: the ISO value").toBe("2000-12-25");
+    adapter.dispose();
+
+    const numeric = new InputMaskNumeric();
+    adapter = new InputElementAdapter(numeric, testInput, "");
+    testInput.setSelectionRange(0, 0);
+    type(arabicIndic("1234.5"));
+    expect(testInput.value, "numeric: grouped").toBe("1,234.5");
+    expect(numeric.getUnmaskedValue(testInput.value), "numeric: the number").toBe(1234.5);
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("Arabic-Indic digits in a selection replacement, Delete and Backspace", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const pattern = new InputMaskPattern();
+    pattern.pattern = "999-99";
+    const adapter = new InputElementAdapter(pattern, testInput, "12345");
+    testInput.focus();
+    const send = (data: string | null, inputType: string) => {
+      adapter.beforeInputHandler({ data: data, inputType: inputType, target: testInput, preventDefault: (): void => {} });
+    };
+    expect(testInput.value).toBe("123-45");
+
+    testInput.setSelectionRange(1, 2);
+    send(arabicIndic("9"), "insertText");
+    expect(testInput.value, "the selected digit is replaced").toBe("193-45");
+    expect(testInput.selectionStart, "the caret is after the replacement").toBe(2);
+
+    testInput.setSelectionRange(1, 1);
+    send(null, "deleteContentForward");
+    expect(testInput.value, "Delete in the middle").toBe("134-5_");
+
+    testInput.setSelectionRange(2, 2);
+    send(null, "deleteContentBackward");
+    expect(testInput.value, "Backspace in the middle").toBe("145-__");
+
+    testInput.setSelectionRange(1, 1);
+    send(extendedArabicIndic("0"), "insertText");
+    expect(testInput.value, "an extended Arabic-Indic digit inserted in the middle").toBe("104-5_");
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("The change fallback normalizes Arabic-Indic digits in a pasted or autofilled value", () => {
+    const testInput = document.createElement("input");
+    const pattern = new InputMaskPattern();
+    pattern.pattern = "999-99-99";
+    let adapter = new InputElementAdapter(pattern, testInput, "");
+    testInput.focus();
+    testInput.value = arabicIndic("12345") + extendedArabicIndic("67");
+    testInput.dispatchEvent(new Event("change"));
+    expect(testInput.value, "pattern").toBe("123-45-67");
+    adapter.dispose();
+
+    const datetime = new InputMaskDateTime();
+    datetime.pattern = "mm/dd/yyyy";
+    adapter = new InputElementAdapter(datetime, testInput, "");
+    testInput.value = arabicIndic("12/25/2000");
+    testInput.dispatchEvent(new Event("change"));
+    expect(testInput.value, "datetime with separators").toBe("12/25/2000");
+    adapter.dispose();
+
+    const numeric = new InputMaskNumeric();
+    adapter = new InputElementAdapter(numeric, testInput, "");
+    testInput.value = arabicIndic("123456.78");
+    testInput.dispatchEvent(new Event("change"));
+    expect(testInput.value, "numeric").toBe("123,456.78");
+    adapter.dispose();
+    testInput.remove();
+  });
+
   test("InputElementAdapter constructor", () => {
     const testInput = document.createElement("input");
     const inputMask = new InputMaskCurrency();

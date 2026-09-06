@@ -2,9 +2,45 @@ import { JsonObject } from "../../src/jsonobject";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { ITextInputParams } from "../../src/mask/mask_utils";
 import { QuestionTextModel } from "../../src/question_text";
+import { SurveyModel } from "../../src/survey";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 import { describe, test, expect } from "vitest";
 describe("Currency mask", () => {
+  test.each([
+    { prefix: "$ ", suffix: "", saveMaskedValue: false },
+    { prefix: "", suffix: " EUR", saveMaskedValue: false },
+    { prefix: "$ ", suffix: " USD", saveMaskedValue: true }
+  ])("Locale changes preserve entered currency affixes: %j", ({ prefix, suffix, saveMaskedValue }) => {
+    const previousLocale = surveyLocalization.currentLocale;
+    const survey = new SurveyModel({ locale: "de", elements: [{
+      type: "text", name: "q1", maskType: "currency", maskSettings: { prefix, suffix, saveMaskedValue }
+    }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.value = 1234;
+      input.focus();
+      input.value = prefix + "1.234,5" + suffix;
+
+      survey.locale = "en";
+      expect(input.value).toBe(prefix + "1,234.5" + suffix);
+      expect(q.inputValue).toBe(input.value);
+      expect(q.value).toBe(saveMaskedValue ? prefix + "1,234" + suffix : 1234);
+      expect(q.maskSettings.getUnmaskedValue(input.value)).toBe(1234.5);
+
+      input.value = prefix + "-1,234." + suffix;
+      survey.regionLocale = "de";
+      expect(input.value).toBe(prefix + "-1.234," + suffix);
+    } finally {
+      survey.dispose();
+      input.remove();
+      surveyLocalization.currentLocale = previousLocale;
+    }
+  });
+
   test("Serialize InputMaskCurrency properties", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();

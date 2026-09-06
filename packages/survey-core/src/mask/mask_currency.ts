@@ -41,6 +41,15 @@ export class InputMaskCurrency extends InputMaskNumeric {
     return "currencymask";
   }
 
+  protected getLocaleChangeInput(text: string): string {
+    const args: ITextInputParams = { prevValue: text, selectionStart: 0, selectionEnd: 0, insertedChars: null };
+    this.unwrapInputArgs(args);
+    return args.prevValue;
+  }
+  protected getLocaleChangeOutput(text: string): string {
+    return this.wrapText(text);
+  }
+
   private wrapText(str: string): string {
     const prefixValue = this.prefix || "";
     const suffixValue = this.suffix || "";

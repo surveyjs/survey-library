@@ -1,8 +1,11 @@
-import { JsonObject } from "../../src/jsonobject";
+import { JsonObject, Serializer } from "../../src/jsonobject";
 import { splitString, InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { QuestionTextModel } from "../../src/question_text";
+import { SurveyModel } from "../../src/survey";
+import { surveyLocalization } from "../../src/surveyStrings";
+import { InputElementAdapter } from "../../src/mask/input_element_adapter";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 describe("Numeric mask", () => {
   test("splitString", () => {
     let result = splitString("1234567", false);
@@ -957,5 +960,420 @@ describe("Numeric mask", () => {
     let result = maskInstance.processInput({ insertedChars: "4", selectionStart: 3, selectionEnd: 3, prevValue: "123", inputDirection: "forward" });
     expect(result.value).toBe("1234");
     expect(result.caretPosition).toBe(4);
+  });
+});
+
+describe("Numeric mask: localization", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  const createSurvey = (maskSettings?: any): SurveyModel => {
+    return new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric", maskSettings: maskSettings }] });
+  };
+  const getMask = (survey: SurveyModel): InputMaskNumeric => {
+    return <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+  };
+
+  test("An unset separator resolves through the survey format locale", () => {
+    const survey = createSurvey();
+    const mask = getMask(survey);
+    expect(mask.decimalSeparator, "english decimal").toBe(".");
+    expect(mask.thousandsSeparator, "english thousands").toBe(",");
+
+    survey.locale = "de";
+    expect(mask.decimalSeparator, "german decimal").toBe(",");
+    expect(mask.thousandsSeparator, "german thousands").toBe(".");
+    expect(mask.getMaskedValue(1234567.89), "german rendering").toBe("1.234.567,89");
+
+    survey.locale = "ru";
+    expect(mask.decimalSeparator, "russian decimal").toBe(",");
+    expect(mask.thousandsSeparator, "russian thousands").toBe("\u00A0");
+    expect(mask.getMaskedValue(1234567.89), "russian rendering").toBe("1\u00A0234\u00A0567,89");
+
+    survey.locale = "";
+  });
+
+  test("An authored separator beats the locale", () => {
+    const survey = createSurvey({ decimalSeparator: "*", thousandsSeparator: "|" });
+    const mask = getMask(survey);
+    survey.locale = "de";
+    expect(mask.decimalSeparator, "authored decimal").toBe("*");
+    expect(mask.thousandsSeparator, "authored thousands").toBe("|");
+    expect(mask.getMaskedValue(1234567.89), "authored rendering").toBe("1|234|567*89");
+    survey.locale = "";
+  });
+
+  test("An unknown locale falls back through the language subtag to english", () => {
+    const survey = createSurvey();
+    const mask = getMask(survey);
+
+    survey.regionLocale = "de-AT";
+    expect(mask.decimalSeparator, "the de subtag decimal").toBe(",");
+    expect(mask.thousandsSeparator, "the de subtag thousands").toBe(".");
+
+    survey.regionLocale = "xx";
+    expect(mask.decimalSeparator, "english decimal").toBe(".");
+    expect(mask.thousandsSeparator, "english thousands").toBe(",");
+
+    survey.regionLocale = "";
+  });
+
+  test("regionLocale outranks locale", () => {
+    const survey = createSurvey();
+    const mask = getMask(survey);
+    survey.locale = "de";
+    expect(mask.thousandsSeparator, "the locale is used while no region locale is set").toBe(".");
+
+    survey.regionLocale = "en-GB";
+    expect(mask.decimalSeparator, "the region locale decimal").toBe(".");
+    expect(mask.thousandsSeparator, "the region locale thousands").toBe(",");
+
+    survey.regionLocale = "";
+    expect(mask.thousandsSeparator, "the locale is used again").toBe(".");
+    survey.locale = "";
+  });
+
+  test("An authored empty thousands separator disables grouping under every locale", () => {
+    const survey = createSurvey({ thousandsSeparator: "" });
+    const mask = getMask(survey);
+    ["", "de", "ru", "fr"].forEach(locale => {
+      survey.locale = locale;
+      expect(mask.thousandsSeparator, "locale " + JSON.stringify(locale)).toBe("");
+      expect(mask.getMaskedValue(1234567), "locale " + JSON.stringify(locale)).toBe("1234567");
+    });
+    survey.locale = "";
+  });
+
+  test("An explicit value equal to the resolved default survives a locale change", () => {
+    const survey = createSurvey();
+    survey.locale = "de";
+    const mask = getMask(survey);
+    mask.decimalSeparator = ",";
+    expect(mask.getExplicitPropertyValue("decimalSeparator"), "the assignment is stored").toBe(",");
+
+    survey.locale = "";
+    expect(mask.decimalSeparator, "the authored value holds under english").toBe(",");
+
+    mask.resetPropertyValue("decimalSeparator");
+    expect(mask.getExplicitPropertyValue("decimalSeparator"), "the override is cleared").toBeUndefined();
+    expect(mask.decimalSeparator, "inheritance returns").toBe(".");
+  });
+
+  test("An explicit value equal to the resolved default survives a round trip", () => {
+    const survey = createSurvey();
+    survey.locale = "de";
+    getMask(survey).decimalSeparator = ",";
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].maskSettings.decimalSeparator, "written even though it equals the default").toBe(",");
+
+    const survey2 = new SurveyModel(json);
+    expect(getMask(survey2).getExplicitPropertyValue("decimalSeparator"), "read back as an explicit value").toBe(",");
+    survey2.locale = "";
+    expect(getMask(survey2).decimalSeparator, "still authored under english").toBe(",");
+  });
+
+  test("An authored empty thousands separator survives a round trip", () => {
+    const survey = createSurvey({ thousandsSeparator: "" });
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].maskSettings.thousandsSeparator, "an empty string is written").toBe("");
+
+    const survey2 = new SurveyModel(json);
+    expect(getMask(survey2).thousandsSeparator, "read back as an empty string").toBe("");
+    expect(getMask(survey2).getMaskedValue(1234567), "grouping stays disabled").toBe("1234567");
+  });
+
+  test("An unset separator is not serialized under any locale", () => {
+    const survey = createSurvey();
+    survey.locale = "ru";
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].maskSettings, "nothing is written for a locale value").toBeUndefined();
+    survey.locale = "";
+  });
+
+  test("The two serialization paths write the same keys", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "numeric", maskSettings: { decimalSeparator: ",", thousandsSeparator: "", precision: 3 } },
+        { type: "text", name: "q2", maskType: "currency", maskSettings: { decimalSeparator: ",", thousandsSeparator: "", prefix: "$ " } }
+      ]
+    });
+    survey.locale = "de";
+    const json = survey.toJSON();
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    expect(json.pages[0].elements[0].maskSettings, "the numeric getData path").toEqual({ decimalSeparator: ",", thousandsSeparator: "", precision: 3 });
+    expect(q1.maskSettings.getData(), "getData agrees with the question json").toEqual(json.pages[0].elements[0].maskSettings);
+    expect(json.pages[0].elements[1].maskSettings, "the currency getData path").toEqual({ decimalSeparator: ",", thousandsSeparator: "", prefix: "$ " });
+    expect(q2.maskSettings.getData(), "getData agrees with the question json").toEqual(json.pages[0].elements[1].maskSettings);
+
+    const maskJson = q1.maskSettings.toJSON();
+    delete maskJson.type;
+    expect(maskJson, "the mask toJSON path writes the same keys").toEqual(json.pages[0].elements[0].maskSettings);
+    survey.locale = "";
+  });
+
+  test("The serializer answers a metadata query with the canonical default", () => {
+    expect(Serializer.findProperty("numericmask", "decimalSeparator").defaultValue, "decimal").toBe(".");
+    expect(Serializer.findProperty("numericmask", "thousandsSeparator").defaultValue, "thousands").toBe(",");
+    expect(Serializer.findProperty("currencymask", "decimalSeparator").defaultValue, "currency decimal").toBe(".");
+  });
+
+  test("A mask deserialized inside a survey renders that survey's locale", () => {
+    const survey = new SurveyModel({ locale: "de", elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const mask = getMask(survey);
+    expect(mask.getExplicitPropertyValue("decimalSeparator"), "deserialization stores nothing").toBeUndefined();
+    expect(mask.getMaskedValue(1234.56), "german rendering").toBe("1.234,56");
+    survey.locale = "";
+  });
+
+  test("A mask resolved standalone follows the survey it is attached to afterwards", () => {
+    const mask = new InputMaskNumeric();
+    expect(mask.getMaskedValue(1234.56), "english by itself").toBe("1,234.56");
+
+    const survey = new SurveyModel({ locale: "de", elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    mask.owner = q;
+    expect(mask.getMaskedValue(1234.56), "the survey it was attached to").toBe("1.234,56");
+    survey.locale = "";
+  });
+
+  test("A mask moved between two same locale surveys follows the new one", () => {
+    const first = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const second = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    second.regionLocale = "de";
+    const mask = new InputMaskNumeric();
+    mask.owner = <QuestionTextModel>first.getQuestionByName("q1");
+    expect(mask.getMaskedValue(1234.56), "the first survey").toBe("1,234.56");
+
+    mask.owner = <QuestionTextModel>second.getQuestionByName("q1");
+    expect(mask.getMaskedValue(1234.56), "the second survey").toBe("1.234,56");
+  });
+
+  test("Collision policy: an inherited pair is distinct", () => {
+    const survey = createSurvey();
+    survey.locale = "de";
+    const mask = getMask(survey);
+    expect(mask.getMaskedValue(1234.56), "rendered").toBe("1.234,56");
+    expect(mask.getUnmaskedValue("1.234,56"), "round trip").toBe(1234.56);
+    survey.locale = "";
+  });
+
+  test("Collision policy: an authored decimal equal to the inherited thousands", () => {
+    const survey = createSurvey({ decimalSeparator: "," });
+    const mask = getMask(survey);
+    expect(mask.thousandsSeparator, "grouping is suppressed").toBe("");
+    expect(mask.getMaskedValue(1234.56), "rendered").toBe("1234,56");
+    expect(mask.getUnmaskedValue("1234,56"), "round trip").toBe(1234.56);
+  });
+
+  test("Collision policy: an authored thousands equal to the inherited decimal", () => {
+    const survey = createSurvey({ thousandsSeparator: "." });
+    const mask = getMask(survey);
+    expect(mask.decimalSeparator, "the decimal separator is primary").toBe(".");
+    expect(mask.getMaskedValue(1234.56), "rendered ungrouped").toBe("1234.56");
+    expect(mask.getUnmaskedValue("1234.56"), "round trip").toBe(1234.56);
+  });
+
+  test("Collision policy: both authored and equal", () => {
+    const survey = createSurvey({ decimalSeparator: ",", thousandsSeparator: "," });
+    const mask = getMask(survey);
+    expect(mask.getMaskedValue(1234.56), "rendered ungrouped").toBe("1234,56");
+    expect(mask.getUnmaskedValue("1234,56"), "round trip").toBe(1234.56);
+  });
+
+  test("No change for a survey with no locale or an english one", () => {
+    const survey = createSurvey();
+    const mask = getMask(survey);
+    ["", "en"].forEach(locale => {
+      survey.locale = locale;
+      expect(mask.decimalSeparator, "decimal, locale " + JSON.stringify(locale)).toBe(".");
+      expect(mask.thousandsSeparator, "thousands, locale " + JSON.stringify(locale)).toBe(",");
+      expect(mask.getMaskedValue(1234.5), "masked, locale " + JSON.stringify(locale)).toBe("1,234.5");
+      expect(mask.getUnmaskedValue("1,234.5"), "unmasked, locale " + JSON.stringify(locale)).toBe(1234.5);
+    });
+    survey.locale = "";
+  });
+
+  test("Typing under a non-english locale", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createSurvey();
+    survey.locale = "de";
+    const mask = getMask(survey);
+    const adapter = new InputElementAdapter(mask, testInput);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: testInput, preventDefault: () => { } });
+    };
+
+    type("1");
+    expect(testInput.value, "type 1").toBe("1");
+    expect(testInput.selectionStart, "caret after 1").toBe(1);
+
+    type("2");
+    type("3");
+    type("4");
+    expect(testInput.value, "type 4").toBe("1.234");
+    expect(testInput.selectionStart, "caret after 4").toBe(5);
+
+    type(",");
+    expect(testInput.value, "type the decimal separator").toBe("1.234,");
+    expect(testInput.selectionStart, "caret after the decimal separator").toBe(6);
+
+    type("5");
+    expect(testInput.value, "type 5").toBe("1.234,5");
+    expect(testInput.selectionStart, "caret after 5").toBe(7);
+    expect(mask.getUnmaskedValue(testInput.value), "the entered number").toBe(1234.5);
+
+    adapter.dispose();
+    testInput.remove();
+    survey.locale = "";
+  });
+
+  test("A stored value is re-rendered when the survey locale changes", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createSurvey();
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.afterRenderQuestionElement(testInput);
+    q.value = 1234567.89;
+    expect(testInput.value, "the german rendering").toBe("1.234.567,89");
+
+    survey.locale = "";
+    expect(testInput.value, "the english rendering").toBe("1,234,567.89");
+    expect(q.value, "the stored number never changes").toBe(1234567.89);
+
+    survey.regionLocale = "ru";
+    expect(testInput.value, "the russian rendering").toBe("1\u00A0234\u00A0567,89");
+    expect(q.value, "the stored number never changes").toBe(1234567.89);
+
+    survey.regionLocale = "";
+    testInput.remove();
+  });
+
+  test("An in-progress entry is re-formatted through the previous locale's separators", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createSurvey();
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.afterRenderQuestionElement(testInput);
+    testInput.focus();
+    expect(q["maskInputAdapter"].isInputElementFocused, "the element is focused").toBe(true);
+    // typed but not committed: the question value is still empty
+    testInput.value = "1.234,5";
+    expect(q.isEmpty(), "nothing is stored yet").toBe(true);
+
+    survey.locale = "";
+    expect(testInput.value, "the entry is re-formatted for english").toBe("1,234.5");
+    expect(q.inputValue, "the question keeps the same text").toBe("1,234.5");
+    expect(getMask(survey).getUnmaskedValue(testInput.value), "the entry still means the same number").toBe(1234.5);
+
+    testInput.remove();
+  });
+
+  test("A focused field with a stored answer keeps its unsaved edits", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createSurvey();
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.afterRenderQuestionElement(testInput);
+    q.value = 1234;
+    expect(testInput.value, "the stored answer").toBe("1.234");
+
+    testInput.focus();
+    // two digits typed into the element and not yet committed to the question
+    testInput.value = "123.456";
+
+    survey.locale = "";
+    expect(testInput.value, "the edits survive the locale change").toBe("123,456");
+    expect(q.value, "the edits are not stored yet").toBe(1234);
+
+    testInput.remove();
+  });
+
+  test.each(["locale", "regionLocale"])("Reading separators in a callback during a %s change preserves the saved number", (propertyName) => {
+    const survey = createSurvey({ saveMaskedValue: true });
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.value = 1234.56;
+    expect(q.value).toBe("1.234,56");
+    q.localeChangedCallback = () => {
+      expect(getMask(survey).decimalSeparator).toBe(".");
+      expect(getMask(survey).thousandsSeparator).toBe(",");
+    };
+
+    survey[propertyName] = "en";
+    expect(q.value).toBe("1,234.56");
+    expect(q.inputValue).toBe("1,234.56");
+    expect(q.getExpressionValue(q.value)).toBe(1234.56);
+    q.localeChangedCallback = undefined;
+    survey.dispose();
+  });
+
+  test.each([false, true])("A focused deletion survives a locale change with saveMaskedValue=%s", (saveMaskedValue) => {
+    const survey = createSurvey({ saveMaskedValue });
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.value = 1234;
+      input.focus();
+      input.setSelectionRange(0, input.value.length);
+      q["maskInputAdapter"].beforeInputHandler({
+        data: null, inputType: "deleteContentBackward", target: input, preventDefault: () => { }
+      });
+      expect(input.value).toBe("");
+
+      survey.locale = "en";
+      expect(input.value).toBe("");
+      expect(q.inputValue).toBe("");
+      expect(q.value).toBe(saveMaskedValue ? "1,234" : 1234);
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test("A masked value stored under one locale is re-masked when the locale changes", () => {
+    const survey = createSurvey({ saveMaskedValue: true });
+    survey.locale = "de";
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "1234,56";
+    expect(q.value, "the german masked value is stored").toBe("1.234,56");
+
+    survey.locale = "";
+    expect(q.value, "the stored text is re-masked for english").toBe("1,234.56");
+    expect(q.inputValue, "the rendered text follows").toBe("1,234.56");
+  });
+});
+
+describe("Numeric mask: the resolved format cache", () => {
+  test("Attaching a mask to an owner drops the values it resolved before", () => {
+    const mask = new InputMaskNumeric();
+    expect(mask.decimalSeparator, "resolved standalone").toBe(".");
+    expect(mask["getCachedFormatValue"]("decimalSeparator"), "the resolved value is cached").toBe(".");
+
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    mask.owner = <QuestionTextModel>survey.getQuestionByName("q1");
+    // the locale name alone would still say "en" here, so the cache cannot be keyed by it only
+    expect(mask["getCachedFormatValue"]("decimalSeparator"), "attaching drops the cache").toBeUndefined();
+  });
+
+  test("A locale change drops the values resolved for the previous locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const mask = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    expect(mask.thousandsSeparator, "resolved for english").toBe(",");
+    expect(mask["getCachedFormatValue"]("thousandsSeparator"), "the resolved value is cached").toBe(",");
+
+    survey.locale = "de";
+    expect(mask.thousandsSeparator, "resolved for german").toBe(".");
+    // the entry the previous locale left behind is gone, not merely shadowed
+    expect(mask["getCachedFormatValue"]("thousandsSeparator"), "the cache holds the german value").toBe(".");
+    survey.locale = "";
   });
 });

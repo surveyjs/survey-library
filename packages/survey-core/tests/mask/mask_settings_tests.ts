@@ -687,11 +687,11 @@ describe("Question text: Input mask", () => {
     expect(q.errors.length, "errors cleared").toBe(0);
   });
 
-  test("Only the datetime mask is locale dependent", () => {
+  test("The format bearing masks are locale dependent", () => {
     expect(new InputMaskBase().isLocaleDependent, "base").toBe(false);
     expect(new InputMaskPattern().isLocaleDependent, "pattern").toBe(false);
-    expect(new InputMaskNumeric().isLocaleDependent, "numeric").toBe(false);
-    expect(new InputMaskCurrency().isLocaleDependent, "currency").toBe(false);
+    expect(new InputMaskNumeric().isLocaleDependent, "numeric").toBe(true);
+    expect(new InputMaskCurrency().isLocaleDependent, "currency").toBe(true);
     expect(new InputMaskDateTime().isLocaleDependent, "datetime").toBe(true);
   });
 

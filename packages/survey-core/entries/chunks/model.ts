@@ -333,7 +333,7 @@ export { IMaskLocaleChange } from "../../src/mask/mask_utils";
 export { IDateTimeInputFragments } from "../../src/mask/mask_datetime";
 export { ILocaleData, localeData, getLocaleDataValue } from "../../src/locale-data";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
-export { InputMaskNumeric } from "../../src/mask/mask_numeric";
+export { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";
 export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";

@@ -1,4 +1,6 @@
 import { InputMaskDateTime } from "../../src/mask/mask_datetime";
+import { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
+import { localeData } from "../../src/locale-data";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
@@ -151,5 +153,119 @@ describe("Datetime mask: locale rollout", () => {
       q.inputValue = entries[locale];
       expect(q.value, "locale " + JSON.stringify(locale)).toBe("2000-12-25");
     });
+  });
+});
+
+describe("Numeric mask: locale rollout", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  test("The pinned masked number for every curated locale", () => {
+    // the value 1234567.89 rendered with each locale's decimal and group separator; grouping is
+    // always by three, so en-in, hi and tel read 1,234,567.89 where CLDR writes 12,34,567.89
+    const expected: { [locale: string]: string } = {
+      "ar": "1,234,567.89",
+      "bg": "1\u00A0234\u00A0567,89",
+      "ca": "1.234.567,89",
+      "cs": "1\u00A0234\u00A0567,89",
+      "cy": "1,234,567.89",
+      "da": "1.234.567,89",
+      "de": "1.234.567,89",
+      "el": "1.234.567,89",
+      "en": "1,234,567.89",
+      "en-au": "1,234,567.89",
+      "en-ca": "1,234,567.89",
+      "en-gb": "1,234,567.89",
+      "en-ie": "1,234,567.89",
+      "en-in": "1,234,567.89",
+      "en-nz": "1,234,567.89",
+      "en-za": "1\u00A0234\u00A0567,89",
+      "es": "1.234.567,89",
+      "et": "1\u00A0234\u00A0567,89",
+      "eu": "1.234.567,89",
+      "fa": "1,234,567.89",
+      "fi": "1\u00A0234\u00A0567,89",
+      "fil": "1,234,567.89",
+      "fr": "1\u202F234\u202F567,89",
+      "fr-ca": "1\u00A0234\u00A0567,89",
+      "fr-ch": "1\u202F234\u202F567,89",
+      "he": "1,234,567.89",
+      "hi": "1,234,567.89",
+      "hr": "1.234.567,89",
+      "ht": "1\u00A0234\u00A0567,89",
+      "hu": "1\u00A0234\u00A0567,89",
+      "id": "1.234.567,89",
+      "is": "1.234.567,89",
+      "it": "1.234.567,89",
+      "ja": "1,234,567.89",
+      "ka": "1\u00A0234\u00A0567,89",
+      "kk": "1\u00A0234\u00A0567,89",
+      "ko": "1,234,567.89",
+      "lt": "1\u00A0234\u00A0567,89",
+      "lv": "1\u00A0234\u00A0567,89",
+      "mk": "1.234.567,89",
+      "mm": "1,234,567.89",
+      "ms": "1,234,567.89",
+      "nl": "1.234.567,89",
+      "nl-be": "1.234.567,89",
+      "no": "1\u00A0234\u00A0567,89",
+      "pl": "1\u00A0234\u00A0567,89",
+      "pt": "1.234.567,89",
+      "pt-br": "1.234.567,89",
+      "ro": "1.234.567,89",
+      "ru": "1\u00A0234\u00A0567,89",
+      "sk": "1\u00A0234\u00A0567,89",
+      "sl": "1.234.567,89",
+      "sr": "1.234.567,89",
+      "sv": "1\u00A0234\u00A0567,89",
+      "sw": "1,234,567.89",
+      "tel": "1,234,567.89",
+      "tg": "1\u00A0234\u00A0567,89",
+      "th": "1,234,567.89",
+      "tr": "1.234.567,89",
+      "uk": "1\u00A0234\u00A0567,89",
+      "ur": "1,234,567.89",
+      "vi": "1.234.567,89",
+      "zh": "1,234,567.89",
+      "zh-cn": "1,234,567.89",
+      "zh-tw": "1,234,567.89",
+    };
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const mask = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      expect(Object.keys(expected).indexOf(locale) >= 0, "locale " + JSON.stringify(locale) + " is pinned").toBe(true);
+    });
+    Object.keys(expected).forEach(locale => {
+      survey.regionLocale = locale;
+      expect(mask.getMaskedValue(1234567.89), "locale " + JSON.stringify(locale)).toBe(expected[locale]);
+    });
+    survey.regionLocale = "";
+  });
+
+  test("A number round-trips through the mask under every curated locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
+    const mask = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      survey.regionLocale = locale;
+      const masked = mask.getMaskedValue(1234.56);
+      const value = mask.getUnmaskedValue(masked);
+      expect(typeof value, "locale " + JSON.stringify(locale) + " stores a number").toBe("number");
+      expect(value, "locale " + JSON.stringify(locale) + " round trip of " + JSON.stringify(masked)).toBe(1234.56);
+    });
+    survey.regionLocale = "";
+  });
+
+  test("Every curated separator is a single valid character and the pair is distinct", () => {
+    let checkedCount = 0;
+    Object.keys(localeData).forEach(locale => {
+      const decimal = localeData[locale].decimalSeparator;
+      const thousands = localeData[locale].thousandsSeparator;
+      expect(isValidDecimalSeparator(decimal), locale + ".decimalSeparator = " + JSON.stringify(decimal)).toBe(true);
+      expect(isValidThousandsSeparator(thousands), locale + ".thousandsSeparator = " + JSON.stringify(thousands)).toBe(true);
+      expect(decimal === thousands, locale + " curates two different separators").toBe(false);
+      checkedCount++;
+    });
+    expect(checkedCount, "every locale entry curates separators").toBe(Object.keys(localeData).length);
   });
 });

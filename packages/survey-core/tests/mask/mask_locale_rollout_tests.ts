@@ -1,5 +1,6 @@
 import { InputMaskDateTime } from "../../src/mask/mask_datetime";
 import { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
+import { InputMaskCurrency, isValidCurrencyPattern } from "../../src/mask/mask_currency";
 import { localeData } from "../../src/locale-data";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
@@ -267,5 +268,122 @@ describe("Numeric mask: locale rollout", () => {
       checkedCount++;
     });
     expect(checkedCount, "every locale entry curates separators").toBe(Object.keys(localeData).length);
+  });
+});
+
+describe("Currency mask: locale rollout", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  const symbol = "\u20AC";
+
+  test("The pinned masked currency value for every curated locale", () => {
+    // 1234.56 and its negative, rendered with each locale's separators and its currency pattern;
+    // the symbol is the author's, the placement and the spacing are the locale's
+    const expected: { [locale: string]: Array<string> } = {
+      "ar": ["1,234.56\u00A0\u20AC", "-1,234.56\u00A0\u20AC"],
+      "bg": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "ca": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "cs": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "cy": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "da": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "de": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "el": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "en": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-au": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-ca": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-gb": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-ie": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-in": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-nz": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "en-za": ["\u20AC1\u00A0234,56", "-\u20AC1\u00A0234,56"],
+      "es": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "et": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "eu": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "fa": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "fi": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "fil": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "fr": ["1\u202F234,56\u00A0\u20AC", "-1\u202F234,56\u00A0\u20AC"],
+      "fr-ca": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "fr-ch": ["1\u202F234,56\u00A0\u20AC", "-1\u202F234,56\u00A0\u20AC"],
+      "he": ["1,234.56\u00A0\u20AC", "-1,234.56\u00A0\u20AC"],
+      "hi": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "hr": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "ht": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "hu": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "id": ["\u20AC1.234,56", "-\u20AC1.234,56"],
+      "is": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "it": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "ja": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "ka": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "kk": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "ko": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "lt": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "lv": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "mk": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "mm": ["1,234.56\u00A0\u20AC", "-1,234.56\u00A0\u20AC"],
+      "ms": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "nl": ["\u20AC\u00A01.234,56", "\u20AC\u00A0-1.234,56"],
+      "nl-be": ["\u20AC\u00A01.234,56", "\u20AC\u00A0-1.234,56"],
+      "no": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "pl": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "pt": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "pt-br": ["\u20AC\u00A01.234,56", "-\u20AC\u00A01.234,56"],
+      "ro": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "ru": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "sk": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "sl": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "sr": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "sv": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "sw": ["\u20AC\u00A01,234.56", "-\u20AC\u00A01,234.56"],
+      "tel": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "tg": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "th": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "tr": ["\u20AC1.234,56", "-\u20AC1.234,56"],
+      "uk": ["1\u00A0234,56\u00A0\u20AC", "-1\u00A0234,56\u00A0\u20AC"],
+      "ur": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "vi": ["1.234,56\u00A0\u20AC", "-1.234,56\u00A0\u20AC"],
+      "zh": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "zh-cn": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+      "zh-tw": ["\u20AC1,234.56", "-\u20AC1,234.56"],
+    };
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { currencySymbol: symbol } }] });
+    const mask = <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      expect(Object.keys(expected).indexOf(locale) >= 0, "locale " + JSON.stringify(locale) + " is pinned").toBe(true);
+    });
+    Object.keys(expected).forEach(locale => {
+      survey.regionLocale = locale;
+      expect(mask.getMaskedValue(1234.56), "locale " + JSON.stringify(locale)).toBe(expected[locale][0]);
+      expect(mask.getMaskedValue(-1234.56), "locale " + JSON.stringify(locale) + ", negative").toBe(expected[locale][1]);
+    });
+    survey.regionLocale = "";
+  });
+
+  test("A currency value round-trips through the mask under every curated locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { currencySymbol: symbol } }] });
+    const mask = <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      survey.regionLocale = locale;
+      [1234.56, -1234.56].forEach(value => {
+        const masked = mask.getMaskedValue(value);
+        const unmasked = mask.getUnmaskedValue(masked);
+        expect(typeof unmasked, "locale " + JSON.stringify(locale) + " stores a number").toBe("number");
+        expect(unmasked, "locale " + JSON.stringify(locale) + " round trip of " + JSON.stringify(masked)).toBe(value);
+      });
+    });
+    survey.regionLocale = "";
+  });
+
+  test("Every curated currency pattern is valid and places a symbol", () => {
+    let checkedCount = 0;
+    Object.keys(localeData).forEach(locale => {
+      const pattern = localeData[locale].currencyPattern;
+      expect(isValidCurrencyPattern(pattern), locale + ".currencyPattern = " + JSON.stringify(pattern)).toBe(true);
+      expect(pattern.indexOf("\u00A4") >= 0, locale + " places the currency symbol").toBe(true);
+      checkedCount++;
+    });
+    expect(checkedCount, "every locale entry curates a currency pattern").toBe(Object.keys(localeData).length);
   });
 });

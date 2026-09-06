@@ -4,12 +4,15 @@ import { surveyLocalization } from "./surveyStrings";
 // text (e.g. mask placeholder symbols) belong in the localization dictionaries instead; the
 // entries here are configuration and are never rendered as text or translated.
 // Date patterns are canonical SurveyJS mask grammar: dd, mm, yyyy plus literal separators.
+// Currency patterns are a small CLDR inspired grammar: U+00A4 is the currency symbol the author
+// supplies, # is the formatted number, - is the minus sign, and an optional ; separates the
+// positive subpattern from the negative one. Without a ; the negative form is the positive one
+// with a - in front. Everything else in a pattern is literal text.
 export interface ILocaleData {
   datePattern?: string;
   timePattern?: string;
   decimalSeparator?: string;
   thousandsSeparator?: string;
-  // curated in tier 02
   currencyPattern?: string;
 }
 
@@ -33,72 +36,82 @@ export interface ILocaleData {
 // ht has no CLDR data and follows the French convention its date pattern already uses. The mask
 // always groups by three, so en-in, hi and tel carry their separator characters but not their
 // 12,34,567 grouping.
+// Currency patterns carry placement and spacing only - the symbol itself depends on the
+// currency, not on the locale, so the author supplies it. They are probed with a symbolic
+// currency: CLDR inserts a space between an alphabetic symbol (USD, RM, Ft) and the number
+// that is not part of the locale's pattern, and this table cannot know which kind of symbol
+// an author will write. The literal spaces are no-break (U+00A0) and are written as escapes.
+// ar, fa and he are curated without the U+200E/U+200F marks ICU emits around the number: the
+// pattern reaches an input value, where control characters are not allowed, and the direction
+// is handled by the RTL styles instead. A minus sign ICU writes as U+2212 (et, eu, fi, hr, lt,
+// no, sl, sv) is curated as the ASCII - the mask parses. ht again follows the French
+// convention.
 export const localeData: { [locale: string]: ILocaleData } = {
-  "ar": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "bg": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "ca": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "cs": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "cy": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "da": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "de": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "el": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "en": { datePattern: "mm/dd/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-au": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-ca": { datePattern: "yyyy-mm-dd", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-gb": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-ie": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-in": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-nz": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "en-za": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "es": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "et": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "eu": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "fa": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "fi": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "fil": { datePattern: "mm/dd/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: "," },
-  "fr": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u202F" },
-  "fr-ca": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "fr-ch": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u202F" },
-  "he": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "hi": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "hr": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "ht": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "hu": { datePattern: "yyyy. mm. dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "id": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "is": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "it": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "ja": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "ka": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "kk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "ko": { datePattern: "yyyy. mm. dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "lt": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "lv": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "mk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "mm": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "ms": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "nl": { datePattern: "dd-mm-yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "nl-be": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "no": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "pl": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "pt": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "pt-br": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "ro": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "ru": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "sk": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "sl": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "sr": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "sv": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "sw": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "tel": { datePattern: "dd-mm-yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "tg": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "th": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "tr": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "uk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0" },
-  "ur": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "vi": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "." },
-  "zh": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "zh-cn": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," },
-  "zh-tw": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: "," }
+  "ar": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "#\u00A0\u00A4" },
+  "bg": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "ca": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "cs": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "cy": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "da": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "de": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "el": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "en": { datePattern: "mm/dd/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-au": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-ca": { datePattern: "yyyy-mm-dd", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-gb": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-ie": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-in": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-nz": { datePattern: "dd/mm/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "en-za": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "\u00A4#" },
+  "es": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "et": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "eu": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "fa": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "fi": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "fil": { datePattern: "mm/dd/yyyy", timePattern: "hh:MM TT", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "fr": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u202F", currencyPattern: "#\u00A0\u00A4" },
+  "fr-ca": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "fr-ch": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u202F", currencyPattern: "#\u00A0\u00A4" },
+  "he": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "#\u00A0\u00A4" },
+  "hi": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "hr": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "ht": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "hu": { datePattern: "yyyy. mm. dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "id": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "\u00A4#" },
+  "is": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "it": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "ja": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "ka": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "kk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "ko": { datePattern: "yyyy. mm. dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "lt": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "lv": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "mk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "mm": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "#\u00A0\u00A4" },
+  "ms": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "nl": { datePattern: "dd-mm-yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "\u00A4\u00A0#;\u00A4\u00A0-#" },
+  "nl-be": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "\u00A4\u00A0#;\u00A4\u00A0-#" },
+  "no": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "pl": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "pt": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "pt-br": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "\u00A4\u00A0#" },
+  "ro": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "ru": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "sk": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "sl": { datePattern: "dd. mm. yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "sr": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "sv": { datePattern: "yyyy-mm-dd", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "sw": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4\u00A0#" },
+  "tel": { datePattern: "dd-mm-yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "tg": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "th": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "tr": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "\u00A4#" },
+  "uk": { datePattern: "dd.mm.yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: "\u00A0", currencyPattern: "#\u00A0\u00A4" },
+  "ur": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "vi": { datePattern: "dd/mm/yyyy", timePattern: "HH:MM", decimalSeparator: ",", thousandsSeparator: ".", currencyPattern: "#\u00A0\u00A4" },
+  "zh": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "zh-cn": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" },
+  "zh-tw": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" }
 };
 
 // Resolves one field through the chain: exact locale -> its language subtag -> "en". The walk is

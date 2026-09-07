@@ -1,4 +1,5 @@
-import { HashTable, Helpers, createDate } from "./helpers";
+import { Helpers, createDate } from "./helpers";
+import { Base } from "./base";
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -12,6 +13,12 @@ import { settings } from "./settings";
  */
 export class QuestionExpressionModel extends Question {
   private isExecutionLocked: boolean;
+  constructor(name: string) {
+    super(name);
+    this.addExpressionProperty("expression", (obj: Base, res: any): void => {
+      this.value = this.roundValue(res);
+    }, (): boolean => !this.isExecutionLocked && (this.runIfReadOnly || !this.isReadOnly), true);
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const formatProps = ["format", "currency", "displayStyle"];
@@ -44,13 +51,11 @@ export class QuestionExpressionModel extends Question {
   public unlocCalculation() {
     this.isExecutionLocked = false;
   }
-  protected runConditionCore(properties: HashTable<any>) {
-    super.runConditionCore(properties);
-    if (this.isExecutionLocked || !this.runIfReadOnly && this.isReadOnly) return;
-    if (settings.expressionQuestionTrackDependencies && this.canSkipRunningExpression("expression")) return;
-    this.runExpressionByProperty("expression", properties, (val: any) => {
-      this.value = this.roundValue(val);
-    });
+  // The "expression" property is registered with strict dependencies, but this optimization
+  // is optional for the Expression question
+  protected canSkipRunningExpression(propName: string): boolean {
+    if (propName === "expression" && !settings.expressionQuestionTrackDependencies) return false;
+    return super.canSkipRunningExpression(propName);
   }
   protected canCollectErrors(): boolean {
     return true;

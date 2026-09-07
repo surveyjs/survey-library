@@ -1483,18 +1483,31 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
+      // The advanced header is created together with the other layout elements. There is nothing to
+      // update until they are requested for the first time.
+      if (!target.isLayoutElementsCreated) return;
       if (newValue === "basic") {
         target.removeLayoutElement("advanced-header");
       } else {
         const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
-          const advHeader = new Cover();
-          target.insertAdvancedHeader(advHeader);
+          target.insertAdvancedHeader(target.createAdvancedHeader());
         }
       }
     }
   }) headerView: "advanced" | "basic";
 
+  protected get isLayoutElementsCreated(): boolean {
+    return !!this.getPropertyValue("layoutElements");
+  }
+  protected createAdvancedHeader(): Cover {
+    const advHeader = new Cover();
+    advHeader.survey = this;
+    if (!!this.appliedTheme) {
+      advHeader.fromTheme(this.appliedTheme);
+    }
+    return advHeader;
+  }
   protected insertAdvancedHeader(advHeader: Cover): void {
     advHeader.survey = this;
     this.layoutElements.push(advHeader.createLayoutElements()[0]);
@@ -8407,6 +8420,9 @@ export class SurveyModel extends SurveyElementCore
     res.push(...this.progressTextModel.createLayoutElements());
     res.push(...this.tocModel.createLayoutElements());
     res.push(...this.navigationLayoutModel.createLayoutElements());
+    if (this.headerView !== "basic") {
+      res.push(...this.createAdvancedHeader().createLayoutElements());
+    }
     this.isCreatingLayout = false;
     return res;
   }
@@ -8497,6 +8513,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
+  private appliedTheme: ITheme | undefined;
   /**
    * Applies a specified theme to the survey.
    *
@@ -8524,14 +8541,15 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
+    this.appliedTheme = theme;
     if ("header" in theme && !theme.headerView) {
       this.headerView = "advanced";
     }
-    if (this.headerView !== "basic") {
+    // The header is built from the applied theme in createAdvancedHeader, so it has to be re-created
+    // here only when the layout elements are already in place.
+    if (this.headerView !== "basic" && this.isLayoutElementsCreated) {
       this.removeLayoutElement("advanced-header");
-      const advHeader = new Cover();
-      advHeader.fromTheme(theme);
-      this.insertAdvancedHeader(advHeader);
+      this.insertAdvancedHeader(this.createAdvancedHeader());
     }
     // Recomputed from the new theme's raw values on the next themeVariables read,
     // so the renderers deliver the fresh resets in the same render as the theme.
@@ -8975,7 +8993,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
-  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
+  { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

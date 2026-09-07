@@ -1172,4 +1172,71 @@ describe("QuestionExpression", () => {
     expect(question4.value, "question4: access page1.title").toBe("Page 1 Title");
     expect(question5.value, "question5: access survey.title").toBe("Survey Title");
   });
+
+  test("Recalculate the expression when it is assigned at runtime, Bug#11798", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "expression", name: "q", expression: "{n} + 100" }
+      ]
+    });
+    survey.setValue("n", 5);
+    const q = <QuestionExpressionModel>survey.getQuestionByName("q");
+    expect(q.value, "the initial expression is calculated").toBe(105);
+
+    q.expression = "{n} + 1";
+    expect(q.value, "the new expression is calculated on assignment").toBe(6);
+    expect(q.displayValue, "the display value is updated as well").toBe("6");
+
+    survey.setValue("n", 6);
+    expect(q.value, "the new expression is calculated on a value change").toBe(7);
+  });
+  test("Recalculate the expression assigned at runtime, settings.expressionQuestionTrackDependencies is false, Bug#11798", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = false;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "n" },
+          { type: "expression", name: "q", expression: "{n} + 100" }
+        ]
+      });
+      survey.setValue("n", 5);
+      const q = <QuestionExpressionModel>survey.getQuestionByName("q");
+      q.expression = "{n} + 1";
+      expect(q.value, "the new expression is calculated on assignment").toBe(6);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("Do not run the expression assigned at runtime in a read-only question, Bug#11798", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "expression", name: "q", expression: "{n} + 100" }
+      ]
+    });
+    survey.setValue("n", 5);
+    const q = <QuestionExpressionModel>survey.getQuestionByName("q");
+    survey.mode = "display";
+    q.expression = "{n} + 1";
+    expect(q.value, "the expression is not run in a read-only question").toBe(105);
+
+    q.runIfReadOnly = true;
+    q.expression = "{n} + 2";
+    expect(q.value, "runIfReadOnly allows running the expression").toBe(7);
+  });
+  test("Do not run the expression assigned at runtime in the design mode, Bug#11798", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "expression", name: "q" }
+      ]
+    });
+    const q = <QuestionExpressionModel>survey.getQuestionByName("q");
+    q.expression = "1 + 1";
+    expect(q.value, "the expression is not run in the design mode").toBeFalsy();
+  });
 });

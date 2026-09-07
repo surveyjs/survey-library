@@ -728,6 +728,7 @@ frameworks.forEach(framework => {
     test("TOC survey navigation", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
+        headerView: "basic",
         showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Software developer survey.",
@@ -797,6 +798,7 @@ frameworks.forEach(framework => {
     test("TOC survey navigation right", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
+        headerView: "basic",
         showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Software developer survey.",
@@ -890,6 +892,7 @@ frameworks.forEach(framework => {
     test("Check survey in compact mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
+        headerView: "basic",
         title: "Lightweight",
         widthMode: "static",
         showQuestionNumbers: false,
@@ -934,6 +937,7 @@ frameworks.forEach(framework => {
     test("Check survey in compact mode page has title", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
+        headerView: "basic",
         title: "Lightweight",
         widthMode: "static",
         showQuestionNumbers: false,
@@ -1020,6 +1024,7 @@ frameworks.forEach(framework => {
         window["Survey"]._setIsTouch(true);
       });
       const json = {
+        headerView: "basic",
         showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Software developer survey.",
@@ -1084,6 +1089,7 @@ frameworks.forEach(framework => {
     test("TOC survey navigation responsive", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
+        headerView: "basic",
         showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Software developer survey.",
@@ -1149,6 +1155,7 @@ frameworks.forEach(framework => {
     test("TOC survey navigation wide questions fit total width", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
+        headerView: "basic",
         showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Software developer survey.",

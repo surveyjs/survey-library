@@ -570,8 +570,10 @@ function addInArrayConditionSites(state: WalkState): void {
       const frame: ScopeFrame = condition.container.templateNames
         ? { kind: "panelDynamic", owner: condition.container, templateNames: condition.map }
         : { kind: "matrixRow", owner: condition.container, columns: condition.map };
-      addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
-        site.prop, site.owner, (site.scope || []).concat([frame]), true);
+      const itemFrame: ScopeFrame = { kind: "arrayItem", owner: condition.container, names: condition.map };
+      const filterSite = addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
+        site.prop, site.owner, (site.scope || []).concat([frame, itemFrame]), true);
+      filterSite.inArrayOf = site;
     });
   });
 }

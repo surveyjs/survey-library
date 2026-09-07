@@ -174,12 +174,14 @@ interface ISurveyLintOptions {
 * **Data keys, not just names.** `valueName`, the `-Comment` suffix, matrix `-total` keys, the
   built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
   special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
-* **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{row.col1} > 5')` runs its
+* **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
   third (or fourth) argument as a condition over every row of `m1`, and that string is not part
   of the enclosing expression's syntax tree - so it becomes a site of its own, analysed in the
-  scope of the element the call reads. `{row.col}` and `{panel.q}` resolve there, and both the
+  item data context. The linter accepts both bare keys and scoped `{row.col}` / `{panel.q}`
+  references. Bare column or template-question keys resolve before survey values. Both the
   syntax and the references of the string are checked, under the path
-  `<property>.inArray[<n>]`.
+  `<property>.inArray[<n>]`. A filter that never holds excludes items without making the
+  enclosing question or page unreachable.
 * **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
   `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
   by my own value" idiom is not reported as a self reference.

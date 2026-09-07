@@ -146,7 +146,7 @@ export class LintContext {
     if (!this.neverVisible) {
       const baseDead = new Set<ElementRecord>();
       this.forEachSite("condition", site => {
-        if (site.prop !== "visibleIf" || !site.owner) return;
+        if (site.prop !== "visibleIf" || !site.owner || site.inArrayOf) return;
         if (isAlwaysFalseVerdict(this.getConditionVerdict(site).verdict)) baseDead.add(site.owner);
       });
       this.neverVisible = analyzeNeverVisible({

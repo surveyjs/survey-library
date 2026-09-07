@@ -873,6 +873,9 @@ describe("reference/unknown - names in function arguments", () => {
     expect(withExpression("sumInArray({m1}, 'col1')")).toHaveLength(0);
     expect(withExpression("avgInArray({m1}, 'col1', '{row.col1} > 1')")).toHaveLength(0);
   });
+  test("a bare column in an inArray filter is clean", () => {
+    expect(withExpression("avgInArray({m1}, 'col1', '{col1} > 1')")).toHaveLength(0);
+  });
   test("a template question of an inArray function resolves", () => {
     const json = {
       elements: [{

@@ -97,6 +97,11 @@ export interface ScopeFrameItemValue {
   kind: "itemValue";
   owner: ElementRecord;
 }
+export interface ScopeFrameArrayItem {
+  kind: "arrayItem";
+  owner: ElementRecord;
+  names: CIMultiMap<ElementRecord>;
+}
 export interface ScopeFrameComposite {
   kind: "composite";
   // unset when the frame comes from walking a component definition itself,
@@ -104,7 +109,7 @@ export interface ScopeFrameComposite {
   owner?: ElementRecord;
   fieldNames: CIMap<boolean>;
 }
-export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite;
+export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite | ScopeFrameArrayItem;
 
 export interface ElementRecord {
   name: string;
@@ -181,6 +186,8 @@ export interface ExpressionSite {
   owner?: ElementRecord;
   scope: Array<ScopeFrame>;
   synthesized?: boolean;
+  // An inArray filter is evaluated per data item, not as its owner's property.
+  inArrayOf?: ExpressionSite;
   ast?: Operand;
   parseError?: { at?: number, message?: string };
   refs?: Array<ParsedRef>;

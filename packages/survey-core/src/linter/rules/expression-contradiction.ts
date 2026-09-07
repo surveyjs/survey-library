@@ -51,6 +51,10 @@ function describeConflicts(conflicts: Array<ConditionConflict>): string {
 }
 
 function getMessage(site: ExpressionSite, fold?: FoldedCondition): string {
+  if (site.inArrayOf) {
+    return "The inArray filter \"" + site.text + "\" in the " + site.prop +
+      " never holds, so no items pass this filter.";
+  }
   // an iif() condition guards a branch of its expression, not an element
   const subject = site.subOf
     ? "The iif() condition \"" + site.text + "\" in the " + site.subOf.prop

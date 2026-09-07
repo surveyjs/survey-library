@@ -66,7 +66,7 @@ export function analyzeNeverVisible(params: {
   const cascade: Array<NeverVisibleCascadeItem> = [];
   const isValueless = buildValuelessCheck(index);
   const visibleIfSites = index.expressionSites.filter(site =>
-    site.kind === "condition" && site.prop === "visibleIf" && !!site.owner && !!site.ast);
+    site.kind === "condition" && site.prop === "visibleIf" && !site.inArrayOf && !!site.owner && !!site.ast);
   const isNeverVisible = (record: ElementRecord): boolean => {
     let current = record;
     while(!!current) {

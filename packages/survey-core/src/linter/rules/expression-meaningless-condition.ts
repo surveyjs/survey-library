@@ -10,13 +10,17 @@ import {
 function getMessage(verdict: ConditionSemanticsVerdict, site: ExpressionSite,
   used?: Array<ConstantSource>): string {
   // an iif() condition decides a branch of its expression, not whether an element shows
-  const subject = site.subOf
-    ? "the iif() condition \"" + site.text + "\" in the " + site.subOf.prop
-    : "the " + site.prop + " \"" + site.text + "\"";
+  const subject = site.inArrayOf
+    ? "the inArray filter \"" + site.text + "\" in the " + site.prop
+    : site.subOf
+      ? "the iif() condition \"" + site.text + "\" in the " + site.subOf.prop
+      : "the " + site.prop + " \"" + site.text + "\"";
   const capitalized = "T" + subject.substring(1);
-  const alwaysTrueTail = site.subOf
-    ? " - only its first branch is ever taken."
-    : ", so it decides nothing - remove it.";
+  const alwaysTrueTail = site.inArrayOf
+    ? " - it excludes no items."
+    : site.subOf
+      ? " - only its first branch is ever taken."
+      : ", so it decides nothing - remove it.";
   if (verdict === "alwaysTrueViaConstants") {
     return capitalized + " always holds: " + describeConstants(used) + alwaysTrueTail;
   }

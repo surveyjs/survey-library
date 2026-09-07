@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { Model } from "survey-core";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
 
 function findingsOf(json: any, ruleId?: string): Array<ILintFinding> {
@@ -61,6 +62,14 @@ describe("one reference asked for two things at once", () => {
 });
 
 describe("what is not a contradiction", () => {
+  ["''", "null", "undefined"].forEach(value => {
+    test("empty and equality to " + value + " can both hold", () => {
+      const condition = "{q1} empty and {q1} = " + value;
+      const json = guardedBy(condition);
+      expect(new Model(json).getQuestionByName("guarded").isVisible).toBe(true);
+      expect(findingsOf(json, "expression/contradiction")).toHaveLength(0);
+    });
+  });
   test("the same requirement twice", () => {
     expect(verdictOf("{q1} = 'a' and {q1} = 'a'")).toBeUndefined();
   });

@@ -295,6 +295,16 @@ describe("linter vs runtime: validators that cannot validate", () => {
       .filter(f => f.ruleId === "validator/dead" && f.reason === "wrongValueShape")
       .map(f => f.messageData.effect);
   }
+  test("numeric checkbox validation still warns when a single selection is coerced", () => {
+    const question = { type: "checkbox", choices: [1, 2, 3] };
+    const validator = { type: "numeric", minValue: 2 };
+    // minValue compares the coerced value, not the selection count or each item.
+    expect(runtimeRejects(question, validator, [1])).toBe(true);
+    expect(runtimeRejects(question, validator, [2])).toBe(false);
+    expect(runtimeRejects(question, validator, [3])).toBe(false);
+    expect(runtimeRejects(question, validator, [2, 3])).toBe(true);
+    expect(lintReports(question, validator)).toHaveLength(1);
+  });
   const CASES: Array<{
     title: string, question: any, validator: any,
     // answers the validator is meant to accept, plus one it is meant to reject

@@ -6,7 +6,7 @@ import { ILintResolvedSettings } from "./lint-settings";
 import { closestMatch } from "./levenshtein";
 import {
   ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
-  ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
+  ScopeFrameArrayItem, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
   SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
@@ -484,6 +484,33 @@ function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyInde
   return true;
 }
 
+// ConditionRunner.runValues reads an inArray item's bare data keys before falling
+// back to the survey context. These are not {row.x}/{panel.x} references.
+function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings: ILintResolvedSettings): boolean {
+  const frame = findFrame<ScopeFrameArrayItem>(scope || [], "arrayItem");
+  if (!frame) return false;
+  for (let end = ref.segments.length; end > 0; end--) {
+    if (!isFoldableRange(ref.segments, 0, end)) continue;
+    const name = ref.segments.slice(0, end).map(segment => segment.name).join(".");
+    const record = frame.names.first(name);
+    if (!record) continue;
+    const last = ref.segments[end - 1];
+    const root: ParsedRefSegment = { name: name, index: last.index };
+    ref.segments = [root].concat(ref.segments.slice(end));
+    scopedResolved(ref, "");
+    ref.resolvedTo = record;
+    validateElementSubPath(ref, record);
+    return true;
+  }
+  const commentBase = stripCommentSuffix(ref.segments[0].name, settings);
+  if (ref.segments.length === 1 && commentBase && frame.names.has(commentBase)) {
+    scopedResolved(ref, "");
+    ref.resolvedKind = "comment";
+    return true;
+  }
+  return false;
+}
+
 // nameOnly: the raw string is a runtime NAME (a trigger target), not an expression
 // reference, so none of the expression-only sugar applies - no ":"/property-prefix
 // skipping, no conversion-char or unwrap-postfix stripping, no trailing ".length",
@@ -522,6 +549,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   // scope is the hint an unknown root is reported with, further down
   let scopeRes: ScopeResolution = NOT_A_SCOPE;
   if (!nameOnly) {
+    if (tryResolveArrayItem(ref, site.scope, index.settings)) return ref;
     scopeRes = tryResolveScopePrefix(ref, site, index.settings);
     if (scopeRes.handled) return scopeRes.ref;
   }

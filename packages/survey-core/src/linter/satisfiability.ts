@@ -136,6 +136,7 @@ function getConflict(a: Constraint, b: Constraint): ConditionConflict | undefine
   }
   // an empty value cannot equal a concrete one; "notempty" next to a value is consistent
   if (a.kind === "empty" && b.kind === "eq") {
+    if (runtimeEquals(null, b.value)) return undefined;
     return { name: name, kind: "emptyAndValue", values: [b.value] };
   }
   if (isLowerBound(a.kind) && isUpperBound(b.kind)) return getBoundsConflict(a, b);

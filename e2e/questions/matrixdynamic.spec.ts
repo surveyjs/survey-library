@@ -813,7 +813,7 @@ frameworks.forEach((framework) => {
       await page.getByRole("button", { name: "Show Details" }).first().click();
       const row1 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(0);
       const row2 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(1);
-      const dragIcon = row1.locator(".sd-table__cell--drag .sd-drag-element__svg");
+      const dragIcon = row1.locator(".sd-drag-element__svg");
 
       await row1.hover();
       await doDragDrop({ page, element: dragIcon, target: row2 });

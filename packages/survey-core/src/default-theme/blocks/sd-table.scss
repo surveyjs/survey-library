@@ -27,10 +27,8 @@
   --sd-question-container-gap-horizontal: var(--sjs2-layout-component-panel-box-gap-horizontal);
 
   //header-content-container
-  --sd-question-header-content-container-padding-block: var(--sjs2-layout-component-panel-box-padding-top)
-    var(--sjs2-layout-component-panel-box-padding-bottom);
-  --sd-question-header-content-container-padding-inline: var(--sjs2-layout-component-panel-box-padding-horizontal)
-    var(--sjs2-layout-component-panel-box-padding-horizontal);
+  --sd-question-header-content-container-padding-block: 0;
+  --sd-question-header-content-container-padding-inline: 0;
   --sd-question-header-content-container-row-gap: var(--sjs2-layout-component-panel-box-gap-vertical);
   --sd-question-header-content-container-column-gap: var(--sjs2-layout-component-panel-box-gap-horizontal);
   //
@@ -71,13 +69,9 @@
     --sd-question-container-gap-vertical: var(--sjs2-layout-component-panel-nested-box-gap-vertical);
 
     //header-content-container
-    --sd-question-header-content-container-padding-block: var(--sjs2-layout-component-panel-nested-box-padding-top)
-      var(--sjs2-layout-component-panel-nested-box-padding-bottom);
-    --sd-question-header-content-container-padding-inline: var(
-        --sjs2-layout-component-panel-nested-box-padding-horizontal
-      )
-      var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
-    --sd-question-header-content-container-row-gap: var(--sjs2-layout-component-panel-nested-box-gap-vertical);
+    --sd-question-header-content-container-padding-block: 0;
+    --sd-question-header-content-container-padding-inline: 0
+      --sd-question-header-content-container-row-gap: var(--sjs2-layout-component-panel-nested-box-gap-vertical);
     //
 
     //header

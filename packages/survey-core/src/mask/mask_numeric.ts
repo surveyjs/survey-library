@@ -318,6 +318,12 @@ export class InputMaskNumeric extends InputMaskBase {
   public getTextAlignment(): "left" | "right" | "auto" {
     return "right";
   }
+  public getInputDirection(): "ltr" | "auto" {
+    return this.getInputDirectionByLiterals();
+  }
+  protected getLiteralText(): string {
+    return (this.decimalSeparator || "") + (this.thousandsSeparator || "");
+  }
   public get isLocaleDependent(): boolean { return true; }
   protected getLocaleChangeInput(text: string): string {
     return text;

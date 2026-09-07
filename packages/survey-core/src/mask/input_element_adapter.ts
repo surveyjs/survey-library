@@ -1,5 +1,5 @@
 import { InputMaskBase } from "./mask_base";
-import { ITextInputParams } from "./mask_utils";
+import { ITextInputParams, normalizeInputDigits } from "./mask_utils";
 
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
@@ -104,13 +104,14 @@ export class InputElementAdapter {
   };
 
   changeHandler = (event: any) => {
-    const result = this.inputMaskInstance.processInput({ prevValue: "", insertedChars: event.target.value, selectionStart: 0, selectionEnd: 0 });
+    // the paste / autofill fallback: the whole element text is re-run through the mask
+    const result = this.inputMaskInstance.processInput({ prevValue: "", insertedChars: normalizeInputDigits(event.target.value), selectionStart: 0, selectionEnd: 0 });
     this.setInputValue(result.value);
   };
 
   public createArgs(event: any): ITextInputParams {
     const args: ITextInputParams = {
-      insertedChars: event.data,
+      insertedChars: normalizeInputDigits(event.data),
       selectionStart: event.target.selectionStart,
       selectionEnd: event.target.selectionEnd,
       prevValue: event.target.value,

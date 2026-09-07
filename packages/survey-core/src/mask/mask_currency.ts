@@ -170,6 +170,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
   public getType(): string {
     return "currencymask";
   }
+  protected getLiteralText(): string {
+    return super.getLiteralText() + (this.prefix || "") + (this.suffix || "");
+  }
 
   protected getLocaleChangeInput(text: string): string {
     // the affixes that produced this text, not the ones the new locale resolves

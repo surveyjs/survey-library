@@ -17958,7 +17958,7 @@ describe("Survey", () => {
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
     expect(survey.backgroundOpacity, "before applyTheme").toBe(1);
     expect(survey["isCompact"], "before applyTheme").toBe(false);
-    expect(survey.headerView, "before applyTheme").toBe("basic");
+    expect(survey.headerView, "before applyTheme").toBe("advanced");
 
     survey.applyTheme({
       "cssVariables": {
@@ -17981,7 +17981,7 @@ describe("Survey", () => {
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
     expect(survey["isCompact"]).toBe(true);
-    expect(survey.headerView, "after applyTheme").toBe("basic");
+    expect(survey.headerView, "after applyTheme").toBe("advanced");
   });
   test("survey.applyTheme with baseTheme", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -18065,7 +18065,7 @@ describe("Survey", () => {
       ]
     });
 
-    expect(survey.headerView, "before applyTheme").toBe("basic");
+    expect(survey.headerView, "before applyTheme").toBe("advanced");
 
     survey.applyTheme({
       "headerView": "advanced"
@@ -18796,7 +18796,7 @@ describe("Survey", () => {
   });
   test("theme assignment affects headerView", () => {
     let survey = new SurveyModel({});
-    expect(survey.headerView, "default value").toBe("basic");
+    expect(survey.headerView, "default value").toBe("advanced");
     survey.applyTheme({ header: {} } as any);
     expect(survey.headerView, "changed to advanced").toBe("advanced");
   });
@@ -20821,8 +20821,8 @@ describe("Survey", () => {
     const basicHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "basic" };
     const advancedHeaderThemeWithoutHeaderView: any = { "cssVariables": {}, "header": {} };
 
-    expect(survey.headerView, "By default headerView is basic").toBe("basic");
-    expect(survey.findLayoutElement("advanced-header") == undefined, "By default header is absent").toBeTruthy();
+    expect(survey.headerView, "By default headerView is advanced").toBe("advanced");
+    expect(survey.findLayoutElement("advanced-header") != undefined, "By default header is present").toBeTruthy();
 
     survey.applyTheme(advancedHeaderTheme);
     expect(survey.headerView, "After apply advanced headerView is advanced").toBe("advanced");

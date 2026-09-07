@@ -48,6 +48,7 @@ describe("Layout element models", () => {
 
     try {
       const survey = new SurveyModel({
+        headerView: "basic",
         showProgressBar: true,
         progressBarLocation: "top",
         progressBarType: "pages",
@@ -97,6 +98,7 @@ describe("Layout element models", () => {
 
     try {
       const survey = new SurveyModel({
+        headerView: "basic",
         showProgressBar: true,
         progressBarLocation: "top",
         questionsOnPageMode: "questionPerPage",
@@ -134,6 +136,7 @@ describe("Layout element models", () => {
 
     try {
       const survey = new SurveyModel({
+        headerView: "basic",
         showProgressBar: true,
         progressBarLocation: "topBottom",
         questionsOnPageMode: "inputPerPage",
@@ -175,6 +178,7 @@ describe("Layout element models", () => {
 
     try {
       const survey = new SurveyModel({
+        headerView: "basic",
         showProgressBar: true,
         progressBarLocation: "top",
         questionsOnPageMode: "singlePage",

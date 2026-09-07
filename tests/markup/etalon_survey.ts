@@ -201,8 +201,7 @@ registerMarkupTests(
               }
             ]
           }
-        ],
-        "headerView": "advanced"
+        ]
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
@@ -225,8 +224,7 @@ registerMarkupTests(
               }
             ]
           }
-        ],
-        "headerView": "advanced"
+        ]
       },
       event: "onAfterRenderSurvey",
       initSurvey: survey => survey.setIsMobile(true),

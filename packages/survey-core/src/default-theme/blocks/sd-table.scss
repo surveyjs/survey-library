@@ -282,16 +282,10 @@
     var(--sjs2-layout-component-matrix-cell-padding-right);
 }
 .sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
-  padding-block: var(--sjs2-layout-component-matrix-cell-left-padding-top)
-    var(--sjs2-layout-component-matrix-cell-left-padding-bottom);
-  padding-inline: var(--sjs2-layout-component-matrix-cell-left-padding-left)
-    var(--sjs2-layout-component-matrix-cell-left-padding-right);
+  padding-inline-start: var(--sjs2-layout-component-matrix-cell-left-padding-left);
 }
 .sd-table__cell:where(:nth-last-child(1 of .sd-table__cell)) {
-  padding-block: var(--sjs2-layout-component-matrix-cell-right-padding-top)
-    var(--sjs2-layout-component-matrix-cell-right-padding-bottom);
-  padding-inline: var(--sjs2-layout-component-matrix-cell-right-padding-left)
-    var(--sjs2-layout-component-matrix-cell-right-padding-right);
+  padding-inline-end: var(--sjs2-layout-component-matrix-cell-right-padding-right);
 }
 .sd-table__cell--error-top {
   vertical-align: bottom;

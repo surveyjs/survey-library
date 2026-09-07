@@ -2142,7 +2142,7 @@ export class SurveyModel extends SurveyElementCore
   // separators of a locale-preset datetime mask) while displayed strings keep following
   // `locale`. Created on first read, like choicesByUrl on a select question, and serialized only
   // when a field is stored.
-  public get (): RegionOptions {
+  public get regionOptions(): RegionOptions {
     return this.getPropertyValue("regionOptions", undefined, () => this.createRegionOptions());
   }
   public set regionOptions(val: RegionOptions) {

@@ -108,6 +108,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     super(name);
     this.initialRowCount = this.getDefaultPropertyValue("rowCount");
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
+    this.addExpressionProperty("rowCountExpression",
+      (obj: Base, res: any) => { this.setRowCountByExpression(res); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -278,6 +280,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see minRowCount
    * @see maxRowCount
+   * @see rowCountExpression
    */
   public get rowCount(): number {
     return this.rowCountValue;
@@ -312,7 +315,37 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.onRowsChanged();
   }
+  /**
+   * An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
+   *
+   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. The global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+   *
+   * While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @since 3.0.4
+   */
+  @property() rowCountExpression: string;
+  private get hasRowCountExpression(): boolean {
+    return !!this.rowCountExpression;
+  }
+  private setRowCountByExpression(val: any): void {
+    const maxCount = Math.min(this.maxRowCount, settings.matrix.maxRowCount);
+    this.rowCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minRowCount, maxCount);
+  }
+  /* The result is clamped by minRowCount/maxRowCount, so changing a limit has to recalculate
+     it: the raw expression result is not stored anywhere */
+  private rerunRowCountExpression(): void {
+    if (this.isLoadingFromJson || !this.canRunConditions()) return;
+    this.runExpressionByProperty("rowCountExpression", this.getDataFilteredProperties(),
+      (val: any): void => { this.setRowCountByExpression(val); });
+  }
+  protected updateBindings(propertyName: string, value: any): void {
+    if (propertyName === "rowCount" && this.hasRowCountExpression) return;
+    super.updateBindings(propertyName, value);
+  }
   protected updateBindingProp(propName: string, value: any): void {
+    if (propName === "rowCount" && this.hasRowCountExpression) return;
     super.updateBindingProp(propName, value);
     const rows = this.generatedVisibleRows;
     if (propName !== "rowCount" || !Array.isArray(rows)) return;
@@ -398,6 +431,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (val > this.maxRowCount)this.maxRowCount = val;
     if (this.initialRowCount < val)this.initialRowCount = val;
     if (this.rowCount < val)this.rowCount = val;
+    this.rerunRowCountExpression();
   }
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
@@ -415,6 +449,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.maxRowCount;
     if (val < this.minRowCount)this.minRowCount = val;
     if (this.rowCount > val)this.rowCount = val;
+    this.rerunRowCountExpression();
   }
   /**
    * Specifies whether users are allowed to add new rows.
@@ -448,7 +483,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   public get canAddRow(): boolean {
     return (
-      this.allowAddRows && !this.isReadOnly && this.rowCount < this.maxRowCount
+      this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
+      this.rowCount < this.maxRowCount
     );
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
@@ -470,6 +506,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var res =
       this.allowRemoveRows &&
       !this.isReadOnly &&
+      !this.hasRowCountExpression &&
       this.rowCount > this.minRowCount;
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
@@ -1151,6 +1188,7 @@ Serializer.addClass(
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
     { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },
+    "rowCountExpression:expression",
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",

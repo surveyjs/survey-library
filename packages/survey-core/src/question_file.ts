@@ -202,6 +202,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * - `"environment"` &ndash; Prefer the rear-facing camera
    *
    * The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+   * @since 3.0.4
    */
   @property({ defaultValue: "user" }) cameraFacingMode: string;
   /**

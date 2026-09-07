@@ -9114,4 +9114,331 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question.panels[1].title, "The added panel title is taken from templateTitle").toBe("My Title");
     expect(question.panels[1].description, "The added panel description is taken from templateDescription").toBe("My Description");
   });
+  test("panelCountExpression calculates panelCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{services.length}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.panelCount, "No selected choices - no panels").toBe(0);
+    survey.setValue("services", ["A", "B"]);
+    expect(question.panelCount, "Two selected choices - two panels").toBe(2);
+    expect(question.panels.length, "Two panels are created").toBe(2);
+    question.panels[0].getQuestionByName("note").value = "note1";
+    question.panels[1].getQuestionByName("note").value = "note2";
+    survey.setValue("services", ["A"]);
+    expect(question.panelCount, "One selected choice - one panel").toBe(1);
+    expect(survey.getValue("details"), "The removed panel data is discarded").toEqual([{ note: "note1" }]);
+  });
+  test("panelCountExpression is calculated on loading data, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{services.length}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    survey.data = { services: ["A", "B", "C"] };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.panelCount, "panelCount is calculated on setting the survey data").toBe(3);
+    expect(question.panels.length, "Three panels are created").toBe(3);
+  });
+  test("panelCountExpression is limited by minPanelCount and maxPanelCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}", minPanelCount: 2, maxPanelCount: 4,
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.panelCount, "The empty result is increased to minPanelCount").toBe(2);
+    survey.setValue("n", 10);
+    expect(question.panelCount, "The result is decreased to maxPanelCount").toBe(4);
+    survey.setValue("n", 1);
+    expect(question.panelCount, "The result is increased to minPanelCount").toBe(2);
+    survey.setValue("n", 3);
+    expect(question.panelCount, "The result is within the limits").toBe(3);
+  });
+  test("panelCountExpression with an invalid result, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", "abc");
+    expect(question.panelCount, "A non-numeric result is treated as 0").toBe(0);
+    survey.setValue("n", -5);
+    expect(question.panelCount, "A negative result is treated as 0").toBe(0);
+    survey.setValue("n", 2.7);
+    expect(question.panelCount, "A fractional result is rounded down").toBe(2);
+  });
+  test("panelCountExpression disables adding and removing panels, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    expect(question.canAddPanel, "canAddPanel is disabled by the expression").toBe(false);
+    expect(question.canRemovePanel, "canRemovePanel is disabled by the expression").toBe(false);
+    expect(question.footerToolbar.getActionById("sv-pd-add-btn").visible, "The add panel button is invisible").toBe(false);
+    question.panelCountExpression = "";
+    expect(question.canAddPanel, "canAddPanel is restored").toBe(true);
+    expect(question.canRemovePanel, "canRemovePanel is restored").toBe(true);
+    expect(question.footerToolbar.getActionById("sv-pd-add-btn").visible, "The add panel button is visible again").toBe(true);
+  });
+  test("panelCountExpression owns the panel count, addPanel does not change it, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    let addedCounter = 0;
+    survey.onDynamicPanelAdded.add(() => { addedCounter++; });
+    survey.setValue("n", 2);
+    addedCounter = 0;
+    question.addPanel();
+    expect(question.panelCount, "The expression restores the count right away").toBe(2);
+    expect(question.panels.length, "The panels array is in sync with panelCount").toBe(2);
+    expect(addedCounter, "No panel added notification is raised for a panel that was dropped").toBe(0);
+    question.removePanel(0);
+    expect(question.panelCount, "The expression restores the removed panel").toBe(2);
+    expect(question.panels.length, "The panels array is in sync with panelCount").toBe(2);
+    survey.setValue("n", 4);
+    expect(question.panelCount, "The count follows the expression").toBe(4);
+  });
+  test("panelCountExpression has priority over the panelCount binding, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}",
+          bindings: { panelCount: "cnt" },
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(question.panelCount, "The expression sets the count").toBe(3);
+    expect(survey.getValue("cnt"), "The count is not written into the bound value").toBeFalsy();
+    survey.setValue("cnt", 7);
+    expect(question.panelCount, "The binding does not override the expression").toBe(3);
+    question.panelCountExpression = "";
+    survey.setValue("cnt", 5);
+    expect(question.panelCount, "The binding works again after clearing the expression").toBe(5);
+    question.panelCount = 6;
+    expect(survey.getValue("cnt"), "The count is written back into the bound value again").toBe(6);
+  });
+  test("panelCount binding works without panelCountExpression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        {
+          type: "paneldynamic", name: "details",
+          bindings: { panelCount: "cnt" },
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("cnt", 3);
+    expect(question.panelCount, "The binding sets the count").toBe(3);
+    question.addPanel();
+    expect(question.panelCount, "The panel is added").toBe(4);
+    expect(survey.getValue("cnt"), "The count is written back into the bound value").toBe(4);
+  });
+  test("panelCountExpression uses an arithmetic expression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{a} * {b}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("a", 2);
+    survey.setValue("b", 3);
+    expect(question.panelCount, "The arithmetic result is used").toBe(6);
+  });
+  test("panelCountExpression with an async function, Issue#11793", () => {
+    let returnResult: (res: any) => void;
+    function asyncPanelCount(params: any[]): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncPanelCount", asyncPanelCount, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "asyncPanelCount({n})",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    returnResult(0);
+    expect(question.panelCount, "The initial async run is completed").toBe(0);
+    survey.setValue("n", 3);
+    expect(question.panelCount, "The count is not set until the async run completes").toBe(0);
+    returnResult(3);
+    expect(question.panelCount, "The count is set when the async run completes").toBe(3);
+    FunctionFactory.Instance.unregister("asyncPanelCount");
+  });
+  test("panelCountExpression that references the question itself settles, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{details.length} + {n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    expect(question.panelCount >= 0, "The expression settles without an endless loop").toBe(true);
+    expect(question.panels.length, "The panels array is in sync with panelCount").toBe(question.panelCount);
+  });
+  test("panelCountExpression is not calculated in the design mode, Issue#11793", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCount: 3, panelCountExpression: "{n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.panelCount, "The authored panelCount is used in the design mode").toBe(3);
+  });
+  test("panelCountExpression is calculated on assigning it at runtime, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "paneldynamic", name: "details", templateElements: [{ type: "text", name: "note" }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(question.panelCount, "There are no panels before the expression is set").toBe(0);
+    question.panelCountExpression = "{n}";
+    expect(question.panelCount, "The expression is calculated right after it is assigned").toBe(3);
+  });
+  test("panelCountExpression is recalculated on changing minPanelCount and maxPanelCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}", maxPanelCount: 4,
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 10);
+    expect(question.panelCount, "The result is limited by maxPanelCount").toBe(4);
+    question.maxPanelCount = 8;
+    expect(question.panelCount, "Increasing maxPanelCount recalculates the count").toBe(8);
+    question.maxPanelCount = 20;
+    expect(question.panelCount, "The count does not exceed the expression result").toBe(10);
+    question.minPanelCount = 15;
+    expect(question.panelCount, "Increasing minPanelCount recalculates the count").toBe(15);
+    question.minPanelCount = 0;
+    expect(question.panelCount, "Decreasing minPanelCount recalculates the count").toBe(10);
+  });
+  test("panelCountExpression is not calculated in the design mode on changing the limits, Issue#11793", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCount: 3, panelCountExpression: "{n}", maxPanelCount: 4,
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    question.maxPanelCount = 8;
+    expect(question.panelCount, "The authored panelCount survives in the design mode").toBe(3);
+    question.panelCountExpression = "{n} + 1";
+    expect(question.panelCount, "Assigning the expression does not calculate it in the design mode").toBe(3);
+  });
+  test("panelCountExpression is calculated in the display mode, Issue#11793", () => {
+    const survey = new SurveyModel({
+      mode: "display",
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C"] },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{services.length}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    survey.data = { services: ["A", "B"] };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.panelCount, "The count follows the data in the display mode").toBe(2);
+  });
+  test("panelCountExpression is serialized, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "paneldynamic", name: "details",
+          panelCountExpression: "{n}",
+          templateElements: [{ type: "text", name: "note" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
+    expect(question.toJSON().panelCountExpression, "The expression is serialized").toBe("{n}");
+  });
 });

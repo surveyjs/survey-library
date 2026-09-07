@@ -336,7 +336,7 @@ export { RegionOptions, regionOptionsCategory } from "../../src/region-options";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
 export { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";
-export { InputMaskCurrency, isValidCurrencyPattern } from "../../src/mask/mask_currency";
+export { InputMaskCurrency, isValidCurrencyPattern, isValidCurrencySymbol } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";

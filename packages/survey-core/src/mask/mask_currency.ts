@@ -1,10 +1,9 @@
 import { Serializer } from "../jsonobject";
-import { property } from "../decorators";
 import { InputMaskNumeric } from "./mask_numeric";
 import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
 // The currency pattern grammar, a small subset of the CLDR notation: the symbol token is
-// replaced with the author's currencySymbol, the number token with the formatted number, and an
+// replaced with the resolved currencySymbol, the number token with the formatted number, and an
 // optional subpattern separator splits a positive form from a negative one. Everything else in
 // a pattern is literal text.
 const symbolToken = "\u00A4";
@@ -39,6 +38,14 @@ interface ICurrencyAffixes {
 
 function countToken(str: string, token: string): number {
   return str.split(token).length - 1;
+}
+
+// A curated or overridden symbol goes into an input value as literal text, so it may not carry a
+// control character or a digit the number parser would pick up. An author's own currencySymbol is
+// not validated: it is theirs to write, digits included.
+export function isValidCurrencySymbol(value: string): boolean {
+  if (!value || hasControlCharacter(value)) return false;
+  return !numberDefinition.test(value);
 }
 
 export function isValidCurrencyPattern(value: string): boolean {
@@ -110,11 +117,17 @@ export class InputMaskCurrency extends InputMaskNumeric {
   public set suffix(val: string) {
     this.setExplicitPropertyValue("suffix", val);
   }
-  // The currency symbol the survey's format locale places around the number. It is the author's
-  // to choose - the same currency is written differently in different locales - while the locale
-  // decides where it goes and where the minus sign goes with it. Ignored when the mask has an
-  // authored prefix or suffix.
-  @property() currencySymbol: string;
+  // The currency symbol the survey's format locale places around the number. It defaults to the
+  // symbol of that locale's own currency and is the author's to override - a survey in german may
+  // well ask for dollars - while the locale decides where the symbol goes and where the minus sign
+  // goes with it. An explicit "" renders no symbol. Ignored when the mask has an authored prefix
+  // or suffix.
+  public get currencySymbol(): string {
+    return this.getPropertyValue("currencySymbol");
+  }
+  public set currencySymbol(val: string) {
+    this.setExplicitPropertyValue("currencySymbol", val);
+  }
 
   // An assigned affix - an empty string included - switches both sides to the authored values,
   // so a mask never renders one authored and one locale placed affix.
@@ -127,8 +140,8 @@ export class InputMaskCurrency extends InputMaskNumeric {
     }
     const symbol = this.currencySymbol;
     const pattern = !!symbol ? this.getFormatValue("currencyPattern", isValidCurrencyPattern) : undefined;
-    // with nothing to place there is no affix, which is what a currency mask rendered before the
-    // locale placed the symbol
+    // an explicitly empty symbol, or a locale that curates neither a symbol nor a pattern, leaves
+    // the number bare
     if (!pattern) return { prefix: "", suffix: "", signInAffix: false };
     const subpatterns = pattern.split(subpatternToken);
     let subpattern = subpatterns[0];
@@ -292,7 +305,13 @@ Serializer.addClass(
     // while an omitted key lets the format locale place the currency symbol
     { name: "prefix", onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("prefix") },
     { name: "suffix", onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("suffix") },
-    { name: "currencySymbol" },
+    // the format locale's own symbol is the default, so an unset property is not written while an
+    // explicit "" - "render no symbol" - is
+    {
+      name: "currencySymbol",
+      defaultFunc: (obj: InputMaskCurrency) => !!obj ? obj.getFormatValue("currencySymbol", isValidCurrencySymbol) || "" : "",
+      onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("currencySymbol")
+    },
   ],
   () => {
     return new InputMaskCurrency();

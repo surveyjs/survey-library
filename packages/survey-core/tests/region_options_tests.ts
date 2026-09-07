@@ -543,7 +543,7 @@ describe("RegionOptions: metadata for the Creator", () => {
   test("The serializer reports the type, category and length limits the property grid relies on", () => {
     const maxLengths: { [name: string]: number } = { decimalSeparator: 1, thousandsSeparator: 1 };
     const props = Serializer.getProperties("regionoptions");
-    expect(props.map(p => p.name), "the six properties in order").toEqual(["locale", "datePattern", "timePattern", "decimalSeparator", "thousandsSeparator", "currencyPattern"]);
+    expect(props.map(p => p.name), "the seven properties in order").toEqual(["locale", "datePattern", "timePattern", "decimalSeparator", "thousandsSeparator", "currencyPattern", "currencySymbol"]);
     props.forEach(prop => {
       expect(prop.type, prop.name + " type").toBe("string");
       expect(prop.category, prop.name + " category").toBe(regionOptionsCategory);

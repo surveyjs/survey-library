@@ -10,8 +10,7 @@ export const regionOptionsCategory = "regionOptions";
 // Survey-wide format overrides. A field set here outranks the curated locale-data entry of the
 // survey's format locale and is outranked by a value authored on a mask, so the property names
 // are exactly the ILocaleData field names: the resolution seam (InputMaskBase.getFormatValue)
-// looks an override and a curated default up with the same key. The currency symbol is not
-// locale data and stays per mask.
+// looks an override and a curated default up with the same key.
 export class RegionOptions extends Base implements ILocaleData {
   public owner: ISurvey;
 
@@ -20,6 +19,7 @@ export class RegionOptions extends Base implements ILocaleData {
   @property() decimalSeparator: string;
   @property() thousandsSeparator: string;
   @property() currencyPattern: string;
+  @property() currencySymbol: string;
 
   // The format locale as a BCP-47 tag ("de", "en-GB"), not a region code. Unlike the format
   // fields, "" carries no meaning of its own here - both "" and unset mean "follow the survey
@@ -114,6 +114,7 @@ Serializer.addClass(
     { name: "decimalSeparator:string", category: regionOptionsCategory, maxLength: 1, onSerializeValue: serializeStoredValue("decimalSeparator") },
     { name: "thousandsSeparator:string", category: regionOptionsCategory, maxLength: 1, onSerializeValue: serializeStoredValue("thousandsSeparator") },
     { name: "currencyPattern:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("currencyPattern") },
+    { name: "currencySymbol:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("currencySymbol") },
   ],
   function () {
     return new RegionOptions();

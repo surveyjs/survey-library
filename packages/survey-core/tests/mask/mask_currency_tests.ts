@@ -593,6 +593,8 @@ const nbsp = "\u00A0";
 const symbolToken = "\u00A4";
 const rlm = "\u200F";
 const riyal = "\u0631.\u0633";
+const dollar = "$";
+const pound = "\u00A3";
 
 const createCurrencySurvey = (maskSettings?: any, locale?: string): SurveyModel => {
   return new SurveyModel({ locale: locale, elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: maskSettings }] });
@@ -746,15 +748,52 @@ describe("Currency mask: the locale placed symbol", () => {
     expect(mask.getUnmaskedValue(negative), "negative round trip").toBe(-1234.56);
   });
 
-  test("No symbol renders no affix", () => {
+  test("An unset symbol renders the one the format locale writes", () => {
     const survey = createCurrencySurvey();
     const mask = getCurrencyMask(survey);
-    expect(mask.activePrefix, "no prefix").toBe("");
-    expect(mask.activeSuffix, "no suffix").toBe("");
-    expect(mask.getMaskedValue(1234.56), "english").toBe("1,234.56");
-    expect(mask.getMaskedValue(-1234.56), "english negative").toBe("-1,234.56");
+    expect([mask.activePrefix, mask.activeSuffix], "the english dollar goes first").toEqual([dollar, ""]);
+    expect(mask.getMaskedValue(1234.56), "english").toBe(dollar + "1,234.56");
+    expect(mask.getMaskedValue(-1234.56), "english negative").toBe("-" + dollar + "1,234.56");
+    expect(mask.getUnmaskedValue(dollar + "1,234.56"), "round trip").toBe(1234.56);
     survey.locale = "de";
-    expect(mask.getMaskedValue(1234.56), "german").toBe("1.234,56");
+    expect([mask.activePrefix, mask.activeSuffix], "the german euro goes last").toEqual(["", nbsp + euro]);
+    expect(mask.getMaskedValue(1234.56), "german").toBe("1.234,56" + nbsp + euro);
+    survey.locale = "en-gb";
+    expect(mask.getMaskedValue(1234.56), "a regional locale writes its own currency").toBe(pound + "1,234.56");
+    survey.locale = "";
+  });
+
+  test("An authored symbol beats the one the locale writes", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(1234.56), "the authored symbol").toBe(euro + "1,234.56");
+    mask.resetPropertyValue("currencySymbol");
+    expect(mask.getMaskedValue(1234.56), "clearing it restores the locale's").toBe(dollar + "1,234.56");
+  });
+
+  test("A symbol in survey.regionOptions beats the locale table and is beaten by the mask", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    survey.regionOptions.currencySymbol = pound;
+    expect(mask.getMaskedValue(1234.56), "the survey wide override").toBe(pound + "1,234.56");
+    mask.currencySymbol = euro;
+    expect(mask.getMaskedValue(1234.56), "the mask still wins").toBe(euro + "1,234.56");
+    mask.resetPropertyValue("currencySymbol");
+    survey.regionOptions.currencySymbol = "12";
+    expect(mask.getMaskedValue(1234.56), "an invalid override falls through to the table").toBe(dollar + "1,234.56");
+  });
+
+  test("The locale's symbol is a default: an unset property is not serialized, an assigned one is", () => {
+    const survey = createCurrencySurvey({}, "de");
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencySymbol, "the german default is readable").toBe(euro);
+    expect(mask.getData(), "nothing to write").toEqual({});
+    mask.currencySymbol = euro;
+    expect(mask.getData(), "an assignment is written even when it repeats the default").toEqual({ currencySymbol: euro });
+    mask.currencySymbol = "";
+    expect(mask.getData(), "and so is an empty symbol").toEqual({ currencySymbol: "" });
+    const survey2 = new SurveyModel(survey.toJSON());
+    expect(getCurrencyMask(survey2).getMaskedValue(1234.56), "the suppressed symbol survives a reload").toBe("1.234,56");
     survey.locale = "";
   });
 
@@ -1011,7 +1050,9 @@ describe("Currency mask: the locale placed symbol", () => {
 
   test.each([
     { title: "an authored prefix", settings: { prefix: "$ " }, before: "$ 1.234,5", after: "$ 1,234.5" },
-    { title: "a locale placed symbol", settings: { currencySymbol: "\u20AC" }, before: "1.234,5\u00A0\u20AC", after: "\u20AC1,234.5" }
+    { title: "a locale placed symbol", settings: { currencySymbol: "\u20AC" }, before: "1.234,5\u00A0\u20AC", after: "\u20AC1,234.5" },
+    // the symbol itself changes with the locale here, not only its position
+    { title: "the locale's own symbol", settings: {}, before: "1.234,5\u00A0\u20AC", after: "$1,234.5" }
   ])("A half typed entry survives a locale change with $title", ({ settings, before, after }) => {
     const survey = createCurrencySurvey(settings, "de");
     const q = <QuestionTextModel>survey.getQuestionByName("q1");

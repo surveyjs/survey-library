@@ -1,6 +1,6 @@
 import { InputMaskDateTime } from "../../src/mask/mask_datetime";
 import { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
-import { InputMaskCurrency, isValidCurrencyPattern } from "../../src/mask/mask_currency";
+import { InputMaskCurrency, isValidCurrencyPattern, isValidCurrencySymbol } from "../../src/mask/mask_currency";
 import { localeData, getLocaleDataValue } from "../../src/locale-data";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
@@ -378,6 +378,27 @@ describe("Currency mask: locale rollout", () => {
       });
     });
     survey.regionOptions.locale = "";
+  });
+
+  test("Every curated currency symbol is valid and round trips under its own locale", () => {
+    // no maskSettings: the symbol under test is the curated one, placed by the curated pattern
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "currency" }] });
+    const mask = <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    let checkedCount = 0;
+    Object.keys(localeData).forEach(locale => {
+      const symbol = localeData[locale].currencySymbol;
+      expect(isValidCurrencySymbol(symbol), locale + ".currencySymbol = " + JSON.stringify(symbol)).toBe(true);
+      survey.regionOptions.locale = locale;
+      expect(mask.currencySymbol, "locale " + JSON.stringify(locale) + " resolves its own symbol").toBe(symbol);
+      [1234.56, -1234.56].forEach(value => {
+        const masked = mask.getMaskedValue(value);
+        expect(masked.indexOf(symbol) >= 0, "locale " + JSON.stringify(locale) + " renders " + JSON.stringify(masked)).toBe(true);
+        expect(mask.getUnmaskedValue(masked), "locale " + JSON.stringify(locale) + " round trip of " + JSON.stringify(masked)).toBe(value);
+      });
+      checkedCount++;
+    });
+    survey.regionOptions.locale = "";
+    expect(checkedCount, "every locale entry curates a currency symbol").toBe(Object.keys(localeData).length);
   });
 
   test("Every curated currency pattern is valid and places a symbol", () => {

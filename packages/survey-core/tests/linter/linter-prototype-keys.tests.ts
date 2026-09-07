@@ -41,6 +41,19 @@ describe("linter prototype-key safety", () => {
     expect(res.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
     expect(res.findings.filter(f => f.ruleId === "name/duplicate")).toHaveLength(0);
   });
+  test("question named 'constructor' is type-checked like any other", () => {
+    // the per-site ref lookup must be a Map: with an object literal, the inherited
+    // Object.prototype.constructor hides the ref and the rule silently skips it
+    const res = lintSurvey({
+      elements: [
+        { type: "text", name: "constructor", inputType: "number" },
+        { type: "text", name: "q2", visibleIf: "{constructor} = 'abc'" },
+      ],
+    });
+    const findings = res.findings.filter(f => f.ruleId === "expression/type-mismatch");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("number-vs-string");
+  });
   test("question named '__proto__' lints without crashing", () => {
     const res = lintSurvey({
       elements: [

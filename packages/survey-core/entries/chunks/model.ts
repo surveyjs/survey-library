@@ -155,7 +155,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";

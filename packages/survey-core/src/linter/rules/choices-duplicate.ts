@@ -1,24 +1,11 @@
 import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
 import { isDescendantOf, isMatrixDropdown } from "../metadata";
-import { getItemValueRaw, getSpecialChoiceDefs } from "../value-types";
+import { getItemValueRaw, getSpecialChoiceDefs, getSpecialItemText, getSpecialItemToggleProp } from "../value-types";
 import { runtimeEquals } from "../value-domain";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["choices/duplicate"];
-
-// The properties naming the built-in item, in the order the runtime reads them: the
-// finding names the key the author actually wrote.
-const TOGGLE_PROPS: { [item: string]: Array<string> } = {
-  other: ["showOtherItem", "hasOther"],
-  none: ["showNoneItem", "hasNone"],
-  refuse: ["showRefuseItem"],
-  dontknow: ["showDontKnowItem"],
-};
-
-const ITEM_LABELS: { [item: string]: string } = {
-  other: "Other", none: "None", refuse: "Refuse to answer", dontknow: "Don't know",
-};
 
 // The itemvalue arrays of this element. A matrix column is here as its own record, so its
 // own choices are checked once and the shared choices of the matrix once - a column
@@ -42,12 +29,6 @@ function getItemArrayProps(record: ElementRecord): Array<string> {
     res.push("rows");
   }
   return res;
-}
-
-function getToggleProp(json: any, item: string): string {
-  const props = TOGGLE_PROPS[item];
-  const written = props.filter(prop => json[prop] === true);
-  return written.length > 0 ? written[0] : props[0];
 }
 
 function reportDuplicates(ctx: LintContext, record: ElementRecord, prop: string, items: Array<any>): void {
@@ -86,10 +67,10 @@ function reportSpecialCollisions(ctx: LintContext, record: ElementRecord, items:
     if (value === undefined || value === null) return;
     defs.forEach(def => {
       if (!runtimeEquals(def.value, value)) return;
-      const toggleProp = getToggleProp(record.json, def.item);
+      const toggleProp = getSpecialItemToggleProp(record.json, def.item);
       ctx.report({
         message: "The choices of \"" + record.name + "\" contain \"" + value + "\" while " +
-          toggleProp + " is on - it collides with the built-in " + ITEM_LABELS[def.item] + " item.",
+          toggleProp + " is on - it collides with the built-in \"" + getSpecialItemText(def.item) + "\" item.",
         path: record.path + ".choices[" + index + "]",
         reason: reasons.specialItemCollision,
         messageData: {

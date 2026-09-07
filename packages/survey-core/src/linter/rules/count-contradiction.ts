@@ -7,13 +7,6 @@ import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["element/count-contradiction"];
 
-interface CountProps { count: string, min: string, max: string }
-
-const COUNT_PROPS: { [type: string]: CountProps } = {
-  matrixdynamic: { count: "rowCount", min: "minRowCount", max: "maxRowCount" },
-  paneldynamic: { count: "panelCount", min: "minPanelCount", max: "maxPanelCount" },
-};
-
 // A bound pair the runtime reconciles behind the author's back: whichever of the two is set
 // last wins, so the JSON says one thing and the survey does another.
 interface BoundPair {
@@ -237,10 +230,13 @@ function normMin(value: number): number { return value < 0 ? 0 : value; }
 function normMax(value: number): number { return value <= 0 ? 1 : value; }
 
 // Only numbers the author actually wrote conflict: the model defaults are reconciled by the
-// setters silently and never contradict anything on their own.
+// setters silently and never contradict anything on their own. The triple (rowCount with
+// minRowCount/maxRowCount, panelCount with minPanelCount/maxPanelCount) comes from the
+// serializer, so a type inheriting it is covered too.
 function checkRecord(ctx: LintContext, record: ElementRecord): void {
-  const props = COUNT_PROPS[getEffectiveType(record)];
-  if (!props || record.kind !== "question") return;
+  if (record.kind !== "question") return;
+  const props = ctx.metadata.getCountBoundProps(getEffectiveType(record));
+  if (!props) return;
   const min = authored(record.json, props.min);
   const max = authored(record.json, props.max);
   const count = authored(record.json, props.count);

@@ -132,6 +132,54 @@ export function isPanel(type: string): boolean {
   return isDescendantOf(type, "panel");
 }
 
+// The JSON keys the deserializer accepts for a property: its registered name and, when it
+// has one, its alternativeName (showOtherItem/hasOther). Falls back to the name as asked
+// for when the property is not registered, so a caller never loses the key it knows.
+export function getPropertyKeys(className: string, propName: string): Array<string> {
+  const prop = findProperty(className, propName);
+  if (!prop) return [propName];
+  const res = [prop.name];
+  if (!!prop.alternativeName) res.push(prop.alternativeName);
+  return res;
+}
+
+// The key the author wrote to switch a boolean property on, under any of the keys the
+// deserializer accepts, or undefined when none of them is on.
+export function getPropertyOnKey(json: any, className: string, propName: string): string | undefined {
+  if (!json) return undefined;
+  return getPropertyKeys(className, propName).filter(key => json[key] === true)[0];
+}
+
+export function isPropertyOn(json: any, className: string, propName: string): boolean {
+  return getPropertyOnKey(json, className, propName) !== undefined;
+}
+
+// A count the author bounds from both sides: rowCount/minRowCount/maxRowCount,
+// panelCount/minPanelCount/maxPanelCount.
+export interface CountBoundProps { count: string, min: string, max: string }
+
+const COUNT_SUFFIX = "Count";
+
+// The triple is not declared as such in the metadata; it is read off the naming the core
+// follows for it: a number property "<x>Count" whose class also registers the number
+// properties "min<X>Count" and "max<X>Count".
+function findCountBoundProps(props: Array<JsonObjectProperty>): CountBoundProps | undefined {
+  const numbers = new Set<string>();
+  props.forEach(prop => {
+    if (prop.type === "number") numbers.add(prop.name);
+  });
+  let res: CountBoundProps | undefined;
+  numbers.forEach(name => {
+    if (!!res || name.length <= COUNT_SUFFIX.length) return;
+    if (name.substring(name.length - COUNT_SUFFIX.length) !== COUNT_SUFFIX) return;
+    const stem = name.charAt(0).toUpperCase() + name.substring(1);
+    const min = "min" + stem;
+    const max = "max" + stem;
+    if (numbers.has(min) && numbers.has(max)) res = { count: name, min: min, max: max };
+  });
+  return res;
+}
+
 // Per-run view of the serializer registry. The registry is mutable at runtime
 // (Serializer.addClass/addProperty, ComponentCollection.add), so the caches live for
 // one lintSurvey call rather than for the module lifetime.
@@ -151,6 +199,7 @@ export class LintMetadata {
   private classNameParts = new Map<string, string>();
   private elementsKeys: Array<string>;
   private templateElementsKeys: Array<string>;
+  private countBoundProps = new Map<string, CountBoundProps | undefined>();
 
   // "Append the suffix unless the type already carries it" is how the deserializer
   // resolves the class of a nested object (JsonMetadata.getClassNameForNewObj), and the
@@ -210,6 +259,15 @@ export class LintMetadata {
 
   public isComponentType(type: string): boolean {
     return isComponentType(type);
+  }
+
+  // Undefined for a type without a bounded count - most of them.
+  public getCountBoundProps(type: string): CountBoundProps | undefined {
+    const key = (type || "").toLowerCase();
+    if (!this.countBoundProps.has(key)) {
+      this.countBoundProps.set(key, findCountBoundProps(Serializer.getProperties(key)));
+    }
+    return this.countBoundProps.get(key);
   }
 
   // createMaskSettings (question_text.ts): the class is maskType + "mask", and an unregistered

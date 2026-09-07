@@ -259,7 +259,7 @@ function getScopeValueRecord(owner: ElementRecord, name: string, type: string,
     if (!!choices) {
       record.choicesInfo = {
         staticValues: choices.slice(), hasChoicesByUrl: false, lazy: false,
-        showOtherItem: false, showNoneItem: false, showRefuseItem: false, showDontKnowItem: false,
+        shownSpecialItems: [],
       };
     }
     owner.scopeValueRecords.set(name, record);

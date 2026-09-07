@@ -1,7 +1,8 @@
 import { ILintRule, LintContext } from "../rule";
 import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix } from "../expression-utils";
 import { ElementRecord, getEffectiveType, TriggerRecord } from "../symbols";
-import { isMatrixDropdown } from "../metadata";
+import { isMatrixDropdown, isPropertyOn } from "../metadata";
+import { hasOtherItem } from "../value-types";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -68,9 +69,9 @@ function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
 function writesComment(record: ElementRecord): boolean {
   const json = record.json;
   if (!json) return false;
-  if (json.showCommentArea === true || json.hasComment === true) return true;
+  if (isPropertyOn(json, "question", "showCommentArea")) return true;
   if (json.storeOthersAsComment === false) return false;
-  return json.showOtherItem === true || json.hasOther === true;
+  return hasOtherItem(json);
 }
 
 function hasTotals(record: ElementRecord): boolean {

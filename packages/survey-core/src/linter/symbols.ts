@@ -70,10 +70,9 @@ export interface ChoicesInfo {
   carryForwardFrom?: string;
   carryForwardValuesFrom?: string;
   carryForwardTextsFrom?: string;
-  showOtherItem: boolean;
-  showNoneItem: boolean;
-  showRefuseItem: boolean;
-  showDontKnowItem: boolean;
+  // the built-in items the question shows besides its listed choices ("other", "none",
+  // "refuse", "dontknow"; see SPECIAL_ITEMS in value-types.ts)
+  shownSpecialItems: Array<string>;
 }
 
 export type ValueShape = "scalar" | "array" | "object" | "none" | "unknown";

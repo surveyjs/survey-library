@@ -1,6 +1,53 @@
-import { isSelectBase } from "./metadata";
+import { getLocaleString } from "survey-core";
+import { getPropertyOnKey, isPropertyOn, isSelectBase } from "./metadata";
 import { ChoicesInfo, getEffectiveType, ValueTypeInfo, ScalarType } from "./symbols";
 import { ILintResolvedSettings } from "./lint-settings";
+
+// The class registering the built-in item toggles and their legacy aliases (hasOther, hasNone).
+const SELECT_BASE_CLASS = "selectbase";
+
+// The built-in items a select question adds to its listed choices (question_baseselect.ts).
+// Each one is known here by the property that switches it on, the locale string holding its
+// default caption, and where its value comes from: the None/Refuse/Don't know values are
+// settings the application may change, the Other value is a constant of the core.
+interface SpecialItemDef {
+  item: string;
+  toggleProp: string;
+  textKey: string;
+  getValue(lintSettings: ILintResolvedSettings): any;
+}
+
+const SPECIAL_ITEMS: Array<SpecialItemDef> = [
+  { item: "other", toggleProp: "showOtherItem", textKey: "otherItemText", getValue: () => "other" },
+  { item: "none", toggleProp: "showNoneItem", textKey: "noneItemText", getValue: s => s.noneItemValue },
+  { item: "refuse", toggleProp: "showRefuseItem", textKey: "refuseItemText", getValue: s => s.refuseItemValue },
+  { item: "dontknow", toggleProp: "showDontKnowItem", textKey: "dontKnowItemText", getValue: s => s.dontKnowItemValue },
+];
+
+function findSpecialItem(item: string): SpecialItemDef {
+  return SPECIAL_ITEMS.filter(def => def.item === item)[0];
+}
+
+function isSpecialItemOn(json: any, item: string): boolean {
+  return isPropertyOn(json, SELECT_BASE_CLASS, findSpecialItem(item).toggleProp);
+}
+
+// The key the author wrote to show the item (showOtherItem or its alias hasOther), so a
+// finding names what is in the JSON; the registered name when the item is not on at all.
+export function getSpecialItemToggleProp(json: any, item: string): string {
+  const def = findSpecialItem(item);
+  return getPropertyOnKey(json, SELECT_BASE_CLASS, def.toggleProp) || def.toggleProp;
+}
+
+// The caption the item renders with by default - the English one, as the rest of a finding
+// is English too, and the application may have replaced it.
+export function getSpecialItemText(item: string): string {
+  return getLocaleString(findSpecialItem(item).textKey, "en");
+}
+
+export function hasOtherItem(json: any): boolean {
+  return isSpecialItemOn(json, "other");
+}
 
 const NUMERIC_INPUT_TYPES: { [inputType: string]: boolean } = { number: true, range: true };
 const DATE_INPUT_TYPES: { [inputType: string]: boolean } = {
@@ -64,11 +111,12 @@ export function getChoicesInfo(json: any, type: string): ChoicesInfo | undefined
     carryForwardFrom: json.choicesFromQuestion || undefined,
     carryForwardValuesFrom: json.choiceValuesFromQuestion || undefined,
     carryForwardTextsFrom: json.choiceTextsFromQuestion || undefined,
-    showOtherItem: json.showOtherItem === true || json.hasOther === true,
-    showNoneItem: json.showNoneItem === true || json.hasNone === true,
-    showRefuseItem: json.showRefuseItem === true,
-    showDontKnowItem: json.showDontKnowItem === true,
+    shownSpecialItems: SPECIAL_ITEMS.filter(def => isSpecialItemOn(json, def.item)).map(def => def.item),
   };
+}
+
+export function showsSpecialItem(info: ChoicesInfo, item: string): boolean {
+  return info.shownSpecialItems.indexOf(item) > -1;
 }
 
 export interface SpecialChoiceDef {
@@ -80,12 +128,8 @@ export interface SpecialChoiceDef {
 // The built-in items the question adds to its listed choices, with the value each one holds.
 export function getSpecialChoiceDefs(info: ChoicesInfo,
   lintSettings: ILintResolvedSettings): Array<SpecialChoiceDef> {
-  const res: Array<SpecialChoiceDef> = [];
-  if (info.showOtherItem) res.push({ item: "other", value: "other" });
-  if (info.showNoneItem) res.push({ item: "none", value: lintSettings.noneItemValue });
-  if (info.showRefuseItem) res.push({ item: "refuse", value: lintSettings.refuseItemValue });
-  if (info.showDontKnowItem) res.push({ item: "dontknow", value: lintSettings.dontKnowItemValue });
-  return res;
+  return SPECIAL_ITEMS.filter(def => showsSpecialItem(info, def.item))
+    .map(def => ({ item: def.item, value: def.getValue(lintSettings) }));
 }
 
 // Values a comparison against this question may legitimately use besides static choices.
@@ -166,7 +210,7 @@ export function getSelectableChoiceCount(record: { choicesInfo?: ChoicesInfo, js
     if (!!item && typeof item === "object" && item.isExclusive === true) return;
     count++;
   });
-  return count + (info.showOtherItem ? 1 : 0);
+  return count + (showsSpecialItem(info, "other") ? 1 : 0);
 }
 
 export function isTextInputQuestion(record: { type: string, effectiveType?: string, json: any }): boolean {

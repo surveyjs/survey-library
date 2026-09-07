@@ -13,7 +13,9 @@ import {
   ITEMVALUE_SCOPED_PROPS, PROP_KIND_OVERRIDES, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS,
   TEXT_TEMPLATE_PROPS, TRIGGER_TARGET_KINDS,
 } from "../../src/linter/catalog";
-import { LintMetadata } from "../../src/linter/metadata";
+import { getPropertyKeys, LintMetadata } from "../../src/linter/metadata";
+import { getSpecialItemText, getSpecialItemToggleProp } from "../../src/linter/value-types";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 // Every element type the core ships. A floor, not a ceiling: the linter accepts any
 // type the deserializer can build, but it must never stop accepting these.
@@ -139,6 +141,53 @@ describe("linter catalog drift guard", () => {
     });
     expect(Serializer.findProperty("skiptrigger", "gotoName")).toBeTruthy();
     expect(Serializer.findProperty("survey", "calculatedValues")).toBeTruthy();
+  });
+
+  // The built-in item toggles and their captions are read from the core (the alias from the
+  // serializer, the caption from the locale strings), so the linter knows the four items only
+  // by name. Pinned by what the rule outputs, since the table itself is private.
+  test("the built-in item toggles, their aliases and captions still come from the core", () => {
+    const aliases: { [propName: string]: string | undefined } = {
+      showOtherItem: "hasOther", showNoneItem: "hasNone", showRefuseItem: undefined, showDontKnowItem: undefined,
+    };
+    Object.keys(aliases).forEach(propName => {
+      const prop = Serializer.findProperty("selectbase", propName);
+      expect(prop, "selectbase." + propName + " is gone").toBeTruthy();
+      expect(prop.alternativeName || undefined, "selectbase." + propName + " alias changed").toBe(aliases[propName]);
+    });
+    expect(getPropertyKeys("selectbase", "showOtherItem")).toEqual(["showOtherItem", "hasOther"]);
+    expect(getPropertyKeys("selectbase", "showRefuseItem")).toEqual(["showRefuseItem"]);
+    expect(getPropertyKeys("selectbase", "noSuchProperty")).toEqual(["noSuchProperty"]);
+    expect(getSpecialItemToggleProp({ hasOther: true }, "other")).toBe("hasOther");
+    expect(getSpecialItemToggleProp({ showOtherItem: true, hasOther: true }, "other")).toBe("showOtherItem");
+    expect(getSpecialItemToggleProp({}, "none")).toBe("showNoneItem");
+    expect(getSpecialItemText("other")).toBe(surveyLocalization.locales.en.otherItemText);
+    expect(getSpecialItemText("none")).toBe(surveyLocalization.locales.en.noneItemText);
+    expect(getSpecialItemText("refuse")).toBe(surveyLocalization.locales.en.refuseItemText);
+    expect(getSpecialItemText("dontknow")).toBe(surveyLocalization.locales.en.dontKnowItemText);
+    ["otherItemText", "noneItemText", "refuseItemText", "dontKnowItemText"].forEach(key => {
+      expect(typeof surveyLocalization.locales.en[key], "english string " + key + " is gone").toBe("string");
+    });
+  });
+
+  // A bounded count is recognized by the naming the core follows for it (rowCount with
+  // minRowCount/maxRowCount), not listed: pin the two triples the core ships and that no
+  // other core type grows one by accident.
+  test("the bounded counts are the dynamic matrix and panel ones", () => {
+    const metadata = new LintMetadata();
+    expect(metadata.getCountBoundProps("matrixdynamic"))
+      .toEqual({ count: "rowCount", min: "minRowCount", max: "maxRowCount" });
+    expect(metadata.getCountBoundProps("paneldynamic"))
+      .toEqual({ count: "panelCount", min: "minPanelCount", max: "maxPanelCount" });
+    expect(metadata.getCountBoundProps("nosuchtype")).toBeUndefined();
+    const bounded: Array<string> = [];
+    Serializer.getAllClasses().forEach(className => {
+      if (!!metadata.getCountBoundProps(className)) bounded.push(className);
+    });
+    expect(bounded.filter(className => !Serializer.isDescendantOf(className, "matrixdynamic") &&
+      !Serializer.isDescendantOf(className, "paneldynamic")),
+    "A new bounded count appeared; check that element/count-contradiction normalizes it the " +
+      "way question_matrixdynamic.ts / question_paneldynamic.ts do").toEqual([]);
   });
 
   test("every text-scoped property in the catalog is still a localizable property", () => {

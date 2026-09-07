@@ -64,9 +64,22 @@ export class InputMaskBase extends Base implements IInputMask {
     }
     // a read per input character walks this, so a hit must cost no more than the lookup
     if (field in this.formatValues) return this.formatValues[field];
-    const res = getLocaleDataValue(locale, field, isValid);
+    let res = this.getSurveyFormatValue(field, isValid);
+    if (res === undefined) {
+      res = getLocaleDataValue(locale, field, isValid);
+    }
     this.formatValues[field] = res;
     return res;
+  }
+  // An override authored in the survey's region options outranks the curated locale data and
+  // passes the same validator, so a broken override falls through to the table instead of
+  // breaking the mask. The survey may be a stub without the method.
+  private getSurveyFormatValue(field: keyof ILocaleData, isValid?: (value: string) => boolean): string {
+    const survey = this.getSurvey();
+    if (!survey || !survey.getRegionOptionValue) return undefined;
+    const res = survey.getRegionOptionValue(field);
+    if (res === undefined || res === null) return undefined;
+    return !isValid || isValid(res) ? res : undefined;
   }
   // The value the cache already holds, without resolving one. A mask that re-formats an entry
   // made under the previous locale reads the old defaults here, before the cache is dropped.

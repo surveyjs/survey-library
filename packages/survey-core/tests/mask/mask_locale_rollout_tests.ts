@@ -1,7 +1,7 @@
 import { InputMaskDateTime } from "../../src/mask/mask_datetime";
 import { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
 import { InputMaskCurrency, isValidCurrencyPattern } from "../../src/mask/mask_currency";
-import { localeData } from "../../src/locale-data";
+import { localeData, getLocaleDataValue } from "../../src/locale-data";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
@@ -238,23 +238,23 @@ describe("Numeric mask: locale rollout", () => {
       expect(Object.keys(expected).indexOf(locale) >= 0, "locale " + JSON.stringify(locale) + " is pinned").toBe(true);
     });
     Object.keys(expected).forEach(locale => {
-      survey.regionLocale = locale;
+      survey.regionOptions.locale = locale;
       expect(mask.getMaskedValue(1234567.89), "locale " + JSON.stringify(locale)).toBe(expected[locale]);
     });
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test("A number round-trips through the mask under every curated locale", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
     const mask = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
     Object.keys(localeData).forEach(locale => {
-      survey.regionLocale = locale;
+      survey.regionOptions.locale = locale;
       const masked = mask.getMaskedValue(1234.56);
       const value = mask.getUnmaskedValue(masked);
       expect(typeof value, "locale " + JSON.stringify(locale) + " stores a number").toBe("number");
       expect(value, "locale " + JSON.stringify(locale) + " round trip of " + JSON.stringify(masked)).toBe(1234.56);
     });
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test("Every curated separator is a single valid character and the pair is distinct", () => {
@@ -354,18 +354,18 @@ describe("Currency mask: locale rollout", () => {
       expect(Object.keys(expected).indexOf(locale) >= 0, "locale " + JSON.stringify(locale) + " is pinned").toBe(true);
     });
     Object.keys(expected).forEach(locale => {
-      survey.regionLocale = locale;
+      survey.regionOptions.locale = locale;
       expect(mask.getMaskedValue(1234.56), "locale " + JSON.stringify(locale)).toBe(expected[locale][0]);
       expect(mask.getMaskedValue(-1234.56), "locale " + JSON.stringify(locale) + ", negative").toBe(expected[locale][1]);
     });
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test("A currency value round-trips through the mask under every curated locale", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { currencySymbol: symbol } }] });
     const mask = <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
     Object.keys(localeData).forEach(locale => {
-      survey.regionLocale = locale;
+      survey.regionOptions.locale = locale;
       [1234.56, -1234.56].forEach(value => {
         const masked = mask.getMaskedValue(value);
         const unmasked = mask.getUnmaskedValue(masked);
@@ -373,7 +373,7 @@ describe("Currency mask: locale rollout", () => {
         expect(unmasked, "locale " + JSON.stringify(locale) + " round trip of " + JSON.stringify(masked)).toBe(value);
       });
     });
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test("Every curated currency pattern is valid and places a symbol", () => {
@@ -385,5 +385,81 @@ describe("Currency mask: locale rollout", () => {
       checkedCount++;
     });
     expect(checkedCount, "every locale entry curates a currency pattern").toBe(Object.keys(localeData).length);
+  });
+});
+
+describe("Region options: resolution chain", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  const symbol = "\u20AC";
+  function createSurvey(regionOptions?: any): SurveyModel {
+    return new SurveyModel({
+      regionOptions: regionOptions,
+      elements: [
+        { type: "text", name: "date", maskType: "datetime" },
+        { type: "text", name: "time", maskType: "datetime", maskSettings: { patternPreset: "localeTime" } },
+        { type: "text", name: "num", maskType: "numeric" },
+        { type: "text", name: "cur", maskType: "currency", maskSettings: { currencySymbol: symbol } },
+      ]
+    });
+  }
+  function getQuestion(survey: SurveyModel, name: string): QuestionTextModel {
+    return <QuestionTextModel>survey.getQuestionByName(name);
+  }
+
+  test("An override on the survey outranks every curated locale, and an authored value outranks the override", () => {
+    const survey = createSurvey({ datePattern: "yyyy-mm-dd", timePattern: "HH.MM", decimalSeparator: "*", thousandsSeparator: "|", currencyPattern: "#\u00A4" });
+    const date = getQuestion(survey, "date");
+    const time = getQuestion(survey, "time");
+    const num = <InputMaskNumeric>getQuestion(survey, "num").maskSettings;
+    const cur = <InputMaskCurrency>getQuestion(survey, "cur").maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      survey.regionOptions.locale = locale;
+      expect(date.inputValue, "locale " + JSON.stringify(locale) + " date").toBe("yyyy-mm-dd");
+      expect(time.inputValue, "locale " + JSON.stringify(locale) + " time").toBe("HH.MM");
+      expect(num.getMaskedValue(1234567.89), "locale " + JSON.stringify(locale) + " number").toBe("1|234|567*89");
+      expect(cur.getMaskedValue(1234.56), "locale " + JSON.stringify(locale) + " currency").toBe("1|234*56" + symbol);
+    });
+    survey.regionOptions.locale = "de";
+    date.maskSettings["pattern"] = "dd/mm/yyyy";
+    time.maskSettings["pattern"] = "hh:MM TT";
+    num.decimalSeparator = "#";
+    num.thousandsSeparator = "'";
+    cur.prefix = "EUR ";
+    expect(date.inputValue, "authored date").toBe("dd/mm/yyyy");
+    expect(time.inputValue, "authored time").toBe("hh:MM TT");
+    expect(num.getMaskedValue(1234567.89), "authored separators").toBe("1'234'567#89");
+    expect(cur.getMaskedValue(1234.56), "authored affixes over the overridden separators").toBe("EUR 1|234*56");
+    survey.regionOptions.locale = "";
+  });
+
+  test("Clearing an override restores every curated locale's own value through the same chain", () => {
+    const survey = createSurvey({ datePattern: "yyyy-mm-dd", timePattern: "HH.MM", decimalSeparator: "*", thousandsSeparator: "|", currencyPattern: "#\u00A4" });
+    const options = survey.regionOptions;
+    options.datePattern = undefined;
+    options.timePattern = undefined;
+    options.decimalSeparator = undefined;
+    options.thousandsSeparator = undefined;
+    options.currencyPattern = undefined;
+    expect(options.isEmpty, "every override is cleared").toBe(true);
+    const date = getQuestion(survey, "date");
+    const time = getQuestion(survey, "time");
+    const num = <InputMaskNumeric>getQuestion(survey, "num").maskSettings;
+    const cur = <InputMaskCurrency>getQuestion(survey, "cur").maskSettings;
+    Object.keys(localeData).forEach(locale => {
+      survey.regionOptions.locale = locale;
+      const name = "locale " + JSON.stringify(locale);
+      expect(date.inputValue, name + " date").toBe(getLocaleDataValue(locale, "datePattern"));
+      expect(time.inputValue, name + " time").toBe(getLocaleDataValue(locale, "timePattern"));
+      expect(num.decimalSeparator, name + " decimal").toBe(getLocaleDataValue(locale, "decimalSeparator"));
+      expect(num.thousandsSeparator, name + " thousands").toBe(getLocaleDataValue(locale, "thousandsSeparator"));
+      // the positive subpattern places the affixes; a locale may add a negative one after ";"
+      const affixes = getLocaleDataValue(locale, "currencyPattern").split(";")[0].split("#");
+      const number = "1" + num.thousandsSeparator + "234" + num.decimalSeparator + "56";
+      expect(cur.getMaskedValue(1234.56), name + " currency").toBe(affixes[0].replace("\u00A4", symbol) + number + affixes[1].replace("\u00A4", symbol));
+    });
+    survey.regionOptions.locale = "";
   });
 });

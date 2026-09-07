@@ -114,6 +114,13 @@ export const localeData: { [locale: string]: ILocaleData } = {
   "zh-tw": { datePattern: "yyyy/mm/dd", timePattern: "HH:MM", decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: "\u00A4#" }
 };
 
+// The locales that have curated data, regional entries (en-gb, fr-ca) included. This is the
+// choice list of a region locale editor: a locale outside it still resolves through its language
+// subtag, but only these have a curated entry of their own.
+export function getLocaleDataLocales(): Array<string> {
+  return Object.keys(localeData);
+}
+
 // Resolves one field through the chain: exact locale -> its language subtag -> "en". The walk is
 // per field, so a regional entry that defines only some fields never shadows the rest, and an
 // entry the validator rejects falls through the same way. The "en" entry defines every shipped

@@ -36,7 +36,7 @@ describe("Currency mask", () => {
       expect(q.maskSettings.getUnmaskedValue(input.value)).toBe(1234.5);
 
       input.value = prefix + "-1,234." + suffix;
-      survey.regionLocale = "de";
+      survey.regionOptions.locale = "de";
       expect(input.value).toBe(prefix + "-1.234," + suffix);
     } finally {
       survey.dispose();
@@ -718,16 +718,16 @@ describe("Currency mask: the locale placed symbol", () => {
     const mask = getCurrencyMask(survey);
     shapes.forEach(shape => {
       // the resolved pattern is cached per locale, so the data changes while no locale is set
-      survey.regionLocale = "";
+      survey.regionOptions.locale = "";
       localeData["xx"] = { decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: shape.pattern };
-      survey.regionLocale = "xx";
+      survey.regionOptions.locale = "xx";
       const title = "pattern " + JSON.stringify(shape.pattern);
       expect(mask.getMaskedValue(1234.56), title).toBe(shape.positive);
       expect(mask.getMaskedValue(-1234.56), title + ", negative").toBe(shape.negative);
       expect(mask.getUnmaskedValue(shape.positive), title + ", round trip").toBe(1234.56);
       expect(mask.getUnmaskedValue(shape.negative), title + ", negative round trip").toBe(-1234.56);
     });
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test.each([
@@ -1043,7 +1043,7 @@ describe("Currency mask: the locale placed symbol", () => {
       survey.locale = "en";
       expect(input.value, "the sign moves in front of the symbol").toBe("-" + euro + "1,234.");
       expect(q.inputValue).toBe("-" + euro + "1,234.");
-      survey.regionLocale = "nl";
+      survey.regionOptions.locale = "nl";
       expect(input.value, "and between the symbol and the number").toBe(euro + nbsp + "-1.234,");
     } finally {
       survey.dispose();
@@ -1099,7 +1099,7 @@ describe("Currency mask: the locale placed symbol", () => {
     }
   });
 
-  test.each(["locale", "regionLocale"])("Reading the active affixes in a callback during a %s change preserves both texts", (propertyName) => {
+  test.each(["locale", "regionOptions.locale"])("Reading the active affixes in a callback during a %s change preserves both texts", (propertyName) => {
     const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
     const q = <QuestionTextModel>survey.getQuestionByName("q1");
     const input = document.createElement("input");
@@ -1117,7 +1117,7 @@ describe("Currency mask: the locale placed symbol", () => {
         expect(mask.decimalSeparator).toBe(".");
       };
 
-      survey[propertyName] = "en";
+      if (propertyName === "locale") { survey.locale = "en"; } else { survey.regionOptions.locale = "en"; }
       expect(q.value, "the saved value").toBe(euro + "1,234.56");
       expect(input.value, "the entered text").toBe("-" + euro + "1,234.5");
       q.localeChangedCallback = undefined;
@@ -1133,7 +1133,7 @@ describe("Currency mask: the locale placed symbol", () => {
     q.inputValue = "-1234,56";
     expect(q.value, "the german masked value").toBe("-1.234,56" + nbsp + euro);
 
-    survey.regionLocale = "nl";
+    survey.regionOptions.locale = "nl";
     expect(q.value, "the dutch masked value").toBe(euro + nbsp + "-1.234,56");
     expect(q.inputValue, "the rendered text follows").toBe(euro + nbsp + "-1.234,56");
     expect(q.getExpressionValue(q.value), "the number never changes").toBe(-1234.56);
@@ -1162,9 +1162,9 @@ describe("Currency mask: the locale placed symbol", () => {
     localeData["xx"] = { currencyPattern: symbolToken + "#" + rlm };
     const survey = createCurrencySurvey({ currencySymbol: euro });
     const mask = getCurrencyMask(survey);
-    survey.regionLocale = "xx";
+    survey.regionOptions.locale = "xx";
     expect(mask.getMaskedValue(1234.56), "the english pattern is used instead").toBe(euro + "1,234.56");
-    survey.regionLocale = "";
+    survey.regionOptions.locale = "";
   });
 
   test.skip("A currencyPattern in survey.regionOptions beats the locale - needs tier 03", () => {

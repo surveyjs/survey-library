@@ -329,7 +329,10 @@ function trunc(params: any[]): any {
 }
 FunctionFactory.Instance.register("trunc", trunc);
 
-function isReturnColumnParam(param: string, operand: any): boolean {
+// Whether the third argument of an inArray function names a column rather than being the
+// condition: exported so that a tool reading the JSON splits the arguments the way the
+// runtime does (survey-core/linter).
+export function isReturnColumnParam(param: string, operand: any): boolean {
   if (!operand || !operand.getType || operand.getType() !== "const") return false;
   return typeof param === "string" && !/[{}><=!]/.test(param);
 }

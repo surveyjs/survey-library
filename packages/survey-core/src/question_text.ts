@@ -736,6 +736,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return new CssClassBuilder()
       .append(super.getControlClass())
       .append(this.cssClasses.isValueChanged, this._isValueChanged)
+      .append(this.cssClasses.hasMask, !this.maskTypeIsEmpty)
       .toString();
   }
   public isReadOnlyRenderDiv(): boolean {
@@ -745,7 +746,15 @@ export class QuestionTextModel extends QuestionTextBase {
     var style: any = {};
     style.width = this.inputWidth;
     this.updateTextAlign(style);
+    this.updateDirection(style);
     return style;
+  }
+  // A mask that declares its content a left-to-right run gets it as an inline style: the value then
+  // keeps its field order in a right-to-left survey, and the theme aligns the box to the survey side.
+  private updateDirection(style: any) {
+    if (!this.maskTypeIsEmpty && this.maskSettings.getInputDirection() !== "auto") {
+      style.direction = this.maskSettings.getInputDirection();
+    }
   }
   private updateTextAlign(style: any) {
     if (this.inputTextAlignment !== "auto") {

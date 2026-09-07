@@ -189,6 +189,12 @@ export class InputMaskPattern extends InputMaskBase {
   public getType(): string {
     return "patternmask";
   }
+  public getInputDirection(): "ltr" | "auto" {
+    return this.getInputDirectionByLiterals();
+  }
+  protected getLiteralText(): string {
+    return (this.literals || []).filter(l => l.type !== "regex").map(l => l.value).join("");
+  }
 
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     super.fromJSON(json, options);

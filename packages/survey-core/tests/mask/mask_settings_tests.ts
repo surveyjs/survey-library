@@ -7,8 +7,11 @@ import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
 import { ArrayChanges, Base } from "../../src/base";
+import { hasStrongRtlText } from "../../src/mask/mask_utils";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 import "../../src/localization/german";
+import "../../src/localization/arabic";
 
 import { describe, test, expect } from "vitest";
 describe("Question text: Input mask", () => {
@@ -225,10 +228,134 @@ describe("Question text: Input mask", () => {
     expect(q.inputStyle).toEqual({ width: "" });
 
     q.maskType = "currency";
-    expect(q.inputStyle).toEqual({ width: "", textAlign: "right" });
+    expect(q.inputStyle).toEqual({ width: "", textAlign: "right", direction: "ltr" });
 
     q.inputTextAlignment = "left";
-    expect(q.inputStyle).toEqual({ width: "", textAlign: "left" });
+    expect(q.inputStyle).toEqual({ width: "", textAlign: "left", direction: "ltr" });
+  });
+
+  test("hasStrongRtlText classifies the text a mask can emit", () => {
+    expect(hasStrongRtlText("ي")).toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("י")).toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("ر.س")).toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("999 محلي 999")).toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("ࡀ"), "mandaic").toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("ࡰ"), "arabic extended-b").toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("\u{1E900}"), "adlam, supplementary plane").toBe(true);
+    expect(hasStrongRtlText("ﭏ"), "hebrew presentation form").toBe(true); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("٫٬"), "arabic decimal and thousands separators").toBe(false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("١۱"), "arabic-indic and extended digits").toBe(false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("َ"), "harakat").toBe(false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("dd/mm/yyyy")).toBe(false);
+    expect(hasStrongRtlText("+1 (999) 999-9999")).toBe(false);
+    expect(hasStrongRtlText("$ 1,234.56")).toBe(false);
+    expect(hasStrongRtlText("дд.мм.гггг")).toBe(false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(hasStrongRtlText("")).toBe(false);
+    expect(hasStrongRtlText(undefined as any)).toBe(false);
+  });
+
+  test("getInputDirection per mask class", () => {
+    const q = new QuestionTextModel("q1");
+    expect(q.maskSettings.getInputDirection(), "no mask").toBe("auto");
+
+    q.maskType = "numeric";
+    expect(q.maskSettings.getInputDirection(), "numeric").toBe("ltr");
+    (<InputMaskNumeric>q.maskSettings).decimalSeparator = "٫"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "numeric, arabic decimal separator is not strong RTL").toBe("ltr");
+    (<InputMaskNumeric>q.maskSettings).decimalSeparator = "ر"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "numeric, strong RTL separator").toBe("auto");
+
+    q.maskType = "currency";
+    expect(q.maskSettings.getInputDirection(), "currency").toBe("ltr");
+    (<InputMaskCurrency>q.maskSettings).prefix = "$ ";
+    expect(q.maskSettings.getInputDirection(), "currency, latin prefix").toBe("ltr");
+    (<InputMaskCurrency>q.maskSettings).suffix = " ر.س"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "currency, arabic suffix").toBe("auto");
+    (<InputMaskCurrency>q.maskSettings).suffix = "";
+    (<InputMaskCurrency>q.maskSettings).prefix = "ر.س "; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "currency, arabic prefix").toBe("auto");
+
+    q.maskType = "pattern";
+    expect(q.maskSettings.getInputDirection(), "pattern, empty").toBe("ltr");
+    (<InputMaskPattern>q.maskSettings).pattern = "+1 (999) 999-9999";
+    expect(q.maskSettings.getInputDirection(), "pattern, ascii literals").toBe("ltr");
+    (<InputMaskPattern>q.maskSettings).pattern = "999 محلي 999"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "pattern, arabic literal").toBe("auto");
+    (<InputMaskPattern>q.maskSettings).pattern = "\\ي999"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "pattern, escaped arabic literal").toBe("auto");
+    (<InputMaskPattern>q.maskSettings).pattern = "aaa";
+    expect(q.maskSettings.getInputDirection(), "pattern, definitions are not inspected").toBe("ltr");
+
+    q.maskType = "datetime";
+    expect(q.maskSettings.getInputDirection(), "datetime").toBe("ltr");
+    (<InputMaskDateTime>q.maskSettings).pattern = "dd/mm/yyyy";
+    expect(q.maskSettings.getInputDirection(), "datetime, explicit pattern").toBe("ltr");
+    (<InputMaskDateTime>q.maskSettings).pattern = "dd ي mm"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.maskSettings.getInputDirection(), "datetime, arabic separator").toBe("auto");
+  });
+
+  test("getInputDirection: datetime follows the resolved placeholder symbols", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.maskSettings.getInputDirection(), "default locale").toBe("ltr");
+    expect(q.inputStyle, "default locale").toEqual({ width: "", direction: "ltr" });
+
+    survey.locale = "ar";
+    expect(q.inputValue, "ar keeps the latin fallback symbols").toBe("dd/mm/yyyy");
+    expect(q.maskSettings.getInputDirection(), "ar with latin symbols").toBe("ltr");
+    expect(q.inputStyle, "ar with latin symbols").toEqual({ width: "", direction: "ltr" });
+
+    survey.locale = "de";
+    expect(q.inputValue, "de symbols").toBe("TT.MM.JJJJ");
+    expect(q.maskSettings.getInputDirection(), "latin symbols").toBe("ltr");
+
+    // a strong right-to-left symbol, set temporarily on the dictionary, opts the mask out
+    const ar = surveyLocalization.locales["ar"];
+    ar.maskPlaceholderDay = "ي"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    try {
+      survey.locale = "ar";
+      expect(q.inputValue).toBe("يي/mm/yyyy"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      expect(q.maskSettings.getInputDirection(), "strong RTL symbol").toBe("auto");
+      expect(q.inputStyle, "no direction is emitted then").toEqual({ width: "" });
+    } finally {
+      delete ar.maskPlaceholderDay;
+      survey.locale = "";
+    }
+    expect(surveyLocalization.locales["ar"].maskPlaceholderDay, "dictionary restored").toBeUndefined();
+  });
+
+  test("inputStyle: direction per mask", () => {
+    const q = new QuestionTextModel("q1");
+    expect(q.inputStyle, "no mask").toEqual({ width: "" });
+
+    q.maskType = "pattern";
+    expect(q.inputStyle, "pattern").toEqual({ width: "", direction: "ltr" });
+
+    q.maskType = "datetime";
+    expect(q.inputStyle, "datetime").toEqual({ width: "", direction: "ltr" });
+
+    q.maskType = "numeric";
+    expect(q.inputStyle, "numeric keeps its alignment").toEqual({ width: "", textAlign: "right", direction: "ltr" });
+
+    q.inputTextAlignment = "left";
+    expect(q.inputStyle, "explicit alignment wins, direction stays").toEqual({ width: "", textAlign: "left", direction: "ltr" });
+
+    q.maskType = "currency";
+    (<InputMaskCurrency>q.maskSettings).suffix = " ر.س"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(q.inputStyle, "strong RTL literal: no direction").toEqual({ width: "", textAlign: "left" });
+
+    q.maskType = "none";
+    expect(q.inputStyle, "mask removed").toEqual({ width: "", textAlign: "left" });
+  });
+
+  test("getControlClass marks a masked input", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.getControlClass()).toBe("sd-formbox__input");
+    q.maskType = "datetime";
+    expect(q.getControlClass()).toBe("sd-formbox__input sd-formbox__input--mask");
+    q.maskType = "none";
+    expect(q.getControlClass()).toBe("sd-formbox__input");
   });
 
   test("Text aligment inputType is date, maskType is numeric", () => {

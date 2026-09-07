@@ -115,9 +115,26 @@ describe("Multiple text: Input mask", () => {
     expect(itemEditor.inputStyle).toEqual({ width: "" });
 
     item.maskType = "currency";
-    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "right" });
+    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "right", direction: "ltr" });
 
     item.inputTextAlignment = "left";
-    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "left" });
+    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "left", direction: "ltr" });
+  });
+
+  test("Masked item: input direction", () => {
+    const multipletext = new QuestionMultipleTextModel("q1");
+    multipletext.addItem("item1");
+    const item = multipletext.items[0];
+    const itemEditor = item.editor;
+    expect(itemEditor.inputStyle).toEqual({ width: "" });
+
+    item.maskType = "datetime";
+    expect(itemEditor.inputStyle).toEqual({ width: "", direction: "ltr" });
+
+    item.maskType = "currency";
+    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "right", direction: "ltr" });
+
+    item.maskType = "none";
+    expect(itemEditor.inputStyle).toEqual({ width: "" });
   });
 });

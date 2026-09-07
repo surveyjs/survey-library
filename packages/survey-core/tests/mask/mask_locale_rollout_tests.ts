@@ -117,13 +117,17 @@ describe("Datetime mask: locale rollout", () => {
       "da": "dd.mm.åååå", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
       "no": "dd.mm.åååå", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
       "fi": "pp.kk.vvvv",
-      // symbols deliberately unlocalized (CJK repeats per digit, RTL is untested): the canonical
-      // letters render in the locale's field order
+      // symbols deliberately unlocalized: the canonical letters render in the locale's field order.
+      // CJK: a symbol would repeat per digit. RTL scripts: a strong right-to-left symbol makes the
+      // field order unstable while the mask fills (the value changes bidi class as digits replace
+      // letters), and the Latin fallback is the only symbol set that stays in logical order in every
+      // typing state; see the mask RTL design (promts/mask-rtl-00-phase1-design.md)
       "ja": "yyyy/mm/dd",
       "ko": "yyyy. mm. dd",
       "zh-cn": "yyyy/mm/dd",
       "ar": "dd/mm/yyyy",
-      "he": "dd.mm.yyyy"
+      "he": "dd.mm.yyyy",
+      "fa": "yyyy/mm/dd"
     };
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
     const q = <QuestionTextModel>survey.getQuestionByName("q1");

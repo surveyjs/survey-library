@@ -877,8 +877,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         renderedRow.cells.push(actions);
         renderedRow.hasEndActions = true;
       } else {
-        var cell = new QuestionMatrixDropdownRenderedCell();
-        cell.isEmpty = true;
+        var cell = this.createEmptyCell();
         cell.isDetailRowCell = renderedRow.isDetailRow;
         renderedRow.cells.push(cell);
       }
@@ -889,24 +888,25 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
     const panelFullWidth: boolean = this.matrix.isDesignMode;
-    var res = this.createRenderedRow(this.cssClasses, true);
+    const res = this.createRenderedRow(this.cssClasses, true);
     res.row = row;
-    var buttonCell = new QuestionMatrixDropdownRenderedCell();
-    if (this.matrix.hasRowText) {
-      buttonCell.colSpans = 2;
+    let buttonCell = null;
+    if ((this.hasActionCellInRows("start") || this.matrix.hasRowText) && !panelFullWidth) {
+      buttonCell = this.createEmptyCell();
+      if (this.matrix.hasRowText && this.hasActionCellInRows("start")) {
+        buttonCell.colSpans = 2;
+      }
+      res.cells.push(buttonCell);
     }
-    buttonCell.isEmpty = true;
-    if (!panelFullWidth) res.cells.push(buttonCell);
     var actionsCell = null;
     if (this.hasActionCellInRows("end")) {
-      actionsCell = new QuestionMatrixDropdownRenderedCell();
-      actionsCell.isEmpty = true;
+      actionsCell = this.createEmptyCell();
     }
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.panel = row.detailPanel;
     cell.colSpans =
       renderedRow.cells.length -
-      (!panelFullWidth ? buttonCell.colSpans : 0) -
+      (!!buttonCell ? buttonCell.colSpans : 0) -
       (!!actionsCell ? actionsCell.colSpans : 0);
     cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);

@@ -30,18 +30,17 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       </div>
     );
   }
-  protected renderToolbar() {
-    return <div className={this.matrix.cssClasses.footer}>
+  protected renderToolbar(location: "top" | "bottom"): React.JSX.Element | null {
+    if (!this.matrix.getShowToolbar(location)) return null;
+    return <div className={this.matrix.getToolbarCssClass(location)}>
       {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.matrix.toolbar })}
     </div>;
   }
   protected renderTopToolbar(): React.JSX.Element | null {
-    if (!this.matrix.getShowToolbar("top")) return null;
-    return this.renderToolbar();
+    return this.renderToolbar("top");
   }
   protected renderBottomToolbar(): React.JSX.Element | null {
-    if (!this.matrix.getShowToolbar("bottom")) return null;
-    return this.renderToolbar();
+    return this.renderToolbar("bottom");
   }
   protected renderNoRowsContent(cssClasses: any): React.JSX.Element {
     return ReactElementFactory.Instance.createElement("sv-placeholder-matrixdynamic", { cssClasses: cssClasses, question: this.matrix });

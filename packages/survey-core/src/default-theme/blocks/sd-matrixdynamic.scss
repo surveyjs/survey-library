@@ -1,18 +1,18 @@
 @use "../variables.scss" as *;
 
 .sd-question--matrixdynamic {
-  --sd-matrixdynamic-footer-padding-block: var(--sjs2-layout-component-panel-footer-padding-top)
-    var(--sjs2-layout-component-panel-footer-padding-bottom);
-  --sd-matrixdynamic-footer-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
+  --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-footer-padding-top);
+  --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-footer-padding-bottom);
+  --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
     var(--sjs2-layout-component-panel-footer-padding-right);
-  --sd-matrixdynamic-footer-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
+  --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
 .sd-question--matrixdynamic:where(.sd-question--nested) {
-  --sd-matrixdynamic-footer-padding-block: var(--sjs2-layout-component-panel-nested-footer-padding-top)
-    var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
-  --sd-matrixdynamic-footer-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
+  --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-nested-footer-padding-top);
+  --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
+  --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
     var(--sjs2-layout-component-panel-nested-footer-padding-right);
-  --sd-matrixdynamic-footer-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
+  --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
 }
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
@@ -21,13 +21,20 @@
   z-index: 12;
 }
 
-.sd-matrixdynamic__footer {
+.sd-matrixdynamic__toolbar {
   position: sticky;
   left: 0;
   box-sizing: border-box;
-  padding-block: var(--sd-matrixdynamic-footer-padding-block);
-  padding-inline: var(--sd-matrixdynamic-footer-padding-inline);
-  --sd-action-bar-gap: var(--sd-matrixdynamic-footer-gap);
+  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
+  --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
+}
+.sd-matrixdynamic__toolbar--bottom {
+  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-end);
+}
+.sd-matrixdynamic__toolbar--top {
+  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
 .sd-matrixdynamic__content > div {
   display: contents;
@@ -183,7 +190,7 @@
 }
 
 .sd-question--mobile {
-  .sd-matrixdynamic__footer {
+  .sd-matrixdynamic__toolbar {
     border-top: 1px solid $border-light;
     padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
     padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);

@@ -115,12 +115,16 @@
     & > .sd-question__header-and-content-container {
       & > .sd-question__content {
         overflow-x: auto;
+        & > .sd-question__description--under-input {
+          position: sticky;
+          left: 0;
+          margin-block-start: calc(-1 * var(--sjs2-layout-component-matrix-box-padding-bottom));
+          padding-block: var(--sjs2-layout-component-question-box-gap-vertical)
+            var(--sjs2-layout-component-matrix-box-padding-bottom);
+          padding-inline: var(--sd-question-header-padding-inline);
+        }
       }
     }
-  }
-  .sd-question__description--under-input .sv-string-viewer {
-    position: sticky;
-    left: 0;
   }
 }
 
@@ -197,19 +201,6 @@
   width: 0;
 }
 
-.sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
-  padding-block: var(--sjs2-layout-component-matrix-cell-left-padding-top)
-    var(--sjs2-layout-component-matrix-cell-left-padding-bottom);
-  padding-inline: var(--sjs2-layout-component-matrix-cell-left-padding-left)
-    var(--sjs2-layout-component-matrix-cell-left-padding-right);
-}
-.sd-table__cell:where(:nth-last-child(1 of .sd-table__cell)) {
-  padding-block: var(--sjs2-layout-component-matrix-cell-right-padding-top)
-    var(--sjs2-layout-component-matrix-cell-right-padding-bottom);
-  padding-inline: var(--sjs2-layout-component-matrix-cell-right-padding-left)
-    var(--sjs2-layout-component-matrix-cell-right-padding-right);
-}
-
 .sd-table__cell--actions {
   white-space: nowrap;
 
@@ -242,14 +233,6 @@
     margin: 0;
   }
 }
-.sd-table__cell--error-top {
-  vertical-align: bottom;
-  padding-top: var(--sjs2-layout-component-matrix-cell-padding-top);
-}
-.sd-table__cell--error-bottom {
-  vertical-align: top;
-  padding-bottom: var(--sjs2-layout-component-matrix-cell-padding-bottom);
-}
 .sd-table__cell--item {
   .sd-selectbase__item {
     text-align: center;
@@ -269,6 +252,17 @@
       padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
       border-bottom: 1px solid $border-light;
     }
+  }
+  .sd-table__question-wrapper--left {
+    text-align: start;
+  }
+
+  .sd-table__question-wrapper--center {
+    text-align: center;
+  }
+
+  .sd-table__question-wrapper--right {
+    text-align: end;
   }
 }
 
@@ -295,9 +289,34 @@
   padding-inline: var(--sjs2-layout-component-matrix-cell-padding-left)
     var(--sjs2-layout-component-matrix-cell-padding-right);
 }
+.sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
+  padding-block: var(--sjs2-layout-component-matrix-cell-left-padding-top)
+    var(--sjs2-layout-component-matrix-cell-left-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-left-padding-left)
+    var(--sjs2-layout-component-matrix-cell-left-padding-right);
+}
+.sd-table__cell:where(:nth-last-child(1 of .sd-table__cell)) {
+  padding-block: var(--sjs2-layout-component-matrix-cell-right-padding-top)
+    var(--sjs2-layout-component-matrix-cell-right-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-matrix-cell-right-padding-left)
+    var(--sjs2-layout-component-matrix-cell-right-padding-right);
+}
+.sd-table__cell--error-top {
+  vertical-align: bottom;
+  padding-bottom: 0;
+}
+.sd-table__cell--error-bottom {
+  vertical-align: top;
+  padding-top: 0;
+}
 
 .sd-table--columnsautowidth {
-  .sd-table__cell:not(.sd-table__cell--actions, .sd-table__cell--action, .sd-table__cell--empty.sd-table__cell--error) {
+  .sd-table__cell:not(
+    .sd-table__cell--actions,
+    .sd-table__cell--action,
+    .sd-table__cell--empty,
+    .sd-table__cell--error
+  ) {
     width: var(--sd-table-cell-width);
   }
 }
@@ -305,7 +324,7 @@
 //align
 .sd-table--align-top {
   .sd-table__cell {
-    vertical-align: top;
+    vertical-align: baseline;
   }
 }
 .sv-matrix-row--drag-drop-ghost-mod {
@@ -389,9 +408,12 @@
 .sd-table__cell--empty,
 .sd-table__cell--row-text,
 .sd-table__cell--footer-total {
-  position: sticky;
-  background: var(--sd-table-sticky-background-color);
-  z-index: 12;
+  &:first-of-type,
+  &:last-of-type {
+    position: sticky;
+    background: var(--sd-table-sticky-background-color);
+    z-index: 12;
+  }
 
   &:first-of-type {
     left: 0;
@@ -495,7 +517,7 @@
     border-bottom: 0;
 
     .sd-panel__content {
-      padding-top: 0;
+      padding: 0;
     }
   }
 
@@ -530,6 +552,9 @@
       margin-bottom: var(--sjs2-spacing-negative-x100);
     }
   }
+  .sd-table__cell--row-text {
+    color: $foreground-light;
+  }
 
   .sd-table__cell--error-top:first-of-type {
     .sd-question__erbox {
@@ -541,6 +566,9 @@
     .sd-boolean-root {
       margin: initial;
     }
+  }
+  .sd-table__row--expanded .sd-table__cell-action--show-detail {
+    display: none;
   }
 }
 

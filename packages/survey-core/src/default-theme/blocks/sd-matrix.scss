@@ -61,4 +61,7 @@
   .sd-matrix__label {
     justify-content: flex-start;
   }
+  .sd-matrix__cell.sd-table__cell--row-text {
+    color: var(--sjs2-color-component-question-default-title);
+  }
 }

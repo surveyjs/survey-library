@@ -171,7 +171,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
     return "currencymask";
   }
   protected getLiteralText(): string {
-    return super.getLiteralText() + (this.prefix || "") + (this.suffix || "");
+    return super.getLiteralText() + this.activePrefix + this.activeSuffix;
   }
 
   protected getLocaleChangeInput(text: string): string {

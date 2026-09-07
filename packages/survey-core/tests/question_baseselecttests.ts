@@ -4,6 +4,8 @@ import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionTagboxModel } from "../src/question_tagbox";
+import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultCss } from "../src/defaultCss/defaultCss";
@@ -823,7 +825,8 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const conds: any = [];
     q1.addConditionObjectsByContext(conds, undefined);
-    expect(conds[0].name, "use filtered name").toBe("q1-unwrapped");
+    expect(q1.getFilteredName(), "use the value name as the filtered name").toBe("q1");
+    expect(conds[0].name, "use the value name in Creator").toBe("q1");
     const q2 = survey.getQuestionByName("q2");
     expect(q2.isVisible, "#1").toBe(false);
     q1.renderedValue = ["apple", "orange"];
@@ -4679,5 +4682,256 @@ describe("baseselect", () => {
     q1.setCommentValue(q1.choices[1], "test comment 2");
     expect(q2.isVisible, "q2 should stay visible after setting comment on choice 2").toBe(true);
     expect([...(q1.value)], "q1 value has two comments").toEqual([{ value: 1, comment: "test comment" }, { value: 2, comment: "test comment 2" }]);
+  });
+  test("Questions with the same valueName: a value from another question choices is not the 'other' value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(q2.otherValue, "q2 other value is empty").toBeFalsy();
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple"]);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["apple"] });
+  });
+  test("Questions with the same valueName: a value from another question choices is not the 'other' value, tagbox sets the value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "tagbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "checkbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["banana"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["banana"] });
+    q2.renderedValue = ["banana", "milk"];
+    expect(q1.renderedValue, "q1 rendered value").toEqual(["banana", "milk"]);
+    expect(q1.isOtherSelected, "q1 doesn't have the other item").toBe(false);
+    expect(survey.data, "survey data, #2").toEqual({ val: ["banana", "milk"] });
+  });
+  test("Questions with the same valueName: an unknown value is still the 'other' value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    survey.setValue("val", ["apple", "unknown"]);
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(q2.otherValue, "q2 other value").toEqual("unknown");
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple", "other"]);
+    expect(survey.data, "survey data").toEqual({ val: ["apple", "other"], "val-Comment": "unknown" });
+  });
+  test("Questions with the same valueName: showOtherItem in several questions shares the other value, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"], showOtherItem: true },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple", "other"];
+    q1.otherValue = "abc";
+    expect(q1.isOtherSelected, "q1 selects the other item").toBe(true);
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(q2.otherValue, "q2 shares the other value").toEqual("abc");
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple", "other"]);
+    q2.otherValue = "edf";
+    expect(q1.otherValue, "q1 shares the modified other value").toEqual("edf");
+    expect(survey.data, "survey data").toEqual({ val: ["apple", "other"], "val-Comment": "edf" });
+  });
+  test("Questions with the same valueName, storeOthersAsComment: false, Bug#11746", () => {
+    const survey = new SurveyModel({
+      storeOthersAsComment: false,
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.renderedValue = ["apple"];
+    expect(q2.isOtherSelected, "q2 doesn't select the other item").toBe(false);
+    expect(q2.renderedValue, "q2 rendered value").toEqual(["apple"]);
+    expect(survey.data, "survey data").toEqual({ val: ["apple"] });
+    q2.renderedValue = ["apple", "milk", "other"];
+    q2.otherValue = "abc";
+    expect(q2.isOtherSelected, "q2 selects the other item").toBe(true);
+    expect(survey.data, "survey data, #2").toEqual({ val: ["apple", "milk", "abc"] });
+    expect(q1.renderedValue, "q1 rendered value").toEqual(["apple", "milk", "abc"]);
+  });
+  test("Questions with the same valueName: load the survey data, Bug#11746", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", valueName: "val", choices: ["apple", "banana"] },
+        { type: "tagbox", name: "q2", valueName: "val", choices: ["milk", "eggs"] },
+        { type: "checkbox", name: "q3", valueName: "val", choices: ["water", "juice"], showOtherItem: true }
+      ]
+    });
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    survey.data = { val: ["apple", "eggs", "water"] };
+    expect(q3.isOtherSelected, "q3 doesn't select the other item").toBe(false);
+    expect(q3.renderedValue, "q3 rendered value").toEqual(["apple", "eggs", "water"]);
+    expect(survey.data, "survey data is not modified").toEqual({ val: ["apple", "eggs", "water"] });
+  });
+  test("Clear non-existent defaultValue values on changing choices in the design mode, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: "item2" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2", "item3"], defaultValue: ["item1", "item3"] },
+        { type: "dropdown", name: "q3", choices: ["item1", "item2"], defaultValue: "item1" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionDropdownModel>survey.getQuestionByName("q3");
+    //defaultValue is not modified on loading
+    expect(q1.defaultValue, "radiogroup defaultValue on load").toBe("item2");
+    expect(q2.defaultValue, "checkbox defaultValue on load").toEqual(["item1", "item3"]);
+    expect(q3.defaultValue, "dropdown defaultValue on load").toBe("item1");
+    //delete a choice that is not used in defaultValue
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "radiogroup defaultValue is not changed").toBe("item2");
+    //delete the choice that is used in defaultValue
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "radiogroup defaultValue is cleared").toBe(undefined);
+    expect(q1.toJSON(), "radiogroup JSON has no defaultValue").toEqual({ name: "q1", choices: ["item3"] });
+    //checkbox: non-existent values are removed from the defaultValue array
+    q2.choices.splice(2, 1);
+    expect(q2.defaultValue, "checkbox keeps existing defaultValue values").toEqual(["item1"]);
+    //checkbox: defaultValue becomes an empty array, so it is set to undefined
+    q2.choices = ["item2", "item3"];
+    expect(q2.defaultValue, "checkbox defaultValue becomes undefined").toBe(undefined);
+    expect(q2.toJSON(), "checkbox JSON has no defaultValue").toEqual({ name: "q2", choices: ["item2", "item3"] });
+    //dropdown: the choices array is replaced with a new one
+    q3.choices = ["item2", "item3"];
+    expect(q3.defaultValue, "dropdown defaultValue is cleared").toBe(undefined);
+    expect(q3.toJSON(), "dropdown JSON has no defaultValue").toEqual({ name: "q3", choices: ["item2", "item3"] });
+  });
+  test("Do not clear defaultValue for special choices on changing choices in the design mode, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], showNoneItem: true, defaultValue: "none" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2"], showOtherItem: true, defaultValue: ["other"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    q1.choices.splice(0, 1);
+    q2.choices.splice(0, 1);
+    //special choices are not a part of the choices array, defaultValue is preserved
+    expect(q1.defaultValue, "defaultValue is preserved for the none item").toBe("none");
+    expect(q2.defaultValue, "defaultValue is preserved for the other item").toEqual(["other"]);
+    //the none item is hidden, so its value no longer exists
+    q1.showNoneItem = false;
+    expect(q1.defaultValue, "defaultValue is cleared for the hidden none item").toBe(undefined);
+  });
+  test("Clear non-existent defaultValue & correctAnswer values together, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["item1", "item2", "item3"],
+          defaultValue: ["item1", "item3"], correctAnswer: ["item2", "item3"] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    q1.choices.splice(2, 1);
+    expect(q1.defaultValue, "the deleted choice is removed from defaultValue").toEqual(["item1"]);
+    expect(q1.correctAnswer, "the deleted choice is removed from correctAnswer").toEqual(["item2"]);
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "defaultValue is cleared, all its choices are deleted").toBe(undefined);
+    expect(q1.correctAnswer, "correctAnswer is not changed, its choice exists").toEqual(["item2"]);
+    expect(q1.toJSON(), "JSON has no defaultValue").toEqual({ name: "q1", correctAnswer: ["item2"], choices: ["item2"] });
+  });
+  test("Clear non-existent defaultValue values for numeric choices, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: [1, 2, 3], defaultValue: 2, correctAnswer: 3 }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(1, 1);
+    expect(q1.defaultValue, "defaultValue is cleared, its choice is deleted").toBe(undefined);
+    expect(q1.correctAnswer, "correctAnswer is not changed, its choice exists").toBe(3);
+    expect(q1.toJSON(), "JSON has no defaultValue").toEqual({ name: "q1", correctAnswer: 3, choices: [1, 3] });
+  });
+  test("Clear non-existent defaultValue values for tagbox & imagepicker, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"], defaultValue: ["item1", "item3"] },
+        { type: "imagepicker", name: "q2", multiSelect: true, choices: ["item1", "item2", "item3"],
+          defaultValue: ["item1", "item3"], correctAnswer: ["item1", "item3"] },
+        { type: "imagepicker", name: "q3", choices: ["item1", "item2"], defaultValue: "item1" }
+      ]
+    });
+    const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionImagePickerModel>survey.getQuestionByName("q3");
+    q1.choices.splice(2, 1);
+    q2.choices.splice(2, 1);
+    q3.choices.splice(0, 1);
+    expect(q1.defaultValue, "tagbox keeps existing defaultValue values").toEqual(["item1"]);
+    expect(q2.defaultValue, "imagepicker keeps existing defaultValue values").toEqual(["item1"]);
+    expect(q2.correctAnswer, "imagepicker keeps existing correctAnswer values").toEqual(["item1"]);
+    expect(q3.defaultValue, "imagepicker defaultValue is cleared").toBe(undefined);
+  });
+  test("Do not clear defaultValue & correctAnswer if all choices are deleted, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1"], defaultValue: "item1", correctAnswer: "item1" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(0, 1);
+    //the choices array is empty, the values are kept since the choices can be populated later
+    expect(q1.defaultValue, "defaultValue is not changed").toBe("item1");
+    expect(q1.correctAnswer, "correctAnswer is not changed").toBe("item1");
+  });
+  test("Clear non-existent defaultValue values in the run mode, Bug#11800", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], defaultValue: "item1" },
+        { type: "checkbox", name: "q2", choices: ["item1", "item2"], defaultValue: ["item1", "item2"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.value, "the default value is assigned to the question").toBe("item1");
+    q1.choices = ["item2", "item3"];
+    q2.choices = ["item2", "item3"];
+    expect(q1.defaultValue, "radiogroup defaultValue is cleared").toBe(undefined);
+    expect(q2.defaultValue, "checkbox keeps existing defaultValue values").toEqual(["item2"]);
+  });
+  test("Clear defaultValue on removing a referenced choice even if defaultValueExpression is set, Bug#11800", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"], defaultValue: "item1", defaultValueExpression: "'item2'" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices.splice(0, 1);
+    expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
+    expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
   });
 });

@@ -444,7 +444,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
     if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
-        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
     }

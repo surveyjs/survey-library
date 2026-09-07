@@ -100,7 +100,7 @@ export class FlowPanelModel extends PanelModel {
     if (!this.isDesignMode || !DomWindowHelper.isAvailable()) return false;
 
     let sel = DomWindowHelper.getSelection();
-    if (sel.getRangeAt && sel.rangeCount) {
+    if (!!sel && sel.getRangeAt && sel.rangeCount) {
       let range = sel.getRangeAt(0);
       range.deleteContents();
       const textElement = new Text(text);

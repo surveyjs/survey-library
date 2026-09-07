@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionButtonGroupModel } from "survey-core";
-import { useQuestion } from "..";
+import { useQuestion } from "../base";
 import { ref } from "vue";
 const props = defineProps<{ question: QuestionButtonGroupModel }>();
 const root = ref<HTMLDivElement>();

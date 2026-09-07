@@ -169,7 +169,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
     const lowName = name.toLocaleLowerCase();
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
-      const qName = q.getFilteredName().toLocaleLowerCase();
+      const qName = q.getValueName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
         res.obj = q;
@@ -2470,7 +2470,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getFilteredName(),
+      name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
@@ -2643,6 +2643,9 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
+  // Stable read-only state: true while the asynchronous validators of this question have not
+  // finished. SurveyModel.getRunningAsyncOperations() reads it on every question, so a rename or a
+  // semantics change here is a breaking change of that API.
   public get isRunningValidators(): boolean {
     return this.getIsRunningValidators();
   }

@@ -1560,23 +1560,308 @@ describe("Survey_QuestionFile", () => {
     expect(mConst.video.deviceId.exact, "Device is correct").toBe("2");
     Camera.clear();
   });
+  test("new Camera().setFacingMode", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const camera = new Camera();
+    let mConst: any = camera.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Front camera is used by default").toBe("3");
+    camera.setFacingMode("environment");
+    mConst = camera.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Back camera is used").toBe("2");
+    camera.setFacingMode("user");
+    mConst = camera.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Front camera is used again").toBe("3");
+    camera.setFacingMode("environment");
+    camera.setFacingMode("unknown");
+    mConst = camera.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Unknown mode doesn't change the camera").toBe("2");
+
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "dfdf" }]));
+    const camera2 = new Camera();
+    camera2.setFacingMode("environment");
+    mConst = camera2.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "There is no back camera, use the first one").toBe("1");
+    Camera.clear();
+  });
+  test("new Camera().setFacingMode, devices without deviceId", () => {
+    const devices = createDevices([{ label: "" }, { label: "" }]);
+    devices.forEach(device => (<any>device).deviceId = "");
+    Camera.setCameraList(devices);
+    const camera = new Camera();
+    let mConst: any = camera.getMediaConstraints();
+    expect(mConst.video.facingMode, "Front camera is used by default").toBe("user");
+    camera.setFacingMode("environment");
+    mConst = camera.getMediaConstraints();
+    expect(mConst.video.facingMode, "Back camera is requested").toBe("environment");
+    Camera.clear();
+  });
+  test("QuestionFile cameraFacingMode property", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const survey = new SurveyModel({
+      elements: [
+        { type: "file", name: "q1", sourceType: "camera" },
+        { type: "file", name: "q2", sourceType: "camera", cameraFacingMode: "environment" }
+      ]
+    });
+    const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+    expect(q1.cameraFacingMode, "The default property value").toBe("user");
+    expect(q2.cameraFacingMode, "The property is loaded from JSON").toBe("environment");
+
+    q1.startVideo();
+    let mConst: any = q1["camera"].getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Front camera for q1").toBe("3");
+    q1.stopVideo();
+
+    q2.startVideo();
+    mConst = q2["camera"].getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Back camera for q2").toBe("2");
+    q2.stopVideo();
+
+    q1.cameraFacingMode = "user";
+    q1.startVideo();
+    mConst = q1["camera"].getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Front camera for q1 again").toBe("3");
+    q1.stopVideo();
+
+    Camera.clear();
+  });
+  test("Two file questions use their own camera, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const survey = new SurveyModel({
+      elements: [
+        { type: "file", name: "q1", sourceType: "camera", cameraFacingMode: "user" },
+        { type: "file", name: "q2", sourceType: "camera", cameraFacingMode: "environment" }
+      ]
+    });
+    const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+    q1.startVideo();
+    q2.startVideo();
+    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "q1 uses the front camera").toBe("3");
+    expect((<any>q2["camera"].getMediaConstraints()).video.deviceId.exact, "q2 uses the back camera").toBe("2");
+
+    q2.flipCamera();
+    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "q1 is not affected by flipping q2").toBe("3");
+    expect((<any>q2["camera"].getMediaConstraints()).video.deviceId.exact, "q2 is flipped").toBe("1");
+    q1.stopVideo();
+    q2.stopVideo();
+    Camera.clear();
+  });
+  test("QuestionFile cameraFacingMode & renderCapture", () => {
+    const q = new QuestionFileModel("q1");
+    expect(q.renderCapture, "allowCameraAccess is false").toBeUndefined();
+    q.allowCameraAccess = true;
+    expect(q.renderCapture, "the default value").toBe("user");
+    q.cameraFacingMode = "environment";
+    expect(q.renderCapture, "the rear camera").toBe("environment");
+    q.cameraFacingMode = "user";
+    expect(q.renderCapture, "the front camera").toBe("user");
+  });
   test("new Camera().flip", () => {
     expect(new Camera().canFlip(), "There is no devices").toBe(false);
     Camera.setCameraList(createDevices([{ label: "abd" }]));
     expect(new Camera().canFlip(), "There is one device").toBe(false);
     Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
-    expect(new Camera().canFlip(), "There are 3 devices").toBe(true);
-    let mConst: any = new Camera().getMediaConstraints();
+    const camera = new Camera();
+    expect(camera.canFlip(), "There are 3 devices").toBe(true);
+    let mConst: any = camera.getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Device is correct").toBe("3");
-    new Camera().flip();
-    mConst = new Camera().getMediaConstraints();
+    camera.flip();
+    mConst = camera.getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Flip #1").toBe("2");
-    new Camera().flip();
-    mConst = new Camera().getMediaConstraints();
+    camera.flip();
+    mConst = camera.getMediaConstraints();
     expect(mConst.video.deviceId.exact, "Flip #2").toBe("1");
-    new Camera().flip();
-    mConst = new Camera().getMediaConstraints();
-    expect(mConst.video.deviceId.exact, "Flip #2").toBe("3");
+    camera.flip();
+    mConst = camera.getMediaConstraints();
+    expect(mConst.video.deviceId.exact, "Flip #3").toBe("3");
+    Camera.clear();
+  });
+  test("Camera keeps the selected facing mode per instance, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const cameraA = new Camera();
+    const cameraB = new Camera();
+    cameraA.setFacingMode("environment");
+    cameraB.setFacingMode("user");
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "Back camera for A").toBe("2");
+    expect((<any>cameraB.getMediaConstraints()).video.deviceId.exact, "Front camera for B").toBe("3");
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "B doesn't change the camera of A").toBe("2");
+
+    const cameraC = new Camera();
+    const cameraD = new Camera();
+    cameraD.setFacingMode("user");
+    cameraC.setFacingMode("environment");
+    expect((<any>cameraD.getMediaConstraints()).video.deviceId.exact, "Front camera for D").toBe("3");
+    expect((<any>cameraC.getMediaConstraints()).video.deviceId.exact, "Back camera for C").toBe("2");
+    Camera.clear();
+  });
+  test("Camera.setFacingMode resets the selected camera of its own instance only, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
+    const cameraA = new Camera();
+    const cameraB = new Camera();
+    cameraB.getMediaConstraints();
+    cameraB.flip();
+    expect((<any>cameraB.getMediaConstraints()).video.deviceId.exact, "B selected the second camera").toBe("2");
+    cameraA.setFacingMode("user");
+    expect((<any>cameraB.getMediaConstraints()).video.deviceId.exact, "B keeps its camera").toBe("2");
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "A starts from the first camera").toBe("3");
+    Camera.clear();
+  });
+  test("Camera.flip doesn't change the camera of another instance, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
+    const cameraA = new Camera();
+    const cameraB = new Camera();
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "A starts from the first camera").toBe("3");
+    cameraA.flip();
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "A is flipped").toBe("2");
+    expect((<any>cameraB.getMediaConstraints()).video.deviceId.exact, "B is not flipped").toBe("3");
+    cameraB.flip();
+    cameraB.flip();
+    expect((<any>cameraB.getMediaConstraints()).video.deviceId.exact, "B is flipped twice").toBe("1");
+    expect((<any>cameraA.getMediaConstraints()).video.deviceId.exact, "B doesn't change the camera of A").toBe("2");
+    Camera.clear();
+  });
+  test("Camera.flip switches the facing mode per instance, Bug#11784", () => {
+    const devices = createDevices([{ label: "" }, { label: "" }]);
+    devices.forEach(device => (<any>device).deviceId = "");
+    Camera.setCameraList(devices);
+    Camera["canSwitchFacingMode"] = true;
+    const cameraA = new Camera();
+    const cameraB = new Camera();
+    expect((<any>cameraA.getMediaConstraints()).video.facingMode, "A uses the front camera by default").toBe("user");
+    cameraA.flip();
+    expect((<any>cameraA.getMediaConstraints()).video.facingMode, "A is flipped").toBe("environment");
+    expect((<any>cameraB.getMediaConstraints()).video.facingMode, "B keeps its own facing mode").toBe("user");
+    Camera.clear();
+    expect(Camera["canSwitchFacingMode"], "clear() resets the discovered capability").toBe(false);
+  });
+  test("Camera.setFacingMode with the same mode keeps the flipped camera, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const camera = new Camera();
+    camera.setFacingMode("environment");
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "Back camera is used").toBe("2");
+    camera.flip();
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "The next camera after flip").toBe("1");
+    camera.setFacingMode("environment");
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "The same mode keeps the flipped camera").toBe("1");
+    camera.setFacingMode("unknown");
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "Unknown mode keeps the flipped camera").toBe("1");
+    camera.setFacingMode("user");
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "A different mode selects the camera again").toBe("3");
+    Camera.clear();
+  });
+  test("Camera.setFacingMode with the same mode keeps the flipped facing mode, Bug#11784", () => {
+    const devices = createDevices([{ label: "" }, { label: "" }]);
+    devices.forEach(device => (<any>device).deviceId = "");
+    Camera.setCameraList(devices);
+    Camera["canSwitchFacingMode"] = true;
+    const camera = new Camera();
+    camera.setFacingMode("user");
+    expect((<any>camera.getMediaConstraints()).video.facingMode, "Front camera is requested").toBe("user");
+    camera.flip();
+    expect((<any>camera.getMediaConstraints()).video.facingMode, "Back camera after flip").toBe("environment");
+    camera.setFacingMode("user");
+    expect((<any>camera.getMediaConstraints()).video.facingMode, "The same mode keeps the flipped facing mode").toBe("environment");
+    camera.setFacingMode("environment");
+    expect((<any>camera.getMediaConstraints()).video.facingMode, "A different mode is applied").toBe("environment");
+    camera.flip();
+    expect((<any>camera.getMediaConstraints()).video.facingMode, "Flipped back to the front camera").toBe("user");
+    Camera.clear();
+  });
+  test("QuestionFile keeps the flipped camera on closing and opening the camera, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const survey = new SurveyModel({
+      elements: [
+        { type: "file", name: "q1", sourceType: "camera" },
+        { type: "file", name: "q2", sourceType: "camera", cameraFacingMode: "environment" }
+      ]
+    });
+    const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+    const getDeviceId = (q: QuestionFileModel): string => (<any>q["camera"].getMediaConstraints()).video.deviceId.exact;
+
+    q2.startVideo();
+    expect(getDeviceId(q2), "q2 starts from the back camera").toBe("2");
+    q2.flipCamera();
+    expect(getDeviceId(q2), "q2 is flipped").toBe("1");
+    q2.stopVideo();
+    q2.startVideo();
+    expect(getDeviceId(q2), "q2 keeps the flipped camera on re-opening").toBe("1");
+    q2.stopVideo();
+    q2.startVideo();
+    expect(getDeviceId(q2), "q2 keeps the flipped camera on re-opening again").toBe("1");
+    q2.stopVideo();
+    q2.cameraFacingMode = "user";
+    q2.startVideo();
+    expect(getDeviceId(q2), "q2 uses the new property value").toBe("3");
+    q2.stopVideo();
+
+    q1.startVideo();
+    expect(getDeviceId(q1), "q1 starts from the front camera by default").toBe("3");
+    q1.flipCamera();
+    expect(getDeviceId(q1), "q1 is flipped").toBe("2");
+    q1.stopVideo();
+    q1.startVideo();
+    expect(getDeviceId(q1), "q1 keeps the flipped camera without the property").toBe("2");
+    q1.stopVideo();
+    q1.cameraFacingMode = "environment";
+    q1.startVideo();
+    expect(getDeviceId(q1), "q1 uses the back camera after setting the property").toBe("2");
+    q1.flipCamera();
+    expect(getDeviceId(q1), "q1 is flipped after setting the property").toBe("1");
+    q1.stopVideo();
+    q1.startVideo();
+    expect(getDeviceId(q1), "q1 keeps the flipped camera with the property set").toBe("1");
+    q1.stopVideo();
+    Camera.clear();
+  });
+  test("QuestionFile cameraFacingMode is visible for the camera source types only", () => {
+    const q = new QuestionFileModel("q1");
+    const prop = Serializer.findProperty("file", "cameraFacingMode");
+    expect(q.sourceType, "The default source type").toBe("file");
+    expect(prop.isVisible("", q), "The property is hidden for the file source").toBeFalsy();
+    q.sourceType = "camera";
+    expect(prop.isVisible("", q), "The property is visible for the camera source").toBeTruthy();
+    q.sourceType = "file-camera";
+    expect(prop.isVisible("", q), "The property is visible for the file-camera source").toBeTruthy();
+    q.sourceType = "file";
+    expect(prop.isVisible("", q), "The property is hidden for the file source again").toBeFalsy();
+    expect(prop.dependsOn.indexOf("sourceType") > -1, "The property is recalculated on changing sourceType").toBeTruthy();
+  });
+  test("QuestionFile cameraFacingMode default value", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "back camera" }, { label: "front camera" }]));
+    const survey = new SurveyModel({
+      elements: [{ type: "file", name: "q1", sourceType: "camera" }]
+    });
+    const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+    expect(q1.cameraFacingMode, "The default value").toBe("user");
+    expect(q1.toJSON().cameraFacingMode, "The default value is not serialized").toBeUndefined();
+    expect(q1.renderCapture, "The capture attribute is not rendered without allowCameraAccess").toBeUndefined();
+
+    q1.startVideo();
+    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "The front camera by default").toBe("3");
+    q1.stopVideo();
+
+    q1.cameraFacingMode = "environment";
+    expect(q1.toJSON().cameraFacingMode, "A non-default value is serialized").toBe("environment");
+    q1.startVideo();
+    expect((<any>q1["camera"].getMediaConstraints()).video.deviceId.exact, "The back camera is selected").toBe("2");
+    q1.stopVideo();
+
+    q1.cameraFacingMode = undefined;
+    expect(q1.cameraFacingMode, "Resetting the property restores the default value").toBe("user");
+    Camera.clear();
+  });
+  test("Camera selects a valid device after the device list is replaced, Bug#11784", () => {
+    Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
+    const camera = new Camera();
+    camera.getMediaConstraints();
+    camera.flip();
+    camera.flip();
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "The last camera is selected").toBe("1");
+    Camera.setCameraList(createDevices([{ label: "environment" }, { label: "user" }]));
+    expect((<any>camera.getMediaConstraints()).video.deviceId.exact, "The first camera in the new list").toBe("2");
     Camera.clear();
   });
   test("Check file question change camera action", () => {
@@ -1591,13 +1876,13 @@ describe("Survey_QuestionFile", () => {
     expect(changeCameraAction.visible).toBeFalsy();
     q1["camera"]["updateCanFlipValue"]();
     expect(changeCameraAction.visible).toBeTruthy();
-    Camera["cameraIndex"] = 0;
+    q1["camera"]["cameraIndex"] = 0;
     q1["camera"].flip();
-    expect(Camera["cameraIndex"]).toBe(1);
+    expect(q1["camera"]["cameraIndex"]).toBe(1);
     q1["camera"].flip();
-    expect(Camera["cameraIndex"]).toBe(2);
+    expect(q1["camera"]["cameraIndex"]).toBe(2);
     q1["camera"].flip();
-    expect(Camera["cameraIndex"]).toBe(0);
+    expect(q1["camera"]["cameraIndex"]).toBe(0);
 
     Camera.setCameraList(createDevices([{ label: "environment" }]));
     q1["camera"]["updateCanFlipValue"]();
@@ -1605,11 +1890,11 @@ describe("Survey_QuestionFile", () => {
     Camera["canSwitchFacingMode"] = true;
     q1["camera"]["updateCanFlipValue"]();
     expect(changeCameraAction.visible).toBeTruthy();
-    expect(Camera["cameraFacingMode"]).toBe("user");
+    expect(q1["camera"]["cameraFacingMode"]).toBe("user");
     q1["camera"].flip();
-    expect(Camera["cameraFacingMode"]).toBe("environment");
+    expect(q1["camera"]["cameraFacingMode"]).toBe("environment");
     q1["camera"].flip();
-    expect(Camera["cameraFacingMode"]).toBe("user");
+    expect(q1["camera"]["cameraFacingMode"]).toBe("user");
     Camera.clear();
   });
   test("new Camera().getMediaConstraints width and height", () => {

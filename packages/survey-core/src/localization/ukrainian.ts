@@ -246,7 +246,25 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Індикатор прогресу",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Сторінка {0}"
+  progressbarPage: "Сторінка {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "р",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "г",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "Г",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "х",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "с",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "п",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "П"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

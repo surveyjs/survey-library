@@ -359,6 +359,20 @@ Gets or sets a caption for the Edit button displayed when the survey shows a [pr
 
 **Related APIs:** [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`cancelPreview`](#cancelPreview), [`previewText`](#previewText)
 
+### `elementIdPrefix`
+
+**Type**: `string`
+
+A prefix prepended to every HTML `id` attribute generated for survey elements.
+
+Assign a unique prefix to each survey when rendering **multiple surveys on the same page** to prevent duplicate `id` attributes. Leave this property empty (default value) if you render a single survey on the page.
+
+Set this property *before* rendering the survey.
+
+Default value: `""`
+
+Available since: v3.0.0
+
 ### `emptySurveyText`
 
 **Type**: `string`
@@ -746,7 +760,7 @@ To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
 
 **Type**: `"survey" | "container"`
 
-Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](#progressBarType) is `"pages"`.
 
 Possible values:
 
@@ -755,7 +769,7 @@ The progress bar width is the same as the survey width.
 - `"container"` (default)\
 The progress bar width is the same as the survey container width.
 
-**Related APIs:** [`progressBarShowPageTitles`](#progressBarShowPageTitles), [`progressBarShowPageNumbers`](#progressBarShowPageNumbers)
+**Related APIs:** [`progressBarShowNavigationText`](#progressBarShowNavigationText), [`progressBarShowPageNumbers`](#progressBarShowPageNumbers)
 
 ### `progressBarLocation`
 
@@ -775,29 +789,45 @@ Possible values:
 
 **Related APIs:** [`showProgressBar`](#showProgressBar), [`progressBarType`](#progressBarType), [`progressValue`](#progressValue)
 
+### `progressBarNavigationTextLocation`
+
+**Type**: `"top" | "bottom" | "inline"`
+
+Specifies the placement of [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription) in the progress bar relative to the step buttons. Applies only when [`showProgressBar`](#showProgressBar) is `true`, [`progressBarType`](#progressBarType) is `"pages"`, and [`progressBarShowNavigationText`](#progressBarShowNavigationText) is `true`.
+
+Possible values:
+
+- `"top"` (default) &ndash; Displays navigation text above the step buttons.
+- `"bottom"` &ndash; Displays navigation text below the step buttons.
+- `"inline"` &ndash; Displays navigation text next to the step buttons on the same line.
+
+Available since: v3.0.0
+
+### `progressBarShowNavigationText`
+
+**Type**: `boolean`
+
+Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+
+Default value: `false`
+
+[View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
+
+Available since: v3.0.0
+
+**Related APIs:** [`progressBarNavigationTextLocation`](#progressBarNavigationTextLocation), [`progressBarShowPageNumbers`](#progressBarShowPageNumbers), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
+
 ### `progressBarShowPageNumbers`
 
 **Type**: `boolean`
 
-Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+Specifies whether the progress bar displays page numbers. Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](#progressBarType) is `"pages"`.
 
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
 
-**Related APIs:** [`progressBarShowPageTitles`](#progressBarShowPageTitles), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
-
-### `progressBarShowPageTitles`
-
-**Type**: `boolean`
-
-Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
-
-Default value: `false`
-
-[View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
-
-**Related APIs:** [`progressBarShowPageNumbers`](#progressBarShowPageNumbers), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
+**Related APIs:** [`progressBarShowNavigationText`](#progressBarShowNavigationText), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
 
 ### `progressBarType`
 
@@ -805,15 +835,16 @@ Default value: `false`
 
 Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
 
+The default type is `"pages"`. However, when [`questionsOnPageMode`](#questionsOnPageMode) is set to `"questionPerPage"`, the progress bar uses `"questions"` by default.
+
 Possible values:
 
 - `"pages"` (default) - The number of completed pages.
-- `"questions"` - The number of answered questions.
+- `"questions"` (default in question-per-page mode) - The number of answered questions.
 - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
 - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
-- `"buttons"` - *(Obsolete)* Use the `"pages"` property value with the [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) property set to `true` instead.
 
-> When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) properties if you want to display page numbers and titles in the progress bar.
+> When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowNavigationText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowNavigationText) properties if you want to display page numbers, titles, and descriptions in the progress bar.
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
 
@@ -1096,7 +1127,7 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Related APIs:** [`tocLocation`](#tocLocation)
+**Related APIs:** [`tocLocation`](#tocLocation), [`tocItemComponent`](#tocItemComponent)
 
 ### `startPage`
 
@@ -1229,6 +1260,16 @@ You can also find out how many seconds a respondent has spent on an individual s
 
 **Related APIs:** [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`startTimer`](#startTimer)
 
+### `tocItemComponent`
+
+**Type**: `string`
+
+The name of a component used to render items in the Table of Contents. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true`.
+
+You can set this property in code or in a survey JSON schema.
+
+**Related APIs:** [`showTOC`](#showTOC), [`tocLocation`](#tocLocation)
+
 ### `tocLocation`
 
 **Type**: `"left" | "right"`
@@ -1242,7 +1283,7 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Related APIs:** [`showTOC`](#showTOC)
+**Related APIs:** [`showTOC`](#showTOC), [`tocItemComponent`](#tocItemComponent)
 
 ### `triggers`
 
@@ -1447,6 +1488,7 @@ Applies a specified theme to the survey.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `theme` | `ITheme` | An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings. |
+| `baseTheme` | `ITheme` | An optional [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object used as the base theme. When specified, it is deep-merged with `theme`, and the merged result is applied. |
 
 ### `beginLoading()`
 
@@ -2051,7 +2093,7 @@ Sets a question value (answer).
 
 [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz/ (linkStyle))
 
-> This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
+> This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredIf`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
 
 **Parameters:**
 
@@ -3814,7 +3856,7 @@ Parameters:
 A survey instance that raised the event.
 - `options.element`: `ISurveyElement`  
 A survey element whose state change triggered the event.
-- `options.changedProperty`: `"collapsed" | "activeElementName" | "activePanelIndex" | "passed"`  
+- `options.changedProperty`: `"collapsed" | "activeElementName" | "activePanelIndex" | "shown"`  
 The name of the UI state property that changed.
 
 To access the current UI state, use the [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) property:

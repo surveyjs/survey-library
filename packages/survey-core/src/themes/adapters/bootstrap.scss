@@ -40,7 +40,8 @@
   --sjs2-base-unit-spacing: 8px;
 
   /* Let Bootstrap size the elements in a row instead of the default element min-width. */
-  --sjs-element-min-width: 0px;
+  --sjs-element-min-width: 140px;
+  --sd-mobile-width: 768px;
 
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);

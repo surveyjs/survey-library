@@ -7,43 +7,45 @@ export class DomWindowHelper {
     if (!DomWindowHelper.isAvailable()) return false;
     return !!(<any>window)["FileReader"];
   }
-  public static getLocation(): Location {
-    if (!DomWindowHelper.isAvailable()) return;
+  public static getLocation(): Location | null {
+    if (!DomWindowHelper.isAvailable()) return null;
     return window.location;
   }
   public static getVisualViewport(): VisualViewport | null {
     if (!DomWindowHelper.isAvailable()) return null;
     return window.visualViewport;
   }
-  public static getInnerWidth(): number {
-    if (!DomWindowHelper.isAvailable()) return;
+  public static getInnerWidth(): number | null {
+    if (!DomWindowHelper.isAvailable()) return null;
     return window.innerWidth;
   }
-  public static getInnerHeight(): number {
+  public static getInnerHeight(): number | null {
     if (!DomWindowHelper.isAvailable()) return null;
     return window.innerHeight;
   }
-  public static getDevicePixelRatio(): number {
+  public static getDevicePixelRatio(): number | null {
     if (!DomWindowHelper.isAvailable()) return null;
     return window.devicePixelRatio;
   }
-  public static getWindow(): Window {
-    if (!DomWindowHelper.isAvailable()) return;
+  public static getWindow(): Window | null {
+    if (!DomWindowHelper.isAvailable()) return null;
     return window;
   }
   public static hasOwn(propertyName: string): boolean {
-    if (!DomWindowHelper.isAvailable()) return;
+    if (!DomWindowHelper.isAvailable()) return false;
     return propertyName in window;
   }
   public static getSelection(): Selection | null {
     if (DomWindowHelper.isAvailable() && window.getSelection) {
       return window.getSelection();
     }
+    return null;
   }
-  public static requestAnimationFrame(callback: FrameRequestCallback): number {
+  public static requestAnimationFrame(callback: FrameRequestCallback): number | null {
     if (DomWindowHelper.isAvailable()) {
       return window.requestAnimationFrame(callback);
     }
+    return null;
   }
   public static isEventListenerAvailable(): boolean {
     if (!DomWindowHelper.isAvailable()) return false;
@@ -63,9 +65,9 @@ export class DomWindowHelper {
     return window.matchMedia(mediaQueryString);
   }
 
-  public static getScreenOrientationType(): string | undefined {
-    if (!DomWindowHelper.isAvailable()) return;
-    return window.screen?.orientation?.type;
+  public static getScreenOrientationType(): string | null {
+    if (!DomWindowHelper.isAvailable()) return null;
+    return window.screen?.orientation?.type || null;
   }
 }
 
@@ -73,27 +75,27 @@ export class DomDocumentHelper {
   public static isAvailable(): boolean {
     return "undefined" !== typeof document;
   }
-  public static getBody(): HTMLElement {
-    if (!DomDocumentHelper.isAvailable()) return;
+  public static getBody(): HTMLElement | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
     return document.body;
   }
-  public static getDocumentElement(): HTMLElement {
-    if (!DomDocumentHelper.isAvailable()) return;
+  public static getDocumentElement(): HTMLElement | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
     return document.documentElement;
   }
-  public static getDocument(): Document {
-    if (!DomDocumentHelper.isAvailable()) return;
+  public static getDocument(): Document | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
     return document;
   }
-  public static getCookie(): string {
-    if (!DomDocumentHelper.isAvailable()) return;
+  public static getCookie(): string | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
     return document.cookie;
   }
   public static setCookie(newCookie: string): void {
     if (!DomDocumentHelper.isAvailable()) return;
     document.cookie = newCookie;
   }
-  public static activeElementBlur(): Document {
+  public static activeElementBlur(): void {
     if (!DomDocumentHelper.isAvailable()) return;
 
     const activeElement = document.activeElement;
@@ -101,13 +103,13 @@ export class DomDocumentHelper {
       (<any>activeElement).blur();
     }
   }
-  public static createElement(tagName: string): HTMLElement {
-    if (!DomDocumentHelper.isAvailable()) return;
+  public static createElement(tagName: string): HTMLElement | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
     return document.createElement(tagName);
   }
-  public static getComputedStyle(elt: Element): CSSStyleDeclaration {
-    if (!DomDocumentHelper.isAvailable()) return new CSSStyleDeclaration();
-    return document.defaultView.getComputedStyle(elt);
+  public static getComputedStyle(elt: Element): CSSStyleDeclaration | null {
+    if (!DomDocumentHelper.isAvailable()) return null;
+    return document.defaultView?.getComputedStyle(elt) || null;
   }
   public static isRtlDirection(target?: EventTarget | Element | ShadowRoot): boolean {
     if (!DomDocumentHelper.isAvailable()) return false;
@@ -116,7 +118,7 @@ export class DomDocumentHelper {
         typeof Element !== "undefined" && target instanceof Element ? target :
           DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
     if (!styleTarget) return false;
-    return DomDocumentHelper.getComputedStyle(styleTarget).direction === "rtl";
+    return DomDocumentHelper.getComputedStyle(styleTarget)?.direction === "rtl";
   }
   public static addEventListener(type: string, listener: (e?: any) => void): void {
     if (!DomDocumentHelper.isAvailable()) return;

@@ -181,12 +181,6 @@ If the `title` property is `undefined` or set to an empty string, the `hasTitle`
 
 **Related APIs:** [`title`](#title), [`titleLocation`](#titleLocation)
 
-### `id`
-
-**Type**: `string`
-
-A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
-
 ### `isAllowTitleLeft`
 
 **Type**: `boolean`

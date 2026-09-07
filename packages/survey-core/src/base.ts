@@ -1146,6 +1146,9 @@ export class Base implements IObjectValueContext {
     }
   }
   protected onAsyncRunningChanged(): void { }
+  // Stable read-only state: true while an asynchronous expression of this object is in flight.
+  // SurveyModel.getRunningAsyncOperations() reads it on every expression owner, so a rename or a
+  // semantics change here is a breaking change of that API.
   public get isAsyncExpressionRunning(): boolean {
     return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
   }

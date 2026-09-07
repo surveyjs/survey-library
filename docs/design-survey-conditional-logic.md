@@ -338,8 +338,7 @@ const surveyJson = {
 
 </details>
 
-<!-- TODO: Uncomment after V3 -->
-<!-- [View Demo](https://surveyjs.io/form-library/examples/education/student-feedback-form-template/ (linkStyle)) -->
+[View Demo](https://surveyjs.io/form-library/examples/education/student-feedback-form-template/ (linkStyle))
 
 ### Variables
 

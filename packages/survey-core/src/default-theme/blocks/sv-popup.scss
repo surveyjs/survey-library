@@ -246,6 +246,7 @@ sv-popup {
   padding: 0;
 
   width: 100%;
+  top: var(--sv-popup-overlay-top, 0px);
   height: $popup-overlay-height;
 
   .sv-popup__body-footer-item {

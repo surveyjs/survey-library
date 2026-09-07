@@ -246,7 +246,25 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "İlerleme çubuğu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Sayfa {0}"
+  progressbarPage: "Sayfa {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "a",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "y",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "s",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "S",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "d",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

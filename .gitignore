@@ -36,7 +36,7 @@ package-lock.json
 
 svgbundle.html
 
-coverage/**/*
+coverage/
 
 /.angular/cache
 visualRegressionTests/screenshots

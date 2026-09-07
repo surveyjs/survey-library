@@ -68,6 +68,16 @@ Default value: `false`
 
 **Related APIs:** [`maxFiles`](#maxFiles)
 
+### `confirmDelete`
+
+**Type**: `boolean`
+
+Specifies whether users should confirm file deletion.
+
+Default value: `true`
+
+Available since: v3.0.0
+
 ### `fileOrPhotoPlaceholder`
 
 **Type**: `string`
@@ -135,14 +145,6 @@ Default value: 0 (unlimited)
 [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
 
 **Related APIs:** [`maxFiles`](#maxFiles)
-
-### `needConfirmRemoveFile`
-
-**Type**: `boolean`
-
-Specifies whether users should confirm file deletion.
-
-Default value: `false`
 
 ### `photoPlaceholder`
 

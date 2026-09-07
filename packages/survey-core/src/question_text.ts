@@ -11,7 +11,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
-import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
+import { getAvailableMaskTypeChoices, IInputMask, IMaskLocaleChange } from "./mask/mask_utils";
 import { getRootNode } from "./utils/dom-utils";
 
 /**
@@ -116,6 +116,33 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
     this.updateMaskAdapter();
+  }
+  public localeChanged(): void {
+    super.localeChanged();
+    if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
+    // While the element is focused, an in-progress entry may exist only in it - masked
+    // keystrokes are written there directly and reach _inputValue on blur - so its text has to
+    // be captured before localeChanged() below rebuilds the mask and rerenders the element.
+    // Without focus a blur has already synchronized _inputValue, which stays authoritative
+    // (a programmatic inputValue assignment updates the model first, not the element).
+    const isEditing = !!this.maskInputAdapter && this.maskInputAdapter.isInputElementFocused;
+    const enteredText = isEditing ? this.maskInputAdapter.inputElementText : this._inputValue;
+    const state: IMaskLocaleChange = {
+      // an incomplete entry is not stored in the question value
+      enteredText: this.isEmpty() ? enteredText : undefined,
+      // a masked value is stored in the format of the previous locale
+      value: this.maskSettings.saveMaskedValue ? this.value : undefined
+    };
+    // Base.localeChanged() does not descend into the maskSettings property. The mask notifies
+    // this question and the input element adapter about the change via onPropertyChanged.
+    this.maskSettings.localeChanged(state);
+    if (!!state.value && state.value !== this.value) {
+      this.value = state.value;
+    }
+    if (!!state.enteredText) {
+      this._inputValue = state.enteredText;
+      this.maskInputAdapter?.updateInputElementText(state.enteredText);
+    }
   }
   private setNewMaskSettingsProperty() {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
@@ -709,6 +736,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return new CssClassBuilder()
       .append(super.getControlClass())
       .append(this.cssClasses.isValueChanged, this._isValueChanged)
+      .append(this.cssClasses.hasMask, !this.maskTypeIsEmpty)
       .toString();
   }
   public isReadOnlyRenderDiv(): boolean {
@@ -718,7 +746,15 @@ export class QuestionTextModel extends QuestionTextBase {
     var style: any = {};
     style.width = this.inputWidth;
     this.updateTextAlign(style);
+    this.updateDirection(style);
     return style;
+  }
+  // A mask that declares its content a left-to-right run gets it as an inline style: the value then
+  // keeps its field order in a right-to-left survey, and the theme aligns the box to the survey side.
+  private updateDirection(style: any) {
+    if (!this.maskTypeIsEmpty && this.maskSettings.getInputDirection() !== "auto") {
+      style.direction = this.maskSettings.getInputDirection();
+    }
   }
   private updateTextAlign(style: any) {
     if (this.inputTextAlignment !== "auto") {

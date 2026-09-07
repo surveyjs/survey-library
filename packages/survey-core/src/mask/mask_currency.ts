@@ -40,6 +40,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
   public getType(): string {
     return "currencymask";
   }
+  protected getLiteralText(): string {
+    return super.getLiteralText() + (this.prefix || "") + (this.suffix || "");
+  }
 
   private wrapText(str: string): string {
     const prefixValue = this.prefix || "";

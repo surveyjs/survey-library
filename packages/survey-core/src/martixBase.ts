@@ -73,7 +73,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    *
    * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
-+   */
+   */
   @property() rows: Array<any>;
   protected getVisibleRows(): Array<TRow> {
     return [];

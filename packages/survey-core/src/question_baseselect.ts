@@ -265,7 +265,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.onVisibleChoicesChanged();
     }
     if (visibleChoicesChangedProps.indexOf(name) > -1) {
-      this.updateCorrectAnswerOnChoicesChanged();
+      this.updateValuePropertiesOnChoicesChanged();
     }
     if (name === "hideIfChoicesEmpty") {
       this.onVisibleChanged();
@@ -798,25 +798,40 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected isCorrectAnswerValueExists(val: any): boolean {
     return !!this.getItemByValue(val, this.visibleChoices);
   }
-  private updateCorrectAnswerOnChoicesChanged(): void {
-    if (this.isValueEmpty(this.correctAnswer) || this.activeChoices.length === 0 ||
-      !this.canClearIncorrectValues()) return;
-    const newValue = this.getCorrectAnswerOnChoicesChanged(this.correctAnswer);
-    if (Helpers.isTwoValueEquals(this.correctAnswer, newValue)) return;
-    if (this.isValueEmpty(newValue)) {
-      this.correctAnswer = undefined;
-      //an array-valued property keeps an empty array on resetting, so remove it explicitly
-      if (Array.isArray(this.getPropertyValue("correctAnswer"))) {
-        this.clearPropertyValue("correctAnswer");
-      }
-    } else {
-      this.correctAnswer = newValue;
+  private updateValuePropertiesOnChoicesChanged(): void {
+    const hasCorrectAnswer = !this.isValueEmpty(this.correctAnswer);
+    const hasDefaultValue = !this.isValueEmpty(this.defaultValue);
+    if (!hasCorrectAnswer && !hasDefaultValue) return;
+    if (this.activeChoices.length === 0 || !this.canClearIncorrectValues()) return;
+    if (hasCorrectAnswer) {
+      this.updateValuePropertyOnChoicesChanged("correctAnswer");
+    }
+    if (hasDefaultValue) {
+      this.updateValuePropertyOnChoicesChanged("defaultValue");
     }
   }
-  protected getCorrectAnswerOnChoicesChanged(val: any): any {
-    return this.correctAnswerValueExistsInChoices(val) ? val : undefined;
+  private updateValuePropertyOnChoicesChanged(propName: string): void {
+    const val = (<any>this)[propName];
+    const newValue = this.getValueOnChoicesChanged(val);
+    if (Helpers.isTwoValueEquals(val, newValue)) return;
+    if (this.isValueEmpty(newValue)) {
+      (<any>this)[propName] = undefined;
+      //an array-valued property keeps an empty array on resetting, so remove it explicitly
+      if (Array.isArray(this.getPropertyValue(propName))) {
+        this.clearPropertyValue(propName);
+      }
+    } else {
+      (<any>this)[propName] = newValue;
+    }
   }
-  protected correctAnswerValueExistsInChoices(val: any): boolean {
+  protected getValueOnChoicesChanged(val: any): any {
+    if (Array.isArray(val)) {
+      const res = val.filter((item) => this.valueExistsInChoices(item));
+      return res.length > 0 ? res : undefined;
+    }
+    return this.valueExistsInChoices(val) ? val : undefined;
+  }
+  protected valueExistsInChoices(val: any): boolean {
     return !this.hasUnknownValueItem(val, true, false);
   }
   protected filterItems(): boolean {
@@ -1208,6 +1223,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && this.isOtherValue(val)) return false;
+    if (!this.hasUnknownValueItemInChoices(val, isFilteredChoices)) return false;
+    return !this.isValueInSharedQuestions(val, isFilteredChoices);
+  }
+  protected hasUnknownValueItemInChoices(val: any, isFilteredChoices: boolean): boolean {
     if (this.showNoneItem && val == this.noneItem.value) return false;
     if (this.showRefuseItem && val == this.refuseItem.value) return false;
     if (this.showDontKnowItem && val == this.dontKnowItem.value) return false;
@@ -1215,6 +1234,28 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       ? this.getFilteredChoices()
       : this.activeChoices;
     return this.getItemByValue(val, choices) == null;
+  }
+  // Several questions may share the same valueName. In this case the value that belongs
+  // to another question choices is a known value for this question as well and it should
+  // not be treated as the "other" value.
+  private isValueInSharedQuestions(val: any, isFilteredChoices: boolean): boolean {
+    const questions = this.getQuestionsWithSameValueName();
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].hasUnknownValueItemInChoices(val, isFilteredChoices)) return true;
+    }
+    return false;
+  }
+  private getQuestionsWithSameValueName(): Array<QuestionSelectBase> {
+    const res: Array<QuestionSelectBase> = [];
+    if (!this.valueName || !this.survey) return res;
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    if (!Array.isArray(questions) || questions.length < 2) return res;
+    questions.forEach((q: any) => {
+      if (q !== this && q.isDescendantOf && q.isDescendantOf("selectbase")) {
+        res.push(<QuestionSelectBase>q);
+      }
+    });
+    return res;
   }
   protected isValueDisabled(val: any): boolean {
     var itemValue = this.getItemByValue(val, this.getFilteredChoices());
@@ -1291,7 +1332,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * {
    *   "value": any, // A unique value to be saved in the survey results.
    *   "text": string, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
-   *   "imageLink": string // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
+   *   "imageLink": string, // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
+   *   "elements": Array<object>, // JSON configurations of questions and panels nested within this choice
    *   "customProperty": any // Any property that you find useful.
    * }
    * ```
@@ -1313,6 +1355,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * [Image Picker Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    *
    * [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
+   *
+   * [Nest Content Within Choice Options](https://surveyjs.io/form-library/examples/nest-follow-up-questions-within-choice-options/ (linkStyle))
    * @see choicesByUrl
    * @see choicesFromQuestion
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)

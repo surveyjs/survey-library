@@ -58,7 +58,13 @@ const buildPlatformJson = {
       "import": "./fesm/survey-core.mjs",
       "require": "./survey.core.js"
     },
+    "./linter": {
+      "types": "./typings/entries/linter.d.ts",
+      "import": "./fesm/linter/index.mjs",
+      "require": "./linter/index.js"
+    },
     "./*.css": "./*.css",
+    "./fonts/*": "./fonts/*",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
@@ -70,6 +76,11 @@ const buildPlatformJson = {
     "./i18n/*": {
       "import": "./fesm/i18n/*.mjs",
       "require": "./i18n/*.js"
+    },
+    "./tester": {
+      "types": "./typings/entries/tester.d.ts",
+      "import": "./fesm/tester.mjs",
+      "require": "./tester.js"
     },
     "./themes": {
       "types": "./themes/index.d.ts",
@@ -103,6 +114,11 @@ const buildPlatformJson = {
   },
   "typings": "./typings/entries/index.d.ts"
 };
+
+// The stylesheets reference these as url(fonts/...) instead of inlining them, so the
+// files have to sit next to the emitted CSS. Copied unconditionally: a dev build needs
+// them just as much as a release one. The Open Sans subsets ship with their license.
+fs.copySync(resolve(__dirname, "src/fonts"), resolve(buildPath, "fonts"));
 
 if (process.env.emitNonSourceFiles === "true") {
   fs.mkdirSync(buildPath, { recursive: true });

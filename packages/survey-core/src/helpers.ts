@@ -10,9 +10,19 @@ export interface IEqualValuesParameters {
   trimStrings?: boolean;
   doNotConvertNumbers?: boolean;
 }
-export function createDate(reason: string, val?: number | string | Date): Date {
+// What "the current moment" means for one survey. A survey that has no provider reads the machine
+// clock, which is what every application does. A provider is instance state on purpose: two surveys
+// evaluated in the same process, or one evaluated while another waits, never share a clock.
+export interface ISurveyDateProvider {
+  now(): number;
+}
+// owner is the object the date is created for - a survey, or anything that carries its clock. It only
+// matters when there is no value to convert: an explicit date is the date it says it is.
+export function createDate(reason: string, val?: number | string | Date,
+  owner?: { dateProvider?: ISurveyDateProvider }): Date {
   if (!val) {
-    return settings.onDateCreated(new Date(), reason, val);
+    const provider = !!owner ? owner.dateProvider : undefined;
+    return settings.onDateCreated(!!provider ? new Date(provider.now()) : new Date(), reason, val);
   }
   if (!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
     val += "T00:00:00";

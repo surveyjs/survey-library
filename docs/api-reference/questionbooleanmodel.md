@@ -28,6 +28,24 @@ If you set the `valueTrue` and `valueFalse` properties, the `value` property con
 
 **Related APIs:** [`valueTrue`](#valueTrue), [`valueFalse`](#valueFalse)
 
+### `displayMode`
+
+**Type**: `"custom" | "checkbox" | "radio" | "segmented" | "switch"`
+
+Specifies the visual representation of the Yes/No question.
+
+Possible values:
+
+- `"segmented"` (default) - Displays a segmented toggle on wide screens and radio buttons on narrow screens.
+- `"radio"` - Displays Yes/No options as radio buttons.
+- `"checkbox"` - Displays a single checkbox.
+- `"switch"` - Displays a switch control with the question title.
+- `"custom"` - Assigned automatically when the `renderAs` property contains a custom renderer name.
+
+Available since: v3.0.0
+
+**Related APIs:** [`useTitleAsLabel`](#useTitleAsLabel)
+
 ### `labelFalse`
 
 **Type**: `string`
@@ -61,6 +79,18 @@ Specifies whether to swap the order of the Yes and No answers.
 Default value: `false`
 
 By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
+
+### `useTitleAsLabel`
+
+**Type**: `boolean`
+
+Specifies whether to display the question title as a label next to the checkbox or switch control. Applies only when [`displayMode`](#displayMode) is set to `"checkbox"` or `"switch"`.
+
+Default value: `true`
+
+Set this property to `false` to display the question title according to the [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#titleLocation) property.
+
+Available since: v3.0.0
 
 ### `valueFalse`
 

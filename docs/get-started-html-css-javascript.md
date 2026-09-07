@@ -29,9 +29,9 @@ SurveyJS Form Library is composed of two key parts: `survey-core` (platform-inde
 ```html
 <head>
     <!-- ... -->
-    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
-    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
     <!-- ... -->
 </head>
 ```
@@ -42,7 +42,7 @@ The style sheet above applies the Default theme. SurveyJS Form Library also incl
 
 If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes & Styles](/documentation/themes-and-custom-styles (linkStyle))
 
 ## Create a Model
 
@@ -79,11 +79,11 @@ const survey = new Survey.Model(surveyJson);
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
 
-    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
 </body>
@@ -148,11 +148,11 @@ As a result, you should see the following survey:
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
 
-    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
     <div id="surveyContainer"></div>
@@ -249,11 +249,11 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
 
-    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
     <div id="surveyContainer"></div>

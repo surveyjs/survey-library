@@ -34,13 +34,13 @@ If you are looking for a quick-start application that includes all SurveyJS comp
 The SurveyJS Form Library for Angular consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-angular-ui`](https://www.npmjs.com/package/survey-angular-ui) (rendering code). Run the following command to install `survey-angular-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-angular-ui` dependencies.
 
 ```cmd
-npm install survey-angular-ui --save
+npm install survey-angular-ui
 ```
 
 > SurveyJS for Angular requires Angular v12.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
 >
 > ```cmd
-> npm install @angular/cdk@^12.0.0 --save
+> npm install @angular/cdk@^12.0.0
 > ```
 >
 > Earlier Angular versions are supported by the [`survey-angular`](https://www.npmjs.com/package/survey-angular) package. It depends on Knockout and is now obsolete. However, you can use it in your Angular v8&ndash;v11 projects. Refer to the following examples on GitHub for more information:
@@ -72,7 +72,7 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
             // ...
             "styles": [
               "src/styles.css",
-              "node_modules/survey-core/survey-core.min.css",
+              "node_modules/survey-core/survey-core.css",
             ],
             // ...
           }
@@ -87,12 +87,12 @@ When [using standalone components](https://github.com/surveyjs/code-examples/tre
 
 ```js
 // survey.component.ts
-import "survey-core/survey-core.min.css";
+import "survey-core/survey-core.css";
 ```
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
 
 ## Create a Model
 

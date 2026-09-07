@@ -39,7 +39,10 @@ export class PageModel extends PanelModel implements IPage {
   }
   public get hasEditButton(): boolean {
     return this.isPanel && this.survey && this.survey.state === "preview"
-     && !!this.parent && !this.parent.isPanel;
+     && !!this.parent && !this.parent.isPanel && this.hasQuestionToEdit;
+  }
+  private get hasQuestionToEdit(): boolean {
+    return this.visibleQuestions.some(q => q.hasInput);
   }
   protected getElementsForRows(): Array<IElement> {
     if (!this.isStartPage) {

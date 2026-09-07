@@ -60,12 +60,6 @@ The width of question titles, in pixels.
 
 The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
 
-### `id`
-
-**Type**: `string`
-
-An auto-generated unique element identifier.
-
 ### `isRequired`
 
 **Type**: `boolean`

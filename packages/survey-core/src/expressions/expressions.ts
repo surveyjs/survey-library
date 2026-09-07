@@ -83,7 +83,7 @@ export class BinaryOperand extends Operand {
         operatorName
       );
     } else {
-      this.consumer = OperandMaker.binaryFunctions[operatorName];
+      this.consumer = getBinaryOperatorFunc(operatorName);
     }
 
     if (this.consumer == null) {
@@ -220,7 +220,7 @@ export class UnaryOperand extends Operand {
   private consumer: Function;
   constructor(private expressionValue: Operand, private operatorName: string) {
     super();
-    this.consumer = OperandMaker.unaryFunctions[operatorName];
+    this.consumer = getUnaryOperatorFunc(operatorName);
     if (this.consumer == null) {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
@@ -616,7 +616,7 @@ export class OperandMaker {
     return operand == null ? "" : operand.toString(func);
   }
 
-  static toOperandString(value: string): string {
+  static toOperandString(value: any): any {
     if (
       !!value &&
       !Helpers.isNumber(value) &&
@@ -625,11 +625,13 @@ export class OperandMaker {
       value = "'" + value + "'";
     return value;
   }
-  static isBooleanValue(value: string): boolean {
-    return (
-      !!value &&
-      (value.toLowerCase() === "true" || value.toLowerCase() === "false")
-    );
+  // Takes any value, not only a string: a legacy trigger may carry a real boolean
+  // in its "value", and quoting it would change the expression it runs.
+  static isBooleanValue(value: any): boolean {
+    if (typeof value === "boolean") return true;
+    if (typeof value !== "string") return false;
+    const lower = value.toLowerCase();
+    return lower === "true" || lower === "false";
   }
   static countDecimals(value: number): number {
     if (Helpers.isNumber(value) && Math.floor(value) !== value) {
@@ -673,7 +675,7 @@ export class OperandMaker {
       return function(a: any, b: any): any {
         a = convertForArithmeticOp(a, b);
         b = convertForArithmeticOp(b, a);
-        let consumer = OperandMaker.binaryFunctions[operatorName];
+        let consumer = getBinaryOperatorFunc(operatorName);
         return consumer == null ? null : consumer.call(this, a, b);
       };
     },
@@ -845,4 +847,51 @@ export class OperandMaker {
     mod: "%",
     negate: "!",
   };
+}
+
+// binaryFunctions carries two internal helpers next to the operators themselves:
+// "arithmeticOp" builds an operator function, "containsCore" is shared by
+// contains/notcontains. Neither is a condition operator and neither is reachable
+// through the functions below.
+const internalBinaryFunctionNames = ["arithmeticOp", "containsCore"];
+
+// The operators the grammar parses as arithmetic (grammar.pegjs builds these with
+// isArithmeticOp = true, see BinaryOperand). They run through the "arithmeticOp"
+// wrapper, which normalizes empty operands before applying the function - calling
+// the raw function instead would silently disagree with the runtime.
+const arithmeticOperatorNames = ["and", "or", "plus", "minus", "mul", "div", "mod", "power"];
+
+function getBinaryOperatorFunc(operatorName: string): Function {
+  if (!operatorName || typeof operatorName !== "string") return undefined;
+  if (internalBinaryFunctionNames.indexOf(operatorName) > -1) return undefined;
+  // binaryFunctions is an object literal, so an operator name taken from JSON must
+  // not resolve through Object.prototype ("constructor", ...)
+  if (!Object.prototype.hasOwnProperty.call(OperandMaker.binaryFunctions, operatorName)) return undefined;
+  const res = OperandMaker.binaryFunctions[operatorName];
+  return typeof res === "function" ? res : undefined;
+}
+
+function getUnaryOperatorFunc(operatorName: string): Function {
+  if (!operatorName || typeof operatorName !== "string") return undefined;
+  if (!Object.prototype.hasOwnProperty.call(OperandMaker.unaryFunctions, operatorName)) return undefined;
+  const res = OperandMaker.unaryFunctions[operatorName];
+  return typeof res === "function" ? res : undefined;
+}
+
+export function hasBinaryOperator(operatorName: string): boolean {
+  return !!getBinaryOperatorFunc(operatorName);
+}
+
+// Applies a condition operator exactly as the expression runtime does, without
+// building an expression. Arithmetic operators return their computed value, the
+// rest return a boolean. Throws on an unknown operator, like BinaryOperand does.
+export function runBinaryOperator(operatorName: string, left: any, right: any): any {
+  const func = getBinaryOperatorFunc(operatorName);
+  if (!func) {
+    OperandMaker.throwInvalidOperatorError(operatorName);
+  }
+  if (arithmeticOperatorNames.indexOf(operatorName) > -1) {
+    return OperandMaker.binaryFunctions.arithmeticOp(operatorName)(left, right);
+  }
+  return func(left, right);
 }

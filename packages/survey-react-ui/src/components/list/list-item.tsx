@@ -2,7 +2,7 @@ import * as React from "react";
 import { ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { attachKey2click } from "../../reactSurvey";
+import { attachKey2click } from "../../attach-key2click";
 
 interface IListItemProps {
   model: ListModel;

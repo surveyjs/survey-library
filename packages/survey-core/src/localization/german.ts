@@ -246,7 +246,25 @@ export var germanSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Fortschrittsbalken",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Seite {0}"
+  progressbarPage: "Seite {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "T",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "M",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "J",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "m",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "v",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "V"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

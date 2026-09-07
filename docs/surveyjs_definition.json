@@ -355,11 +355,19 @@
         "correctQuestions"
       ]
     },
-    "progressBarShowPageTitles": {
+    "progressBarShowNavigationText": {
       "type": "boolean"
     },
     "progressBarShowPageNumbers": {
       "type": "boolean"
+    },
+    "progressBarNavigationTextLocation": {
+      "type": "string",
+      "enum": [
+        "top",
+        "bottom",
+        "inline"
+      ]
     },
     "progressBarInheritWidthFrom": {
       "type": "string",
@@ -377,6 +385,9 @@
         "left",
         "right"
       ]
+    },
+    "tocItemComponent": {
+      "type": "string"
     },
     "readOnly": {
       "type": "boolean"
@@ -3673,7 +3684,7 @@
             "maxFiles": {
               "type": "number"
             },
-            "needConfirmRemoveFile": {
+            "confirmDelete": {
               "type": "boolean"
             },
             "sourceType": {
@@ -3986,8 +3997,17 @@
             "swapOrder": {
               "type": "boolean"
             },
+            "displayMode": {
+              "type": "string",
+              "enum": [
+                "segmented",
+                "radio",
+                "checkbox",
+                "switch"
+              ]
+            },
             "useTitleAsLabel": {
-              "type": "string"
+              "type": "boolean"
             }
           }
         }

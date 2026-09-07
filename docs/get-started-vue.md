@@ -19,7 +19,13 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 
-If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repository: <a href="https://github.com/surveyjs/surveyjs_vue3_quickstart" target="_blank">SurveyJS + Vue 3 Quickstart Template</a>.
+If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
+
+- <a href="https://github.com/surveyjs/surveyjs_vue3_quickstart" target="_blank">SurveyJS + Vue 3</a>
+- <a href="https://github.com/surveyjs/surveyjs-nuxtjs" target="_blank">SurveyJS + Nuxt</a>
+- <a href="https://github.com/surveyjs/surveyjs-vike" target="_blank">SurveyJS + Vike</a>
+- <a href="https://github.com/surveyjs/surveyjs-astro" target="_blank">SurveyJS + Astro</a>
+- <a href="https://github.com/surveyjs/surveyjs-quasar" target="_blank">SurveyJS + Quasar</a>
 
 <a id="add-a-survey-to-a-vue-3-application"></a>
 
@@ -28,7 +34,7 @@ If you are looking for a quick-start application that includes all SurveyJS comp
 SurveyJS Form Library for Vue 3 consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue3-ui`](https://www.npmjs.com/package/survey-vue3-ui) (rendering code). Run the following command to install `survey-vue3-ui`. The `survey-core` package will be installed automatically as a dependency.
 
 ```cmd
-npm install survey-vue3-ui --save
+npm install survey-vue3-ui
 ```
 
 ## Configure Styles
@@ -51,7 +57,7 @@ import 'survey-core/survey-core.css';
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+[Themes & Styles](/documentation/themes-and-custom-styles (linkStyle))
 
 ## Create a Model
 

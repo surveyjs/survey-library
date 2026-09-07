@@ -797,4 +797,34 @@ describe("SurveyShowPreviewTests", () => {
     expect(survey.state, "Survey is completed").toBe("completed");
     expect(survey.data, "Data should not contain values from hidden page2 questions").toEqual({ q1: "b", q4: "val4" });
   });
+  test("Do not show 'Edit' button for a page without input questions, Bug#11776", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "intro",
+          elements: [
+            { type: "html", name: "intro_html", html: "I am some html" }
+          ]
+        },
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "q1" }
+          ]
+        }
+      ],
+      showPreviewBeforeComplete: "showAllQuestions"
+    });
+    survey.setValue("q1", "val1");
+    survey.showPreview();
+    expect(survey.state, "Survey is in preview state").toBe("preview");
+    const introPanel = <PanelModel>survey.currentPage.elements[0];
+    const questionPanel = <PanelModel>survey.currentPage.elements[1];
+    expect(introPanel.name, "The first panel is the intro page").toBe("intro");
+    expect(questionPanel.name, "The second panel is the question page").toBe("page1");
+    expect(introPanel.hasEditButton, "There is nothing to edit on the intro page").toBe(false);
+    expect(introPanel.getFooterToolbar().hasActions, "The intro page footer is empty").toBe(false);
+    expect(questionPanel.hasEditButton, "The question page is editable").toBe(true);
+    expect(questionPanel.getFooterToolbar().hasActions, "The question page footer has the edit button").toBe(true);
+  });
 });

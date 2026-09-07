@@ -118,7 +118,7 @@ import { TimerPanelComponent } from "./components/timer-panel/timer-panel.compon
 import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
 import { MultipleTextRowComponent } from "./questions/multipletextrow.component";
-import { LoadingIndicatorComponent } from "./angular-ui";
+import { LoadingIndicatorComponent } from "./components/loading-indicator/loading-indicator.component";
 import { HeaderComponent } from "./components/header/header.component";
 import { HeaderCellComponent } from "./components/header/header-cell.component";
 import { HeaderMobileComponent } from "./components/header/header-mobile.component";

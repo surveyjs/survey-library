@@ -29,9 +29,9 @@ import "survey-core/survey.i18n";
 Since SurveyJS v1.9.112, you may reference or import only the languages you need, as shown below:
 
 ```html
-<script src="https://unpkg.com/survey-core/i18n/french.js"></script>
-<script src="https://unpkg.com/survey-core/i18n/german.js"></script>
-<script src="https://unpkg.com/survey-core/i18n/italian.js"></script>
+<script src="https://unpkg.com/survey-core/i18n/french.min.js"></script>
+<script src="https://unpkg.com/survey-core/i18n/german.min.js"></script>
+<script src="https://unpkg.com/survey-core/i18n/italian.min.js"></script>
 ```
 
 ```js

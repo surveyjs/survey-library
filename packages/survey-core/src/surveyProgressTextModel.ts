@@ -53,7 +53,7 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
 
   public updateProgressText(onValueChanged: boolean = false): void {
     if ((this.survey as any).isShowingPreview) return;
-    if (onValueChanged && this.survey.progressBarType == "pages" && this.survey.onGetProgressText.isEmpty) return;
+    if (onValueChanged && this.survey.getEffectiveProgressBarType() == "pages" && this.survey.onGetProgressText.isEmpty) return;
     this.resetPropertyValue("progressText");
     this.resetPropertyValue("progressValue");
   }
@@ -72,6 +72,7 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     this.survey.onPageAdded.remove(this.onStateChanged);
     this.survey.onLocaleChangedEvent.remove(this.onStateChanged);
     this.survey.unRegisterFunctionOnPropertyValueChanged("progressBarType", this.key);
+    this.survey.unRegisterFunctionOnPropertyValueChanged("questionsOnPageMode", this.key);
     this.survey.unRegisterFunctionOnPropertyValueChanged("isShowingPreview", this.key);
     this.survey.unRegisterFunctionOnPropertyValueChanged("pages", this.key);
     super.dispose();
@@ -83,6 +84,8 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     this.survey.onPageAdded.add(this.onStateChanged);
     this.survey.onLocaleChangedEvent.add(this.onStateChanged);
     this.survey.registerFunctionOnPropertyValueChanged("progressBarType", this.onStateChanged, this.key);
+    // questionsOnPageMode changes the effective progress bar type, see SurveyModel.getEffectiveProgressBarType
+    this.survey.registerFunctionOnPropertyValueChanged("questionsOnPageMode", this.onStateChanged, this.key);
     this.survey.registerFunctionOnPropertyValueChanged("isShowingPreview", this.onStateChanged, this.key);
     this.survey.registerFunctionOnPropertyValueChanged("pages", this.onStateChanged, this.key);
   }
@@ -106,7 +109,7 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
       requiredAnsweredQuestionCount: 0,
       text: "",
     };
-    const type = this.survey.progressBarType.toLowerCase();
+    const type = this.survey.getEffectiveProgressBarType().toLowerCase();
     if (type === "questions" || type === "requiredquestions" || type === "correctquestions" || !this.survey.onGetProgressText.isEmpty) {
       const info = this.getProgressInfo();
       options.questionCount = info.questionCount;
@@ -121,7 +124,7 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
   }
 
   private getProgressTextCore(info: IProgressInfo): string {
-    const type = this.survey.progressBarType.toLowerCase();
+    const type = this.survey.getEffectiveProgressBarType().toLowerCase();
     if (type === "questions") {
       return (this.survey as any).getLocalizationFormatString("questionsProgressText", info.answeredQuestionCount, info.questionCount);
     }
@@ -149,7 +152,7 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
   }
 
   private getProgressBarComponentName(): string {
-    let actualProgressBarType = this.survey.progressBarType;
+    let actualProgressBarType = this.survey.getEffectiveProgressBarType();
     if (!settings.legacyProgressBarView && surveyCss.currentType === "default") {
       if (isStrCiEqual(actualProgressBarType, "pages")) {
         actualProgressBarType = "buttons";
@@ -160,7 +163,11 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
 
   private isProgressBarInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
     if (this.survey.state !== "running" || !isStrCiEqual(layoutElement.id, this.getProgressBarComponentName())) return false;
-    if (this.survey.questionsOnPageMode == "singlePage" && this.survey.progressBarType != "questions") return false;
+    // Progress makes no sense when the whole survey is shown as a single page and when a respondent
+    // fills one input at a time, so the bar is hidden in these modes unless the author has asked for
+    // the answered questions count explicitly.
+    const isProgressMeaningless = this.survey.questionsOnPageMode == "singlePage" || this.survey.isSingleVisibleInput;
+    if (isProgressMeaningless && this.survey.progressBarType != "questions") return false;
 
     const headerLayoutElement = this.survey.findLayoutElement("advanced-header");
     const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;

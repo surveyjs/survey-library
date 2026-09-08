@@ -198,3 +198,10 @@
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
   }
 }
+
+.sd-matrixdynamic__placeholder {
+  padding-inline: var(--sjs2-layout-component-matrix-box-padding-left)
+    var(--sjs2-layout-component-matrix-box-padding-right);
+  padding-block: var(--sjs2-layout-component-matrix-box-padding-top)
+    var(--sjs2-layout-component-matrix-box-padding-bottom);
+}

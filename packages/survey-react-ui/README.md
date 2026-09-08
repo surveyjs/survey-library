@@ -53,6 +53,8 @@ export default function SurveyComponent() {
 
 `survey-core/survey-core.css` applies the Default theme. For other predefined themes and CSS-variable customization, refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
+The style sheet embeds no font: it names font families through the `--sjs2-typography-font-family-*` tokens (Open Sans first, then a system fallback stack) and leaves loading the font to the host page. `survey-core/survey-core.fontless.css` is kept as a deprecated alias of `survey-core/survey-core.css`.
+
 ## Server-Side Rendering
 
 SurveyJS supports SSR: `survey-core` does not access the DOM during rendering, and HTML `id` attributes are generated deterministically per survey instance, so server and client markup match and hydration succeeds. If you render multiple surveys on the same page, assign a unique [`elementIdPrefix`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#elementIdPrefix) to each model.

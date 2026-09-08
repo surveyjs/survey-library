@@ -64,7 +64,6 @@ const buildPlatformJson = {
       "require": "./linter/index.js"
     },
     "./*.css": "./*.css",
-    "./fonts/*": "./fonts/*",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
@@ -115,10 +114,22 @@ const buildPlatformJson = {
   "typings": "./typings/entries/index.d.ts"
 };
 
-// The stylesheets reference these as url(fonts/...) instead of inlining them, so the
-// files have to sit next to the emitted CSS. Copied unconditionally: a dev build needs
-// them just as much as a release one. The Open Sans subsets ship with their license.
-fs.copySync(resolve(__dirname, "src/fonts"), resolve(buildPath, "fonts"));
+// survey-core.fontless.css used to be a second full build of the theme without the
+// @font-face rules. The theme embeds no font at all any more, so the two stylesheets
+// would be identical; the name survives as an alias instead of a duplicate, for
+// consumers that already link it by <link>, through a CDN or through a bundler. Written
+// unconditionally, next to the css a dev build emits; the minified alias only when the
+// file it points at is emitted (see pluginMinify in rollup.helpers.mjs).
+const writeFontlessAlias = (name) => fs.outputFileSync(
+  resolve(buildPath, `survey-core.fontless${name}.css`),
+  `/* Alias of survey-core${name}.css, which no longer embeds any @font-face rule. */
+@import "./survey-core${name}.css";
+`
+);
+writeFontlessAlias("");
+if (process.env.emitMinified === "true") {
+  writeFontlessAlias(".min");
+}
 
 if (process.env.emitNonSourceFiles === "true") {
   fs.mkdirSync(buildPath, { recursive: true });
@@ -161,14 +172,6 @@ export default (options = {}) => {
     createCssConfig({
       input: {
         "survey-core": resolve("./src/default-theme/default.scss"),
-      },
-      dir: buildPath,
-      emitMinified: process.env.emitMinified === "true",
-      version: pkg.version,
-    }),
-    createCssConfig({
-      input: {
-        "survey-core.fontless": resolve("./src/default-theme/default.fontless.scss"),
       },
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",

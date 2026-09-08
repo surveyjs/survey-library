@@ -68,6 +68,8 @@ createApp(App).use(surveyPlugin).mount('#app');
 
 `survey-core/survey-core.css` applies the Default theme. For other predefined themes and CSS-variable customization, refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
+The style sheet embeds no font: it names font families through the `--sjs2-typography-font-family-*` tokens (Open Sans first, then a system fallback stack) and leaves loading the font to the host page. `survey-core/survey-core.fontless.css` is kept as a deprecated alias of `survey-core/survey-core.css`.
+
 ## Theme Adapters
 
 A theme adapter maps an existing design system's CSS variables onto SurveyJS design tokens, so an embedded survey inherits the look of the host application. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:

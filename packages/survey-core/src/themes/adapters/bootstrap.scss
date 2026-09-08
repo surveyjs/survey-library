@@ -457,6 +457,24 @@
   --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs-bs-card-action-gap);
   --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs-bs-card-action-gap);
 
+  --sjs-bs-matrix-cell-padding: 0.5rem;
+  --sjs2-border-width-component-matrix-default-separator: var(--bs-border-width);
+  --sjs2-color-component-matrix-default-separator: var(--bs-border-color);
+  --sjs2-layout-component-matrix-cell-padding-top: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-cell-padding-bottom: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-cell-padding-left: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-cell-padding-right: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-header-cell-padding-top: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-header-cell-padding-bottom: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-header-cell-padding-left: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-header-cell-padding-right: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-cell-left-padding-left: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-cell-right-padding-right: var(--sjs-bs-matrix-cell-padding);
+  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-bs-card-edge-spacer-x);
+  --sjs2-layout-component-matrix-box-padding-top: 0;
+  --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-bs-card-edge-spacer-y);
+
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
 }
@@ -642,22 +660,9 @@
   margin-bottom: 1rem;
 }
 
-.sd-table.sd-table.sd-table {
-  & > tbody,
-  & > thead {
-    & > tr {
-      & > th,
-      & > td {
-        &:where(:not(.sd-table__cell--error)) {
-          border-bottom: var(--bs-border-width) solid var(--bs-border-color);
-          border-top: none;
-          padding: 0.5rem;
-          .sd-radio__decorator {
-            margin: 0px;
-          }
-        }
-      }
-    }
+.sd-table__cell {
+  .sd-radio__decorator {
+    margin: 0;
   }
 }
 

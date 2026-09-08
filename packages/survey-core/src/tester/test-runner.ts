@@ -1,4 +1,5 @@
-import { SurveyModel } from "survey-core";
+import { SurveyModel, SurveyVariablePresets } from "survey-core";
+import type { ISurveyVariablePresets } from "survey-core";
 import { ISurveyTest, ISurveyTestOptions, ISurveyTests, ISurveyTestStart, ISurveyTestStep } from "./test-json";
 import { getSurveyTestStepCommandNames } from "./test-authoring";
 import {
@@ -6,7 +7,7 @@ import {
   ISurveyTestSummary, SurveyTestIssueCodes, SurveyTestStatus,
 } from "./test-result";
 import { SurveyTestValidator } from "./test-validator";
-import { waitForSurvey } from "./test-async";
+import { waitForSurvey, waitForSurveyModel } from "./test-async";
 import { getClosestName } from "./test-diagnostics";
 import { SurveyTestContext } from "./test-context";
 import { SurveyTestStubs } from "./test-stubs";
@@ -47,6 +48,15 @@ interface ISurveyTestRunPlan {
   filterIssue?: ISurveyTestIssue;
 }
 
+// What one test checks its variables against: the core companion, and the definition model the tester
+// built for it. The model is kept next to the companion because core disposes no model a host handed
+// it - it may well outlive the check it was borrowed for - and here it does not: it is a model of this
+// test and it dies with it.
+interface ISurveyTestVariablePresets {
+  companion: SurveyVariablePresets;
+  model?: SurveyModel;
+}
+
 export class SurveyTestRunner {
   private validator: SurveyTestValidator = new SurveyTestValidator();
   // surveyJson is the survey definition and nothing else. The runner creates the model every test runs
@@ -78,7 +88,7 @@ export class SurveyTestRunner {
     }
     // The same structural validation a suite run does, so a broken case cannot be reported as passed
     // because the caller picked this entry point. Named starts still resolve against the suite.
-    const issues = this.validator.validateTest(test, SINGLE_TEST_PATH, this.getStartNames());
+    const issues = this.validator.validateTest(test, SINGLE_TEST_PATH, this.getStartNames(), this.getPresetNames());
     return await this.runTestCore(test, undefined, definition, issues, execution);
   }
   // runStarted and runCompleted bracket every path of a suite run, a suite that cannot run at all
@@ -241,8 +251,6 @@ export class SurveyTestRunner {
       result.status = "skipped";
       return;
     }
-    const variables = this.resolveVariables(test);
-    result.variables = variables;
     const context = new SurveyTestContext(result.options, test, result.issues);
     // Every issue this test produces - inside a step or outside one - is addressed from here, so a
     // downloaded result says where each of them belongs without an event transcript to rebuild it from.
@@ -258,9 +266,19 @@ export class SurveyTestRunner {
     context.setStubs(new SurveyTestStubs(this.resolveFunctions(test), this.resolveWeb(test),
       execution.functionHandlers, execution.webHandler));
     let canceled = false;
+    let presets: ISurveyTestVariablePresets = undefined;
     try {
       const start = this.resolveStart(test, result);
       context.stubs.install();
+      // After the stubs are installed and before the variables are resolved: the definition is
+      // authored in the same suite as the surveys under test, so it may call a function the case
+      // stubs, and a name has to be registered before the JSON that calls it is parsed.
+      presets = await this.createVariablePresets(context);
+      const variables = this.resolveVariables(test, presets, result);
+      // What the case asked for, unknown names included: the result says what was requested, and the
+      // warning next to it says which of those names never reached the model.
+      result.variables = variables;
+      const applied = this.checkVariables(context, presets, variables);
       const survey = await this.createSurveyModel(context, test, testIndex, definition, execution);
       context.setupSurvey(survey);
       context.checkReservedTargetName();
@@ -271,7 +289,7 @@ export class SurveyTestRunner {
       // second run of an expression while the first one is in flight, so a value applied now would be
       // silently ignored by the very condition that reads it.
       await waitForSurvey(context, "the survey model was created");
-      this.applyStart(context, variables, start);
+      this.applyStart(context, applied, start);
       // The start data goes in through the normal set path, so it starts whatever a respondent typing
       // it would: the first step begins on a settled model like every step after it.
       await waitForSurvey(context, "the start state of the test was applied");
@@ -293,6 +311,10 @@ export class SurveyTestRunner {
       // Nothing the model, the diagnostics or the global settings hold survives the test, whether it
       // ended on its own, on a rejected handler, on a rejected observer callback or on cancellation.
       context.teardown();
+      // After the teardown, because the stubs answer what they still hold when they are disposed and
+      // an answer must not land on a model that is already gone. Core disposes no model a host handed
+      // it, so the definition model is disposed here, by the only owner it has.
+      this.disposeVariablePresets(presets);
     }
     await this.flushIssues(result, testIndex, execution);
     // The steps that did finish keep what they reported; the test itself did not, so it is neither
@@ -653,11 +675,127 @@ export class SurveyTestRunner {
   }
   // Merged per variable name: a test that overrides one root variable keeps the others. A test can
   // override a root variable but cannot remove one - null sets it to null, it does not unset it.
-  private resolveVariables(test: ISurveyTest): { [name: string]: any } {
+  // Each of the two levels is resolved to a values object first: it either references a preset by name
+  // or writes the values inline, and the two resolved objects then merge exactly as two inline ones do.
+  private resolveVariables(test: ISurveyTest, presets: ISurveyTestVariablePresets,
+    result: ISurveyTestResult): { [name: string]: any } {
     const res: { [name: string]: any } = Object.create(null);
-    this.copyByPresence(res, !!this.tests ? this.tests.variables : undefined);
-    this.copyByPresence(res, !!test ? test.variables : undefined);
+    this.copyByPresence(res, this.getLevelVariables(this.tests, presets, undefined));
+    this.copyByPresence(res, this.getLevelVariables(test, presets, result));
     return res;
+  }
+  // The values of one level. Only the test's own preset name reaches the result: the root one needs no
+  // field of its own, because what it resolves to is already in the reported variables.
+  private getLevelVariables(level: any, presets: ISurveyTestVariablePresets,
+    result: ISurveyTestResult): any {
+    if (!this.isObject(level)) return undefined;
+    const name = level.variablePreset;
+    if (name === undefined || name === null || name === "") return level.variables;
+    const preset = !!presets ? presets.companion.getPreset(name) : undefined;
+    if (!preset) {
+      const names = this.getPresetNames();
+      const closest = getClosestName(name, names);
+      throw createCaseError(SurveyTestIssueCodes.unknownVariablePresetReference,
+        "The preset \"" + name + "\" is referenced, but \"variablePresets.presets\" contains no entry with this name.",
+        { data: { name: name, presets: names },
+          suggestion: !!closest ? "Did you mean \"" + closest + "\"?" : undefined });
+    }
+    if (!!result) result.variablePreset = name;
+    return preset.variables;
+  }
+  private getPresetNames(): Array<string> {
+    const source = this.getVariablePresetsSource();
+    // The core companion derives the names, here as everywhere else: it is lazy, so asking it for them
+    // builds no definition model.
+    return !!source ? new SurveyVariablePresets(source).getPresetNames() : [];
+  }
+  private getVariablePresetsSource(): ISurveyVariablePresets {
+    const source = !!this.tests ? this.tests.variablePresets : undefined;
+    return this.isObject(source) ? source : undefined;
+  }
+  // One companion per test, and a definition model of this test: the definition is a survey of the
+  // case like the survey under test, so it runs with the clock the case pinned, the functions it
+  // stubs and the web transport it declares. A verdict that read the machine clock while everything
+  // else is fixed would be the one thing this harness exists to prevent.
+  private async createVariablePresets(context: SurveyTestContext): Promise<ISurveyTestVariablePresets> {
+    const source = this.getVariablePresetsSource();
+    if (!source) return undefined;
+    const definition = source.definition;
+    if (!this.isObject(definition)) {
+      // Presets without a definition: they are looked up and applied, and there is nothing to check
+      // them against. No model is built for a suite that declares none.
+      return { companion: new SurveyVariablePresets(source) };
+    }
+    const model = await this.createDefinitionModel(context, definition);
+    // The clock is not passed next to the model: attachProviders has already put it there, and one
+    // place setting it is what keeps the definition and the survey under test on the same moment.
+    return { companion: new SurveyVariablePresets(source, { definitionModel: model }), model: model };
+  }
+  private async createDefinitionModel(context: SurveyTestContext, definition: any): Promise<SurveyModel> {
+    const model = new SurveyModel();
+    try {
+      // The providers before the JSON, exactly as for the survey under test: an expression that runs
+      // while the model is being built calls the stubbed function and reads the pinned date.
+      context.attachProviders(model);
+      // The clone is the tester's job: core deep-copies only the JSON it loads itself, and the
+      // container belongs to the caller.
+      model.fromJSON(this.cloneJson(definition));
+      // A definition may load its choices from the service the case stubs, and no answer arrives
+      // inside the call that asked for it. The verdict is synchronous, so the model has to have
+      // settled before it is asked anything.
+      await waitForSurveyModel(model, context.options, context.signal, "the variable definition was loaded");
+    } catch(e) {
+      model.dispose();
+      // A case error - the wait timed out - already says precisely what happened, under its own code.
+      if (e instanceof SurveyTestCaseError) throw e;
+      const message = !!e && !!e.message ? e.message : String(e);
+      throw createCaseError(SurveyTestIssueCodes.variableDefinitionFailed,
+        "The variable definition of the suite could not be loaded: " + message,
+        { data: { error: message } });
+    }
+    return model;
+  }
+  // The definition validates what the case injects, before the model of the test is created: a
+  // variable the application could never inject must not reach the survey under test, and a case that
+  // is broken for that reason is reported as broken rather than failing three steps later. What is
+  // returned is what is applied - the raw values the case wrote, minus the names the definition does
+  // not declare. The definition validates; it does not convert.
+  private checkVariables(context: SurveyTestContext, presets: ISurveyTestVariablePresets,
+    variables: { [name: string]: any }): { [name: string]: any } {
+    if (!presets || !presets.companion.hasDefinition) return variables;
+    const verdict = presets.companion.validateVariables(variables);
+    const defined = presets.companion.getVariableNames();
+    verdict.unknownVariables.forEach(name => {
+      const closest = getClosestName(name, defined);
+      const issue: ISurveyTestIssue = {
+        severity: "warning",
+        code: SurveyTestIssueCodes.variableNotDefined,
+        message: "\"" + name + "\" is not a variable of the definition, so it is not set on the survey. " +
+          "The variables the definition declares: " + (defined.length > 0 ? defined.join(", ") : "none") + ".",
+        data: { name: name, defined: defined },
+      };
+      if (!!closest) issue.suggestion = "Did you mean \"" + closest + "\"?";
+      context.addIssue(issue);
+    });
+    if (verdict.errors.length > 0) {
+      const texts = verdict.errors.map(error => "\"" + error.variable + "\": " + error.errors.join(" "));
+      throw createCaseError(SurveyTestIssueCodes.variableInvalid,
+        "The variables of this test are not what the variable definition describes: " + texts.join("; "),
+        { data: { questions: verdict.errors } });
+    }
+    if (verdict.unknownVariables.length === 0) return variables;
+    const res: { [name: string]: any } = Object.create(null);
+    Object.keys(variables).forEach(name => {
+      if (verdict.unknownVariables.indexOf(name) < 0) res[name] = variables[name];
+    });
+    return res;
+  }
+  private disposeVariablePresets(presets: ISurveyTestVariablePresets): void {
+    if (!presets) return;
+    presets.companion.dispose();
+    if (!!presets.model) {
+      presets.model.dispose();
+    }
   }
   // Cloned and not aliased, for the same reason cloneStart clones the start data: a suite entry is
   // shared by every test of the run and it belongs to the caller, so a value one test mutates must

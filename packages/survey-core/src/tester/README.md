@@ -232,7 +232,9 @@ Checks live in `SurveyTestCheckFactory.Instance` and are extensible in the same 
 
 This is the part that is easiest to get wrong, and the rules differ **because the four things
 differ**: flat run configuration, independent named values, one coherent state a scenario
-deliberately describes, and the answers the world outside the survey gives it.
+deliberately describes, and the answers the world outside the survey gives it. The variables have a
+second way of being written - a named preset of a variable definition the suite carries - and it
+obeys the rule of the state it is: referenced or written, never both.
 
 ### `options` merge per key
 
@@ -260,6 +262,107 @@ reads one sees it while the answers go in.
 **The one limit:** a test can override a root variable but cannot remove it. `null` sets it to
 `null`; it does not unset it. This is the single place where "everything is overridable back to its
 default" does not hold, and it is documented rather than solved with an unset sentinel.
+
+### `variablePreset` — a start-like reference for variables
+
+A level — the suite root, or one test — either **references** a named preset or **writes** the values
+inline, never a name with overrides on top of it. That is the same rule a `start` obeys, and for the
+same reason: a preset is a coherent record a scenario deliberately describes ("gold customer", "new
+in business"), and a name with three overrides beside it is a record nobody wrote down.
+
+```json
+{
+  "variablePresets": {
+    "presets": [
+      { "name": "gold customer", "variables": { "tier": "gold", "years": 12 } },
+      { "name": "newcomer", "variables": { "tier": "basic", "years": 0 } }
+    ]
+  },
+  "variablePreset": "newcomer",
+  "tests": [
+    { "name": "gold sees the discount page", "variablePreset": "gold customer", "steps": [] },
+    { "name": "one year in", "variables": { "years": 1 }, "steps": [] }
+  ]
+}
+```
+
+**Across the two levels nothing changes.** Each level is resolved to a values object first — the
+preset's `variables`, or the inline ones — and the two then merge **per name**, test over root,
+exactly as two inline objects do. So the first test runs with the values of "gold customer", and the
+second with `tier: "basic"` from the root preset and its own `years: 1`. That is also how a test says
+"the gold preset, but one year": the reference goes on one level and the override on the other.
+
+The resolved values are **cloned**, never aliased: a preset is shared by every test that names it and
+the suite object belongs to the caller. `variables` and `variablePreset` on the same level is the
+structural error `variablesAndPresetBothSet`; a name no entry carries is
+`unknownVariablePresetReference`, with a "did you mean". `result.variablePreset` reports the name the
+**test itself** referenced — a root reference needs no field of its own, because what it resolved to
+is already in the reported `variables`.
+
+A **start** cannot carry `variablePreset`, exactly as it cannot carry `variables`
+(`startHasReservedKey`): starts never merge, so a test referencing a shared start could never
+override one variable of it.
+
+### `variablePresets` — what the host can inject
+
+The variables a host injects appear nowhere in the survey JSON, so the suite says what they are:
+
+```json
+{
+  "variablePresets": {
+    "definition": {
+      "elements": [
+        { "type": "dropdown", "name": "tier", "choices": ["basic", "gold"], "isRequired": true },
+        { "type": "text", "name": "years", "inputType": "number", "min": 0, "max": 99 }
+      ]
+    },
+    "presets": [
+      { "name": "gold customer", "description": "12 years, gold tier", "variables": { "tier": "gold", "years": 12 } }
+    ]
+  }
+}
+```
+
+The container is **`ISurveyVariablePresets` of `survey-core`** (`src/variablePresets.ts`) — the tester
+declares no interface of its own for it, so a Survey Creator that keeps one per application saves the
+object it has straight into the suite, and the linter reads the same one. Import it from
+`"survey-core"`, not from `"survey-core/tester"`.
+
+**The definition is one ordinary survey JSON, and its top-level questions are the variables.** The
+variable name is the data key the question produces — `valueName` when it is set, otherwise `name` —
+and its type, its choices, its `min`/`max` and its validators are everything that is known about the
+variable. There is no second schema. A question inside a dynamic panel or a matrix cell is no
+variable: the panel or the matrix itself is the one variable, holding the array. `survey-core`
+derives all of that; the tester only reports what it says.
+
+**What the tester does with it.** Before the model of a test is created — after the structural and
+`disabled` gates, so a broken case is still reported as broken and neither reaches the factory — the
+resolved variables of the test are checked against the definition:
+
+| | |
+|---|---|
+| a name the definition does not declare | the warning `variableNotDefined`, with a "did you mean". The name is **not** set on the survey; the test runs with the rest |
+| a value the definition rejects | the case error `variableInvalid`. The test ends with the status `"error"` and no survey under test is created. `data.questions` carries one entry per failing question — the data key, the question name and the error texts |
+| everything else | applied to the survey under test **raw**. The definition validates; it does not convert |
+
+`result.variables` keeps what was **resolved**, the unknown names included: the result says what the
+case asked for, and the warning next to it says which of those names never reached the model.
+`expect: { "survey": { "variables": { … } } }` is the natural way to assert that a preset was applied.
+
+Two limits are inherited from `survey-core` and are deliberate: only **visible** definition questions
+are validated — a question hidden by a `visibleIf` on another variable is how a definition says "this
+variable applies only when …" — and the verdict is **synchronous**, so an asynchronous validator of
+the definition is not awaited.
+
+**The definition runs as a survey of the case.** The tester builds its model itself, per test, with
+that test's clock, its stubbed functions and its web transport: a definition may call a function the
+suite stubs, fill a `choicesByUrl` from a url the suite declares, and read `today()` — and it sees
+exactly what the survey under test sees. A verdict must not depend on the machine clock while
+everything else about the run is pinned. Being a model of the run, it is disposed with the test, it is
+never announced through `surveyCreated`, and it is never the survey a step talks to. A definition that
+cannot be loaded is the case error `variableDefinitionFailed`. A suite that declares no `definition`
+builds no model at all: its presets are looked up and applied, and there is nothing to check them
+against.
 
 ### `start` does not merge at all
 
@@ -368,7 +471,21 @@ const surveyJson = {
 const tests = {
   name: "Insurance",
   options: { clearInvisibleValues: "onComplete" },
-  variables: { region: "eu", tier: "gold" },
+  // What the application injects at runtime: one question per variable, and the records of values
+  // the cases run with. The container is the "survey-core" one - a Creator saves the object it keeps
+  // straight into the suite - and it is optional: a suite may write its variables inline instead.
+  variablePresets: {
+    definition: {
+      elements: [
+        { type: "dropdown", name: "region", choices: ["eu", "us"], isRequired: true },
+        { type: "dropdown", name: "tier", choices: ["basic", "gold"], isRequired: true }
+      ]
+    },
+    presets: [
+      { name: "eu gold", variables: { region: "eu", tier: "gold" } }
+    ]
+  },
+  variablePreset: "eu gold",
   starts: [
     { name: "declined", data: { hasInsurance: "no" } }
   ],
@@ -431,7 +548,11 @@ document, and execution writes it for what it finds while running:
 |---|---|
 | *(none)* | the run itself — no node of the case caused it |
 | `starts[i]` | a named start |
+| `variablePreset` | the preset reference of the suite |
+| `variablePresets.definition` | the variable definition |
+| `variablePresets.presets[i]` | one named preset |
 | `tests[i]` | the test, in a suite run |
+| `tests[i].variablePreset` | the preset reference of that test |
 | `tests[i].steps[j]` | one step of it |
 | `tests[i].steps[j].<command>.<target>` | one target inside the step — the validator only |
 | `test` | the test, in `runTest()` |
@@ -548,8 +669,8 @@ const result = await runSurveyTests(surveyJson, tests, undefined, {
 });
 ```
 
-* It is called **once per enabled, structurally runnable test** — a disabled test and a test the
-  validator rejected never reach it.
+* It is called **once per enabled, structurally runnable test** — a disabled test, a test the
+  validator rejected and a test whose variables the variable definition rejects never reach it.
 * It receives a **deep clone of the survey JSON of its own test**, so what the factory or the model
   does to it cannot reach another test, and the caller's definition is never touched.
 * `context` is `{ test, testIndex, options, dateProvider, attachProviders }` — the test, its index in
@@ -568,14 +689,17 @@ What the factory does **not** decide is what makes a run reproducible: the runne
 factory set. The order of one test is fixed and it is the contract:
 
 1. resolve the options and create the test context;
-2. call and await `createSurvey` with the cloned survey JSON;
-3. apply the model configuration the runner owns, the clock included;
-4. attach the tester diagnostics and subscriptions;
-5. emit and await `surveyCreated`;
-6. wait for the model to settle (see "Asynchronous survey operations" below);
-7. apply the variables, then the start data and the start page;
-8. wait for the model to settle again;
-9. run the steps.
+2. install the stubs of the case, and build the variable definition model with them when the suite
+   carries a definition (§4);
+3. resolve the variables of the test and check them against that definition;
+4. call and await `createSurvey` with the cloned survey JSON;
+5. apply the model configuration the runner owns, the clock included;
+6. attach the tester diagnostics and subscriptions;
+7. emit and await `surveyCreated`;
+8. wait for the model to settle (see "Asynchronous survey operations" below);
+9. apply the variables, then the start data and the start page;
+10. wait for the model to settle again;
+11. run the steps.
 
 So a handler installed by the factory — or by the host, in `surveyCreated` — is already in place while
 the start data goes in.

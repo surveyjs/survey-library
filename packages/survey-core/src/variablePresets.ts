@@ -74,7 +74,7 @@ export class SurveyVariablePresets {
   }
   public get hasDefinition(): boolean {
     if (this.isDisposedValue) return false;
-    return !!this.definitionModel || Helpers.isValueObject(this.sourceValue.definition, true);
+    return !!this.definitionModel || this.isRecord(this.sourceValue.definition);
   }
   public getVariableNames(): Array<string> {
     return this.getNames().slice();
@@ -103,7 +103,7 @@ export class SurveyVariablePresets {
     const res: ISurveyVariableValidationResult = { unknownVariables: [], errors: [], isValid: true };
     // A non-object argument is nothing to check, not something wrong: a test or a preset that carries
     // no variables validates clean.
-    if (Helpers.isValueObject(variables, true)) {
+    if (this.isRecord(variables)) {
       const data: any = {};
       Object.keys(variables).forEach(key => {
         const question = this.getVariableQuestion(key);
@@ -145,6 +145,12 @@ export class SurveyVariablePresets {
     }
     this.surveyValue = undefined;
     this.definitionModel = undefined;
+  }
+  // Not Helpers.isValueObject: that one is "instanceof Object", and a dictionary built with
+  // Object.create(null) - which is what a careful consumer hands over, so that a variable named
+  // "constructor" cannot read back off a prototype - is not an instance of anything.
+  private isRecord(val: any): boolean {
+    return !!val && typeof val === "object" && !Array.isArray(val);
   }
   private getPresets(): Array<ISurveyVariablePreset> {
     const presets = this.sourceValue.presets;
@@ -245,9 +251,12 @@ export class SurveyVariablePresets {
   private addChoiceErrors(question: Question, texts: Array<string>): void {
     if (!Serializer.isDescendantOf(question.getType(), "selectbase")) return;
     const select = <QuestionSelectBase>question;
-    // Choices this instrument never loads - it serves no requests and runs no lazy loading - say
-    // nothing about the value.
-    if (!!select.choicesByUrl.url || select.choicesLazyLoadEnabled) return;
+    // Choices the question does not have say nothing about the value: one that loads them on demand
+    // has none until something asks, and one that loads them from a url has none until the service
+    // answers - isReady is what says whether it did. A host that serves that url - the tester answers
+    // it from the case - gets the loaded choices checked like any others.
+    if (select.choicesLazyLoadEnabled) return;
+    if (!!select.choicesByUrl.url && !select.isReady) return;
     const value = select.value;
     if (Helpers.isValueEmpty(value)) return;
     const values = Array.isArray(value) ? value : [value];

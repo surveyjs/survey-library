@@ -117,6 +117,19 @@ describe("SurveyVariablePresets (issue #11814)", () => {
     });
     presets.dispose();
   });
+  test("validateVariables: a record with no prototype is checked like a plain object", () => {
+    // What a careful consumer hands over: the tester builds its resolved variables with
+    // Object.create(null), so that a variable named "constructor" cannot read back off a prototype.
+    const variables: any = Object.create(null);
+    variables.tier = "platinum";
+    variables.role = "admin";
+    const presets = new SurveyVariablePresets({ definition: definition });
+    const res = presets.validateVariables(variables);
+    expect(res.unknownVariables).toEqual(["role"]);
+    expect(res.errors.length).toBe(1);
+    expect(res.isValid).toBe(false);
+    presets.dispose();
+  });
   test("validateVariables: a value outside the choices of a question that is not required", () => {
     const presets = new SurveyVariablePresets({ definition: definition });
     const res = presets.validateVariables({ tier: "platinum" });

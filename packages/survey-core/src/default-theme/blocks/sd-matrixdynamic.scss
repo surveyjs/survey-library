@@ -200,6 +200,7 @@
 }
 
 .sd-matrixdynamic__placeholder {
+  box-sizing: border-box;
   padding-inline: var(--sjs2-layout-component-matrix-box-padding-left)
     var(--sjs2-layout-component-matrix-box-padding-right);
   padding-block: var(--sjs2-layout-component-matrix-box-padding-top)

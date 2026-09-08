@@ -55,7 +55,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getActiveElement, getRootNode, isShadowDOM } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -8716,9 +8716,19 @@ export class SurveyModel extends SurveyElementCore
     this.focusModeFocusInHandler = undefined;
   }
 
+  private getFocusModeSizeContainer(): HTMLElement | null {
+    const root = this.rootElement;
+    if (!root) return null;
+    if (root.parentElement) return root.parentElement;
+    // The survey can be rendered directly into a shadow root. A shadow root generates no box of its
+    // own, so height: 100% resolves against the host and the host is what has to be measured.
+    const rootNode = getRootNode(root);
+    return isShadowDOM(rootNode) && rootNode.host instanceof HTMLElement ? rootNode.host : null;
+  }
+
   private checkFocusModeHostHeight(): void {
     const root = this.rootElement;
-    const parent = root?.parentElement;
+    const parent = this.getFocusModeSizeContainer();
     if (!root || !parent) return;
     // A hidden container measures as zero; there is nothing to validate until it is shown.
     if (parent.clientHeight === 0 && root.offsetParent === null) return;
@@ -8772,8 +8782,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   private isEditableElementFocused(): boolean {
-    const activeElement = DomDocumentHelper.getDocument()?.activeElement as HTMLElement;
-    if (!activeElement || !this.rootElement?.contains(activeElement)) return false;
+    const activeElement = getActiveElement() as HTMLElement;
+    if (!activeElement) return false;
+    if (!this.rootElement?.contains(activeElement)) return false;
     const tagName = activeElement.tagName;
     return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || !!activeElement.isContentEditable;
   }

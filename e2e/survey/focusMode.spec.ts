@@ -65,8 +65,9 @@ frameworks.forEach((framework) => {
       const nav = page.locator(".sd-body__navigation").last();
       await expect(nav).toBeVisible();
       const docScroll = await page.evaluate(() => {
-        const scroller = document.querySelector(".sd-body .sv-scroll__scroller") as HTMLElement;
-        const root = document.querySelector(".sd-root-modern--focus") as HTMLElement;
+        const rootNode = (window as any).survey.rootElement.getRootNode();
+        const scroller = rootNode.querySelector(".sd-body .sv-scroll__scroller") as HTMLElement;
+        const root = (window as any).survey.rootElement as HTMLElement;
         return {
           document: document.documentElement.scrollHeight - document.documentElement.clientHeight,
           rootOverflow: getComputedStyle(root).overflow,
@@ -110,7 +111,7 @@ frameworks.forEach((framework) => {
       await expect(root).toBeVisible();
       const heights = await page.evaluate(() => {
         const host = document.getElementById("surveyElement") as HTMLElement;
-        const surveyRoot = document.querySelector(".sd-root-modern--focus") as HTMLElement;
+        const surveyRoot = (window as any).survey.rootElement as HTMLElement;
         return { host: host.clientHeight, root: surveyRoot.clientHeight };
       });
       expect(heights.root).toBe(heights.host);

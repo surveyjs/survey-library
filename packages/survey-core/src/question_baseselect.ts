@@ -2611,7 +2611,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   private focusOtherComment(item: ItemValue) {
     if (!this.autoOtherMode) {
-      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
+      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement, this.isInFocusMode);
     }
   }
   protected getDefaultItemComponent(): string {

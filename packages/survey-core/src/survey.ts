@@ -1314,7 +1314,7 @@ export class SurveyModel extends SurveyElementCore
     if (name === "backgroundImage") {
       this.resetPropertyValue("renderBackgroundImage");
     }
-    const bgProps = ["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"];
+    const bgProps = ["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "focusMode", "backgroundImageAttachment"];
     if (bgProps.indexOf(name) > -1) {
       this.resetPropertyValue("backgroundImageStyle");
     }
@@ -1477,6 +1477,12 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+  // Host container must have an explicit height. focusMode fills 100% of that host; it never uses 100vh.
+  // It brings its own locked-container styles, so it is independent of fitToContainer.
+  @property({ onSet: (newValue, target: SurveyModel) => {
+    target.updateCss();
+    target.setupFocusModeLayout();
+  } }) focusMode: boolean;
   /**
    * @deprecated Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
    * @hidden
@@ -2511,7 +2517,7 @@ export class SurveyModel extends SurveyElementCore
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
-      backgroundAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
+      backgroundAttachment: !(this.fitToContainer || this.focusMode) ? this.backgroundImageAttachment : undefined
     };
   }
   @property() wrapperFormCss: string;
@@ -5618,6 +5624,8 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
+      .append(this.css.rootFocusMode, this.focusMode)
+      .append(this.css.rootKeyboardOpen, this.isKeyboardOpen)
       .toString();
   }
   private isSmoothScrollEnabled = false;
@@ -5668,7 +5676,12 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
-    this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
+    this.updateScrollerElement();
+    this.setupFocusModeLayout();
+  }
+  private updateScrollerElement(): void {
+    this.removeScrollEventListener();
+    this.scrollerElement = this.rootElement?.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
   }
   forceProcessResponsiveness(): void {
@@ -5679,6 +5692,7 @@ export class SurveyModel extends SurveyElementCore
   beforeDestroySurveyElement() {
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
+    this.disposeFocusModeLayout();
     this.removeScrollEventListener();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
@@ -6115,7 +6129,18 @@ export class SurveyModel extends SurveyElementCore
           });
         }, elementsToRenderBefore);
       } else {
-        if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
+        if (this.focusMode && this.scrollerElement) {
+          if (element.isPage) {
+            this.scrollerElement.scrollTop = 0;
+          } else {
+            const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+            if (htmlElement) {
+              SurveyElement.ScrollElementIntoScroller(htmlElement, this.scrollerElement as HTMLElement);
+              activateLazyRenderingChecks(htmlElement);
+            }
+          }
+          optOnScolledCallback && optOnScolledCallback();
+        } else if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
@@ -8580,6 +8605,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose(): void {
     this.unConnectEditingObj();
+    this.disposeFocusModeLayout();
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
@@ -8620,10 +8646,156 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public get rootScrollDisabled() {
-    return !(this.fitToContainer && this.formScrollDisabled);
+    return this.focusMode || !(this.fitToContainer && this.formScrollDisabled);
   }
   public get formScrollDisabled() {
-    return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+    return this.focusMode || !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+  }
+  public get pageScrollDisabled() {
+    return !this.focusMode;
+  }
+
+  private focusModeVisualViewportHandler: () => void;
+  private focusModeFocusInHandler: (e: FocusEvent) => void;
+  private focusModeSetupGeneration = 0;
+  private _isKeyboardOpen = false;
+  private _focusModeOriginalHeight: string = "";
+  private focusModeHeightWarned = false;
+  private readonly focusModeKeyboardThreshold = 50;
+
+  public get isKeyboardOpen(): boolean {
+    return this._isKeyboardOpen;
+  }
+
+  public setupFocusModeLayout(): void {
+    this.disposeFocusModeLayout();
+    if (!this.rootElement || !DomWindowHelper.isAvailable()) return;
+    this._focusModeOriginalHeight = this.rootElement.style.height;
+    const generation = ++this.focusModeSetupGeneration;
+    DomWindowHelper.requestAnimationFrame(() => {
+      if (generation !== this.focusModeSetupGeneration || !this.rootElement) return;
+      // The page-level scroller is rendered only in focus mode, so re-resolve it once the
+      // re-render caused by the property change has reached the DOM.
+      this.updateScrollerElement();
+      if (!this.focusMode) return;
+      this.addFocusModeEventListeners();
+      this.checkFocusModeHostHeight();
+    });
+  }
+
+  private disposeFocusModeLayout(): void {
+    this.focusModeSetupGeneration++;
+    this.removeFocusModeEventListeners();
+    this.setKeyboardOpen(false);
+    if (this.rootElement) {
+      this.rootElement.style.height = this._focusModeOriginalHeight;
+    }
+  }
+
+  private addFocusModeEventListeners(): void {
+    this.focusModeVisualViewportHandler = () => this.updateFocusModeVisualViewport();
+    const visualViewport = DomWindowHelper.getVisualViewport();
+    if (visualViewport) {
+      visualViewport.addEventListener("resize", this.focusModeVisualViewportHandler);
+      visualViewport.addEventListener("scroll", this.focusModeVisualViewportHandler);
+    }
+    this.focusModeFocusInHandler = (e: FocusEvent) => this.onFocusModeFocusIn(e);
+    this.rootElement.addEventListener("focusin", this.focusModeFocusInHandler);
+  }
+
+  private removeFocusModeEventListeners(): void {
+    const visualViewport = DomWindowHelper.getVisualViewport();
+    if (visualViewport && this.focusModeVisualViewportHandler) {
+      visualViewport.removeEventListener("resize", this.focusModeVisualViewportHandler);
+      visualViewport.removeEventListener("scroll", this.focusModeVisualViewportHandler);
+    }
+    this.focusModeVisualViewportHandler = undefined;
+    if (this.rootElement && this.focusModeFocusInHandler) {
+      this.rootElement.removeEventListener("focusin", this.focusModeFocusInHandler);
+    }
+    this.focusModeFocusInHandler = undefined;
+  }
+
+  private checkFocusModeHostHeight(): void {
+    const root = this.rootElement;
+    const parent = root?.parentElement;
+    if (!root || !parent) return;
+    // A hidden container measures as zero; there is nothing to validate until it is shown.
+    if (parent.clientHeight === 0 && root.offsetParent === null) return;
+    let reason = "";
+    if (parent.clientHeight === 0) {
+      reason = "the container has zero height";
+    } else {
+      // height: 100% resolves against the parent only when the parent height is definite. Collapse
+      // the survey to zero: a parent that shrinks with it is sized by its content, not by the host.
+      const heightWithSurvey = parent.clientHeight;
+      const originalHeight = root.style.height;
+      root.style.height = "0px";
+      const heightWithoutSurvey = parent.clientHeight;
+      root.style.height = originalHeight;
+      if (heightWithoutSurvey < heightWithSurvey - 1) {
+        reason = "the container height is derived from its content";
+      }
+    }
+    if (!reason) {
+      this.focusModeHeightWarned = false;
+      return;
+    }
+    if (this.focusModeHeightWarned) return;
+    this.focusModeHeightWarned = true;
+    ConsoleWarnings.warn("SurveyModel.focusMode requires the survey container to have an explicit height, but " +
+      reason + ". Give the element that contains the survey a height of its own, for example height: 600px or height: 100dvh.");
+  }
+
+  private updateFocusModeVisualViewport(): void {
+    if (!this.focusMode || !this.rootElement) return;
+    const visualViewport = DomWindowHelper.getVisualViewport();
+    const innerHeight = DomWindowHelper.getInnerHeight() || 0;
+    const innerWidth = DomWindowHelper.getInnerWidth() || 0;
+    if (!visualViewport || innerHeight <= 0) return;
+    // Pinch-zoom shrinks the visual viewport too, and squeezing the survey then would break reflow at
+    // high zoom. The keyboard leaves the viewport width and scale alone and only opens for an input.
+    const isZoomed = visualViewport.scale > 1 || (innerWidth > 0 && innerWidth - visualViewport.width > 1);
+    const keyboardOpen = !isZoomed &&
+      innerHeight - visualViewport.height > this.focusModeKeyboardThreshold &&
+      this.isEditableElementFocused();
+    this.setKeyboardOpen(keyboardOpen);
+    if (keyboardOpen) {
+      const rootRect = this.rootElement.getBoundingClientRect();
+      const vvTop = visualViewport.offsetTop || 0;
+      const visibleTop = Math.max(rootRect.top, vvTop);
+      const visibleBottom = Math.min(rootRect.bottom, vvTop + visualViewport.height);
+      this.rootElement.style.height = Math.max(0, visibleBottom - visibleTop) + "px";
+    } else {
+      this.rootElement.style.height = this._focusModeOriginalHeight;
+    }
+  }
+
+  private isEditableElementFocused(): boolean {
+    const activeElement = DomDocumentHelper.getDocument()?.activeElement as HTMLElement;
+    if (!activeElement || !this.rootElement?.contains(activeElement)) return false;
+    const tagName = activeElement.tagName;
+    return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || !!activeElement.isContentEditable;
+  }
+
+  private onFocusModeFocusIn(e: FocusEvent): void {
+    if (!this.scrollerElement) return;
+    const target = e.target as HTMLElement;
+    if (!target || typeof target.getBoundingClientRect !== "function") return;
+    if (!this.scrollerElement.contains(target)) return;
+    SurveyElement.ScrollElementIntoScroller(target, this.scrollerElement as HTMLElement);
+  }
+
+  private setKeyboardOpen(open: boolean): void {
+    if (this._isKeyboardOpen === open) return;
+    this._isKeyboardOpen = open;
+    const cls = this.css.rootKeyboardOpen;
+    if (!this.rootElement || !cls) return;
+    if (open) {
+      this.rootElement.classList.add(cls);
+    } else {
+      this.rootElement.classList.remove(cls);
+    }
   }
 
   public onScroll(): void {
@@ -8993,6 +9165,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
+  { name: "focusMode:boolean", default: false, visible: false },
   { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },

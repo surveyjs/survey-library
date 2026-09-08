@@ -65,12 +65,18 @@
                         :needRenderWrapper="true"
                       ></SvComponent>
                       <SvComponent
-                        :is="vueSurvey.pageComponent || 'sv-page'"
-                        :key="pageKey"
-                        :survey="vueSurvey"
-                        :page="vueSurvey.activePage"
-                        :css="css"
-                      />
+                        :is="'sv-scroll'"
+                        :disabled="vueSurvey.pageScrollDisabled"
+                        :keyboardReachable="vueSurvey.focusMode"
+                      >
+                        <SvComponent
+                          :is="vueSurvey.pageComponent || 'sv-page'"
+                          :key="pageKey"
+                          :survey="vueSurvey"
+                          :page="vueSurvey.activePage"
+                          :css="css"
+                        />
+                      </SvComponent>
                       <SvComponent
                         :is="'sv-components-container'"
                         :survey="vueSurvey"

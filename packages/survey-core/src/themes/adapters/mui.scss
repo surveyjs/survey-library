@@ -368,10 +368,27 @@
 
   --sjs2-layout-component-panel-footer-padding-top: 0;
   --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-edge-actions-padding);
-  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-edge-actions-padding);
+  --sjs2-layout-component-panel-footer-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-panel-footer-padding-right: var(--sjs-mui-card-edge-padding);
   --sjs2-layout-component-panel-footer-gap: var(--sjs-mui-card-actions-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs-mui-card-actions-gap);
+
+  --sjs2-border-width-component-matrix-default-separator: 1px;
+  --sjs2-color-component-matrix-default-separator: var(--mui-palette-TableCell-border);
+  --sjs2-layout-component-matrix-cell-padding-top: 16px;
+  --sjs2-layout-component-matrix-cell-padding-bottom: 16px;
+  --sjs2-layout-component-matrix-cell-padding-left: 16px;
+  --sjs2-layout-component-matrix-cell-padding-right: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-top: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-bottom: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-left: 16px;
+  --sjs2-layout-component-matrix-header-cell-padding-right: 16px;
+  --sjs2-layout-component-matrix-cell-left-padding-left: 16px;
+  --sjs2-layout-component-matrix-cell-right-padding-right: 16px;
+  --sjs2-layout-component-matrix-box-padding-left: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-right: var(--sjs-mui-card-edge-padding);
+  --sjs2-layout-component-matrix-box-padding-top: 0;
+  --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
 
   /* a framed question is a card with a <CardContent> only */
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
@@ -974,51 +991,21 @@
   --sd-table-cell-min-width: initial;
 }
 
-.sd-table.sd-table.sd-table > tbody > tr {
-  & > th,
-  & > td {
-    &:where(:not(.sd-table__cell--error)) {
-      border-bottom: 1px solid var(--mui-palette-TableCell-border);
-      border-top: none;
-      padding: 16px;
-      font-weight: 400;
-      font-size: 0.875rem;
-      line-height: 1.43;
-      color: var(--mui-palette-text-primary);
-      &.sd-table__cell--header span {
-        font-size: 0.875rem;
-        line-height: 1.5rem;
-        font-weight: 500;
-      }
-      .sd-radio {
-        padding: 0;
-      }
-      .sd-radio__decorator {
-        margin: 0;
-      }
-    }
+.sd-table__cell {
+  color: var(--mui-palette-text-primary);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.43;
+  .sd-radio {
+    padding: 0;
+  }
+  .sd-radio__decorator {
+    margin: 0;
   }
 }
-
-.sd-table.sd-table.sd-table > thead > tr {
-  & > th,
-  & > td {
-    border-bottom: 1px solid var(--mui-palette-TableCell-border);
-    border-top: none;
-    padding: 16px;
-    &.sd-table__cell--header span {
-      font-size: 0.875rem;
-      line-height: 1.5rem;
-      font-weight: 500;
-      color: var(--mui-palette-text-primary);
-    }
-    .sd-radio {
-      padding: 0;
-    }
-    .sd-radio__decorator {
-      margin: 0;
-    }
-  }
+.sd-table__cell--header {
+  line-height: 1.5rem;
+  font-weight: 500;
 }
 
 .sd-question__placeholder {

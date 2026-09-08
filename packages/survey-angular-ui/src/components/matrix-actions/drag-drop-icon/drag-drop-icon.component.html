@@ -1,8 +1,6 @@
 <ng-template #template>
   <div (pointerdown)="question.onPointerDown($event, row)">
-    <svg *ngIf="question.iconDragElement" [class]="question.cssClasses.dragElementDecorator">
-      <use [attr.xlink:href]="question.iconDragElement"></use>
-    </svg>
+    <svg *ngIf="question.iconDragElement" [partCss]="question.cssClasses.dragElementDecorator" [iconName]="$any(model.iconName)" [size]="model.iconSize" sv-ng-svg-icon></svg>
     <span *ngIf="!question.iconDragElement" data-bind="css: question.cssClasses.iconDrag"></span>
   </div>
 </ng-template>

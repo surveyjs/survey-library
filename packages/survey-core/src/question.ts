@@ -270,6 +270,17 @@ export class ValidationContext extends AsyncElementsRunner {
   }
 }
 
+// The kind of value a question stores, independent of the question type: what a consumer that
+// exchanges plain data with the survey - a JSON Schema, a text or voice interface, an AI agent -
+// has to send back. Question.getValueType() answers it, every question type for itself.
+export type QuestionValueType = "string" | "number" | "boolean" | "date" | "array" | "object";
+
+// The value type a question that stores whatever its items carry reports: the type of one of them.
+export function getScalarValueType(val: any): QuestionValueType {
+  if (typeof val === "number") return "number";
+  return typeof val === "boolean" ? "boolean" : "string";
+}
+
 /**
  * A base class for all questions.
  */
@@ -605,6 +616,22 @@ export class Question extends SurveyElement<Question>
     return res;
   }
   public choicesLoaded(): void { }
+  public getValueType(): QuestionValueType {
+    return "string";
+  }
+  // Returns `true` when the value is picked from a list of items the question offers, and the
+  // question therefore implements ISelectQuestion (question_baseselect.ts): the Select questions,
+  // Boolean and Rating. The items themselves, and everything about them, are asked of that
+  // interface - this class knows nothing about them.
+  public isSelectQuestion(): boolean {
+    return false;
+  }
+  // Returns `false` when the value can only be produced through the question's own UI - a file to
+  // upload, a signature to draw, an image region to click. A consumer that renders nothing (a chat,
+  // a voice front end, an AI agent) cannot answer such a question at all.
+  public get hasPlainInput(): boolean {
+    return this.hasInput;
+  }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */

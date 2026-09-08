@@ -226,14 +226,15 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question } from "../../src/question";
+export { Question, QuestionValueType } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {
   QuestionCheckboxBase,
   QuestionSelectBase,
-  ChoiceItem
+  ChoiceItem,
+  ISelectQuestion
 } from "../../src/question_baseselect";
 export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
@@ -351,3 +352,13 @@ export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
 export { default as BaseTheme } from "../../src/default-theme/base-theme";
+
+// The question description layer: one plain record per question, shared with survey-core/tester,
+// survey-core/interview and the Creator JSON -> text generator (issue #11818).
+export { describeQuestion } from "../../src/question-description";
+export type {
+  IQuestionChoiceDescription,
+  IQuestionConstraints,
+  IQuestionDescription,
+  IQuestionDescriptionOptions
+} from "../../src/question-description";

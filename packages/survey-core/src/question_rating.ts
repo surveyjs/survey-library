@@ -1,5 +1,6 @@
 import { ItemValue } from "./itemvalue";
-import { Question } from "./question";
+import { Question, QuestionValueType, getScalarValueType } from "./question";
+import type { ISelectQuestion } from "./question_baseselect";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -89,7 +90,7 @@ export class RatingItem extends ItemValue {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question implements IRatingItemOwner {
+export class QuestionRatingModel extends Question implements IRatingItemOwner, ISelectQuestion {
   constructor(name: string) {
     super(name);
 
@@ -330,6 +331,26 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
   get visibleRateValues(): RatingItem[] {
     return this.visibleChoices;
+  }
+  public isSelectQuestion(): boolean {
+    return true;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    return this.visibleRateValues;
+  }
+  public get hasUnknownChoices(): boolean {
+    return false;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return false;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    // The generated items are numbers; only authored rateValues can carry another type.
+    const items = this.visibleRateValues;
+    return items.length > 0 ? getScalarValueType(items[0].value) : "number";
   }
   protected supportEmptyValidation(): boolean { return this.isDropdown; }
   private get isDropdown(): boolean { return this.renderAs === "dropdown"; }

@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -16,6 +16,7 @@ import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
+import type { ISelectQuestion } from "./question_baseselect";
 import { TextContextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
@@ -807,6 +808,31 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getDynamicType(): string {
     return this.questionWrapper ? this.questionWrapper.getType() : "question";
   }
+  // A single component is answered exactly as the question it wraps is.
+  public getValueType(): QuestionValueType {
+    return !!this.contentQuestion ? this.contentQuestion.getValueType() : super.getValueType();
+  }
+  public get hasPlainInput(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
+  }
+  public isSelectQuestion(): boolean {
+    return !!this.contentQuestion && this.contentQuestion.isSelectQuestion();
+  }
+  private get contentSelectQuestion(): ISelectQuestion {
+    return this.isSelectQuestion() ? <ISelectQuestion><any>this.contentQuestion : undefined;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    return this.contentSelectQuestion?.getValueChoices();
+  }
+  public get hasUnknownChoices(): boolean {
+    return this.contentSelectQuestion?.hasUnknownChoices === true;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return this.contentSelectQuestion?.isOtherItem(item) === true;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return this.contentSelectQuestion?.isNoneItem(item) === true;
+  }
   public getOriginalObj(): Base {
     return this.questionWrapper;
   }
@@ -1166,6 +1192,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
 
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
   }
   protected validateElementCore(context: ValidationContext): boolean {
     const res = super.validateElementCore(context);

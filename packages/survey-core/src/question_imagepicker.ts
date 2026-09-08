@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase, ChoiceItem } from "./question_baseselect";
+import { QuestionValueType } from "./question";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -90,6 +91,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get hasSingleInput(): boolean {
     return false;
+  }
+  // The choices are images: a respondent picks one by looking at it, so there is nothing a
+  // consumer that renders nothing can send back.
+  public get hasPlainInput(): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    return this.multiSelect ? "array" : super.getValueType();
   }
   protected getItemValueType() {
     return "imageitemvalue";

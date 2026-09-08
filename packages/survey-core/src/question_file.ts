@@ -1,5 +1,5 @@
 import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
-import { IQuestionPlainData, Question } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -32,6 +32,11 @@ const customCategory = settings.customFileCategoryName;
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
 export class QuestionFileModelBase extends Question {
+  // The value is a file a respondent picks from a device or draws on a canvas: a consumer that
+  // renders nothing has no way to produce it.
+  public get hasPlainInput(): boolean {
+    return false;
+  }
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
   /**
@@ -568,6 +573,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   public getType(): string {
     return "file";
+  }
+  public getValueType(): QuestionValueType {
+    return "array";
   }
 
   protected onChangeQuestionValue(newValue: any): void {

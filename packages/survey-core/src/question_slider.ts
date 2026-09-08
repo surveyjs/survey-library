@@ -6,7 +6,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
@@ -303,6 +303,9 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public getType(): string {
     return "slider";
+  }
+  public getValueType(): QuestionValueType {
+    return this.sliderType === "range" ? "array" : "number";
   }
   protected getAllChildren(): Base[] {
     return [

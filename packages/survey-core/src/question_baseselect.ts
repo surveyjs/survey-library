@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -25,6 +25,24 @@ import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 
 const OTHER_ITEM_VALUE = "other";
+// The contract of a question whose value is picked from a list of items it offers: every Select
+// question, plus Boolean and Rating, which build their items themselves. Question.isSelectQuestion()
+// says whether a question implements it, so a consumer that only exchanges data with the survey -
+// a JSON Schema, a text or voice interface, an AI agent - never has to know the question types.
+export interface ISelectQuestion {
+  // The items to offer, in the order the question offers them, without the ones that are a gesture
+  // rather than a value (Select All).
+  getValueChoices(): Array<ItemValue>;
+  // The items cannot be listed: they are loaded on demand, or the request that fills them has not
+  // answered yet.
+  readonly hasUnknownChoices: boolean;
+  // The built-in "Other" item, whose selection is completed by a comment.
+  isOtherItem(item: ItemValue): boolean;
+  // Selecting the item clears every other selection: the built-in None / Refuse to answer / Don't
+  // know items and any choice the author marked as exclusive.
+  isNoneItem(item: ItemValue): boolean;
+}
+
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
@@ -226,7 +244,7 @@ export class ChoiceItem extends ItemValue {
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
-export class QuestionSelectBase extends Question implements IChoiceOwner {
+export class QuestionSelectBase extends Question implements IChoiceOwner, ISelectQuestion {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
@@ -1844,6 +1862,24 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public isNoneItem(item: ItemValue): boolean {
     return item.isExclusive === true;
+  }
+  // The "Select All" item of a Checkboxes question. It is a gesture over the other items, not a
+  // value the question can hold, so getValueChoices() leaves it out.
+  public isSelectAllItem(item: ItemValue): boolean {
+    return false;
+  }
+  public isSelectQuestion(): boolean {
+    return true;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    return this.visibleChoices.filter(item => !this.isSelectAllItem(item));
+  }
+  public get hasUnknownChoices(): boolean {
+    return this.choicesLazyLoadEnabled || this.waitingChoicesByURL;
+  }
+  public getValueType(): QuestionValueType {
+    const items = this.visibleChoices.filter(item => !this.isBuiltInChoice(item));
+    return items.length > 0 ? getScalarValueType(items[0].value) : super.getValueType();
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;

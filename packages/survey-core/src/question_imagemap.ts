@@ -2,7 +2,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -98,6 +98,14 @@ export class QuestionImageMapModel extends Question {
 
   public getType(): string {
     return "imagemap";
+  }
+  // A respondent answers by clicking a region of an image, so there is nothing a consumer that
+  // renders nothing can send back.
+  public get hasPlainInput(): boolean {
+    return false;
+  }
+  public getValueType(): QuestionValueType {
+    return this.multiSelect ? "array" : "string";
   }
 
   protected getAllChildren(): Base[] {

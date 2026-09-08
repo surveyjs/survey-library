@@ -146,7 +146,7 @@
   --sd-table-cell-min-width: var(--sjs2-size-x1500);
 
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
   white-space: normal;
 }
@@ -414,8 +414,8 @@
 .sd-table__row-disabled > .sd-table__cell {
   opacity: 0.25;
 }
-.sd-table__row--data > .sd-table__cell,
-.sd-table > thead > tr > .sd-table__cell {
+.sd-table__row--data,
+.sd-table > thead > tr {
   border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
     var(--sjs2-color-component-matrix-default-separator);
 }

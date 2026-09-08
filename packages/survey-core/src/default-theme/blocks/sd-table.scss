@@ -280,6 +280,7 @@
     var(--sjs2-layout-component-matrix-cell-padding-bottom);
   padding-inline: var(--sjs2-layout-component-matrix-cell-padding-left)
     var(--sjs2-layout-component-matrix-cell-padding-right);
+  text-align: inherit;
 }
 .sd-table__cell:where(:nth-child(1 of .sd-table__cell)) {
   padding-inline-start: var(--sjs2-layout-component-matrix-cell-left-padding-left);

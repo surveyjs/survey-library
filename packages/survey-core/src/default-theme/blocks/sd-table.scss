@@ -414,6 +414,11 @@
 .sd-table__row-disabled > .sd-table__cell {
   opacity: 0.25;
 }
+.sd-table__row--data > .sd-table__cell,
+.sd-table > thead > tr > .sd-table__cell {
+  border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
+    var(--sjs2-color-component-matrix-default-separator);
+}
 
 @mixin table_responsive {
   &.sd-question--table > .sd-question__container > .sd-question__header-and-content-container > .sd-question__content {
@@ -464,13 +469,6 @@
     padding: 0;
     text-align: start;
     gap: var(--sjs2-layout-component-question-box-gap-vertical);
-  }
-
-  .sd-table__row--data {
-    & > .sd-table__cell {
-      border-bottom: var(--sjs2-border-width-component-matrix-default-separator) solid
-        var(--sjs2-color-component-matrix-default-separator);
-    }
   }
 
   .sd-table__cell:first-of-type,

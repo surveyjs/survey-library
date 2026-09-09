@@ -13,6 +13,7 @@ export type {
   IInterviewResult,
   IInterviewCompleteResult,
   IInterviewDocument,
+  IInterviewToolOptions,
   IInterviewToolDefinition,
 } from "../src/interview/interview-types";
 

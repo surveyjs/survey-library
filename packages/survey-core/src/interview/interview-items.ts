@@ -84,6 +84,17 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, res:
   }
 }
 
+// A root whose value is not one plain answer: the mode splits it into the nested questions a
+// respondent fills one at a time. Batch mode (tier 05) writes one value per question and therefore
+// reports such a root instead of filling it; single mode walks its inputs. The dynamic types are
+// named because a dynamic panel with no panels yet, or a matrix with no rows, has no nested question
+// at this instant and is a container all the same.
+export function isContainerQuestion(question: Question): boolean {
+  const type = question.getType();
+  if (type === MATRIX_TYPE || DYNAMIC_CONTAINER_TYPES.indexOf(type) >= 0) return true;
+  return question.getNestedQuestions(true, false).length > 0;
+}
+
 function getMatrixRowInputs(question: Question): Array<Question> {
   const rows = (<any>question).getMatrixSingleInputQuestions(undefined, true);
   return Array.isArray(rows) ? rows : [];

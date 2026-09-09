@@ -3,17 +3,23 @@ import { settle } from "./interview-async";
 import { renderInterviewDocument } from "./render";
 import {
   IInterview, IInterviewChanges, IInterviewCompleteResult, IInterviewDocument, IInterviewError,
-  IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition,
+  IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition, IInterviewToolOptions,
 } from "./interview-types";
 import {
   IInterviewInput, getAnsweredValue, getInputErrors, getInterviewInputs, isAskableInput,
   isInputAnswered, isInputValid, makeInputCurrent, validateInput,
 } from "./interview-items";
+import {
+  IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchEntries, getBatchItems,
+  isBatchWritable, refreshBatchEntry,
+} from "./interview-batch";
+import { createAnswerSchema } from "./interview-schema";
+import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
   InterviewErrorCodes, badActionError, completionBlockedError, notAChoiceError, notANumberError,
   notAskableError, nothingToAnswerError, requiredCannotSkipError, surveyCompletedError,
-  unknownQuestionError,
+  unknownQuestionError, unknownToolError,
 } from "./interview-errors";
 
 // The interview conducts one SurveyModel the integrator owns (overview 2.6). It sets exactly one
@@ -149,21 +155,69 @@ export class Interview implements IInterview {
     };
   }
 
+  // Everything an agent still has to work on, in one document. A synchronous read of settled state,
+  // like describe(): it never moves the model and never validates.
   public describeAll(): string {
-    return notImplemented("describeAll");
+    return renderInterviewDocument(this.createDocument(this.getInputs(), undefined, undefined, true));
   }
-  public answerAll(values: { [address: string]: any }): Promise<IInterviewResult> {
-    return notImplemented("answerAll");
+
+  // The batch write. Every key is resolved first, the accepted ones are ordered by item order and
+  // then written one at a time, each re-checked against the state its predecessors left behind. A key
+  // that fails is skipped and the rest are written: one bad answer of a turn must not throw away the
+  // good ones, and the errors say which key was refused and why.
+  public async answerAll(values: { [address: string]: any }): Promise<IInterviewResult> {
+    if (this.isCompleted()) return this.createErrorResult(surveyCompletedError(), [], true);
+    const inputs = this.getInputs();
+    const entries = getBatchEntries(this.surveyValue, inputs);
+    const resolved = resolveBatchValues(entries, values, this.surveyValue.commentSuffix);
+    const errors = resolved.errors;
+    if (resolved.writes.length === 0) {
+      return this.createResult(inputs, noChanges(), errors, true);
+    }
+    const before = takeSnapshot(this.surveyValue, inputs);
+    // The same rule as in single mode: an expression validator or a min/max bound may depend on a
+    // value this batch writes, and a stale error would keep an input listed forever.
+    const wereInvalid = inputs.filter(input => input.question.errors.length > 0);
+    const written: { [address: string]: boolean } = {};
+    resolved.writes.forEach(write => {
+      const error = this.writeBatchValue(write, written);
+      if (!!error) errors.push(error);
+    });
+    wereInvalid.forEach(input => {
+      if (written[input.address] !== true && input.question.isVisibleInSurvey) input.question.validate(true);
+    });
+    // One settle for the whole batch: the asynchronous validators and expressions of every write
+    // drain together instead of one call per key.
+    await this.settleSurvey();
+    const after = this.getInputs();
+    this.makeCurrent(after);
+    after.forEach(input => {
+      if (written[input.address] !== true) return;
+      getInputErrors(input).forEach(message => errors.push({ name: input.address, message: message }));
+    });
+    return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors, true);
   }
+
   public getAnswerSchema(): any {
-    return notImplemented("getAnswerSchema");
+    const entries = getBatchEntries(this.surveyValue, this.getInputs());
+    return createAnswerSchema(getBatchItems(entries), this.surveyValue.commentSuffix);
   }
-  public getTools(): Array<IInterviewToolDefinition> {
-    return notImplemented("getTools");
+
+  public getTools(options?: IInterviewToolOptions): Array<IInterviewToolDefinition> {
+    return getToolDefinitions(this.getAnswerSchema(), options);
   }
+
   public callTool(name: string, args: any): Promise<any> {
-    return notImplemented("callTool");
+    // The prefix getTools() was given is the host's, and the definitions are plain data that nothing
+    // remembers, so a name is recognized by what it ends with.
+    switch(getToolBaseName(name)) {
+      case InterviewToolNames.describe: return Promise.resolve(this.describeAll());
+      case InterviewToolNames.answer: return this.answerAll(args || {});
+      case InterviewToolNames.complete: return this.complete();
+    }
+    return Promise.reject(unknownToolError(name));
   }
+
   public dispose(): void {
     this.skipped.clear();
   }
@@ -206,6 +260,34 @@ export class Interview implements IInterview {
     this.makeCurrent(after);
     const errors = getInputErrors(target).map(message => ({ name: target.address, message: message }));
     return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors);
+  }
+
+  // One key of a batch, written against the state the earlier keys left behind. The item is
+  // described again here rather than trusted from the resolution pass: an earlier write may have
+  // hidden it, an enableIf may have turned it off, and choicesFromQuestion or choicesVisibleIf may
+  // have moved the set the value is checked against.
+  private writeBatchValue(write: IBatchWrite, written: { [address: string]: boolean }): IInterviewError {
+    const address = write.entry.address;
+    const fresh = refreshBatchEntry(write.entry);
+    if (!fresh) return notAskableError(address, "hidden");
+    if (!isBatchWritable(fresh)) {
+      return notAskableError(address, fresh.item.disabled === true ? "disabled" : "hidden");
+    }
+    const question = fresh.input.question;
+    if (write.hasValue) {
+      const prepared = prepareValue(fresh.input, write.value);
+      if (!!prepared.error) return prepared.error;
+      question.value = prepared.value;
+      if (prepared.hasComment) question.comment = prepared.comment;
+    }
+    if (write.hasComment) question.comment = write.comment;
+    // An answer un-skips, exactly as in single mode.
+    this.skipped.remove(address);
+    written[address] = true;
+    // Validated one key at a time, before the next write: an expression validator reads the data as
+    // it is now, and running them all at the end would validate against a later state.
+    question.validate(true);
+    return undefined;
   }
 
   // Through the question, never through survey.data: a top-level question routes into
@@ -302,8 +384,11 @@ export class Interview implements IInterview {
     return res;
   }
 
+  // The same document in both modes, down to one key: single mode says which item is current, batch
+  // mode lists every item that still needs work. Everything else - the title, the progress, the
+  // answers so far, the changes and the errors of the call - is the same thing said the same way.
   private createDocument(inputs: Array<IInterviewInput>, changes?: IInterviewChanges,
-    errors?: Array<IInterviewError>): IInterviewDocument {
+    errors?: Array<IInterviewError>, isBatch?: boolean): IInterviewDocument {
     const res: IInterviewDocument = {
       title: this.surveyValue.processedTitle,
       progress: this.getProgress(inputs),
@@ -313,25 +398,33 @@ export class Interview implements IInterview {
     // is not the answer to a call has no call to report on.
     if (!!changes) res.changes = changes;
     if (!!errors) res.errors = errors;
-    res.current = this.getCurrentItem(inputs);
+    if (isBatch === true) {
+      res.items = getBatchItems(getBatchEntries(this.surveyValue, inputs));
+    } else {
+      res.current = this.getCurrentItem(inputs);
+    }
     return res;
   }
 
   private createResult(inputs: Array<IInterviewInput>, changes: IInterviewChanges,
-    errors: Array<IInterviewError>): IInterviewResult {
-    const document = this.createDocument(inputs, changes, errors);
+    errors: Array<IInterviewError>, isBatch?: boolean): IInterviewResult {
+    const document = this.createDocument(inputs, changes, errors, isBatch);
     return {
       errors: errors,
       becameVisible: changes.becameVisible,
       becameHidden: changes.becameHidden,
       becameRequired: changes.becameRequired,
-      current: document.current,
+      // Filled in batch mode too, and there it is the loop condition: non-null while some askable
+      // item is still unanswered or invalid. "No errors and nothing became visible" is not - an
+      // agent that answers one of two required questions produces neither and is not done.
+      current: isBatch === true ? this.getCurrentItem(inputs) : document.current,
       describe: renderInterviewDocument(document),
     };
   }
 
-  private createErrorResult(error: IInterviewError, inputs: Array<IInterviewInput>): IInterviewResult {
-    return this.createResult(inputs, noChanges(), [error]);
+  private createErrorResult(error: IInterviewError, inputs: Array<IInterviewInput>,
+    isBatch?: boolean): IInterviewResult {
+    return this.createResult(inputs, noChanges(), [error], isBatch);
   }
 
   private settleSurvey(): Promise<void> {
@@ -344,6 +437,77 @@ export class Interview implements IInterview {
 function getLastAskableInput(inputs: Array<IInterviewInput>): IInterviewInput {
   const askable = inputs.filter(input => isAskableInput(input));
   return askable[askable.length - 1];
+}
+
+interface IBatchWrite {
+  entry: IInterviewBatchEntry;
+  order: number;
+  hasValue: boolean;
+  value?: any;
+  hasComment: boolean;
+  comment?: string;
+}
+
+// Every key of the object, resolved before anything is written. A key is an item address or an
+// address plus the model's own comment suffix - the batch twin of single mode's { value, comment },
+// and the key getAnswerSchema() advertises.
+//
+// The accepted keys are then ordered by item order and not by the order the object happens to carry:
+// a trigger or a setValueIf that depends on an earlier question must see it first, and an agent's
+// batch is a set of answers, not a sequence of gestures. A comment lands with the item it belongs to.
+function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [address: string]: any },
+  commentSuffix: string): { writes: Array<IBatchWrite>, errors: Array<IInterviewError> } {
+  const errors: Array<IInterviewError> = [];
+  const byAddress: { [address: string]: IBatchWrite } = {};
+  const writes: Array<IBatchWrite> = [];
+  const askable = getBatchAddresses(entries);
+  Object.keys(values || {}).forEach(key => {
+    const target = findBatchTarget(entries, key, commentSuffix);
+    if (!target) {
+      errors.push(unknownQuestionError(key, askable));
+      return;
+    }
+    const entry = target.entry;
+    if (!isBatchWritable(entry)) {
+      errors.push(notAskableError(entry.address, getNotWritableReason(entry)));
+      return;
+    }
+    let write = byAddress[entry.address];
+    if (!write) {
+      write = { entry: entry, order: entries.indexOf(entry), hasValue: false, hasComment: false };
+      byAddress[entry.address] = write;
+      writes.push(write);
+    }
+    if (target.isComment) {
+      write.hasComment = true;
+      write.comment = values[key];
+    } else {
+      write.hasValue = true;
+      write.value = values[key];
+    }
+  });
+  writes.sort((a, b) => a.order - b.order);
+  return { writes: writes, errors: errors };
+}
+
+function getNotWritableReason(entry: IInterviewBatchEntry): "disabled" | "unsupported" | "batch" {
+  if (entry.item.disabled === true) return "disabled";
+  return entry.item.reason === "batch" ? "batch" : "unsupported";
+}
+
+// An address wins over a comment key: a question really named "note-Comment" is answered by its own
+// name, and only a key that names no item at all is tried as the comment of one that does.
+function findBatchTarget(entries: Array<IInterviewBatchEntry>, key: string,
+  commentSuffix: string): { entry: IInterviewBatchEntry, isComment: boolean } {
+  const direct = findBatchEntry(entries, key);
+  if (!!direct) return { entry: direct, isComment: false };
+  if (!commentSuffix || key.length <= commentSuffix.length) return undefined;
+  if (key.substring(key.length - commentSuffix.length) !== commentSuffix) return undefined;
+  const owner = findBatchEntry(entries, key.substring(0, key.length - commentSuffix.length));
+  // Only for an item that accepts one: the model would store a comment for any question, and a key
+  // the item does not advertise is a mistake the agent has to hear about.
+  if (!owner || !owner.item.comment) return undefined;
+  return { entry: owner, isComment: true };
 }
 
 interface IPreparedValue {
@@ -473,8 +637,4 @@ function getStartPageErrorNames(survey: any): Array<string> {
   if (!page) return [];
   return page.questions.filter((question: any) => question.errors.length > 0)
     .map((question: any) => question.name);
-}
-
-function notImplemented(name: string): never {
-  throw new Error("not implemented: " + name);
 }

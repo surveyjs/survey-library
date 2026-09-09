@@ -93,13 +93,16 @@ describe("survey-core/interview entry point (issue #11818)", () => {
     expect(completed.completed).toBe(true);
   });
 
-  test("The methods later tiers implement say so instead of answering wrongly", async () => {
+  test("Batch mode is reached through the entry point", async () => {
     const interview = await createInterview(surveyJson);
-    expect(() => interview.answerAll({ q1: "a" })).toThrow("not implemented: answerAll");
-    expect(() => interview.callTool("answer", {})).toThrow("not implemented: callTool");
-    expect(() => interview.describeAll()).toThrow("not implemented: describeAll");
-    expect(() => interview.getAnswerSchema()).toThrow("not implemented: getAnswerSchema");
-    expect(() => interview.getTools()).toThrow("not implemented: getTools");
+    expect(interview.describeAll()).toContain("- name: q1");
+    expect(interview.getAnswerSchema().properties.q1).toEqual({ title: "q1", type: "string" });
+    const tools: Array<IInterviewToolDefinition> = interview.getTools({ prefix: "entry_" });
+    expect(tools.map(tool => tool.name))
+      .toEqual(["entry_describe_survey", "entry_answer_survey", "entry_complete_survey"]);
+    const result: IInterviewResult = await interview.answerAll({ q1: "a" });
+    expect(result.becameVisible).toEqual(["q2"]);
+    expect(await interview.callTool("entry_describe_survey", {})).toBe(interview.describeAll());
   });
 
   test("None of it leaks into the main survey-core entry point", () => {

@@ -52,15 +52,30 @@ export function unknownQuestionError(name: string, known: Array<string>): IInter
   };
 }
 
-export function notAskableError(name: string, reason: "disabled" | "unsupported"): IInterviewError {
-  const why = reason === "disabled"
-    ? "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true"
-    : "its value can only be produced through the question's own UI - a file to upload, a signature to draw";
+// One code, four reasons. "batch" and "hidden" belong to answerAll(): a container is a question the
+// batch API has no way to write, and a question an earlier answer of the same call hid or turned off
+// is one the batch may no longer write. Both are the same statement to the caller - "this key was
+// not written" - so they are the same code with a message that says which.
+export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "hidden";
+
+const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
+  disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
+  unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
+  batch: "batch mode writes one plain value per question and this one holds many - a dynamic panel, " +
+    "a matrix, a multiple text or a composite. Its inputs are answered in single-input mode",
+  hidden: "an earlier answer of the same call hid it or turned it off, so it is no longer being asked",
+};
+
+export function notAskableError(name: string, reason: InterviewNotAskableReason): IInterviewError {
   return {
     name: name,
-    message: "The input " + quoteValue(name) + " cannot be answered: " + why + ".",
+    message: "The input " + quoteValue(name) + " cannot be answered: " + NOT_ASKABLE_REASONS[reason] + ".",
     code: InterviewErrorCodes.notAskable,
   };
+}
+
+export function unknownToolError(name: string): Error {
+  return new Error("unknown tool: " + name);
 }
 
 export function notAChoiceError(name: string, value: any, choices: Array<any>): IInterviewError {

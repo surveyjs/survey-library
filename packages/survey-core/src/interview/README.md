@@ -120,19 +120,18 @@ so what it describes is never a state that is about to change.
 | `interview.answer(value)` / `answer(name, value)` | Writes one answer — to the current item, or to the item at `name` — and reports the consequences: the errors, what became visible, hidden or required, the next item, and the document. | tier 04 |
 | `interview.skip()` | Leaves the current item unanswered and moves on. Refused for a required item. | tier 04 |
 | `interview.complete()` | Validates every item, then calls `tryComplete()`. | tier 04 |
-| `interview.describeAll(): string` | The whole form at once, for batch mode. | tier 05 |
+| `interview.describeAll(): string` | Every question that still needs an answer, at once, for batch mode. | tier 05 |
 | `interview.answerAll(values)` | Writes many answers by address in one call. | tier 05 |
-| `interview.getAnswerSchema(): any` | JSON Schema for the answers a batch call accepts. | tier 05 |
-| `interview.getTools(): Array<IInterviewToolDefinition>` | MCP-shaped tool definitions, usable for function calling as is. | tier 05 |
-| `interview.callTool(name, args): Promise<any>` | Runs one of them. | tier 05 |
+| `interview.getAnswerSchema(): any` | JSON Schema for the answers `answerAll()` accepts right now. | tier 05 |
+| `interview.getTools(options?): Array<IInterviewToolDefinition>` | MCP-shaped tool definitions, usable for function calling as is. `{ prefix }` renames them. | tier 05 |
+| `interview.callTool(name, args): Promise<any>` | Runs one of them, by the name the definition carries. | tier 05 |
 | `toYaml(value, options?): string` | The emitter the documents are written with — plain data in, YAML out. Exported so that a host rendering its own text from the item records quotes exactly the way `describe()` does. | tier 03 |
 | `InterviewErrorCodes` | The frozen table of the codes the interview raises itself. A host localizes on the code. | tier 04 |
 
-A method that has not arrived yet throws `Error("not implemented: <name>")` rather than answering
-wrongly. The addresses of nested inputs — inside dynamic panels, matrices, multiple text and custom
+The addresses of nested inputs — inside dynamic panels, matrices, multiple text and custom
 components — and the summary step of a dynamic container arrive in tier 06; until then a nested input
-is addressed by its plain question name, and a summary step is listed as `unsupported` and never
-asked for.
+is addressed by its plain question name, a summary step is listed as `unsupported` and never asked
+for, and batch mode reports a container instead of filling it (see [Batch mode](#batch-mode)).
 
 ### Options
 
@@ -169,7 +168,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
-| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), or it has no plain input — a file, a signature, an image picker — or it is a summary step (`unsupported`). |
+| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker — or it is a summary step (`unsupported`), it is a container and the call was `answerAll()` (`reason: "batch"`), or an earlier key of the same `answerAll()` hid it. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value. Actions belong to the summary step of a dynamic container. |
@@ -505,6 +504,286 @@ current:
 `answer(4)` clears the error, `current()` becomes `null`, and `complete()` answers
 `{ completed: true, data: { hasPet: "Yes", petType: "Dog", petAge: 4 } }`.
 
+## Batch mode
+
+Single mode is a conversation; batch mode is a turn of an agent. `describeAll()` hands over every
+question that still needs work, `answerAll()` takes as many answers back as the agent could produce,
+and the pair is looped until nothing is invalid and nothing new became visible. The loop converges
+because visibility depends only on data: an answer either reveals questions or it does not, and once
+no answer changes anything there is nothing left to reveal.
+
+The document is the one of single mode with `items` in place of `current`:
+
+````markdown
+# Pet survey
+
+```yaml
+progress:
+  answered: 1
+  remainingRequired: 1
+answered:
+  hasPet: "Yes"
+changes:
+  becameVisible: [petType, petAge]
+  becameRequired: [petType]
+items:
+  - name: petType
+    type: dropdown
+    title: What kind?
+    required: true
+    choices:
+      - value: Dog
+      - value: Cat
+      - value: Other
+  - name: petAge
+    type: text
+    title: Pet age (years)
+    required: false
+    inputType: number
+    constraints:
+      min: 0
+      max: 40
+```
+````
+
+`items` lists every item that is **not already answered and valid**, plus every item the agent has to
+be told about even though it cannot fill it. `items: []` means there is nothing left to send. An item
+that failed validation carries its first error text under `error`, exactly as `current` does in
+single mode.
+
+Unlike single mode, batch mode works at the level of the **root question** — the name a JSON key
+carries — and not of the nested input a respondent fills one at a time. So:
+
+* a **container** — a dynamic panel, a dynamic matrix, a single-choice matrix, a multiple text, a
+  composite component — is one record with `unsupported: true` and `reason: "batch"`, and the
+  questions inside it have no batch address at all. Filling containers in one call is a follow-up
+  issue; until then their inputs are answered in single-input mode, which handles every type.
+* a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
+  `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
+  "batch"` says *this version* cannot fill it, no reason at all says nothing ever will.
+* an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`; a
+  question that is read-only by property is not an item and is not listed.
+* items the interviewee **skipped** in single mode are listed. Skipping is a gesture of a
+  conversation with a person; an agent that wants to leave a question blank leaves it blank.
+
+### `answerAll(values)`
+
+Keys are item addresses, plus `<address>` + [`settings.commentSuffix`](#the-comment-key) for an item
+that accepts a comment. Every key is resolved first — an unknown one is `unknownQuestion`, a
+container is `notAskable` — and the accepted ones are then written **in item order, not in the order
+the object carries them**: a trigger or a `setValueIf` that depends on an earlier question has to see
+it first, and an agent's batch is a set of answers rather than a sequence of gestures. A comment is
+written with the item it belongs to.
+
+The writes are **sequential, and each answer is re-checked immediately before its own write** against
+the state its predecessors left behind: the item must still be visible and askable — an earlier write
+may have hidden it (`notAskable`) — and the pre-checks of single mode (`notAChoice`, `notANumber`, the
+silent array wrapping) run against the choices *as they are now*, which `choicesFromQuestion` and
+`choicesVisibleIf` may have moved. **A key that fails is skipped and the rest are written**: one bad
+answer of a turn must not throw away the good ones, and the errors say which key was refused and why.
+
+The model then settles **once**, after the last write, so the asynchronous validators and expressions
+of the whole batch drain together, and the result is the one `answer()` returns:
+
+```ts
+{ errors, becameVisible, becameHidden, becameRequired, current, describe }
+```
+
+`errors` is *what was wrong with what you sent*: the refused keys, and the validation errors of the
+items that were written. A **required item the agent did not touch is not an error** — it is an item
+in the next `describeAll()`, which is where the remaining work lives.
+
+One consequence of resolving the keys up front: a question that is invisible when the call starts
+cannot be answered in the same call that reveals it. It is in the next document, and the loop below
+sends it on the next turn.
+
+### The loop
+
+```ts
+let result = await iv.answerAll(await agent(iv.describeAll(), iv.getAnswerSchema()));
+let previous = "";
+while (result.current) {                    // an askable item is still unanswered or invalid
+  if (result.describe === previous) break;  // no progress: the agent repeats itself — stop, do not spin
+  previous = result.describe;
+  result = await iv.answerAll(await agent(result.describe, iv.getAnswerSchema()));
+}
+const done = await iv.complete();
+if (!done.completed) { /* done.errors: hand them back to the agent, or to a person */ }
+```
+
+`current` is filled in batch mode too, and it **is** the loop condition: it is non-null while any
+askable item is still unanswered or invalid.
+
+`errors.length || becameVisible.length` is **not** a loop condition. An agent that answers one of two
+already-visible required questions produces neither an error nor a new question, and a loop written
+that way would try to complete with work remaining.
+
+The no-progress guard is the other half: an agent that answers nothing, or sends the same refused
+answer twice, produces the same document twice, and the loop ends rather than spinning. What to do
+then — re-prompt, escalate to a person, complete anyway — is the integrator's call.
+
+### The comment key
+
+An item whose record carries `comment` accepts a second key, the question name plus
+`settings.commentSuffix` (`-Comment` by default) — the same key the model stores the text under, and
+the key `getAnswerSchema()` advertises:
+
+```js
+await iv.answerAll({ petType: "other", "petType-Comment": "Ferret" });
+// data: { petType: "other", "petType-Comment": "Ferret" }
+```
+
+It is the batch twin of single mode's `{ value, comment }` object. A key that ends with the suffix but
+names no item that accepts a comment is `unknownQuestion`, and a question really called
+`note-Comment` is answered by its own name — an address always wins over a comment key.
+
+## Answer schema
+
+`getAnswerSchema()` returns a JSON Schema for exactly the keys `answerAll()` accepts **right now**,
+so an agent's function-calling API constrains what it may send instead of the interview refusing it
+afterwards. It is synchronous, it reflects the current state — an agent that answers `hasPet` sees
+`petType` in the next schema and not before — and it is built from the item records alone, so what
+the document says and what the schema says cannot disagree.
+
+```json
+{
+  "type": "object",
+  "properties": { "petType": { "title": "What kind?", "enum": ["Dog", "Cat", "Other"] },
+                  "petAge": { "title": "Pet age (years)", "type": "number", "minimum": 0, "maximum": 40 } },
+  "required": ["petType"],
+  "additionalProperties": false
+}
+```
+
+Draft 2020-12 keywords only, and no `$schema`: every provider accepts this subset and none of them
+fetches a meta-schema at run time. The mapping, per item:
+
+| Item | Schema |
+| --- | --- |
+| `title`, `description` | `title`, `description` |
+| `choices` (and no `choicesUnknown`) | `enum` of the values, `other` included |
+| `rateValues` | `enum` of the values |
+| `valueType: "string"` | `type: "string"` |
+| `valueType: "number"` | `type: "number"` |
+| `valueType: "boolean"` | `enum` of the two values — `[false, true]`, or the custom `valueFalse`/`valueTrue` pair. One rule for every question that offers a set, and no special case to get wrong. |
+| `valueType: "date"` | `type: "string"` with `format` by `inputType`: `datetime-local` → `date-time`, `time` → `time`, everything else → `date` |
+| `valueType: "array"` | `type: "array"`, `uniqueItems: true`, and `items: { enum: [...] }` when the choices can be enumerated |
+| `constraints.min` / `max` | `minimum` / `maximum` |
+| `constraints.minLength` / `maxLength` | `minLength` / `maxLength` |
+| `constraints.minCount` / `maxCount` | `minItems` / `maxItems` |
+| `constraints.regex` | `pattern` |
+| `constraints.format: "email"`, or `inputType: "email"` | `format: "email"` |
+| `constraints.step` | `multipleOf`, **only** when `min` is `0` or absent — JSON Schema counts multiples from zero and the model steps from `min`, so anywhere else the step goes unreported rather than wrong |
+| `comment` | a second property, `<name>` + `settings.commentSuffix`, of `type: "string"` |
+| `required: true` | the name is in `required` |
+| `disabled: true` | `readOnly: true`, and never in `required` |
+| `unsupported: true` | not in the schema at all — there is no value an agent could send |
+
+A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
+They go into `description` as text, in brackets after the question's own description:
+`"Your birthday (min 2020-01-01, max 2030-12-31)"`.
+
+## Tools
+
+`getTools()` returns three tool definitions in the **MCP shape** — `name`, `description`,
+`inputSchema` — which every function-calling API accepts after renaming one key.
+
+| `name` | `inputSchema` | `callTool` runs |
+| --- | --- | --- |
+| `describe_survey` | `{ type: "object", properties: {} }` | `describeAll()` |
+| `answer_survey` | `getAnswerSchema()`, as it was when `getTools()` was called | `answerAll(args)` |
+| `complete_survey` | `{ type: "object", properties: {} }` | `complete()` |
+
+`getTools({ prefix })` prepends `prefix` to all three names, so one server can expose several surveys
+through one set of tools; `callTool(name, args)` takes the prefixed name back and rejects an unknown
+one with `Error("unknown tool: <name>")`. The definitions are plain data — nothing in this module
+talks to a network, and nothing remembers the prefix.
+
+The descriptions are fixed English on purpose. Every other text the interview produces is a localized
+model string, but these are not shown to the interviewee: they are read by the agent's own model,
+which is prompted in whatever language the host chose, and a tool description that changed with the
+survey's locale would change the agent's behaviour with it.
+
+An MCP server is the three definitions and nothing else:
+
+```js
+// with an MCP server object of your SDK of choice
+iv.getTools().forEach(tool => {
+  server.tool(tool.name, tool.description, tool.inputSchema, args => iv.callTool(tool.name, args));
+});
+```
+
+The two other shapes are a rename:
+
+```js
+const openai = iv.getTools().map(t =>
+  ({ type: "function", function: { name: t.name, description: t.description, parameters: t.inputSchema } }));
+const anthropic = iv.getTools().map(t =>
+  ({ name: t.name, description: t.description, input_schema: t.inputSchema }));
+```
+
+## A survey over HTTP, in one file
+
+There is no hosted session service here and there will not be one: an interview is one object in one
+process, and where it lives between two requests is the integrator's decision. This is the whole of
+it for a server that keeps one interview per session id in memory — `node:http`, `node:crypto`,
+`survey-core` and `survey-core/interview`, nothing else.
+
+```js
+import { createServer } from "node:http";
+import { randomUUID } from "node:crypto";
+import { SurveyModel } from "survey-core";
+import { createInterview } from "survey-core/interview";
+
+const sessions = new Map();
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let text = "";
+    req.on("data", chunk => { text += chunk; });
+    req.on("end", () => { try { resolve(text ? JSON.parse(text) : {}); } catch (e) { reject(e); } });
+    req.on("error", reject);
+  });
+}
+
+function send(res, status, body) {
+  const isText = typeof body === "string";
+  res.writeHead(status, { "content-type": isText ? "text/markdown" : "application/json" });
+  res.end(isText ? body : JSON.stringify(body));
+}
+
+createServer(async (req, res) => {
+  const url = new URL(req.url, "http://localhost");
+  const id = url.searchParams.get("session");
+  const iv = sessions.get(id);
+  try {
+    if (url.pathname === "/start") {                       // POST -> { session, describe }
+      const created = randomUUID();
+      const started = await createInterview(new SurveyModel(surveyJson));
+      sessions.set(created, started);
+      return send(res, 200, { session: created, describe: started.describeAll() });
+    }
+    if (!iv) return send(res, 404, { error: "unknown session" });
+    if (url.pathname === "/describe") return send(res, 200, iv.describeAll());          // GET
+    if (url.pathname === "/answer") return send(res, 200, await iv.answerAll(await readBody(req)));  // POST
+    if (url.pathname === "/complete") {                                                 // POST
+      const done = await iv.complete();
+      if (done.completed) { iv.dispose(); sessions.delete(id); }
+      return send(res, 200, done);
+    }
+    send(res, 404, { error: "unknown path" });
+  } catch (error) {
+    send(res, 500, { error: String(error) });
+  }
+}).listen(3000);
+```
+
+`POST /start` answers with the session id and the first document; `GET /describe?session=…` renders
+the current one; `POST /answer?session=…` takes the object `answerAll()` takes and answers with the
+result; `POST /complete?session=…` finishes. A real server adds auth, a time-to-live on the map, and
+`survey.data` written somewhere that survives a restart — none of which the interview has an opinion
+about.
+
 ## Source layout
 
 | File | Responsibility |
@@ -512,6 +791,9 @@ current:
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
 | `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class: the selection rule, the four calls of single-input mode, the pre-checks and the documents. |
 | `interview-items.ts` | The inventory over the model's single inputs, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
+| `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, which are containers it only reports, and the list of items a batch document carries. |
+| `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
+| `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |
 | `interview-errors.ts` | `InterviewErrorCodes`, frozen, and one composing function per code. |
 | `interview-async.ts` | `settle()`: the one asynchronous primitive. Every mutating call ends with it before it reads the state it returns. |

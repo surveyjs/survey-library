@@ -20,6 +20,10 @@ export interface IInterviewItem extends IQuestionDescription {
   entry?: string;
   // a dynamic container's summary step (tier 06)
   summary?: IInterviewSummary;
+  // batch mode, next to unsupported: "batch" says this version cannot fill the item and a later one
+  // may - a dynamic panel, a matrix, a multiple text, a composite. No reason at all says nothing
+  // ever will: a file to upload, a signature to draw.
+  reason?: "batch";
   // single mode: the current item's first error text, if any
   error?: string;
 }
@@ -90,9 +94,15 @@ export interface IInterview {
   describeAll(): string;
   answerAll(values: { [address: string]: any }): Promise<IInterviewResult>;
   getAnswerSchema(): any;
-  getTools(): Array<IInterviewToolDefinition>;
+  getTools(options?: IInterviewToolOptions): Array<IInterviewToolDefinition>;
   callTool(name: string, args: any): Promise<any>;
   dispose(): void;
+}
+
+export interface IInterviewToolOptions {
+  // prepended to every tool name, so that one server can expose several surveys through one set of
+  // tools; callTool() takes the prefixed name back
+  prefix?: string;
 }
 
 export interface IInterviewToolDefinition {

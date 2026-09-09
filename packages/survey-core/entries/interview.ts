@@ -7,6 +7,7 @@ export type {
   IInterviewOptions,
   IInterviewItem,
   IInterviewRow,
+  IInterviewEntry,
   IInterviewSummary,
   IInterviewAction,
   IInterviewError,

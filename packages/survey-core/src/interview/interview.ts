@@ -18,6 +18,10 @@ import {
   getBatchItems, isBatchWritable, refreshBatchEntry,
 } from "./interview-batch";
 import { IPreparedValue, isPlainObject, prepareValue, writeContainerValue } from "./interview-fields";
+import {
+  clearUntouchedErrors, getRecordEntries, isDynamicContainer, isRecordsAnswered, isRecordsValid,
+  writeRecordsValue,
+} from "./interview-records";
 import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
@@ -209,12 +213,17 @@ export class Interview implements IInterview {
     // The same rule as in single mode: an expression validator or a min/max bound may depend on a
     // value this batch writes, and a stale error would keep an input listed forever.
     const wereInvalid = inputs.filter(input => input.question.errors.length > 0);
-    const written: IBatchWritten = { addresses: {}, containers: [] };
+    // Which inputs carried an error before anything was written. Validating a dynamic container
+    // validates its entries with it, and the errors that run puts on an empty input nobody has been
+    // asked for yet are not errors of this call (interview-records.ts).
+    const hadErrors: { [id: string]: boolean } = {};
+    wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
+    const written: IBatchWritten = { addresses: {}, questions: {}, containers: [] };
     resolved.writes.forEach(write => {
-      this.writeBatchValue(write, written).forEach(error => errors.push(error));
+      this.writeBatchValue(write, written, hadErrors).forEach(error => errors.push(error));
     });
     wereInvalid.forEach(input => {
-      if (written.addresses[input.address] !== true && input.question.isVisibleInSurvey) {
+      if (!isBatchWritten(written, input) && input.question.isVisibleInSurvey) {
         input.question.validate(true);
       }
     });
@@ -224,7 +233,9 @@ export class Interview implements IInterview {
     const after = this.getInputs();
     this.makeCurrent(after);
     after.forEach(input => {
-      if (written.addresses[input.address] !== true) return;
+      // By identity as well as by address: a removal of the same call shifts the entries after it, so
+      // the field an add wrote to may answer to a different address by now.
+      if (!isBatchWritten(written, input)) return;
       getInputErrors(input).forEach(message => errors.push({ name: input.address, message: message }));
     });
     // A container's own errors sit on the container and on no item, so they are read from it
@@ -379,12 +390,16 @@ export class Interview implements IInterview {
   // described again here rather than trusted from the resolution pass: an earlier write may have
   // hidden it, an enableIf may have turned it off, and choicesFromQuestion or choicesVisibleIf may
   // have moved the set the value is checked against.
-  private writeBatchValue(write: IBatchWrite, written: IBatchWritten): Array<IInterviewError> {
+  private writeBatchValue(write: IBatchWrite, written: IBatchWritten,
+    hadErrors: { [id: string]: boolean }): Array<IInterviewError> {
     const address = write.entry.address;
     const fresh = refreshBatchEntry(write.entry);
     if (!fresh) return [notAskableError(address, "hidden")];
     if (!isBatchWritable(fresh)) {
       return [notAskableError(address, fresh.item.disabled === true ? "disabled" : "hidden")];
+    }
+    if (!!fresh.records) {
+      return this.writeBatchRecords(fresh.records, address, fresh.item, write, written, hadErrors);
     }
     if (!!fresh.container) return this.writeBatchContainer(fresh.container, address, write, written);
     const question = fresh.input.question;
@@ -395,7 +410,7 @@ export class Interview implements IInterview {
       if (prepared.hasComment) question.comment = prepared.comment;
     }
     if (write.hasComment) question.comment = write.comment;
-    this.markWritten(written, address);
+    this.markWritten(written, address, question);
     // Validated one key at a time, before the next write: an expression validator reads the data as
     // it is now, and running them all at the end would validate against a later state.
     question.validate(true);
@@ -414,7 +429,7 @@ export class Interview implements IInterview {
       return [badRecordError(address, value)];
     }
     const res = writeContainerValue(container, address, value, this.surveyValue.commentSuffix);
-    res.written.forEach(field => this.markWritten(written, field.address));
+    res.written.forEach(field => this.markWritten(written, field.address, field.question));
     if (res.written.length > 0) {
       // RequiredInAllRowsError, EachRowUniqueError and a required container left empty are the
       // container's own errors, and no field write puts them anywhere. complete() runs the same
@@ -425,11 +440,40 @@ export class Interview implements IInterview {
     return res.errors;
   }
 
+  // A dynamic container takes a list of entry records, one per position: an object patches the entry
+  // at that position, a position past the count adds one, null removes one (interview-records.ts).
+  // The keys of a record are field names and never addresses, and the errors are reported under the
+  // addresses those fields have in the inventory.
+  private writeBatchRecords(container: Question, address: string, item: IInterviewItem,
+    write: IBatchWrite, written: IBatchWritten,
+    hadErrors: { [id: string]: boolean }): Array<IInterviewError> {
+    if (!write.hasValue) return [];
+    const constraints = item.constraints || {};
+    const res = writeRecordsValue(container, address, write.value, this.surveyValue.commentSuffix,
+      { minCount: constraints.minCount, maxCount: constraints.maxCount });
+    res.written.forEach(field => this.markWritten(written, field.address, field.question));
+    if (res.applied !== true) return res.errors;
+    // After every key write, not only after an add or a remove: hasKeysDuplicated lives in the
+    // container's own validate and nowhere a nested question's validate(true) reaches, so a patch that
+    // turns a keyName field into a duplicate would leave no error anywhere and the record would drop
+    // out of the document while invalid. MinRowCountError and a required container that lost its last
+    // entry are written by the same run.
+    container.validate(true);
+    clearUntouchedErrors(container, address, hadErrors, res.written);
+    // A container written in batch loses its "done": growing, shrinking or editing the list re-opens
+    // it, so a host that switches to single mode afterwards gets the summary step back.
+    this.skipped.remove(address);
+    this.editingQuestion = undefined;
+    written.containers.push({ address: address, question: container });
+    return res.errors;
+  }
+
   // An answer un-skips, exactly as in single mode, and it ends an "edit" the same way.
-  private markWritten(written: IBatchWritten, address: string): void {
+  private markWritten(written: IBatchWritten, address: string, question?: Question): void {
     this.skipped.remove(address);
     this.editingQuestion = undefined;
     written.addresses[address] = true;
+    if (!!question) written.questions[question.id] = true;
   }
 
   // Through the question, never through survey.data: a top-level question routes into
@@ -488,6 +532,16 @@ export class Interview implements IInterview {
     return isInputAnswered(input, this.skipped.has(input.address));
   }
 
+  // The batch predicates of a dynamic container, which replace the "done" gesture of single mode
+  // wherever a batch document reports on the container as a whole: it holds at least one entry, and
+  // neither it nor any field of any entry carries an error.
+  private isContainerDone(input: IInterviewInput): boolean {
+    const container = input.question;
+    if (!isDynamicContainer(container)) return this.isAnswered(input) && isInputValid(input);
+    return isRecordsAnswered(container) &&
+      isRecordsValid(container, getRecordEntries(container, input.address));
+  }
+
   private getCurrentInput(inputs: Array<IInterviewInput>): IInterviewInput {
     if (this.isCompleted()) return undefined;
     if (!!this.editingQuestion) {
@@ -538,12 +592,18 @@ export class Interview implements IInterview {
     return res;
   }
 
-  private getProgress(inputs: Array<IInterviewInput>): { answered: number, remainingRequired: number } {
+  private getProgress(inputs: Array<IInterviewInput>,
+    isBatch?: boolean): { answered: number, remainingRequired: number } {
     let answered = 0;
     let remainingRequired = 0;
     inputs.forEach(input => {
-      if (input.isSummary) return;
-      const isDone = this.isAnswered(input) && isInputValid(input);
+      // A summary step is a gesture of single mode and counts in neither direction there: saying the
+      // list is done is not an answer, and the container's inputs are counted one by one. Batch mode
+      // has no such gesture, so the container counts as done once it is answered and valid.
+      if (input.isSummary && isBatch !== true) return;
+      const isDone = input.isSummary
+        ? this.isContainerDone(input)
+        : this.isAnswered(input) && isInputValid(input);
       if (isDone) answered++;
       if (!isDone && isAskableInput(input) && input.item.required === true) remainingRequired++;
     });
@@ -553,15 +613,17 @@ export class Interview implements IInterview {
   // The whole map, in item order. The issue calls it "a short answered: map"; a consumer that wants
   // it short truncates it - the interview does not guess which answers matter. A skipped item is not
   // in it: it holds whatever it held, and the interviewee said they did not want to answer it.
-  private getAnswered(inputs: Array<IInterviewInput>): { [address: string]: any } {
+  private getAnswered(inputs: Array<IInterviewInput>, isBatch?: boolean): { [address: string]: any } {
     const res: { [address: string]: any } = {};
     inputs.forEach(input => {
       if (input.question.isEmpty()) return;
       if (input.isSummary) {
         // The container's whole value - the array of panels, the array of rows - under its own
-        // address, once the interviewee said the list is done. Its inputs stay listed under their own
-        // addresses either way, so a consumer can read the answers at whichever level it works at.
-        if (this.isAnswered(input)) res[input.address] = input.question.value;
+        // address, once the interviewee said the list is done, or once a batch has it answered and
+        // valid. Its inputs stay listed under their own addresses either way, so a consumer can read
+        // the answers at whichever level it works at.
+        const isDone = isBatch === true ? this.isContainerDone(input) : this.isAnswered(input);
+        if (isDone) res[input.address] = input.question.value;
         return;
       }
       if (this.skipped.has(input.address)) return;
@@ -577,8 +639,8 @@ export class Interview implements IInterview {
     errors?: Array<IInterviewError>, isBatch?: boolean): IInterviewDocument {
     const res: IInterviewDocument = {
       title: this.surveyValue.processedTitle,
-      progress: this.getProgress(inputs),
-      answered: this.getAnswered(inputs),
+      progress: this.getProgress(inputs, isBatch),
+      answered: this.getAnswered(inputs, isBatch),
     };
     // A bare describe() carries neither: they are the consequences of one call, and a document that
     // is not the answer to a call has no call to report on.
@@ -632,7 +694,13 @@ function getLastAskableInput(inputs: Array<IInterviewInput>): IInterviewInput {
 // containers whose own errors it reports next to them.
 interface IBatchWritten {
   addresses: { [address: string]: boolean };
+  // by identity too: an add and a remove in one call shift the addresses of everything after them
+  questions: { [id: string]: boolean };
   containers: Array<IInterviewContainer>;
+}
+
+function isBatchWritten(written: IBatchWritten, input: IInterviewInput): boolean {
+  return written.addresses[input.address] === true || written.questions[input.question.id] === true;
 }
 
 interface IBatchWrite {
@@ -702,9 +770,9 @@ function findBatchTarget(entries: Array<IInterviewBatchEntry>, key: string,
   const owner = findBatchEntry(entries, key.substring(0, key.length - commentSuffix.length));
   // Only for an item that accepts one: the model would store a comment for any question, and a key
   // the item does not advertise is a mistake the agent has to hear about. Never for a container:
-  // there the suffix belongs to a field, one level down inside the object, so "contact-Comment"
-  // names nothing.
-  if (!owner || !!owner.container || !owner.item.comment) return undefined;
+  // there the suffix belongs to a field, one level down inside the object or inside a record, so
+  // "contact-Comment" and "medications-Comment" name nothing.
+  if (!owner || !!owner.container || !!owner.records || !owner.item.comment) return undefined;
   return { entry: owner, isComment: true };
 }
 

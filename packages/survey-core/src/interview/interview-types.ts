@@ -27,6 +27,14 @@ export interface IInterviewItem extends IQuestionDescription {
   // batch mode, a matrix dropdown: two levels, because its value has two - the row, then the fields
   // of that row.
   rows?: Array<IInterviewRow>;
+  // batch mode, a dynamic container: the entries it holds now, one record per entry, in the order
+  // the interviewee sees them.
+  entries?: Array<IInterviewEntry>;
+  // batch mode, a dynamic container: what a new entry takes - the template, described. A declaration
+  // and not a live entry: an entry's own fields are the truth once it exists.
+  template?: Array<IInterviewItem>;
+  // batch mode, a dynamic container: whether another entry may be added right now
+  canAdd?: boolean;
   // batch mode, a field of a container: the value it holds now, in the form answer() takes back
   // ({ value, comment } when a comment is set)
   value?: any;
@@ -44,6 +52,14 @@ export interface IInterviewItem extends IQuestionDescription {
 export interface IInterviewRow {
   name: string;
   title: string;
+  fields: Array<IInterviewItem>;
+}
+
+// One entry of a dynamic container in a batch document: its position - which is what a value of
+// answerAll() addresses - whether it may be removed, and the questions the entry holds as fields.
+export interface IInterviewEntry {
+  index: number;
+  canRemove: boolean;
   fields: Array<IInterviewItem>;
 }
 

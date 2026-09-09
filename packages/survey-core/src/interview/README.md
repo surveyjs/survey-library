@@ -176,9 +176,9 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
-| `badRecord` | The value `answerAll()` was given for a [fixed-shape container](#fixed-shape-containers-as-objects), or for a row inside one, is not an object of field values — a string, a number, an array. `null` and `undefined` are not a mistake: they leave the container alone. |
-| `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off. |
-| `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for. |
+| `badRecord` | The value `answerAll()` was given is not the shape the container takes: not an object of field values for a [fixed-shape container](#fixed-shape-containers-as-objects) or for a row inside one, not a list for a [dynamic one](#dynamic-containers-as-records), or an element of that list that is neither an object nor a `null` naming an entry that exists. `null` and `undefined` for the whole key are not a mistake: they leave the container alone. |
+| `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off, and the same in a batch: the list asks for more entries than fit, or a handler of the survey refused the new one. The message names the position. |
+| `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for, and the same in a batch: a `null` names an entry that cannot go, the removals would fall below the minimum count, or a handler of the survey refused. The message names the position. |
 | `requiredCannotSkip` | `skip()` on a required item. It stays current. |
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
@@ -445,6 +445,9 @@ current:
     canAdd: true
     addText: Add new             # the model's localized add caption
 ```
+
+`constraints.minCount` / `maxCount` are on the item as well when the container declares them, the
+way every other constraint of the description layer is.
 
 Every string in it is the model's: the entry title is the processed `templateTitle` (piping included
 — `{panel.name}` is why the entry above reads "Aspirin"), or `"Panel {panelIndex}"` / `"Row
@@ -851,10 +854,13 @@ carries — and not of the nested input a respondent fills one at a time. So:
   matrix dropdown, whose `rows`) describe the inputs it holds, and `answerAll()` takes that object
   back. See [Fixed-shape containers as objects](#fixed-shape-containers-as-objects).
 * a container whose value is a **list that grows and shrinks** — a dynamic panel, a dynamic matrix —
-  is one record with `unsupported: true` and `reason: "batch"`, and so is a container **nested
-  inside** another container. The questions inside either have no batch address at all; they are
-  answered in single-input mode, which handles every type. Filling a dynamic container in one call
-  is a follow-up issue.
+  is one record whose `entries` describe what it holds now, and `answerAll()` takes a list of records
+  back: add, remove and edit, any number of entries, in one turn. See
+  [Dynamic containers as records](#dynamic-containers-as-records).
+* a container **nested inside** another container — a dynamic panel in a composite, a multiple text
+  in a panel template — is described where it sits with `unsupported: true` and `reason: "batch"`,
+  and a key for it is refused. Its questions have no batch address at all; they are answered in
+  single-input mode, which handles every type. Recursing into them is a follow-up.
 * a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
   `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
   "batch"` says *this version* cannot fill it, no reason at all says nothing ever will.
@@ -1073,6 +1079,186 @@ await iv.complete();
 //         satisfaction: { price: "good", speed: "bad" } }
 ```
 
+### Dynamic containers as records
+
+A dynamic panel and a dynamic matrix hold a **list that grows and shrinks**. Batch mode describes
+their entries as records and takes a list of records back, so an agent adds, removes and edits any
+number of entries in one turn:
+
+```js
+await iv.answerAll({
+  medications: [
+    { dose: "20mg" },                     // position 0 exists: patch it - only the keys sent are written
+    null,                                 // position 1 exists: remove it
+    { name: "Ibuprofen", dose: "400mg" }, // position 2 is past the count: add an entry and fill it
+  ],
+});
+```
+
+The record of such a container is the ordinary item record — no `unsupported`, no `reason` — with
+three extra keys: `entries`, `template` and `canAdd`.
+
+````markdown
+```yaml
+items:
+  - name: medications
+    type: paneldynamic
+    title: Medications
+    required: true
+    constraints:
+      minCount: 1
+      maxCount: 5
+    entries:
+      - index: 0
+        canRemove: true
+        fields:
+          - name: name
+            type: text
+            title: Name
+            required: true
+            value: Aspirin
+          - name: dose
+            type: text
+            title: Dose
+            value: 10 mg
+            error: Please enter a number followed by a unit
+      - index: 1
+        canRemove: true
+        fields:
+          - name: name
+            type: text
+            title: Name
+            required: true
+          - name: dose
+            type: text
+            title: Dose
+    template:
+      - name: name
+        type: text
+        title: Name
+        required: true
+      - name: dose
+        type: text
+        title: Dose
+    canAdd: true
+```
+````
+
+* **`entries`** — one per entry the interviewee sees (`visiblePanels`, `visibleRows`), which is the
+  list the [summary step](#the-summary-step) of single mode numbers as well. `index` is the position
+  a value addresses, `canRemove` is the model's own `canRemovePanel` / `canRemoveRows &&
+  canRemoveRow(row)`, and `fields` are the [fields](#fixed-shape-containers-as-objects) of that
+  entry: a panel's visible questions, a row's cells followed by the questions of its detail panel
+  once the model has created that panel. There is no entry **title**: the model builds the titles the
+  summary step shows only for the container it is currently standing on, and a document never moves
+  the model. An agent reads the values instead. The key is left out while the container holds no
+  entries.
+* **`template`** — what a **new** entry takes: the template panel's questions, or the visible
+  columns' template questions. It is a declaration and not a live entry: a `visibleIf` inside it has
+  not run and `choicesFromQuestion` is empty, so **an entry's own `fields` are the truth once it
+  exists**. One thing the template cannot answer for itself is the choices a matrix column inherits
+  from the matrix's own `choices` — the column's template question is never bound to them — so when a
+  row exists that column is described from the first row's cell. With no row at all it reports no
+  choices, and the fields of the first entry an agent adds do.
+* **`canAdd`** — `canAddPanel` / `canAddRow`: false at the maximum count, with adding turned off, in
+  read-only state, and under a `panelCountExpression` / `rowCountExpression`, where the count is the
+  expression's and records cannot change it.
+* **`constraints.minCount` / `maxCount`** are `minPanelCount` / `maxPanelCount` and `minRowCount` /
+  `maxRowCount`, each only when the survey set one: both maximums otherwise fall back to a global
+  default (`settings.panel.maxPanelCount`, `settings.matrix.maxRowCount`) that nobody asked for.
+* The container's own first error — `MinRowCountError`, a duplicated `keyName`, a required container
+  with no entries — is on the record's `error` and under its own address in `errors`. A field's
+  errors are under the field's address: `medications[1].dose`.
+* A **container inside an entry** — a dynamic panel or a matrix in a panel template, a multiple text
+  in a detail panel — is described in place with `unsupported: true` and `reason: "batch"`, in the
+  entry's `fields` and in `template` alike, and a key for it is `notAskable`. There is no recursion.
+**The value.** A list, whose positions are the `entries[].index` of the document the agent read. A
+single plain object is wrapped — `[obj]` — like any other array value; `null`, `undefined` and `[]`
+for the whole key write nothing and remove nothing ("clear it all" is a list of `null`s), and a
+position the list does not reach, or an `undefined` in it, is left alone.
+
+| At a position | Below the current count | At or past it |
+| --- | --- | --- |
+| an object | **patches** that entry: the keys sent are written, the others left as they are, `{}` writes nothing | **adds** an entry and patches it; positions past the count are taken in order |
+| `null` | **removes** that entry | `badRecord` |
+| anything else | `badRecord` | `badRecord` |
+
+**Nothing shifts within one call.** Before anything is written, every position below the count is
+resolved to the entry it names — the panel, the row — and every operation acts on that object.
+Patches and adds run first, removals last. So a patch that hides an earlier entry (`templateVisibleIf`,
+`rowsVisibleIf`) cannot make a later `null` remove the wrong one, and what the agent read stays what
+the agent meant. The addresses in the **result** have shifted; the next document is the truth.
+
+**Whole-key refusals.** A list whose shape cannot work is refused entirely — nothing of it is
+written, because a half-realized shape moves the positions the agent reasoned about — and the message
+names the position: a `null` on an entry that offers no remove (`cannotRemove`), adds that do not fit
+(`cannotAdd`), removals that would fall below the minimum (`cannotRemove`), an element that is
+neither an object nor a `null` naming an entry that exists (`badRecord`). The counts are checked **in
+the order the operations run**, because the model enforces every add and every remove on its own: the
+adds have to fit *before* the removals happen. Four entries, a maximum of five, two adds and one
+`null` is therefore `cannotAdd`, although the final count would be five — an agent that needs the
+room removes first, in a turn of its own, and the message says so.
+
+**Per record**, the keys are field names — never addresses — and the rules are the ones one level up:
+they are written in the entry's own **field order**, each resolved immediately before its own write,
+so a field an earlier key of the same record revealed is written in the same call; **one bad field
+skips that field and the rest of the record is written**; a key that names nothing is
+`unknownQuestion` at `medications[0].colour`; a hidden or disabled field, and a container inside the
+entry, are `notAskable`; the comment key works here too
+(`{ kind: "other", "kind-Comment": "Ferret" }`). An entry an earlier patch of the same call hid is
+`notAskable` at `medications[1]`.
+
+Every add and every removal is re-checked immediately before it happens — the permission may have
+changed since the pre-check, and the data-level calls the interview uses do not read it themselves —
+and a handler of the survey that refuses one (`onMatrixRowAdding`, `onDynamicPanelRemoving`) is
+`cannotAdd` / `cannotRemove` at that position. A refused **removal** does not stop the other
+removals of the call; a refused **add** does stop the adds after it, whose positions have moved.
+Removing never prompts, for the reason the [summary step](#the-summary-step) gives.
+
+After every write of the key the container validates itself: `hasKeysDuplicated` lives in the
+container's own validation and nowhere a field's own validation reaches, so a patch that turns a
+`keyName` field into a duplicate would otherwise leave no error anywhere. That run also puts
+"Response required." on every empty required field of every entry — including the entry that was just
+added, which nobody has been asked for yet — so the errors it puts on inputs that were empty before
+the call and were not written by it are dropped again. **An empty required field is work in the next
+`describeAll()`, not an error of this call**, and an error at `complete()`.
+
+**When a container is listed.** It is *answered* when it holds at least one entry, and *valid* when
+neither it nor any field of any entry carries an error or a required error — a read of persisted
+state, never a validation run. It is listed while it is not both, and always while it is `disabled`.
+An empty **optional** field does not make it invalid, so a container whose entries are filled as far
+as the survey demands drops out of `items`, and `current` — the first item of `items` an agent may
+write to — moves on. The `done` gesture of single mode is not consulted: an agent has none, exactly
+as it has no `skip`. The other way round, **a batch write drops a `done`** the interviewee said
+earlier, so a host that mixes the two modes on one interview gets the summary step back — growing,
+shrinking or editing the list re-opens it, whichever mode did it.
+
+A three-turn transcript, in the style of the pet survey:
+
+```js
+iv.describeAll();
+// items: medications, required, with no entries yet - "canAdd: true" and the template
+
+await iv.answerAll({
+  medications: [
+    { name: "Aspirin", dose: "10 mg" },
+    { name: "Ibuprofen", dose: "twice a day" },
+  ],
+});
+// errors:
+//   - name: "medications[1].dose"   message: Please enter a number followed by a unit
+// items: medications, with two entries and the error on the second one's dose
+
+await iv.answerAll({ medications: [null, { dose: "400 mg" }] });
+// the patch lands on the entry that was at position 1 although position 0 is being removed:
+// patches run first, and a position names the entry it named when the document was read
+// errors: []   items: []   current: null
+
+await iv.complete();
+// completed: true
+// data: { medications: [{ name: "Ibuprofen", dose: "400 mg" }] }
+```
+
 ## Answer schema
 
 `getAnswerSchema()` returns a JSON Schema for exactly the keys `answerAll()` accepts **right now**,
@@ -1116,6 +1302,7 @@ fetches a meta-schema at run time. The mapping, per item:
 | `unsupported: true` | not in the schema at all — there is no value an agent could send |
 | `fields` (a [fixed-shape container](#fixed-shape-containers-as-objects)) | `type: "object"`, one property per field, `additionalProperties: false`, and a fixed English `description` after the question's own. No `required` inside: a patch sends only what changes, and what is required is in the document and enforced at `complete()`. |
 | `rows` (a matrix dropdown) | the same, one level deeper: a property per row, each `type: "object"` with the row's fields |
+| `entries` (a [dynamic container](#dynamic-containers-as-records)) | `type: "array"`, `maxItems` from `constraints.maxCount`, and one element schema for every position: `{ "anyOf": [ { "type": "object", "properties": …, "additionalProperties": false }, { "type": "null" } ] }`. The properties are the **union**, by field name, of the `template` records and the fields of every entry, each nullable. No `minItems` — a patch is legitimately shorter than the minimum — and the minimum goes into the fixed English `description` along with the current number of entries. |
 | a field of a container | the per-item mapping above, wrapped as `{ "anyOf": [ …, { "type": "null" } ] }` — a field is cleared by sending `null` for it, and a schema that forbade `null` would refuse the agent before the interview could. `anyOf`, not `type: ["string", "null"]`: the strict function-calling modes accept the first and not always the second. Comment keys are nullable the same way; `unsupported` fields are left out. |
 
 A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
@@ -1234,6 +1421,7 @@ about.
 | `interview-summary.ts` | A dynamic container's summary step: the entries, the add caption and the "no entries" line as the model words them, and the four actions an answer can name. |
 | `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, which are containers it only reports, and the list of items a batch document carries. |
 | `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. |
+| `interview-records.ts` | A dynamic container as a list of entry records: the entries and the template read from the live structure, and the patch / add / remove of one call, planned before anything is written. The fields of an entry are `interview-fields.ts`, reused per entry. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |

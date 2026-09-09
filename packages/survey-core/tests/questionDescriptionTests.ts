@@ -544,6 +544,24 @@ describe("question description (issue #11818)", () => {
       { value: "none", text: "None", none: true },
     ]);
   });
+  test("How many entries a dynamic container takes is a constraint of its own", () => {
+    const survey = createSurvey({
+      elements: [
+        { type: "paneldynamic", name: "p1", minPanelCount: 1, maxPanelCount: 5,
+          templateElements: [{ type: "text", name: "q" }] },
+        { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "q" }] },
+        { type: "matrixdynamic", name: "m1", minRowCount: 2, maxRowCount: 10, columns: [{ name: "c" }] },
+        { type: "matrixdynamic", name: "m2", columns: [{ name: "c" }] },
+      ],
+    });
+    expect(describeByName(survey, "p1").constraints).toEqual({ minCount: 1, maxCount: 5 });
+    expect(describeByName(survey, "m1").constraints).toEqual({ minCount: 2, maxCount: 10 });
+    // A ceiling nobody set is not a constraint: both maximums fall back to a global default the
+    // survey never asked for, and a minimum of zero says nothing either.
+    expect(describeByName(survey, "p2").constraints).toBeUndefined();
+    expect(describeByName(survey, "m2").constraints).toBeUndefined();
+  });
+
   test("The single-input questions a matrix synthesizes are plain questions", () => {
     const survey = createSurvey({
       questionsOnPageMode: "inputPerPage",

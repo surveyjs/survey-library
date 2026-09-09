@@ -8,6 +8,9 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { QuestionCustomModel, QuestionCompositeModel } from "./question_custom";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { settings } from "./settings";
 
 // One plain record per question: what a consumer that cannot render the model - a chat or voice
 // front end, an AI agent, the tester, a JSON -> text generator - needs in order to ask for a value
@@ -213,6 +216,21 @@ function getConstraints(question: Question): IQuestionConstraints | undefined {
   if (question instanceof QuestionCheckboxModel) {
     setNumber(res, "minCount", question.minSelectedChoices);
     setNumber(res, "maxCount", question.maxSelectedChoices);
+  }
+  // How many entries a dynamic container takes. A ceiling nobody set is not a constraint: both
+  // maximums fall back to a global default - settings.panel.maxPanelCount, settings.matrix.maxRowCount -
+  // that the survey never asked for, and a minimum of zero says nothing either.
+  if (question instanceof QuestionPanelDynamicModel) {
+    setNumber(res, "minCount", question.minPanelCount);
+    if (question.maxPanelCount < settings.panel.maxPanelCount) {
+      setNumber(res, "maxCount", question.maxPanelCount);
+    }
+  }
+  if (question instanceof QuestionMatrixDynamicModel) {
+    setNumber(res, "minCount", question.minRowCount);
+    if (question.maxRowCount < settings.matrix.maxRowCount) {
+      setNumber(res, "maxCount", question.maxRowCount);
+    }
   }
   addValidatorConstraints(res, question);
   return Object.keys(res).length > 0 ? res : undefined;

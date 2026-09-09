@@ -7,6 +7,10 @@ import {
   createBatchItem, getContainerFields, getContainerInputs, getContainerRows, getFieldItems,
   getRowRecords, isContainerAnswered, isContainerValid, isFixedShapeContainer,
 } from "./interview-fields";
+import {
+  canAddEntry, getEntryRecords, getRecordEntries, getTemplateItems, isDynamicContainer,
+  isRecordsAnswered, isRecordsValid,
+} from "./interview-records";
 
 // Batch mode is single mode's inventory read at the root level. An agent that fills a whole form in
 // one turn writes one value per question, so the unit here is the root - the question a JSON key
@@ -28,6 +32,9 @@ export interface IInterviewBatchEntry {
   // A fixed-shape container: the value is an object of field values, and the fields are read from
   // the live structure on every call rather than carried here.
   container?: Question;
+  // A dynamic container: the value is a list of entry records, and the entries are read from the live
+  // structure on every call as well.
+  records?: Question;
 }
 
 export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInput>): Array<IInterviewBatchEntry> {
@@ -45,6 +52,10 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
     if (!item) return;
     // A question with no plain input is unsupported already, and nothing about its structure changes
     // that: a file is a file whether or not it holds nested questions.
+    if (item.unsupported !== true && isDynamicContainer(root)) {
+      res.push(createRecordsEntry(root, item));
+      return;
+    }
     if (item.unsupported !== true && isFixedShapeContainer(root)) {
       res.push(createContainerEntry(root, item));
       return;
@@ -80,6 +91,23 @@ function createContainerEntry(container: Question, item: IInterviewItem): IInter
   return { address: address, item: item, container: container };
 }
 
+// A dynamic container in the document: what it holds now, what a new entry takes, and whether another
+// one may be added, in that order. "entries" is left out while the container holds none - "canAdd" is
+// then the whole story - while "template" says what to send either way.
+function createRecordsEntry(container: Question, item: IInterviewItem): IInterviewBatchEntry {
+  const address = item.name;
+  const entries = getRecordEntries(container, address);
+  if (entries.length > 0) {
+    item.entries = getEntryRecords(entries);
+  }
+  const template = getTemplateItems(container);
+  if (template.length > 0) {
+    item.template = template;
+  }
+  item.canAdd = canAddEntry(container);
+  return { address: address, item: item, records: container };
+}
+
 // The document of batch mode: everything that still needs work, plus everything the agent has to be
 // told about even though it cannot act on it. An item that is answered and valid is left out - the
 // agent is not asked to confirm what it already sent - while a disabled or unsupported one is always
@@ -99,14 +127,19 @@ export function getBatchItems(entries: Array<IInterviewBatchEntry>): Array<IInte
 
 function getEntryErrors(entry: IInterviewBatchEntry): Array<string> {
   if (!!entry.input) return getInputErrors(entry.input);
-  // A container's own errors: RequiredInAllRowsError, EachRowUniqueError, a required container left
-  // empty. Its fields carry theirs on their own records.
-  if (!!entry.container) return entry.container.errors.map(error => error.getText());
-  return [];
+  // A container's own errors: RequiredInAllRowsError, EachRowUniqueError, MinRowCountError, a
+  // duplicated key, a required container left empty. Its fields carry theirs on their own records.
+  const container = entry.container || entry.records;
+  return !!container ? container.errors.map(error => error.getText()) : [];
 }
 
 function isListedInBatch(entry: IInterviewBatchEntry): boolean {
   if (entry.item.unsupported === true || entry.item.disabled === true) return true;
+  if (!!entry.records) {
+    const records = entry.records;
+    return !isRecordsAnswered(records) ||
+      !isRecordsValid(records, getRecordEntries(records, entry.address));
+  }
   if (!!entry.container) {
     const container = entry.container;
     return !isContainerAnswered(container) ||
@@ -136,7 +169,7 @@ export function getBatchAddresses(entries: Array<IInterviewBatchEntry>): Array<s
 }
 
 export function isBatchWritable(entry: IInterviewBatchEntry): boolean {
-  if (!entry.input && !entry.container) return false;
+  if (!entry.input && !entry.container && !entry.records) return false;
   return entry.item.disabled !== true && entry.item.unsupported !== true;
 }
 
@@ -145,10 +178,13 @@ export function isBatchWritable(entry: IInterviewBatchEntry): boolean {
 // every entry is described again immediately before its own write, and the answer is checked against
 // the state the earlier writes left behind, not the state the call started in.
 export function refreshBatchEntry(entry: IInterviewBatchEntry): IInterviewBatchEntry {
-  const question = !!entry.input ? entry.input.question : entry.container;
+  const question = entry.input ? entry.input.question : (entry.container || entry.records);
   if (!question || !question.isVisibleInSurvey || isOnStartPage(question)) return undefined;
   const item = createBatchItem(question);
   if (!item) return undefined;
+  if (!!entry.records) {
+    return { address: entry.address, item: item, records: question };
+  }
   if (!!entry.container) {
     return { address: entry.address, item: item, container: question };
   }

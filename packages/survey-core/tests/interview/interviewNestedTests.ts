@@ -510,16 +510,19 @@ describe("interview nested inputs (issue #11818)", () => {
     });
   });
 
-  test("Batch mode is unchanged: a container is reported, not filled", async () => {
+  test("Batch mode fills the container as records, and an address is not a batch key", async () => {
     const iv = await createInterview(medicationsJson({ panelCount: 1 }));
     const document = iv.describeAll();
     expect(document).toContain("  - name: medications");
-    expect(document).toContain("    unsupported: true");
-    expect(document).toContain("    reason: batch");
+    expect(document).toContain("    entries:");
+    // A record addresses a field by its own name, so no address of the inventory is a key of a batch.
     expect(document).not.toContain("medications[0].name");
     const result = await iv.answerAll({ "medications[0].name": "Aspirin" });
     expect(result.errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
-    expect(Object.keys(iv.getAnswerSchema().properties)).toEqual([]);
+    expect(Object.keys(iv.getAnswerSchema().properties)).toEqual(["medications"]);
+    // The single-mode addresses are untouched by any of it.
+    expect((await iv.answer("medications[0].name", "Aspirin")).errors).toEqual([]);
+    expect(iv.data).toEqual({ medications: [{ name: "Aspirin" }] });
   });
 
   test("The document of a nested input: quoted address, entry, and the summary shape", async () => {

@@ -65,8 +65,8 @@ export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
   unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
-  batch: "it holds a list of entries that grows and shrinks - a dynamic panel or a dynamic matrix - " +
-    "or it is a container nested inside another container. Its inputs are answered in single-input mode",
+  batch: "it is a container nested inside another container, and a batch fills only the containers " +
+    "the survey holds at its top level. Its inputs are answered in single-input mode",
   hidden: "an earlier answer of the same call hid it or turned it off, so it is no longer being asked",
 };
 
@@ -158,32 +158,73 @@ export function badAddressError(name: string): IInterviewError {
 
 // A container whose value is one object with a fixed set of keys - a single-choice matrix, a matrix
 // dropdown, a multiple text, a composite - takes that object and nothing else, and so does a row of
-// a matrix dropdown. null and undefined are not a mistake: they leave the container alone, and a
-// field is cleared by sending null for that field.
-export function badRecordError(name: string, value: any): IInterviewError {
+// a matrix dropdown. A dynamic container takes a list of such objects, one per position, with null
+// for "remove the entry at this position". null and undefined for the whole key are not a mistake:
+// they leave the container alone, and a field is cleared by sending null for that field.
+export type InterviewRecordShape = "fields" | "list" | "entry";
+
+const RECORD_SHAPES: { [shape: string]: string } = {
+  fields: "must be an object of field values - its keys are the names the document lists for it",
+  list: "must be a list of entries by position - an object at a position updates that entry, null " +
+    "removes it, a position past the entries there are now adds one",
+  entry: "must be an object of field values, or null to remove the entry at that position",
+};
+
+const RECORD_HINTS: { [shape: string]: string } = {
+  fields: "Send only the fields to change; the others are left as they are.",
+  list: "Send only the positions to change; the others are left as they are.",
+  entry: "A position past the entries there are now adds an entry and therefore takes an object, " +
+    "never null.",
+};
+
+export function badRecordError(name: string, value: any, shape?: InterviewRecordShape): IInterviewError {
+  const kind = shape || "fields";
   return {
     name: name,
-    message: "The value of " + quoteValue(name) + " must be an object of field values - its keys are " +
-      "the names the document lists for it - and it is " + quoteValue(value) + ". Send only the fields " +
-      "to change; the others are left as they are.",
+    message: "The value of " + quoteValue(name) + " " + RECORD_SHAPES[kind] + " - and it is " +
+      quoteValue(value) + ". " + RECORD_HINTS[kind],
     code: InterviewErrorCodes.badRecord,
   };
 }
 
-export function cannotAddError(name: string): IInterviewError {
+// Where an add or a remove was refused, and by what. A batch names the position it was asked for -
+// the entries have not moved yet, so the position the agent sent is the one it reasoned about - and
+// says whether the container's own count refused it or a handler of the survey did.
+export interface IInterviewCountRefusal {
+  // the container, when the address the error carries is a position inside it
+  container?: string;
+  position?: number;
+  // a handler of the survey said no, rather than the count or the container's own settings
+  byHost?: boolean;
+}
+
+function getRefusalSubject(name: string, options?: IInterviewCountRefusal): string {
+  return quoteValue(!!options && !!options.container ? options.container : name);
+}
+
+export function cannotAddError(name: string, options?: IInterviewCountRefusal): IInterviewError {
+  const position = !!options ? options.position : undefined;
+  const where = position === undefined ? " right now" : " at position " + position;
+  const why = !!options && options.byHost === true
+    ? "a handler of the survey refused the new entry"
+    : "it has reached its maximum count, or adding is turned off for it";
+  const hint = position === undefined || (!!options && options.byHost === true) ? "" :
+    " Removing an entry first, in a call of its own, is what makes room for one.";
   return {
     name: name,
-    message: "No entry can be added to " + quoteValue(name) + " right now: it has reached its maximum " +
-      "count, or adding is turned off for it.",
+    message: "No entry can be added to " + getRefusalSubject(name, options) + where + ": " + why + "." + hint,
     code: InterviewErrorCodes.cannotAdd,
   };
 }
 
-export function cannotRemoveError(name: string, index: number): IInterviewError {
+export function cannotRemoveError(name: string, index: number, options?: IInterviewCountRefusal): IInterviewError {
+  const why = !!options && options.byHost === true
+    ? "a handler of the survey refused it, or it is no longer being shown"
+    : "it offers no remove action. Removing is turned off for it, or it would fall below its minimum count";
   return {
     name: name,
-    message: "The entry " + index + " of " + quoteValue(name) + " cannot be removed: it offers no remove " +
-      "action. Removing is turned off for it, or it would fall below its minimum count.",
+    message: "The entry " + index + " of " + getRefusalSubject(name, options) + " cannot be removed: " +
+      why + ".",
     code: InterviewErrorCodes.cannotRemove,
   };
 }

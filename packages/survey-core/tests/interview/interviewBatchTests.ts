@@ -254,11 +254,11 @@ describe("interview batch mode (issue #11818)", () => {
     expect(iv.data).toEqual({});
   });
 
-  test("A container is listed as unsupported with a reason, and a file without one", async () => {
+  test("A dynamic container is filled as records, and a file is listed without a reason", async () => {
     const iv = await createInterview({
       elements: [
         { type: "paneldynamic", name: "meds", title: "Medications", panelCount: 1,
-          templateElements: [{ type: "text", name: "dose" }] },
+          templateElements: [{ type: "text", name: "dose", isRequired: true }] },
         { type: "file", name: "photo", title: "A photo" },
       ],
     });
@@ -268,8 +268,14 @@ describe("interview batch mode (issue #11818)", () => {
       "    type: paneldynamic",
       "    title: Medications",
       "    required: false",
-      "    unsupported: true",
-      "    reason: batch"
+      "    entries:",
+      "      - index: 0",
+      "        canRemove: true",
+      "        fields:",
+      "          - name: dose",
+      "            type: text",
+      "            title: dose",
+      "            required: true"
     ).trim());
     expect(document).toContain(lines(
       "  - name: photo",
@@ -280,15 +286,13 @@ describe("interview batch mode (issue #11818)", () => {
       "```"
     ).trim());
     expect(document.split("reason:").length - 1,
-      "no version will ever fill a file upload, so there is no reason to give").toBe(1);
+      "no version will ever fill a file upload, so there is no reason to give").toBe(0);
     const res = await iv.answerAll({ meds: [{ dose: "1" }], photo: "x" });
-    expect(res.errors.length).toBe(2);
+    // The container took its list; the file is the one key nothing can be sent for.
+    expect(res.errors.length).toBe(1);
     expect(res.errors[0].code).toBe(InterviewErrorCodes.notAskable);
-    expect(res.errors[0].message).toContain("single-input mode");
-    expect(res.errors[1].code).toBe(InterviewErrorCodes.notAskable);
-    // Neither key reached the model: the panel still holds the empty entry it was created with.
-    expect(iv.data).toEqual({ meds: [{}] });
-    // The questions inside a container have no batch address either.
+    expect(iv.data).toEqual({ meds: [{ dose: "1" }] });
+    // The questions inside a container still have no batch address: a record addresses them.
     expect((await iv.answerAll({ dose: "1" })).errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
   });
 

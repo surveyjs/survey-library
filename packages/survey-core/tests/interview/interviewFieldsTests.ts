@@ -580,7 +580,7 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
     expect((await iv.answerAll({})).current.name).toBe("q2");
   });
 
-  test("The dynamic containers are unchanged, and so is a single custom component", async () => {
+  test("The dynamic containers are records now, and a single custom component is still plain", async () => {
     ComponentCollection.Instance.add(<any>{ name: "shortcmp", questionJSON: { type: "text", title: "Short" } });
     customComponents.push("shortcmp");
     const iv = await createInterview({
@@ -591,7 +591,11 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
       ],
     });
     const document = iv.describeAll();
-    expect(document.split("reason: batch").length - 1).toBe(2);
+    // Nothing is refused at the top level any more: the two dynamic containers are filled as records
+    // (tier 08), the fixed-shape ones as objects, and "reason: batch" is left for what is nested
+    // inside a container.
+    expect(document.split("reason: batch").length - 1).toBe(0);
+    expect(document).toContain("    canAdd: true");
     // A single custom component does not override collectNestedQuestionsCore, so it holds no nested
     // question and is a plain item, before this tier and after it.
     expect(document).toContain(block(

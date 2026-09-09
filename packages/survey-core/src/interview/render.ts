@@ -68,14 +68,22 @@ function getBody(doc: IInterviewDocument): any {
 // The record as it is written, key order untouched: the describer produced the keys in the order the
 // document reads in, and the renderer only leaves out the ones that are API and not text. The fields
 // of a container are records too - one level for a multiple text, a composite and a single-choice
-// matrix, two for a matrix dropdown - and the same key is left out of each of them.
+// matrix, two for a matrix dropdown, one per entry and one for the template of a dynamic container -
+// and the same key is left out of each of them.
 function getItem(item: IInterviewItem): any {
   const res: any = {};
   Object.keys(item).forEach(key => {
     if (ITEM_INTERNAL_KEYS.indexOf(key) >= 0) return;
     const value = (<any>item)[key];
-    if (key === "fields") {
+    if (key === "fields" || key === "template") {
       res[key] = value.map((field: IInterviewItem) => getItem(field));
+      return;
+    }
+    if (key === "entries") {
+      res[key] = value.map((entry: any) => ({
+        index: entry.index, canRemove: entry.canRemove,
+        fields: entry.fields.map((field: IInterviewItem) => getItem(field)),
+      }));
       return;
     }
     if (key === "rows") {

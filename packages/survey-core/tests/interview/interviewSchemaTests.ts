@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { createInterview } from "survey-core/interview";
+import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import { ComponentCollection, settings } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
@@ -172,7 +172,7 @@ describe("interview answer schema (issue #11818)", () => {
     expect(schema.additionalProperties).toBe(false);
   });
 
-  test("A dynamic container and a question with no plain input are not in the schema", async () => {
+  test("A question with no plain input is not in the schema, and every container is", async () => {
     const schema = await schemaOf({
       elements: [
         { type: "text", name: "q1", title: "Q1" },
@@ -181,9 +181,12 @@ describe("interview answer schema (issue #11818)", () => {
         { type: "file", name: "photo" },
       ],
     });
-    // The fixed-shape containers are objects of fields and do have a property (tier 07); a dynamic
-    // panel, a dynamic matrix and a file have none - there is no value an agent could send.
-    expect(Object.keys(schema.properties)).toEqual(["q1"]);
+    // The fixed-shape containers are objects of fields (tier 07) and the dynamic ones are lists of
+    // entry records (tier 08); a file has no property at all - there is no value an agent could send.
+    // The dynamic matrix is not there because it is not listed: two rows, nothing required in them,
+    // so it is answered and valid already.
+    expect(Object.keys(schema.properties)).toEqual(["q1", "meds"]);
+    expect(schema.properties.meds.type).toBe("array");
   });
 
   const FIELDS_TEXT = "An object of fields. Send only the fields to change; the others are left as " +
@@ -321,6 +324,92 @@ describe("interview answer schema (issue #11818)", () => {
     const res = await iv.answerAll({ contact: { phone: null } });
     expect(res.errors).toEqual([]);
     expect(iv.data).toEqual({ contact: { email: "a@b.c" } });
+  });
+
+  const RECORDS_TEXT = "A list of entries by position. An object updates the entry at that position " +
+    "(send only the fields to change); a position past the current 1 entry adds one; null removes " +
+    "the entry at that position; positions not sent are left as they are.";
+
+  test("A dynamic container is a list of entry records", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "paneldynamic", name: "medications", title: "Medications", isRequired: true,
+          panelCount: 1, minPanelCount: 1, maxPanelCount: 5, templateElements: [
+            { type: "text", name: "name", title: "Name", isRequired: true },
+            { type: "dropdown", name: "kind", title: "Kind", choices: ["pill"], showOtherItem: true },
+            { type: "file", name: "photo", title: "Photo" },
+          ] },
+      ],
+    });
+    const schema = iv.getAnswerSchema();
+    expect(schema.properties.medications).toEqual({
+      title: "Medications",
+      description: RECORDS_TEXT + " (min 1, max 5)",
+      type: "array",
+      // A position past the maximum can never exist. No minItems: a patch is legitimately shorter
+      // than the minimum, and the minimum is in the description instead.
+      maxItems: 5,
+      items: {
+        anyOf: [
+          {
+            type: "object",
+            properties: {
+              name: { anyOf: [{ title: "Name", type: "string" }, { type: "null" }] },
+              kind: { anyOf: [{ title: "Kind", enum: ["pill", "other"] }, { type: "null" }] },
+              "kind-Comment": { anyOf: [{ type: "string",
+                description: "The free-text comment that belongs with the answer to kind." },
+              { type: "null" }] },
+            },
+            additionalProperties: false,
+          },
+          { type: "null" },
+        ],
+      },
+    });
+    // The container itself is demanded when it is required; a file inside an entry has no property
+    // at all - there is no value an agent could send for it.
+    expect(schema.required).toEqual(["medications"]);
+  });
+
+  test("Two descriptions of one field widen the element schema, never narrow it", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "paneldynamic", name: "meds", panelCount: 1, templateElements: [
+          { type: "boolean", name: "all", title: "All" },
+          { type: "dropdown", name: "pick", title: "Pick", isRequired: true, choices: ["A", "B"],
+            choicesVisibleIf: "{panel.all} = true or {item} = 'A'" },
+          { type: "text", name: "limit", title: "Limit", inputType: "number" },
+          { type: "text", name: "qty", title: "Qty", inputType: "number", isRequired: true, max: 10,
+            maxValueExpression: "{panel.limit}" },
+        ] },
+      ],
+    });
+    await iv.answerAll({ meds: [{ all: false, limit: 20 }] });
+    const properties = iv.getAnswerSchema().properties.meds.items.anyOf[0].properties;
+    // The one entry offers "A" alone - its choicesVisibleIf ran - and the template offers both. One
+    // element schema serves every position, so the enum is the union: a schema that rejected a value
+    // some entry accepts would refuse the agent before the interview could.
+    expect(properties.pick.anyOf[0].enum).toEqual(["A", "B"]);
+    // And the interview is still the gate: what the schema allows, the entry's own choices may not.
+    const refused = await iv.answerAll({ meds: [{ pick: "B" }] });
+    expect(refused.errors[0].code).toBe(InterviewErrorCodes.notAChoice);
+    expect(refused.errors[0].name).toBe("meds[0].pick");
+    // A bound one of the two descriptions does not carry is a bound neither can impose: the entry
+    // says 20 (maxValueExpression) and the template says nothing, so no "maximum" is written.
+    expect(properties.qty.anyOf[0].maximum).toBeUndefined();
+  });
+
+  test("A disabled dynamic container is offered read-only and never demanded", async () => {
+    const schema = await schemaOf({
+      elements: [
+        { type: "text", name: "q1", title: "Q1" },
+        { type: "paneldynamic", name: "meds", title: "Meds", isRequired: true, panelCount: 0,
+          enableIf: "{q1} = 'open'", templateElements: [{ type: "text", name: "dose" }] },
+      ],
+    });
+    expect(schema.properties.meds.readOnly).toBe(true);
+    expect(schema.properties.meds.type).toBe("array");
+    expect(schema.required).toEqual([]);
   });
 
   test("A custom single component is described through the question it wraps", async () => {

@@ -25,6 +25,11 @@ import {
 //
 // What is nested inside a container is listed and never filled: a dynamic panel or a matrix in a
 // composite's content panel, a multiple text in a composite. There is no recursion here.
+//
+// The field record and the per-field write are reused per entry by interview-records.ts, where the
+// owner of the fields is one panel of a dynamic panel or one row of a dynamic matrix instead of the
+// container itself: everything below is written in terms of an owner that answers "what fields do
+// you have right now", and nothing here knows which of the two asked.
 
 export interface IInterviewField {
   // The key of the object an agent sends: the field's own name inside the container or the row,
@@ -159,7 +164,7 @@ function getRowTitle(row: any): string | undefined {
   return typeof res === "string" && res.length > 0 ? res : undefined;
 }
 
-function createFields(questions: Array<Question>, address: string): Array<IInterviewField> {
+export function createFields(questions: Array<Question>, address: string): Array<IInterviewField> {
   const res: Array<IInterviewField> = [];
   questions.forEach(question => {
     const field = createField(question, address);
@@ -192,7 +197,7 @@ export function createBatchItem(question: Question): IInterviewItem | undefined 
   return res;
 }
 
-function createFieldItem(question: Question): IInterviewItem | undefined {
+export function createFieldItem(question: Question): IInterviewItem | undefined {
   const res = createBatchItem(question);
   if (!res) return undefined;
   if (isContainerQuestion(question)) {
@@ -320,7 +325,7 @@ function getRowFieldNames(container: Question, name: string): Array<string> {
   return !!row ? getAllRowQuestions(row).map(question => question.name) : [];
 }
 
-interface IFieldOwner {
+export interface IFieldOwner {
   address: string;
   getFields: () => Array<IInterviewField>;
   getNames: () => Array<string>;
@@ -340,7 +345,7 @@ interface IFieldWrite {
 // happens to carry them: a setValueIf or a trigger that reads an earlier field must see it first,
 // and an agent's object is a set of answers rather than a sequence of gestures. A comment lands with
 // the field it belongs to, right after its value.
-function writeFields(res: IFieldWriteResult, values: any, commentSuffix: string, owner: IFieldOwner): void {
+export function writeFields(res: IFieldWriteResult, values: any, commentSuffix: string, owner: IFieldOwner): void {
   const fields = owner.getFields();
   const order: { [name: string]: number } = {};
   fields.forEach((field, index) => { order[field.name] = index; });

@@ -1,5 +1,5 @@
 import type { IQuestionChoiceDescription, IQuestionConstraints } from "survey-core";
-import type { IInterviewItem, IInterviewRow } from "./interview-types";
+import type { IInterviewEntry, IInterviewItem, IInterviewRow } from "./interview-types";
 
 // The answers of a batch call as a JSON Schema, so that an agent's function-calling API constrains
 // what it may send instead of the interview refusing it afterwards. Draft 2020-12 keywords only, and
@@ -49,6 +49,9 @@ const ROWS_DESCRIPTION = "An object of rows, each an object of fields. Send only
   "the others are left as they are.";
 
 function createItemProperty(item: IInterviewItem, commentSuffix: string): any {
+  // canAdd is on a dynamic container and on nothing else, entries and template only when there is
+  // something to say: an empty container that takes no template still answers to a list.
+  if (item.canAdd !== undefined) return createRecordsProperty(item, commentSuffix);
   if (!!item.rows) return createRowsProperty(item, commentSuffix);
   if (!!item.fields) return createFieldsProperty(item, commentSuffix);
   return createProperty(item);
@@ -65,6 +68,120 @@ function createRowsProperty(item: IInterviewItem, commentSuffix: string): any {
     };
   });
   return createObjectProperty(item, ROWS_DESCRIPTION, properties);
+}
+
+// A dynamic container is a list of entry records, and the schema says so: one element schema for
+// every position, "null" next to it for "remove the entry here", and maxItems where a position can
+// never exist. No minItems - a patch is legitimately shorter than the minimum - and the minimum goes
+// into the description text the way a date bound does.
+function createRecordsProperty(item: IInterviewItem, commentSuffix: string): any {
+  const count = !!item.entries ? item.entries.length : 0;
+  const constraints: any = item.constraints || {};
+  const notes: Array<string> = [];
+  if (constraints.minCount !== undefined) notes.push("min " + constraints.minCount);
+  if (constraints.maxCount !== undefined) notes.push("max " + constraints.maxCount);
+  let text = "A list of entries by position. An object updates the entry at that position (send only " +
+    "the fields to change); a position past the current " + count +
+    (count === 1 ? " entry" : " entries") + " adds one; null removes the entry at that position; " +
+    "positions not sent are left as they are.";
+  if (notes.length > 0) text += " (" + notes.join(", ") + ")";
+  const res: any = { title: item.title };
+  res.description = !!item.description ? item.description + " " + text : text;
+  res.type = "array";
+  if (constraints.maxCount !== undefined) res.maxItems = constraints.maxCount;
+  // anyOf with { type: "null" }, not type: ["object", "null"]: the strict function-calling modes
+  // accept the first and not always the second.
+  res.items = { anyOf: [createEntryProperty(item, commentSuffix), { type: "null" }] };
+  if (item.disabled === true) res.readOnly = true;
+  return res;
+}
+
+// One element schema serves every position, so its properties are the union - by field name - of the
+// template records and the fields of every entry that exists: an entry's conditional field has to be
+// sendable, and so has a field a new entry will have.
+function createEntryProperty(item: IInterviewItem, commentSuffix: string): any {
+  const order: Array<string> = [];
+  const byName: { [name: string]: Array<IInterviewItem> } = {};
+  const collect = (field: IInterviewItem) => {
+    if (field.unsupported === true) return;
+    if (!byName[field.name]) {
+      byName[field.name] = [];
+      order.push(field.name);
+    }
+    byName[field.name].push(field);
+  };
+  (item.template || []).forEach(collect);
+  (item.entries || []).forEach((entry: IInterviewEntry) => entry.fields.forEach(collect));
+  const properties: any = {};
+  order.forEach(name => {
+    const fields = byName[name];
+    properties[name] = createNullable(mergeProperties(fields.map(field => createProperty(field))));
+    if (fields.some(field => !!field.comment)) {
+      properties[name + commentSuffix] = createNullable(createCommentProperty(fields[0]));
+    }
+  });
+  // No required inside: a patch sends only what changes, and what is required is in the document and
+  // enforced at complete().
+  return { type: "object", properties: properties, additionalProperties: false };
+}
+
+// Two descriptions of one field name disagree - a template dropdown offering A and an entry whose
+// choicesFromQuestion offers B - and the schema is widened, never narrowed: a schema that rejected a
+// value one entry accepts would refuse the agent before the interview could, and the per-field checks
+// at write time, against that entry's own choices, stay the gate.
+const LOOSEST_LOW = ["minimum", "minLength", "minItems"];
+const LOOSEST_HIGH = ["maximum", "maxLength", "maxItems"];
+// A keyword the descriptions cannot agree on is dropped for that field.
+const MUST_AGREE = ["type", "pattern", "format", "uniqueItems", "multipleOf", "readOnly"];
+
+function mergeProperties(list: Array<any>): any {
+  if (list.length === 1) return list[0];
+  const first = list[0];
+  const res: any = {};
+  if (first.title !== undefined) res.title = first.title;
+  MUST_AGREE.forEach(key => {
+    const value = first[key];
+    if (value !== undefined && list.every(property => isSameValue(property[key], value))) {
+      res[key] = value;
+    }
+  });
+  // enum only while every description offers one: a name that is a free text somewhere is not bounded
+  // by the choices it has elsewhere.
+  if (list.every(property => Array.isArray(property.enum))) {
+    res.enum = unionValues(list.map(property => property.enum));
+  }
+  if (list.every(property => !!property.items && Array.isArray(property.items.enum))) {
+    res.items = { enum: unionValues(list.map(property => property.items.enum)) };
+  }
+  LOOSEST_LOW.forEach(key => {
+    if (list.every(property => typeof property[key] === "number")) {
+      res[key] = Math.min.apply(Math, list.map(property => property[key]));
+    }
+  });
+  LOOSEST_HIGH.forEach(key => {
+    if (list.every(property => typeof property[key] === "number")) {
+      res[key] = Math.max.apply(Math, list.map(property => property[key]));
+    }
+  });
+  const description = list.map(property => property.description).filter(text => !!text)[0];
+  if (!!description) res.description = description;
+  return res;
+}
+
+function isSameValue(left: any, right: any): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function unionValues(lists: Array<Array<any>>): Array<any> {
+  const res: Array<any> = [];
+  const seen: { [key: string]: boolean } = {};
+  lists.forEach(list => list.forEach(value => {
+    const key = JSON.stringify(value);
+    if (seen[key] === true) return;
+    seen[key] = true;
+    res.push(value);
+  }));
+  return res;
 }
 
 function createFieldsProperty(item: IInterviewItem, commentSuffix: string): any {

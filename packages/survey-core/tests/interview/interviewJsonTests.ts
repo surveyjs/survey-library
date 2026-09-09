@@ -242,7 +242,8 @@ describe("interview records as JSON (issue #11818)", () => {
         { type: "multipletext", name: "contact", items: [{ name: "email", inputType: "email" }] },
         { type: "matrixdropdown", name: "matrix", columns: [{ name: "col" }],
           rows: [{ value: "row1", text: "First row" }] },
-        { type: "paneldynamic", name: "meds", templateElements: [{ type: "text", name: "dose" }] },
+        { type: "paneldynamic", name: "meds", panelCount: 1,
+          templateElements: [{ type: "text", name: "dose", isRequired: true }] },
       ],
     });
     await iv.answerAll({ contact: { email: "nope" } });
@@ -251,7 +252,11 @@ describe("interview records as JSON (issue #11818)", () => {
     expect(yamlBody(iv.describeAll())).toEqual(renderedBody(document));
     expect(document.items[0].fields[0].error).toBe("Please enter a valid e-mail address.");
     expect(document.items[1].rows[0].name).toBe("row1");
-    expect(document.items[2].reason).toBe("batch");
+    // A dynamic container carries its entries, its template and canAdd, and every one of them is
+    // plain data the renderer writes back out.
+    expect(document.items[2].entries[0].fields[0].name).toBe("dose");
+    expect(document.items[2].template[0].name).toBe("dose");
+    expect(document.items[2].canAdd).toBe(true);
   });
 
   test("Completion hands back the model's own data, which is the host's and not a record", async () => {

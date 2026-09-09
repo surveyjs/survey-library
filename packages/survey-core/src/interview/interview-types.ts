@@ -20,12 +20,31 @@ export interface IInterviewItem extends IQuestionDescription {
   entry?: string;
   // a dynamic container's summary step (tier 06)
   summary?: IInterviewSummary;
+  // batch mode, a fixed-shape container: the inputs it holds, each described the way a question is,
+  // under the name a key of the object carries. It replaces the describer's "items" in a batch
+  // record; a single-mode record keeps "items" and never has "fields".
+  fields?: Array<IInterviewItem>;
+  // batch mode, a matrix dropdown: two levels, because its value has two - the row, then the fields
+  // of that row.
+  rows?: Array<IInterviewRow>;
+  // batch mode, a field of a container: the value it holds now, in the form answer() takes back
+  // ({ value, comment } when a comment is set)
+  value?: any;
   // batch mode, next to unsupported: "batch" says this version cannot fill the item and a later one
   // may - a dynamic panel, a matrix, a multiple text, a composite. No reason at all says nothing
   // ever will: a file to upload, a signature to draw.
   reason?: "batch";
   // single mode: the current item's first error text, if any
   error?: string;
+}
+
+// One row of a matrix dropdown in a batch document: the key of the first level of the object, the
+// row's own localized text, and the cells (plus the questions of a detail panel the model has
+// created) as fields.
+export interface IInterviewRow {
+  name: string;
+  title: string;
+  fields: Array<IInterviewItem>;
 }
 
 export interface IInterviewSummary {

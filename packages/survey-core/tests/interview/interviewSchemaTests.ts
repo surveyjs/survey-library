@@ -172,24 +172,155 @@ describe("interview answer schema (issue #11818)", () => {
     expect(schema.additionalProperties).toBe(false);
   });
 
-  test("Containers and questions with no plain input are not in the schema", async () => {
-    ComponentCollection.Instance.add(<any>{
-      name: "fullname",
-      elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
-    });
-    customComponents.push("fullname");
+  test("A dynamic container and a question with no plain input are not in the schema", async () => {
     const schema = await schemaOf({
       elements: [
         { type: "text", name: "q1", title: "Q1" },
         { type: "paneldynamic", name: "meds", templateElements: [{ type: "text", name: "dose" }] },
         { type: "matrixdynamic", name: "rows", columns: [{ name: "col" }] },
-        { type: "matrix", name: "grid", rows: ["r1"], columns: ["c1"] },
-        { type: "multipletext", name: "contact", items: [{ name: "email" }] },
-        { type: "fullname", name: "who" },
         { type: "file", name: "photo" },
       ],
     });
+    // The fixed-shape containers are objects of fields and do have a property (tier 07); a dynamic
+    // panel, a dynamic matrix and a file have none - there is no value an agent could send.
     expect(Object.keys(schema.properties)).toEqual(["q1"]);
+  });
+
+  const FIELDS_TEXT = "An object of fields. Send only the fields to change; the others are left as " +
+    "they are.";
+  const ROWS_TEXT = "An object of rows, each an object of fields. Send only the fields to change; " +
+    "the others are left as they are.";
+
+  test("A multiple text is an object of nullable field properties", async () => {
+    expect(await propertyOf({
+      type: "multipletext", name: "contact", title: "Contact", isRequired: true,
+      items: [
+        { name: "email", title: "Email", inputType: "email" },
+        { name: "phone", title: "Phone" },
+      ],
+    })).toEqual({
+      title: "Contact",
+      description: FIELDS_TEXT,
+      type: "object",
+      // Every field is nullable: the interview clears a field by sending null for it, and a schema that forbade
+      // null would refuse the agent before the interview could. No "required" inside - a patch sends
+      // only what changes, and what is required is in the document and enforced at complete().
+      properties: {
+        email: { anyOf: [{ title: "Email", type: "string", format: "email" }, { type: "null" }] },
+        phone: { anyOf: [{ title: "Phone", type: "string" }, { type: "null" }] },
+      },
+      additionalProperties: false,
+    });
+    const schema = await schemaOf({
+      elements: [{ type: "multipletext", name: "contact", isRequired: true, items: [{ name: "email" }] }],
+    });
+    expect(schema.required).toEqual(["contact"]);
+  });
+
+  test("A matrix dropdown nests one object per row", async () => {
+    expect(await propertyOf({
+      type: "matrixdropdown", name: "matrix", title: "Matrix",
+      columns: [{ name: "column1", title: "Rating", cellType: "dropdown", choices: ["low", "high"] }],
+      rows: [{ value: "row1", text: "First row" }, { value: "row2", text: "Second row" }],
+    })).toEqual({
+      title: "Matrix",
+      description: ROWS_TEXT,
+      type: "object",
+      properties: {
+        row1: {
+          title: "First row",
+          type: "object",
+          properties: { column1: { anyOf: [{ title: "Rating", enum: ["low", "high"] }, { type: "null" }] } },
+          additionalProperties: false,
+        },
+        row2: {
+          title: "Second row",
+          type: "object",
+          properties: { column1: { anyOf: [{ title: "Rating", enum: ["low", "high"] }, { type: "null" }] } },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+    });
+  });
+
+  test("A single-choice matrix is one property per row", async () => {
+    expect(await propertyOf({
+      type: "matrix", name: "satisfaction", title: "Satisfaction",
+      rows: [{ value: "price", text: "Price" }], columns: ["bad", "good"],
+    })).toEqual({
+      title: "Satisfaction",
+      description: FIELDS_TEXT,
+      type: "object",
+      properties: { price: { anyOf: [{ title: "Price", enum: ["bad", "good"] }, { type: "null" }] } },
+      additionalProperties: false,
+    });
+  });
+
+  test("A composite is an object of its content questions, and a nested container is not in it", async () => {
+    ComponentCollection.Instance.add(<any>{
+      name: "addressc",
+      elementsJSON: [
+        { type: "dropdown", name: "kind", title: "Kind", choices: ["home"], showOtherItem: true },
+        { type: "paneldynamic", name: "nested", templateElements: [{ type: "text", name: "x" }] },
+      ],
+    });
+    customComponents.push("addressc");
+    expect(await propertyOf({ type: "addressc", name: "address", title: "Address",
+      description: "Where you live" })).toEqual({
+      title: "Address",
+      // The question's own description first, then the fixed English an agent's model reads.
+      description: "Where you live " + FIELDS_TEXT,
+      type: "object",
+      properties: {
+        kind: { anyOf: [{ title: "Kind", enum: ["home", "other"] }, { type: "null" }] },
+        // The comment key of a field is a property of the same object, nullable like the field.
+        "kind-Comment": {
+          anyOf: [
+            { type: "string", description: "The free-text comment that belongs with the answer to kind." },
+            { type: "null" },
+          ],
+        },
+        // The nested dynamic panel is absent: there is no value an agent could send for it.
+      },
+      additionalProperties: false,
+    });
+  });
+
+  test("A disabled container is offered read-only and never demanded", async () => {
+    const schema = await schemaOf({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "multipletext", name: "contact", title: "Contact", isRequired: true,
+          enableIf: "{q1} = 'open'", items: [{ name: "email" }] },
+      ],
+    });
+    // An enableIf that is false makes the whole container read-only, its editors with it: there is
+    // no field left to offer, and the property says only that the question exists and is refused
+    // for now.
+    expect(schema.properties.contact).toEqual({
+      title: "Contact",
+      description: FIELDS_TEXT,
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+      readOnly: true,
+    });
+    expect(schema.required).toEqual([]);
+  });
+
+  test("The schema and answerAll agree that a field is cleared with null", async () => {
+    const iv = await createInterview({
+      elements: [{ type: "multipletext", name: "contact", items: [{ name: "email" }, { name: "phone" }] }],
+    });
+    // Checked by hand against the shape rather than with a validator: survey-core ships no runtime
+    // dependency and the tests add none for this.
+    const property = iv.getAnswerSchema().properties.contact;
+    expect(property.properties.phone.anyOf[1]).toEqual({ type: "null" });
+    await iv.answerAll({ contact: { email: "a@b.c", phone: "123" } });
+    const res = await iv.answerAll({ contact: { phone: null } });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ contact: { email: "a@b.c" } });
   });
 
   test("A custom single component is described through the question it wraps", async () => {

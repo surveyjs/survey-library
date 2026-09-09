@@ -1,5 +1,5 @@
 import type { IQuestionChoiceDescription, IQuestionConstraints } from "survey-core";
-import type { IInterviewItem } from "./interview-types";
+import type { IInterviewItem, IInterviewRow } from "./interview-types";
 
 // The answers of a batch call as a JSON Schema, so that an agent's function-calling API constrains
 // what it may send instead of the interview refusing it afterwards. Draft 2020-12 keywords only, and
@@ -25,7 +25,7 @@ export function createAnswerSchema(items: Array<IInterviewItem>, commentSuffix: 
     // A container and a question with no plain input are in the document, so the agent knows they
     // exist, and never in the schema: there is no value it could send for either.
     if (item.unsupported === true) return;
-    properties[item.name] = createProperty(item);
+    properties[item.name] = createItemProperty(item, commentSuffix);
     if (!!item.comment) {
       properties[item.name + commentSuffix] = createCommentProperty(item);
     }
@@ -36,6 +36,71 @@ export function createAnswerSchema(items: Array<IInterviewItem>, commentSuffix: 
     }
   });
   return { type: "object", properties: properties, required: required, additionalProperties: false };
+}
+
+// A fixed-shape container is one object with a fixed set of keys, and the schema says so: an object
+// of field properties for a multiple text, a composite and a single-choice matrix, an object of row
+// objects for a matrix dropdown, "additionalProperties: false" at every level. The English of the
+// description is fixed on purpose - it is read by the agent's model and not by the interviewee, the
+// rule that already holds for the tool descriptions.
+const FIELDS_DESCRIPTION = "An object of fields. Send only the fields to change; the others are left " +
+  "as they are.";
+const ROWS_DESCRIPTION = "An object of rows, each an object of fields. Send only the fields to change; " +
+  "the others are left as they are.";
+
+function createItemProperty(item: IInterviewItem, commentSuffix: string): any {
+  if (!!item.rows) return createRowsProperty(item, commentSuffix);
+  if (!!item.fields) return createFieldsProperty(item, commentSuffix);
+  return createProperty(item);
+}
+
+function createRowsProperty(item: IInterviewItem, commentSuffix: string): any {
+  const properties: any = {};
+  item.rows.forEach((row: IInterviewRow) => {
+    properties[row.name] = {
+      title: row.title,
+      type: "object",
+      properties: createFieldProperties(row.fields, commentSuffix),
+      additionalProperties: false,
+    };
+  });
+  return createObjectProperty(item, ROWS_DESCRIPTION, properties);
+}
+
+function createFieldsProperty(item: IInterviewItem, commentSuffix: string): any {
+  return createObjectProperty(item, FIELDS_DESCRIPTION, createFieldProperties(item.fields, commentSuffix));
+}
+
+function createObjectProperty(item: IInterviewItem, text: string, properties: any): any {
+  const res: any = { title: item.title };
+  res.description = !!item.description ? item.description + " " + text : text;
+  res.type = "object";
+  res.properties = properties;
+  res.additionalProperties = false;
+  if (item.disabled === true) res.readOnly = true;
+  return res;
+}
+
+// No "required" inside: a patch sends only what changes, and what is required is in the document and
+// enforced at complete(). An unsupported field - a container nested inside this one, a file - is left
+// out: there is no value an agent could send for it.
+function createFieldProperties(fields: Array<IInterviewItem>, commentSuffix: string): any {
+  const res: any = {};
+  fields.forEach(field => {
+    if (field.unsupported === true) return;
+    res[field.name] = createNullable(createProperty(field));
+    if (!!field.comment) {
+      res[field.name + commentSuffix] = createNullable(createCommentProperty(field));
+    }
+  });
+  return res;
+}
+
+// A field is cleared by sending null for it, and a schema that forbids null would refuse the agent
+// before the interview could. "anyOf" with { type: "null" } rather than type: ["string", "null"]:
+// the strict function-calling modes accept the first and not always the second.
+function createNullable(property: any): any {
+  return { anyOf: [property, { type: "null" }] };
 }
 
 function createProperty(item: IInterviewItem): any {

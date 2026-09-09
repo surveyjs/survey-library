@@ -17,6 +17,7 @@ export const InterviewErrorCodes = Object.freeze({
   surveyCompleted: "surveyCompleted",
   startPageIncomplete: "startPageIncomplete",
   badAddress: "badAddress",
+  badRecord: "badRecord",
   cannotAdd: "cannotAdd",
   cannotRemove: "cannotRemove",
 });
@@ -64,8 +65,8 @@ export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
   unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
-  batch: "batch mode writes one plain value per question and this one holds many - a dynamic panel, " +
-    "a matrix, a multiple text or a composite. Its inputs are answered in single-input mode",
+  batch: "it holds a list of entries that grows and shrinks - a dynamic panel or a dynamic matrix - " +
+    "or it is a container nested inside another container. Its inputs are answered in single-input mode",
   hidden: "an earlier answer of the same call hid it or turned it off, so it is no longer being asked",
 };
 
@@ -152,6 +153,20 @@ export function badAddressError(name: string): IInterviewError {
       "\"matrix.row1.column1\", \"contact.email\". An index counts the entries that exist now - a new one " +
       "is added through the \"add\" action of the container's summary step.",
     code: InterviewErrorCodes.badAddress,
+  };
+}
+
+// A container whose value is one object with a fixed set of keys - a single-choice matrix, a matrix
+// dropdown, a multiple text, a composite - takes that object and nothing else, and so does a row of
+// a matrix dropdown. null and undefined are not a mistake: they leave the container alone, and a
+// field is cleared by sending null for that field.
+export function badRecordError(name: string, value: any): IInterviewError {
+  return {
+    name: name,
+    message: "The value of " + quoteValue(name) + " must be an object of field values - its keys are " +
+      "the names the document lists for it - and it is " + quoteValue(value) + ". Send only the fields " +
+      "to change; the others are left as they are.",
+    code: InterviewErrorCodes.badRecord,
   };
 }
 

@@ -129,8 +129,10 @@ so what it describes is never a state that is about to change.
 | `InterviewErrorCodes` | The frozen table of the codes the interview raises itself. A host localizes on the code. | tier 04 |
 
 Nested inputs — inside dynamic panels, matrices, multiple text and custom components — are answered
-in single-input mode, each at its own [address](#addresses); batch mode reports a container instead
-of filling it (see [Batch mode](#batch-mode)).
+in single-input mode, each at its own [address](#addresses). Batch mode fills a container whose value
+is one object with a fixed set of keys — a single-choice matrix, a matrix dropdown, a multiple text,
+a composite — as that object, and reports the rest instead of filling them (see
+[Fixed-shape containers as objects](#fixed-shape-containers-as-objects)).
 
 ### Options
 
@@ -167,11 +169,12 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
-| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it is a container and the call was `answerAll()` (`reason: "batch"`), or an earlier key of the same `answerAll()` hid it. The message says which. |
+| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it is a container `answerAll()` cannot fill — a dynamic panel, a dynamic matrix, or a container nested inside another container (`reason: "batch"`) — or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
+| `badRecord` | The value `answerAll()` was given for a [fixed-shape container](#fixed-shape-containers-as-objects), or for a row inside one, is not an object of field values — a string, a number, an array. `null` and `undefined` are not a mistake: they leave the container alone. |
 | `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off. |
 | `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for. |
 | `requiredCannotSkip` | `skip()` on a required item. It stays current. |
@@ -240,7 +243,9 @@ current:
   itself. `message` is the localized text the rendered UI shows for the same error.
 * `current` and each entry of `items` is one item record — `name`, `type`, `title`, `description`,
   `required`, then the type-specific keys, then `entry` (the model's breadcrumb for the entry a
-  nested input sits in) or `summary` (a container's [summary step](#the-summary-step)), and `error`
+  nested input sits in), `summary` (a container's [summary step](#the-summary-step)) or `fields` /
+  `rows` (the inputs of a [fixed-shape container](#fixed-shape-containers-as-objects), each a record
+  of its own with `value` and `error` on top), and `error`
   last when the current answer failed validation. A key that carries nothing is not written at all:
   there is no `description: null` and no `disabled: false`, so a key a consumer sees is a key it can
   act on. `name` is the [address](#addresses), not necessarily the question's name.
@@ -812,10 +817,15 @@ single mode.
 Unlike single mode, batch mode works at the level of the **root question** — the name a JSON key
 carries — and not of the nested input a respondent fills one at a time. So:
 
-* a **container** — a dynamic panel, a dynamic matrix, a single-choice matrix, a multiple text, a
-  composite component — is one record with `unsupported: true` and `reason: "batch"`, and the
-  questions inside it have no batch address at all. Filling containers in one call is a follow-up
-  issue; until then their inputs are answered in single-input mode, which handles every type.
+* a container whose value is **one object with a fixed set of keys** — a single-choice matrix, a
+  matrix dropdown, a multiple text, a composite component — is one record whose `fields` (or, for a
+  matrix dropdown, whose `rows`) describe the inputs it holds, and `answerAll()` takes that object
+  back. See [Fixed-shape containers as objects](#fixed-shape-containers-as-objects).
+* a container whose value is a **list that grows and shrinks** — a dynamic panel, a dynamic matrix —
+  is one record with `unsupported: true` and `reason: "batch"`, and so is a container **nested
+  inside** another container. The questions inside either have no batch address at all; they are
+  answered in single-input mode, which handles every type. Filling a dynamic container in one call
+  is a follow-up issue.
 * a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
   `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
   "batch"` says *this version* cannot fill it, no reason at all says nothing ever will.
@@ -893,7 +903,146 @@ await iv.answerAll({ petType: "other", "petType-Comment": "Ferret" });
 
 It is the batch twin of single mode's `{ value, comment }` object. A key that ends with the suffix but
 names no item that accepts a comment is `unknownQuestion`, and a question really called
-`note-Comment` is answered by its own name — an address always wins over a comment key.
+`note-Comment` is answered by its own name — an address always wins over a comment key. Inside a
+container the same key works one level down, for a field: `{ pet: "other", "pet-Comment": "Ferret" }`.
+It never applies to the container key itself — `contact-Comment` is `unknownQuestion`.
+
+### Fixed-shape containers as objects
+
+Four question types hold **one object with a fixed set of keys**: the keys are the survey's structure
+and nothing is added or removed. Batch mode fills them as that object, the way the object appears in
+`data`:
+
+```js
+await iv.answerAll({
+  contact: { email: "ann@example.com" },                            // multipletext: one item written
+  address: { street: "Main St 1", city: "Bonn" },                   // composite: two content questions
+  satisfaction: { price: "good" },                                  // matrix: the row, the column value
+  matrix: { row1: { column1: "low" }, row2: { column1: "high" } },  // matrixdropdown: rows, then cells
+});
+```
+
+The record of such a container is the ordinary item record — no `unsupported`, no `reason` — with one
+extra key: `fields`, or `rows` for a matrix dropdown, whose value has two levels and whose document
+therefore has two.
+
+````markdown
+```yaml
+items:
+  - name: contact
+    type: multipletext
+    title: Contact
+    required: false
+    fields:
+      - name: email
+        type: text
+        title: Email
+        required: true
+        inputType: email
+        value: ann@example
+        error: Please enter a valid e-mail address.
+      - name: phone
+        type: text
+        title: Phone
+        required: false
+  - name: matrix
+    type: matrixdropdown
+    title: Matrix
+    required: false
+    rows:
+      - name: row1
+        title: First row
+        fields:
+          - name: column1
+            type: dropdown
+            title: Rating
+            required: false
+            choices:
+              - value: low
+              - value: high
+```
+````
+
+* **`fields`** is `describeQuestion` for every input the container holds, in the container's own
+  order, plus three keys: `name`, the field's name **relative to the container** — the key of the
+  object above, not an [address](#addresses); `value`, what it holds now, in the `{ value, comment }`
+  form when a comment is set; and `error`, its first error text. There is no `entry` key: a field
+  sits where the document put it.
+* **`fields` replaces the describer's `items`.** A multiple text and a composite carry their nested
+  records under `items` in a single-mode record; in a batch record that key is dropped and `fields`
+  takes its place, so there is one key for "the inputs inside" whatever the container is.
+* Per type, the fields are: the synthesized row questions of a **single-choice matrix** (one
+  radiogroup, or a checkbox for `cellType: "checkbox"`, per visible row, named after the row, with
+  the visible columns as its choices and `eachRowRequired` as its `required`); the cells of a
+  **matrix dropdown** row in column order, followed by the questions of its detail panel once the
+  model has created that panel — the interview never opens one; the editors of a **multiple text**;
+  the visible content questions of a **composite**.
+* The container's own first error — `RequiredInAllRowsError`, `EachRowUniqueError`, a required
+  container left empty — is on the record's `error`, under its own address in `errors`. A field's
+  errors are under the field's address: `contact.email`, `matrix.row1.column1`.
+* What the survey hid is not there: a row `rowsVisibleIf` hid, a column or a content question a
+  `visibleIf` hid. A field an `enableIf` turned off is listed with `disabled: true` and refused.
+* **A container nested inside a container** — a dynamic panel in a composite, a multiple text in a
+  detail panel — is described in place with `unsupported: true` and `reason: "batch"`, with no
+  `fields` of its own, and a key for it is `notAskable`. There is no recursion.
+* `fields` and `rows` are written even when they are empty, unlike the optional sections of a
+  document: `fields: []` says that this container has nothing an agent can fill — an `enableIf` that
+  is false turns every editor of a multiple text read-only with it — and that is information, the way
+  `items: []` and `current: null` are.
+
+**Patch semantics.** Keys that are not sent are left as they are; `{}` writes nothing; `null` or
+`undefined` for the whole container writes nothing and clears nothing. **A field is cleared by
+sending `null` for that field**, exactly as a plain question is. The interview never clears what it
+was not told to clear.
+
+The keys of the object are written in the **container's field order**, not in the order the object
+carries them — a `setValueIf` or a trigger that reads an earlier field has to see it first — and each
+is resolved immediately before its own write, against the container as it is at that moment. So a
+field an earlier key of the same object revealed is written in the same call, and a value is checked
+against the choices the earlier keys left behind. **One bad field skips that field and the rest of
+the object is written**, the same rule one level up. After the last field the container validates
+itself, which is where its own errors come from.
+
+Anything that is not a plain object — a string, a number, an array — is `badRecord` at the
+container's address, and nothing of that key is written; a row value that is not a plain object is
+`badRecord` at `matrix.row1`. A key that names no field is `unknownQuestion` at `contact.fax`, with
+the container's fields in the message.
+
+**When a container is listed.** It is *answered* when its value holds something (`!isEmpty()`) and
+*valid* when neither it nor any of its fields carries an error or a required error — a read of
+persisted state, never a validation run. It is listed while it is not both, and always while it is
+`disabled`. An empty **optional** field does not make it invalid, so a multiple text with one of two
+items filled is done as far as batch mode is concerned, while single mode still stands on the empty
+item. That is why `current` in a batch result is **the first item of `items` an agent may write to**
+(not `disabled`, not `unsupported`), or `null`: the loop condition said directly, so that it cannot
+disagree with `items: []`.
+
+A three-turn transcript, in the style of the pet survey:
+
+```js
+iv.describeAll();
+// items: contact (fields email, phone) and satisfaction (fields price, speed)
+
+await iv.answerAll({
+  contact: { email: "ann@" },
+  satisfaction: { price: "good" },
+});
+// errors:
+//   - name: contact.email   message: Please enter a valid e-mail address.
+//   - name: satisfaction    message: "Response required: answer questions in all rows."
+// items: contact, with error on the email field; satisfaction, with speed still empty
+
+await iv.answerAll({
+  contact: { email: "ann@example.com" },
+  satisfaction: { speed: "bad" },
+});
+// errors: []   items: []   current: null
+
+await iv.complete();
+// completed: true
+// data: { contact: { email: "ann@example.com" },
+//         satisfaction: { price: "good", speed: "bad" } }
+```
 
 ## Answer schema
 
@@ -936,6 +1085,9 @@ fetches a meta-schema at run time. The mapping, per item:
 | `required: true` | the name is in `required` |
 | `disabled: true` | `readOnly: true`, and never in `required` |
 | `unsupported: true` | not in the schema at all — there is no value an agent could send |
+| `fields` (a [fixed-shape container](#fixed-shape-containers-as-objects)) | `type: "object"`, one property per field, `additionalProperties: false`, and a fixed English `description` after the question's own. No `required` inside: a patch sends only what changes, and what is required is in the document and enforced at `complete()`. |
+| `rows` (a matrix dropdown) | the same, one level deeper: a property per row, each `type: "object"` with the row's fields |
+| a field of a container | the per-item mapping above, wrapped as `{ "anyOf": [ …, { "type": "null" } ] }` — a field is cleared by sending `null` for it, and a schema that forbade `null` would refuse the agent before the interview could. `anyOf`, not `type: ["string", "null"]`: the strict function-calling modes accept the first and not always the second. Comment keys are nullable the same way; `unsupported` fields are left out. |
 
 A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
 They go into `description` as text, in brackets after the question's own description:
@@ -1052,6 +1204,7 @@ about.
 | `interview-address.ts` | The address grammar in both directions: derived from a nested question by walking its containers, and resolved against the live model. The twin of the tester's `test-targets.ts`. |
 | `interview-summary.ts` | A dynamic container's summary step: the entries, the add caption and the "no entries" line as the model words them, and the four actions an answer can name. |
 | `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, which are containers it only reports, and the list of items a batch document carries. |
+| `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |

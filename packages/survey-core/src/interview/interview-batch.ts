@@ -1,24 +1,33 @@
-import { describeQuestion } from "survey-core";
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
 import {
   IInterviewInput, getInputErrors, getRootQuestions, isContainerQuestion, isInputValid, isOnStartPage,
 } from "./interview-items";
+import {
+  createBatchItem, getContainerFields, getContainerInputs, getContainerRows, getFieldItems,
+  getRowRecords, isContainerAnswered, isContainerValid, isFixedShapeContainer,
+} from "./interview-fields";
 
 // Batch mode is single mode's inventory read at the root level. An agent that fills a whole form in
-// one turn writes one plain value per question, so the unit here is the root - the question a JSON
-// key names - and not the nested input single mode walks. A root that holds more than one value (a
-// dynamic panel, a matrix, a multiple text, a composite) is therefore listed and not filled; a root
-// whose value no text consumer can produce (a file, a signature) is listed too, and the two are told
-// apart by the "reason" key: "batch" means this version cannot fill it and a later one may, no
-// reason at all means nothing ever will.
+// one turn writes one value per question, so the unit here is the root - the question a JSON key
+// names - and not the nested input single mode walks.
+//
+// A root whose value is one object with a fixed set of keys is filled as that object: a single-choice
+// matrix, a matrix dropdown, a multiple text and a composite report their inputs as "fields" and
+// take an object of field values back (interview-fields.ts). A root whose value is a list that grows
+// and shrinks - a dynamic panel, a dynamic matrix - is listed and not filled, and so is a root whose
+// value no text consumer can produce (a file, a signature); the two are told apart by the "reason"
+// key: "batch" means this version cannot fill it and a later one may, no reason at all means nothing
+// ever will.
 
 export interface IInterviewBatchEntry {
   address: string;
   item: IInterviewItem;
-  // The input a value is written to and whose errors the item reports. Absent for a container: batch
-  // mode has no address for the questions inside one, and no way to write the whole thing at once.
+  // The input a value is written to and whose errors the item reports. Set for a plain root only.
   input?: IInterviewInput;
+  // A fixed-shape container: the value is an object of field values, and the fields are read from
+  // the live structure on every call rather than carried here.
+  container?: Question;
 }
 
 export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInput>): Array<IInterviewBatchEntry> {
@@ -32,8 +41,14 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
       res.push({ address: single.address, item: single.item, input: single });
       return;
     }
-    const item = createRootItem(root);
+    const item = createBatchItem(root);
     if (!item) return;
+    // A question with no plain input is unsupported already, and nothing about its structure changes
+    // that: a file is a file whether or not it holds nested questions.
+    if (item.unsupported !== true && isFixedShapeContainer(root)) {
+      res.push(createContainerEntry(root, item));
+      return;
+    }
     item.unsupported = true;
     item.reason = "batch";
     res.push({ address: item.name, item: item });
@@ -43,16 +58,26 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
 
 // valueType "object" as well as the structural test: a host that turned nesting off through
 // onCheckSingleInputPerPageMode folds a container back into one input holding the whole object, and
-// that input is still not one plain value.
+// that input is still not one plain value. Batch mode then fills it as an object all the same - the
+// two host events tune single mode only.
 function isBatchContainer(root: Question, item: IInterviewItem): boolean {
   return isContainerQuestion(root) || item.valueType === "object";
 }
 
-function createRootItem(question: Question): IInterviewItem | undefined {
-  // undefined means read-only by property: nobody can ever answer it, so it is not an item at all -
-  // the same rule the inventory applies. A root's address is its own name, so nothing is rewritten.
-  const description = describeQuestion(question);
-  return !!description ? { ...description } : undefined;
+function createContainerEntry(container: Question, item: IInterviewItem): IInterviewBatchEntry {
+  const address = item.name;
+  const rows = getContainerRows(container, address);
+  // The key the describer would have written for a multiple text or a composite is gone
+  // (createBatchItem drops it) and one of these takes its place, in the same position. It is written
+  // even when it is empty, unlike the optional keys of a document: "fields: []" says that this
+  // container has nothing an agent can fill - an enableIf turned every editor read-only with it -
+  // and that is information, the way "items: []" and "current: null" are.
+  if (!!rows) {
+    item.rows = getRowRecords(rows);
+  } else {
+    item.fields = getFieldItems(getContainerFields(container, address));
+  }
+  return { address: address, item: item, container: container };
 }
 
 // The document of batch mode: everything that still needs work, plus everything the agent has to be
@@ -63,22 +88,43 @@ export function getBatchItems(entries: Array<IInterviewBatchEntry>): Array<IInte
   const res: Array<IInterviewItem> = [];
   entries.forEach(entry => {
     if (!isListedInBatch(entry)) return;
-    if (!!entry.input) {
-      const errors = getInputErrors(entry.input);
-      // The first error text goes on the record, next to the value the agent has to correct; the
-      // full list is the errors section of the document.
-      if (errors.length > 0) entry.item.error = errors[0];
-    }
+    const errors = getEntryErrors(entry);
+    // The first error text goes on the record, next to the value the agent has to correct; the full
+    // list is the errors section of the document.
+    if (errors.length > 0) entry.item.error = errors[0];
     res.push(entry.item);
   });
   return res;
 }
 
+function getEntryErrors(entry: IInterviewBatchEntry): Array<string> {
+  if (!!entry.input) return getInputErrors(entry.input);
+  // A container's own errors: RequiredInAllRowsError, EachRowUniqueError, a required container left
+  // empty. Its fields carry theirs on their own records.
+  if (!!entry.container) return entry.container.errors.map(error => error.getText());
+  return [];
+}
+
 function isListedInBatch(entry: IInterviewBatchEntry): boolean {
-  if (entry.item.unsupported === true || entry.item.disabled === true || !entry.input) return true;
+  if (entry.item.unsupported === true || entry.item.disabled === true) return true;
+  if (!!entry.container) {
+    const container = entry.container;
+    return !isContainerAnswered(container) ||
+      !isContainerValid(container, getContainerInputs(container, entry.address));
+  }
+  if (!entry.input) return true;
   // Skipping is a single-mode gesture: an agent that wants to leave a question blank leaves it
   // blank, so the skipped set is not consulted here and a skipped item is still listed.
   return entry.input.question.isEmpty() || !isInputValid(entry.input);
+}
+
+// The loop condition of batch mode: the first item an agent may still write to. Until this tier it
+// was the single-mode current, and with containers in play the two part ways - an empty optional
+// item of a multiple text keeps single mode's current on it while the container is answered, valid
+// and not listed, and the loop would spin on an empty items list.
+export function getBatchCurrent(items: Array<IInterviewItem>): IInterviewItem | null {
+  const writable = (items || []).filter(item => item.disabled !== true && item.unsupported !== true);
+  return writable.length > 0 ? writable[0] : null;
 }
 
 export function findBatchEntry(entries: Array<IInterviewBatchEntry>, address: string): IInterviewBatchEntry {
@@ -90,7 +136,8 @@ export function getBatchAddresses(entries: Array<IInterviewBatchEntry>): Array<s
 }
 
 export function isBatchWritable(entry: IInterviewBatchEntry): boolean {
-  return !!entry.input && entry.item.disabled !== true && entry.item.unsupported !== true;
+  if (!entry.input && !entry.container) return false;
+  return entry.item.disabled !== true && entry.item.unsupported !== true;
 }
 
 // One write of a batch may hide or disable a question a later write of the same batch names, and it
@@ -98,15 +145,18 @@ export function isBatchWritable(entry: IInterviewBatchEntry): boolean {
 // every entry is described again immediately before its own write, and the answer is checked against
 // the state the earlier writes left behind, not the state the call started in.
 export function refreshBatchEntry(entry: IInterviewBatchEntry): IInterviewBatchEntry {
-  const input = entry.input;
-  if (!input) return undefined;
-  const question = input.question;
-  if (!question.isVisibleInSurvey || isOnStartPage(question)) return undefined;
-  const item = createRootItem(question);
+  const question = !!entry.input ? entry.input.question : entry.container;
+  if (!question || !question.isVisibleInSurvey || isOnStartPage(question)) return undefined;
+  const item = createBatchItem(question);
   if (!item) return undefined;
+  if (!!entry.container) {
+    return { address: entry.address, item: item, container: question };
+  }
   return {
     address: entry.address,
     item: item,
-    input: { address: entry.address, question: question, root: input.root, isSummary: false, item: item },
+    input: {
+      address: entry.address, question: question, root: entry.input.root, isSummary: false, item: item,
+    },
   };
 }

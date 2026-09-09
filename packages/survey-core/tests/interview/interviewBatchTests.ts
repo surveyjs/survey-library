@@ -292,7 +292,7 @@ describe("interview batch mode (issue #11818)", () => {
     expect((await iv.answerAll({ dose: "1" })).errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
   });
 
-  test("A multiple text and a composite are containers too", async () => {
+  test("A multiple text and a composite are filled as objects of fields", async () => {
     ComponentCollection.Instance.add(<any>{
       name: "fullname",
       elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
@@ -307,10 +307,15 @@ describe("interview batch mode (issue #11818)", () => {
     const document = iv.describeAll();
     expect(document).toContain("  - name: contact");
     expect(document).toContain("  - name: who");
-    // Two records, each with its own reason, and no nested input of either is addressable.
-    expect(document.split("reason: batch").length - 1).toBe(2);
-    expect(iv.getAnswerSchema().properties).toEqual({});
+    // A fixed-shape container is one object with a fixed set of keys (tier 07): it is filled, not
+    // refused, so neither record carries a reason.
+    expect(document.split("reason: batch").length - 1).toBe(0);
+    expect(Object.keys(iv.getAnswerSchema().properties)).toEqual(["contact", "who"]);
+    // The fields are keys of the container's own object and never top-level addresses.
     expect((await iv.answerAll({ email: "a@b.c" })).errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
+    const res = await iv.answerAll({ contact: { email: "a@b.c" }, who: { first: "Ann" } });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ contact: { email: "a@b.c" }, who: { first: "Ann" } });
   });
 
   test("An item the interviewee skipped in single mode is still listed", async () => {

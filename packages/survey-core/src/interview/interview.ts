@@ -1,4 +1,4 @@
-import { Helpers, SurveyModel } from "survey-core";
+import { SurveyModel } from "survey-core";
 import type { Question } from "survey-core";
 import { settle } from "./interview-async";
 import { renderInterviewDocument } from "./render";
@@ -12,18 +12,19 @@ import {
   updateCurrentItem, validateInput,
 } from "./interview-items";
 import { resolveAddress } from "./interview-address";
-import { applySummaryAction, isAction } from "./interview-summary";
+import { applySummaryAction } from "./interview-summary";
 import {
-  IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchEntries, getBatchItems,
-  isBatchWritable, refreshBatchEntry,
+  IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchCurrent, getBatchEntries,
+  getBatchItems, isBatchWritable, refreshBatchEntry,
 } from "./interview-batch";
+import { IPreparedValue, isPlainObject, prepareValue, writeContainerValue } from "./interview-fields";
 import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, badActionError, badAddressError, completionBlockedError, notAChoiceError,
-  notANumberError, notAskableError, nothingToAnswerError, requiredCannotSkipError,
-  surveyCompletedError, unknownQuestionError, unknownToolError,
+  InterviewErrorCodes, badAddressError, badRecordError, completionBlockedError, notAskableError,
+  nothingToAnswerError, requiredCannotSkipError, surveyCompletedError, unknownQuestionError,
+  unknownToolError,
 } from "./interview-errors";
 
 // The interview conducts one SurveyModel the integrator owns (overview 2.6). It sets exactly one
@@ -192,13 +193,14 @@ export class Interview implements IInterview {
     // The same rule as in single mode: an expression validator or a min/max bound may depend on a
     // value this batch writes, and a stale error would keep an input listed forever.
     const wereInvalid = inputs.filter(input => input.question.errors.length > 0);
-    const written: { [address: string]: boolean } = {};
+    const written: IBatchWritten = { addresses: {}, containers: [] };
     resolved.writes.forEach(write => {
-      const error = this.writeBatchValue(write, written);
-      if (!!error) errors.push(error);
+      this.writeBatchValue(write, written).forEach(error => errors.push(error));
     });
     wereInvalid.forEach(input => {
-      if (written[input.address] !== true && input.question.isVisibleInSurvey) input.question.validate(true);
+      if (written.addresses[input.address] !== true && input.question.isVisibleInSurvey) {
+        input.question.validate(true);
+      }
     });
     // One settle for the whole batch: the asynchronous validators and expressions of every write
     // drain together instead of one call per key.
@@ -206,8 +208,15 @@ export class Interview implements IInterview {
     const after = this.getInputs();
     this.makeCurrent(after);
     after.forEach(input => {
-      if (written[input.address] !== true) return;
+      if (written.addresses[input.address] !== true) return;
       getInputErrors(input).forEach(message => errors.push({ name: input.address, message: message }));
+    });
+    // A container's own errors sit on the container and on no item, so they are read from it
+    // directly, under its own address, after the fields it holds have reported theirs.
+    written.containers.forEach(container => {
+      container.question.errors.forEach(error => {
+        errors.push({ name: container.address, message: error.getText() });
+      });
     });
     return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors, true);
   }
@@ -254,7 +263,7 @@ export class Interview implements IInterview {
     // value: the entries are grown and shrunk through the model's own summary, which is what the UI
     // offers a respondent.
     if (target.isSummary) return this.answerSummary(target, value, inputs);
-    const prepared = prepareValue(target, value);
+    const prepared = prepareValue(target.item, target.address, value);
     if (!!prepared.error) {
       // Nothing was written, so nothing changed: the result carries the one coded error and the same
       // current item.
@@ -354,29 +363,57 @@ export class Interview implements IInterview {
   // described again here rather than trusted from the resolution pass: an earlier write may have
   // hidden it, an enableIf may have turned it off, and choicesFromQuestion or choicesVisibleIf may
   // have moved the set the value is checked against.
-  private writeBatchValue(write: IBatchWrite, written: { [address: string]: boolean }): IInterviewError {
+  private writeBatchValue(write: IBatchWrite, written: IBatchWritten): Array<IInterviewError> {
     const address = write.entry.address;
     const fresh = refreshBatchEntry(write.entry);
-    if (!fresh) return notAskableError(address, "hidden");
+    if (!fresh) return [notAskableError(address, "hidden")];
     if (!isBatchWritable(fresh)) {
-      return notAskableError(address, fresh.item.disabled === true ? "disabled" : "hidden");
+      return [notAskableError(address, fresh.item.disabled === true ? "disabled" : "hidden")];
     }
+    if (!!fresh.container) return this.writeBatchContainer(fresh.container, address, write, written);
     const question = fresh.input.question;
     if (write.hasValue) {
-      const prepared = prepareValue(fresh.input, write.value);
-      if (!!prepared.error) return prepared.error;
+      const prepared = prepareValue(fresh.input.item, address, write.value);
+      if (!!prepared.error) return [prepared.error];
       question.value = prepared.value;
       if (prepared.hasComment) question.comment = prepared.comment;
     }
     if (write.hasComment) question.comment = write.comment;
-    // An answer un-skips, exactly as in single mode, and it ends an "edit" the same way.
-    this.skipped.remove(address);
-    this.editingQuestion = undefined;
-    written[address] = true;
+    this.markWritten(written, address);
     // Validated one key at a time, before the next write: an expression validator reads the data as
     // it is now, and running them all at the end would validate against a later state.
     question.validate(true);
-    return undefined;
+    return [];
+  }
+
+  // A fixed-shape container takes one object of field values, and the fields are written one at a
+  // time in the container's own order (interview-fields.ts). Nothing here is an address: the keys of
+  // the object are the field names the document lists, and the errors are reported under the
+  // addresses those fields have in the inventory.
+  private writeBatchContainer(container: Question, address: string, write: IBatchWrite,
+    written: IBatchWritten): Array<IInterviewError> {
+    if (!write.hasValue) return [];
+    const value = write.value;
+    if (value !== undefined && value !== null && !isPlainObject(value)) {
+      return [badRecordError(address, value)];
+    }
+    const res = writeContainerValue(container, address, value, this.surveyValue.commentSuffix);
+    res.written.forEach(field => this.markWritten(written, field.address));
+    if (res.written.length > 0) {
+      // RequiredInAllRowsError, EachRowUniqueError and a required container left empty are the
+      // container's own errors, and no field write puts them anywhere. complete() runs the same
+      // validation on the containers no item carries (getUnreportedContainers).
+      container.validate(true);
+      written.containers.push({ address: address, question: container });
+    }
+    return res.errors;
+  }
+
+  // An answer un-skips, exactly as in single mode, and it ends an "edit" the same way.
+  private markWritten(written: IBatchWritten, address: string): void {
+    this.skipped.remove(address);
+    this.editingQuestion = undefined;
+    written.addresses[address] = true;
   }
 
   // Through the question, never through survey.data: a top-level question routes into
@@ -547,10 +584,13 @@ export class Interview implements IInterview {
       becameVisible: changes.becameVisible,
       becameHidden: changes.becameHidden,
       becameRequired: changes.becameRequired,
-      // Filled in batch mode too, and there it is the loop condition: non-null while some askable
-      // item is still unanswered or invalid. "No errors and nothing became visible" is not - an
-      // agent that answers one of two required questions produces neither and is not done.
-      current: isBatch === true ? this.getCurrentItem(inputs) : document.current,
+      // Filled in batch mode too, and there it is the loop condition: the first item of the document
+      // an agent may still write to. "No errors and nothing became visible" is not a condition - an
+      // agent that answers one of two required questions produces neither and is not done. It is the
+      // loop condition said directly rather than single mode's current, which parts ways with it
+      // once containers are in play: an empty optional item of a multiple text keeps single mode on
+      // that item while the container is answered, valid and not listed, and the loop would spin.
+      current: isBatch === true ? getBatchCurrent(document.items) : document.current,
       describe: renderInterviewDocument(document),
     };
   }
@@ -570,6 +610,13 @@ export class Interview implements IInterview {
 function getLastAskableInput(inputs: Array<IInterviewInput>): IInterviewInput {
   const askable = inputs.filter(input => isAskableInput(input));
   return askable[askable.length - 1];
+}
+
+// What one batch call has written: the addresses whose persisted errors the result reports, and the
+// containers whose own errors it reports next to them.
+interface IBatchWritten {
+  addresses: { [address: string]: boolean };
+  containers: Array<IInterviewContainer>;
 }
 
 interface IBatchWrite {
@@ -638,73 +685,11 @@ function findBatchTarget(entries: Array<IInterviewBatchEntry>, key: string,
   if (key.substring(key.length - commentSuffix.length) !== commentSuffix) return undefined;
   const owner = findBatchEntry(entries, key.substring(0, key.length - commentSuffix.length));
   // Only for an item that accepts one: the model would store a comment for any question, and a key
-  // the item does not advertise is a mistake the agent has to hear about.
-  if (!owner || !owner.item.comment) return undefined;
+  // the item does not advertise is a mistake the agent has to hear about. Never for a container:
+  // there the suffix belongs to a field, one level down inside the object, so "contact-Comment"
+  // names nothing.
+  if (!owner || !!owner.container || !owner.item.comment) return undefined;
   return { entry: owner, isComment: true };
-}
-
-interface IPreparedValue {
-  value?: any;
-  comment?: string;
-  hasComment?: boolean;
-  error?: IInterviewError;
-}
-
-// The checks the model cannot make. It accepts any value a caller assigns - what keeps a respondent
-// from entering an impossible one is the UI, which offers a list of choices and a numeric field.
-// A text consumer has neither, so the same three mistakes are caught here, each with a code the
-// consumer can act on, and nothing is written when one of them fires. The tester's
-// checkValueEnterable exists for the same reason.
-function prepareValue(target: IInterviewInput, value: any): IPreparedValue {
-  if (isAction(value)) {
-    return { error: badActionError(target.address, value.action) };
-  }
-  const res: IPreparedValue = { value: value };
-  if (!!target.item.comment && isCommentValue(value)) {
-    res.value = value.value;
-    res.comment = value.comment;
-    res.hasComment = true;
-  }
-  // A voice consumer says "Dog" for a checkbox and means ["Dog"]. Wrapping is silent: there is no
-  // other reading of a scalar for a question whose value is an array.
-  if (target.item.valueType === "array" && res.value !== undefined && res.value !== null &&
-    !Array.isArray(res.value)) {
-    res.value = [res.value];
-  }
-  const choicesError = checkChoices(target, res.value);
-  if (!!choicesError) return { error: choicesError };
-  const numberError = checkNumber(target, res.value);
-  if (!!numberError) return { error: numberError };
-  return res;
-}
-
-function isCommentValue(value: any): boolean {
-  return isPlainObject(value) && value.value !== undefined && typeof value.comment === "string";
-}
-
-function isPlainObject(value: any): boolean {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-// Only when the set can be enumerated: choices that are still loading from a web service, or that a
-// lazy-loading dropdown fetches page by page, are described as choicesUnknown and nothing is checked
-// against them. "other" and "none" are choices like any other - they are in the described list.
-function checkChoices(target: IInterviewInput, value: any): IInterviewError {
-  const item = target.item;
-  if (!item.choices || item.choicesUnknown || Helpers.isValueEmpty(value)) return undefined;
-  const available = item.choices.map(choice => choice.value);
-  const values: Array<any> = Array.isArray(value) ? value : [value];
-  for (let i = 0; i < values.length; i++) {
-    if (!available.some(choice => Helpers.isTwoValueEquals(choice, values[i]))) {
-      return notAChoiceError(target.address, values[i], available);
-    }
-  }
-  return undefined;
-}
-
-function checkNumber(target: IInterviewInput, value: any): IInterviewError {
-  if (target.item.valueType !== "number" || typeof value !== "string" || value === "") return undefined;
-  return Helpers.isNumber(value) ? undefined : notANumberError(target.address, value);
 }
 
 // A SurveyModel instance is used as is - a subclass is an instance too, and the interview reads and

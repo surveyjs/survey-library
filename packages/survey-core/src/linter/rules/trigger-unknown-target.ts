@@ -105,7 +105,7 @@ export const triggerUnknownTargetRule: ILintRule = {
             (target.prop === "fromName" ? "reads" : (target.prop === "gotoName" ? "navigates to" : "sets")) +
             " \"" + target.name + "\", but no " + kindText + " with that name exists." +
             (target.kind === "questionvalue"
-              ? " If it is a variable set at runtime, list it in options.knownVariables."
+              ? " If it is a variable set at runtime, list it in options.knownVariables or declare it in the variable definition."
               : ""),
           path: target.path,
           reason: reasons.rootNotFound,

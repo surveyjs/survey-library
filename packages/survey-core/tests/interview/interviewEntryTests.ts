@@ -1,4 +1,4 @@
-import { createInterview } from "survey-core/interview";
+import { createInterview, toYaml } from "survey-core/interview";
 import type {
   IInterview, IInterviewAction, IInterviewChanges, IInterviewCompleteResult, IInterviewDocument,
   IInterviewError, IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewSummary,
@@ -7,6 +7,7 @@ import type {
 import * as SurveyCore from "survey-core";
 import { SurveyModel } from "survey-core";
 import { createInterview as InternalCreateInterview } from "../../src/interview/interview";
+import { toYaml as InternalToYaml } from "../../src/interview/yaml";
 
 import { describe, expect, test } from "vitest";
 
@@ -26,6 +27,13 @@ describe("survey-core/interview entry point (issue #11818)", () => {
   test("createInterview is the function of the source", () => {
     expect(typeof createInterview).toBe("function");
     expect(createInterview).toBe(InternalCreateInterview);
+  });
+
+  test("toYaml is the emitter of the source", () => {
+    expect(typeof toYaml).toBe("function");
+    expect(toYaml).toBe(InternalToYaml);
+    // A host that renders its own text from the item records gets the quoting the documents use.
+    expect(toYaml({ answered: { hasPet: "Yes" } })).toBe("answered:\n  hasPet: \"Yes\"\n");
   });
 
   test("createInterview resolves with the interview of the model it was given", async () => {
@@ -82,7 +90,7 @@ describe("survey-core/interview entry point (issue #11818)", () => {
 
   test("None of it leaks into the main survey-core entry point", () => {
     const main: any = SurveyCore;
-    const names = ["createInterview", "Interview", "SurveyInterview"];
+    const names = ["createInterview", "Interview", "SurveyInterview", "toYaml", "renderInterviewDocument"];
     const leaked = names.filter(name => main[name] !== undefined);
     expect(leaked, "the interview is a separate entry point").toEqual([]);
   });

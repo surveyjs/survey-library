@@ -1,5 +1,6 @@
 import { SurveyModel } from "survey-core";
 import { settle } from "./interview-async";
+import { renderInterviewDocument } from "./render";
 import {
   IInterview, IInterviewCompleteResult, IInterviewItem, IInterviewOptions, IInterviewResult,
   IInterviewToolDefinition,
@@ -53,9 +54,14 @@ export class Interview implements IInterview {
   public current(): IInterviewItem | null {
     return null;
   }
-  // Tier 03 replaces this with the rendered document.
+  // The text form is final (tier 03); what is still missing is the document behind it. Tier 04
+  // fills in the current item, the answered map and the real progress numbers - until then this is
+  // the heading and the progress section of a survey nothing has been asked of.
   public describe(): string {
-    return renderPlaceholder(this.surveyValue);
+    return renderInterviewDocument({
+      title: this.surveyValue.processedTitle,
+      progress: { answered: 0, remainingRequired: 0 },
+    });
   }
   public answer(value: any): Promise<IInterviewResult>;
   public answer(name: string, value: any): Promise<IInterviewResult>;
@@ -147,12 +153,6 @@ function getStartPageErrorNames(survey: any): Array<string> {
   if (!page) return [];
   return page.questions.filter((question: any) => question.errors.length > 0)
     .map((question: any) => question.name);
-}
-
-// Tier 03 renders the document; until then describe() answers with the shape of the answer - the
-// title line and an empty block - so a consumer written against it does not have to change.
-function renderPlaceholder(survey: SurveyModel): string {
-  return ("# " + survey.processedTitle).trim() + "\n\n```yaml\n```\n";
 }
 
 function notImplemented(name: string): never {

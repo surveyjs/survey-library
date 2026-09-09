@@ -116,7 +116,7 @@ so what it describes is never a state that is about to change.
 | `interview.data` | `survey.data`. | tier 02 |
 | `interview.dispose()` | Drops the interview's own state. The model is untouched. | tier 02 |
 | `interview.current(): IInterviewItem \| null` | The first visible input that is unanswered or invalid. | tier 04 |
-| `interview.describe(): string` | The current item as YAML in Markdown. | tier 03 / 04 |
+| `interview.describe(): string` | The current item as YAML in Markdown. The text form is final; the document behind it — the item, the answered map, the progress numbers — arrives in tier 04. | tier 03 / 04 |
 | `interview.answer(value)` / `answer(name, value)` | Writes one answer and reports the consequences. | tier 04 |
 | `interview.skip()` | Leaves the current item unanswered and moves on. | tier 04 |
 | `interview.complete()` | Validates everything and calls `tryComplete()`. | tier 04 |
@@ -125,6 +125,7 @@ so what it describes is never a state that is about to change.
 | `interview.getAnswerSchema(): any` | JSON Schema for the answers a batch call accepts. | tier 05 |
 | `interview.getTools(): Array<IInterviewToolDefinition>` | MCP-shaped tool definitions, usable for function calling as is. | tier 05 |
 | `interview.callTool(name, args): Promise<any>` | Runs one of them. | tier 05 |
+| `toYaml(value, options?): string` | The emitter the documents are written with — plain data in, YAML out. Exported so that a host rendering its own text from the item records quotes exactly the way `describe()` does. | tier 03 |
 
 A method that has not arrived yet throws `Error("not implemented: <name>")` rather than answering
 wrongly. Nested inputs — dynamic panels, matrices, multiple text, custom components — and their
@@ -162,9 +163,77 @@ model string — a title, a choice text, an error text, an add-button caption �
 ## Document format
 
 `describe()` and `describeAll()` render the same plain object, an `IInterviewDocument`
-(`{ title, progress, answered, changes, errors, current | items }`), as YAML inside a Markdown
-document. **Tier 03 specifies the text form here**; until then `describe()` answers with the title
-line and an empty block, so a consumer written against the shape does not have to change.
+(`{ title, progress, answered, changes, errors, current | items }`), as **YAML inside Markdown**: a
+heading and one fenced `yaml` block. A chat UI strips the heading and renders the block; an agent
+parses the first fenced `yaml` block and never sees anything else.
+
+````markdown
+# Pet survey
+
+```yaml
+progress:
+  answered: 1
+  remainingRequired: 1
+answered:
+  hasPet: "Yes"
+changes:
+  becameVisible: [petType, petAge]
+  becameRequired: [petType]
+current:
+  name: petType
+  type: dropdown
+  title: What kind?
+  required: true
+  choices:
+    - value: Dog
+    - value: Cat
+    - value: Other
+```
+````
+
+* The heading is the survey's `processedTitle`. A survey with no title gets `# Survey`, so that a
+  document always starts the same way.
+* The sections come out in one fixed order — `progress`, `answered`, `changes`, `errors`, then
+  `current` (single mode) or `items` (batch mode) — whatever order the document was built in.
+* `progress` always carries both `answered` and `remainingRequired`.
+* An optional section that carries nothing is **left out**, not written as an empty container:
+  `answered` when nothing has been answered, `errors` when nothing failed, `changes` when every one
+  of its lists is empty — and inside `changes`, each of `becameVisible`, `becameHidden` and
+  `becameRequired` is left out on its own when it is empty. `current: null` is the exception: it is
+  written, because "nothing left to ask" is information.
+* `answered` maps an address to the raw value — a checkbox answer is a sequence, a multiple-text
+  answer a nested map. An address that is not an identifier (`medications[0].dose`,
+  `matrix.row.column`) is a quoted key; a consumer reads it as a string either way.
+* `errors` is a sequence of `{ name, message }`, plus `code` for the errors the interview raises
+  itself. `message` is the localized text the rendered UI shows for the same error.
+* `current` and each entry of `items` is one item record — `name`, `type`, `title`, `description`,
+  `required`, then the type-specific keys, and `error` last when the current answer failed
+  validation. A key that carries nothing is not written at all: there is no `description: null` and
+  no `disabled: false`, so a key a consumer sees is a key it can act on.
+
+### Quoting
+
+The block is emitted by `toYaml`, a small emitter written here because survey-core ships no runtime
+dependencies. It covers what the documents use — maps, block and flow sequences, scalars — and
+nothing else: no anchors, no tags, no block scalars, no multi-document streams.
+
+What it guarantees is that **the value a consumer parses back is the value the survey holds**:
+
+* A string a YAML parser would type as something else is double-quoted with JSON escaping — `"Yes"`,
+  `"No"`, `"1"`, `"2024-01-01"`, `""`, `"true"`, `"~"`, a string that starts with an indicator
+  (`- ? : , [ ] { } # & * ! | > ' " % @ \``) or with a space, ends with a space or a colon, or
+  carries `: `, ` #`, a newline or a tab. `Dog`, `petType` and `Do you have a pet?` stay bare.
+* A multi-line string — an HTML description — is quoted with `\n` in it, never written as a block
+  scalar: one line per key keeps the consumer's parser trivial.
+* A sequence of scalars that fits in 80 columns is inline (`becameVisible: [petType, petAge]`);
+  anything else is a block sequence, and a map inside one starts on its dash line
+  (`- value: Dog`). In a flow sequence `,` `[` `]` `{` `}` are delimiters, so a string carrying one
+  is quoted there even though it is bare in block context: `["a,b"]` is one value, not two.
+* Numbers, booleans and `null` are written as themselves; a non-finite number is quoted.
+
+`tests/interview/interviewYamlTests.ts` pins every rule above and reads each fixture back with
+`js-yaml` — a real parser, on purpose: a second parser written next to the emitter would only agree
+with its own assumptions.
 
 ## Source layout
 
@@ -173,6 +242,8 @@ line and an empty block, so a consumer written against the shape does not have t
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
 | `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class. |
 | `interview-async.ts` | `settle()`: the one asynchronous primitive. Every mutating call ends with it before it reads the state it returns. |
+| `yaml.ts` | `toYaml()`: the emitter, a pure function of plain data. It is where the quoting rules live. |
+| `render.ts` | `renderInterviewDocument()`: the document as a Markdown heading and one fenced `yaml` block. The one place text is assembled; nothing else writes Markdown or YAML by hand. |
 
 `src/interview/**` imports nothing but `"survey-core"` and its own files; nothing under `src/`
 outside this folder imports from it, and no public entry point — nor `survey-core/tester` and

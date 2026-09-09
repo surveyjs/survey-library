@@ -20,3 +20,8 @@ export type {
 // choices from a web service or running an asynchronous expression when it is handed over, and an
 // interview that described that model would describe a state that is about to change.
 export { createInterview } from "../src/interview/interview";
+
+// The emitter the documents are written with. A host that renders its own text from IInterviewItem
+// records gets the same quoting - the rule that keeps the string "Yes" a string once a consumer
+// parses the YAML back.
+export { toYaml } from "../src/interview/yaml";

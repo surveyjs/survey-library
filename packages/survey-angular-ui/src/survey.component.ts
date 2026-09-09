@@ -8,7 +8,8 @@ addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
 @Component({
   selector: "survey",
-  template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>"
+  template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>",
+  styles: [":host { display: block; width: 100%; height: 100%; }"]
 })
 export class SurveyComponent extends BaseAngular<SurveyModel> {
   @Input() model!: SurveyModel;

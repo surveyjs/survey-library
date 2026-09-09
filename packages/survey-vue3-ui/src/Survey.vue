@@ -64,10 +64,12 @@
                         :container="'contentTop'"
                         :needRenderWrapper="true"
                       ></SvComponent>
+                      <!-- A disabled sv-scroll still stays in the Vue tree and shifts advanced-header layout. -->
                       <SvComponent
+                        v-if="vueSurvey.focusMode"
                         :is="'sv-scroll'"
-                        :disabled="vueSurvey.pageScrollDisabled"
-                        :keyboardReachable="vueSurvey.focusMode"
+                        :disabled="false"
+                        :keyboardReachable="true"
                       >
                         <SvComponent
                           :is="vueSurvey.pageComponent || 'sv-page'"
@@ -77,6 +79,14 @@
                           :css="css"
                         />
                       </SvComponent>
+                      <SvComponent
+                        v-else
+                        :is="vueSurvey.pageComponent || 'sv-page'"
+                        :key="pageKey"
+                        :survey="vueSurvey"
+                        :page="vueSurvey.activePage"
+                        :css="css"
+                      />
                       <SvComponent
                         :is="'sv-components-container'"
                         :survey="vueSurvey"

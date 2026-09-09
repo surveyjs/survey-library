@@ -1113,7 +1113,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * While this property is set, users cannot add or remove panels manually. The expression is reevaluated when its referenced values or panel limits change.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
-   * @since 3.0.4
+   * @since 3.1.0
    */
   @property() panelCountExpression: string;
   private get hasPanelCountExpression(): boolean {

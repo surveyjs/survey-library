@@ -115,21 +115,24 @@ so what it describes is never a state that is about to change.
 | `interview.survey` | The model that was passed in. | tier 02 |
 | `interview.data` | `survey.data`. | tier 02 |
 | `interview.dispose()` | Drops the interview's own state. The model is untouched. | tier 02 |
-| `interview.current(): IInterviewItem \| null` | The first visible input that is unanswered or invalid. | tier 04 |
-| `interview.describe(): string` | The current item as YAML in Markdown. The text form is final; the document behind it — the item, the answered map, the progress numbers — arrives in tier 04. | tier 03 / 04 |
-| `interview.answer(value)` / `answer(name, value)` | Writes one answer and reports the consequences. | tier 04 |
-| `interview.skip()` | Leaves the current item unanswered and moves on. | tier 04 |
-| `interview.complete()` | Validates everything and calls `tryComplete()`. | tier 04 |
+| `interview.current(): IInterviewItem \| null` | The first item that can be asked and is either unanswered or invalid; `null` when there is none. A synchronous read of settled state — it never moves the model and never runs a validator. | tier 04 |
+| `interview.describe(): string` | The current item, the progress and the answers so far, as YAML in Markdown. | tier 03 / 04 |
+| `interview.answer(value)` / `answer(name, value)` | Writes one answer — to the current item, or to the item at `name` — and reports the consequences: the errors, what became visible, hidden or required, the next item, and the document. | tier 04 |
+| `interview.skip()` | Leaves the current item unanswered and moves on. Refused for a required item. | tier 04 |
+| `interview.complete()` | Validates every item, then calls `tryComplete()`. | tier 04 |
 | `interview.describeAll(): string` | The whole form at once, for batch mode. | tier 05 |
 | `interview.answerAll(values)` | Writes many answers by address in one call. | tier 05 |
 | `interview.getAnswerSchema(): any` | JSON Schema for the answers a batch call accepts. | tier 05 |
 | `interview.getTools(): Array<IInterviewToolDefinition>` | MCP-shaped tool definitions, usable for function calling as is. | tier 05 |
 | `interview.callTool(name, args): Promise<any>` | Runs one of them. | tier 05 |
 | `toYaml(value, options?): string` | The emitter the documents are written with — plain data in, YAML out. Exported so that a host rendering its own text from the item records quotes exactly the way `describe()` does. | tier 03 |
+| `InterviewErrorCodes` | The frozen table of the codes the interview raises itself. A host localizes on the code. | tier 04 |
 
 A method that has not arrived yet throws `Error("not implemented: <name>")` rather than answering
-wrongly. Nested inputs — dynamic panels, matrices, multiple text, custom components — and their
-summary steps arrive in tier 06; until then they are described as their container.
+wrongly. The addresses of nested inputs — inside dynamic panels, matrices, multiple text and custom
+components — and the summary step of a dynamic container arrive in tier 06; until then a nested input
+is addressed by its plain question name, and a summary step is listed as `unsupported` and never
+asked for.
 
 ### Options
 
@@ -152,13 +155,35 @@ asynchronous mechanisms.
 
 ### Errors
 
+Every mutating call answers with an `errors` array of `{ name, message, code? }`.
+
 | Field | Description |
 | --- | --- |
-| `message` | English, ready to show to a developer. |
-| `code` | The stable identifier a host localizes on. `"startPageIncomplete"`, `"asyncTimeout"`; tier 04 adds the table of the codes the interview raises per item. |
+| `name` | The address of the item the error is about, or `""` when it is about the survey as a whole. |
+| `message` | English, ready to show to a developer — **unless** there is no `code`, in which case it is the model's own localized error text, the string a rendered UI shows under the same input. |
+| `code` | Present only for the errors the interview raises itself. The stable identifier a host localizes on, the way it localizes on `SurveyLintReasons`: a message is prose and may be reworded, a code is API and is never renamed. |
+
+`InterviewErrorCodes` is the whole table, frozen:
+
+| Code | Raised when |
+| --- | --- |
+| `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
+| `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
+| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), or it has no plain input — a file, a signature, an image picker — or it is a summary step (`unsupported`). |
+| `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
+| `notANumber` | A string that is not a number, for an item whose value is a number. |
+| `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value. Actions belong to the summary step of a dynamic container. |
+| `requiredCannotSkip` | `skip()` on a required item. It stays current. |
+| `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
+| `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
+| `startPageIncomplete` | `createInterview` rejects: the model shows a start page and `start()` refused to leave it. An `Error`, not an item error. |
+
+An error with a code means **nothing was written**: the pre-checks run before the value reaches the
+model, and the same current item comes back.
 
 The interview invents no prose for the interviewee: every text a consumer sees is either a localized
 model string — a title, a choice text, an error text, an add-button caption — or a fixed YAML key.
+The messages above are for the developer or for an agent's next turn, and they are English only.
 
 ## Document format
 
@@ -201,15 +226,23 @@ current:
   of its lists is empty — and inside `changes`, each of `becameVisible`, `becameHidden` and
   `becameRequired` is left out on its own when it is empty. `current: null` is the exception: it is
   written, because "nothing left to ask" is information.
-* `answered` maps an address to the raw value — a checkbox answer is a sequence, a multiple-text
-  answer a nested map. An address that is not an identifier (`medications[0].dose`,
-  `matrix.row.column`) is a quoted key; a consumer reads it as a string either way.
+* `answered` maps an address to the raw value, in item order — a checkbox answer is a sequence, a
+  multiple-text answer a nested map, an answer with a comment the `{ value, comment }` object that
+  `answer()` itself takes. An address that is not an identifier (`medications[0].dose`,
+  `matrix.row.column`) is a quoted key; a consumer reads it as a string either way. It is the whole
+  map: a consumer that wants it short truncates it, the interview does not guess which answers matter.
+  Items the interviewee skipped are left out.
 * `errors` is a sequence of `{ name, message }`, plus `code` for the errors the interview raises
   itself. `message` is the localized text the rendered UI shows for the same error.
 * `current` and each entry of `items` is one item record — `name`, `type`, `title`, `description`,
   `required`, then the type-specific keys, and `error` last when the current answer failed
   validation. A key that carries nothing is not written at all: there is no `description: null` and
-  no `disabled: false`, so a key a consumer sees is a key it can act on.
+  no `disabled: false`, so a key a consumer sees is a key it can act on. `name` is the address, not
+  necessarily the question's name.
+* One key of the record is deliberately **not** written: `valueType`. A reader already knows what a
+  value is from the choices, the input type or the constraints, and where the value type is needed as
+  data — the JSON Schema an agent fills in — `getAnswerSchema()` produces it. The `IInterviewItem`
+  records a host reads from `current` and from a result do carry it.
 
 ### Quoting
 
@@ -235,12 +268,252 @@ What it guarantees is that **the value a consumer parses back is the value the s
 `js-yaml` — a real parser, on purpose: a second parser written next to the emitter would only agree
 with its own assumptions.
 
+## Single-input mode
+
+One item at a time: `current()` says what to ask, `answer()` writes it and reports what changed,
+`skip()` moves past an optional item, `complete()` finishes.
+
+### Items are the model's own single inputs
+
+The interview does not decide what an input is. `SurveyModel` has a mode for exactly this —
+`questionsOnPageMode: "inputPerPage"`, which puts one input field on a page and splits the complex
+questions: a dynamic panel into the questions of each panel, a matrix into its cells row by row, a
+multiple text into its editors, a composite into its content questions, and a dynamic container also
+into a **summary step**, the list of entries with add / remove / edit. `createInterview` sets that
+mode, and every item is one of its inputs. So the input the interview asks for is the input a UI
+rendering the same model shows, and the two can never disagree about what a question is.
+
+The two host events that tune the mode tune the interview with it:
+`onCheckSingleInputPerPageMode` turns nesting off for one question — the container then becomes a
+single input holding the whole array or object — and `onGetLoopQuestions` edits the list of nested
+inputs. Both are set on the model, before the hand-over, like everything else.
+
+What the interview keeps of its own is the **inventory**: every input that exists, in document order,
+rebuilt from the structure of the survey on every call. That is deliberately *not* the mode's own
+navigation list (`getSingleInputQuestions()`), which answers a different question — "what do I walk
+the respondent through next" — and depends on where the respondent already is: once a container's
+summary step has been shown it returns the container alone, and a dynamic panel lists only the panels
+that are incomplete or invalid. Right for walking forward, wrong as a record of what exists. If the
+progress numbers, the answered map or the change report were built from it, all three would change
+with the navigation instead of with the answers.
+
+### Which item is current
+
+`current()` is **the first item, in document order, that can be asked and is either unanswered or
+invalid**, and `null` when there is none. "Can be asked" leaves out an item that an `enableIf` turned
+off (`disabled`) and one with no plain input — a file, a signature, an image picker, and, until tier
+06, a summary step (`unsupported`).
+
+That is the issue's rule, and it is not the mode's own navigation: `performNext()` goes to the input
+*after* the one the respondent is on, wherever that is. So the interview selects first and then
+**tells** the model — `survey.currentSingleQuestion` and its nested current input are set to the item
+that was selected, at the end of `createInterview` and of every call that writes. When there is
+nothing left to ask, the model is left on the last input, which is where a respondent stands when
+they press Complete.
+
+`current()` itself never moves the model, never validates and never starts anything: it is a
+synchronous read of state that has already settled.
+
+### When validators run
+
+Validity is a **persisted** state — the errors an earlier validation run left on the question, plus
+the synchronous "required and empty" check. It is never computed on demand: `validate(false)` starts
+the asynchronous validators over on every call and then throws their result away, so a consumer that
+merely reads the items repeatedly would restart them forever and never see their errors.
+
+Validators therefore run in exactly four places, always with the errors kept, and always followed by
+the settle:
+
+* at `createInterview`, on every askable input that already holds a value — a model resumed from
+  saved data with an answer that violates a validator is invalid from the first `current()`;
+* in `answer()`, on the input that was written;
+* in `answer()`, on every input that held errors **before** the write — an expression validator or a
+  `min`/`max` bound may depend on the value just written, and a stale error would keep an input
+  current forever. (An input that a `visibleIf` hides clears its own errors and is left alone.)
+* in `complete()`, on everything.
+
+### `answer()`
+
+```js
+await iv.answer("Yes");             // the current item
+await iv.answer("petType", "Dog");  // by address: a revisit
+```
+
+Before anything is written, three checks the model cannot make — it accepts whatever it is assigned,
+and what keeps a respondent from entering an impossible value is the UI, which a text consumer does
+not have. A value outside the listed choices is `notAChoice`, a non-numeric string for a number is
+`notANumber`, an action object where a value belongs is `badAction`; each writes nothing and comes
+back with its code and the same current item. A scalar answer to a question whose value is an array
+is **wrapped** silently — a voice consumer says "Dog" and means `["Dog"]`.
+
+An item that accepts a comment — the `other` choice, a comment area — takes the object form, and
+reports it back the same way:
+
+```js
+await iv.answer({ value: "other", comment: "Ferret" });
+// answered: { pet: { value: "other", comment: "Ferret" } }, data: { pet: "other", "pet-Comment": "Ferret" }
+```
+
+The value goes in through the question, never through `survey.data`, so triggers, `setValueIf`,
+calculated values and conditions run at every nesting level exactly as they do for a respondent.
+Then the written input is validated, the model is allowed to settle, and the result is assembled:
+
+```ts
+{
+  errors,           // the written input's errors, or the one pre-check error
+  becameVisible,    // addresses that were not being asked for before this call and are now
+  becameHidden,     // the reverse
+  becameRequired,   // required now, and not required-and-visible before
+  current,          // the next item, or null
+  describe          // the document, with the changes and the errors in it
+}
+```
+
+An input that stays invalid keeps its value — 55 stays in the box with the error under it — and
+`current()` stays on it. A question that went invisible had its value cleared by the model if the
+survey says so (`clearInvisibleValues`); either way `answered` simply no longer lists it.
+
+**Navigation-time triggers do not fire.** In a rendered UI, `"complete"` and `"skip"` triggers fire
+when the respondent *leaves* an input, from `performNext()`. The interview selects its own next
+input and never calls `performNext()`, and completion here is explicit, so those triggers stay
+un-fired; value triggers — `setvalue`, `copyvalue`, `runexpression` — fire from the write itself and
+work normally. A host that wants the navigation ones puts the model back on the input it answered and
+navigates it:
+
+```js
+await iv.answer("go");
+iv.survey.currentSingleQuestion = iv.survey.getQuestionByName("q1");
+iv.survey.performNext();
+```
+
+### `skip()`
+
+Skipping is a single-mode gesture and it lives only in the interview — the model has no notion of it.
+`skip()` marks the current item as passed over and selects the next one; a **required** item is
+refused with `requiredCannotSkip` and stays current. The value the input already holds is **not**
+erased: skip means "move on". Answering a skipped item un-skips it, and a skipped item that a
+`requiredIf` turns required is asked again — required means asked.
+
+A skipped item is left out of the `answered` map and counts as done for `progress.answered`.
+
+### `complete()`
+
+1. Every askable item is validated and the model is allowed to settle. A required item that was never
+   answered is an error **here** and nowhere else: the interview cannot know the person is done until
+   every required input holds a value. Any error at this point ends the call with
+   `{ completed: false, errors, data, completedHtml: "" }` and the survey still running.
+2. With no errors, the model is moved to its last input and `survey.tryComplete()` runs — **not**
+   `doComplete()`. Server validation lives only on the `tryComplete` path: it reaches
+   `doServerValidation`, which fires `onServerValidateQuestions` and blocks until the host calls
+   `options.complete()`. `doComplete()` skips it, and a survey whose host validates on a server would
+   be completed behind its back.
+3. The call settles again — an asynchronous `onCompleting`, the server validation and an asynchronous
+   `onComplete` are all waited for — and answers with `completed`, the errors the server added under
+   their questions' addresses, `data`, and `completedHtml` (the model's `processedCompletedHtml`).
+   An `onCompleting` handler that sets `allow = false` produces `completionBlocked`.
+
+After the completion `current()` is `null`, `answer()` and `skip()` return `surveyCompleted`, and
+`describe()` still renders — a transcript wants the final progress and answers. Completing an
+already completed survey is a no-op with the same answer.
+
+### The pet survey, end to end
+
+```js
+const iv = await createInterview(petSurveyJson);
+iv.describe();
+```
+
+````markdown
+# Pet survey
+
+```yaml
+progress:
+  answered: 0
+  remainingRequired: 1
+current:
+  name: hasPet
+  type: radiogroup
+  title: Do you have a pet?
+  required: true
+  choices:
+    - value: "Yes"
+    - value: "No"
+```
+````
+
+```js
+const res = await iv.answer("Yes");
+// res.becameVisible: ["petType", "petAge"], res.becameRequired: ["petType"]
+```
+
+````markdown
+# Pet survey
+
+```yaml
+progress:
+  answered: 1
+  remainingRequired: 1
+answered:
+  hasPet: "Yes"
+changes:
+  becameVisible: [petType, petAge]
+  becameRequired: [petType]
+current:
+  name: petType
+  type: dropdown
+  title: What kind?
+  required: true
+  choices:
+    - value: Dog
+    - value: Cat
+    - value: Other
+```
+````
+
+```js
+await iv.answer("petType", "Dog");
+await iv.answer(55);          // petAge, which is bounded at 40
+```
+
+````markdown
+# Pet survey
+
+```yaml
+progress:
+  answered: 2
+  remainingRequired: 0
+answered:
+  hasPet: "Yes"
+  petType: Dog
+  petAge: 55
+errors:
+  - name: petAge
+    message: The value should not be greater than 40
+current:
+  name: petAge
+  type: text
+  title: Pet age (years)
+  required: false
+  inputType: number
+  constraints:
+    min: 0
+    max: 40
+  error: The value should not be greater than 40
+```
+````
+
+`answer(4)` clears the error, `current()` becomes `null`, and `complete()` answers
+`{ completed: true, data: { hasPet: "Yes", petType: "Dog", petAge: 4 } }`.
+
 ## Source layout
 
 | File | Responsibility |
 | --- | --- |
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
-| `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class. |
+| `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class: the selection rule, the four calls of single-input mode, the pre-checks and the documents. |
+| `interview-items.ts` | The inventory over the model's single inputs, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
+| `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |
+| `interview-errors.ts` | `InterviewErrorCodes`, frozen, and one composing function per code. |
 | `interview-async.ts` | `settle()`: the one asynchronous primitive. Every mutating call ends with it before it reads the state it returns. |
 | `yaml.ts` | `toYaml()`: the emitter, a pure function of plain data. It is where the quoting rules live. |
 | `render.ts` | `renderInterviewDocument()`: the document as a Markdown heading and one fenced `yaml` block. The one place text is assembled; nothing else writes Markdown or YAML by hand. |

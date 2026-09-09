@@ -1,4 +1,4 @@
-import { createInterview, toYaml } from "survey-core/interview";
+import { createInterview, InterviewErrorCodes, toYaml } from "survey-core/interview";
 import type {
   IInterview, IInterviewAction, IInterviewChanges, IInterviewCompleteResult, IInterviewDocument,
   IInterviewError, IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewSummary,
@@ -7,6 +7,7 @@ import type {
 import * as SurveyCore from "survey-core";
 import { SurveyModel } from "survey-core";
 import { createInterview as InternalCreateInterview } from "../../src/interview/interview";
+import { InterviewErrorCodes as InternalErrorCodes } from "../../src/interview/interview-errors";
 import { toYaml as InternalToYaml } from "../../src/interview/yaml";
 
 import { describe, expect, test } from "vitest";
@@ -36,12 +37,18 @@ describe("survey-core/interview entry point (issue #11818)", () => {
     expect(toYaml({ answered: { hasPet: "Yes" } })).toBe("answered:\n  hasPet: \"Yes\"\n");
   });
 
+  test("The error codes are the frozen table of the source", () => {
+    expect(InterviewErrorCodes).toBe(InternalErrorCodes);
+    expect(InterviewErrorCodes.notAChoice).toBe("notAChoice");
+    expect(Object.isFrozen(InterviewErrorCodes)).toBe(true);
+  });
+
   test("createInterview resolves with the interview of the model it was given", async () => {
     const survey = new SurveyModel(surveyJson);
     const interview: IInterview = await createInterview(survey);
     expect(interview.survey).toBe(survey);
     expect(interview.data).toEqual({});
-    expect(interview.current()).toBe(null);
+    expect(interview.current().name).toBe("q1");
     expect(typeof interview.describe()).toBe("string");
     interview.dispose();
   });
@@ -51,7 +58,7 @@ describe("survey-core/interview entry point (issue #11818)", () => {
     const options: IInterviewOptions = { timeout: 0 };
     const interview: IInterview = await createInterview(surveyJson, options);
     const current: IInterviewItem | null = interview.current();
-    expect(current).toBe(null);
+    expect(current.name).toBe("q1");
 
     const changes: IInterviewChanges = { becameVisible: [], becameHidden: [], becameRequired: [] };
     const error: IInterviewError = { name: "q1", message: "Response required.", code: "required" };
@@ -76,11 +83,18 @@ describe("survey-core/interview entry point (issue #11818)", () => {
     interview.dispose();
   });
 
+  test("Single-input mode is reached through the entry point", async () => {
+    const interview = await createInterview(surveyJson);
+    const result: IInterviewResult = await interview.answer("a");
+    expect(result.becameVisible).toEqual(["q2"]);
+    expect(result.current.name).toBe("q2");
+    expect((await interview.skip()).current).toBe(null);
+    const completed: IInterviewCompleteResult = await interview.complete();
+    expect(completed.completed).toBe(true);
+  });
+
   test("The methods later tiers implement say so instead of answering wrongly", async () => {
     const interview = await createInterview(surveyJson);
-    expect(() => interview.answer("q1", "a")).toThrow("not implemented: answer");
-    expect(() => interview.skip()).toThrow("not implemented: skip");
-    expect(() => interview.complete()).toThrow("not implemented: complete");
     expect(() => interview.answerAll({ q1: "a" })).toThrow("not implemented: answerAll");
     expect(() => interview.callTool("answer", {})).toThrow("not implemented: callTool");
     expect(() => interview.describeAll()).toThrow("not implemented: describeAll");

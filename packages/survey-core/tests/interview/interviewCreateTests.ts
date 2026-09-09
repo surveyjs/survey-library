@@ -83,19 +83,29 @@ describe("createInterview takes the model the integrator owns (issue #11818)", (
   // Assigning the property re-runs onQuestionsOnPageModeChanged, which resets every single-input
   // state and makes the first root current. A model already in the mode has been navigated by its
   // owner, and the interview does not throw that away.
-  test("A model already in inputPerPage keeps the input it is on", async () => {
-    const survey = new SurveyModel({
+  test("The model is left on the input the interview will ask for", async () => {
+    const json = {
       elements: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
         { type: "text", name: "q3" },
       ],
-    });
-    survey.questionsOnPageMode = "inputPerPage";
-    survey.currentSingleQuestion = survey.getQuestionByName("q3");
-    expect(survey.currentSingleQuestion.name).toBe("q3");
-    await createInterview(survey);
-    expect(survey.currentSingleQuestion.name).toBe("q3");
+    };
+    const answered = new SurveyModel(json);
+    answered.data = { q1: "a", q2: "b" };
+    answered.questionsOnPageMode = "inputPerPage";
+    answered.currentSingleQuestion = answered.getQuestionByName("q3");
+    await createInterview(answered);
+    expect(answered.currentSingleQuestion.name, "the first unanswered input, and where it already was").toBe("q3");
+
+    // The interview selects and then tells the model, so a model navigated somewhere else is moved
+    // to the input the interview is about to ask for - the two may never disagree.
+    const empty = new SurveyModel(json);
+    empty.questionsOnPageMode = "inputPerPage";
+    empty.currentSingleQuestion = empty.getQuestionByName("q3");
+    const interview = await createInterview(empty);
+    expect(interview.current().name).toBe("q1");
+    expect(empty.currentSingleQuestion.name).toBe("q1");
   });
 
   test("A model showing a start page is started", async () => {

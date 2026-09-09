@@ -1,4 +1,4 @@
-import { IInterviewChanges, IInterviewDocument, IInterviewError } from "./interview-types";
+import { IInterviewChanges, IInterviewDocument, IInterviewError, IInterviewItem } from "./interview-types";
 import { toYaml } from "./yaml";
 
 // The one place the interview turns a document into text. Everything else builds an
@@ -22,6 +22,11 @@ const DEFAULT_TITLE = "Survey";
 const FENCE = "```";
 // Non-empty lists only, always in this order.
 const CHANGE_KEYS: Array<keyof IInterviewChanges> = ["becameVisible", "becameHidden", "becameRequired"];
+// The one key of an item record that is not written out. valueType is what a value is, and a reader
+// of the document already knows it from the choices, the input type or the constraints; where it is
+// needed as data - the JSON Schema an agent fills - getAnswerSchema() is what produces it. The item
+// records keep it: they are the API, and this is the text.
+const ITEM_INTERNAL_KEYS = ["valueType"];
 
 export function renderInterviewDocument(doc: IInterviewDocument): string {
   return "# " + getHeading(doc) + "\n\n" + FENCE + "yaml\n" + toYaml(getBody(doc)) + FENCE + "\n";
@@ -52,11 +57,21 @@ function getBody(doc: IInterviewDocument): any {
     res.errors = doc.errors.map(error => getError(error));
   }
   if (doc.current !== undefined) {
-    res.current = doc.current;
+    res.current = !!doc.current ? getItem(doc.current) : doc.current;
   }
   if (!!doc.items) {
-    res.items = doc.items;
+    res.items = doc.items.map(item => getItem(item));
   }
+  return res;
+}
+
+// The record as it is written, key order untouched: the describer produced the keys in the order the
+// document reads in, and the renderer only leaves out the ones that are API and not text.
+function getItem(item: IInterviewItem): any {
+  const res: any = {};
+  Object.keys(item).forEach(key => {
+    if (ITEM_INTERNAL_KEYS.indexOf(key) < 0) res[key] = (<any>item)[key];
+  });
   return res;
 }
 

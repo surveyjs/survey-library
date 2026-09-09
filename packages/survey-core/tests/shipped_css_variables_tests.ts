@@ -57,7 +57,7 @@ function getUndefinedVariables(css: string): Array<string> {
 }
 
 describe("Shipped css defines the variables it uses", () => {
-  const cssFiles = ["survey-core.css", "survey-core.min.css", "survey-core.fontless.css", "survey-core.fontless.min.css"];
+  const cssFiles = ["survey-core.css", "survey-core.min.css"];
   const isBuilt = fs.existsSync(path.resolve(buildPath, cssFiles[0]));
   // Without the flag an absent build folder skips the suite (the usual local case);
   // set REQUIRE_BUILT_CSS=true in CI so a missing build fails instead of hiding.
@@ -95,12 +95,28 @@ describe("Shipped css defines the variables it uses", () => {
     });
   });
 
-  it.skipIf(skipWhenNotBuilt)("the fonts referenced by the stylesheet are emitted next to it", () => {
-    const css = fs.readFileSync(path.resolve(buildPath, "survey-core.css"), "utf8");
-    const referenced = new Set(collect(css, /url\("?(fonts\/[^")]+)"?\)/g));
-    expect(referenced.size).toBeGreaterThan(0);
-    referenced.forEach((assetPath) => {
-      expect(fs.existsSync(path.resolve(buildPath, assetPath))).toBeTruthy();
+  // The library no longer ships a font: the theme only names font families and the
+  // consumer supplies the faces. Nothing may reference build/fonts any more.
+  it.skipIf(skipWhenNotBuilt)("the stylesheet embeds no font and the build ships none", () => {
+    cssFiles.forEach((fileName) => {
+      const css = fs.readFileSync(path.resolve(buildPath, fileName), "utf8");
+      expect(css.indexOf("@font-face")).toBe(-1);
+      expect(collect(css, /url\(\s*['"]?(fonts\/[^'")]+)/g)).toEqual([]);
+    });
+    expect(fs.existsSync(path.resolve(buildPath, "fonts"))).toBeFalsy();
+  });
+
+  // survey-core.fontless.css used to be a second full build of the theme without the
+  // @font-face rules. With the fonts gone the two are the same stylesheet, so it stays
+  // only as an alias for consumers that already link it (by <link>, CDN or bundler).
+  [
+    ["survey-core.fontless.css", "survey-core.css"],
+    ["survey-core.fontless.min.css", "survey-core.min.css"],
+  ].forEach(([alias, target]) => {
+    it.skipIf(skipWhenNotBuilt)(`${alias} is an alias of ${target}`, () => {
+      const css = fs.readFileSync(path.resolve(buildPath, alias), "utf8");
+      expect(css).toContain(`@import "./${target}";`);
+      expect(css.indexOf("--sjs2-")).toBe(-1);
     });
   });
 });

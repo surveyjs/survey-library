@@ -117,10 +117,12 @@ so what it describes is never a state that is about to change.
 | `interview.dispose()` | Drops the interview's own state. The model is untouched. | tier 02 |
 | `interview.current(): IInterviewItem \| null` | The first item that can be asked and is either unanswered or invalid; `null` when there is none. A synchronous read of settled state — it never moves the model and never runs a validator. | tier 04 |
 | `interview.describe(): string` | The current item, the progress and the answers so far, as YAML in Markdown. | tier 03 / 04 |
+| `interview.getSingleDocument(): IInterviewDocument` | The same state as **data**: the very object `describe()` renders. Plain records only, so `JSON.stringify` of it is the JSON form of that document. | tier 03 / 04 |
 | `interview.answer(value)` / `answer(name, value)` | Writes one answer — to the current item, or to the item at the [address](#addresses) `name` — and reports the consequences: the errors, what became visible, hidden or required, the next item, and the document. On a [summary step](#the-summary-step) it takes an action (`{ action: "add" }`, `remove`, `edit`, `done`) instead of a value. | tier 04 / 06 |
 | `interview.skip()` | Leaves the current item unanswered and moves on. Refused for a required item. | tier 04 |
 | `interview.complete()` | Validates every item, then calls `tryComplete()`. | tier 04 |
 | `interview.describeAll(): string` | Every question that still needs an answer, at once, for batch mode. | tier 05 |
+| `interview.getBatchDocument(): IInterviewDocument` | The object `describeAll()` renders, as data — every item of the list as a record, the ones an agent cannot fill included. | tier 05 |
 | `interview.answerAll(values)` | Writes many answers by address in one call. | tier 05 |
 | `interview.getAnswerSchema(): any` | JSON Schema for the answers `answerAll()` accepts right now. | tier 05 |
 | `interview.getTools(options?): Array<IInterviewToolDefinition>` | MCP-shaped tool definitions, usable for function calling as is. `{ prefix }` renames them. | tier 05 |
@@ -253,6 +255,33 @@ current:
   value is from the choices, the input type or the constraints, and where the value type is needed as
   data — the JSON Schema an agent fills in — `getAnswerSchema()` produces it. The `IInterviewItem`
   records a host reads from `current` and from a result do carry it.
+
+### The same document as JSON
+
+The text is not the only form. `getSingleDocument()` and `getBatchDocument()` return the
+`IInterviewDocument` that `describe()` and `describeAll()` render — the *same* object, not a second
+reading of the model, so the two forms cannot drift apart:
+
+```js
+const document = iv.getBatchDocument();
+JSON.stringify(document);            // the JSON form of exactly what describeAll() wrote
+document.items.map(i => i.name);     // every item as a record, without parsing any text
+```
+
+Everything a document can reach is a string, a number, a boolean, a plain object or an array — no
+model object, no function, no cycle — so `JSON.stringify` needs no replacer and the round trip is
+lossless. A chat front end takes the text, an HTTP or MCP host takes the JSON, and a host that wants
+its own rendering walks the records rather than parsing our YAML.
+
+Two differences between the object and the block, both deliberate:
+
+* `title` is the Markdown **heading** above the block, not a key inside it.
+* the item records carry `valueType`, which the block leaves out (see above).
+
+The one field of the API that is *not* a record of ours is `complete().data`: it is `survey.data`,
+the model's own object, so whatever a host assigned to a question is what comes back — a `Date`
+assigned as a value stays a `Date` there, while every record the interview builds holds the
+model's normalized value. `tests/interview/interviewJsonTests.ts` pins all of it.
 
 ### Quoting
 

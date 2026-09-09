@@ -90,7 +90,11 @@ export interface IInterviewCompleteResult {
   completedHtml: string;
 }
 
-// The plain object every describe()/describeAll() renders (tier 03 defines the text form).
+// The plain object every describe()/describeAll() renders (tier 03 defines the text form), and the
+// object getSingleDocument()/getBatchDocument() hand a host that wants the same state as data. It
+// holds nothing but strings, numbers, booleans, plain objects and arrays - no model object, no
+// function, no cycle - so JSON.stringify() on it is the JSON representation of the very document the
+// YAML was rendered from. tests/interview/interviewJsonTests.ts pins that.
 export interface IInterviewDocument {
   title: string;
   progress: { answered: number, remainingRequired: number };
@@ -108,11 +112,13 @@ export interface IInterview {
   readonly data: any;
   current(): IInterviewItem | null;
   describe(): string;
+  getSingleDocument(): IInterviewDocument;
   answer(value: any): Promise<IInterviewResult>;
   answer(name: string, value: any): Promise<IInterviewResult>;
   skip(): Promise<IInterviewResult>;
   complete(): Promise<IInterviewCompleteResult>;
   describeAll(): string;
+  getBatchDocument(): IInterviewDocument;
   answerAll(values: { [address: string]: any }): Promise<IInterviewResult>;
   getAnswerSchema(): any;
   getTools(options?: IInterviewToolOptions): Array<IInterviewToolDefinition>;

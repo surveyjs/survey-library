@@ -60,6 +60,18 @@ function stripValueType(record: any): any {
   return res;
 }
 
+// The document as the fenced block carries it: JSON, minus the internal key, minus the title - which
+// is the Markdown heading above the block and not a key of it.
+function renderedBody(document: any): any {
+  const res = stripValueType(roundTrip(document));
+  delete res.title;
+  return res;
+}
+
+function headingOf(text: string): string {
+  return text.substring(0, text.indexOf("\n"));
+}
+
 function expectIsJson(value: any): void {
   expect(findAlien(value), "a record must hold nothing but plain data").toEqual([]);
   expect(roundTrip(value), "and must survive a round trip unchanged").toEqual(value);
@@ -196,6 +208,50 @@ describe("interview records as JSON (issue #11818)", () => {
     // and rows included. A container is exactly as readable as a plain question.
     expect(yamlBody(result.describe).items[0]).toEqual(stripValueType(roundTrip(result.current)));
     expect(yamlBody(batch.describeAll()).items.length).toBe(2);
+  });
+
+  test("The document a host reads and the document the YAML was rendered from are one object", async () => {
+    const iv = await createInterview(richJson);
+    await iv.answer("petType", "Dog");
+    const single = iv.getSingleDocument();
+    expectIsJson(single);
+    // The text is a pure function of this object, so the two can never disagree: the block is the
+    // document minus the key that is API and not text, and the title is the heading above it.
+    expect(yamlBody(iv.describe())).toEqual(renderedBody(single));
+    expect(headingOf(iv.describe())).toBe("# " + single.title);
+    expect(single.current.name).toBe("petAge");
+    expect(single.answered).toEqual({ petType: "Dog" });
+    expect(single.progress).toEqual({ answered: 1, remainingRequired: 0 });
+    // A bare read reports on no call, so it carries neither changes nor errors.
+    expect(single.changes).toBe(undefined);
+    expect(single.errors).toBe(undefined);
+
+    const batch = iv.getBatchDocument();
+    expectIsJson(batch);
+    expect(yamlBody(iv.describeAll())).toEqual(renderedBody(batch));
+    // Every item as a record, the ones an agent cannot fill included: the file has no other
+    // accessor - it is never current, in either mode.
+    expect(batch.items.map(item => item.name)).toEqual(["petAge", "score", "born", "phone", "pets", "photo"]);
+    expect(batch.items[5].unsupported).toBe(true);
+    expect(batch.current).toBe(undefined);
+  });
+
+  test("The batch document holds the container records a document renders", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "multipletext", name: "contact", items: [{ name: "email", inputType: "email" }] },
+        { type: "matrixdropdown", name: "matrix", columns: [{ name: "col" }],
+          rows: [{ value: "row1", text: "First row" }] },
+        { type: "paneldynamic", name: "meds", templateElements: [{ type: "text", name: "dose" }] },
+      ],
+    });
+    await iv.answerAll({ contact: { email: "nope" } });
+    const document = iv.getBatchDocument();
+    expectIsJson(document);
+    expect(yamlBody(iv.describeAll())).toEqual(renderedBody(document));
+    expect(document.items[0].fields[0].error).toBe("Please enter a valid e-mail address.");
+    expect(document.items[1].rows[0].name).toBe("row1");
+    expect(document.items[2].reason).toBe("batch");
   });
 
   test("Completion hands back the model's own data, which is the host's and not a record", async () => {

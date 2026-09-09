@@ -96,7 +96,16 @@ export class Interview implements IInterview {
   }
 
   public describe(): string {
-    return renderInterviewDocument(this.createDocument(this.getInputs()));
+    return renderInterviewDocument(this.getSingleDocument());
+  }
+
+  // The document describe() renders, as data. Not a second reading of the model: the text is a pure
+  // function of this object (render.ts), so a host that wants JSON next to the YAML gets both from
+  // one state and neither can drift from the other. It carries one key the text does not - valueType
+  // - which is API rather than something to show a reader. Synchronous, like describe(): a read of
+  // settled state that never moves the model and never validates.
+  public getSingleDocument(): IInterviewDocument {
+    return this.createDocument(this.getInputs());
   }
 
   public answer(value: any): Promise<IInterviewResult>;
@@ -173,7 +182,14 @@ export class Interview implements IInterview {
   // Everything an agent still has to work on, in one document. A synchronous read of settled state,
   // like describe(): it never moves the model and never validates.
   public describeAll(): string {
-    return renderInterviewDocument(this.createDocument(this.getInputs(), undefined, undefined, true));
+    return renderInterviewDocument(this.getBatchDocument());
+  }
+
+  // The batch twin of getSingleDocument(): "items" instead of "current", and every item of the list
+  // as a record - the ones an agent cannot fill included, which describeAll() is otherwise the only
+  // way to see.
+  public getBatchDocument(): IInterviewDocument {
+    return this.createDocument(this.getInputs(), undefined, undefined, true);
   }
 
   // The batch write. Every key is resolved first, the accepted ones are ordered by item order and

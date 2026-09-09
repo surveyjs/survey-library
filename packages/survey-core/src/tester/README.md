@@ -257,7 +257,12 @@ would silently vanish) nor part of a start (starts do not merge at all, so a tes
 shared start could never override one variable).
 
 Variables are applied **before** the start data, so a `defaultValueExpression` or a `visibleIf` that
-reads one sees it while the answers go in.
+reads one sees it while the answers go in. They go in through one `survey.setVariables(variables, true)`
+call, which has two consequences a case can rely on: the survey recalculates **once**, with every
+variable of the test in place, so no expression and no trigger ever sees half of them whatever the
+order of the names; and the resolved variables are the **only** variables of the run — one a model
+factory set and the test did not declare is removed before the first step, because what the result
+reports is what the survey ran with.
 
 **The one limit:** a test can override a root variable but cannot remove it. `null` sets it to
 `null`; it does not unset it. This is the single place where "everything is overridable back to its
@@ -686,7 +691,7 @@ const result = await runSurveyTests(surveyJson, tests, undefined, {
 
 What the factory does **not** decide is what makes a run reproducible: the runner applies the locale,
 `clearInvisibleValues`, `checkErrorsMode` and the random seed to the model it is handed, whatever the
-factory set. The order of one test is fixed and it is the contract:
+factory set, and the variables of the test replace every variable the factory may have set (§4). The order of one test is fixed and it is the contract:
 
 1. resolve the options and create the test context;
 2. install the stubs of the case, and build the variable definition model with them when the suite
@@ -697,7 +702,8 @@ factory set. The order of one test is fixed and it is the contract:
 6. attach the tester diagnostics and subscriptions;
 7. emit and await `surveyCreated`;
 8. wait for the model to settle (see "Asynchronous survey operations" below);
-9. apply the variables, then the start data and the start page;
+9. apply the variables — one call that also removes the ones the test did not declare — then the start
+   data and the start page;
 10. wait for the model to settle again;
 11. run the steps.
 

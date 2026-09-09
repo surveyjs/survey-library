@@ -540,10 +540,14 @@ export class SurveyTestRunner {
     return commands[0];
   }
   // Variables go in before any data: a visibleIf or a defaultValueExpression that reads a variable
-  // must see it while the answers are applied.
+  // must see it while the answers are applied. One call and not a loop of setVariable: the survey
+  // recalculates once, with every variable of the test in place, so no expression and no trigger of
+  // this survey ever sees half of them. It also clears what it does not carry, so the variables the
+  // test runs with are the resolved ones and nothing else - a variable a model factory set is not a
+  // variable the result reports.
   private applyStart(context: SurveyTestContext, variables: { [name: string]: any }, start: ISurveyTestStart): void {
     const survey = context.survey;
-    Object.keys(variables).forEach(name => survey.setVariable(name, variables[name]));
+    survey.setVariables(variables, true);
     if (!start) return;
     // The survey keeps what it is handed, so it gets a copy: the start recorded on the result stays
     // the state the case described, whatever the run does to the values afterwards.

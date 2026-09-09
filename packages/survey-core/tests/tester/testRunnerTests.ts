@@ -425,6 +425,34 @@ describe("SurveyTestRunner: options, variables and start", () => {
     });
     expect(statuses(result), "both tests pass").toEqual(["passed", "passed"]);
   });
+  test("The resolved variables are the only variables the survey runs with", async () => {
+    registerVisibleCheck();
+    // The runner owns what makes a run reproducible: a variable a model factory sets is not a
+    // variable the case declared, so it is gone before the first step (issue #11814).
+    const survey = {
+      elements: [
+        { type: "text", name: "q1", visibleIf: "{region} = 'us'" },
+        { type: "text", name: "q2", visibleIf: "{leftover} notempty" },
+      ],
+    };
+    const result = await new SurveyTestRunner(survey, {
+      variables: { region: "us" },
+      tests: [{
+        name: "the factory variable does not survive",
+        steps: [{ expect: { q1: { visible: true }, q2: { visible: false } } }],
+      }],
+    }).run({
+      createSurvey: (json: any, context: any): SurveyModel => {
+        const model = new SurveyModel();
+        context.attachProviders(model);
+        model.fromJSON(json);
+        model.setVariable("leftover", "from the factory");
+        model.setVariable("region", "eu");
+        return model;
+      },
+    });
+    expect(statuses(result), "the test passes").toEqual(["passed"]);
+  });
   test("A referenced start is cloned per test and never mutated", async () => {
     const startEntry = {
       name: "midFlow",

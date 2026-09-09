@@ -63,8 +63,6 @@ Pass the `survey` instance to the component from your UI package to render it �
 
 `survey-core/survey-core.css` applies the Default theme; `survey-core/survey-core.min.css` is the minified build. Other predefined themes are imported from `survey-core/themes` — refer to [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
-The style sheet embeds no font: it names font families through the `--sjs2-typography-font-family-*` tokens (Open Sans first, then a system fallback stack) and leaves loading the font to the host page. `survey-core/survey-core.fontless.css` is kept as a deprecated alias of `survey-core/survey-core.css`.
-
 ## Theme Adapters
 
 Themes are built on `--sjs-*` CSS custom properties (design tokens). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:

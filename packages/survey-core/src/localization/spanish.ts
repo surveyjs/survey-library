@@ -111,6 +111,8 @@ export var spanishSurveyStrings = {
   noUploadFilesHandler: "Los archivos no se pueden cargar. Agregue un controlador para el evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Por favor agregue la otra estimación.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "El valor '{0}' no es una de las opciones disponibles.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
   // "Loading..."

@@ -111,6 +111,8 @@ export var hungarianSurveyStrings = {
   noUploadFilesHandler: "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez.",
   // "Response required: enter another value."
   otherRequiredError: "Adja meg az egyéb értéket!",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "A '{0}' érték nem az elérhető választási lehetőségek közül.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Feltöltés folyamatban. Várjon pár másodpercet, majd próbálja újra.",
   // "Loading..."

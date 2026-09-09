@@ -111,6 +111,8 @@ export var welshSurveyStrings = {
   noUploadFilesHandler: "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Rhowch y gwerth arall.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nid yw'r gwerth '{0}' yn un o'r dewisiadau sydd ar gael.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Mae eich ffeil wrthi’n llwytho i fyny. Arhoswch ychydig o eiliadau a rhoi cynnig arall arni.",
   // "Loading..."

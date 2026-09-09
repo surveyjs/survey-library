@@ -111,6 +111,8 @@ export var slovakSurveyStrings = {
   noUploadFilesHandler: "Súbory nie je možné nahrať. Pridajte obslužný program pre udalosť \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Požaduje sa odozva: zadajte inú hodnotu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Hodnota '{0}' nie je jednou z dostupných možností.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Súbor sa odovzdáva. Počkajte niekoľko sekúnd a skúste to znova.",
   // "Loading..."

@@ -111,6 +111,8 @@ export var teluguStrings = {
   noUploadFilesHandler: "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి.",
   // "Response required: enter another value."
   otherRequiredError: "దయచేసి ఇతర విలువలను నమో దించండి",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' విలువ అందుబాటులో ఉన్న ఎంపికలలో ఒకటి కాదు.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "మీ ఫైల్ అప్లోడ్ అవుతున్నది దయచేసి కొన్ని సెకండ్లు వేచి ఉండండి మరియు మళ్లీ ప్రయత్నించండి",
   // "Loading..."

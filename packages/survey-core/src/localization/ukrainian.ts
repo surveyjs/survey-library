@@ -111,6 +111,8 @@ export var ukrainianSurveyStrings = {
   noUploadFilesHandler: "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Будь ласка, введіть дані в поле 'Інше'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Цінність «{0}» не є одним із доступних варіантів.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ваш файл завантажується. Зачекайте декілька секунд і спробуйте знову.",
   // "Loading..."

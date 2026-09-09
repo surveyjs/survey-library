@@ -1,6 +1,8 @@
 import { describeQuestion } from "survey-core";
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
+import { getAddress } from "./interview-address";
+import { getSummaryDescription } from "./interview-summary";
 
 // The inventory: everything the interview can address, in document order, derived from the
 // structure of the survey and recomputed on every call - the model is the state and nothing here is
@@ -16,9 +18,8 @@ import type { IInterviewItem } from "./interview-types";
 // navigation list is never read at all; what the interview does with the mode is move it, through
 // makeInputCurrent().
 //
-// Tier 06 supplies the container-specific parts - the address of a nested input, the summary step as
-// a describable item with its actions. Until then a nested input is addressed by its plain question
-// name and a summary step is an item that is never current.
+// The container-specific parts live next door: interview-address.ts derives the address of a nested
+// input from the model, interview-summary.ts describes a summary step and runs its actions.
 
 // The types whose entries a respondent adds and removes one at a time, and which therefore own a
 // summary step: the list of entries with add / remove / edit that the mode itself offers.
@@ -29,13 +30,13 @@ const MATRIX_TYPE = "matrix";
 
 export interface IInterviewInput {
   // The string that names this input in answer(name, value), in errors[].name and in the answered
-  // map. The question name at this tier; tier 06 walks the parents for a nested one.
+  // map: the question name at the top level, "medications[0].dose" below it (interview-address.ts).
   address: string;
   // The question a value is written to and read from, and whose errors are the item's errors.
   question: Question;
   // The top-level question the input belongs to - the one the mode makes current.
   root: Question;
-  // A dynamic container's summary step: an item that takes an action, not a value (tier 06).
+  // A dynamic container's summary step: an item that takes an action, not a value.
   isSummary: boolean;
   item: IInterviewItem;
 }
@@ -71,14 +72,22 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, res:
   }
   // Structural and navigation-free: a dynamic panel yields the visible questions of every visible
   // panel, a matrix its cells row by row, a multiple text its editors, a composite its content
-  // questions. Empty means the question is an input of its own.
+  // questions. Empty means the question is an input of its own - unless it is a dynamic container,
+  // which has no nested question until an entry is added and whose summary step is exactly what the
+  // interviewee is shown in the meantime.
+  const isDynamic = DYNAMIC_CONTAINER_TYPES.indexOf(question.getType()) >= 0;
   const children = question.getNestedQuestions(true, false);
-  if (children.length === 0) {
+  // The host's onGetLoopQuestions edits the nested list - drops a question, reorders them - and the
+  // mode asks it before walking a container. The inventory is built from the structure and not from
+  // the mode's list (see above), so it asks the same question itself, or a question the host removed
+  // would still be an item here and would still be asked for.
+  survey.updateNestedSingleQuestions(question, children);
+  if (children.length === 0 && !isDynamic) {
     addInput(question, root, res);
     return;
   }
   children.forEach(child => addInputs(survey, child, root, res));
-  if (DYNAMIC_CONTAINER_TYPES.indexOf(question.getType()) >= 0) {
+  if (isDynamic) {
     // The summary step sits last, where the mode puts it.
     addInput(question, root, res, true);
   }
@@ -95,19 +104,55 @@ export function isContainerQuestion(question: Question): boolean {
   return question.getNestedQuestions(true, false).length > 0;
 }
 
+// The containers whose own errors no item carries. A dynamic panel and a dynamic matrix are not
+// among them - their summary step is an item and it is the container itself - but a single-choice
+// matrix, a matrix dropdown, a multiple text and a composite are: their nested questions are the
+// items and the container is nowhere, so RequiredInAllRowsError, EachRowUniqueError and a
+// required-and-empty container would go unreported at completion. Collected by walking up from the
+// inputs, so a container nested inside another one is found too.
+export function getUnreportedContainers(inputs: Array<IInterviewInput>): Array<IInterviewContainer> {
+  const seen: { [id: string]: boolean } = {};
+  const res: Array<IInterviewContainer> = [];
+  inputs.forEach(input => { seen[input.question.id] = true; });
+  inputs.forEach(input => {
+    let parent = input.question.parentQuestion;
+    for (let depth = 0; depth < MAX_CONTAINER_DEPTH && !!parent; depth++) {
+      if (seen[parent.id] !== true) {
+        seen[parent.id] = true;
+        const address = getAddress(parent);
+        if (!!address) res.push({ address: address, question: parent });
+      }
+      parent = parent.parentQuestion;
+    }
+  });
+  return res;
+}
+
+export interface IInterviewContainer {
+  address: string;
+  question: Question;
+}
+
+// Deep enough for any nesting a survey can express; it only stops a cycle in a broken model.
+const MAX_CONTAINER_DEPTH = 20;
+
 function getMatrixRowInputs(question: Question): Array<Question> {
   const rows = (<any>question).getMatrixSingleInputQuestions(undefined, true);
   return Array.isArray(rows) ? rows : [];
 }
 
 function addInput(question: Question, root: Question, res: Array<IInterviewInput>, isSummary?: boolean): void {
-  const item = createItem(question, root, !!isSummary);
+  const address = getAddress(question);
+  // A container the address grammar cannot walk - a model shape no version of it addresses - has no
+  // item rather than one nobody could answer or report an error against.
+  if (!address) return;
+  const item = createItem(question, address, root, !!isSummary);
   // undefined from the describer means read-only by property: nobody can ever answer it, so it is
   // not an item at all. A question that carries an enableIf comes back described as disabled, is an
   // item, and is never made current.
   if (!item) return;
   res.push({
-    address: item.name,
+    address: address,
     question: question,
     root: root,
     isSummary: !!isSummary,
@@ -115,29 +160,39 @@ function addInput(question: Question, root: Question, res: Array<IInterviewInput
   });
 }
 
-function createItem(question: Question, root: Question, isSummary: boolean): IInterviewItem {
+function createItem(question: Question, address: string, root: Question, isSummary: boolean): IInterviewItem {
   const description = describeQuestion(question);
   if (!description) return undefined;
   // The describer's key order is the order the document renders, so the record is copied and only
   // "name" is replaced in place; anything added lands after the described keys.
   const res: IInterviewItem = { ...description };
-  res.name = getAddress(question);
+  res.name = address;
   if (question !== root) {
     const entry = getEntryTitle(root);
     if (!!entry) res.entry = entry;
   }
   if (isSummary) {
-    // Tier 06 builds the real summary step - the entries with add / remove / edit. Until it lands,
-    // the step exists so that the inventory has the shape it will have, and it is never current.
-    res.unsupported = true;
+    // The key is placed here and filled by updateCurrentItem(), so that a summary step renders its
+    // entries in the same position whichever call built the item. The model only builds the summary
+    // for the container that is the current single input, and the current item is the one the
+    // interview has just moved the model to.
+    res.summary = undefined;
   }
   return res;
 }
 
-// The address of an input. At this tier it is the question's own name, for a nested input too; tier
-// 06 walks the parents and produces medications[0].dose, matrix.row.column, contact.email.
-function getAddress(question: Question): string {
-  return question.name;
+// The keys of an item that are read off the model's current single input, and are therefore right
+// only for the item that is current: the entry breadcrumb (the mode processes templateTitle for the
+// panel it is standing in) and the summary of a container (the model builds it for that container
+// alone). Called once the model has been moved to the input, never during a bare read.
+export function updateCurrentItem(input: IInterviewInput): void {
+  if (input.isSummary) {
+    input.item.summary = getSummaryDescription(input.question);
+    return;
+  }
+  if (input.question === input.root) return;
+  const entry = getEntryTitle(input.root);
+  if (!!entry) input.item.entry = entry;
 }
 
 // The model's own localized breadcrumb for the entry a nested input belongs to - "Panel 2", the
@@ -150,13 +205,18 @@ function getEntryTitle(root: Question): string {
 }
 
 // Askable: the interviewee can be asked for this value now. A disabled item is listed by batch mode
-// so an agent knows the question exists; an unsupported one - a file, a signature, and until tier 06
-// a summary step - is listed so a consumer can say it is there. Neither is ever made current.
+// so an agent knows the question exists; an unsupported one - a file, a signature - is listed so a
+// consumer can say it is there. Neither is ever made current.
 export function isAskableInput(input: IInterviewInput): boolean {
   return !input.item.disabled && !input.item.unsupported;
 }
 
+// A summary step is answered when the interviewee said so - the "done" action, which the interview
+// remembers in its skipped set. Never because the container holds a value: an optional dynamic panel
+// with two entries is not finished until the person says it is, which is exactly what the mode does
+// by keeping the summary in front of them.
 export function isInputAnswered(input: IInterviewInput, isSkipped: boolean): boolean {
+  if (input.isSummary) return isSkipped;
   return isSkipped || !input.question.isEmpty();
 }
 
@@ -179,18 +239,19 @@ export function getInputErrors(input: IInterviewInput): Array<string> {
 // rendering the same model shows the input the interview is asking for.
 export function makeInputCurrent(survey: SurveyModel, input: IInterviewInput): void {
   if (!input) return;
-  if (input.isSummary) {
-    survey.currentSingleQuestion = input.root;
-    input.root.singleInputBehavior.setSingleInputQuestion(input.root);
-    return;
-  }
   if (input.question === input.root) {
     survey.currentSingleQuestion = input.root;
-    return;
+  } else {
+    // Sets the root current and walks setSingleInputQuestion down the whole parent chain; its final
+    // focusInputElement is a no-op with no DOM. A container nested inside another one is reached the
+    // same way: it is a nested input of its parent before it is a container of its own.
+    input.question.singleInputBehavior.focusSingleInput(false);
   }
-  // Sets the root current and walks setSingleInputQuestion down the whole parent chain; its final
-  // focusInputElement is a no-op with no DOM.
-  input.question.singleInputBehavior.focusSingleInput(false);
+  if (input.isSummary) {
+    // A dynamic container is its own last input, and the mode builds the summary - the entries,
+    // their remove buttons, the add caption - only while that is where it stands.
+    input.question.singleInputBehavior.setSingleInputQuestion(input.question);
+  }
 }
 
 // What answer() reports back for an answered item. An item that accepts a comment - "other", a
@@ -208,6 +269,13 @@ export function getAnsweredValue(input: IInterviewInput): any {
 // input, a plain root the mode has no nested leaf for - the question validates itself.
 export function validateInput(survey: SurveyModel, input: IInterviewInput): void {
   const root = input.root;
+  if (input.isSummary) {
+    // The container's own errors - MinRowCountError, a required container with no entries, a
+    // duplicated key - are what a summary step reports, and they are written by validating the
+    // container itself after every add and every remove.
+    input.question.validate(true);
+    return;
+  }
   if (survey.currentSingleQuestion === root &&
     root.singleInputBehavior.currentSingleInputQuestion === input.question) {
     root.validateSingleInput();

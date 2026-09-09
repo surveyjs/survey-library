@@ -117,7 +117,7 @@ so what it describes is never a state that is about to change.
 | `interview.dispose()` | Drops the interview's own state. The model is untouched. | tier 02 |
 | `interview.current(): IInterviewItem \| null` | The first item that can be asked and is either unanswered or invalid; `null` when there is none. A synchronous read of settled state — it never moves the model and never runs a validator. | tier 04 |
 | `interview.describe(): string` | The current item, the progress and the answers so far, as YAML in Markdown. | tier 03 / 04 |
-| `interview.answer(value)` / `answer(name, value)` | Writes one answer — to the current item, or to the item at `name` — and reports the consequences: the errors, what became visible, hidden or required, the next item, and the document. | tier 04 |
+| `interview.answer(value)` / `answer(name, value)` | Writes one answer — to the current item, or to the item at the [address](#addresses) `name` — and reports the consequences: the errors, what became visible, hidden or required, the next item, and the document. On a [summary step](#the-summary-step) it takes an action (`{ action: "add" }`, `remove`, `edit`, `done`) instead of a value. | tier 04 / 06 |
 | `interview.skip()` | Leaves the current item unanswered and moves on. Refused for a required item. | tier 04 |
 | `interview.complete()` | Validates every item, then calls `tryComplete()`. | tier 04 |
 | `interview.describeAll(): string` | Every question that still needs an answer, at once, for batch mode. | tier 05 |
@@ -128,10 +128,9 @@ so what it describes is never a state that is about to change.
 | `toYaml(value, options?): string` | The emitter the documents are written with — plain data in, YAML out. Exported so that a host rendering its own text from the item records quotes exactly the way `describe()` does. | tier 03 |
 | `InterviewErrorCodes` | The frozen table of the codes the interview raises itself. A host localizes on the code. | tier 04 |
 
-The addresses of nested inputs — inside dynamic panels, matrices, multiple text and custom
-components — and the summary step of a dynamic container arrive in tier 06; until then a nested input
-is addressed by its plain question name, a summary step is listed as `unsupported` and never asked
-for, and batch mode reports a container instead of filling it (see [Batch mode](#batch-mode)).
+Nested inputs — inside dynamic panels, matrices, multiple text and custom components — are answered
+in single-input mode, each at its own [address](#addresses); batch mode reports a container instead
+of filling it (see [Batch mode](#batch-mode)).
 
 ### Options
 
@@ -168,10 +167,13 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
-| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker — or it is a summary step (`unsupported`), it is a container and the call was `answerAll()` (`reason: "batch"`), or an earlier key of the same `answerAll()` hid it. The message says which. |
+| `notAskable` | The item exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it is a container and the call was `answerAll()` (`reason: "batch"`), or an earlier key of the same `answerAll()` hid it. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
-| `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value. Actions belong to the summary step of a dynamic container. |
+| `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
+| `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
+| `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off. |
+| `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for. |
 | `requiredCannotSkip` | `skip()` on a required item. It stays current. |
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
@@ -230,14 +232,18 @@ current:
   `answer()` itself takes. An address that is not an identifier (`medications[0].dose`,
   `matrix.row.column`) is a quoted key; a consumer reads it as a string either way. It is the whole
   map: a consumer that wants it short truncates it, the interview does not guess which answers matter.
-  Items the interviewee skipped are left out.
+  Items the interviewee skipped are left out. A dynamic container appears under its own address, with
+  its whole array as the value, once its [summary step](#the-summary-step) counts as answered; the
+  inputs inside it are listed under their own addresses either way, so a consumer can read the
+  answers at whichever level it works at.
 * `errors` is a sequence of `{ name, message }`, plus `code` for the errors the interview raises
   itself. `message` is the localized text the rendered UI shows for the same error.
 * `current` and each entry of `items` is one item record — `name`, `type`, `title`, `description`,
-  `required`, then the type-specific keys, and `error` last when the current answer failed
-  validation. A key that carries nothing is not written at all: there is no `description: null` and
-  no `disabled: false`, so a key a consumer sees is a key it can act on. `name` is the address, not
-  necessarily the question's name.
+  `required`, then the type-specific keys, then `entry` (the model's breadcrumb for the entry a
+  nested input sits in) or `summary` (a container's [summary step](#the-summary-step)), and `error`
+  last when the current answer failed validation. A key that carries nothing is not written at all:
+  there is no `description: null` and no `disabled: false`, so a key a consumer sees is a key it can
+  act on. `name` is the [address](#addresses), not necessarily the question's name.
 * One key of the record is deliberately **not** written: `valueType`. A reader already knows what a
   value is from the choices, the input type or the constraints, and where the value type is needed as
   data — the JSON Schema an agent fills in — `getAnswerSchema()` produces it. The `IInterviewItem`
@@ -284,8 +290,10 @@ rendering the same model shows, and the two can never disagree about what a ques
 
 The two host events that tune the mode tune the interview with it:
 `onCheckSingleInputPerPageMode` turns nesting off for one question — the container then becomes a
-single input holding the whole array or object — and `onGetLoopQuestions` edits the list of nested
-inputs. Both are set on the model, before the hand-over, like everything else.
+single input holding the whole array or object, `answer()` takes that whole value, and there is no
+summary step because there is nothing to add or remove one entry at a time — and `onGetLoopQuestions`
+edits the list of nested inputs, so a question the host drops there is not an item and its address
+answers nothing. Both are set on the model, before the hand-over, like everything else.
 
 What the interview keeps of its own is the **inventory**: every input that exists, in document order,
 rebuilt from the structure of the survey on every call. That is deliberately *not* the mode's own
@@ -300,8 +308,7 @@ with the navigation instead of with the answers.
 
 `current()` is **the first item, in document order, that can be asked and is either unanswered or
 invalid**, and `null` when there is none. "Can be asked" leaves out an item that an `enableIf` turned
-off (`disabled`) and one with no plain input — a file, a signature, an image picker, and, until tier
-06, a summary step (`unsupported`).
+off (`disabled`) and one with no plain input — a file, a signature, an image picker (`unsupported`).
 
 That is the issue's rule, and it is not the mode's own navigation: `performNext()` goes to the input
 *after* the one the respondent is on, wherever that is. So the interview selects first and then
@@ -312,6 +319,11 @@ they press Complete.
 
 `current()` itself never moves the model, never validates and never starts anything: it is a
 synchronous read of state that has already settled.
+
+The rule has exactly one exception, and it lasts one gesture: the `edit` action of a
+[summary step](#the-summary-step) opens an entry that is answered and valid, which the rule would
+walk straight past. That entry stays current until something is written, and then the rule takes
+over again.
 
 ### When validators run
 
@@ -329,7 +341,120 @@ the settle:
 * in `answer()`, on every input that held errors **before** the write — an expression validator or a
   `min`/`max` bound may depend on the value just written, and a stale error would keep an input
   current forever. (An input that a `visibleIf` hides clears its own errors and is left alone.)
-* in `complete()`, on everything.
+* on a container, after every `add` and every `remove` of its [summary step](#the-summary-step) — a
+  `MinRowCountError`, a duplicated key or a required container that has just lost its last entry.
+  Validating a container validates its entries with it, and an entry that was just created is empty
+  by definition, so the errors that run puts on inputs nobody has been asked for yet are dropped:
+  an unanswered required input is an error at `complete()`, not the moment its entry comes into being.
+* in `complete()`, on everything, containers included.
+
+### Addresses
+
+An **address** names an item: it is what `answer(name, value)` takes, what `errors[].name` and the
+keys of the `answered` map carry, and what `current.name` is. A top-level question is its own name;
+below it, the address says which container, which entry of it, and which input inside that entry.
+
+| Input | Address | Value in `data` |
+| --- | --- | --- |
+| a top-level question | `email` | `data.email` |
+| a question in panel *i* of a dynamic panel | `medications[0].dose` | `data.medications[0].dose` |
+| a cell in row *i* of a dynamic matrix | `items[0].quantity` | `data.items[0].quantity` |
+| a cell of a matrix dropdown | `matrix.row1.column1` | `data.matrix.row1.column1` |
+| a row of a single-choice matrix | `satisfaction.price` | `data.satisfaction.price` |
+| an item of a multiple text | `contact.email` | `data.contact.email` |
+| a question of a composite component | `address.street` | `data.address.street` |
+| the summary step of a dynamic container | `medications` | `data.medications`, the whole array |
+| nested containers | `orders[1].items[0].sku` | as written |
+| a container whose nesting the host turned off | `medications` | the whole array or object |
+
+* A segment matches a question by its **`name`**, never by `getValueName()`. A question with a
+  `valueName` is addressed by its name and its value lands under the `valueName`: the address is the
+  survey's structure, the data key is the model's.
+* An index counts the entries the interviewee **sees** — `visiblePanels`, `visibleRows` — which is
+  the list the summary step numbers and the `remove` and `edit` actions index. An index past the
+  entries that exist is `badAddress`: an entry comes into being through the summary step's `add`,
+  never by answering an address that names nothing.
+* A segment that carries a `.`, a `[`, a `]` or a `"` is written as a double-quoted JSON string:
+  `contact."e.mail"`, `matrix."row.one".c1`.
+* A revisit works whatever the mode is doing. The mode's own navigation list drops a panel that is
+  complete and valid; the interview's inventory does not, so `answer("medications[0].dose", "15mg")`
+  writes it and moves the model there.
+
+It is the same grammar as the tester's target names (`SurveyTestTargets.nameOf` / `resolve` in
+`survey-core/tester`), and the two are implemented separately because neither sub-bundle may import
+the other — `tests/interview/interviewAddressTests.ts` pins them against each other over a nested
+fixture. Two differences: the interview indexes the entries a respondent sees where the tester
+indexes `panels`, and the tester's grammar has no quoted form and no name at all for a multiple-text
+item or a composite's content question.
+
+### The summary step
+
+A dynamic panel and a dynamic matrix are not filled by answering a value. The mode gives them a
+**summary step** — the list of entries with add / remove / edit that a UI on the same model shows —
+and the interview hands it over as one item, last among the container's inputs, and first again once
+it has been shown:
+
+```yaml
+current:
+  name: medications
+  type: paneldynamic
+  title: Medications
+  required: false
+  summary:
+    entries:
+      - index: 0
+        title: Aspirin           # the model's own entry title
+        canRemove: true
+      - index: 1
+        title: Panel 2
+        canRemove: true
+    canAdd: true
+    addText: Add new             # the model's localized add caption
+```
+
+Every string in it is the model's: the entry title is the processed `templateTitle` (piping included
+— `{panel.name}` is why the entry above reads "Aspirin"), or `"Panel {panelIndex}"` / `"Row
+{rowIndex}"` / the row name; `addText` is `addPanelText` / `addRowText`; and when there are no
+entries, `entries` is left out and the container's own `noEntriesText` / `noRowsText` takes its
+place. `canAdd` and `canRemove` are the model's `canAddPanel` / `canRemovePanel`, `canAddRow` /
+`canRemoveRow`.
+
+`answer()` on a summary step takes an **action**, not a value:
+
+| Action | Does | Then current is |
+| --- | --- | --- |
+| `{ action: "add" }` | Adds an entry, through the model's own add. | the new entry's first input |
+| `{ action: "remove", index }` | Removes that entry. | the summary step again |
+| `{ action: "edit", index }` | Opens that entry. | its first input, **even though it is answered** — the one place the current follows the model instead of the rule, until something is written |
+| `{ action: "done" }` | Says the list is finished. | the next item |
+
+```js
+await iv.answer({ action: "add" });        // -> medications[0].name
+await iv.answer("Aspirin");
+await iv.answer("10mg");                   // -> the summary, with one entry
+await iv.answer({ action: "done" });       // -> the next question
+```
+
+* **`done` is the interview's own**, and the only part of a summary step the model has no notion of.
+  A container is not finished because it holds entries — an optional dynamic panel with two
+  medications in it may still want a third — so the step counts as answered when, and only when, the
+  interviewee says so, exactly as the mode keeps the summary in front of them. Adding, removing or
+  editing an entry afterwards re-opens it, and `done` is asked for again.
+* A **required container with no entries is invalid** by the model's own rule, so `done` does not
+  get past it: the step stays current and `complete()` reports it.
+* The container's own errors — `MinRowCountError`, a required container left empty — are reported
+  under the container's address and shown on its summary step. An error the model puts on a question
+  inside an entry, `KeyDuplicationError` among them, is reported at that question's address, which is
+  where a consumer can ask for a different value.
+* **Removing never prompts.** The buttons the summary carries go through `removePanelUI` /
+  `removeRowUI`, which consult `confirmDelete` and hand a populated entry to a confirmation dialog —
+  and nobody answers a dialog in Node, so the removal would stay pending forever. The action uses the
+  data-level calls instead, after checking that the model offers the entry a remove button at all.
+  Asking "remove Aspirin?" first is the consumer's job: a chat or a voice front end is where that
+  question belongs.
+* A plain value sent to a summary step, an action it does not offer, and a `remove` or `edit` without
+  the index of an entry that exists are all `badAction`; adding to a full container is `cannotAdd`
+  and removing an entry that offers no remove button is `cannotRemove`. None of them changes anything.
 
 ### `answer()`
 
@@ -503,6 +628,139 @@ current:
 
 `answer(4)` clears the error, `current()` becomes `null`, and `complete()` answers
 `{ completed: true, data: { hasPet: "Yes", petType: "Dog", petAge: 4 } }`.
+
+### A dynamic panel, end to end
+
+```js
+const iv = await createInterview({
+  title: "Health check",
+  elements: [{
+    type: "paneldynamic", name: "medications", title: "Medications", templateTitle: "{panel.name}",
+    panelCount: 0,
+    templateElements: [
+      { type: "text", name: "name", title: "Name", isRequired: true },
+      { type: "text", name: "dose", title: "Dose" }
+    ]
+  }]
+});
+iv.describe();
+```
+
+````markdown
+# Health check
+
+```yaml
+progress:
+  answered: 0
+  remainingRequired: 0
+current:
+  name: medications
+  type: paneldynamic
+  title: Medications
+  required: false
+  summary:
+    noEntriesText: "No entries yet.\nClick the button below to add a new entry."
+    canAdd: true
+    addText: Add new
+```
+````
+
+```js
+const added = await iv.answer({ action: "add" });
+// added.becameVisible: ["medications[0].name", "medications[0].dose"]
+// added.becameRequired: ["medications[0].name"], added.current.name: "medications[0].name"
+await iv.answer("Aspirin");
+const filled = await iv.answer("10mg");
+```
+
+````markdown
+# Health check
+
+```yaml
+progress:
+  answered: 2
+  remainingRequired: 0
+answered:
+  "medications[0].name": Aspirin
+  "medications[0].dose": 10mg
+current:
+  name: medications
+  type: paneldynamic
+  title: Medications
+  required: false
+  summary:
+    entries:
+      - index: 0
+        title: Aspirin
+        canRemove: true
+    canAdd: true
+    addText: Add new
+```
+````
+
+```js
+await iv.answer({ action: "done" });
+// current() is null; answered now carries "medications" as well, the whole array
+await iv.complete();
+// { completed: true, data: { medications: [{ name: "Aspirin", dose: "10mg" }] } }
+```
+
+### A matrix dropdown, end to end
+
+A matrix dropdown has a fixed set of rows: its cells are items, in row order, and there is **no**
+summary step — there is nothing to add or remove.
+
+```js
+const iv = await createInterview({
+  elements: [{
+    type: "matrixdropdown", name: "matrix", title: "Matrix", rows: ["row1", "row2"],
+    columns: [{ name: "column1", title: "Rating", cellType: "dropdown", choices: ["low", "high"] }]
+  }]
+});
+iv.describe();
+```
+
+````markdown
+# Survey
+
+```yaml
+progress:
+  answered: 0
+  remainingRequired: 0
+current:
+  name: matrix.row1.column1
+  type: dropdown
+  title: Rating
+  required: false
+  choices:
+    - value: low
+    - value: high
+  entry: row1
+```
+````
+
+`answer("low")` moves to `matrix.row2.column1` with `entry: row2`; answering that one leaves
+`current()` at `null` and `data.matrix` as `{ row1: { column1: "low" }, row2: { column1: "high" } }`.
+`entry` is the model's own breadcrumb for the entry an input sits in — the row name here, a processed
+`templateTitle` in a dynamic panel, `"Row 1"` in a dynamic matrix.
+
+### Addresses shift when an entry is removed
+
+The change report is over addresses, and an address is a position. Removing entry 0 of three moves
+the two entries after it down, so `medications[2].*` becomes `medications[1].*`. The diff says what
+is true of the addresses themselves: the highest ones stop being asked for and are listed in
+`becameHidden`, and an address that was already visible stays visible even though the answer under it
+is now a different entry's.
+
+```js
+await iv.answer({ action: "remove", index: 0 });
+// becameHidden: ["medications[2].name", "medications[2].dose"]
+// answered: { "medications[0].name": "Ibuprofen", ... } - what was medications[1]
+```
+
+**A consumer keys on the addresses of the current document, never on ones it remembers from an
+earlier turn.** The document that comes back from every call is the whole truth about where the
+answers are now.
 
 ## Batch mode
 
@@ -791,6 +1049,8 @@ about.
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
 | `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class: the selection rule, the four calls of single-input mode, the pre-checks and the documents. |
 | `interview-items.ts` | The inventory over the model's single inputs, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
+| `interview-address.ts` | The address grammar in both directions: derived from a nested question by walking its containers, and resolved against the live model. The twin of the tester's `test-targets.ts`. |
+| `interview-summary.ts` | A dynamic container's summary step: the entries, the add caption and the "no entries" line as the model words them, and the four actions an answer can name. |
 | `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, which are containers it only reports, and the list of items a batch document carries. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |

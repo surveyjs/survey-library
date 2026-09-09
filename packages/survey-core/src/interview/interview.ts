@@ -1,4 +1,5 @@
 import { Helpers, SurveyModel } from "survey-core";
+import type { Question } from "survey-core";
 import { settle } from "./interview-async";
 import { renderInterviewDocument } from "./render";
 import {
@@ -6,9 +7,12 @@ import {
   IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition, IInterviewToolOptions,
 } from "./interview-types";
 import {
-  IInterviewInput, getAnsweredValue, getInputErrors, getInterviewInputs, isAskableInput,
-  isInputAnswered, isInputValid, makeInputCurrent, validateInput,
+  IInterviewContainer, IInterviewInput, getAnsweredValue, getInputErrors, getInterviewInputs,
+  getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid, makeInputCurrent,
+  updateCurrentItem, validateInput,
 } from "./interview-items";
+import { resolveAddress } from "./interview-address";
+import { applySummaryAction, isAction } from "./interview-summary";
 import {
   IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchEntries, getBatchItems,
   isBatchWritable, refreshBatchEntry,
@@ -17,9 +21,9 @@ import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, badActionError, completionBlockedError, notAChoiceError, notANumberError,
-  notAskableError, nothingToAnswerError, requiredCannotSkipError, surveyCompletedError,
-  unknownQuestionError, unknownToolError,
+  InterviewErrorCodes, badActionError, badAddressError, completionBlockedError, notAChoiceError,
+  notANumberError, notAskableError, nothingToAnswerError, requiredCannotSkipError,
+  surveyCompletedError, unknownQuestionError, unknownToolError,
 } from "./interview-errors";
 
 // The interview conducts one SurveyModel the integrator owns (overview 2.6). It sets exactly one
@@ -32,6 +36,11 @@ export class Interview implements IInterview {
   // interviewee chose to skip, and (tier 06) which summary steps were marked done. dispose() drops
   // it; the model is left alone.
   private skipped = new InterviewSkipped();
+  // The one input the selection rule is suspended for: the entry a summary step's "edit" action
+  // opened. That entry is answered and valid, so the rule would walk straight past it, and the
+  // interviewee has just asked to see it. It is dropped by the next call that writes anything, which
+  // is where the rule resumes.
+  private editingQuestion: Question;
   private timeoutValue: number;
 
   constructor(private surveyValue: SurveyModel, options?: IInterviewOptions) {
@@ -111,6 +120,7 @@ export class Interview implements IInterview {
       return this.createErrorResult(requiredCannotSkipError(target.address), inputs);
     }
     this.skipped.add(target.address);
+    this.editingQuestion = undefined;
     await this.settleSurvey();
     const after = this.getInputs();
     this.makeCurrent(after);
@@ -125,6 +135,10 @@ export class Interview implements IInterview {
     }
     let inputs = this.getInputs();
     inputs.forEach(input => { if (isAskableInput(input)) input.question.validate(true); });
+    // A container whose own errors no item carries - a single-choice matrix, a matrix dropdown, a
+    // multiple text, a composite - validates itself here, or a RequiredInAllRowsError would keep the
+    // model from completing while the interview reported nothing to correct.
+    getUnreportedContainers(inputs).forEach(container => container.question.validate(true));
     await this.settleSurvey();
     inputs = this.getInputs();
     let errors = this.collectErrors(inputs);
@@ -220,6 +234,7 @@ export class Interview implements IInterview {
 
   public dispose(): void {
     this.skipped.clear();
+    this.editingQuestion = undefined;
   }
 
   private async answerCore(name: string, value: any, hasName: boolean): Promise<IInterviewResult> {
@@ -228,13 +243,17 @@ export class Interview implements IInterview {
     const target = hasName ? this.findInput(inputs, name) : this.getCurrentInput(inputs);
     if (!target) {
       return this.createErrorResult(hasName
-        ? unknownQuestionError(name, this.getAskableAddresses(inputs))
+        ? this.createAddressError(inputs, name)
         : nothingToAnswerError(), inputs);
     }
     if (!isAskableInput(target)) {
       return this.createErrorResult(
         notAskableError(target.address, target.item.disabled ? "disabled" : "unsupported"), inputs);
     }
+    // The summary step of a dynamic container takes an action - add, remove, edit, done - and not a
+    // value: the entries are grown and shrunk through the model's own summary, which is what the UI
+    // offers a respondent.
+    if (target.isSummary) return this.answerSummary(target, value, inputs);
     const prepared = prepareValue(target, value);
     if (!!prepared.error) {
       // Nothing was written, so nothing changed: the result carries the one coded error and the same
@@ -262,6 +281,75 @@ export class Interview implements IInterview {
     return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors);
   }
 
+  // An action on a summary step. Adding, removing and editing an entry are the model's own gestures
+  // and they are run through the model (interview-summary.ts); the interview adds only "done", which
+  // the model has no notion of - an optional container with entries in it is not finished until the
+  // interviewee says so, exactly as the mode keeps the summary in front of them.
+  private async answerSummary(target: IInterviewInput, value: any,
+    inputs: Array<IInterviewInput>): Promise<IInterviewResult> {
+    // The model builds a container's summary - the entries, their remove buttons, the add caption -
+    // only for the container that is its current single input, so the step is made current before it
+    // is acted on. A call that answers this step is a write, and moving the model is what every
+    // write ends with anyway.
+    makeInputCurrent(this.surveyValue, target);
+    const before = takeSnapshot(this.surveyValue, inputs);
+    const wereInvalid = inputs.filter(input => input !== target && input.question.errors.length > 0);
+    const hadErrors: { [id: string]: boolean } = {};
+    wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
+    const applied = applySummaryAction(target.question, target.address, value);
+    if (!!applied.error) {
+      // No entry was added, removed or opened, so nothing changed: the one coded error and the same
+      // current item. The model goes back to that item - it was moved here only to read the summary.
+      this.makeCurrent(inputs);
+      return this.createErrorResult(applied.error, inputs);
+    }
+    this.editingQuestion = undefined;
+    if (applied.isDone === true) {
+      this.skipped.add(target.address);
+    } else {
+      // Growing, shrinking or revisiting the list re-opens it: a "done" said earlier was about the
+      // list as it was then, and the interviewee gets the summary back when the new entry is filled.
+      this.skipped.remove(target.address);
+      // MinRowCountError, a duplicated key, a required container that has just lost its last entry:
+      // the container's own errors are written by validating it after every add and every remove.
+      validateInput(this.surveyValue, target);
+      // Validating the container validates its entries with it, and that would put "Response
+      // required." on an input nobody has been asked for yet - a freshly added entry is empty by
+      // definition. An input that carried no error before the action and is still empty is left as
+      // it was: an unanswered required input becomes an error at complete(), not the moment its
+      // entry comes into being.
+      this.getInputs().forEach(input => {
+        if (input.question === target.question) return;
+        if (hadErrors[input.question.id] !== true && input.question.isEmpty() &&
+          input.question.errors.length > 0) {
+          input.question.clearErrors();
+        }
+      });
+      wereInvalid.forEach(input => {
+        if (input.question.isVisibleInSurvey) input.question.validate(true);
+      });
+    }
+    await this.settleSurvey();
+    const after = this.getInputs();
+    // "edit" is the one gesture whose current follows the model instead of the rule: the entry it
+    // opens is answered and valid, so the rule would walk straight past it, and the interviewee has
+    // just asked to see it. It stays current until something is written, and the rule resumes there.
+    if (applied.followsModel === true) {
+      this.editingQuestion = this.getModelLeaf();
+    }
+    this.makeCurrent(after);
+    const errors = getInputErrors(target).map(message => ({ name: target.address, message: message }));
+    return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors);
+  }
+
+  // Where the model stands now: the leaf of the single-input mode, the input a UI on the same model
+  // would be showing.
+  private getModelLeaf(): Question {
+    const root = this.surveyValue.currentSingleQuestion;
+    if (!root) return undefined;
+    return root.singleInputBehavior.currentSingleInputQuestion || root;
+  }
+
   // One key of a batch, written against the state the earlier keys left behind. The item is
   // described again here rather than trusted from the resolution pass: an earlier write may have
   // hidden it, an enableIf may have turned it off, and choicesFromQuestion or choicesVisibleIf may
@@ -281,8 +369,9 @@ export class Interview implements IInterview {
       if (prepared.hasComment) question.comment = prepared.comment;
     }
     if (write.hasComment) question.comment = write.comment;
-    // An answer un-skips, exactly as in single mode.
+    // An answer un-skips, exactly as in single mode, and it ends an "edit" the same way.
     this.skipped.remove(address);
+    this.editingQuestion = undefined;
     written[address] = true;
     // Validated one key at a time, before the next write: an expression validator reads the data as
     // it is now, and running them all at the end would validate against a later state.
@@ -300,6 +389,8 @@ export class Interview implements IInterview {
     }
     // An answer un-skips: the interviewee changed their mind about leaving it alone.
     this.skipped.remove(target.address);
+    // The entry an "edit" opened has been answered: the selection rule takes over again.
+    this.editingQuestion = undefined;
   }
 
   private getInputs(): Array<IInterviewInput> {
@@ -307,7 +398,25 @@ export class Interview implements IInterview {
   }
 
   private findInput(inputs: Array<IInterviewInput>, name: string): IInterviewInput {
-    return inputs.filter(input => input.address === name)[0];
+    const direct = inputs.filter(input => input.address === name)[0];
+    if (!!direct) return direct;
+    // The same input written differently - a segment quoted that need not be, or the other way
+    // round. The address is resolved against the live model and the item is then found by identity,
+    // so the grammar has one reading and the inventory one entry per input.
+    const resolved = resolveAddress(this.surveyValue, name);
+    if (!resolved.question) return undefined;
+    return inputs.filter(input => input.question === resolved.question)[0];
+  }
+
+  // Two different mistakes, and a consumer acts on them differently. "badAddress": the text is not
+  // an address at all, or it indexes an entry that does not exist - the answer to which is the "add"
+  // action of a summary step, not another address. "unknownQuestion": the address is well formed and
+  // names nothing that is being asked for, and the message lists what is.
+  private createAddressError(inputs: Array<IInterviewInput>, name: string): IInterviewError {
+    const resolved = resolveAddress(this.surveyValue, name);
+    return resolved.isBad === true
+      ? badAddressError(name)
+      : unknownQuestionError(name, this.getAskableAddresses(inputs));
   }
 
   private getAskableAddresses(inputs: Array<IInterviewInput>): Array<string> {
@@ -328,6 +437,13 @@ export class Interview implements IInterview {
 
   private getCurrentInput(inputs: Array<IInterviewInput>): IInterviewInput {
     if (this.isCompleted()) return undefined;
+    if (!!this.editingQuestion) {
+      const editing = inputs.filter(input => input.question === this.editingQuestion &&
+        isAskableInput(input))[0];
+      if (!!editing) return editing;
+      // The entry it belonged to is gone, or the input is no longer being asked for.
+      this.editingQuestion = undefined;
+    }
     return inputs.filter(input => isAskableInput(input) &&
       (!this.isAnswered(input) || !isInputValid(input)))[0];
   }
@@ -335,6 +451,10 @@ export class Interview implements IInterview {
   private getCurrentItem(inputs: Array<IInterviewInput>): IInterviewItem | null {
     const input = this.getCurrentInput(inputs);
     if (!input) return null;
+    // The two keys that are read off the model's current single input - the entry breadcrumb and a
+    // container's summary - are filled here, for the one item that is current, because the model has
+    // just been moved to it.
+    updateCurrentItem(input);
     const errors = getInputErrors(input);
     // The first error text goes on the record, where a consumer reads it next to the value it has to
     // correct; the full list is the errors section of the document.
@@ -357,6 +477,11 @@ export class Interview implements IInterview {
       if (!isAskableInput(input)) return;
       getInputErrors(input).forEach(message => res.push({ name: input.address, message: message }));
     });
+    getUnreportedContainers(inputs).forEach((container: IInterviewContainer) => {
+      container.question.errors.forEach(error => {
+        res.push({ name: container.address, message: error.getText() });
+      });
+    });
     return res;
   }
 
@@ -378,7 +503,15 @@ export class Interview implements IInterview {
   private getAnswered(inputs: Array<IInterviewInput>): { [address: string]: any } {
     const res: { [address: string]: any } = {};
     inputs.forEach(input => {
-      if (input.isSummary || this.skipped.has(input.address) || input.question.isEmpty()) return;
+      if (input.question.isEmpty()) return;
+      if (input.isSummary) {
+        // The container's whole value - the array of panels, the array of rows - under its own
+        // address, once the interviewee said the list is done. Its inputs stay listed under their own
+        // addresses either way, so a consumer can read the answers at whichever level it works at.
+        if (this.isAnswered(input)) res[input.address] = input.question.value;
+        return;
+      }
+      if (this.skipped.has(input.address)) return;
       res[input.address] = getAnsweredValue(input);
     });
     return res;
@@ -523,7 +656,7 @@ interface IPreparedValue {
 // consumer can act on, and nothing is written when one of them fires. The tester's
 // checkValueEnterable exists for the same reason.
 function prepareValue(target: IInterviewInput, value: any): IPreparedValue {
-  if (isActionValue(value)) {
+  if (isAction(value)) {
     return { error: badActionError(target.address, value.action) };
   }
   const res: IPreparedValue = { value: value };
@@ -543,10 +676,6 @@ function prepareValue(target: IInterviewInput, value: any): IPreparedValue {
   const numberError = checkNumber(target, res.value);
   if (!!numberError) return { error: numberError };
   return res;
-}
-
-function isActionValue(value: any): boolean {
-  return isPlainObject(value) && typeof value.action === "string";
 }
 
 function isCommentValue(value: any): boolean {

@@ -16,6 +16,9 @@ export const InterviewErrorCodes = Object.freeze({
   completionBlocked: "completionBlocked",
   surveyCompleted: "surveyCompleted",
   startPageIncomplete: "startPageIncomplete",
+  badAddress: "badAddress",
+  cannotAdd: "cannotAdd",
+  cannotRemove: "cannotRemove",
 });
 
 // An error the interview raises has no address to point at when it is about the interview as a
@@ -102,6 +105,71 @@ export function badActionError(name: string, action: any): IInterviewError {
       quoteValue(action) + ". Actions belong to the summary step of a dynamic panel or a dynamic " +
       "matrix, which is the only item that offers them.",
     code: InterviewErrorCodes.badAction,
+  };
+}
+
+// One code for every way an answer to a summary step can be wrong, because they are one statement to
+// the caller: the step lists the entries of a container and the four things that can be done to it.
+const SUMMARY_ACTIONS = "\"add\", \"remove\" and \"edit\" with an \"index\", and \"done\"";
+
+export function notAnActionError(name: string): IInterviewError {
+  return {
+    name: name,
+    message: "The item " + quoteValue(name) + " is the summary step of a dynamic container: it takes an " +
+      "action object, not a value. The actions are " + SUMMARY_ACTIONS + ".",
+    code: InterviewErrorCodes.badAction,
+  };
+}
+
+export function unknownActionError(name: string, action: any): IInterviewError {
+  return {
+    name: name,
+    message: "The summary step " + quoteValue(name) + " has no action " + quoteValue(action) + ". Its " +
+      "actions are " + SUMMARY_ACTIONS + ".",
+    code: InterviewErrorCodes.badAction,
+  };
+}
+
+export function badActionIndexError(name: string, action: string, index: any, count: number): IInterviewError {
+  return {
+    name: name,
+    message: "The action " + quoteValue(action) + " on " + quoteValue(name) + " needs the \"index\" of an " +
+      "entry, and it was given " + quoteValue(index) + ". " + (count > 0
+      ? "The entries are numbered 0 to " + (count - 1) + "."
+      : "There are no entries yet; \"add\" makes one."),
+    code: InterviewErrorCodes.badAction,
+  };
+}
+
+// The address grammar refused the text, or an index named an entry that does not exist. The second
+// is not "unknown": the address is well formed and the entry can be brought into being, and the way
+// to do that is the "add" action of the container's summary step.
+export function badAddressError(name: string): IInterviewError {
+  return {
+    name: typeof name === "string" ? name : "",
+    message: "The address " + quoteValue(name) + " does not name an input of this survey. An address is " +
+      "a question name, optionally followed by the entry and the input inside it: \"medications[0].dose\", " +
+      "\"matrix.row1.column1\", \"contact.email\". An index counts the entries that exist now - a new one " +
+      "is added through the \"add\" action of the container's summary step.",
+    code: InterviewErrorCodes.badAddress,
+  };
+}
+
+export function cannotAddError(name: string): IInterviewError {
+  return {
+    name: name,
+    message: "No entry can be added to " + quoteValue(name) + " right now: it has reached its maximum " +
+      "count, or adding is turned off for it.",
+    code: InterviewErrorCodes.cannotAdd,
+  };
+}
+
+export function cannotRemoveError(name: string, index: number): IInterviewError {
+  return {
+    name: name,
+    message: "The entry " + index + " of " + quoteValue(name) + " cannot be removed: it offers no remove " +
+      "action. Removing is turned off for it, or it would fall below its minimum count.",
+    code: InterviewErrorCodes.cannotRemove,
   };
 }
 

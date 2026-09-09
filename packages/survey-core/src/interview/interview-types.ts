@@ -29,10 +29,12 @@ export interface IInterviewItem extends IQuestionDescription {
 }
 
 export interface IInterviewSummary {
-  entries: Array<{ index: number, title: string, canRemove: boolean }>;
+  // one per entry the container holds now; absent when it holds none, and then noEntriesText says so
+  entries?: Array<{ index: number, title: string, canRemove: boolean }>;
   canAdd: boolean;
   // the model's localized add-button text, when canAdd
   addText?: string;
+  // the container's own localized "no entries yet" line, when it holds none
   noEntriesText?: string;
 }
 

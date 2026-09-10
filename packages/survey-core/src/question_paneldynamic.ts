@@ -1731,7 +1731,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
         const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
         if (!!element) {
-          SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.isInFocusMode);
+          SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
         }
       };
       if (confirmDelete) {

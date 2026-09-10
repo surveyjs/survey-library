@@ -56,6 +56,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getActiveElement, getRootNode } from "./utils/dom-utils";
+import { getQuestionElementForScroller, getScrollContainerForElement, isDocumentScroller, scrollElementIntoScroller } from "./utils/scroll-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -1697,6 +1698,10 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   @property() autoFocusFirstError: boolean;
+  // Scrolls the focused question to the middle of the survey container. Not serialized.
+  @property({ defaultValue: false, onSet: (_newValue, target: SurveyModel) => {
+    target.setupFocusModeLayout();
+  } }) autoCenterFocusedQuestion: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
    * @hidden
@@ -6129,28 +6134,34 @@ export class SurveyModel extends SurveyElementCore
           });
         }, elementsToRenderBefore);
       } else {
-        if (this.focusMode && this.scrollerElement) {
-          if (element.isPage) {
-            this.scrollerElement.scrollTop = 0;
-          } else {
-            const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
-            if (htmlElement) {
-              SurveyElement.ScrollElementIntoScroller(htmlElement, this.scrollerElement as HTMLElement);
-              activateLazyRenderingChecks(htmlElement);
-            }
-          }
+        if (this.focusMode && this.scrollerElement && element.isPage) {
+          this.scrollFocusModeScrollerTo(0);
           optOnScolledCallback && optOnScolledCallback();
         } else if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
+            this.suspendLazyRendering();
+            this.scrollFocusedQuestionIntoView(htmlElement);
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
-          });
+          } else if (htmlElement && this.focusMode && this.scrollerElement && !element.isPage) {
+            this.suspendLazyRendering();
+            scrollElementIntoScroller(htmlElement, this.scrollerElement as HTMLElement);
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(htmlElement);
+            optOnScolledCallback && optOnScolledCallback();
+          } else {
+            this.suspendLazyRendering();
+            SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+              this.releaseLazyRendering();
+              activateLazyRenderingChecks(htmlElement);
+              optOnScolledCallback && optOnScolledCallback();
+            });
+          }
         }
       }
     }
@@ -8750,8 +8761,12 @@ export class SurveyModel extends SurveyElementCore
       // The page-level scroller is rendered only in focus mode, so re-resolve it once the
       // re-render caused by the property change has reached the DOM.
       this.updateScrollerElement();
-      if (!this.focusMode) return;
-      this.addFocusModeEventListeners();
+      if (this.autoCenterFocusedQuestion || this.focusMode) {
+        this.addFocusedQuestionScrollListener();
+      }
+      if (this.focusMode) {
+        this.addFocusModeViewportListeners();
+      }
     });
   }
 
@@ -8764,15 +8779,17 @@ export class SurveyModel extends SurveyElementCore
     }
   }
 
-  private addFocusModeEventListeners(): void {
+  private addFocusedQuestionScrollListener(): void {
+    this.focusModeFocusInHandler = (e: FocusEvent) => this.onFocusedQuestionFocusIn(e);
+    this.rootElement.addEventListener("focusin", this.focusModeFocusInHandler);
+  }
+  private addFocusModeViewportListeners(): void {
     this.focusModeVisualViewportHandler = () => this.updateFocusModeVisualViewport();
     const visualViewport = DomWindowHelper.getVisualViewport();
     if (visualViewport) {
       visualViewport.addEventListener("resize", this.focusModeVisualViewportHandler);
       visualViewport.addEventListener("scroll", this.focusModeVisualViewportHandler);
     }
-    this.focusModeFocusInHandler = (e: FocusEvent) => this.onFocusModeFocusIn(e);
-    this.rootElement.addEventListener("focusin", this.focusModeFocusInHandler);
   }
 
   private removeFocusModeEventListeners(): void {
@@ -8800,6 +8817,8 @@ export class SurveyModel extends SurveyElementCore
     const keyboardOpen = !isZoomed &&
       innerHeight - visualViewport.height > this.focusModeKeyboardThreshold &&
       this.isEditableElementFocused();
+    const prevKeyboardOpen = this._isKeyboardOpen;
+    const prevHeight = this.rootElement.style.height;
     this.setKeyboardOpen(keyboardOpen);
     if (keyboardOpen) {
       const rootRect = this.rootElement.getBoundingClientRect();
@@ -8809,6 +8828,9 @@ export class SurveyModel extends SurveyElementCore
       this.rootElement.style.height = Math.max(0, visibleBottom - visibleTop) + "px";
     } else {
       this.rootElement.style.height = this._focusModeOriginalHeight;
+    }
+    if (this.autoCenterFocusedQuestion && (prevKeyboardOpen !== this._isKeyboardOpen || prevHeight !== this.rootElement.style.height)) {
+      this.scrollFocusedQuestionIntoView(getActiveElement() as HTMLElement);
     }
   }
 
@@ -8820,12 +8842,48 @@ export class SurveyModel extends SurveyElementCore
     return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || !!activeElement.isContentEditable;
   }
 
-  private onFocusModeFocusIn(e: FocusEvent): void {
+  private get focusedQuestionScrollBehavior(): ScrollBehavior {
+    return settings.animationEnabled ? "smooth" : "auto";
+  }
+  private scrollFocusModeScrollerTo(top: number): void {
+    if (!this.scrollerElement) return;
+    const behavior = this.focusedQuestionScrollBehavior;
+    if (behavior !== "auto" && typeof this.scrollerElement.scrollTo === "function") {
+      this.scrollerElement.scrollTo({ top, behavior });
+    } else {
+      this.scrollerElement.scrollTop = top;
+    }
+  }
+  private scrollFocusedQuestionIntoView(target: HTMLElement): void {
+    if (!this.autoCenterFocusedQuestion) return;
+    if (!target || typeof target.getBoundingClientRect !== "function") return;
+    const questionEl = getQuestionElementForScroller(target);
+    const elToScroll = questionEl || target;
+    const scroller = getScrollContainerForElement(elToScroll)
+      || ((this.scrollerElement && this.scrollerElement.contains(elToScroll)) ? this.scrollerElement as HTMLElement : null);
+    if (!scroller) return;
+    const questionRect = elToScroll.getBoundingClientRect();
+    const visibleHeight = isDocumentScroller(scroller)
+      ? (DomWindowHelper.getInnerHeight() || scroller.clientHeight)
+      : scroller.getBoundingClientRect().height;
+    // A question that fits the container is centered. A taller one would clip the
+    // focused control if we centered the question box, so keep that control in view.
+    const el = questionEl && questionRect.height <= visibleHeight ? questionEl : target;
+    scrollElementIntoScroller(el, scroller, {
+      block: "center",
+      behavior: this.focusedQuestionScrollBehavior
+    });
+  }
+  private onFocusedQuestionFocusIn(e: FocusEvent): void {
+    if (this.autoCenterFocusedQuestion) {
+      this.scrollFocusedQuestionIntoView(e.target as HTMLElement);
+      return;
+    }
     if (!this.scrollerElement) return;
     const target = e.target as HTMLElement;
     if (!target || typeof target.getBoundingClientRect !== "function") return;
     if (!this.scrollerElement.contains(target)) return;
-    SurveyElement.ScrollElementIntoScroller(target, this.scrollerElement as HTMLElement);
+    scrollElementIntoScroller(target, this.scrollerElement as HTMLElement);
   }
 
   private setKeyboardOpen(open: boolean): void {

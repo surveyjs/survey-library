@@ -29,6 +29,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
+import { scrollElementIntoScroller, scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
@@ -194,70 +195,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  private static IsNeedScrollIntoView(el: Element, checkLeft: boolean, scrollIfVisible?: boolean) {
-    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elTop < 0;
-    let elLeft: number = -1;
-    if (!needScroll && checkLeft) {
-      elLeft = el.getBoundingClientRect().left;
-      needScroll = elLeft < 0;
-    }
-    if (!needScroll && DomWindowHelper.isAvailable()) {
-      const height = DomWindowHelper.getInnerHeight();
-      needScroll = height > 0 && height < elTop;
-      if (!needScroll && checkLeft) {
-        const width = DomWindowHelper.getInnerWidth();
-        needScroll = width > 0 && width < elLeft;
-      }
-    }
-    return needScroll;
-  }
   public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    el.scrollIntoView(scrollIntoViewOptions);
-    if (typeof doneCallback === "function") {
-      let lastPos: number = null;
-      let same: number = 0;
-      const checkPos = () => {
-        const newPos = el.getBoundingClientRect().top;
-        if (newPos === lastPos) {
-          if (same++ > 2) {
-            doneCallback();
-            return;
-          }
-        } else {
-          lastPos = newPos;
-          same = 0;
-        }
-        requestAnimationFrame(checkPos);
-      };
-      DomWindowHelper.requestAnimationFrame(checkPos);
-    }
+    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) {
-      doneCallback && doneCallback();
-      return false;
-    }
-    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
-    if (needScroll) {
-      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
-    } else {
-      doneCallback && doneCallback();
-    }
-    return needScroll;
-  }
-  public static ScrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement): void {
-    if (!el || !scroller) return;
-    const elRect = el.getBoundingClientRect();
-    const scrollerRect = scroller.getBoundingClientRect();
-    if (elRect.top < scrollerRect.top) {
-      scroller.scrollTop += elRect.top - scrollerRect.top;
-    } else if (elRect.bottom > scrollerRect.bottom) {
-      scroller.scrollTop += elRect.bottom - scrollerRect.bottom;
-    }
+    return scrollElementToViewCore(el, checkLeft, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
@@ -295,15 +240,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
-      // scrollIntoView() measures against the window, so in a locked container it cannot tell that an
-      // element is hidden by the inner scroll region. Scroll that region directly instead.
+      // Native focus scrolling fights the centering animation and locked-container
+      // scrollers; preventScroll lets the survey move the focused question itself.
       const scroller = scrollIntoScroller && el.closest ? el.closest(".sv-scroll__scroller") as HTMLElement : null;
       if (scroller) {
-        SurveyElement.ScrollElementIntoScroller(el, scroller);
+        scrollElementIntoScroller(el, scroller);
+        el.focus({ focusVisible: false, preventScroll: true } as any);
+      } else if (scrollIntoScroller) {
+        el.focus({ focusVisible: false, preventScroll: true } as any);
       } else {
         SurveyElement.ScrollElementToViewCore(el, true, false);
+        el.focus({ focusVisible: false } as any);
       }
-      el.focus({ focusVisible: false } as any);
       return true;
     }
     return false;
@@ -638,6 +586,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected get isInFocusMode(): boolean {
     return !!(this.survey as any)?.focusMode;
+  }
+  protected get shouldHandleFocusScroll(): boolean {
+    return this.isInFocusMode || !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
   }
   public get lifecycleCallbacks(): ISurveyElementLifecycle {
     return this.survey as ISurveyElementLifecycle;

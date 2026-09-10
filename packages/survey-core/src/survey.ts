@@ -7152,11 +7152,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a variable value.
    *
-   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
    * @param name A variable name.
    * @param newValue A new variable value.
    * @see getVariable
    * @see getVariableNames
+   * @see setVariables
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
@@ -7194,6 +7195,17 @@ export class SurveyModel extends SurveyElementCore
     this.variablesHash[name] = newValue;
     return name;
   }
+  /**
+   * Sets multiple variables at once.
+   *
+   * Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
+   *
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param variables An object containing the variable names and their new values.
+   * @param clearPrevious Pass `true` to remove all existing variables that are not included in `variables`.
+   * @see getVariable
+   * @see getVariableNames
+   */
   public setVariables(variables: { [name: string]: any }, clearPrevious: boolean = false): void {
     const hasNewValues = !!variables && typeof variables === "object";
     if (!hasNewValues && !clearPrevious) return;

@@ -7,9 +7,9 @@ import {
   IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition, IInterviewToolOptions,
 } from "./interview-types";
 import {
-  IInterviewContainer, IInterviewInput, getAnsweredValue, getInputErrors, getInterviewInputs,
-  getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid, makeInputCurrent,
-  updateCurrentItem, validateInput,
+  IInterviewContainer, IInterviewInput, clearUntouchedChoiceErrors, getAnsweredValue, getInputErrors,
+  getInterviewInputs, getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid,
+  makeInputCurrent, updateCurrentItem, validateInput,
 } from "./interview-items";
 import { getAddress, getQuestionDepth, resolveAddress } from "./interview-address";
 import { applySummaryAction } from "./interview-summary";
@@ -82,13 +82,18 @@ export class Interview implements IInterview {
     // valid until something wrote to it - and the interview would ask for the next input instead of
     // the wrong one.
     const inputs = this.getInputs();
+    const hadErrors = getErrorIds(inputs);
     inputs.forEach(input => {
       if (isAskableInput(input) && !input.question.isEmpty()) {
         input.question.validate(true);
       }
     });
     await this.settleSurvey();
-    this.makeCurrent(this.getInputs());
+    const after = this.getInputs();
+    // A resumed model with a choice selected: validating its owner validated the empty questions of
+    // the choice, which nobody has been asked for yet.
+    clearUntouchedChoiceErrors(after, input => hadErrors[input.question.id] === true);
+    this.makeCurrent(after);
   }
 
   // The issue's rule: the first item, in order, that can be asked and is either unanswered or
@@ -199,14 +204,26 @@ export class Interview implements IInterview {
   // then written one at a time, each re-checked against the state its predecessors left behind. A key
   // that fails is skipped and the rest are written: one bad answer of a turn must not throw away the
   // good ones, and the errors say which key was refused and why.
+  //
+  // A key that names nothing when the call starts may name an input another key of the same call
+  // reveals - a question inside the choice that key selects, a root its visibleIf shows. So once a pass
+  // has written, the keys that resolved to nothing are resolved again against the live inventory and
+  // written as a further pass, in item order; the passes go on while one writes something, and what
+  // is left is unknownQuestion, listing the inputs there are after the writes. The rule a
+  // container already applies to its own fields ("a field an earlier key of the same object revealed is
+  // written in the same call"), at the root level. A key that named an entry at the start is written
+  // in the first pass as before, and one an earlier write hid is still refused by the refresh.
   public async answerAll(values: { [address: string]: any }): Promise<IInterviewResult> {
     if (this.isCompleted()) return this.createErrorResult(surveyCompletedError(), [], true);
+    const survey = this.surveyValue;
     const inputs = this.getInputs();
-    const entries = getBatchEntries(this.surveyValue, inputs);
-    const resolved = resolveBatchValues(entries, values, this.surveyValue.commentSuffix);
-    const errors = resolved.errors;
+    const keys = Object.keys(values || {});
+    let resolved = resolveBatchValues(getBatchEntries(survey, inputs), values, keys, survey.commentSuffix);
+    const refused = resolved.refused;
     if (resolved.writes.length === 0) {
-      return this.createResult(inputs, noChanges(), errors, true);
+      // Nothing is written, so nothing can be revealed: the keys that name nothing are refused now.
+      return this.createResult(inputs, noChanges(),
+        getResolutionErrors(keys, refused, resolved.unresolved, this.getBatchAskable(inputs)), true);
     }
     const before = takeSnapshot(this.surveyValue, inputs);
     // The same rule as in single mode: an expression validator or a min/max bound may depend on a
@@ -218,9 +235,18 @@ export class Interview implements IInterview {
     const hadErrors: { [id: string]: boolean } = {};
     wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
     const written: IBatchWritten = { addresses: {}, questions: {}, containers: [] };
-    resolved.writes.forEach(write => {
-      this.writeBatchValue(write, written, hadErrors).forEach(error => errors.push(error));
-    });
+    const writeErrors: Array<IInterviewError> = [];
+    // A pass that writes consumes at least one key, so there are at most as many passes as keys. A
+    // pass that writes nothing changes nothing, and the one after it would resolve nothing new.
+    while(resolved.writes.length > 0) {
+      resolved.writes.forEach(write => {
+        this.writeBatchValue(write, written, hadErrors).forEach(error => writeErrors.push(error));
+      });
+      if (resolved.unresolved.length === 0) break;
+      resolved = resolveBatchValues(getBatchEntries(survey, this.getInputs()), values, resolved.unresolved,
+        survey.commentSuffix);
+      Object.keys(resolved.refused).forEach(key => { refused[key] = resolved.refused[key]; });
+    }
     wereInvalid.forEach(input => {
       if (!isBatchWritten(written, input) && input.question.isVisibleInSurvey) {
         input.question.validate(true);
@@ -230,7 +256,11 @@ export class Interview implements IInterview {
     // drain together instead of one call per key.
     await this.settleSurvey();
     const after = this.getInputs();
+    clearUntouchedChoiceErrors(after, input => isBatchWritten(written, input) ||
+      hadErrors[input.question.id] === true);
     this.makeCurrent(after);
+    const errors = getResolutionErrors(keys, refused, resolved.unresolved, this.getBatchAskable(after));
+    writeErrors.forEach(error => errors.push(error));
     after.forEach(input => {
       // By identity as well as by address: a removal of the same call shifts the entries after it, so
       // the field an add wrote to may answer to a different address by now.
@@ -303,6 +333,7 @@ export class Interview implements IInterview {
     // every input that holds an error now is re-validated after the write. Stale errors would
     // otherwise keep an input current forever.
     const wereInvalid = inputs.filter(input => input !== target && input.question.errors.length > 0);
+    const hadErrors = getErrorIds(wereInvalid);
     this.write(target, prepared);
     // Validation comes before the settle: it is what starts the asynchronous validators the settle
     // waits for.
@@ -314,6 +345,8 @@ export class Interview implements IInterview {
     });
     await this.settleSurvey();
     const after = this.getInputs();
+    clearUntouchedChoiceErrors(after, input => input.question === target.question ||
+      hadErrors[input.question.id] === true);
     this.makeCurrent(after);
     const errors = getInputErrors(target).map(message => ({ name: target.address, message: message }));
     return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors);
@@ -492,6 +525,11 @@ export class Interview implements IInterview {
 
   private getAskableAddresses(inputs: Array<IInterviewInput>): Array<string> {
     return inputs.filter(input => isAskableInput(input)).map(input => input.address);
+  }
+
+  // What an unknownQuestion of a batch lists: the roots an agent may write to.
+  private getBatchAskable(inputs: Array<IInterviewInput>): Array<string> {
+    return getBatchAddresses(getBatchEntries(this.surveyValue, inputs));
   }
 
   private isCompleted(): boolean {
@@ -675,6 +713,16 @@ function getWrittenContainerAddress(survey: SurveyModel, container: IInterviewCo
   return address;
 }
 
+// Which of the inputs carry an error now, by question id: the "before" a call's untouched-errors rule
+// compares with.
+function getErrorIds(inputs: Array<IInterviewInput>): { [id: string]: boolean } {
+  const res: { [id: string]: boolean } = {};
+  inputs.forEach(input => {
+    if (input.question.errors.length > 0) res[input.question.id] = true;
+  });
+  return res;
+}
+
 // The mode has no "no input is current" state that is still completable, so the end of the interview
 // is the last input a respondent could stand on.
 function getLastAskableInput(inputs: Array<IInterviewInput>): IInterviewInput {
@@ -704,28 +752,36 @@ interface IBatchWrite {
   comment?: string;
 }
 
-// Every key of the object, resolved before anything is written. A key is an item address or an
-// address plus the model's own comment suffix - the batch twin of single mode's { value, comment },
-// and the key getAnswerSchema() advertises.
+interface IBatchResolution {
+  writes: Array<IBatchWrite>;
+  // the keys that named an entry nobody may write to, with the reason
+  refused: { [key: string]: IInterviewError };
+  // the keys that named nothing, in the order the object carried them
+  unresolved: Array<string>;
+}
+
+// The keys of the object, resolved against the entries of one pass before anything of that pass is
+// written. A key is an item address or an address plus the model's own comment suffix - the batch
+// twin of single mode's { value, comment }, and the key getAnswerSchema() advertises.
 //
 // The accepted keys are then ordered by item order and not by the order the object happens to carry:
 // a trigger or a setValueIf that depends on an earlier question must see it first, and an agent's
 // batch is a set of answers, not a sequence of gestures. A comment lands with the item it belongs to.
 function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [address: string]: any },
-  commentSuffix: string): { writes: Array<IBatchWrite>, errors: Array<IInterviewError> } {
-  const errors: Array<IInterviewError> = [];
+  keys: Array<string>, commentSuffix: string): IBatchResolution {
+  const refused: { [key: string]: IInterviewError } = {};
+  const unresolved: Array<string> = [];
   const byAddress: { [address: string]: IBatchWrite } = {};
   const writes: Array<IBatchWrite> = [];
-  const askable = getBatchAddresses(entries);
-  Object.keys(values || {}).forEach(key => {
+  keys.forEach(key => {
     const target = findBatchTarget(entries, key, commentSuffix);
     if (!target) {
-      errors.push(unknownQuestionError(key, askable));
+      unresolved.push(key);
       return;
     }
     const entry = target.entry;
     if (!isBatchWritable(entry)) {
-      errors.push(notAskableError(entry.address, getNotWritableReason(entry)));
+      refused[key] = notAskableError(entry.address, getNotWritableReason(entry));
       return;
     }
     let write = byAddress[entry.address];
@@ -743,7 +799,23 @@ function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [add
     }
   });
   writes.sort((a, b) => a.order - b.order);
-  return { writes: writes, errors: errors };
+  return { writes: writes, refused: refused, unresolved: unresolved };
+}
+
+// The refusals of the call in the order the object carried the keys, whichever pass refused them. A
+// key that named nothing in any pass is unknownQuestion with the list of what may be written now -
+// after the writes, which may have revealed some and hidden others.
+function getResolutionErrors(keys: Array<string>, refused: { [key: string]: IInterviewError },
+  unresolved: Array<string>, askable: Array<string>): Array<IInterviewError> {
+  const res: Array<IInterviewError> = [];
+  keys.forEach(key => {
+    if (!!refused[key]) {
+      res.push(refused[key]);
+    } else if (unresolved.indexOf(key) >= 0) {
+      res.push(unknownQuestionError(key, askable));
+    }
+  });
+  return res;
 }
 
 function getNotWritableReason(entry: IInterviewBatchEntry): "disabled" | "unsupported" | "batch" {

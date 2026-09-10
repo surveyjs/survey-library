@@ -352,6 +352,43 @@ row expanded before it collapses — the matrix builds its rendered table, and
 made it visible; a panel a UI collapses afterwards stays collapsed and stays readable, because a
 collapsed panel is kept.
 
+**The questions inside a choice are items of their own.** A radiogroup's or a checkbox's choice may
+hold questions — `choices: [{ value: "Yes", elements: [{ type: "text", name: "petName" }] }, "No"]` —
+and the model shows them while the choice is selected and keeps their values at the top level of
+`data`, under their own names: `{ hasPet: "Yes", petName: "Rex" }`, the owner's value staying the
+plain choice. The interview does the same. Such a question is an item right after its owner, its name
+is its address, it carries no `entry` breadcrumb, and it is to the interview what a question in a
+`visibleIf` panel is — the condition being the choice. Selecting the choice reports it in
+`becameVisible`, deselecting it in `becameHidden`; nothing on the choice record announces it
+beforehand. A question inside a choice may be anything a root may be — a container is filled the way a
+root container is, a radiogroup with choice questions of its own lists them after it in turn — and
+the detail panel of a matrix among them is created in the call that selects the choice.
+
+* Validating the owner validates the questions of its selected choice with it, so the answer that
+  selects a choice would put "Response required." on a question nobody has asked for yet. The
+  interview leaves such an error off, as it does for a freshly added entry: an empty required
+  question inside a choice is current without an error, and is an error at `complete()`.
+* Deselecting the choice takes the questions out of every document — `answered` is a map over the
+  inputs there are, and they are no longer inputs — while the model decides what happens to their
+  values, by `clearInvisibleValues`. Under the default `"onComplete"` a value survives the
+  deselection and `complete()` drops it. `"onHidden"` drops it as soon as the choice is deselected
+  once the owner's page has been the model's current page — always so in single mode, where the owner
+  was current when it was answered — and at `complete()` otherwise: the model clears a choice's
+  questions only for an owner it has rendered, and a batch that selects and deselects a choice on a
+  page no call has made current leaves the value in `data` until then. The interview does not clear
+  what the model keeps.
+* While one of its choice questions is asked, the model's current single element is the **owner** —
+  the outermost one for a choice inside a choice — which is what a UI on the same model shows: the
+  panel under its choice. The mode's navigation does not know the choice questions, and a survey whose
+  current input were one of them would never consider itself at the end: one that ends inside a
+  choice would validate on the server and stay running. `current()` is the question all the same.
+* A select question with choice questions **inside an entry** — a dynamic panel's template, a
+  matrix's detail panel, a composite — keeps those questions at the top level of `data` too, one key
+  shared by every entry: the model gives the choice's panel the survey as its data provider, not the
+  entry. That is the model's gap, and until the model scopes them to the entry the interview lists
+  those questions nowhere; `complete()` then fails the way the model's own validation does, with an
+  error nobody can reach.
+
 What the interview keeps of its own is the **inventory**: every input that exists, in document order,
 rebuilt from the structure of the survey on every call. That is deliberately *not* the mode's own
 navigation list (`getSingleInputQuestions()`), which answers a different question — "what do I walk
@@ -370,7 +407,9 @@ off (`disabled`) and one with no plain input — a file, a signature, an image p
 That is the issue's rule, and it is not the mode's own navigation: `performNext()` goes to the input
 *after* the one the respondent is on, wherever that is. So the interview selects first and then
 **tells** the model — `survey.currentSingleQuestion` and its nested current input are set to the item
-that was selected, at the end of `createInterview` and of every call that writes. When there is
+that was selected, at the end of `createInterview` and of every call that writes; for a question
+inside a choice, the model is set to the choice's owner
+([why](#items-are-the-models-own-single-inputs)). When there is
 nothing left to ask, the model is left on the last input, which is where a respondent stands when
 they press Complete.
 
@@ -414,6 +453,7 @@ below it, the address says which container, which entry of it, and which input i
 | Input | Address | Value in `data` |
 | --- | --- | --- |
 | a top-level question | `email` | `data.email` |
+| a question inside a selected choice | `petName` | `data.petName` |
 | a question in panel *i* of a dynamic panel | `medications[0].dose` | `data.medications[0].dose` |
 | a cell in row *i* of a dynamic matrix | `items[0].quantity` | `data.items[0].quantity` |
 | a cell of a matrix dropdown | `matrix.row1.column1` | `data.matrix.row1.column1` |
@@ -424,6 +464,10 @@ below it, the address says which container, which entry of it, and which input i
 | nested containers | `orders[1].items[0].sku` | as written |
 | a container whose nesting the host turned off | `medications` | the whole array or object |
 
+* A question inside a choice is its bare name — the same name the tester's `nameOf` gives it — because
+  that is where the model keeps its value; `hasPet.petName` names nothing in `data`. It answers only
+  while its choice is selected: an address names an input that exists now, and after a deselection
+  `answer("petName", …)` is `unknownQuestion`.
 * A segment matches a question by its **`name`**, never by `getValueName()`. A question with a
   `valueName` is addressed by its name and its value lands under the `valueName`: the address is the
   survey's structure, the data key is the model's.
@@ -809,6 +853,63 @@ current:
 `entry` is the model's own breadcrumb for the entry an input sits in — the row name here, a processed
 `templateTitle` in a dynamic panel, `"Row 1"` in a dynamic matrix.
 
+### A question inside a choice, end to end
+
+```js
+const iv = await createInterview({
+  title: "Pets",
+  elements: [
+    { type: "radiogroup", name: "hasPet", title: "Do you have a pet?", choices: [
+      { value: "Yes", elements: [{ type: "text", name: "petName", title: "Pet name", isRequired: true }] },
+      "No"
+    ] },
+    { type: "text", name: "note", title: "Note" }
+  ]
+});
+const res = await iv.answer("Yes");
+// res.becameVisible: ["petName"], res.becameRequired: ["petName"]
+```
+
+````markdown
+# Pets
+
+```yaml
+progress:
+  answered: 1
+  remainingRequired: 1
+answered:
+  hasPet: "Yes"
+changes:
+  becameVisible: [petName]
+  becameRequired: [petName]
+current:
+  name: petName
+  type: text
+  title: Pet name
+  required: true
+```
+````
+
+```js
+await iv.answer("Rex");      // current: note
+await iv.skip();             // current: null
+await iv.complete();
+// { completed: true, data: { hasPet: "Yes", petName: "Rex" } }
+```
+
+The same survey in batch mode, in three documents:
+
+```js
+iv.describeAll();                           // items: hasPet, note
+await iv.answerAll({ hasPet: "Yes" });      // becameVisible: [petName]   items: petName, note
+await iv.answerAll({ petName: "Rex", note: "-" });
+                                            // items: []   current: null
+```
+
+An agent that already knows the answer sends `{ hasPet: "Yes", petName: "Rex" }` in one call: a key
+that names a question another key of the same call reveals is written in that call (see
+[`answerAll(values)`](#answerallvalues)).
+
 ### Addresses shift when an entry is removed
 
 The change report is over addresses, and an address is a position. Removing entry 0 of three moves
@@ -891,6 +992,10 @@ carries — and not of the nested input a respondent fills one at a time. So:
   entry or of the container that holds it, and the value sent for it is its own value form. See
   [Nested containers](#nested-containers). The one thing still refused is a container at the
   [depth ceiling](#the-depth-ceiling), which nothing a survey can express reaches.
+* a question **inside a selected choice** of a radiogroup or a checkbox is a root of its own, listed
+  after its owner while the choice is selected, and written by its own name: its value is at the top
+  level of `data`, and the owner's value stays the plain choice — `{ hasPet: { petName: "Rex" } }` is
+  `notAChoice`. See [the rule in single mode](#items-are-the-models-own-single-inputs).
 * a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
   `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
   "batch"` is the depth ceiling, no reason at all says nothing ever will.
@@ -902,11 +1007,20 @@ carries — and not of the nested input a respondent fills one at a time. So:
 ### `answerAll(values)`
 
 Keys are item addresses, plus `<address>` + [`settings.commentSuffix`](#the-comment-key) for an item
-that accepts a comment. Every key is resolved first — an unknown one is `unknownQuestion`, one the
-agent cannot fill is `notAskable` — and the accepted ones are then written **in item order, not in the order
-the object carries them**: a trigger or a `setValueIf` that depends on an earlier question has to see
-it first, and an agent's batch is a set of answers rather than a sequence of gestures. A comment is
-written with the item it belongs to.
+that accepts a comment. Every key is resolved first — one the agent cannot fill is `notAskable` —
+and the accepted ones are then written **in item order, not in the order the object carries them**:
+a trigger or a `setValueIf` that depends on an earlier question has to see it first, and an agent's
+batch is a set of answers rather than a sequence of gestures. A comment is written with the item it
+belongs to.
+
+**A key that names an input another key of the same call reveals is written in that call**, whatever
+order the object carries them in — a question inside the choice that key selects
+(`{ petName: "Rex", hasPet: "Yes" }`), a root that key's `visibleIf` shows
+(`{ from: "Rome", trip: "yes" }`). The keys that name nothing when the call starts are resolved again
+once the others were written, and written as a further pass, again in item order; that repeats while
+a pass writes something. A key that names nothing after the last pass is `unknownQuestion`, and its
+message lists the inputs there are **after** the writes. It is the rule a container already applies
+to its own fields, one level up.
 
 The writes are **sequential, and each answer is re-checked immediately before its own write** against
 the state its predecessors left behind: the item must still be visible and askable — an earlier write
@@ -926,9 +1040,10 @@ of the whole batch drain together, and the result is the one `answer()` returns:
 items that were written. A **required item the agent did not touch is not an error** — it is an item
 in the next `describeAll()`, which is where the remaining work lives.
 
-One consequence of resolving the keys up front: a question that is invisible when the call starts
-cannot be answered in the same call that reveals it. It is in the next document, and the loop below
-sends it on the next turn.
+What a call reveals and the agent did not send is in the next document, and the loop below sends it
+on the next turn. A key an earlier write of the same call **hid** is refused with `notAskable`, not
+written: it named an input when the call started, and the check before its own write says the input
+is gone.
 
 ### The loop
 
@@ -1483,7 +1598,9 @@ await iv.complete();
 so an agent's function-calling API constrains what it may send instead of the interview refusing it
 afterwards. It is synchronous, it reflects the current state — an agent that answers `hasPet` sees
 `petType` in the next schema and not before — and it is built from the item records alone, so what
-the document says and what the schema says cannot disagree.
+the document says and what the schema says cannot disagree. A question inside a choice is a plain
+property while its choice is selected and absent otherwise, so the schema after a batch that selected
+a choice is the one to read next.
 
 ```json
 {
@@ -1635,14 +1752,14 @@ about.
 | --- | --- |
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
 | `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class: the selection rule, the four calls of single-input mode, the pre-checks and the documents. |
-| `interview-items.ts` | The inventory over the model's single inputs, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
+| `interview-items.ts` | The inventory over the model's single inputs, including the questions inside a selected choice, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
 | `interview-address.ts` | The address grammar in both directions: derived from a nested question by walking its containers, and resolved against the live model. The twin of the tester's `test-targets.ts`. |
 | `interview-summary.ts` | A dynamic container's summary step: the entries, the add caption and the "no entries" line as the model words them, and the four actions an answer can name. |
 | `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, the list of items a batch document carries and when a root is listed. |
 | `interview-containers.ts` | One describer and one writer for "a container at an address", whatever it holds and wherever it sits, live or declared, plus the recursive validity. The root code and the field code both go through it; the field code reaches it through a parameter, so there is no import cycle. |
 | `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. A field that is a container is handed to the recursion it is given. |
 | `interview-records.ts` | A dynamic container as a list of entry records: the entries and the template read from the live structure, and the patch / add / remove of one call, planned before anything is written. The fields of an entry are `interview-fields.ts`, reused per entry. |
-| `interview-detail.ts` | The one place a row's detail panel is brought into being: the pass every settle starts with, and the panel of the one row a batch record is about to write. A leaf that nothing describing or reading imports. |
+| `interview-detail.ts` | The one place a row's detail panel is brought into being: the pass every settle starts with — over every matrix the interview reaches, on the page and inside a selected choice — and the panel of the one row a batch record is about to write. A leaf that nothing describing or reading imports. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |

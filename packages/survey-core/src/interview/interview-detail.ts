@@ -44,7 +44,9 @@ export function ensureDetailPanels(survey: SurveyModel): void {
   // The roots getSingleElements() would return (interview-items.ts getRootQuestions, repeated here to
   // keep this module a leaf): the visible questions of the visible, non-start pages.
   survey.getAllQuestions().forEach(question => {
-    if (!question.isVisibleInSurvey || isOnStartPage(question)) return;
+    // A question inside a choice is reached through its owner, while its choice is selected - and
+    // only so, should a later getAllQuestions() list it as well.
+    if (!question.isVisibleInSurvey || isOnStartPage(question) || isInChoice(question)) return;
     ensureInQuestion(question, 0);
   });
 }
@@ -65,6 +67,39 @@ function ensureInQuestion(question: Question, depth: number): void {
     if (!Array.isArray(panels)) return;
   }
   question.getNestedQuestions(true, false).forEach(child => ensureInQuestion(child, depth + 1));
+  // The questions inside the selected choices of a radiogroup or a checkbox are roots of the
+  // inventory, so a matrix among them - or inside a container among them - needs its panels as much
+  // as one on the page does. The same depth: a choice panel adds no container above its questions.
+  // The walk is interview-items.ts addChoiceQuestions, repeated here to keep this module a leaf, with
+  // the same two rules: only for a question that belongs to no entry, and isPanelShowing read before
+  // panel, so the pass creates detail panels and never a choice panel.
+  ensureInChoices(question, depth);
+}
+
+function ensureInChoices(owner: Question, depth: number): void {
+  const target: any = owner;
+  if (!!owner.parentQuestion || typeof target.supportElementsInChoice !== "function" ||
+    target.supportElementsInChoice() !== true) return;
+  const choices: Array<any> = target.visibleChoices;
+  if (!Array.isArray(choices)) return;
+  choices.forEach(choice => {
+    if (!choice || choice.isPanelShowing !== true) return;
+    const panel: any = choice.panel;
+    const questions: Array<Question> = !!panel && Array.isArray(panel.questions) ? panel.questions : [];
+    questions.forEach(question => {
+      if (question.isVisibleInSurvey) ensureInQuestion(question, depth);
+    });
+  });
+}
+
+// A choice panel carries its choice (ChoiceItem.createPanel sets "choiceItem" on it).
+function isInChoice(question: Question): boolean {
+  let node: any = question.parent;
+  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
+    if (!!node.choiceItem) return true;
+    node = node.parent;
+  }
+  return false;
 }
 
 function isOnStartPage(question: Question): boolean {

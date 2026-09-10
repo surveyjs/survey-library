@@ -507,6 +507,38 @@ describe("interview answer schema (issue #11818)", () => {
     });
   });
 
+  // A question inside a choice is a root of its own while the choice is selected, so it is a plain
+  // property of the schema then, and nothing at all otherwise - the schema after a batch that selected
+  // a choice is the one to read next.
+  test("A question inside a selected choice is a property while its choice is selected", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "radiogroup", name: "hasPet", title: "Do you have a pet?", choices: [
+          { value: "Yes", elements: [{ type: "text", name: "petName", title: "Pet name", isRequired: true }] }, "No",
+        ] },
+        { type: "checkbox", name: "contacts", title: "Contact me by", choices: [
+          { value: "email", elements: [{ type: "text", name: "emailAddr", title: "Email address" }] },
+          { value: "phone", elements: [{ type: "text", name: "phoneNum", title: "Phone number" }] },
+        ] },
+      ],
+    });
+    expect(Object.keys(iv.getAnswerSchema().properties)).toEqual(["hasPet", "contacts"]);
+
+    await iv.answerAll({ hasPet: "Yes" });
+    let schema = iv.getAnswerSchema();
+    expect(schema.properties.petName).toEqual({ title: "Pet name", type: "string" });
+    expect(schema.required).toEqual(["petName"]);
+
+    await iv.answerAll({ hasPet: "No" });
+    schema = iv.getAnswerSchema();
+    expect(schema.properties.petName).toBeUndefined();
+    expect(schema.required).toEqual([]);
+
+    await iv.answerAll({ contacts: ["phone", "email"] });
+    schema = iv.getAnswerSchema();
+    expect(Object.keys(schema.properties), "in choice order").toEqual(["emailAddr", "phoneNum"]);
+  });
+
   test("A custom single component is described through the question it wraps", async () => {
     ComponentCollection.Instance.add(<any>{
       name: "shortage",

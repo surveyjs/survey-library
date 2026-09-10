@@ -50,8 +50,94 @@ export function getInterviewInputs(survey: SurveyModel): Array<IInterviewInput> 
 // What getSingleElements() would return: the visible questions of the visible, non-start pages, flat
 // and in document order. A start page is a UI concept the mode skips, so its questions are never
 // items - createInterview has already left it (tier 02).
+//
+// Plus the questions inside the selected choices of a radiogroup or a checkbox, right after their
+// owner. The model keeps their values at the top level of data under their own names, so they are
+// roots of their own - a question a visibleIf panel holds, the condition being the choice - and not
+// nested inputs of the owner, whose value stays the plain choice. getSingleElements() does not list
+// them and neither does getAllQuestions() without includeNested (which, with it, renders every page
+// and walks into every container), so the inventory finds them itself.
 export function getRootQuestions(survey: SurveyModel): Array<Question> {
-  return survey.getAllQuestions().filter(question => question.isVisibleInSurvey && !isOnStartPage(question));
+  const res: Array<Question> = [];
+  survey.getAllQuestions().forEach(question => {
+    // getAllQuestions() never lists a question inside a choice today. Should a later version put them
+    // in the page list, they are still listed by the choice walk alone: once, after their owner, and
+    // only while their choice is selected - the page list would list them after a deselection too,
+    // since their own visibility never changes.
+    if (!question.isVisibleInSurvey || isOnStartPage(question) || !!getDirectChoiceOwner(question)) return;
+    res.push(question);
+    addChoiceQuestions(question, res, 0);
+  });
+  return res;
+}
+
+// The one switch is the choice's isPanelShowing, which the model sets on every value write whether
+// or not anything renders. A choice-panel question's own visibility is not the switch: it stays
+// visible after the choice is deselected, because the panel is what hides. So a question exists for
+// the interview while both hold, and never on the second alone. item.panel creates the panel on first
+// access and is read only once isPanelShowing said yes - selecting the choice has created it by then
+// - so the inventory creates nothing.
+function addChoiceQuestions(owner: Question, res: Array<Question>, depth: number): void {
+  // Only for a question that belongs to no entry. The model gives a choice panel the survey as its
+  // data provider and no parentQuestion, so the questions of a select question inside a dynamic panel,
+  // a detail panel or a composite would write to the top level of data, one key shared by every
+  // entry - an address that told the truth about the data would share one value across entries, and
+  // one that told the truth about the structure would name a key the model never writes. Those
+  // questions stay out until ChoiceItem.setPanelSurvey (src/question_baseselect.ts) hands the panel the
+  // owner's data provider and parent question; this condition is the one to drop then, and the
+  // address grammar and the entry fields pick the questions up as they are. The questions of a choice
+  // have no parentQuestion either, so a radiogroup inside a choice passes it too.
+  if (!!owner.parentQuestion || depth >= MAX_NESTING_DEPTH || !hasChoiceElements(owner)) return;
+  const choices: Array<any> = (<any>owner).visibleChoices;
+  if (!Array.isArray(choices)) return;
+  choices.forEach(choice => {
+    if (!choice || choice.isPanelShowing !== true) return;
+    const panel: any = choice.panel;
+    // panel.questions flattens the static panels inside the choice, in document order.
+    const questions: Array<Question> = !!panel && Array.isArray(panel.questions) ? panel.questions : [];
+    // A question sits in one panel, and a choice's panel belongs to one choice, so nothing is listed
+    // twice.
+    questions.forEach(question => {
+      if (!question.isVisibleInSurvey) return;
+      res.push(question);
+      addChoiceQuestions(question, res, depth + 1);
+    });
+  });
+}
+
+// The two types whose choices may hold questions - a radiogroup and a checkbox - say so through
+// supportElementsInChoice(); a dropdown, a tagbox and a ranking say false and have no panels.
+// Duck-typed on the method, the way isDynamicContainer duck-types addPanel.
+export function hasChoiceElements(question: Question): boolean {
+  const target: any = question;
+  return !!target && typeof target.supportElementsInChoice === "function" &&
+    target.supportElementsInChoice() === true;
+}
+
+// The select question whose selected choice holds the question, and for a choice inside a choice the
+// outermost one; undefined for a question that is in no choice. Derived from the model, never
+// remembered: the question's parents are walked up through the static panels to the choice panel,
+// which carries its choice (ChoiceItem.createPanel sets "choiceItem" on it, a plain property), and the
+// choice names its owner.
+export function getChoiceOwner(question: Question): Question | undefined {
+  let res: Question = undefined;
+  let owner = getDirectChoiceOwner(question);
+  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!owner; depth++) {
+    res = owner;
+    owner = getDirectChoiceOwner(owner);
+  }
+  return res;
+}
+
+function getDirectChoiceOwner(question: Question): Question | undefined {
+  let node: any = !!question ? question.parent : undefined;
+  // Static panels: the bound only stops a cycle.
+  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
+    const choice = node.choiceItem;
+    if (!!choice) return choice.choiceOwner || undefined;
+    node = node.parent;
+  }
+  return undefined;
 }
 
 export function isOnStartPage(question: Question): boolean {
@@ -63,8 +149,9 @@ export function isOnStartPage(question: Question): boolean {
 function addInputs(survey: SurveyModel, question: Question, root: Question, depth: number,
   res: Array<IInterviewInput>): void {
   // The host turned nesting off for this question through onCheckSingleInputPerPageMode: the
-  // container is one input holding the whole array or object, exactly as the mode would show it.
-  if (!survey.supportsNestedSingleInput(question)) {
+  // container is one input holding the whole array or object, exactly as the mode would show it. A
+  // select question with choice questions is one input too, for the reason isContainerQuestion gives.
+  if (!survey.supportsNestedSingleInput(question) || hasChoiceElements(question)) {
     addInput(question, root, res);
     return;
   }
@@ -108,6 +195,12 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, dept
 // dynamic panel with no panels yet, or a matrix with no rows, has no nested question at this instant
 // and is a container all the same.
 export function isContainerQuestion(question: Question): boolean {
+  // A select question whose choices hold questions is never a container, whatever
+  // getNestedQuestions() answers for it: its value is a choice, and the questions of its choices are
+  // roots of their own (getRootQuestions). Today the fall-through below says the same only because the
+  // model lists a choice panel's questions with includeNested alone; a model that listed them like
+  // every other container does would otherwise turn a radiogroup into a container overnight.
+  if (hasChoiceElements(question)) return false;
   const type = question.getType();
   if (type === MATRIX_TYPE || DYNAMIC_CONTAINER_TYPES.indexOf(type) >= 0) return true;
   return question.getNestedQuestions(true, false).length > 0;
@@ -234,6 +327,22 @@ export function isInputValid(input: IInterviewInput): boolean {
   return input.question.errors.length === 0 && !input.question.hasRequiredError();
 }
 
+// Validating a radiogroup or a checkbox validates the questions of its selected choices with it
+// (QuestionSelectBase.validateElementCore), so the write that selects a choice puts "Response
+// required." on the question the choice has just revealed - an input nobody has asked for yet, and
+// the next current() would carry the error. An input inside a choice that is empty, that the call did
+// not touch and that carried no error before the call is therefore left as it was: the rule a summary
+// step and a batch record already apply to the entries validating a container reaches. An
+// unanswered required input is an error at complete(), not the moment its choice is selected.
+export function clearUntouchedChoiceErrors(inputs: Array<IInterviewInput>,
+  isTouched: (input: IInterviewInput) => boolean): void {
+  inputs.forEach(input => {
+    const question = input.question;
+    if (question.errors.length === 0 || !question.isEmpty() || isTouched(input)) return;
+    if (!!getChoiceOwner(input.root)) question.clearErrors();
+  });
+}
+
 // The localized texts the rendered UI shows for the same errors. "errors", not getAllErrors(): a
 // scalar input answers for itself, and a container's collected errors belong to its own items.
 export function getInputErrors(input: IInterviewInput): Array<string> {
@@ -243,10 +352,18 @@ export function getInputErrors(input: IInterviewInput): Array<string> {
 // The interview selects its own next input (the issue's rule) and then tells the model, so that
 // survey.currentSingleQuestion and its currentSingleInputQuestion always agree with current(): a UI
 // rendering the same model shows the input the interview is asking for.
+//
+// A root inside a choice is the exception: the mode's navigation list (getSingleElements()) does not
+// know it, and while such a question is the model's current the survey does not consider itself at
+// the end - a survey with an onServerValidateQuestions handler validates and then stays running. So
+// the model's current for it is its choice's owner - the outermost one - which is also what a UI on
+// the same model shows: the panel under its choice. current() is unaffected: it is derived from the
+// inventory, never read off the model.
 export function makeInputCurrent(survey: SurveyModel, input: IInterviewInput): void {
   if (!input) return;
+  const owner = getChoiceOwner(input.root);
   if (input.question === input.root) {
-    survey.currentSingleQuestion = input.root;
+    survey.currentSingleQuestion = owner || input.root;
   } else {
     // Sets the root current and walks setSingleInputQuestion down the whole parent chain; its final
     // focusInputElement is a no-op with no DOM. A container nested inside another one is reached the
@@ -257,6 +374,11 @@ export function makeInputCurrent(survey: SurveyModel, input: IInterviewInput): v
     // A dynamic container is its own last input, and the mode builds the summary - the entries,
     // their remove buttons, the add caption - only while that is where it stands.
     input.question.singleInputBehavior.setSingleInputQuestion(input.question);
+  }
+  // A container inside a choice has just been walked into as the model's current; its own
+  // single-input state - the nested input, the summary - is cached on it and survives the move.
+  if (!!owner && survey.currentSingleQuestion !== owner) {
+    survey.currentSingleQuestion = owner;
   }
 }
 

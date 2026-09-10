@@ -62,6 +62,11 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
 // onCheckSingleInputPerPageMode folds a container back into one input holding the whole object, and
 // that input is still not one plain value. Batch mode then fills it as an object all the same - the
 // two host events tune single mode only.
+//
+// A radiogroup or a checkbox whose choices hold questions needs no rule of its own here:
+// isContainerQuestion() refuses it explicitly, and its described valueType is the choice's - a scalar
+// or an array, never "object". The questions of its choices are roots of the inventory and come
+// through this function as roots of their own.
 function isBatchContainer(root: Question, item: IInterviewItem): boolean {
   return isContainerQuestion(root) || item.valueType === "object";
 }

@@ -1,7 +1,7 @@
 import { Helpers, describeQuestion } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
-import type { IInterviewContainer } from "./interview-items";
+import { IInterviewContainer, hasChoiceElements } from "./interview-items";
 import { formatAddressSegment, getAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
 import {
@@ -97,6 +97,12 @@ export function isDynamicContainer(question: Question): boolean {
 export function isFixedShapeContainer(question: Question): boolean {
   const target: any = question;
   if (!target || isDynamicContainer(question)) return false;
+  // A select question whose choices hold questions is never a container: its value is a choice, and
+  // the questions of its choices are roots of their own (interview-items.ts getRootQuestions). The
+  // fall-through below answers the same today only because the model lists a choice panel's questions
+  // with includeNested alone; were it to list them like every other container, every write of the
+  // choice would be refused as badRecord against a scalar value.
+  if (hasChoiceElements(question)) return false;
   // The one container whose inputs are not questions of the JSON: the mode synthesizes a radiogroup
   // or a checkbox per row, with the columns as its choices.
   if (isSingleChoiceMatrix(target)) return true;

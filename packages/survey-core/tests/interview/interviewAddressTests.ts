@@ -130,6 +130,22 @@ describe("interview addresses (issue #11818)", () => {
     expect(checked).toContain("orders[1].items[0].sku");
   });
 
+  // The model keeps the value of a question inside a choice at the top level of data and gives it no
+  // parent question, so both grammars write the bare name: the address tells the truth about the data.
+  test("A question inside a selected choice is its bare name, for the tester and the interview alike", async () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "radiogroup", name: "hasPet", choices: [
+        { value: "Yes", elements: [{ type: "text", name: "petName" }] }, "No",
+      ] }],
+    });
+    const iv = await createInterview(survey);
+    await iv.answer("Yes");
+    expect(iv.current().name).toBe("petName");
+    expect(SurveyTestTargets.nameOf(survey, survey.getQuestionByName("petName"))).toBe("petName");
+    await iv.answer("Rex");
+    expect(iv.data).toEqual({ hasPet: "Yes", petName: "Rex" });
+  });
+
   test("A segment that carries a delimiter is quoted, and reads back", async () => {
     const survey = new SurveyModel({
       elements: [

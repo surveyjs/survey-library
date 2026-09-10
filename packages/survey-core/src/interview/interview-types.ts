@@ -20,35 +20,37 @@ export interface IInterviewItem extends IQuestionDescription {
   entry?: string;
   // a dynamic container's summary step (tier 06)
   summary?: IInterviewSummary;
-  // batch mode, a fixed-shape container: the inputs it holds, each described the way a question is,
-  // under the name a key of the object carries. It replaces the describer's "items" in a batch
-  // record; a single-mode record keeps "items" and never has "fields".
+  // batch mode, a fixed-shape container or a field that is one: the inputs it holds, each described
+  // the way a question is, under the name a key of the object carries. It replaces the describer's
+  // "items" in a batch record; a single-mode record keeps "items" and never has "fields".
   fields?: Array<IInterviewItem>;
-  // batch mode, a matrix dropdown: two levels, because its value has two - the row, then the fields
-  // of that row.
+  // batch mode, a matrix dropdown or a field that is one: two levels, because its value has two - the
+  // row, then the fields of that row.
   rows?: Array<IInterviewRow>;
-  // batch mode, a dynamic container: the entries it holds now, one record per entry, in the order
-  // the interviewee sees them.
+  // batch mode, a dynamic container or a field that is one: the entries it holds now, one record per
+  // entry, in the order the interviewee sees them. Never inside a template, which is a declaration.
   entries?: Array<IInterviewEntry>;
-  // batch mode, a dynamic container: what a new entry takes - the template, described. A declaration
-  // and not a live entry: an entry's own fields are the truth once it exists.
+  // batch mode, a dynamic container or a field that is one: what a new entry takes - the template,
+  // described. A declaration and not a live entry, at every depth: an entry's own fields are the
+  // truth once it exists.
   template?: Array<IInterviewItem>;
-  // batch mode, a dynamic container: whether another entry may be added right now
+  // batch mode, a dynamic container or a field that is one: whether another entry may be added right
+  // now - in a declaration, what the template's own container reports
   canAdd?: boolean;
   // batch mode, a field of a container: the value it holds now, in the form answer() takes back
-  // ({ value, comment } when a comment is set)
+  // ({ value, comment } when a comment is set). Never on a field that is a container: its entries and
+  // fields say what it holds.
   value?: any;
-  // batch mode, next to unsupported: "batch" says this version cannot fill the item and a later one
-  // may - a dynamic panel, a matrix, a multiple text, a composite. No reason at all says nothing
-  // ever will: a file to upload, a signature to draw.
+  // batch mode, next to unsupported: the only container a batch cannot fill is one below the depth
+  // ceiling, and "batch" says that is why. No reason at all says nothing ever will: a file to upload,
+  // a signature to draw.
   reason?: "batch";
   // single mode: the current item's first error text, if any
   error?: string;
 }
 
 // One row of a matrix dropdown in a batch document: the key of the first level of the object, the
-// row's own localized text, and the cells (plus the questions of a detail panel the model has
-// created) as fields.
+// row's own localized text, and the cells plus the questions of its detail panel as fields.
 export interface IInterviewRow {
   name: string;
   title: string;

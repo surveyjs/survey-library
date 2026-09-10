@@ -1,7 +1,7 @@
 import { describeQuestion } from "survey-core";
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
-import { getAddress } from "./interview-address";
+import { MAX_NESTING_DEPTH, getAddress } from "./interview-address";
 import { getSummaryDescription } from "./interview-summary";
 
 // The inventory: everything the interview can address, in document order, derived from the
@@ -43,7 +43,7 @@ export interface IInterviewInput {
 
 export function getInterviewInputs(survey: SurveyModel): Array<IInterviewInput> {
   const res: Array<IInterviewInput> = [];
-  getRootQuestions(survey).forEach(root => addInputs(survey, root, root, res));
+  getRootQuestions(survey).forEach(root => addInputs(survey, root, root, 0, res));
   return res;
 }
 
@@ -59,24 +59,32 @@ export function isOnStartPage(question: Question): boolean {
   return !!page && page.isStartPage === true;
 }
 
-function addInputs(survey: SurveyModel, question: Question, root: Question, res: Array<IInterviewInput>): void {
+// "depth" is the number of containers above the question (interview-address.ts): a root is at 0.
+function addInputs(survey: SurveyModel, question: Question, root: Question, depth: number,
+  res: Array<IInterviewInput>): void {
   // The host turned nesting off for this question through onCheckSingleInputPerPageMode: the
   // container is one input holding the whole array or object, exactly as the mode would show it.
   if (!survey.supportsNestedSingleInput(question)) {
     addInput(question, root, res);
     return;
   }
-  if (question.getType() === MATRIX_TYPE) {
-    getMatrixRowInputs(question).forEach(row => addInput(row, root, res));
-    return;
-  }
+  const isMatrix = question.getType() === MATRIX_TYPE;
+  const isDynamic = DYNAMIC_CONTAINER_TYPES.indexOf(question.getType()) >= 0;
   // Structural and navigation-free: a dynamic panel yields the visible questions of every visible
   // panel, a matrix its cells row by row, a multiple text its editors, a composite its content
   // questions. Empty means the question is an input of its own - unless it is a dynamic container,
   // which has no nested question until an entry is added and whose summary step is exactly what the
   // interviewee is shown in the meantime.
-  const isDynamic = DYNAMIC_CONTAINER_TYPES.indexOf(question.getType()) >= 0;
-  const children = question.getNestedQuestions(true, false);
+  const children = isMatrix ? getMatrixRowInputs(question) : question.getNestedQuestions(true, false);
+  if (depth >= MAX_NESTING_DEPTH && (isMatrix || isDynamic || children.length > 0)) {
+    // A container at the ceiling is not walked into, and it is not an item either - not its summary
+    // step, not its whole value: nothing below the ceiling exists for the interview, in either mode.
+    return;
+  }
+  if (isMatrix) {
+    children.forEach(row => addInput(row, root, res));
+    return;
+  }
   // The host's onGetLoopQuestions edits the nested list - drops a question, reorders them - and the
   // mode asks it before walking a container. The inventory is built from the structure and not from
   // the mode's list (see above), so it asks the same question itself, or a question the host removed
@@ -86,7 +94,7 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, res:
     addInput(question, root, res);
     return;
   }
-  children.forEach(child => addInputs(survey, child, root, res));
+  children.forEach(child => addInputs(survey, child, root, depth + 1, res));
   if (isDynamic) {
     // The summary step sits last, where the mode puts it.
     addInput(question, root, res, true);
@@ -94,10 +102,11 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, res:
 }
 
 // A root whose value is not one plain answer: the mode splits it into the nested questions a
-// respondent fills one at a time. Batch mode (tier 05) writes one value per question and therefore
-// reports such a root instead of filling it; single mode walks its inputs. The dynamic types are
-// named because a dynamic panel with no panels yet, or a matrix with no rows, has no nested question
-// at this instant and is a container all the same.
+// respondent fills one at a time. Batch mode asks it once per root, to tell a plain root from one it
+// describes as a container (interview-batch.ts); what a field inside a container is, is decided by
+// the shape of the question and not here (interview-fields.ts). The dynamic types are named because a
+// dynamic panel with no panels yet, or a matrix with no rows, has no nested question at this instant
+// and is a container all the same.
 export function isContainerQuestion(question: Question): boolean {
   const type = question.getType();
   if (type === MATRIX_TYPE || DYNAMIC_CONTAINER_TYPES.indexOf(type) >= 0) return true;
@@ -116,7 +125,7 @@ export function getUnreportedContainers(inputs: Array<IInterviewInput>): Array<I
   inputs.forEach(input => { seen[input.question.id] = true; });
   inputs.forEach(input => {
     let parent = input.question.parentQuestion;
-    for (let depth = 0; depth < MAX_CONTAINER_DEPTH && !!parent; depth++) {
+    for (let depth = 0; depth < MAX_NESTING_DEPTH && !!parent; depth++) {
       if (seen[parent.id] !== true) {
         seen[parent.id] = true;
         const address = getAddress(parent);
@@ -132,9 +141,6 @@ export interface IInterviewContainer {
   address: string;
   question: Question;
 }
-
-// Deep enough for any nesting a survey can express; it only stops a cycle in a broken model.
-const MAX_CONTAINER_DEPTH = 20;
 
 function getMatrixRowInputs(question: Question): Array<Question> {
   const rows = (<any>question).getMatrixSingleInputQuestions(undefined, true);

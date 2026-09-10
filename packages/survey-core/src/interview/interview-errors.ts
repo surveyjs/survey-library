@@ -1,4 +1,5 @@
 import type { IInterviewError } from "./interview-types";
+import { MAX_NESTING_DEPTH } from "./interview-address";
 
 // Every error the interview raises itself, in one frozen table. A host localizes on the code, the
 // way it localizes on SurveyLintReasons: the message is English prose meant for a developer or for
@@ -56,8 +57,8 @@ export function unknownQuestionError(name: string, known: Array<string>): IInter
   };
 }
 
-// One code, four reasons. "batch" and "hidden" belong to answerAll(): a container is a question the
-// batch API has no way to write, and a question an earlier answer of the same call hid or turned off
+// One code, four reasons. "batch" and "hidden" belong to answerAll(): a container below the depth
+// ceiling is one no mode reaches, and a question an earlier answer of the same call hid or turned off
 // is one the batch may no longer write. Both are the same statement to the caller - "this key was
 // not written" - so they are the same code with a message that says which.
 export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "hidden";
@@ -65,8 +66,8 @@ export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
   unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
-  batch: "it is a container nested inside another container, and a batch fills only the containers " +
-    "the survey holds at its top level. Its inputs are answered in single-input mode",
+  batch: "it sits deeper than the " + MAX_NESTING_DEPTH + " nested containers the interview addresses, " +
+    "and neither mode reaches it",
   hidden: "an earlier answer of the same call hid it or turned it off, so it is no longer being asked",
 };
 
@@ -159,8 +160,9 @@ export function badAddressError(name: string): IInterviewError {
 // A container whose value is one object with a fixed set of keys - a single-choice matrix, a matrix
 // dropdown, a multiple text, a composite - takes that object and nothing else, and so does a row of
 // a matrix dropdown. A dynamic container takes a list of such objects, one per position, with null
-// for "remove the entry at this position". null and undefined for the whole key are not a mistake:
-// they leave the container alone, and a field is cleared by sending null for that field.
+// for "remove the entry at this position". The same holds for a container that is a field of another
+// one, at any depth, with the field's address as the name. null and undefined for the whole key are
+// not a mistake: they leave the container alone, and a field is cleared by sending null for that field.
 export type InterviewRecordShape = "fields" | "list" | "entry";
 
 const RECORD_SHAPES: { [shape: string]: string } = {

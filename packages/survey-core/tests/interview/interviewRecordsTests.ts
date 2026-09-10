@@ -283,10 +283,14 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     const document = iv.getBatchDocument();
     const fields = document.items[0].entries[0].fields;
     expect(fields.map(field => field.name)).toEqual(["sku", "note", "why", "inner"]);
-    // A container inside an entry is listed where it sits and never filled.
-    expect(fields[3].unsupported).toBe(true);
-    expect(fields[3].reason).toBe("batch");
-    expect(fields[3].fields).toBeUndefined();
+    // A container inside an entry is described where it sits, the way a root container is: its two
+    // default rows as entries, its template and canAdd - and no value of its own.
+    expect(fields[3].unsupported).toBeUndefined();
+    expect(fields[3].reason).toBeUndefined();
+    expect(fields[3].entries.length).toBe(2);
+    expect(fields[3].template.map(field => field.name)).toEqual(["c"]);
+    expect(fields[3].canAdd).toBe(true);
+    expect("value" in fields[3]).toBe(false);
   });
 
   test("null at a position removes that entry", async () => {
@@ -468,27 +472,26 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(iv.data.medications[0]["kind-Comment"]).toBe("Ferret");
   });
 
-  test("A container inside an entry is listed and refused, and so is a hidden field", async () => {
+  test("A container inside an entry is described and filled, and a hidden field is refused", async () => {
     const iv = await createInterview(medicationsJson({ panelCount: 1 }, [
       { type: "text", name: "name", title: "Name", isRequired: true },
       { type: "text", name: "dose", title: "Dose", visibleIf: "{panel.name} = 'Aspirin'" },
-      { type: "paneldynamic", name: "refills", templateElements: [{ type: "text", name: "when" }] },
+      { type: "paneldynamic", name: "refills", panelCount: 0, templateElements: [{ type: "text", name: "when" }] },
       { type: "multipletext", name: "contact", items: [{ name: "email" }] },
     ]));
     const document = iv.describeAll();
-    // Twice each: in the fields of the entry that exists, and in the template a new entry takes.
-    expect(document.split("reason: batch").length - 1).toBe(4);
-    const res = await iv.answerAll({ medications: [{ refills: [{}], dose: "10 mg", contact: {} }] });
-    expect(res.errors.map(error => error.code)).toEqual([
-      InterviewErrorCodes.notAskable, InterviewErrorCodes.notAskable, InterviewErrorCodes.notAskable,
-    ]);
-    // In the entry's own field order, and a key that names nothing the entry offers comes last.
-    expect(res.errors[0].name).toBe("medications[0].refills");
-    expect(res.errors[0].message).toContain("nested inside another container");
-    expect(res.errors[1].name).toBe("medications[0].contact");
-    expect(res.errors[2].name).toBe("medications[0].dose");
-    expect(res.errors[2].message).toContain("no longer being asked");
-    expect(iv.data).toEqual({ medications: [{}] });
+    // Nothing is refused for its nesting any more, in the fields of the entry that exists or in the
+    // template a new entry takes.
+    expect(document.split("reason: batch").length - 1).toBe(0);
+    const res = await iv.answerAll({
+      medications: [{ refills: [{ when: "May" }], dose: "10 mg", contact: { email: "a@b.c" } }],
+    });
+    // The hidden field alone is refused, and the rest of the record is written.
+    expect(res.errors.length).toBe(1);
+    expect(res.errors[0].code).toBe(InterviewErrorCodes.notAskable);
+    expect(res.errors[0].name).toBe("medications[0].dose");
+    expect(res.errors[0].message).toContain("no longer being asked");
+    expect(iv.data).toEqual({ medications: [{ refills: [{ when: "May" }], contact: { email: "a@b.c" } }] });
   });
 
   test("An empty required field of an entry nobody was asked for yet is not an error", async () => {

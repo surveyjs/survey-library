@@ -223,7 +223,7 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
     expect(iv.data).toEqual({});
   });
 
-  test("A detail panel the model created is part of its row", async () => {
+  test("The detail panel of every row is part of the row, and a container in it is filled", async () => {
     const iv = await createInterview({
       elements: [
         { type: "matrixdropdown", name: "matrix", columns: [{ name: "col", title: "Col" }],
@@ -234,33 +234,32 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
           ] },
       ],
     });
-    const matrix: any = iv.survey.getQuestionByName("matrix");
-    matrix.visibleRows[0].showDetailPanel();
+    // Nothing opened the panel: the interview created it in createInterview, before anything read it.
     const document = iv.describeAll();
     expect(document).toContain("          - name: note");
-    // A container inside a container is described where it sits and never filled.
+    // A container inside a container is described where it sits, the way a root container is.
     expect(document).toContain(block(
       "          - name: inner",
       "            type: multipletext",
       "            title: inner",
       "            required: false",
-      "            unsupported: true",
-      "            reason: batch"
+      "            fields:",
+      "              - name: a",
+      "                type: text",
+      "                title: a",
+      "                required: false"
     ));
     const res = await iv.answerAll({ matrix: { row1: { note: "seen", inner: { a: "1" } } } });
-    expect(res.errors.length).toBe(1);
-    expect(res.errors[0].code).toBe(InterviewErrorCodes.notAskable);
-    expect(res.errors[0].name).toBe("matrix.row1.inner");
-    expect(res.errors[0].message).toContain("nested inside another container");
-    expect(iv.data).toEqual({ matrix: { row1: { note: "seen" } } });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ matrix: { row1: { note: "seen", inner: { a: "1" } } } });
   });
 
-  test("A container nested in a composite is listed in place and refused", async () => {
+  test("A container nested in a composite is described in place and filled", async () => {
     ComponentCollection.Instance.add(<any>{
       name: "nestedcmp",
       elementsJSON: [
         { type: "text", name: "plain", title: "Plain" },
-        { type: "paneldynamic", name: "list", templateElements: [{ type: "text", name: "x" }] },
+        { type: "paneldynamic", name: "list", panelCount: 0, templateElements: [{ type: "text", name: "x" }] },
       ],
     });
     customComponents.push("nestedcmp");
@@ -271,12 +270,18 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
       "        type: paneldynamic",
       "        title: list",
       "        required: false",
-      "        unsupported: true",
-      "        reason: batch"
+      "        template:",
+      "          - name: x",
+      "            type: text",
+      "            title: x",
+      "            required: false",
+      "        canAdd: true"
     ));
-    expect(document, "a nested container has no fields of its own").not.toContain("        fields:");
-    expect(iv.getAnswerSchema().properties.cmp.properties, "and no schema property either")
-      .toEqual({ plain: { anyOf: [{ title: "Plain", type: "string" }, { type: "null" }] } });
+    expect(document.split("reason: batch").length - 1).toBe(0);
+    const res = await iv.answerAll({ cmp: { plain: "p", list: [{ x: "1" }, { x: "2" }] } });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ cmp: { plain: "p", list: [{ x: "1" }, { x: "2" }] } });
+    expect(iv.getAnswerSchema().properties.cmp, "answered and valid: nothing left to send").toBeUndefined();
   });
 
   test("The transcript of the README, through the loop", async () => {
@@ -592,8 +597,8 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
     });
     const document = iv.describeAll();
     // Nothing is refused at the top level any more: the two dynamic containers are filled as records
-    // (tier 08), the fixed-shape ones as objects, and "reason: batch" is left for what is nested
-    // inside a container.
+    // (tier 08), the fixed-shape ones as objects, and "reason: batch" is left for a container below
+    // the depth ceiling (tier 09).
     expect(document.split("reason: batch").length - 1).toBe(0);
     expect(document).toContain("    canAdd: true");
     // A single custom component does not override collectNestedQuestionsCore, so it holds no nested

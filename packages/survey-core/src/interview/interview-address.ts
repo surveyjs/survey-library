@@ -23,9 +23,16 @@ import type { Question, SurveyModel } from "survey-core";
 // The interview composes an address nowhere else: getAddress() writes them and resolveAddress()
 // reads them.
 
-// A path is a chain of containers, not a recursion; the ceiling only stops a cycle in a broken model
-// from hanging the caller. Same value as the tester's MAX_TARGET_DEPTH.
-const MAX_ADDRESS_DEPTH = 20;
+// The one ceiling of the interview. The depth of a question is the number of container questions
+// above it - the parentQuestion hops from it to a root - so a root is at depth 0 and the address of a
+// question at depth d has d + 1 segments. A question at depth <= MAX_NESTING_DEPTH exists for the
+// interview and nothing deeper does: getAddress() writes no address for it, parseAddress() reads
+// none, the inventory walks no container at the ceiling (interview-items.ts), the batch describer
+// reports one there as unsupported (interview-containers.ts) and no detail panel is created below it
+// (interview-detail.ts). All of them read this constant, so the grammar, the inventory and the two
+// documents agree on what exists. Nothing a survey can express reaches it; it also stops a cycle in a
+// broken model from hanging the caller. Same value as the tester's MAX_TARGET_DEPTH.
+export const MAX_NESTING_DEPTH = 20;
 // A segment is written bare unless it carries one of the characters the grammar itself uses.
 const BARE_SEGMENT_REGEX = /^[^.[\]"]+$/;
 const DIGITS_REGEX = /^\d+$/;
@@ -60,7 +67,9 @@ export function getAddress(question: Question): string | undefined {
   if (!question || !question.name) return undefined;
   let path = quoteSegment(question.name);
   let current: any = question;
-  for (let depth = 0; depth < MAX_ADDRESS_DEPTH; depth++) {
+  // One hop per container above the question: the loop reads a parent MAX_NESTING_DEPTH times at
+  // most, and a question at the ceiling returns on the check after the last hop.
+  for (let depth = 0; depth <= MAX_NESTING_DEPTH; depth++) {
     const parent: any = current.parentQuestion;
     if (!parent) return path;
     if (!parent.name) return undefined;
@@ -70,6 +79,18 @@ export function getAddress(question: Question): string | undefined {
     current = parent;
   }
   return undefined;
+}
+
+// The depth the ceiling counts: the number of container questions above the question. A chain longer
+// than the ceiling answers one past it, which every caller reads as "below the ceiling".
+export function getQuestionDepth(question: Question): number {
+  let current: any = question;
+  let depth = 0;
+  while(!!current && !!current.parentQuestion && depth <= MAX_NESTING_DEPTH) {
+    current = current.parentQuestion;
+    depth++;
+  }
+  return depth;
 }
 
 // What identifies, inside the parent, the entry the child belongs to. "" for a container whose
@@ -104,7 +125,8 @@ function getPanelIndex(panelDynamic: any, child: any): number {
   const panels: Array<any> = panelDynamic.visiblePanels;
   if (!Array.isArray(panels)) return -1;
   let node = child.parent;
-  for (let depth = 0; depth < MAX_ADDRESS_DEPTH && !!node; depth++) {
+  // Static panels, not containers: the same bound only stops a cycle here.
+  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
     const index = panels.indexOf(node);
     if (index > -1) return index;
     node = node.parent;
@@ -160,6 +182,8 @@ export function parseAddress(text: string): Array<IInterviewAddressSegment> | un
       pos = close + 1;
     }
     res.push(segment);
+    // The grammar refuses an address it would never write: nothing deeper than the ceiling exists.
+    if (res.length > MAX_NESTING_DEPTH + 1) return undefined;
     if (pos === text.length) return res;
     if (text.charAt(pos) !== ".") return undefined;
     pos++;

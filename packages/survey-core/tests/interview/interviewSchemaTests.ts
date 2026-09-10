@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
-import { ComponentCollection, settings } from "survey-core";
+import { ComponentCollection, SurveyModel, settings } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -193,6 +193,10 @@ describe("interview answer schema (issue #11818)", () => {
     "they are.";
   const ROWS_TEXT = "An object of rows, each an object of fields. Send only the fields to change; " +
     "the others are left as they are.";
+  const NESTED_RECORDS_TEXT = "A list of entries by position. An object updates the entry at that " +
+    "position (send only the fields to change); a position past the entries the document lists for " +
+    "this entry adds one; null removes the entry at that position; positions not sent are left as " +
+    "they are.";
 
   test("A multiple text is an object of nullable field properties", async () => {
     expect(await propertyOf({
@@ -260,12 +264,12 @@ describe("interview answer schema (issue #11818)", () => {
     });
   });
 
-  test("A composite is an object of its content questions, and a nested container is not in it", async () => {
+  test("A composite is an object of its content questions, and a nested container is a nested property", async () => {
     ComponentCollection.Instance.add(<any>{
       name: "addressc",
       elementsJSON: [
         { type: "dropdown", name: "kind", title: "Kind", choices: ["home"], showOtherItem: true },
-        { type: "paneldynamic", name: "nested", templateElements: [{ type: "text", name: "x" }] },
+        { type: "paneldynamic", name: "nested", panelCount: 0, templateElements: [{ type: "text", name: "x" }] },
       ],
     });
     customComponents.push("addressc");
@@ -284,7 +288,28 @@ describe("interview answer schema (issue #11818)", () => {
             { type: "null" },
           ],
         },
-        // The nested dynamic panel is absent: there is no value an agent could send for it.
+        // The nested dynamic panel is the array property its root twin would be, nullable like every
+        // field, with the count-less text of a nested list.
+        nested: {
+          anyOf: [
+            {
+              title: "nested",
+              description: NESTED_RECORDS_TEXT,
+              type: "array",
+              items: {
+                anyOf: [
+                  {
+                    type: "object",
+                    properties: { x: { anyOf: [{ title: "x", type: "string" }, { type: "null" }] } },
+                    additionalProperties: false,
+                  },
+                  { type: "null" },
+                ],
+              },
+            },
+            { type: "null" },
+          ],
+        },
       },
       additionalProperties: false,
     });
@@ -328,6 +353,9 @@ describe("interview answer schema (issue #11818)", () => {
 
   const RECORDS_TEXT = "A list of entries by position. An object updates the entry at that position " +
     "(send only the fields to change); a position past the current 1 entry adds one; null removes " +
+    "the entry at that position; positions not sent are left as they are.";
+  const ROOT_RECORDS_TEXT_0 = "A list of entries by position. An object updates the entry at that position " +
+    "(send only the fields to change); a position past the current 0 entries adds one; null removes " +
     "the entry at that position; positions not sent are left as they are.";
 
   test("A dynamic container is a list of entry records", async () => {
@@ -410,6 +438,73 @@ describe("interview answer schema (issue #11818)", () => {
     expect(schema.properties.meds.readOnly).toBe(true);
     expect(schema.properties.meds.type).toBe("array");
     expect(schema.required).toEqual([]);
+  });
+
+  test("A nested container is the property its root twin would be, nested where it sits", async () => {
+    const nullable = (property: any): any => ({ anyOf: [property, { type: "null" }] });
+    const list = (title: string, description: string, element: any, extra?: any): any => Object.assign({
+      title: title, description: description, type: "array",
+      items: { anyOf: [{ type: "object", properties: element, additionalProperties: false }, { type: "null" }] },
+    }, extra || {});
+    const schema = await schemaOf({
+      elements: [{
+        type: "paneldynamic", name: "orders", title: "Orders", panelCount: 0, templateElements: [
+          { type: "text", name: "ref", title: "Reference" },
+          { type: "matrixdynamic", name: "items", title: "Items", minRowCount: 1, rowCount: 1,
+            columns: [{ name: "sku", title: "SKU", cellType: "text", isRequired: true }],
+            detailPanelMode: "underRow", detailElements: [
+              { type: "paneldynamic", name: "notes", title: "Notes", panelCount: 0,
+                templateElements: [{ type: "text", name: "text", title: "Note" }] },
+            ] },
+        ],
+      }],
+    });
+    // The root names its current count; a nested list serves every entry of its owner and names none.
+    // additionalProperties: false and nullable at every level, and no "required" inside any object.
+    expect(schema.properties.orders).toEqual(list("Orders", ROOT_RECORDS_TEXT_0, {
+      ref: nullable({ title: "Reference", type: "string" }),
+      items: nullable(list("Items", NESTED_RECORDS_TEXT + " (min 1)", {
+        sku: nullable({ title: "SKU", type: "string" }),
+        notes: nullable(list("Notes", NESTED_RECORDS_TEXT, {
+          text: nullable({ title: "Note", type: "string" }),
+        })),
+      })),
+    }));
+    expect(schema.required).toEqual([]);
+  });
+
+  test("The union of a nested list: every entry's choices, the loosest bound, a nested object", async () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "orders", panelCount: 2, templateElements: [
+          { type: "text", name: "kind" },
+          { type: "matrixdynamic", name: "items", rowCount: 1, maxRowCount: 3, columns: [
+            { name: "pick", cellType: "dropdown", isRequired: true, choices: ["A", "B"],
+              choicesVisibleIf: "{panel.kind} = {item}" },
+          ] },
+          { type: "multipletext", name: "contact", items: [{ name: "email" }] },
+        ],
+      }],
+    });
+    const iv = await createInterview(survey);
+    await iv.answerAll({ orders: [{ kind: "A" }, { kind: "B" }] });
+    // One entry's matrix allows more rows than the template's does; the loosest bound is the schema's.
+    (<any>survey.getQuestionByName("orders")).panels[1].getQuestionByName("items").maxRowCount = 5;
+    const element = iv.getAnswerSchema().properties.orders.items.anyOf[0].properties;
+    // Entry 0 offers A and entry 1 offers B: two levels down, the element schema offers both.
+    const items = element.items.anyOf[0];
+    expect(items.items.anyOf[0].properties.pick.anyOf[0].enum).toEqual(["A", "B"]);
+    expect(items.maxItems).toBe(5);
+    // A multiple text in a template is a nested object, with no "required" inside.
+    expect(element.contact).toEqual({
+      anyOf: [{
+        title: "contact",
+        description: "An object of fields. Send only the fields to change; the others are left as they are.",
+        type: "object",
+        properties: { email: { anyOf: [{ title: "email", type: "string" }, { type: "null" }] } },
+        additionalProperties: false,
+      }, { type: "null" }],
+    });
   });
 
   test("A custom single component is described through the question it wraps", async () => {

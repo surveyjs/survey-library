@@ -11,22 +11,21 @@ import {
   getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid, makeInputCurrent,
   updateCurrentItem, validateInput,
 } from "./interview-items";
-import { resolveAddress } from "./interview-address";
+import { getAddress, getQuestionDepth, resolveAddress } from "./interview-address";
 import { applySummaryAction } from "./interview-summary";
 import {
   IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchCurrent, getBatchEntries,
   getBatchItems, isBatchWritable, refreshBatchEntry,
 } from "./interview-batch";
-import { IPreparedValue, isPlainObject, prepareValue, writeContainerValue } from "./interview-fields";
-import {
-  clearUntouchedErrors, getRecordEntries, isDynamicContainer, isRecordsAnswered, isRecordsValid,
-  writeRecordsValue,
-} from "./interview-records";
+import { IPreparedValue, isDynamicContainer, prepareValue } from "./interview-fields";
+import { isRecordsAnswered } from "./interview-records";
+import { isContainerTreeValid, writeContainer } from "./interview-containers";
+import { ensureDetailPanels } from "./interview-detail";
 import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, badAddressError, badRecordError, completionBlockedError, notAskableError,
+  InterviewErrorCodes, badAddressError, completionBlockedError, notAskableError,
   nothingToAnswerError, requiredCannotSkipError, surveyCompletedError, unknownQuestionError,
   unknownToolError,
 } from "./interview-errors";
@@ -239,10 +238,13 @@ export class Interview implements IInterview {
       getInputErrors(input).forEach(message => errors.push({ name: input.address, message: message }));
     });
     // A container's own errors sit on the container and on no item, so they are read from it
-    // directly, under its own address, after the fields it holds have reported theirs.
+    // directly, under its own address, after the fields it holds have reported theirs - the nested
+    // containers before the ones that hold them.
     written.containers.forEach(container => {
+      const address = getWrittenContainerAddress(this.surveyValue, container);
+      if (!address) return;
       container.question.errors.forEach(error => {
-        errors.push({ name: container.address, message: error.getText() });
+        errors.push({ name: address, message: error.getText() });
       });
     });
     return this.createResult(after, diffSnapshots(before, takeSnapshot(this.surveyValue, after)), errors, true);
@@ -398,10 +400,8 @@ export class Interview implements IInterview {
     if (!isBatchWritable(fresh)) {
       return [notAskableError(address, fresh.item.disabled === true ? "disabled" : "hidden")];
     }
-    if (!!fresh.records) {
-      return this.writeBatchRecords(fresh.records, address, fresh.item, write, written, hadErrors);
-    }
-    if (!!fresh.container) return this.writeBatchContainer(fresh.container, address, write, written);
+    const container = fresh.records || fresh.container;
+    if (!!container) return this.writeBatchContainer(container, address, fresh.item, write, written, hadErrors);
     const question = fresh.input.question;
     if (write.hasValue) {
       const prepared = prepareValue(fresh.input.item, address, write.value);
@@ -417,54 +417,28 @@ export class Interview implements IInterview {
     return [];
   }
 
-  // A fixed-shape container takes one object of field values, and the fields are written one at a
-  // time in the container's own order (interview-fields.ts). Nothing here is an address: the keys of
-  // the object are the field names the document lists, and the errors are reported under the
-  // addresses those fields have in the inventory.
-  private writeBatchContainer(container: Question, address: string, write: IBatchWrite,
-    written: IBatchWritten): Array<IInterviewError> {
-    if (!write.hasValue) return [];
-    const value = write.value;
-    if (value !== undefined && value !== null && !isPlainObject(value)) {
-      return [badRecordError(address, value)];
-    }
-    const res = writeContainerValue(container, address, value, this.surveyValue.commentSuffix);
-    res.written.forEach(field => this.markWritten(written, field.address, field.question));
-    if (res.written.length > 0) {
-      // RequiredInAllRowsError, EachRowUniqueError and a required container left empty are the
-      // container's own errors, and no field write puts them anywhere. complete() runs the same
-      // validation on the containers no item carries (getUnreportedContainers).
-      container.validate(true);
-      written.containers.push({ address: address, question: container });
-    }
-    return res.errors;
-  }
-
-  // A dynamic container takes a list of entry records, one per position: an object patches the entry
-  // at that position, a position past the count adds one, null removes one (interview-records.ts).
-  // The keys of a record are field names and never addresses, and the errors are reported under the
-  // addresses those fields have in the inventory.
-  private writeBatchRecords(container: Question, address: string, item: IInterviewItem,
+  // A container takes its own value form - an object of field values for a fixed-shape one, a list of
+  // entry records for a dynamic one - and a field inside it that is a container takes its own form in
+  // turn, at any depth (interview-containers.ts). Nothing here is an address: the keys of an object
+  // are the field names the document lists, and the errors are reported under the addresses those
+  // fields have in the inventory. The one snapshot of the call goes down with the value: a nested
+  // writer never takes one of its own, because by the time it runs an earlier key of the same call
+  // may already have put "Response required." on an input nobody asked for.
+  private writeBatchContainer(container: Question, address: string, item: IInterviewItem,
     write: IBatchWrite, written: IBatchWritten,
     hadErrors: { [id: string]: boolean }): Array<IInterviewError> {
     if (!write.hasValue) return [];
-    const constraints = item.constraints || {};
-    const res = writeRecordsValue(container, address, write.value, this.surveyValue.commentSuffix,
-      { minCount: constraints.minCount, maxCount: constraints.maxCount });
+    const res = writeContainer(container, address, item, write.value, this.surveyValue.commentSuffix,
+      hadErrors, 0);
     res.written.forEach(field => this.markWritten(written, field.address, field.question));
-    if (res.applied !== true) return res.errors;
-    // After every key write, not only after an add or a remove: hasKeysDuplicated lives in the
-    // container's own validate and nowhere a nested question's validate(true) reaches, so a patch that
-    // turns a keyName field into a duplicate would leave no error anywhere and the record would drop
-    // out of the document while invalid. MinRowCountError and a required container that lost its last
-    // entry are written by the same run.
-    container.validate(true);
-    clearUntouchedErrors(container, address, hadErrors, res.written);
-    // A container written in batch loses its "done": growing, shrinking or editing the list re-opens
-    // it, so a host that switches to single mode afterwards gets the summary step back.
-    this.skipped.remove(address);
-    this.editingQuestion = undefined;
-    written.containers.push({ address: address, question: container });
+    res.containers.forEach(nested => {
+      // A container written in batch loses its "done", at whatever depth it sits: growing, shrinking
+      // or editing the list re-opens it, so a host that switches to single mode afterwards gets the
+      // summary step back.
+      this.skipped.remove(nested.address);
+      this.editingQuestion = undefined;
+      written.containers.push(nested);
+    });
     return res.errors;
   }
 
@@ -539,7 +513,7 @@ export class Interview implements IInterview {
     const container = input.question;
     if (!isDynamicContainer(container)) return this.isAnswered(input) && isInputValid(input);
     return isRecordsAnswered(container) &&
-      isRecordsValid(container, getRecordEntries(container, input.address));
+      isContainerTreeValid(container, input.address, getQuestionDepth(container));
   }
 
   private getCurrentInput(inputs: Array<IInterviewInput>): IInterviewInput {
@@ -678,9 +652,27 @@ export class Interview implements IInterview {
     return this.createResult(inputs, noChanges(), [error], isBatch);
   }
 
+  // Every mutating call ends here, and so does initialize(). The materialization pass comes first: a
+  // row this call made visible - the load, a write that revealed it through rowsVisibleIf, a batch
+  // that added it - gets its detail panel now, and whatever creating the panel starts (a choicesByUrl
+  // request, an asynchronous validator of a defaultValue) is drained by the settle right after it, in
+  // the same call. No read ever creates a panel (interview-detail.ts).
   private settleSurvey(): Promise<void> {
+    ensureDetailPanels(this.surveyValue);
     return settle(this.surveyValue, this.timeoutValue);
   }
+}
+
+// Where a container written by the call is now. A root keeps the key it was written under. A nested
+// one is looked up again, because a removal later in the same call shifts the entries after it - the
+// fields are matched against the inventory by identity for the same reason - and a container whose
+// entry that removal took is no longer anywhere, so it reports nothing.
+function getWrittenContainerAddress(survey: SurveyModel, container: IInterviewContainer): string | undefined {
+  const question = container.question;
+  if (!question.parentQuestion) return container.address;
+  const address = getAddress(question);
+  if (!address || resolveAddress(survey, address).question !== question) return undefined;
+  return address;
 }
 
 // The mode has no "no input is current" state that is still completable, so the end of the interview

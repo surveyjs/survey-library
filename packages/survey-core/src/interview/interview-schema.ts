@@ -48,13 +48,24 @@ const FIELDS_DESCRIPTION = "An object of fields. Send only the fields to change;
 const ROWS_DESCRIPTION = "An object of rows, each an object of fields. Send only the fields to change; " +
   "the others are left as they are.";
 
-function createItemProperty(item: IInterviewItem, commentSuffix: string): any {
+// "isNested" - the property of a field inside a container rather than of a root key. It changes one
+// thing, the text of a list: a nested list serves every entry of its owner, and their inner lists
+// have different counts.
+function createItemProperty(item: IInterviewItem, commentSuffix: string, isNested?: boolean): any {
   // canAdd is on a dynamic container and on nothing else, entries and template only when there is
   // something to say: an empty container that takes no template still answers to a list.
-  if (item.canAdd !== undefined) return createRecordsProperty(item, commentSuffix);
+  if (isRecordsItem(item)) return createRecordsProperty(item, commentSuffix, isNested === true);
   if (!!item.rows) return createRowsProperty(item, commentSuffix);
   if (!!item.fields) return createFieldsProperty(item, commentSuffix);
   return createProperty(item);
+}
+
+function isRecordsItem(item: IInterviewItem): boolean {
+  return item.canAdd !== undefined;
+}
+
+function isContainerItem(item: IInterviewItem): boolean {
+  return isRecordsItem(item) || !!item.rows || !!item.fields;
 }
 
 function createRowsProperty(item: IInterviewItem, commentSuffix: string): any {
@@ -73,17 +84,16 @@ function createRowsProperty(item: IInterviewItem, commentSuffix: string): any {
 // A dynamic container is a list of entry records, and the schema says so: one element schema for
 // every position, "null" next to it for "remove the entry here", and maxItems where a position can
 // never exist. No minItems - a patch is legitimately shorter than the minimum - and the minimum goes
-// into the description text the way a date bound does.
-function createRecordsProperty(item: IInterviewItem, commentSuffix: string): any {
-  const count = !!item.entries ? item.entries.length : 0;
+// into the description text the way a date bound does. A root list names its current count; a nested
+// one serves every entry of its owner, whose inner lists have different counts, and names none.
+function createRecordsProperty(item: IInterviewItem, commentSuffix: string, isNested: boolean): any {
   const constraints: any = item.constraints || {};
   const notes: Array<string> = [];
   if (constraints.minCount !== undefined) notes.push("min " + constraints.minCount);
   if (constraints.maxCount !== undefined) notes.push("max " + constraints.maxCount);
   let text = "A list of entries by position. An object updates the entry at that position (send only " +
-    "the fields to change); a position past the current " + count +
-    (count === 1 ? " entry" : " entries") + " adds one; null removes the entry at that position; " +
-    "positions not sent are left as they are.";
+    "the fields to change); " + getAddText(item, isNested) + "; null removes the entry at that " +
+    "position; positions not sent are left as they are.";
   if (notes.length > 0) text += " (" + notes.join(", ") + ")";
   const res: any = { title: item.title };
   res.description = !!item.description ? item.description + " " + text : text;
@@ -96,33 +106,21 @@ function createRecordsProperty(item: IInterviewItem, commentSuffix: string): any
   return res;
 }
 
+function getAddText(item: IInterviewItem, isNested: boolean): string {
+  if (isNested) return "a position past the entries the document lists for this entry adds one";
+  const count = !!item.entries ? item.entries.length : 0;
+  return "a position past the current " + count + (count === 1 ? " entry" : " entries") + " adds one";
+}
+
 // One element schema serves every position, so its properties are the union - by field name - of the
 // template records and the fields of every entry that exists: an entry's conditional field has to be
 // sendable, and so has a field a new entry will have.
 function createEntryProperty(item: IInterviewItem, commentSuffix: string): any {
-  const order: Array<string> = [];
-  const byName: { [name: string]: Array<IInterviewItem> } = {};
-  const collect = (field: IInterviewItem) => {
-    if (field.unsupported === true) return;
-    if (!byName[field.name]) {
-      byName[field.name] = [];
-      order.push(field.name);
-    }
-    byName[field.name].push(field);
-  };
-  (item.template || []).forEach(collect);
-  (item.entries || []).forEach((entry: IInterviewEntry) => entry.fields.forEach(collect));
-  const properties: any = {};
-  order.forEach(name => {
-    const fields = byName[name];
-    properties[name] = createNullable(mergeProperties(fields.map(field => createProperty(field))));
-    if (fields.some(field => !!field.comment)) {
-      properties[name + commentSuffix] = createNullable(createCommentProperty(fields[0]));
-    }
-  });
+  const fields: Array<IInterviewItem> = (item.template || []).slice();
+  (item.entries || []).forEach((entry: IInterviewEntry) => entry.fields.forEach(field => fields.push(field)));
   // No required inside: a patch sends only what changes, and what is required is in the document and
   // enforced at complete().
-  return { type: "object", properties: properties, additionalProperties: false };
+  return { type: "object", properties: createFieldProperties(fields, commentSuffix), additionalProperties: false };
 }
 
 // Two descriptions of one field name disagree - a template dropdown offering A and an entry whose
@@ -199,18 +197,102 @@ function createObjectProperty(item: IInterviewItem, text: string, properties: an
 }
 
 // No "required" inside: a patch sends only what changes, and what is required is in the document and
-// enforced at complete(). An unsupported field - a container nested inside this one, a file - is left
+// enforced at complete(). An unsupported field - a file, a container below the depth ceiling - is left
 // out: there is no value an agent could send for it.
+//
+// The properties are the union, by field name, of the records given: one record per name for the
+// fields of one container, and several for the element schema of a list, whose template and entries
+// each describe the same name. A field that is a container yields the same array or object property
+// its root twin yields, nested where the field sits.
 function createFieldProperties(fields: Array<IInterviewItem>, commentSuffix: string): any {
-  const res: any = {};
+  const order: Array<string> = [];
+  const byName: { [name: string]: Array<IInterviewItem> } = {};
   fields.forEach(field => {
     if (field.unsupported === true) return;
-    res[field.name] = createNullable(createProperty(field));
-    if (!!field.comment) {
-      res[field.name + commentSuffix] = createNullable(createCommentProperty(field));
+    if (!byName[field.name]) {
+      byName[field.name] = [];
+      order.push(field.name);
+    }
+    byName[field.name].push(field);
+  });
+  const res: any = {};
+  order.forEach(name => {
+    const group = byName[name];
+    const property = createUnionProperty(group, commentSuffix);
+    if (property === undefined) return;
+    res[name] = createNullable(property);
+    // A container takes no comment key: the suffix belongs to a field one level further down.
+    if (!group.some(isContainerItem) && group.some(field => !!field.comment)) {
+      res[name + commentSuffix] = createNullable(createCommentProperty(group[0]));
     }
   });
   return res;
+}
+
+// Two descriptions of one name - a template's declaration and an entry's live record - are merged at
+// the level of the records rather than of the schemas: mergeProperties widens scalar keywords and
+// cannot widen a nested "properties" map. So a group that holds a container is rebuilt as one
+// synthetic record, and the property of that record merges the next level down by the same rule.
+function createUnionProperty(group: Array<IInterviewItem>, commentSuffix: string): any {
+  const containers = group.filter(isContainerItem);
+  if (containers.length === 0) return mergeProperties(group.map(field => createProperty(field)));
+  // A name that is a plain field in one record and a container in another is left out: a survey
+  // cannot express that, and a schema is not the place to guess which of the two an agent will meet.
+  if (containers.length < group.length) return undefined;
+  const record = createUnionRecord(containers);
+  return !!record ? createItemProperty(record, commentSuffix, true) : undefined;
+}
+
+// A dynamic container: the template of every record and the fields of every entry of every record,
+// as one template - the entries' own fields are as sendable as the template's. A fixed-shape one: the
+// fields of every record, or the rows merged by row name. The loosest bound of the records survives,
+// as for every other bound of a union. Containers of different kinds under one name are left out.
+function createUnionRecord(records: Array<IInterviewItem>): IInterviewItem | undefined {
+  const first = records[0];
+  if (records.length === 1) return first;
+  const res: IInterviewItem = { ...first };
+  if (records.every(isRecordsItem)) {
+    const template: Array<IInterviewItem> = [];
+    records.forEach(record => {
+      (record.template || []).forEach(field => template.push(field));
+      (record.entries || []).forEach(entry => entry.fields.forEach(field => template.push(field)));
+    });
+    delete res.entries;
+    res.template = template;
+    res.constraints = mergeCounts(records);
+    if (res.constraints === undefined) delete res.constraints;
+    return res;
+  }
+  if (records.every(record => !!record.rows)) {
+    const rows: Array<IInterviewRow> = [];
+    records.forEach(record => record.rows.forEach(row => {
+      const same = rows.filter(item => item.name === row.name)[0];
+      if (!same) {
+        rows.push({ name: row.name, title: row.title, fields: row.fields.slice() });
+      } else {
+        row.fields.forEach(field => same.fields.push(field));
+      }
+    }));
+    res.rows = rows;
+    return res;
+  }
+  if (records.every(record => !!record.fields && !record.rows && !isRecordsItem(record))) {
+    const fields: Array<IInterviewItem> = [];
+    records.forEach(record => record.fields.forEach(field => fields.push(field)));
+    res.fields = fields;
+    return res;
+  }
+  return undefined;
+}
+
+// minCount only while every record has one, and then the lowest; maxCount the same, the highest.
+function mergeCounts(records: Array<IInterviewItem>): any {
+  const res: any = {};
+  const lows = records.map(record => !!record.constraints ? record.constraints.minCount : undefined);
+  const highs = records.map(record => !!record.constraints ? record.constraints.maxCount : undefined);
+  if (lows.every(value => typeof value === "number")) res.minCount = Math.min.apply(Math, lows);
+  if (highs.every(value => typeof value === "number")) res.maxCount = Math.max.apply(Math, highs);
+  return Object.keys(res).length > 0 ? res : undefined;
 }
 
 // A field is cleared by sending null for it, and a schema that forbids null would refuse the agent

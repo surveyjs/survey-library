@@ -525,6 +525,23 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(iv.data).toEqual({ medications: [{ name: "Aspirin" }] });
   });
 
+  test("A nested matrix's summary step shows the rows a batch write added", async () => {
+    const iv = await createInterview({
+      elements: [{
+        type: "paneldynamic", name: "orders", panelCount: 1, templateElements: [
+          { type: "matrixdynamic", name: "items", rowCount: 0, columns: [{ name: "sku", cellType: "text" }] },
+        ],
+      }],
+    });
+    const res = await iv.answerAll({ orders: [{ items: [{ sku: "A-1" }, { sku: "A-2" }] }] });
+    expect(res.errors).toEqual([]);
+    // Both rows are answered, so the single-mode rule stands on the inner list's own summary step,
+    // which lists what the batch added.
+    const current = iv.current();
+    expect(current.name).toBe("orders[0].items");
+    expect(current.summary.entries.map(entry => entry.index)).toEqual([0, 1]);
+  });
+
   test("The document of a nested input: quoted address, entry, and the summary shape", async () => {
     const iv = await createInterview(medicationsJson({ panelCount: 1 }));
     await iv.answer("Aspirin");

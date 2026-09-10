@@ -107,7 +107,10 @@ is accepted: `current()` is `null` and there is nothing left to ask.
 Every mutating call returns a `Promise`: `choicesByUrl` goes out over the network, and asynchronous
 validators, asynchronous expression functions, server validation and an asynchronous `onCompleting`
 all hand control back while the model is still deciding. A call resolves once the model has settled,
-so what it describes is never a state that is about to change.
+so what it describes is never a state that is about to change. The settle also covers what the call
+brought into being: a row's [detail panel](#items-are-the-models-own-single-inputs) the call created
+— a `choicesByUrl` of a detail question, an asynchronous validator of its `defaultValue` — is
+drained by the same call.
 
 | Export | Description | Arrives in |
 | --- | --- | --- |
@@ -133,8 +136,10 @@ so what it describes is never a state that is about to change.
 Nested inputs — inside dynamic panels, matrices, multiple text and custom components — are answered
 in single-input mode, each at its own [address](#addresses). Batch mode fills a container whose value
 is one object with a fixed set of keys — a single-choice matrix, a matrix dropdown, a multiple text,
-a composite — as that object, and reports the rest instead of filling them (see
-[Fixed-shape containers as objects](#fixed-shape-containers-as-objects)).
+a composite — as that object (see [Fixed-shape containers as objects](#fixed-shape-containers-as-objects)),
+a dynamic panel or a dynamic matrix as a list of records (see
+[Dynamic containers as records](#dynamic-containers-as-records)), and a container nested inside
+another one the same way, at any depth (see [Nested containers](#nested-containers)).
 
 ### Options
 
@@ -171,14 +176,14 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
-| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it is a container `answerAll()` cannot fill — a dynamic panel, a dynamic matrix, or a container nested inside another container (`reason: "batch"`) — or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
+| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
-| `badRecord` | The value `answerAll()` was given is not the shape the container takes: not an object of field values for a [fixed-shape container](#fixed-shape-containers-as-objects) or for a row inside one, not a list for a [dynamic one](#dynamic-containers-as-records), or an element of that list that is neither an object nor a `null` naming an entry that exists. `null` and `undefined` for the whole key are not a mistake: they leave the container alone. |
-| `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off, and the same in a batch: the list asks for more entries than fit, or a handler of the survey refused the new one. The message names the position. |
-| `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for, and the same in a batch: a `null` names an entry that cannot go, the removals would fall below the minimum count, or a handler of the survey refused. The message names the position. |
+| `badRecord` | The value `answerAll()` was given is not the shape the container takes: not an object of field values for a [fixed-shape container](#fixed-shape-containers-as-objects) or for a row inside one, not a list for a [dynamic one](#dynamic-containers-as-records), or an element of that list that is neither an object nor a `null` naming an entry that exists — at any depth, under the address of what was refused: `orders[0].items` for a string sent for a nested list, `orders[0].items[1]` for a `null` past its count. `null` and `undefined` for a container are not a mistake: they leave it alone. |
+| `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off, and the same in a batch, at any depth: the list asks for more entries than fit, or a handler of the survey refused the new one. The error is named after the position (`orders[0].items[2]`) and the message after the container: "No entry can be added to \"orders[0].items\" at position 2". |
+| `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for, and the same in a batch, at any depth: a `null` names an entry that cannot go, the removals would fall below the minimum count, or a handler of the survey refused. Named after the position (`orders[0].items[0]`), like `cannotAdd`. |
 | `requiredCannotSkip` | `skip()` on a required item. It stays current. |
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
@@ -329,6 +334,24 @@ summary step because there is nothing to add or remove one entry at a time — a
 edits the list of nested inputs, so a question the host drops there is not an item and its address
 answers nothing. Both are set on the model, before the hand-over, like everything else.
 
+**A row's detail panel exists from the moment the row does.** A matrix creates the detail panel of a
+row lazily — left to the model, at the row's first validation — and until then the row's questions
+are its cells alone. The interview creates the missing panels itself, in the call that made the row
+visible: `createInterview` for the rows there are at load, and every call that writes — a value that
+revealed a row through `rowsVisibleIf`, a batch that added one — before it settles. So a detail
+question is an item from the first `current()` on (`items[0].note` right after `items[0].sku`), and a
+`choicesByUrl` on it is drained by the settle of the call that created the panel. **No read creates
+anything**: `current()`, `describe()` and `describeAll()` see a panel only once a call that writes has
+run. A row the survey's `onHasDetailPanelCallback` excludes gets no panel, and a row whose panel
+already exists is left as it is.
+
+The panel is created through `row.showDetailPanel()`, the one public gesture the model offers for it,
+and that has a UI side effect: the row is **expanded** — with `detailPanelMode: "underRowSingle"`, the
+row expanded before it collapses — the matrix builds its rendered table, and
+`onMatrixDetailPanelVisibleChanged` fires for the row. Each row is expanded once, by the call that
+made it visible; a panel a UI collapses afterwards stays collapsed and stays readable, because a
+collapsed panel is kept.
+
 What the interview keeps of its own is the **inventory**: every input that exists, in document order,
 rebuilt from the structure of the survey on every call. That is deliberately *not* the mode's own
 navigation list (`getSingleInputQuestions()`), which answers a different question — "what do I walk
@@ -413,6 +436,11 @@ below it, the address says which container, which entry of it, and which input i
 * A revisit works whatever the mode is doing. The mode's own navigation list drops a panel that is
   complete and valid; the interview's inventory does not, so `answer("medications[0].dose", "15mg")`
   writes it and moves the model there.
+* The **depth** of a question is the number of containers above it — a root is at depth 0,
+  `orders[1].items[0].sku` at 2 — and its address has one segment more than that. A question
+  deeper than 20 containers has no address, no item and no record, in either mode: the grammar refuses
+  an address of more than 21 segments (`badAddress`), and [batch mode](#the-depth-ceiling) reports the
+  container at the ceiling instead of filling it. Nothing a survey can express gets there.
 
 It is the same grammar as the tester's target names (`SurveyTestTargets.nameOf` / `resolve` in
 `survey-core/tester`), and the two are implemented separately because neither sub-bundle may import
@@ -857,13 +885,15 @@ carries — and not of the nested input a respondent fills one at a time. So:
   is one record whose `entries` describe what it holds now, and `answerAll()` takes a list of records
   back: add, remove and edit, any number of entries, in one turn. See
   [Dynamic containers as records](#dynamic-containers-as-records).
-* a container **nested inside** another container — a dynamic panel in a composite, a multiple text
-  in a panel template — is described where it sits with `unsupported: true` and `reason: "batch"`,
-  and a key for it is refused. Its questions have no batch address at all; they are answered in
-  single-input mode, which handles every type. Recursing into them is a follow-up.
+* a container **nested inside** another container — a dynamic matrix in a panel template, a dynamic
+  panel in a matrix's detail panel or in a composite, a multiple text in a template — is described
+  and filled the way a root container is, where it sits, at any depth: its record is a field of the
+  entry or of the container that holds it, and the value sent for it is its own value form. See
+  [Nested containers](#nested-containers). The one thing still refused is a container at the
+  [depth ceiling](#the-depth-ceiling), which nothing a survey can express reaches.
 * a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
   `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
-  "batch"` says *this version* cannot fill it, no reason at all says nothing ever will.
+  "batch"` is the depth ceiling, no reason at all says nothing ever will.
 * an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`; a
   question that is read-only by property is not an item and is not listed.
 * items the interviewee **skipped** in single mode are listed. Skipping is a gesture of a
@@ -872,8 +902,8 @@ carries — and not of the nested input a respondent fills one at a time. So:
 ### `answerAll(values)`
 
 Keys are item addresses, plus `<address>` + [`settings.commentSuffix`](#the-comment-key) for an item
-that accepts a comment. Every key is resolved first — an unknown one is `unknownQuestion`, a
-container is `notAskable` — and the accepted ones are then written **in item order, not in the order
+that accepts a comment. Every key is resolved first — an unknown one is `unknownQuestion`, one the
+agent cannot fill is `notAskable` — and the accepted ones are then written **in item order, not in the order
 the object carries them**: a trigger or a `setValueIf` that depends on an earlier question has to see
 it first, and an agent's batch is a set of answers rather than a sequence of gestures. A comment is
 written with the item it belongs to.
@@ -1009,17 +1039,18 @@ items:
 * Per type, the fields are: the synthesized row questions of a **single-choice matrix** (one
   radiogroup, or a checkbox for `cellType: "checkbox"`, per visible row, named after the row, with
   the visible columns as its choices and `eachRowRequired` as its `required`); the cells of a
-  **matrix dropdown** row in column order, followed by the questions of its detail panel once the
-  model has created that panel — the interview never opens one; the editors of a **multiple text**;
-  the visible content questions of a **composite**.
+  **matrix dropdown** row in column order, followed by the questions of its detail panel — which the
+  interview creates for every visible row in the call that made the row visible, before that call
+  settles, and never from a read ([the rule and its UI side effect](#items-are-the-models-own-single-inputs));
+  the editors of a **multiple text**; the visible content questions of a **composite**.
 * The container's own first error — `RequiredInAllRowsError`, `EachRowUniqueError`, a required
   container left empty — is on the record's `error`, under its own address in `errors`. A field's
   errors are under the field's address: `contact.email`, `matrix.row1.column1`.
 * What the survey hid is not there: a row `rowsVisibleIf` hid, a column or a content question a
   `visibleIf` hid. A field an `enableIf` turned off is listed with `disabled: true` and refused.
 * **A container nested inside a container** — a dynamic panel in a composite, a multiple text in a
-  detail panel — is described in place with `unsupported: true` and `reason: "batch"`, with no
-  `fields` of its own, and a key for it is `notAskable`. There is no recursion.
+  detail panel — is a field whose record is the container record itself, and a key for it takes that
+  container's value form. See [Nested containers](#nested-containers).
 * `fields` and `rows` are written even when they are empty, unlike the optional sections of a
   document: `fields: []` says that this container has nothing an agent can fill — an `enableIf` that
   is false turns every editor of a multiple text read-only with it — and that is information, the way
@@ -1148,18 +1179,24 @@ items:
   list the [summary step](#the-summary-step) of single mode numbers as well. `index` is the position
   a value addresses, `canRemove` is the model's own `canRemovePanel` / `canRemoveRows &&
   canRemoveRow(row)`, and `fields` are the [fields](#fixed-shape-containers-as-objects) of that
-  entry: a panel's visible questions, a row's cells followed by the questions of its detail panel
-  once the model has created that panel. There is no entry **title**: the model builds the titles the
+  entry: a panel's visible questions, a row's cells followed by the questions of its detail panel,
+  which exists for every visible row ([created by the interview](#items-are-the-models-own-single-inputs)).
+  There is no entry **title**: the model builds the titles the
   summary step shows only for the container it is currently standing on, and a document never moves
   the model. An agent reads the values instead. The key is left out while the container holds no
   entries.
 * **`template`** — what a **new** entry takes: the template panel's questions, or the visible
-  columns' template questions. It is a declaration and not a live entry: a `visibleIf` inside it has
-  not run and `choicesFromQuestion` is empty, so **an entry's own `fields` are the truth once it
-  exists**. One thing the template cannot answer for itself is the choices a matrix column inherits
-  from the matrix's own `choices` — the column's template question is never bound to them — so when a
-  row exists that column is described from the first row's cell. With no row at all it reports no
-  choices, and the fields of the first entry an agent adds do.
+  columns' template questions followed by the questions of the detail panel. It is a declaration and
+  not a live entry: a `visibleIf` inside it has not run and `choicesFromQuestion` is empty, so **an
+  entry's own `fields` are the truth once it exists**. One thing the template cannot answer for itself
+  is the choices a matrix column inherits from the matrix's own `choices` — the column's template
+  question is never bound to them — so when a row exists that column is described from the first
+  row's cell. With no row at all it reports no choices, and the fields of the first entry an agent adds
+  do. The detail questions have the same gap, wider: the design-time detail panel they are declared on
+  is not attached to the survey, so neither a title in the survey's locale nor a `choicesFromQuestion`
+  resolves there. They are therefore described from the panel of the first row that has one — still
+  as a declaration, with no value — and only a matrix with no such row falls back to the design-time
+  panel, whose titles are then in the default locale.
 * **`canAdd`** — `canAddPanel` / `canAddRow`: false at the maximum count, with adding turned off, in
   read-only state, and under a `panelCountExpression` / `rowCountExpression`, where the count is the
   expression's and records cannot change it.
@@ -1170,8 +1207,9 @@ items:
   with no entries — is on the record's `error` and under its own address in `errors`. A field's
   errors are under the field's address: `medications[1].dose`.
 * A **container inside an entry** — a dynamic panel or a matrix in a panel template, a multiple text
-  in a detail panel — is described in place with `unsupported: true` and `reason: "batch"`, in the
-  entry's `fields` and in `template` alike, and a key for it is `notAskable`. There is no recursion.
+  in a detail panel — is a field of the entry whose record is the container record itself: live in the
+  entry's `fields`, a declaration in `template`. See [Nested containers](#nested-containers).
+
 **The value.** A list, whose positions are the `entries[].index` of the document the agent read. A
 single plain object is wrapped — `[obj]` — like any other array value; `null`, `undefined` and `[]`
 for the whole key write nothing and remove nothing ("clear it all" is a list of `null`s), and a
@@ -1190,8 +1228,8 @@ Patches and adds run first, removals last. So a patch that hides an earlier entr
 the agent meant. The addresses in the **result** have shifted; the next document is the truth.
 
 **Whole-key refusals.** A list whose shape cannot work is refused entirely — nothing of it is
-written, because a half-realized shape moves the positions the agent reasoned about — and the message
-names the position: a `null` on an entry that offers no remove (`cannotRemove`), adds that do not fit
+written, because a half-realized shape moves the positions the agent reasoned about — and the error
+names the position (`medications[5]`): a `null` on an entry that offers no remove (`cannotRemove`), adds that do not fit
 (`cannotAdd`), removals that would fall below the minimum (`cannotRemove`), an element that is
 neither an object nor a `null` naming an entry that exists (`badRecord`). The counts are checked **in
 the order the operations run**, because the model enforces every add and every remove on its own: the
@@ -1203,8 +1241,9 @@ room removes first, in a turn of its own, and the message says so.
 they are written in the entry's own **field order**, each resolved immediately before its own write,
 so a field an earlier key of the same record revealed is written in the same call; **one bad field
 skips that field and the rest of the record is written**; a key that names nothing is
-`unknownQuestion` at `medications[0].colour`; a hidden or disabled field, and a container inside the
-entry, are `notAskable`; the comment key works here too
+`unknownQuestion` at `medications[0].colour`; a hidden or disabled field is `notAskable`; a field
+that is a container takes its own value form ([Nested containers](#nested-containers)); the comment
+key works here too
 (`{ kind: "other", "kind-Comment": "Ferret" }`). An entry an earlier patch of the same call hid is
 `notAskable` at `medications[1]`.
 
@@ -1259,6 +1298,185 @@ await iv.complete();
 // data: { medications: [{ name: "Ibuprofen", dose: "400 mg" }] }
 ```
 
+### Nested containers
+
+A container inside an entry, or inside a fixed-shape container, is described and filled **exactly as a
+root container is**, at any depth: a dynamic panel of orders whose template holds a dynamic matrix of
+items, a dynamic panel in a matrix's detail panel, a multiple text in a template, a dynamic panel in a
+composite. The entry's record lists the nested container as a field, and that field *is* the
+container record — `entries`, `template` and `canAdd`, or `fields`, or `rows`:
+
+````markdown
+```yaml
+items:
+  - name: orders
+    type: paneldynamic
+    title: Orders
+    required: false
+    entries:
+      - index: 0
+        canRemove: true
+        fields:
+          - name: ref
+            type: text
+            title: Reference
+            required: false
+            value: PO-1
+          - name: items
+            type: matrixdynamic
+            title: Items
+            required: true
+            entries:
+              - index: 0
+                canRemove: true
+                fields:
+                  - name: sku
+                    type: text
+                    title: SKU
+                    required: true
+                    value: A-1
+                  - name: qty
+                    type: text
+                    title: Quantity
+                    required: false
+                    inputType: number
+                    constraints:
+                      min: 1
+                    value: 0
+                    error: The value should not be less than 1
+              - index: 1
+                ...
+            template:
+              - name: sku
+                ...
+            canAdd: true
+    template:
+      - name: ref
+        ...
+      - name: items
+        type: matrixdynamic
+        title: Items
+        required: true
+        template:
+          - name: sku
+            ...
+        canAdd: true
+    canAdd: true
+```
+````
+
+* A field that is a container keeps the field keys — `name` relative to its owner, `error` for its own
+  first error (`MinRowCountError`, a required container with no entries, a duplicated key) — and has
+  **no `value`**: its value is what its entries and fields say. There is no `entry` key anywhere; the
+  position says which entry.
+* **A container inside a `template` is a declaration**, as the template is: `template` and `canAdd`, or
+  `fields` or `rows`, read from the template's own question, and never `entries`, a `value` or an
+  `error`, at any depth. What the template section says — a `visibleIf` inside it has not run,
+  `choicesFromQuestion` is empty, the entry's own record is the truth — holds one level down. `canAdd`
+  there is what the template's container reports, which is what a new entry's container will report
+  before anything is written.
+* A matrix's **detail panel** works the same way: its questions follow the cells in every visible row,
+  and a container among them is a nested record like any other.
+
+```yaml
+# a dynamic matrix whose detail panel holds a dynamic panel of notes
+entries:
+  - index: 0
+    canRemove: true
+    fields:
+      - name: sku
+        ...
+      - name: notes
+        type: paneldynamic
+        title: Notes
+        required: false
+        template:
+          - name: text
+            ...
+        canAdd: true
+```
+
+**The value.** Inside a record, a key whose field is a container takes **that container's own value
+form** — a list by position for a dynamic one (an object patches, a position past the count adds,
+`null` removes, a single object is wrapped), an object of fields for a fixed-shape one, an object of
+row objects for a matrix dropdown. It is the shape the value has in `data`, at every level:
+
+```js
+await iv.answerAll({
+  orders: [
+    { ref: "PO-1", items: [{ qty: 2 }, null, { sku: "C-3", notes: [{ text: "fragile" }] }] },
+    { ref: "PO-2", items: [{ sku: "D-4" }] },   // position 1 is past the count: add, then fill
+  ],
+});
+```
+
+**`null` or `undefined` for a container leaves it alone, wherever the key sits** — the rule of a root
+key, and *not* the rule of a plain field, which `null` clears. "Clear it all" is a list of `null`s, or
+an object of `null` fields. The schema still offers `null` for such a field, and it then means
+nothing. Anything else of the wrong shape — a string, a number, an array where an object belongs — is
+`badRecord` at the field's address, `orders[0].items`, and that field alone is skipped. The comment
+key works for a plain field at every level and never for a container: `items-Comment` inside an
+`orders` record is `unknownQuestion`.
+
+**The write** is the same functions one level down: a nested list is resolved, pre-checked and
+patched, added to and removed from exactly as a root list is, then the nested container validates
+itself, and a nested fixed-shape container is written field by field in its own order. A nested list
+refused as a whole — it does not fit (`cannotAdd` at `orders[0].items[2]`), it names an entry that
+cannot go — skips **that field** and the rest of the outer record is written. **Positions are entries
+at every level**: the outer positions are resolved before anything is written, an inner list is
+resolved when its field's turn comes, against the entry as the earlier fields of the same record left
+it, and outer removals still run last — an inner list written into an entry a later `null` of the same
+call removes is written and then removed with its entry. Field order holds across kinds: `ref` is
+written before `items` because the entry lists it first, so a `setValueIf` of a cell that reads
+`{panel.ref}` sees the reference sent in the same record.
+
+Validating a container validates everything below it, so the rule that an empty required field of a
+new entry is **work in the next document, not an error of the call** applies at every depth, with one
+snapshot of "what was already invalid" per call: an empty required `sku` of a row added inside an
+order added in the same call is listed without a value and becomes an error at `complete()`, under
+`orders[1].items[0].sku`.
+
+**The addresses of the result** are longer and nothing else: a field's errors under
+`orders[0].items[0].qty`, a nested container's own errors under `orders[0].items`, the refusals under
+the address of what was refused. The change report is taken over the inventory's addresses as before
+(`becameVisible: ["orders[1].ref", "orders[1].items[0].sku", "orders[1].items"]` for the call above).
+
+**The predicates are recursive**: a root is answered when it holds an entry or is not empty, and valid
+when neither it nor any field at any depth carries an error or a required error, a nested container's
+own included. An empty *optional* nested container does not make it invalid. So a root whose only
+problem is an empty required field three levels down stays in `items`, and `current` stays on it.
+
+#### The depth ceiling
+
+A container at depth 20 — twenty containers above it — is the one thing a batch cannot fill. It is
+described with `unsupported: true` and `reason: "batch"`, with no `entries`, `template` or `fields` of
+its own, and a key for it is `notAskable`; single mode has no item below it either, and the address
+grammar refuses what lies there. It exists so that the grammar, the inventory and the two documents
+agree on what exists, and it is the only place `reason: "batch"` is still written. Nothing a survey
+can express reaches it.
+
+A transcript, in the style of the pet survey:
+
+```js
+survey.data = { orders: [{ ref: "PO-1", items: [{ sku: "A-1", qty: 0 }, { sku: "B-2", qty: 1 }] }] };
+const iv = await createInterview(survey);
+iv.describeAll();
+// items: orders - the quantity of its first item carries "The value should not be less than 1"
+
+await iv.answerAll({
+  orders: [
+    { items: [{ qty: 2 }, null] },                        // fix the quantity, remove the second item
+    { ref: "PO-2", items: [{ sku: "C-3", qty: 1 }] },     // add an order with an item
+  ],
+});
+// errors: []   items: []   current: null
+
+await iv.complete();
+// completed: true
+// data: { orders: [{ ref: "PO-1", items: [{ sku: "A-1", qty: 2 }] },
+//                  { ref: "PO-2", items: [{ sku: "C-3", qty: 1 }] }] }
+```
+
 ## Answer schema
 
 `getAnswerSchema()` returns a JSON Schema for exactly the keys `answerAll()` accepts **right now**,
@@ -1300,9 +1518,10 @@ fetches a meta-schema at run time. The mapping, per item:
 | `required: true` | the name is in `required` |
 | `disabled: true` | `readOnly: true`, and never in `required` |
 | `unsupported: true` | not in the schema at all — there is no value an agent could send |
-| `fields` (a [fixed-shape container](#fixed-shape-containers-as-objects)) | `type: "object"`, one property per field, `additionalProperties: false`, and a fixed English `description` after the question's own. No `required` inside: a patch sends only what changes, and what is required is in the document and enforced at `complete()`. |
-| `rows` (a matrix dropdown) | the same, one level deeper: a property per row, each `type: "object"` with the row's fields |
-| `entries` (a [dynamic container](#dynamic-containers-as-records)) | `type: "array"`, `maxItems` from `constraints.maxCount`, and one element schema for every position: `{ "anyOf": [ { "type": "object", "properties": …, "additionalProperties": false }, { "type": "null" } ] }`. The properties are the **union**, by field name, of the `template` records and the fields of every entry, each nullable. No `minItems` — a patch is legitimately shorter than the minimum — and the minimum goes into the fixed English `description` along with the current number of entries. |
+| `fields` (a [fixed-shape container](#fixed-shape-containers-as-objects)), at any depth | `type: "object"`, one property per field, `additionalProperties: false`, and a fixed English `description` after the question's own. No `required` inside: a patch sends only what changes, and what is required is in the document and enforced at `complete()`. |
+| `rows` (a matrix dropdown), at any depth | the same, one level deeper: a property per row, each `type: "object"` with the row's fields |
+| `entries` (a [dynamic container](#dynamic-containers-as-records)), at any depth | `type: "array"`, `maxItems` from `constraints.maxCount`, and one element schema for every position: `{ "anyOf": [ { "type": "object", "properties": …, "additionalProperties": false }, { "type": "null" } ] }`. The properties are the **union**, by field name, of the `template` records and the fields of every entry, each nullable. No `minItems` — a patch is legitimately shorter than the minimum — and the minimum goes into the fixed English `description` along with the current number of entries. A [nested](#nested-containers) list serves every entry of its owner, whose inner lists have different counts, so its description names no count ("a position past the entries the document lists for this entry adds one"). |
+| a field that is a container | the property its root twin would be, nested where the field sits and nullable like every field. The union of an element schema merges the records of one name before it builds the property: a nested list takes the template and the entries of every record as one template, a nested object the fields of every record, so the enum of a column two levels down is the union of what every entry offers, and `maxItems` is the loosest of the records'. A name that is a plain field in one record and a container in another is left out. |
 | a field of a container | the per-item mapping above, wrapped as `{ "anyOf": [ …, { "type": "null" } ] }` — a field is cleared by sending `null` for it, and a schema that forbade `null` would refuse the agent before the interview could. `anyOf`, not `type: ["string", "null"]`: the strict function-calling modes accept the first and not always the second. Comment keys are nullable the same way; `unsupported` fields are left out. |
 
 A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
@@ -1419,9 +1638,11 @@ about.
 | `interview-items.ts` | The inventory over the model's single inputs, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
 | `interview-address.ts` | The address grammar in both directions: derived from a nested question by walking its containers, and resolved against the live model. The twin of the tester's `test-targets.ts`. |
 | `interview-summary.ts` | A dynamic container's summary step: the entries, the add caption and the "no entries" line as the model words them, and the four actions an answer can name. |
-| `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, which are containers it only reports, and the list of items a batch document carries. |
-| `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. |
+| `interview-batch.ts` | The same inventory read at the root level: which roots batch mode can write, the list of items a batch document carries and when a root is listed. |
+| `interview-containers.ts` | One describer and one writer for "a container at an address", whatever it holds and wherever it sits, live or declared, plus the recursive validity. The root code and the field code both go through it; the field code reaches it through a parameter, so there is no import cycle. |
+| `interview-fields.ts` | A fixed-shape container as an object of fields: the field records read from the live structure, the per-field write, and the value pre-checks all three modes of writing share. A field that is a container is handed to the recursion it is given. |
 | `interview-records.ts` | A dynamic container as a list of entry records: the entries and the template read from the live structure, and the patch / add / remove of one call, planned before anything is written. The fields of an entry are `interview-fields.ts`, reused per entry. |
+| `interview-detail.ts` | The one place a row's detail panel is brought into being: the pass every settle starts with, and the panel of the one row a batch record is about to write. A leaf that nothing describing or reading imports. |
 | `interview-schema.ts` | `createAnswerSchema()`: the item records as a JSON Schema. A pure function of the records — it never looks at the model. |
 | `interview-tools.ts` | The three tool definitions and the name matching behind `callTool`. Plain data; nothing here talks to a network. |
 | `interview-state.ts` | The state the model has no notion of: the skipped set, and the snapshot / diff pair behind the change report. |

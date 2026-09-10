@@ -3,14 +3,9 @@ import type { IInterviewItem } from "./interview-types";
 import {
   IInterviewInput, getInputErrors, getRootQuestions, isContainerQuestion, isInputValid, isOnStartPage,
 } from "./interview-items";
-import {
-  createBatchItem, getContainerFields, getContainerInputs, getContainerRows, getFieldItems,
-  getRowRecords, isContainerAnswered, isContainerValid, isFixedShapeContainer,
-} from "./interview-fields";
-import {
-  canAddEntry, getEntryRecords, getRecordEntries, getTemplateItems, isDynamicContainer,
-  isRecordsAnswered, isRecordsValid,
-} from "./interview-records";
+import { createBatchItem, isContainerAnswered, isDynamicContainer } from "./interview-fields";
+import { isRecordsAnswered } from "./interview-records";
+import { describeContainer, isContainerTreeValid } from "./interview-containers";
 
 // Batch mode is single mode's inventory read at the root level. An agent that fills a whole form in
 // one turn writes one value per question, so the unit here is the root - the question a JSON key
@@ -18,11 +13,12 @@ import {
 //
 // A root whose value is one object with a fixed set of keys is filled as that object: a single-choice
 // matrix, a matrix dropdown, a multiple text and a composite report their inputs as "fields" and
-// take an object of field values back (interview-fields.ts). A root whose value is a list that grows
-// and shrinks - a dynamic panel, a dynamic matrix - is listed and not filled, and so is a root whose
-// value no text consumer can produce (a file, a signature); the two are told apart by the "reason"
-// key: "batch" means this version cannot fill it and a later one may, no reason at all means nothing
-// ever will.
+// take an object of field values back. A root whose value is a list that grows and shrinks - a
+// dynamic panel, a dynamic matrix - reports its entries as records and takes a list of records back.
+// Both are described by interview-containers.ts, which does the same for a container nested inside
+// them at any depth. A root whose value no text consumer can produce (a file, a signature) is listed
+// with unsupported and no reason; unsupported with reason "batch" is left for a container below the
+// depth ceiling, which nothing reaches.
 
 export interface IInterviewBatchEntry {
   address: string;
@@ -48,21 +44,16 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
       res.push({ address: single.address, item: single.item, input: single });
       return;
     }
-    const item = createBatchItem(root);
+    const item = describeContainer(root, root.name, "live", 0);
     if (!item) return;
-    // A question with no plain input is unsupported already, and nothing about its structure changes
-    // that: a file is a file whether or not it holds nested questions.
-    if (item.unsupported !== true && isDynamicContainer(root)) {
-      res.push(createRecordsEntry(root, item));
+    const address = item.name;
+    if (item.unsupported === true) {
+      res.push({ address: address, item: item });
       return;
     }
-    if (item.unsupported !== true && isFixedShapeContainer(root)) {
-      res.push(createContainerEntry(root, item));
-      return;
-    }
-    item.unsupported = true;
-    item.reason = "batch";
-    res.push({ address: item.name, item: item });
+    res.push(isDynamicContainer(root)
+      ? { address: address, item: item, records: root }
+      : { address: address, item: item, container: root });
   });
   return res;
 }
@@ -73,39 +64,6 @@ export function getBatchEntries(survey: SurveyModel, inputs: Array<IInterviewInp
 // two host events tune single mode only.
 function isBatchContainer(root: Question, item: IInterviewItem): boolean {
   return isContainerQuestion(root) || item.valueType === "object";
-}
-
-function createContainerEntry(container: Question, item: IInterviewItem): IInterviewBatchEntry {
-  const address = item.name;
-  const rows = getContainerRows(container, address);
-  // The key the describer would have written for a multiple text or a composite is gone
-  // (createBatchItem drops it) and one of these takes its place, in the same position. It is written
-  // even when it is empty, unlike the optional keys of a document: "fields: []" says that this
-  // container has nothing an agent can fill - an enableIf turned every editor read-only with it -
-  // and that is information, the way "items: []" and "current: null" are.
-  if (!!rows) {
-    item.rows = getRowRecords(rows);
-  } else {
-    item.fields = getFieldItems(getContainerFields(container, address));
-  }
-  return { address: address, item: item, container: container };
-}
-
-// A dynamic container in the document: what it holds now, what a new entry takes, and whether another
-// one may be added, in that order. "entries" is left out while the container holds none - "canAdd" is
-// then the whole story - while "template" says what to send either way.
-function createRecordsEntry(container: Question, item: IInterviewItem): IInterviewBatchEntry {
-  const address = item.name;
-  const entries = getRecordEntries(container, address);
-  if (entries.length > 0) {
-    item.entries = getEntryRecords(entries);
-  }
-  const template = getTemplateItems(container);
-  if (template.length > 0) {
-    item.template = template;
-  }
-  item.canAdd = canAddEntry(container);
-  return { address: address, item: item, records: container };
 }
 
 // The document of batch mode: everything that still needs work, plus everything the agent has to be
@@ -133,17 +91,17 @@ function getEntryErrors(entry: IInterviewBatchEntry): Array<string> {
   return !!container ? container.errors.map(error => error.getText()) : [];
 }
 
+// Answered at the root - it holds an entry, or it is not empty - and valid at every depth: a root
+// whose only problem is an empty required field three levels down stays listed.
 function isListedInBatch(entry: IInterviewBatchEntry): boolean {
   if (entry.item.unsupported === true || entry.item.disabled === true) return true;
   if (!!entry.records) {
     const records = entry.records;
-    return !isRecordsAnswered(records) ||
-      !isRecordsValid(records, getRecordEntries(records, entry.address));
+    return !isRecordsAnswered(records) || !isContainerTreeValid(records, entry.address, 0);
   }
   if (!!entry.container) {
     const container = entry.container;
-    return !isContainerAnswered(container) ||
-      !isContainerValid(container, getContainerInputs(container, entry.address));
+    return !isContainerAnswered(container) || !isContainerTreeValid(container, entry.address, 0);
   }
   if (!entry.input) return true;
   // Skipping is a single-mode gesture: an agent that wants to leave a question blank leaves it

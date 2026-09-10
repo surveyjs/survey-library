@@ -183,6 +183,23 @@ export const SurveyLintReasons = Object.freeze({
     minMaxWithoutPattern: "minMaxWithoutPattern",
     minAboveMax: "minAboveMax",
   }),
+  // a variable of the host's definition writing the same data key as the linted survey
+  "variable/collision": Object.freeze({
+    questionShadowed: "questionShadowed",
+    calculatedValueShadowed: "calculatedValueShadowed",
+  }),
+  // a defect of the variable presets object itself: its structure, or a preset value the
+  // variable definition does not accept
+  "variable/preset": Object.freeze({
+    definitionNotAnObject: "definitionNotAnObject",
+    presetsNotAnArray: "presetsNotAnArray",
+    presetNotAnObject: "presetNotAnObject",
+    presetNameMissing: "presetNameMissing",
+    presetVariablesNotAnObject: "presetVariablesNotAnObject",
+    duplicateName: "duplicateName",
+    unknownVariable: "unknownVariable",
+    invalidValue: "invalidValue",
+  }),
   "page/empty": Object.freeze({
     emptyTemplate: "emptyTemplate",
     noElements: "noElements",

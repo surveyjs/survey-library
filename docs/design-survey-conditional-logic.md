@@ -372,6 +372,22 @@ You can also call the [`getVariableNames()`](https://surveyjs.io/Documentation/L
 console.log(survey.getVariableNames()); // Outputs [ "currentyear" ]
 ```
 
+If you want to set several variables at once, call the [`setVariables(variables, clearPrevious)`](https://surveyjs.io/Documentation/Library?id=surveymodel#setVariables) method. Unlike a sequence of `setVariable(name, value)` calls, it recalculates all survey expressions and triggers only once, after all the variables are set. As a result, expressions never see a state in which only a part of the variables is set:
+
+```js
+survey.setVariables({ tier: "gold", yearsInBusiness: 12 });
+```
+
+The second parameter specifies what happens to the variables that the `variables` object does not contain. If it is `false` (default), the new values are merged into the existing variables. If it is `true`, the variables that are absent from the `variables` object are deleted. This is the only way to remove a variable:
+
+```js
+survey.setVariables({ tier: "silver" }, true);
+console.log(survey.getVariableNames()); // Outputs [ "tier" ]
+
+// Removes all variables
+survey.setVariables({}, true);
+```
+
 ### Calculated Values
 
 Calculated values allow you to register an [expression](#expressions) under a required name. If the expression includes [questions](#question-values), [variables](#variables), or [functions](#built-in-functions), it is recalculated each time their values are changed.

@@ -111,6 +111,8 @@ export var serbianStrings = {
   noUploadFilesHandler: "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Molimo unesite drugu vrednost.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vrednost \"{0}\" nije jedan od dostupnih izbora.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
   // "Loading..."

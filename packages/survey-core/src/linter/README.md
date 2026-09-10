@@ -10,7 +10,10 @@ an unknown type is replaced), which swallows the very defects the linter looks f
 `SurveyModel`, `PanelModel`, `Question` or `ItemValue` is created anywhere in this folder;
 only the core's stateless utilities (`ConditionsParser`, `ValueGetter`, `TextPreProcessor`,
 `FunctionFactory`, `Serializer` metadata) are reused. `tests/linter/linter-imports.tests.ts`
-pins both constraints.
+pins both constraints. The rule is about the **linted document**: the optional
+[variable definition](#what-the-analysis-understands) is a different document — the host's own,
+already normalized by the host's build — and it is read through `survey-core`, which builds its
+model there.
 
 ## Usage
 
@@ -35,6 +38,25 @@ linting and no configuration is needed.
 
 `lintSurvey` takes a parsed object — it throws a `TypeError` for a string, an array or
 `null`. Parse JSON text with `JSON.parse` first.
+
+Host variables — the values an application injects with `survey.setVariable()` — are described by
+a **variable definition** and its named presets:
+
+```js
+lintSurvey(surveyJson, {
+  variablePresets: {
+    definition: definitionJson,
+    presets: [{ name: "gold customer", variables: { tier: "gold", years: 12 } }],
+  },
+});
+
+// or, when the host already has the definition as a model - one with custom question types,
+// with choices loaded at runtime, or one a Creator is editing right now:
+lintSurvey(surveyJson, {
+  variableDefinitionModel: definitionModel,
+  variablePresets: { presets: [/* ... */] },
+});
+```
 
 ## API
 
@@ -74,6 +96,14 @@ interface ILintFinding {
   reproduction?: ILintReproduction;    // steps demonstrating the defect: { set } / { expect }
 }
 ```
+
+`path` addresses the **linted survey JSON**, with one deliberate exception: the `variable/preset`
+rule reports on the `variablePresets` option, which is not part of that document, so its paths are
+rooted at `variablePresets…` (`variablePresets.definition`, `variablePresets.presets[2]`,
+`variablePresets.presets[2].variables.tier`). A `related` entry with the path
+`variablePresets.definition` addresses the variable definition itself; the question in it is named
+by `elementName`, not by a deeper path — the definition is held as a model, and a host that passed
+one has no JSON document for a deeper path to address.
 
 ## Localization
 
@@ -119,6 +149,8 @@ interface ISurveyLintOptions {
   knownFunctions?: Array<string>;   // functions registered elsewhere/later
   components?: { [typeName: string]: { questionJSON?: any, elementsJSON?: Array<any> } };
   reportSuppressed?: boolean;       // keep suppressed findings in result.suppressed
+  variablePresets?: ISurveyVariablePresets;   // the variable definition and its named presets
+  variableDefinitionModel?: SurveyModel;      // that definition, as a model the host already has
 }
 ```
 
@@ -130,16 +162,36 @@ interface ISurveyLintOptions {
   `ComponentCollection` definition) so their inner elements and expressions are analysed and
   their type names stop being reported as unknown. Types already registered in the
   `ComponentCollection` of the shared closure need no entry here.
+* **`variablePresets`** is the `ISurveyVariablePresets` container declared by `survey-core`
+  (`src/variablePresets.ts`) — `{ definition, presets }`, the same object the tester carries at
+  the root of a suite. Its **definition** is an ordinary survey JSON whose top-level questions
+  *are* the host variables (the data key of a question — its `valueName` when set, otherwise its
+  `name` — is the variable name), and its **presets** are named value records for it. The
+  definition names join `knownVariables` as a second source: the two are a **union**, and one
+  host declaring the same name in both is not a defect. The container itself must be a plain
+  object — a string or a class instance is a `TypeError`, like a bad survey JSON — while
+  everything *inside* it is data the `variable/preset` rule reports on.
+* **`variableDefinitionModel`** is that same definition as a `SurveyModel` the host already has.
+  It **wins** over `variablePresets.definition`, which is then never loaded, and is what to pass
+  when the JSON is not the whole truth (custom question types, choices assigned in code, a
+  definition open in a Creator) or when a host lints on every keystroke and does not want to pay a
+  `fromJSON` of the definition per call. The linter **borrows** it: it loads nothing into it and
+  disposes nothing (disposing the run's own companion never disposes a host model). What a run
+  *does* change is the model's **data** — every preset it checks is assigned to it — so pass an
+  instrument, not a definition a user is filling in at that moment. Anything but a `SurveyModel`
+  is a `TypeError`.
 
 ## Rules
 
 | Rule id | Default | Reports |
 | --- | --- | --- |
 | `expression/syntax` | error | An expression that cannot be parsed — including one synthesized from a trigger's legacy `name`/`operator`/`value` properties, and the condition an inArray function carries as a string argument. |
-| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question; an element name a function takes as a plain string (`sumInArray({m1}, 'col')`, `displayValue('q1')`, `getComment`, `propertyValue`, `isContainerReady`). |
+| `reference/unknown` | error | `{name}` that resolves to no question, panel, page, calculated value or variable — an entry of `options.knownVariables` or a variable of the definition counts as one; an unknown segment inside a dotted name (`{matrix.noSuchColumn}`); an unknown name in `bindings`, in a `choicesByUrl` `url`/`path`, or in a piped text (`title`, `description`, `templateTitle`, `html`, any localizable string); a `keyName` naming no column / template question; an element name a function takes as a plain string (`sumInArray({m1}, 'col')`, `displayValue('q1')`, `getComment`, `propertyValue`, `isContainerReady`). |
 | `reference/self` | error | `visibleIf`/`enableIf`/`requiredIf` that references its own element (by name or `{self}`) — hiding the element clears its value, which flips the condition back. |
 | `name/duplicate` | error | Two elements sharing a name in one namespace; duplicate calculated-value names; a calculated value shadowing an element name. |
 | `name/shadowing` | warning | A name that answers somewhere else than the JSON suggests: a question, `valueName` or calculated value spelling a built-in variable (`{pageno}`, `{locale}`, the quiz counters), which the survey answers first; a `valueName` landing on the name another question already writes under; a data key spelling the `-Comment` or `-total` key the runtime derives for another element; and a `setvalue` trigger with `isVariable` writing a variable named after a question, whose answer then stops answering its own name. Two questions deliberately sharing a `valueName` is not reported — that is how they answer as one. |
+| `variable/collision` | error | A variable of the `variablePresets` definition that writes the same data key as the linted survey: a root question (by `name` or `valueName`), or a calculated value. `setVariable(name)` deletes the answer stored under that key and the variables hash is consulted before the survey data, so the respondent's answer is gone the moment the host injects the variable; a calculated value stores its result through `setVariable` too, so both write the same slot and whichever runs last wins. A question inside a dynamic panel template or a matrix cell is not reported — it writes no root data key. Off without a definition. |
+| `variable/preset` | warning | A defect of the `variablePresets` object itself: a `definition` that is not an object, a `presets` that is not an array, an entry that is not an object, one without a name or without a `variables` object, two entries sharing a name — and, against the definition, a variable the definition does not declare (with the closest declared name as a suggestion) and a value it rejects. The value verdict is the definition's **own**: its validators, its `isRequired`, its `visibleIf`s and a choice-membership check all run on a model of it, so a required variable a preset leaves out and an unlisted choice on an optional dropdown are both reported. |
 | `element/unknown-type` | info | A question `type` that is neither registered nor passed via `options.components`. |
 | `property/invalid-value` | warning | A value the property cannot hold: one outside the values the serializer lists for it (`titleLocation`, `clearIfInvisible`, `progressBarType`, a column `cellType`, …) — with the closest allowed spelling as a suggestion, including a value that only has the wrong case — and a number outside the registered `minValue`/`maxValue`. Also a `valueName` containing a `.`, which every reference reads as a path into another key. |
 | `property/dead` | info | A property the JSON states and the runtime does not keep: one that is not serializable (globally, like `mode`, or suppressed on its own type, like `correctAnswer` on an `expression` question) and so disappears the next time the survey is saved; one property written under both its names (`elements` and `questions`, `showOtherItem` and `hasOther`), where the key written last silently wins; and `min`/`max`/`step` on an `inputType` that has no bounds. Kept apart from `property/unknown` at `info`, since legacy JSON carries these and they do work. |
@@ -251,6 +303,29 @@ interface ISurveyLintOptions {
   reported on its own.
 * **Typos.** Unresolved names, types, functions and trigger targets carry a `suggestion` — the
   closest known name by edit distance.
+* **Host variables and the variable definition.** A host application injects values through
+  `survey.setVariable()` — a customer tier, a role, a number of employees — and the survey reads
+  them in `visibleIf`, `defaultValueExpression` and calculated values. Those names appear nowhere
+  in the survey JSON, so without help a legitimate host variable and a typo look the same. The
+  **variable definition** (`options.variablePresets.definition`, or `options.variableDefinitionModel`)
+  is one ordinary survey JSON whose **top-level** questions are the variables: the data key a
+  question produces — its `valueName` when set, otherwise its `name` — is the variable name, and its
+  type, choices and validators are everything that is known about it. Everything about the concept
+  lives in `survey-core` (`SurveyVariablePresets`, `src/variablePresets.ts`); the linter declares
+  nothing of its own and derives nothing itself. Names match **case-insensitively**, because
+  `setVariable` lower-cases what it stores. A question inside a dynamic panel template or a matrix
+  cell is not a variable — the panel or the matrix itself is the one variable that holds the array.
+  A definition variable then resolves like an `options.knownVariables` entry (same `resolvedKind`,
+  so every rule that accepts a known variable accepts it), and joins the pool a `suggestion` is
+  drawn from, so `{teir}` gets *Did you mean "tier"?*. A dotted reference into one
+  (`{profile.city}`) resolves on its root; the sub-path is not validated. What a **preset** value is
+  checked against is the definition's own verdict, produced by a model of the definition inside
+  survey-core — not by a static approximation of it here.
+  The definition is a *different document* from the linted one: the linter still constructs no
+  model of the survey it analyses (the no-model rule of #11693 is about the linted document), and
+  the definition is the host's own, already normalized by the host's build. Lint it separately —
+  `lintSurvey(definitionJson)` — to find *its* defects; `lintSurvey(survey, { variablePresets })`
+  never reports on it.
 * **The serializer is the source of truth.** Element types, expression-bearing properties,
   container array keys and trigger target properties are read from the `Serializer` at lint
   time, so a property or a type added to the core — or registered by the application — is
@@ -292,6 +367,13 @@ under new reasons instead of needing a new rule id.
   only holds for whole numbers, is not reported.
 * A custom question type without a `components` entry is analysed as an opaque element.
 * A custom trigger type is not covered by the target and cycle checks.
+* A dotted sub-path into a definition variable (`{profile.city}`) is not validated — only its
+  root is resolved, exactly as for an `options.knownVariables` entry.
+* Asynchronous validators of the variable definition are not awaited (inherited from the core
+  companion): a preset verdict is the synchronous one.
+* A `variableDefinitionModel` is left holding the values of the last preset the run checked, and
+  its `data` is cleared and reassigned per preset, so it is not a model to show someone at the
+  same time.
 
 ## Example output
 

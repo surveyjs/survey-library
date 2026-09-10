@@ -111,6 +111,8 @@ export var swedishSurveyStrings = {
   noUploadFilesHandler: "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Var vänlig ange det andra värdet.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Värdet '{0}' är inte ett av de tillgängliga valen.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Din fil laddas upp. Var vänlig vänta några sekunder och försök sedan igen.",
   // "Loading..."

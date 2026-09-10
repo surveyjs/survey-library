@@ -111,6 +111,8 @@ export var hindiStrings = {
   noUploadFilesHandler: "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें.",
   // "Response required: enter another value."
   otherRequiredError: "कृपया दूसरा मूल्य दर्ज करें",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "मान '{0}' उपलब्ध विकल्पों में से एक नहीं है।",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "आपकी फाइल अपलोड हो रही है। कृपया कई सेकंड इंतजार करें और फिर से प्रयास करें।",
   // "Loading..."

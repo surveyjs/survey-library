@@ -111,6 +111,8 @@ export var philippinesStrings = {
   noUploadFilesHandler: "Hindi ma-upload ang mga file. Mangyaring magdagdag ng handler para sa kaganapang 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Kinakailangan ang tugon: maglagay ng isa pang halaga.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Ang halagang '{0}' ay hindi kabilang sa mga available na pagpipilian.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ina-upload ang iyong file. Mangyaring maghintay ng ilang segundo at subukang muli.",
   // "Loading..."

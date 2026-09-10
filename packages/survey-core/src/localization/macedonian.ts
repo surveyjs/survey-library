@@ -111,6 +111,8 @@ export var macedonianSurveyStrings = {
   noUploadFilesHandler: "Фајловите не можат да се качуваат. Ве молиме додадете раководител за настанот 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Внесете ја другата вредност.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Вредноста \"{0}\" не е една од достапните опции.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Вашата датотека се поставува. Ве молиме почекајте неколку секунди и обидете се повторно.",
   // "Loading..."

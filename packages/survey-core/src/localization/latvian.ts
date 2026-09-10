@@ -111,6 +111,8 @@ export var latvianSurveyStrings = {
   noUploadFilesHandler: "Failus nevar augšupielādēt. Lūdzu, pievienojiet apdarinātāju notikumam \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Lūdzu, ievadiet datus laukā 'Cits'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vērtība '{0}' nav viena no pieejamajām izvēlēm.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Jūsu fails tiek augšupielādēts. Lūdzu, uzgaidiet dažas sekundes un mēģiniet vēlreiz.",
   // "Loading..."

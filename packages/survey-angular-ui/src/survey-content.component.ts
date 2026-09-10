@@ -5,8 +5,7 @@ import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey-content",
-  templateUrl: "./survey-content.component.html",
-  styles: [":host { display: block; width: 100%; height: 100%; }"]
+  templateUrl: "./survey-content.component.html"
 })
 export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
   @Input() model!: SurveyModel;

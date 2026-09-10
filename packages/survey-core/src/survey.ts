@@ -55,7 +55,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { SurveyIdGenerator } from "./survey-id-generator";
-import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getActiveElement, getRootNode, isShadowDOM } from "./utils/dom-utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getActiveElement, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -8660,7 +8660,6 @@ export class SurveyModel extends SurveyElementCore
   private focusModeSetupGeneration = 0;
   private _isKeyboardOpen = false;
   private _focusModeOriginalHeight: string = "";
-  private focusModeHeightWarned = false;
   private readonly focusModeKeyboardThreshold = 50;
 
   public get isKeyboardOpen(): boolean {
@@ -8679,7 +8678,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateScrollerElement();
       if (!this.focusMode) return;
       this.addFocusModeEventListeners();
-      this.checkFocusModeHostHeight();
     });
   }
 
@@ -8714,47 +8712,6 @@ export class SurveyModel extends SurveyElementCore
       this.rootElement.removeEventListener("focusin", this.focusModeFocusInHandler);
     }
     this.focusModeFocusInHandler = undefined;
-  }
-
-  private getFocusModeSizeContainer(): HTMLElement | null {
-    const root = this.rootElement;
-    if (!root) return null;
-    if (root.parentElement) return root.parentElement;
-    // The survey can be rendered directly into a shadow root. A shadow root generates no box of its
-    // own, so height: 100% resolves against the host and the host is what has to be measured.
-    const rootNode = getRootNode(root);
-    return isShadowDOM(rootNode) && rootNode.host instanceof HTMLElement ? rootNode.host : null;
-  }
-
-  private checkFocusModeHostHeight(): void {
-    const root = this.rootElement;
-    const parent = this.getFocusModeSizeContainer();
-    if (!root || !parent) return;
-    // A hidden container measures as zero; there is nothing to validate until it is shown.
-    if (parent.clientHeight === 0 && root.offsetParent === null) return;
-    let reason = "";
-    if (parent.clientHeight === 0) {
-      reason = "the container has zero height";
-    } else {
-      // height: 100% resolves against the parent only when the parent height is definite. Collapse
-      // the survey to zero: a parent that shrinks with it is sized by its content, not by the host.
-      const heightWithSurvey = parent.clientHeight;
-      const originalHeight = root.style.height;
-      root.style.height = "0px";
-      const heightWithoutSurvey = parent.clientHeight;
-      root.style.height = originalHeight;
-      if (heightWithoutSurvey < heightWithSurvey - 1) {
-        reason = "the container height is derived from its content";
-      }
-    }
-    if (!reason) {
-      this.focusModeHeightWarned = false;
-      return;
-    }
-    if (this.focusModeHeightWarned) return;
-    this.focusModeHeightWarned = true;
-    ConsoleWarnings.warn("SurveyModel.focusMode requires the survey container to have an explicit height, but " +
-      reason + ". Give the element that contains the survey a height of its own, for example height: 600px or height: 100dvh.");
   }
 
   private updateFocusModeVisualViewport(): void {

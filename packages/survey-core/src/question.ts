@@ -968,7 +968,11 @@ export class Question extends SurveyElement<Question>
     return new QuestionSingleInputBehavior(this);
   }
   public get singleInputQuestion(): Question {
-    return this.singleInputBehavior.singleInputQuestion;
+    const res = this.singleInputBehavior.singleInputQuestion;
+    // A stored "self" without a summary is a question at its own step (a select question with
+    // nested choice elements before its nested inputs): render the question's own content.
+    if (res === this && !this.singleInputSummary) return undefined;
+    return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.singleInputBehavior.singleInputSummary;

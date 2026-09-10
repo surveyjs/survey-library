@@ -11,6 +11,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
 
 import { describe, test, expect } from "vitest";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 describe("Input Per Page Tests", () => {
   function getSingleQuestion(page: PageModel): Question {
     if (page.visibleRows.length === 0) return <any>undefined;
@@ -83,6 +84,7 @@ describe("Input Per Page Tests", () => {
     survey.performNext();
     survey.performNext();
     expect(panel.singleInputQuestion.name, "singleInputQuestion, #1").toBe("panel1");
+    expect(panel.getRootCss().indexOf("sd-question--single-input") > -1, "summary step keeps rootSingleInput, #1, Bug#11824").toBe(true);
     expect(panel.isRenderModeTab, "isRenderModeTab, #1").toBe(false);
     const rootCss = panel.singleInputQuestion.getRootCss();
     expect(rootCss.indexOf("q-frame") > -1, "rootCss has q-frame, #1").toBe(false);
@@ -2611,5 +2613,414 @@ describe("Input Per Page Tests", () => {
     expect(radio.isExpanded, "radio.isExpanded is false").toBe(false);
     expect(radio.isCollapsed, "radio.isCollapsed is false").toBe(false);
     expect(radio.showTitleExpandableSvg, "radio.showTitleExpandableSvg").toBe(false);
+  });
+  function getNestedChoicesJson(type: string = "radiogroup", addQ2: boolean = true): any {
+    const elements: Array<any> = [
+      { type: type, name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }, { type: "text", name: "nested2" }] }] }
+    ];
+    if (addQ2) elements.push({ type: "text", name: "q2" });
+    return { questionsOnPageMode: "inputPerPage", elements: elements };
+  }
+  function getStepNames(q: Question): Array<string> {
+    return q.singleInputBehavior.getSingleInputQuestions().map(el => el.name);
+  }
+  test("inputPerPage: radiogroup without nested choice elements has no inner steps, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", "item2"] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1").toBe("q1");
+    expect(getStepNames(q1), "no inner steps").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion is undefined").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos is 0").toBe(0);
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion is q1").toBe("q1");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q2").toBe("q2");
+  });
+  test("inputPerPage: radiogroup nested choice questions are separate steps, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const item2 = q1.choices[1];
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #1").toBe("q1");
+    expect(getStepNames(q1), "steps, #1").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion, #1").toBeUndefined();
+    expect(item2.renderedIsPanelShowing, "item2 panel is not rendered, #1").toBeFalsy();
+    expect(survey.isLastElement, "isLastElement, #1").toBe(false);
+
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "nested1", "nested2"]);
+    expect(q1.singleInputQuestion, "own content, #2").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos, #2").toBe(-1);
+    expect(item2.isPanelShowing, "item2.isPanelShowing, #2").toBe(true);
+    expect(item2.renderedIsPanelShowing, "item2.renderedIsPanelShowing, #2").toBe(false);
+    expect(q1.getRootCss().indexOf("sd-question--single-input"), "own step root css, #2").toBe(-1);
+    expect(q1.locRenderedTitle.renderedHtml, "own title, #2").toBe("q1");
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion, #2").toBe("q1");
+
+    expect(survey.performNext(), "next, #3").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #3").toBe("q1");
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested1");
+    expect(q1.getSingleInputElementPos(), "pos, #3").toBe(2);
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+    expect(q1.locRenderedTitle.renderedHtml, "rendered title, #3").toBe("item2");
+    expect(q1.getRootCss().indexOf("sd-question--single-input") > -1, "nested step root css, #3").toBe(true);
+    expect(nested1.parentQuestion.name, "nested1.parentQuestion, #3").toBe("q1");
+    expect(getSingleQuestion(survey.currentPage).name, "getSingleQuestion, #3").toBe("nested1");
+
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #4").toBe("nested2");
+    expect(q1.getSingleInputElementPos(), "pos, #4").toBe(1);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q2, #5").toBe("q2");
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion is q1, #6").toBe("q1");
+    expect(q1.singleInputQuestion.name, "back on the last nested step, #6").toBe("nested2");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #7").toBe("nested1");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion, "own step, #8").toBeUndefined();
+    expect(q1.singleInputLocTitle, "no step title, #8").toBeUndefined();
+    expect(q1.locRenderedTitle.renderedHtml, "own title, #8").toBe("q1");
+    expect(item2.renderedIsPanelShowing, "item2 panel is not rendered, #8").toBe(false);
+    expect(survey.isFirstElement, "isFirstElement, #8").toBe(true);
+    expect(survey.data, "survey.data").toEqual({ q1: "item2" });
+  });
+  test("inputPerPage: nested choice steps & the Complete button, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson("radiogroup", false));
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    expect(survey.isCompleteButtonVisible, "complete, #1").toBe(true);
+    q1.value = "item2";
+    expect(survey.isCompleteButtonVisible, "complete, #2").toBe(false);
+    expect(survey.isShowNextButton, "next, #2").toBe(true);
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested2");
+    expect(survey.isCompleteButtonVisible, "complete, #3").toBe(true);
+    expect(survey.isShowNextButton, "next, #3").toBe(false);
+    survey.performPrevious();
+    survey.performPrevious();
+    expect(q1.singleInputQuestion, "own step, #4").toBeUndefined();
+    expect(survey.isCompleteButtonVisible, "complete, #4").toBe(false);
+    q1.value = "item1";
+    expect(survey.isCompleteButtonVisible, "complete, #5").toBe(true);
+    expect(survey.isShowNextButton, "next, #5").toBe(false);
+  });
+  test("inputPerPage: checkbox nested choice steps follow visibleChoices order, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "checkbox", name: "q1", choices: [
+          { value: "item1", elements: [{ type: "text", name: "n1" }] },
+          { value: "item2", elements: [{ type: "text", name: "n2a" }, { type: "text", name: "n2b" }] },
+          { value: "item3", elements: [{ type: "text", name: "n3" }] }
+        ] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    q1.value = ["item3", "item1"];
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "n1", "n3"]);
+    q1.value = ["item3", "item1", "item2"];
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "n1", "n2a", "n2b", "n3"]);
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("n2a");
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+  });
+  test("inputPerPage: invisible nested choice questions are skipped, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1" },
+          { type: "text", name: "nested2", visibleIf: "{nested1} = 'show'" }
+        ] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "nested1"]);
+    survey.getQuestionByName("nested1").value = "show";
+    expect(getStepNames(q1), "steps, #2").toEqual(["q1", "nested1", "nested2"]);
+  });
+  test("inputPerPage: deselecting the choice of the displayed nested step, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "radiogroup: singleInputQuestion, #1").toBe("nested1");
+    q1.value = "item1";
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion, "radiogroup: back to the own step, #2").toBeUndefined();
+    expect(getStepNames(q1), "radiogroup: steps, #2").toEqual([]);
+
+    q1.value = "item2";
+    survey.performNext();
+    survey.performNext();
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #3").toBe("q2");
+    q1.value = "item1";
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name, "radiogroup: currentSingleQuestion, #4").toBe("q1");
+    expect(q1.singleInputQuestion, "radiogroup: the deselected step is not restored, #4").toBeUndefined();
+
+    const survey2 = new SurveyModel(getNestedChoicesJson("checkbox"));
+    const q2 = <QuestionCheckboxModel>survey2.getQuestionByName("q1");
+    q2.value = ["item2"];
+    survey2.performNext();
+    expect(q2.singleInputQuestion.name, "checkbox: singleInputQuestion, #1").toBe("nested1");
+    q2.value = ["item2", "item1"];
+    expect(q2.singleInputQuestion.name, "checkbox: the step is kept, #2").toBe("nested1");
+    q2.value = ["item1"];
+    expect(q2.singleInputQuestion, "checkbox: back to the own step, #3").toBeUndefined();
+  });
+  test("inputPerPage: nested choice validation on Next, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", isRequired: true, choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1", isRequired: true }] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(survey.performNext(), "required q1 blocks, #1").toBe(false);
+    expect(q1.errors.length, "q1 errors, #1").toBe(1);
+    q1.value = "item2";
+    expect(survey.performNext(), "next from the own step, #2").toBe(true);
+    expect(q1.errors.length, "q1 errors, #2").toBe(0);
+    expect(nested1.errors.length, "nested1 errors, #2").toBe(0);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested1");
+    expect(survey.performNext(), "required nested1 blocks, #3").toBe(false);
+    expect(nested1.errors.length, "nested1 errors, #3").toBe(1);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("nested1");
+    nested1.value = "a";
+    expect(survey.performNext(), "next, #4").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toBe("q2");
+  });
+  test("inputPerPage: completion validates nested choice questions, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1", isRequired: true }, { type: "text", name: "nested2" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const nested1 = survey.getQuestionByName("nested1");
+    q1.value = "item2";
+    expect(survey.tryComplete(), "tryComplete on the own step, #1").toBe(false);
+    expect(survey.isCompleted, "not completed, #1").toBe(false);
+    expect(q1.singleInputQuestion.name, "focus landed on the nested step, #1").toBe("nested1");
+    expect(nested1.errors.length, "nested1 errors, #1").toBe(1);
+    nested1.value = "a";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested2");
+    nested1.clearValue();
+    expect(survey.tryComplete(), "tryComplete from the last nested step, #3").toBe(false);
+    expect(q1.singleInputQuestion.name, "focus landed on the nested step, #3").toBe("nested1");
+    nested1.value = "a";
+    survey.performNext();
+    expect(survey.tryComplete(), "tryComplete, #4").toBe(true);
+    expect(survey.data, "survey.data, #4").toEqual({ q1: "item2", nested1: "a" });
+  });
+  test("inputPerPage: a select with nested choices inside a dynamic panel, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [
+          { type: "text", name: "inner1" },
+          { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1", isRequired: true }] }] },
+          { type: "text", name: "inner2" }
+        ] }
+      ]
+    });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("dp");
+    const panel = dp.panels[0];
+    const q1 = <QuestionRadiogroupModel>panel.getQuestionByName("q1");
+    const nested1 = q1.choices[1].panel.getQuestionByName("nested1");
+    expect(nested1.parentQuestion, "nested1.parentQuestion").toBe(q1);
+    expect(q1.parentQuestion, "q1.parentQuestion").toBe(dp);
+    expect(dp.singleInputQuestion.name, "singleInputQuestion, #1").toBe("inner1");
+    panel.getQuestionByName("inner1").value = "a";
+    survey.performNext();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion, "q1: own step, #2").toBeUndefined();
+    q1.value = "item2";
+    expect(getStepNames(q1), "q1 steps, #3").toEqual(["q1", "nested1"]);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is not rendered, #3").toBe(false);
+    expect(dp.singleInputBehavior.singleInputHideHeader, "dp header is shown on q1's own step, #3").toBe(false);
+    expect(survey.performNext(), "next from q1's own step, #4").toBe(true);
+    expect(nested1.errors.length, "nested1 errors, #4").toBe(0);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toBe("dp");
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #4").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1: singleInputQuestion, #4").toBe("nested1");
+    expect(dp.singleInputBehavior.singleInputHideHeader, "dp header is hidden on the nested step, #4").toBe(true);
+    expect(survey.performNext(), "required nested1 blocks, #5").toBe(false);
+    expect(nested1.errors.length, "nested1 errors, #5").toBe(1);
+    nested1.value = "b";
+    expect(survey.performNext(), "next, #6").toBe(true);
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #6").toBe("inner2");
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #7").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1: back on the nested step, #7").toBe("nested1");
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #8").toBe("q1");
+    expect(q1.singleInputQuestion, "q1: own step, #8").toBeUndefined();
+    survey.performPrevious();
+    expect(dp.singleInputQuestion.name, "dp: singleInputQuestion, #9").toBe("inner1");
+  });
+  test("inputPerPage: focusQuestion on a nested choice question, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toBe("q0");
+    survey.focusQuestion("nested1");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toBe("q1");
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("nested1");
+  });
+  test("inputPerPage: onCheckSingleInputPerPageMode disables nested choice steps, Bug#11824", () => {
+    const survey = new SurveyModel(getNestedChoicesJson());
+    survey.onCheckSingleInputPerPageMode.add((_, options) => {
+      options.enabled = options.question.name !== "q1";
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps").toEqual([]);
+    expect(q1.singleInputQuestion, "singleInputQuestion").toBeUndefined();
+    expect(q1.getSingleInputElementPos(), "pos").toBe(0);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is rendered inline").toBe(true);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q2");
+  });
+  test("inputPerPage: nested choice elements in other modes and in preview, Bug#11824", () => {
+    ["questionPerPage", "standard"].forEach(mode => {
+      const json = getNestedChoicesJson();
+      json.questionsOnPageMode = mode;
+      const survey = new SurveyModel(json);
+      const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+      q1.value = "item2";
+      expect(q1.singleInputQuestion, mode + ": singleInputQuestion").toBeUndefined();
+      expect(q1.choices[1].isPanelShowing, mode + ": isPanelShowing").toBe(true);
+      expect(q1.choices[1].renderedIsPanelShowing, mode + ": renderedIsPanelShowing").toBe(true);
+      if (mode === "questionPerPage") {
+        survey.performNext();
+        expect(survey.currentSingleQuestion.name, mode + ": Next goes to q2").toBe("q2");
+      }
+    });
+    const json = getNestedChoicesJson();
+    json.showPreviewBeforeComplete = true;
+    const survey = new SurveyModel(json);
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(q1.choices[1].renderedIsPanelShowing, "inputPerPage: not rendered").toBe(false);
+    survey.showPreview();
+    expect(survey.isShowingPreview, "preview is shown").toBe(true);
+    expect(q1.choices[1].renderedIsPanelShowing, "preview: rendered inline").toBe(true);
+    expect(q1.singleInputQuestion, "preview: singleInputQuestion").toBeUndefined();
+  });
+  test("inputPerPage: a dynamic panel inside a choice is one step, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "paneldynamic", name: "dp", panelCount: 1, templateElements: [{ type: "text", name: "t1" }, { type: "text", name: "t2" }] }
+        ] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps").toEqual(["q1", "dp"]);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q1");
+    expect(q1.singleInputQuestion.name, "q1.singleInputQuestion").toBe("dp");
+    expect(q1.singleInputBehavior.currentSingleInputQuestion.name, "resolves through the dynamic panel").toBe("t1");
+  });
+  test("inputPerPage: nested choice questions inside two levels of panels, Bug#11824", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "n1" },
+          { type: "panel", name: "panel1", elements: [
+            { type: "text", name: "n2" },
+            { type: "panel", name: "panel2", visibleIf: "{n2} != 'skip'", elements: [
+              { type: "text", name: "n3", isRequired: true },
+              { type: "text", name: "n4" }
+            ] }
+          ] },
+          { type: "text", name: "n5" }
+        ] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const choicePanel = q1.choices[1].panel;
+    const panel2 = <PanelModel>choicePanel.getElementByName("panel2");
+    const n2 = choicePanel.getQuestionByName("n2");
+    const n3 = choicePanel.getQuestionByName("n3");
+    expect(n3.parentQuestion, "n3 (second level) is linked to q1").toBe(q1);
+    expect(choicePanel.getQuestionByName("n4").parentQuestion, "n4 (second level) is linked to q1").toBe(q1);
+
+    q1.value = "item2";
+    expect(getStepNames(q1), "steps, #1").toEqual(["q1", "n1", "n2", "n3", "n4", "n5"]);
+    expect(q1.choices[1].renderedIsPanelShowing, "item2 panel is not rendered, #1").toBe(false);
+
+    survey.performNext();
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #2").toBe("n2");
+    n2.value = "x";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #3").toBe("n3");
+    expect(q1.getSingleInputElementPos(), "pos, #3").toBe(2);
+    expect(q1.singleInputLocTitle.renderedHtml, "step title, #3").toBe("item2");
+    expect(q1.getRootCss().indexOf("sd-question--single-input") > -1, "nested step root css, #3").toBe(true);
+    expect(survey.performNext(), "required n3 blocks, #4").toBe(false);
+    expect(n3.errors.length, "n3 errors, #4").toBe(1);
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #4").toBe("n3");
+    n3.value = "a";
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #5").toBe("n4");
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #6").toBe("n5");
+    expect(q1.getSingleInputElementPos(), "pos, #6").toBe(1);
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #7").toBe("q2");
+    expect(survey.data, "nested values stay top-level, #7").toEqual({ q1: "item2", n2: "x", n3: "a" });
+
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #8").toBe("n5");
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #9").toBe("n4");
+    survey.performPrevious();
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #10").toBe("n2");
+    n2.value = "skip";
+    expect(getStepNames(q1), "the second-level panel is hidden, #10").toEqual(["q1", "n1", "n2", "n5"]);
+    survey.performNext();
+    expect(q1.singleInputQuestion.name, "Next skips the hidden panel, #11").toBe("n5");
+
+    n2.value = "x";
+    const n6 = panel2.addNewQuestion("text", "n6");
+    expect(n6.parentQuestion, "a question added to the second-level panel later").toBe(q1);
+    expect(getStepNames(q1), "steps, #12").toEqual(["q1", "n1", "n2", "n3", "n4", "n6", "n5"]);
+    survey.performPrevious();
+    expect(q1.singleInputQuestion.name, "singleInputQuestion, #13").toBe("n6");
+
+    q1.value = "item1";
+    expect(q1.singleInputQuestion, "deselecting returns to the own step, #14").toBeUndefined();
+    expect(getStepNames(q1), "steps, #14").toEqual([]);
   });
 });

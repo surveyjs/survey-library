@@ -23,6 +23,7 @@ import { PanelModel, PanelModelBase } from "./panel";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
@@ -33,6 +34,7 @@ export interface IChoiceOwner extends ILocalizableOwner {
   isItemSelected(item: ItemValue): boolean;
   isDesignMode: boolean;
   parent: IPanel;
+  showChoicePanelsInline?: boolean;
 }
 
 export class ChoiceItem extends ItemValue {
@@ -118,6 +120,7 @@ export class ChoiceItem extends ItemValue {
       this.showCommentArea = false;
     }
     this.setPanelSurvey(this.panelValue);
+    this.panelValue?.elements.forEach(el => this.linkElementToOwner(el, true));
   }
   private onExpandPanelAtDesignValue: EventBase<ChoiceItem, any>;
   public get onExpandPanelAtDesign(): EventBase<ChoiceItem, any> {
@@ -156,7 +159,9 @@ export class ChoiceItem extends ItemValue {
     return this.panelAnimationValue;
   }
   public get renderedIsPanelShowing() {
-    return this.renderedIsPanelShowingValue;
+    const res = this.renderedIsPanelShowingValue;
+    // In inputPerPage mode nested elements are separate steps, so the panel is not rendered inline.
+    return res && this.choiceOwner?.showChoicePanelsInline === false ? false : res;
   }
   public set renderedIsPanelShowing(value: boolean) {
     const panel = this.panel;
@@ -202,8 +207,34 @@ export class ChoiceItem extends ItemValue {
     res.showTitle = false;
     res.isInternalNested = true;
     res["choiceItem"] = this;
+    this.setLinkCallbacks(res, true);
     this.setPanelSurvey(res);
     return res;
+  }
+  // Questions inside a choice panel get the owner question as parentQuestion (as Dynamic Panel and
+  // matrix inner questions do); single-input navigation, focus and frame CSS rely on this link.
+  private linkElementToOwner(el: IElement, isAdded: boolean): void {
+    if (el.isPanel) {
+      const pnl = <PanelModel><any>el;
+      this.setLinkCallbacks(pnl, isAdded);
+      pnl.elements.forEach(child => this.linkElementToOwner(child, isAdded));
+      return;
+    }
+    const q = <Question><any>el;
+    const owner = this.ownerQuestion;
+    if (isAdded) {
+      if (!!owner) q.setParentQuestion(owner);
+    } else if (!!owner && q.parentQuestion === owner) {
+      q.setParentQuestion(null);
+    }
+  }
+  private setLinkCallbacks(pnl: PanelModel, isAdded: boolean): void {
+    pnl.addElementCallback = isAdded ? (el: IElement) => this.linkElementToOwner(el, true) : undefined;
+    pnl.removeElementCallback = isAdded ? (el: IElement) => this.linkElementToOwner(el, false) : undefined;
+  }
+  private get ownerQuestion(): Question {
+    const owner: any = this.choiceOwner;
+    return !!owner && owner.isQuestion ? owner : null;
   }
   private setPanelSurvey(pnl: PanelModel) {
     if (!!pnl && !pnl.survey) {
@@ -310,6 +341,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public supportElementsInChoice(): boolean {
     return false;
+  }
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    if (this.supportElementsInChoice()) return new SelectBaseSingleInputBehavior(this);
+    return super.createSingleInputBehavior();
+  }
+  // false while the question is the active single input in inputPerPage mode: nested choice
+  // elements are then separate steps instead of a panel expanded under the choice list.
+  public get showChoicePanelsInline(): boolean {
+    if (!this.supportElementsInChoice() || !this.isSingleInputActive) return true;
+    return !this.singleInput?.supportsNestedSingleInput(this);
   }
   public getPanels(): Array<IPanel> {
     if (!this.supportElementsInChoice()) return super.getPanels();
@@ -440,10 +481,23 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.clearIncorrectValues();
     }
     let res = true;
-    this.doForPanels(true, (p) => {
-      res &&= p.validateElement(context);
-    });
+    if (!this.isChoicePanelsValidationSuppressed) {
+      this.doForPanels(true, (p) => {
+        res &&= p.validateElement(context);
+      });
+    }
     return super.validateElementCore(context) && res;
+  }
+  private isChoicePanelsValidationSuppressed: boolean;
+  // Used by Next on the question's own step in inputPerPage mode: the nested choice elements are
+  // not on screen yet and get validated on their own steps. Every other validation path checks them.
+  public validateWithoutChoicePanels(): boolean {
+    this.isChoicePanelsValidationSuppressed = true;
+    try {
+      return this.validate(true, true);
+    } finally {
+      this.isChoicePanelsValidationSuppressed = false;
+    }
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -1022,6 +1076,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
     if (this.showOtherItem) {
       this.updateItemIsCommentShowing(this.otherItem, updateComment);
+    }
+    if (this.supportElementsInChoice() && this.isSingleInputMode) {
+      (<SelectBaseSingleInputBehavior>this.singleInputBehavior).onSelectionChanged();
     }
   }
   private updateItemIsPanelShowing(item: ChoiceItem) {
@@ -2631,6 +2688,63 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public getCssClassesForCommentPanelAnimation(type: "comment" | "panel"): { onLeave: string, onEnter: string } {
     const correctedType = type.charAt(0).toUpperCase() + type.slice(1);
     return { onEnter: this.cssClasses[`item${correctedType}Enter`], onLeave: this.cssClasses[`item${correctedType}Leave`] };
+  }
+}
+
+// inputPerPage support for choices with nested elements (radiogroup, checkbox): step 0 is the
+// choice list itself, then every visible nested question of every selected choice gets its own step.
+export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
+  protected get selectBase(): QuestionSelectBase {
+    return <QuestionSelectBase>this.question;
+  }
+  protected isSelfSummaryStep(): boolean {
+    return false;
+  }
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+    const nested = new Array<Question>();
+    this.getSelectedChoicesWithElements().forEach(item => {
+      item.panel.visibleQuestions.forEach(q => q.addNestedQuestion(nested, true, false, false));
+    });
+    return nested.length > 0 ? [this.question, ...nested] : [];
+  }
+  protected validateAsSingleInput(): boolean {
+    if (this.getPropertyValue("singleInputQuestion") === this.question) {
+      return this.selectBase.validateWithoutChoicePanels();
+    }
+    return super.validateAsSingleInput();
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
+    const q = this.getPropertyValue("singleInputQuestion");
+    if (!q || q === this.question) return undefined;
+    return this.getChoiceByNestedQuestion(q)?.locText;
+  }
+  // The step list follows the selection: a stored nested step whose choice got deselected falls
+  // back to the question's own step; otherwise only Next/Complete need a refresh.
+  public onSelectionChanged(): void {
+    const q = this.getPropertyValue("singleInputQuestion");
+    if (!!q && q !== this.question && this.getSingleInputQuestions().indexOf(q) < 0) {
+      this.resetSingleInput();
+    } else if (this.isSingleInputActive) {
+      this.onSingleInputChanged(false);
+    }
+  }
+  private getSelectedChoicesWithElements(): Array<ChoiceItem> {
+    const res = new Array<ChoiceItem>();
+    this.selectBase.visibleChoices.forEach(item => {
+      const choice = <ChoiceItem>item;
+      if (choice.isDescendantOf("choiceitem") && choice.hasElements && this.selectBase.isItemSelected(choice)) {
+        res.push(choice);
+      }
+    });
+    return res;
+  }
+  private getChoiceByNestedQuestion(q: Question): ChoiceItem {
+    let parent: any = q.parent;
+    while(!!parent && !parent["choiceItem"]) {
+      parent = parent.parent;
+    }
+    const item: ChoiceItem = parent?.["choiceItem"];
+    return !!item && item.locOwner === this.question ? item : undefined;
   }
 }
 /**

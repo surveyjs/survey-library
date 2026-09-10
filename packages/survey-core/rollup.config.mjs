@@ -76,6 +76,11 @@ const buildPlatformJson = {
       "import": "./fesm/i18n/*.mjs",
       "require": "./i18n/*.js"
     },
+    "./interview": {
+      "types": "./typings/entries/interview.d.ts",
+      "import": "./fesm/interview.mjs",
+      "require": "./interview.js"
+    },
     "./tester": {
       "types": "./typings/entries/tester.d.ts",
       "import": "./fesm/tester.mjs",

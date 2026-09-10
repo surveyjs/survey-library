@@ -1,7 +1,9 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question } from "./question";
+import { Question, QuestionValueType, getScalarValueType } from "./question";
+import { ItemValue } from "./itemvalue";
+import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
@@ -24,7 +26,7 @@ function isCustomRenderAs(val: string): boolean {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
-export class QuestionBooleanModel extends Question {
+export class QuestionBooleanModel extends Question implements ISelectQuestion {
   public getType(): string {
     return "boolean";
   }
@@ -181,6 +183,33 @@ export class QuestionBooleanModel extends Question {
   @property()
     valueFalse: any;
 
+  public getValueType(): QuestionValueType {
+    return getScalarValueType(this.getValueTrue());
+  }
+  public isSelectQuestion(): boolean {
+    return true;
+  }
+  public getValueChoices(): Array<ItemValue> {
+    const trueItem = this.createValueChoice(this.getValueTrue(), this.locLabelTrue);
+    const falseItem = this.createValueChoice(this.getValueFalse(), this.locLabelFalse);
+    // The order the question itself renders, locLabelLeft first.
+    return this.swapOrder ? [trueItem, falseItem] : [falseItem, trueItem];
+  }
+  public get hasUnknownChoices(): boolean {
+    return false;
+  }
+  public isOtherItem(item: ItemValue): boolean {
+    return false;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return false;
+  }
+  private createValueChoice(value: any, locText: LocalizableString): ItemValue {
+    const res = new ItemValue(value);
+    res.locOwner = this;
+    res.setLocText(locText);
+    return res;
+  }
   public getValueTrue(): any {
     return this.valueTrue !== undefined ? this.valueTrue : true;
   }

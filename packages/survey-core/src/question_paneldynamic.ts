@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -365,6 +365,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public getType(): string {
     return "paneldynamic";
+  }
+  public getValueType(): QuestionValueType {
+    return "array";
   }
   protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {

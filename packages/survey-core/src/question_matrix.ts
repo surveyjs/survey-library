@@ -16,7 +16,7 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -387,6 +387,9 @@ export class QuestionMatrixModel
   }
   public getType(): string {
     return "matrix";
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
   }
   protected getAllChildren(): Base[] {
     return [

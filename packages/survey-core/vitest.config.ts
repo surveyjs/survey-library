@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // The longer path first: the aliases are prefix matches applied in order.
+      "survey-core/interview": path.resolve(__dirname, "./entries/interview.ts"),
       "survey-core/tester": path.resolve(__dirname, "./entries/tester.ts"),
       "survey-core": path.resolve(__dirname, "./entries/index.ts"),
     },

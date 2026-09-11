@@ -323,7 +323,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
-   * @since 3.1.0
+   * @since 3.0.4
    */
   @property() rowCountExpression: string;
   private get hasRowCountExpression(): boolean {

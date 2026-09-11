@@ -7205,6 +7205,7 @@ export class SurveyModel extends SurveyElementCore
    * @param clearPrevious Pass `true` to remove all existing variables that are not included in `variables`.
    * @see getVariable
    * @see getVariableNames
+   * @since 3.0.4
    */
   public setVariables(variables: { [name: string]: any }, clearPrevious: boolean = false): void {
     const hasNewValues = !!variables && typeof variables === "object";

@@ -33,8 +33,10 @@
   --sjs2-size-component-radio-box: calc(var(--spacing) * 4.5);
   --sjs2-typography-font-weight-component-label-content: normal;
   --sjs2-typography-line-height-component-label-content: var(--text-sm--line-height);
-  --sjs2-border-effect-component-checkbox-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
-  --sjs2-border-effect-component-radio-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-checkbox-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-radio-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* dropdown */
   --sjs2-layout-component-drop-box-padding-horizontal: calc(var(--spacing) * 1.5);
@@ -109,24 +111,15 @@
   letter-spacing: var(--tracking-wider);
 }
 
-
-.sd-table.sd-table.sd-table {
-  &> tbody, &> thead {
-    &> tr {
-      & > th,
-      & > td {
-        &.sd-table__cell--row-text span,
-        &.sd-table__cell--header span {
-          color: var(--muted-foreground);
-          font-size: var(--text-xs);
-          line-height: var(--tw-leading, var(--text-xs--line-height));
-          font-weight: var(--font-weight-medium);
-          letter-spacing: var(--tracking-wider);
-          text-transform: uppercase;
-        }
-      }
-    }
-  }
+.sd-table__cell--row-text,
+.sd-table__cell--header {
+  vertical-align: middle;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
 }
 
 /* toggle */

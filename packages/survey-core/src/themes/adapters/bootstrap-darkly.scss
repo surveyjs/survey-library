@@ -60,16 +60,11 @@
     }
   }
 }
-
-.sd-table.sd-table.sd-table {
-  &> tbody, &> thead {
-    &> tr {
-      & > th,
-      & > td {
-        background: var(--bs-body-bg);
-      }
-    }
-  }
+.sd-table__cell {
+  background: var(--bs-body-bg);
+}
+.sd-table-wrapper {
+  --sd-question-container-background: var(--bs-body-bg);
 }
 
 .sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {

@@ -38,6 +38,18 @@ describe("mask/mismatch - the mask type", () => {
   });
 });
 
+describe("mask/mismatch - the currency pattern symbols", () => {
+  // "@", "#" and "-" are pattern symbols, never text references: format settings are plain
+  // strings, not localizable ones, so no rule reads them as text
+  test("a currency pattern in the regional format lints clean", () => {
+    const result = lintSurvey({
+      regionalFormat: { currencySymbol: "US$", currencyPattern: "@ #" },
+      elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { currencySymbol: "@#-" } }],
+    });
+    expect(result.findings).toHaveLength(0);
+  });
+});
+
 describe("mask/mismatch - the settings object", () => {
   test("a key of another mask class is flagged", () => {
     const findings = byRule({

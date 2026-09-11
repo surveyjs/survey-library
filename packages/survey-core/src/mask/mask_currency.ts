@@ -2,14 +2,17 @@ import { Serializer } from "../jsonobject";
 import { InputMaskNumeric } from "./mask_numeric";
 import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
-// The currency pattern grammar, a small subset of the CLDR notation: the symbol token is
-// replaced with the resolved currencySymbol, the number token with the formatted number, and an
-// optional subpattern separator splits a positive form from a negative one. Everything else in
-// a pattern is literal text.
-const symbolToken = "\u00A4";
+// The currency pattern grammar uses single-character symbols, like the other mask patterns:
+// "#" stands for the whole formatted number, digits and separators together (exactly one), "@"
+// for the resolved currencySymbol (at most one), and "-" marks where the minus sign of a negative
+// amount goes (at most one, optional). A positive amount renders the "-" as nothing; a pattern
+// without one puts the sign at the very beginning of the text. Everything else is literal text,
+// and there is no escape: no currency symbol or code contains "@", "#" or a minus. The symbol
+// and the number are inserted after the pattern is read and are never read as symbols
+// themselves, so "US$" or a typed "-1,234.56" means nothing to the grammar.
+const symbolToken = "@";
 const numberToken = "#";
 const signToken = "-";
-const subpatternToken = ";";
 // A resolved pattern ends up inside an input value, so it may not carry anything that cannot be
 // typed or that changes the reading direction: the C0 and C1 ranges plus the bidi and other
 // format characters. ICU emits U+200E/U+200F around the arabic and hebrew currency formats.
@@ -48,19 +51,11 @@ export function isValidCurrencySymbol(value: string): boolean {
   return !numberDefinition.test(value);
 }
 
+// A second "-" is invalid rather than literal: a literal minus next to the number could not be
+// told apart from the respondent's sign once the affixes are stripped and the caret is mapped.
 export function isValidCurrencyPattern(value: string): boolean {
   if (!value || hasControlCharacter(value) || numberDefinition.test(value)) return false;
-  const subpatterns = value.split(subpatternToken);
-  if (subpatterns.length > 2) return false;
-  for (let i = 0; i < subpatterns.length; i++) {
-    const subpattern = subpatterns[i];
-    if (countToken(subpattern, numberToken) !== 1) return false;
-    if (countToken(subpattern, symbolToken) > 1) return false;
-    // the positive form never spells a sign - the negative form of a pattern without an explicit
-    // subpattern is that form with a sign in front - and an explicit negative form spells one
-    if (countToken(subpattern, signToken) !== (i === 1 ? 1 : 0)) return false;
-  }
-  return true;
+  return countToken(value, numberToken) === 1 && countToken(value, symbolToken) <= 1 && countToken(value, signToken) <= 1;
 }
 
 /**
@@ -143,14 +138,17 @@ export class InputMaskCurrency extends InputMaskNumeric {
     // an explicitly empty symbol, or a locale that curates neither a symbol nor a pattern, leaves
     // the number bare
     if (!pattern) return { prefix: "", suffix: "", signInAffix: false };
-    const subpatterns = pattern.split(subpatternToken);
-    let subpattern = subpatterns[0];
-    if (isNegative) {
-      subpattern = subpatterns.length > 1 ? subpatterns[1] : signToken + subpattern;
+    // one pattern serves both forms: a positive amount drops the sign, a negative one keeps it
+    // where the pattern puts it or gets it at the very beginning
+    let template = pattern;
+    if (!isNegative) {
+      template = template.split(signToken).join("");
+    } else if (template.indexOf(signToken) < 0) {
+      template = signToken + template;
     }
-    const numberIndex = subpattern.indexOf(numberToken);
-    const prefixTemplate = subpattern.substring(0, numberIndex);
-    const suffixTemplate = subpattern.substring(numberIndex + 1);
+    const numberIndex = template.indexOf(numberToken);
+    const prefixTemplate = template.substring(0, numberIndex);
+    const suffixTemplate = template.substring(numberIndex + 1);
     const signInSuffix = prefixTemplate.indexOf(signToken) < 0;
     const signTemplate = signInSuffix ? suffixTemplate : prefixTemplate;
     return {

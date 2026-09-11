@@ -71,13 +71,13 @@ export class InputMaskBase extends Base implements IInputMask {
     this.formatValues[field] = res;
     return res;
   }
-  // An override authored in the survey's region options outranks the curated locale data and
+  // An override authored in the survey's regional format outranks the curated locale data and
   // passes the same validator, so a broken override falls through to the table instead of
   // breaking the mask. The survey may be a stub without the method.
   private getSurveyFormatValue(field: keyof ILocaleData, isValid?: (value: string) => boolean): string {
     const survey = this.getSurvey();
-    if (!survey || !survey.getRegionOptionValue) return undefined;
-    const res = survey.getRegionOptionValue(field);
+    if (!survey || !survey.getRegionalFormatValue) return undefined;
+    const res = survey.getRegionalFormatValue(field);
     if (res === undefined || res === null) return undefined;
     return !isValid || isValid(res) ? res : undefined;
   }

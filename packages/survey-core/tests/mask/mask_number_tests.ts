@@ -1008,28 +1008,28 @@ describe("Numeric mask: localization", () => {
     const survey = createSurvey();
     const mask = getMask(survey);
 
-    survey.regionOptions.locale = "de-AT";
+    survey.regionalFormat.locale = "de-AT";
     expect(mask.decimalSeparator, "the de subtag decimal").toBe(",");
     expect(mask.thousandsSeparator, "the de subtag thousands").toBe(".");
 
-    survey.regionOptions.locale = "xx";
+    survey.regionalFormat.locale = "xx";
     expect(mask.decimalSeparator, "english decimal").toBe(".");
     expect(mask.thousandsSeparator, "english thousands").toBe(",");
 
-    survey.regionOptions.locale = "";
+    survey.regionalFormat.locale = "";
   });
 
-  test("regionOptions.locale outranks locale", () => {
+  test("regionalFormat.locale outranks locale", () => {
     const survey = createSurvey();
     const mask = getMask(survey);
     survey.locale = "de";
     expect(mask.thousandsSeparator, "the locale is used while no region locale is set").toBe(".");
 
-    survey.regionOptions.locale = "en-GB";
+    survey.regionalFormat.locale = "en-GB";
     expect(mask.decimalSeparator, "the region locale decimal").toBe(".");
     expect(mask.thousandsSeparator, "the region locale thousands").toBe(",");
 
-    survey.regionOptions.locale = "";
+    survey.regionalFormat.locale = "";
     expect(mask.thousandsSeparator, "the locale is used again").toBe(".");
     survey.locale = "";
   });
@@ -1141,7 +1141,7 @@ describe("Numeric mask: localization", () => {
   test("A mask moved between two same locale surveys follows the new one", () => {
     const first = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
     const second = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "numeric" }] });
-    second.regionOptions.locale = "de";
+    second.regionalFormat.locale = "de";
     const mask = new InputMaskNumeric();
     mask.owner = <QuestionTextModel>first.getQuestionByName("q1");
     expect(mask.getMaskedValue(1234.56), "the first survey").toBe("1,234.56");
@@ -1244,11 +1244,11 @@ describe("Numeric mask: localization", () => {
     expect(testInput.value, "the english rendering").toBe("1,234,567.89");
     expect(q.value, "the stored number never changes").toBe(1234567.89);
 
-    survey.regionOptions.locale = "ru";
+    survey.regionalFormat.locale = "ru";
     expect(testInput.value, "the russian rendering").toBe("1\u00A0234\u00A0567,89");
     expect(q.value, "the stored number never changes").toBe(1234567.89);
 
-    survey.regionOptions.locale = "";
+    survey.regionalFormat.locale = "";
     testInput.remove();
   });
 
@@ -1294,7 +1294,7 @@ describe("Numeric mask: localization", () => {
     testInput.remove();
   });
 
-  test.each(["locale", "regionOptions.locale"])("Reading separators in a callback during a %s change preserves the saved number", (propertyName) => {
+  test.each(["locale", "regionalFormat.locale"])("Reading separators in a callback during a %s change preserves the saved number", (propertyName) => {
     const survey = createSurvey({ saveMaskedValue: true });
     survey.locale = "de";
     const q = <QuestionTextModel>survey.getQuestionByName("q1");
@@ -1305,7 +1305,7 @@ describe("Numeric mask: localization", () => {
       expect(getMask(survey).thousandsSeparator).toBe(",");
     };
 
-    if (propertyName === "locale") { survey.locale = "en"; } else { survey.regionOptions.locale = "en"; }
+    if (propertyName === "locale") { survey.locale = "en"; } else { survey.regionalFormat.locale = "en"; }
     expect(q.value).toBe("1,234.56");
     expect(q.inputValue).toBe("1,234.56");
     expect(q.getExpressionValue(q.value)).toBe(1234.56);

@@ -2,42 +2,43 @@ import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { ILocaleData, getLocaleDataLocales } from "./locale-data";
+import { ILocaleData, getLocaleDataLocales, canonicalizeLocale } from "./locale-data";
 
 // The Creator groups the properties of the object under this category.
-export const regionOptionsCategory = "regionOptions";
+export const regionalFormatCategory = "regionalFormat";
 
 // Survey-wide format overrides. A field set here outranks the curated locale-data entry of the
 // survey's format locale and is outranked by a value authored on a mask, so the property names
 // are exactly the ILocaleData field names: the resolution seam (InputMaskBase.getFormatValue)
 // looks an override and a curated default up with the same key.
-export class RegionOptions extends Base implements ILocaleData {
+export class RegionalFormat extends Base implements ILocaleData {
   public owner: ISurvey;
 
   @property() datePattern: string;
   @property() timePattern: string;
   @property() decimalSeparator: string;
   @property() thousandsSeparator: string;
-  @property() currencyPattern: string;
   @property() currencySymbol: string;
+  @property() currencyPattern: string;
 
   // The format locale as a BCP-47 tag ("de", "en-GB"), not a region code. Unlike the format
   // fields, "" carries no meaning of its own here - both "" and unset mean "follow the survey
-  // locale" - so it is stored as unset and never serialized.
+  // locale" - so it is stored as unset and never serialized. A tag is stored in its canonical
+  // casing ("en-us" becomes "en-US"), whether or not the locale data has an entry for it.
   public get locale(): string {
     return this.getPropertyValue("locale");
   }
   public set locale(val: string) {
-    this.setPropertyValue("locale", val || undefined);
+    this.setPropertyValue("locale", canonicalizeLocale(val) || undefined);
   }
 
   // Called once after this object has loaded a JSON of its own, with the names of the fields the
   // load actually changed. Base suppresses property events while an object loads, so a direct
-  // regionOptions.fromJSON(...) reports itself here and nowhere else.
+  // regionalFormat.fromJSON(...) reports itself here and nowhere else.
   public loadingCompletedCallback: (changedNames: Array<string>) => void;
 
   public getType(): string {
-    return "regionoptions";
+    return "regionalformat";
   }
   public startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
@@ -97,26 +98,26 @@ export class RegionOptions extends Base implements ILocaleData {
 // to the locale default: the serializer would otherwise treat "" as a default (no static default
 // exists) and drop it. The single-character limit on the separators mirrors the numeric mask's
 // registration so that the property grid enforces it.
-function serializeStoredValue(name: string): (obj: RegionOptions) => any {
-  return (obj: RegionOptions) => obj.getExplicitPropertyValue(name);
+function serializeStoredValue(name: string): (obj: RegionalFormat) => any {
+  return (obj: RegionalFormat) => obj.getExplicitPropertyValue(name);
 }
 Serializer.addClass(
-  "regionoptions",
+  "regionalformat",
   [
     {
       name: "locale:string",
-      category: regionOptionsCategory,
+      category: regionalFormatCategory,
       choices: () => getLocaleDataLocales(),
       onSerializeValue: serializeStoredValue("locale"),
     },
-    { name: "datePattern:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("datePattern") },
-    { name: "timePattern:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("timePattern") },
-    { name: "decimalSeparator:string", category: regionOptionsCategory, maxLength: 1, onSerializeValue: serializeStoredValue("decimalSeparator") },
-    { name: "thousandsSeparator:string", category: regionOptionsCategory, maxLength: 1, onSerializeValue: serializeStoredValue("thousandsSeparator") },
-    { name: "currencyPattern:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("currencyPattern") },
-    { name: "currencySymbol:string", category: regionOptionsCategory, onSerializeValue: serializeStoredValue("currencySymbol") },
+    { name: "datePattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("datePattern") },
+    { name: "timePattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("timePattern") },
+    { name: "decimalSeparator:string", category: regionalFormatCategory, maxLength: 1, onSerializeValue: serializeStoredValue("decimalSeparator") },
+    { name: "thousandsSeparator:string", category: regionalFormatCategory, maxLength: 1, onSerializeValue: serializeStoredValue("thousandsSeparator") },
+    { name: "currencySymbol:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("currencySymbol") },
+    { name: "currencyPattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("currencyPattern") },
   ],
   function () {
-    return new RegionOptions();
+    return new RegionalFormat();
   }
 );

@@ -5,7 +5,7 @@
         sv-ng-checkbox-item [ariaLabel]="ariaLabel">
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
-      <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)"
+      <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" (keydown)="question.onItemKeyDown(model, $event)" [class]="question.getLabelClass(model)"
         [model]="model" [question]="question" sv-ng-radiogroup-item [ariaLabel]="ariaLabel">
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>

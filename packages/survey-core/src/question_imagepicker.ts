@@ -88,6 +88,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   supportAutoAdvance(): boolean {
     return !this.multiSelect;
   }
+  protected get interceptsAutoAdvanceKeyboard(): boolean {
+    return !this.multiSelect;
+  }
   public get hasSingleInput(): boolean {
     return false;
   }

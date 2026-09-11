@@ -123,6 +123,18 @@ frameworks.forEach((framework) => {
       });
     });
 
+    test("arrow keys do not auto-advance a radiogroup", async ({ page }) => {
+      await initSurvey(page, framework, json);
+      const stepElements = page.locator(".sd-progress-buttons__list > li");
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
+
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await page.waitForTimeout(500);
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      expect(await page.evaluate(() => (window as any).survey.currentPageNo)).toBe(0);
+    });
+
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
 
@@ -134,24 +146,20 @@ frameworks.forEach((framework) => {
       await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Enter");
+      await page.keyboard.press(" ");
 
       await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
       // autoFocusFirstQuestion fires in a 1 ms setTimeout inside afterRenderPage;
       // wait for it to actually focus the first radio before pressing arrow keys.
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Enter");
+      await page.keyboard.press(" ");
 
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Enter");
+      await page.keyboard.press(" ");
+      await page.waitForTimeout(500);
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

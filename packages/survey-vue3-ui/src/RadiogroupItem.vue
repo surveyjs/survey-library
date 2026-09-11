@@ -16,6 +16,9 @@
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
+        :tabindex="question.getItemTabIndex(item)"
+        @keydown="(e) => question.onItemKeyDown(item, e)"
+        @focus="() => question.onItemFocusIn(item)"
         :aria-label="ariaLabel"
       /><span
         v-if="question.cssClasses.materialDecorator"

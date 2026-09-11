@@ -17,6 +17,14 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionSelectbase {
       {this.renderClearButton()}
     </>;
   }
+  protected renderHeader(): React.JSX.Element | null {
+    if (!this.question.hasHeadItems) return null;
+    return <>
+      {this.question.headItems.map((item: any) =>
+        this.renderItem(item, false, this.question.cssClasses)
+      )}
+    </>;
+  }
   private renderClearButton(): React.JSX.Element | null {
     if (!this.question.showClearButtonInContent) return null;
     return (
@@ -40,6 +48,8 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
   constructor(props: any) {
     super(props);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
+    this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
+    this.handleOnFocus = this.handleOnFocus.bind(this);
   }
   protected getStateElement(): Base {
     return this.item;
@@ -55,6 +65,12 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
   }
   handleOnMouseDown(event: any) {
     this.question.onMouseDown();
+  }
+  handleOnKeyDown(event: React.KeyboardEvent) {
+    this.question.onItemKeyDown(this.item, event.nativeEvent);
+  }
+  handleOnFocus(event: any) {
+    this.question.onItemFocusIn(this.item);
   }
   protected renderElementContent(): React.JSX.Element {
     return this.renderRadioButton();
@@ -82,6 +98,9 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             disabled={!this.question.getItemEnabled(this.item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            onKeyDown={this.handleOnKeyDown}
+            onFocus={this.handleOnFocus}
+            tabIndex={this.question.getItemTabIndex(this.item)}
             aria-label={this.ariaLabel}
           />
           {

@@ -288,7 +288,7 @@ frameworks.forEach(framework => {
 
     test("keyboard: arrow keys move focus, Space selects", async ({ page }) => {
       await page.evaluate(() => {
-        (window as any).Survey.settings.selectionFollowsFocus = false;
+        (window as any).Survey.settings.itemsKeyboard.selectionFollowsFocus = false;
       });
       await initSurvey(page, framework, json);
 

@@ -686,7 +686,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   // When disabled, the items behave as a native radio group: an arrow key moves focus
   // and selects an item at the same time.
   public get isKeyboardNavigationEnabled(): boolean {
-    return !settings.selectionFollowsFocus && !this.isDropdown && !this.isDesignMode;
+    return !settings.itemsKeyboard.selectionFollowsFocus && !this.isDropdown && !this.isDesignMode;
   }
   public getItemTabIndex(index: number): number {
     return this.isKeyboardNavigationEnabled ? this.keyboardNavigator.getItemTabIndex(index) : undefined;

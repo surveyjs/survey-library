@@ -591,3 +591,54 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} keyboard`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
+    const getValue = async (page) => {
+      return await page.evaluate(() => {
+        return (window as any).survey.getAllQuestions()[0].value;
+      });
+    };
+    const getFocusedItemValue = async (page) => {
+      return await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let element: any = document.activeElement;
+        while(element?.shadowRoot?.activeElement) {
+          element = element.shadowRoot.activeElement;
+        }
+        return element?.value;
+      });
+    };
+
+    test("keyboard: arrow keys move focus, Space selects", async ({ page }) => {
+      await page.evaluate(() => {
+        (window as any).Survey.settings.itemsKeyboard.selectionFollowsFocus = false;
+      });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "car",
+            colCount: 1,
+            choices: ["Ford", "Vauxhall", "BMW"]
+          }
+        ]
+      });
+
+      await page.keyboard.press("Tab");
+      expect(await getFocusedItemValue(page)).toBe("Ford");
+
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      expect(await getFocusedItemValue(page)).toBe("BMW");
+      expect(await getValue(page)).toBe(undefined);
+
+      await page.keyboard.press("Space");
+      expect(await getValue(page)).toBe("BMW");
+    });
+  });
+});
+

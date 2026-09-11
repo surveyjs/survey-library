@@ -5,13 +5,16 @@ import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { settings } from "./settings";
+import { DomDocumentHelper } from "./global_variables_utils";
+import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 /**
  * A class that describes the Radio Button Group question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-radiogroup/ (linkStyle))
  */
-export class QuestionRadiogroupModel extends QuestionCheckboxBase {
+export class QuestionRadiogroupModel extends QuestionCheckboxBase implements IKeyboardNavigableItems {
   constructor(name: string) {
     super(name);
   }
@@ -68,6 +71,81 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public clickItemHandler(item: ItemValue): void {
     this.selectItem(item);
   }
+
+  //#region keyboard navigation
+  @property({ defaultValue: -1 }) focusedItemIndex: number;
+  private keyboardNavigatorValue: ItemsKeyboardNavigator;
+  private get keyboardNavigator(): ItemsKeyboardNavigator {
+    if (!this.keyboardNavigatorValue) {
+      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
+    }
+    return this.keyboardNavigatorValue;
+  }
+  public get isKeyboardNavigationEnabled(): boolean {
+    return !settings.itemsKeyboard.selectionFollowsFocus && !this.isDesignMode;
+  }
+  public getItemTabIndex(item: ItemValue): number {
+    if (!this.isKeyboardNavigationEnabled) return undefined;
+    return this.keyboardNavigator.getItemTabIndex(this.getKeyboardItemIndex(item));
+  }
+  public onItemFocusIn(item: ItemValue): void {
+    if (!this.isKeyboardNavigationEnabled) return;
+    this.keyboardNavigator.onItemFocusIn(this.getKeyboardItemIndex(item));
+  }
+  public onItemKeyDown(item: ItemValue, event: any): void {
+    if (!this.isKeyboardNavigationEnabled) return;
+    this.keyboardNavigator.onItemKeyDown(this.getKeyboardItemIndex(item), event);
+  }
+  public get keyboardItems(): Array<ItemValue> {
+    const result: Array<ItemValue> = [];
+    if (this.hasHeadItems) {
+      this.headItems.forEach(item => result.push(item));
+    }
+    if (this.hasColumns) {
+      this.columns.forEach(column => column.forEach(item => result.push(item)));
+    } else if (this.blockedRow) {
+      this.dataChoices.forEach(item => result.push(item));
+    } else {
+      this.bodyItems.forEach(item => result.push(item));
+    }
+    if (this.hasFootItems) {
+      this.footItems.forEach(item => result.push(item));
+    }
+    return result;
+  }
+  public get keyboardItemsCount(): number {
+    return this.keyboardItems.length;
+  }
+  public get isKeyboardItemsReadOnly(): boolean {
+    return this.isReadOnlyAttr || this.isDisabledAttr;
+  }
+  public get isKeyboardItemsRtl(): boolean {
+    if (!DomDocumentHelper.isAvailable()) return false;
+    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
+  }
+  public getKeyboardItemId(index: number): string {
+    const item = this.keyboardItems[index];
+    return item ? this.getItemId(item) : "";
+  }
+  public isKeyboardItemEnabled(index: number): boolean {
+    const item = this.keyboardItems[index];
+    return !!item && this.getItemEnabled(item);
+  }
+  public isKeyboardItemSelected(index: number): boolean {
+    const item = this.keyboardItems[index];
+    return !!item && this.isItemSelected(item);
+  }
+  public selectKeyboardItem(index: number): void {
+    const item = this.keyboardItems[index];
+    if (!!item) {
+      this.clickItemHandler(item);
+    }
+  }
+  private getKeyboardItemIndex(item: ItemValue): number {
+    return this.keyboardItems.indexOf(item);
+  }
+  //#endregion
+
   protected isOtherValueUnused(): boolean {
     return !this.selectedItem?.showCommentArea;
   }

@@ -28,7 +28,7 @@ export class ItemsKeyboardNavigator {
     this.owner.focusedItemIndex = index;
   }
   public onItemKeyDown(index: number, event: any): void {
-    if (this.owner.keyboardItemsCount <= 0 || !event) return;
+    if (index < 0 || this.owner.keyboardItemsCount <= 0 || !event) return;
     const key = event.key;
     const keyCode = event.keyCode;
     if (key === " " || key === "Spacebar" || keyCode === 32 || key === "Enter" || keyCode === 13) {

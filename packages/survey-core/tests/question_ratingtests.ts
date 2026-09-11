@@ -2242,7 +2242,7 @@ function createRating(json?: any): QuestionRatingModel {
   return <QuestionRatingModel>survey.getQuestionByName("q1");
 }
 
-test("Rating: arrow keys select an item when settings.selectionFollowsFocus is enabled", () => {
+test("Rating: arrow keys select an item when settings.itemsKeyboard.selectionFollowsFocus is enabled", () => {
   const q1 = createRating();
   expect(q1.isKeyboardNavigationEnabled).toBe(false);
   expect(q1.getItemTabIndex(0)).toBe(undefined);
@@ -2255,10 +2255,10 @@ test("Rating: arrow keys select an item when settings.selectionFollowsFocus is e
 
 describe("Rating: arrow keys move focus without selecting an item", () => {
   beforeEach(() => {
-    settings.selectionFollowsFocus = false;
+    settings.itemsKeyboard.selectionFollowsFocus = false;
   });
   afterEach(() => {
-    settings.selectionFollowsFocus = true;
+    settings.itemsKeyboard.selectionFollowsFocus = true;
   });
 
   test("The group has a single tab stop", () => {

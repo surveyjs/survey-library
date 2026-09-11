@@ -5520,7 +5520,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     expect(rows[2].cells[rows[2].cells.length - 1].isActionsCell, "the last cell in detail panel is actions cell").toBe(true);
 
-    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
+    expect(rows[2].cells[rows[2].cells.length - 1].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
   });
 
   test("Detail panel, rendered table mobile - expand collapse", () => {
@@ -6514,8 +6514,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.renderedTable.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
     var rows = matrix.renderedTable.rows;
-    expect(rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
-    expect(rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
+    expect(rows[1].cells[0].isActionsCell, "isActionsCell").toBe(true);
+    expect(rows[3].cells[0].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[1].cells[2].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[3].cells[2].isActionsCell, "isActionsCell").toBe(true);
   });
@@ -7905,12 +7905,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(table.rows[1].isErrorsRow).toBe(false);
 
     expect(table.rows[0].visible).toBe(true);
-    expect(table.rows[0].cells.length, "header + 2 columns + 2 errors").toBe(5);
+    expect(table.rows[0].cells.length, "header + 2 columns").toBe(3);
     expect(table.rows[0].cells[0].hasTitle).toBe(true);
-    expect(table.rows[0].cells[1].isErrorsCell).toBe(true);
+    expect(table.rows[0].cells[1].hasQuestion).toBe(true);
     expect(table.rows[0].cells[2].hasQuestion).toBe(true);
-    expect(table.rows[0].cells[3].isErrorsCell).toBe(true);
-    expect(table.rows[0].cells[4].hasQuestion).toBe(true);
   });
   test("matrixdynamic.removeRow & confirmActionAsync, #6736", () => {
     const prevAsync = settings.confirmActionAsync;
@@ -8468,14 +8466,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     const table = matrix.renderedTable;
     expect(table.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
-    expect(table.rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell, row#1").toBe(false);
-    expect(table.rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell, row#2").toBe(false);
-    expect(table.rows[5].cells[0].isDragHandlerCell, "isDragHandlerCell, row#3").toBe(true);
-    expect(table.rows[7].cells[0].isDragHandlerCell, "isDragHandlerCell, row#4").toBe(true);
+    expect(table.rows[1].cells[0].isActionsCell, "isActionsCell, row#1").toBe(false);
+    expect(table.rows[3].cells[0].isActionsCell, "isActionsCell, row#2").toBe(false);
+    expect(table.rows[5].cells[0].isActionsCell, "isActionsCell, row#3").toBe(true);
+    expect(table.rows[7].cells[0].isActionsCell, "isActionsCell, row#4").toBe(true);
     expect(table.rows[1].cells[0].isEmpty, "isEmpty, row#1").toBe(true);
     expect(table.rows[3].cells[0].isEmpty, "isEmpty, row#2").toBe(true);
-    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBe(false);
-    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBe(false);
+    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBeFalsy();
+    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBeFalsy();
   });
   test("Do not re-create rows on changing allowRowReorder property", () => {
     var survey = new SurveyModel({
@@ -8673,24 +8671,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeFalsy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeFalsy();
+    expect(renderedTable.rows[1].cells[2].isVisible).toBeFalsy();
     survey.data = { matrix: { row1: { col1: 1 }, row2: { col1: 1 } } };
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeTruthy();
   });
 
   test("check displayMode property", () => {

@@ -9,6 +9,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
+import { registerFunction, unregisterFunction } from "../src/functionsfactory";
 
 import { describe, test, expect } from "vitest";
 describe("Input Per Page Tests", () => {
@@ -2611,5 +2612,92 @@ describe("Input Per Page Tests", () => {
     expect(radio.isExpanded, "radio.isExpanded is false").toBe(false);
     expect(radio.isCollapsed, "radio.isCollapsed is false").toBe(false);
     expect(radio.showTitleExpandableSvg, "radio.showTitleExpandableSvg").toBe(false);
+  });
+  const itemsJSON = {
+    type: "matrixdynamic", name: "items", rowCount: 1,
+    columns: [
+      { name: "sku", cellType: "text", isRequired: true },
+      { name: "qty", cellType: "text" }
+    ],
+    detailPanelMode: "underRow",
+    detailElements: [{ type: "text", name: "note", isRequired: true }]
+  };
+  function getNames(questions: Array<Question>): Array<string> {
+    return questions.map(q => q.name);
+  }
+  test("Dynamic matrix: the navigation check doesn't show errors or expand the detail panel, Bug#11833", () => {
+    const survey = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [itemsJSON] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ qty: "2" }] };
+    const row = matrix.visibleRows[0];
+    const sku = row.cells[0].question;
+    expect(sku.errors.length, "sku has no error, #1").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed, #1").toBe(false);
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku, #1").toBe("sku");
+    expect(getNames(survey.currentSingleQuestion.singleInputBehavior.getSingleInputQuestions()), "the row is still listed, #1").toEqual(["sku", "qty", "note", "items"]);
+    expect(sku.errors.length, "sku has no error after navigation, #1").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed after navigation, #1").toBe(false);
+
+    survey.data = { items: [{ sku: "A", qty: "2" }] };
+    const row2 = matrix.visibleRows[0];
+    expect(getNames(matrix.singleInputBehavior.getSingleInputQuestions()), "the row with only the detail question missing is listed, #2").toEqual(["sku", "qty", "note", "items"]);
+    expect(row2.detailPanel.getQuestionByName("note").errors.length, "note has no error, #2").toBe(0);
+    expect(row2.isDetailPanelShowing, "detail panel is collapsed, #2").toBe(false);
+  });
+  test("Dynamic matrix: performNext still shows the error on an empty required cell, Bug#11833", () => {
+    const survey = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [itemsJSON] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ qty: "2" }] };
+    const sku = matrix.visibleRows[0].cells[0].question;
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku").toBe("sku");
+    expect(sku.errors.length, "sku has no error before Next").toBe(0);
+    expect(survey.performNext(), "can't go next").toBe(false);
+    expect(sku.errors.length, "sku has an error after Next").toBe(1);
+    expect(sku.errors[0].getText(), "error text").toBe("Response required.");
+    expect(matrix.singleInputQuestion.name, "the respondent stays on sku").toBe("sku");
+  });
+  test("Dynamic matrix inside dynamic panel: the navigation check doesn't show errors, Bug#11833", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [{ type: "paneldynamic", name: "orders", panelCount: 1, templateElements: [itemsJSON] }]
+    });
+    survey.data = { orders: [{ items: [{ qty: "2" }] }] };
+    const orders = <QuestionPanelDynamicModel>survey.getQuestionByName("orders");
+    const matrix = <QuestionMatrixDynamicModel>orders.panels[0].getQuestionByName("items");
+    const row = matrix.visibleRows[0];
+    const sku = row.cells[0].question;
+    expect(sku.errors.length, "sku has no error, #1").toBe(0);
+    sku.singleInputBehavior.focusSingleInput(false);
+    expect(orders.singleInputQuestion.name, "the respondent stands in orders[0]").toBe("items");
+    expect(matrix.singleInputQuestion.name, "the respondent stands on sku").toBe("sku");
+    expect(sku.errors.length, "sku has no error, #2").toBe(0);
+    expect(row.isDetailPanelShowing, "detail panel is collapsed").toBe(false);
+  });
+  test("Dynamic matrix: the navigation check doesn't show errors of async validators, Bug#11833", () => {
+    const returnResults = new Array<(res: boolean) => void>();
+    function asyncSkuFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    registerFunction({ name: "asyncSkuFunc", func: asyncSkuFunc, isAsync: true, useCache: false });
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [{
+        type: "matrixdynamic", name: "items", rowCount: 1,
+        columns: [
+          { name: "sku", cellType: "text", validators: [{ type: "expression", expression: "asyncSkuFunc({row.sku})" }] },
+          { name: "qty", cellType: "text" }
+        ]
+      }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("items");
+    survey.data = { items: [{ sku: "A", qty: "2" }] };
+    const sku = matrix.visibleRows[0].cells[0].question;
+    matrix.singleInputBehavior.getSingleInputQuestions();
+    matrix.singleInputBehavior.getSingleInputQuestions();
+    expect(returnResults.length > 0, "the async validator is run by the navigation check").toBe(true);
+    returnResults.forEach(res => res(false));
+    expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
+    unregisterFunction("asyncSkuFunc");
   });
 });

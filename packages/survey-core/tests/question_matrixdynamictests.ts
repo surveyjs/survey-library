@@ -7053,6 +7053,42 @@ describe("Survey_QuestionMatrixDynamic", () => {
       columns: [{ name: "col1", choices: [1, 2] }]
     });
   });
+  test("Do not serialize default values of the inherited cell type in columns with the default cellType", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix1", cellType: "rating", columns: [{ name: "col1" }, { name: "col2", cellType: "rating" }] },
+        { type: "matrixdynamic", name: "matrix2", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix3", cellType: "checkbox", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix4", cellType: "text", columns: [{ name: "col1" }] },
+        { type: "matrixdynamic", name: "matrix5", cellType: "boolean", columns: [{ name: "col1" }] }
+      ]
+    });
+    const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    expect((<any>matrix1.columns[0]).rateMax, "default column has the rating properties").toBe(5);
+    expect(matrix1.toJSON(), "rating: default values are not serialized").toEqual({
+      name: "matrix1",
+      cellType: "rating",
+      columns: [{ name: "col1" }, { name: "col2", cellType: "rating" }]
+    });
+    matrix1.columns[1].cellType = "default";
+    expect(matrix1.toJSON(), "rating: switching to the default cellType adds nothing").toEqual({
+      name: "matrix1",
+      cellType: "rating",
+      columns: [{ name: "col1" }, { name: "col2" }]
+    });
+    (<any>matrix1.columns[0]).rateMax = 7;
+    expect(matrix1.toJSON().columns[0], "rating: only changed values are serialized").toEqual({ name: "col1", rateCount: 7, rateMax: 7 });
+    matrix1.cellType = "text";
+    expect(matrix1.toJSON(), "changing the matrix cellType drops the rating values from the default columns").toEqual({
+      name: "matrix1",
+      cellType: "text",
+      columns: [{ name: "col1" }, { name: "col2" }]
+    });
+    expect(survey.getQuestionByName("matrix2").toJSON(), "dropdown").toEqual({ name: "matrix2", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix3").toJSON(), "checkbox").toEqual({ name: "matrix3", cellType: "checkbox", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix4").toJSON(), "text").toEqual({ name: "matrix4", cellType: "text", columns: [{ name: "col1" }] });
+    expect(survey.getQuestionByName("matrix5").toJSON(), "boolean").toEqual({ name: "matrix5", cellType: "boolean", columns: [{ name: "col1" }] });
+  });
   test("Change column cellType to 'rating', Bug#9853", () => {
     const survey = new SurveyModel({
       elements: [

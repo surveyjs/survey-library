@@ -525,3 +525,56 @@ describe("linter vs runtime: required properties", () => {
     });
   });
 });
+
+// The */unknown-type rules mirror JsonMissingTypeError and JsonIncorrectTypeError: an object
+// under a baseClassName property (elements, templateElements, triggers, validators) that the
+// serializer cannot build - no type, or a type it does not know - is dropped at runtime.
+describe("linter vs runtime: missing and unknown types", () => {
+  const RUNTIME_KIND: { [baseClassName: string]: string } = {
+    question: "element", surveytrigger: "trigger", surveyvalidator: "validator",
+  };
+  function runtimeTokens(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "missingtypeproperty" || e.type === "incorrecttypeproperty")
+      .map((e: any) => RUNTIME_KIND[e.baseClassName] + ":" + (e.type === "missingtypeproperty" ? "missing" : "unknown"))
+      .sort();
+  }
+  function lintTokens(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "element/unknown-type" || f.ruleId === "trigger/unknown-type" ||
+        f.ruleId === "validator/unknown-type")
+      .map(f => f.ruleId.split("/")[0] + ":" +
+        (f.reason === "missingType" || f.reason === "noType" ? "missing" : "unknown"))
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a question without a type", json: { pages: [{ name: "p1", elements: [{ name: "q1" }] }] } },
+    { title: "a question with an unknown type", json: { elements: [{ type: "text_custom", name: "q1" }] } },
+    { title: "inside a panel and a dynamic-panel template", json: {
+      elements: [
+        { type: "panel", name: "pn", elements: [{ name: "q1" }] },
+        { type: "paneldynamic", name: "pd", templateElements: [{ type: "nosuch", name: "q2" }] },
+      ],
+    } },
+    { title: "triggers without a type and with an unknown one", json: {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ expression: "{q1} = 1" }, { type: "nosuchtrigger", expression: "{q1} = 1" }],
+    } },
+    { title: "validators without a type and with an unknown one", json: {
+      elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }, { type: "nosuchvalidator" }] }],
+    } },
+    { title: "a survey the serializer builds whole", json: {
+      elements: [
+        { type: "text", name: "q1", validators: [{ type: "numeric" }] },
+        { type: "panel", name: "pn", elements: [{ type: "comment", name: "q2" }] },
+      ],
+      triggers: [{ type: "complete", expression: "{q1} = 1" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer drops", () => {
+      expect(lintTokens(entry.json)).toEqual(runtimeTokens(entry.json));
+    });
+  });
+});

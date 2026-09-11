@@ -66,6 +66,8 @@ export const SurveyLintReasons = Object.freeze({
   }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",
+    // no type at all: the deserializer cannot pick a class and drops the element
+    missingType: "missingType",
   }),
   "expression/unknown-function": Object.freeze({
     notRegistered: "notRegistered",

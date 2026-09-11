@@ -163,6 +163,19 @@ describe("element/unknown-type", () => {
     expect(findings[0].severity).toBe("info");
     expect(findings[0].suggestion).toBe("checkbox");
   });
+  test("a question without a type has its own reason and no suggestion", () => {
+    const findings = byRule({
+      elements: [{ name: "q1" }, { type: "", name: "q2" }],
+    }, "element/unknown-type");
+    expect(findings.map(f => f.path)).toEqual(["elements[0]", "elements[1]"]);
+    findings.forEach(finding => {
+      expect(finding.reason).toBe("missingType");
+      expect(finding.suggestion).toBeUndefined();
+      expect(finding.message).toContain("has no type");
+      expect(finding.message).not.toContain("options.components");
+    });
+    expect(findings[0].messageData).toEqual({ reason: "missingType", name: "q1", type: "" });
+  });
   test("type passed via options.components is known", () => {
     expect(byRule({
       elements: [{ type: "fullname", name: "q1" }],

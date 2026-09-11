@@ -154,6 +154,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
   },
   {
+    ruleId: "element/unknown-type", reason: "missingType",
+    json: { elements: [{ name: "q1" }] },
+  },
+  {
     ruleId: "expression/unknown-function", reason: "notRegistered",
     json: {
       elements: [

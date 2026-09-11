@@ -3,6 +3,7 @@
   <div ref="root" class="sv-scroll__wrapper" v-else>
     <div
       class="sv-scroll__scroller sv-drag-target-skipped"
+      :tabindex="props.keyboardReachable ? 0 : undefined"
       @scroll="() => model.onScrollContainer()"
     >
       <div class="sv-scroll__container">
@@ -17,7 +18,7 @@
 <script lang="ts" setup>
 import { ScrollViewModel } from "survey-core";
 import { onMounted, onUnmounted, ref } from "vue";
-const props = defineProps<{ disabled: any, onInnerHeightChanged?: (hasScroll: boolean) => void }>();
+const props = defineProps<{ disabled: any, keyboardReachable?: boolean, onInnerHeightChanged?: (hasScroll: boolean) => void }>();
 const model = new ScrollViewModel();
 model.onInnerHeightChanged = (hasScroll: boolean) => {
   if (props.onInnerHeightChanged) {

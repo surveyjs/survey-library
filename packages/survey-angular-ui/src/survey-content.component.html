@@ -16,10 +16,12 @@
                 <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'center' } }"></ng-template>
                 <div [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
                   <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
+                    <sv-scroll [disabled]="model.pageScrollDisabled" [keyboardReachable]="model.focusMode">
                     <ng-container *ngIf="model.activePage">
                         <!-- <sv-ng-page [model]="model.activePage" [survey]="model"></sv-ng-page> -->
                         <ng-template [component]="{ name: model.pageComponent || 'sv-page', data: { model: model.activePage, survey: model } }"></ng-template>
                     </ng-container>
+                    </sv-scroll>
                   <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
                   <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
                 </div>

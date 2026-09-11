@@ -1227,6 +1227,7 @@ export class SurveyModel extends SurveyElementCore
     );
 
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
+    this.locLogo.onStringChanged.add(() => this.resetHasLogo());
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -2362,8 +2363,13 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   @property() logoPosition: string;
+  // The same value that the header renders into the image's src, so that visibility and src
+  // cannot disagree: dynamic text that resolves to an empty string means there is no image.
+  private get hasLogoImage(): boolean {
+    return !!this.locLogo.renderedHtml;
+  }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
+    return this.getPropertyValue("hasLogo", undefined, () => this.hasLogoImage && this.logoPosition !== "none");
   }
   private resetHasLogo(): void {
     this.resetPropertyValue("hasLogo");

@@ -30,6 +30,9 @@
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
         :class="question.cssClasses.itemControl"
+        :tabindex="question.getItemTabIndex(item)"
+        @keydown="(e) => question.onItemKeyDown(item, e)"
+        @focus="() => question.onItemFocusIn(item)"
       />
       <div :class="question.cssClasses.itemDecorator">
         <div :class="question.cssClasses.imageContainer">

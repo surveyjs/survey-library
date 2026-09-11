@@ -5,8 +5,9 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { settings } from "../src/settings";
 
-import { describe, test, expect } from "vitest";
+import { afterEach, beforeEach, describe, test, expect, vi } from "vitest";
 describe("boolean", () => {
   test("Test boolean labelTrue and labelFalse property", () => {
     var json = {
@@ -491,4 +492,105 @@ describe("boolean", () => {
     expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
   });
 
+});
+
+function createKeyboardEvent(key: string): any {
+  return {
+    key: key,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn()
+  };
+}
+function createBooleanRadio(json?: any): QuestionBooleanModel {
+  const survey = new SurveyModel({
+    elements: [Object.assign({ type: "boolean", name: "q1", displayMode: "radio" }, json || {})]
+  });
+  return <QuestionBooleanModel>survey.getQuestionByName("q1");
+}
+
+test("Boolean radio: arrow keys select an item when settings.itemsKeyboard.selectionFollowsFocus is enabled", () => {
+  const q1 = createBooleanRadio();
+  expect(q1.isKeyboardNavigationEnabled).toBe(false);
+  expect(q1.getItemTabIndex(q1.getValueFalse())).toBe(undefined);
+
+  const event = createKeyboardEvent("ArrowRight");
+  q1.onItemKeyDown(q1.getValueFalse(), event);
+  expect(event.preventDefault).toHaveBeenCalledTimes(0);
+  expect(q1.focusedItemIndex).toBe(-1);
+});
+
+describe("Boolean radio: arrow keys move focus without selecting an item", () => {
+  beforeEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = false;
+  });
+  afterEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = true;
+  });
+
+  test("The group has a single tab stop", () => {
+    const q1 = createBooleanRadio();
+    expect(q1.isKeyboardNavigationEnabled).toBe(true);
+    expect(q1.getItemTabIndex(q1.getValueFalse())).toBe(0);
+    expect(q1.getItemTabIndex(q1.getValueTrue())).toBe(-1);
+
+    q1.value = true;
+    expect(q1.getItemTabIndex(q1.getValueFalse())).toBe(-1);
+    expect(q1.getItemTabIndex(q1.getValueTrue())).toBe(0);
+
+    q1.onItemFocusIn(q1.getValueFalse());
+    expect(q1.getItemTabIndex(q1.getValueTrue())).toBe(-1);
+    expect(q1.getItemTabIndex(q1.getValueFalse())).toBe(0);
+  });
+  test("An arrow key moves focus and keeps the value", () => {
+    const q1 = createBooleanRadio();
+    const event = createKeyboardEvent("ArrowRight");
+    q1.onItemKeyDown(q1.getValueFalse(), event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+
+    q1.onItemKeyDown(q1.getValueTrue(), createKeyboardEvent("ArrowLeft"));
+    expect(q1.focusedItemIndex).toBe(0);
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("The Space and Enter keys select the focused item", () => {
+    const q1 = createBooleanRadio();
+    q1.onItemKeyDown(q1.getValueFalse(), createKeyboardEvent("ArrowRight"));
+    expect(q1.isEmpty()).toBe(true);
+    q1.onItemKeyDown(q1.getValueTrue(), createKeyboardEvent(" "));
+    expect(q1.value).toBe(true);
+    q1.onItemKeyDown(q1.getValueFalse(), createKeyboardEvent("Enter"));
+    expect(q1.value).toBe(false);
+  });
+  test("A read-only question ignores the Space key", () => {
+    const q1 = createBooleanRadio();
+    q1.readOnly = true;
+    q1.onItemKeyDown(q1.getValueTrue(), createKeyboardEvent(" "));
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("Keyboard navigation is disabled for switch and checkbox", () => {
+    const switchQuestion = createBooleanRadio({ displayMode: "switch" });
+    expect(switchQuestion.isKeyboardNavigationEnabled).toBe(false);
+    const checkboxQuestion = createBooleanRadio({ displayMode: "checkbox" });
+    expect(checkboxQuestion.isKeyboardNavigationEnabled).toBe(false);
+  });
+  test("swapOrder changes the visual item order", () => {
+    const q1 = createBooleanRadio({ swapOrder: true });
+    expect(q1.getRadioItemValue(0)).toBe(true);
+    expect(q1.getRadioItemValue(1)).toBe(false);
+    expect(q1.getItemTabIndex(q1.getValueTrue())).toBe(0);
+    expect(q1.getItemTabIndex(q1.getValueFalse())).toBe(-1);
+
+    q1.onItemKeyDown(q1.getValueTrue(), createKeyboardEvent("ArrowRight"));
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+    q1.onItemKeyDown(q1.getValueFalse(), createKeyboardEvent(" "));
+    expect(q1.value).toBe(false);
+  });
+  test("Custom true/false values are used as item values", () => {
+    const q1 = createBooleanRadio({ valueTrue: "Yes", valueFalse: "No" });
+    q1.onItemKeyDown("No", createKeyboardEvent("ArrowRight"));
+    q1.onItemKeyDown("Yes", createKeyboardEvent(" "));
+    expect(q1.value).toBe("Yes");
+  });
 });

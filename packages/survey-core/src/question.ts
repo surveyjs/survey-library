@@ -1791,6 +1791,13 @@ export class Question extends SurveyElement<Question>
   public get isDisabledAttr(): boolean {
     return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
+  public get isKeyboardNavigationEnabled(): boolean {
+    return !settings.itemsKeyboard.selectionFollowsFocus && !this.isDesignMode &&
+      this.supportsItemsKeyboardNavigation();
+  }
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return false;
+  }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();

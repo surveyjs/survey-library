@@ -1,4 +1,5 @@
 <input type="radio" [name]="question.questionName" [attr.name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-errormessage]="question.ariaErrormessage" [class]="question.cssClasses.itemControl"
   [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [(ngModel)]="renderedValue" [attr.value]="model.value" [value]="model.value" [attr.aria-label]="ariaLabel"
+  [attr.tabindex]="question.getItemTabIndex(model)" (keydown)="question.onItemKeyDown(model, $event)" (focus)="question.onItemFocusIn(model)"
 />
 <ng-content></ng-content>

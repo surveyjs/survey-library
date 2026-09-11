@@ -68,6 +68,30 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public clickItemHandler(item: ItemValue): void {
     this.selectItem(item);
   }
+
+  //#region keyboard navigation
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return true;
+  }
+  public get keyboardItems(): Array<ItemValue> {
+    const result: Array<ItemValue> = [];
+    if (this.hasHeadItems) {
+      this.headItems.forEach(item => result.push(item));
+    }
+    if (this.hasColumns) {
+      this.columns.forEach(column => column.forEach(item => result.push(item)));
+    } else if (this.blockedRow) {
+      this.dataChoices.forEach(item => result.push(item));
+    } else {
+      this.bodyItems.forEach(item => result.push(item));
+    }
+    if (this.hasFootItems) {
+      this.footItems.forEach(item => result.push(item));
+    }
+    return result;
+  }
+  //#endregion
+
   protected isOtherValueUnused(): boolean {
     return !this.selectedItem?.showCommentArea;
   }

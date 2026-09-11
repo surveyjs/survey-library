@@ -333,6 +333,7 @@ export * from "../../src/utils/confirm-dialog";
 export * from "../../src/utils/dom-utils";
 export * from "../../src/utils/file-utils";
 export * from "../../src/utils/icons";
+export * from "../../src/utils/items-keyboard-navigator";
 export * from "../../src/utils/key2click";
 export * from "../../src/utils/animation-dom";
 export { InputMaskBase } from "../../src/mask/mask_base";

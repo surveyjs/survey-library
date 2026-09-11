@@ -119,6 +119,12 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
+  //#region keyboard navigation
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return !this.isDropdown;
+  }
+  //#endregion
+
   protected onBlurCore(event: any): void {
     this.dropdownListModel?.onBlur(event);
     super.onBlurCore(event);
@@ -237,7 +243,13 @@ export class ButtonGroupItemModel {
       : null;
   }
   public get tabIndex(): number {
-    return this.selected ? -1 : 0;
+    return this.question.getItemTabIndex(this.item);
+  }
+  public onKeyDown(event: any): void {
+    this.question.onItemKeyDown(this.item, event);
+  }
+  public onFocus(): void {
+    this.question.onItemFocusIn(this.item);
   }
   private get labelClass() {
     return new CssClassBuilder()

@@ -6,6 +6,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { QuestionButtonGroupModel } from "../src/question_buttongroup";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultCss } from "../src/defaultCss/defaultCss";
@@ -16,7 +17,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 
-import { describe, test, expect } from "vitest";
+import { afterEach, beforeEach, describe, test, expect, vi } from "vitest";
 describe("baseselect", () => {
   function getValuesInColumns(question: QuestionSelectBase) {
     return question.columns.map((column) => column.map((choice) => choice.id));
@@ -4933,5 +4934,198 @@ describe("baseselect", () => {
     q1.choices.splice(0, 1);
     expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
     expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
+  });
+});
+
+function createKeyboardEvent(key: string): any {
+  return {
+    key: key,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn()
+  };
+}
+function createRadiogroup(json?: any): QuestionRadiogroupModel {
+  const survey = new SurveyModel({
+    elements: [Object.assign({ type: "radiogroup", name: "q1", choices: ["Apple", "Apricot", "Banana"] }, json || {})]
+  });
+  return <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+}
+
+test("Radiogroup: arrow keys select an item when settings.itemsKeyboard.selectionFollowsFocus is enabled", () => {
+  const q1 = createRadiogroup();
+  expect(q1.isKeyboardNavigationEnabled).toBe(false);
+  expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(undefined);
+
+  const event = createKeyboardEvent("ArrowDown");
+  q1.onItemKeyDown(q1.visibleChoices[0], event);
+  expect(event.preventDefault).toHaveBeenCalledTimes(0);
+  expect(q1.focusedItemIndex).toBe(-1);
+});
+
+describe("Radiogroup: arrow keys move focus without selecting an item", () => {
+  beforeEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = false;
+  });
+  afterEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = true;
+  });
+
+  test("The group has a single tab stop", () => {
+    const q1 = createRadiogroup();
+    expect(q1.isKeyboardNavigationEnabled).toBe(true);
+    expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(0);
+    expect(q1.getItemTabIndex(q1.visibleChoices[1])).toBe(-1);
+
+    q1.value = "Banana";
+    expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(-1);
+    expect(q1.getItemTabIndex(q1.visibleChoices[2])).toBe(0);
+
+    q1.onItemFocusIn(q1.visibleChoices[1]);
+    expect(q1.getItemTabIndex(q1.visibleChoices[2])).toBe(-1);
+    expect(q1.getItemTabIndex(q1.visibleChoices[1])).toBe(0);
+  });
+  test("An arrow key moves focus and keeps the value", () => {
+    const q1 = createRadiogroup();
+    const event = createKeyboardEvent("ArrowDown");
+    q1.onItemKeyDown(q1.visibleChoices[0], event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent("ArrowRight"));
+    expect(q1.focusedItemIndex).toBe(2);
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("ArrowUp"));
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("Focus wraps around and Home/End keys are supported", () => {
+    const q1 = createRadiogroup();
+    q1.onItemKeyDown(q1.visibleChoices[0], createKeyboardEvent("ArrowUp"));
+    expect(q1.focusedItemIndex).toBe(2);
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("ArrowDown"));
+    expect(q1.focusedItemIndex).toBe(0);
+    q1.onItemKeyDown(q1.visibleChoices[0], createKeyboardEvent("End"));
+    expect(q1.focusedItemIndex).toBe(2);
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("Home"));
+    expect(q1.focusedItemIndex).toBe(0);
+  });
+  test("The Space and Enter keys select the focused item", () => {
+    const q1 = createRadiogroup();
+    q1.onItemKeyDown(q1.visibleChoices[0], createKeyboardEvent("ArrowDown"));
+    expect(q1.isEmpty()).toBe(true);
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent(" "));
+    expect(q1.value).toBe("Apricot");
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("Enter"));
+    expect(q1.value).toBe("Banana");
+  });
+  test("A read-only question ignores the Space key", () => {
+    const q1 = createRadiogroup();
+    q1.readOnly = true;
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent(" "));
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("keyboardItems follows the column DOM order", () => {
+    const q1 = createRadiogroup({
+      colCount: 3,
+      choices: ["a", "b", "c", "d", "e"]
+    });
+    const originalFlow = settings.itemFlowDirection;
+    settings.itemFlowDirection = "column";
+    expect(q1.keyboardItems.map(item => item.value)).toEqual(["a", "b", "c", "d", "e"]);
+    settings.itemFlowDirection = "row";
+    expect(q1.keyboardItems.map(item => item.value)).toEqual(["a", "d", "b", "e", "c"]);
+    settings.itemFlowDirection = originalFlow;
+  });
+  test("keyboardItems keeps special choices after the column items", () => {
+    const q1 = createRadiogroup({
+      colCount: 2,
+      choices: ["a", "b", "c"],
+      showOtherItem: true,
+      showNoneItem: true,
+      separateSpecialChoices: true
+    });
+    expect(q1.keyboardItems.map(item => item.value)).toEqual(["a", "b", "c", "none", "other"]);
+  });
+});
+
+function createButtonGroup(json?: any): QuestionButtonGroupModel {
+  const survey = new SurveyModel({
+    elements: [Object.assign({ type: "buttongroup", name: "q1", choices: ["Apple", "Apricot", "Banana"] }, json || {})]
+  });
+  return <QuestionButtonGroupModel>survey.getQuestionByName("q1");
+}
+
+test("Button group: arrow keys select an item when settings.itemsKeyboard.selectionFollowsFocus is enabled", () => {
+  const q1 = createButtonGroup();
+  expect(q1.isKeyboardNavigationEnabled).toBe(false);
+  expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(undefined);
+
+  const event = createKeyboardEvent("ArrowRight");
+  q1.onItemKeyDown(q1.visibleChoices[0], event);
+  expect(event.preventDefault).toHaveBeenCalledTimes(0);
+  expect(q1.focusedItemIndex).toBe(-1);
+});
+
+describe("Button group: arrow keys move focus without selecting an item", () => {
+  beforeEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = false;
+  });
+  afterEach(() => {
+    settings.itemsKeyboard.selectionFollowsFocus = true;
+  });
+
+  test("The group has a single tab stop", () => {
+    const q1 = createButtonGroup();
+    expect(q1.isKeyboardNavigationEnabled).toBe(true);
+    expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(0);
+    expect(q1.getItemTabIndex(q1.visibleChoices[1])).toBe(-1);
+
+    q1.value = "Banana";
+    expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(-1);
+    expect(q1.getItemTabIndex(q1.visibleChoices[2])).toBe(0);
+
+    q1.onItemFocusIn(q1.visibleChoices[1]);
+    expect(q1.getItemTabIndex(q1.visibleChoices[2])).toBe(-1);
+    expect(q1.getItemTabIndex(q1.visibleChoices[1])).toBe(0);
+  });
+  test("An arrow key moves focus and keeps the value", () => {
+    const q1 = createButtonGroup();
+    const event = createKeyboardEvent("ArrowRight");
+    q1.onItemKeyDown(q1.visibleChoices[0], event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent("ArrowDown"));
+    expect(q1.focusedItemIndex).toBe(2);
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("ArrowLeft"));
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("The Space and Enter keys select the focused item", () => {
+    const q1 = createButtonGroup();
+    q1.onItemKeyDown(q1.visibleChoices[0], createKeyboardEvent("ArrowRight"));
+    expect(q1.isEmpty()).toBe(true);
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent(" "));
+    expect(q1.value).toBe("Apricot");
+    q1.onItemKeyDown(q1.visibleChoices[2], createKeyboardEvent("Enter"));
+    expect(q1.value).toBe("Banana");
+  });
+  test("A read-only question ignores the Space key", () => {
+    const q1 = createButtonGroup();
+    q1.readOnly = true;
+    q1.onItemKeyDown(q1.visibleChoices[1], createKeyboardEvent(" "));
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("Keyboard navigation is disabled in the dropdown mode", () => {
+    const q1 = createButtonGroup({ renderAs: "dropdown" });
+    expect(q1.isKeyboardNavigationEnabled).toBe(false);
+    expect(q1.getItemTabIndex(q1.visibleChoices[0])).toBe(undefined);
+  });
+  test("A disabled item is skipped", () => {
+    const q1 = createButtonGroup();
+    q1.visibleChoices[1].enabled = false;
+    q1.onItemKeyDown(q1.visibleChoices[0], createKeyboardEvent("ArrowRight"));
+    expect(q1.focusedItemIndex).toBe(2);
   });
 });

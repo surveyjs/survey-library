@@ -8,6 +8,7 @@ import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
+import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 function isBooleanDisplayMode(val: string): boolean {
   return val === "radio" || val === "checkbox" || val === "switch";
@@ -24,7 +25,7 @@ function isCustomRenderAs(val: string): boolean {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
-export class QuestionBooleanModel extends Question {
+export class QuestionBooleanModel extends Question implements IKeyboardNavigableItems {
   public getType(): string {
     return "boolean";
   }
@@ -323,6 +324,7 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
+    if (this.isKeyboardNavigationEnabled) return true;
     const key = event.key;
     if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown") {
       if (this.isInputReadOnly) {
@@ -336,6 +338,52 @@ export class QuestionBooleanModel extends Question {
     }
     return true;
   }
+
+  //#region keyboard navigation
+  @property({ defaultValue: -1 }) focusedItemIndex: number;
+  private keyboardNavigator = new ItemsKeyboardNavigator(this);
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return this.getRenderAsValue() === "radio";
+  }
+  public getRadioItemId(index: number): string {
+    return this.inputId + "_" + index;
+  }
+  public getRadioItemIndex(value: any): number {
+    return this.isTwoValueEquals(value, this.getRadioItemValue(0)) ? 0 : 1;
+  }
+  public getRadioItemValue(index: number): any {
+    const isTrueFirst = this.swapOrder;
+    if (index === 0) return isTrueFirst ? this.getValueTrue() : this.getValueFalse();
+    return isTrueFirst ? this.getValueFalse() : this.getValueTrue();
+  }
+  public getItemTabIndex(value: any): number {
+    return this.keyboardNavigator.getItemTabIndex(this.getRadioItemIndex(value));
+  }
+  public onItemFocusIn(value: any): void {
+    this.keyboardNavigator.onItemFocusIn(this.getRadioItemIndex(value));
+  }
+  public onItemKeyDown(value: any, event: any): void {
+    this.keyboardNavigator.onItemKeyDown(this.getRadioItemIndex(value), event);
+  }
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
+    return this.getRenderAsValue() === "radio" ? this.getRadioItemId(0) : super.getFirstInputElementId();
+  }
+  public get keyboardItemsCount(): number {
+    return 2;
+  }
+  public getKeyboardItemId(index: number): string {
+    return this.getRadioItemId(index);
+  }
+  public isKeyboardItemEnabled(index: number): boolean {
+    return !this.isDisabledAttr;
+  }
+  public isKeyboardItemSelected(index: number): boolean {
+    return !this.isEmpty() && this.isTwoValueEquals(this.value, this.getRadioItemValue(index));
+  }
+  public selectKeyboardItem(index: number): void {
+    this.value = this.getRadioItemValue(index);
+  }
+  //#endregion
   /* #endregion */
 
   public getRadioItemClass(css: any, value: any): string {

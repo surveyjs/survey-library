@@ -7,13 +7,17 @@
       <input
         type="radio"
         :name="question.questionName"
+        :id="question.getRadioItemId(question.getRadioItemIndex(value))"
         :value="value"
         :checked="value === question.value"
         :aria-errormessage="question.ariaErrormessage"
         :disabled="question.isDisabledAttr"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemRadioControl"
+        :tabindex="question.getItemTabIndex(value)"
         @change="handleChange"
+        @keydown="(e) => question.onItemKeyDown(value, e)"
+        @focus="() => question.onItemFocusIn(value)"
       />
       <span
         v-if="question.cssClasses.materialRadioDecorator"

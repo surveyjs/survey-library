@@ -134,6 +134,21 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
   }
+
+  //#region keyboard navigation
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return !this.multiSelect;
+  }
+  public get keyboardItems(): Array<ItemValue> {
+    const result: Array<ItemValue> = [];
+    if (this.hasColumns) {
+      this.columns.forEach(column => column.forEach(item => result.push(item)));
+    } else {
+      this.visibleChoices.forEach(item => result.push(item));
+    }
+    return result;
+  }
+  //#endregion
   public clearIncorrectValues() {
     if (this.multiSelect) {
       var val = this.value;

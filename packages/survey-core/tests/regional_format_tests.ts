@@ -200,15 +200,22 @@ describe("RegionalFormat: precedence", () => {
     expect(q.inputValue, "authored on the mask").toBe("HH-MM");
   });
 
-  test("currencyPattern: authored affixes beat the object, the object beats the locale table, the table beats english", () => {
+  test("currencyPattern: the mask beats the object, the object beats the locale table, the table beats english", () => {
     const survey = createSurvey();
+    const mask = getQuestion(survey, "cur").maskSettings;
     expect(renderNumber(survey, "cur"), "english").toBe(euro + "1,234.56");
     survey.regionalFormat.locale = "de";
     expect(renderNumber(survey, "cur"), "the locale table").toBe("1.234,56 " + euro);
     survey.regionalFormat.currencyPattern = "@ #";
     expect(renderNumber(survey, "cur"), "the object").toBe(euro + " 1.234,56");
-    getQuestion(survey, "cur").maskSettings["prefix"] = "EUR ";
-    expect(renderNumber(survey, "cur"), "authored on the mask").toBe("EUR 1.234,56");
+    mask["currencyPattern"] = "# @-";
+    expect(renderNumber(survey, "cur"), "authored on the mask").toBe("1.234,56 " + euro);
+    mask["currencyPattern"] = "##";
+    expect(renderNumber(survey, "cur"), "an invalid mask pattern falls through to the object").toBe(euro + " 1.234,56");
+    mask["currencyPattern"] = undefined;
+    mask["prefix"] = "EUR ";
+    expect(renderNumber(survey, "cur"), "an obsolete affix writes the mask pattern").toBe("EUR 1.234,56");
+    expect(mask["currencyPattern"]).toBe("EUR -#");
   });
 
   test("The object applies with the survey locale when no region locale is set", () => {

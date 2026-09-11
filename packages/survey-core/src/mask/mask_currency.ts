@@ -85,59 +85,105 @@ export class InputMaskCurrency extends InputMaskNumeric {
   // because an entered text and a saved value may differ in sign.
   private textAffixes: { positive: ICurrencyAffixes, negative: ICurrencyAffixes };
 
-  /**
-   * One or several symbols to be displayed before the currency value.
-   *
-   * Assigning a prefix or a suffix - an empty string included - makes the mask display exactly
-   * the affixes it was given and ignore `currencySymbol`.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
-   * @see suffix
-   * @see currencySymbol
-   */
-  public get prefix(): string {
-    return this.getPropertyValue("prefix");
-  }
-  public set prefix(val: string) {
-    this.setExplicitPropertyValue("prefix", val);
-  }
-  /**
-   * One or several symbols to be displayed after the currency value.
-   * @see prefix
-   * @see currencySymbol
-   */
-  public get suffix(): string {
-    return this.getPropertyValue("suffix");
-  }
-  public set suffix(val: string) {
-    this.setExplicitPropertyValue("suffix", val);
-  }
   // The currency symbol the survey's format locale places around the number. It defaults to the
   // symbol of that locale's own currency and is the author's to override - a survey in german may
-  // well ask for dollars - while the locale decides where the symbol goes and where the minus sign
-  // goes with it. An explicit "" renders no symbol. Ignored when the mask has an authored prefix
-  // or suffix.
+  // well ask for dollars - while the pattern decides where the symbol goes and where the minus
+  // sign goes with it. An explicit "" renders no symbol. A pattern without "@" ignores it.
   public get currencySymbol(): string {
     return this.getPropertyValue("currencySymbol");
   }
   public set currencySymbol(val: string) {
     this.setExplicitPropertyValue("currencySymbol", val);
   }
-
-  // An assigned affix - an empty string included - switches both sides to the authored values,
-  // so a mask never renders one authored and one locale placed affix.
-  private get hasAuthoredAffixes(): boolean {
-    return this.getExplicitPropertyValue("prefix") !== undefined || this.getExplicitPropertyValue("suffix") !== undefined;
+  // The pattern authored on this mask, in the "#"/"@"/"-" grammar above. Unlike currencySymbol
+  // and the separators it has no defaultFunc: an unset pattern must read as empty so that an editor
+  // can show the inherited one (activeCurrencyPattern) as a placeholder rather than as a value.
+  // An empty pattern has no meaning of its own - "no affixes" is spelled currencySymbol: "" - so
+  // "" is stored as unset.
+  public get currencyPattern(): string {
+    return this.getPropertyValue("currencyPattern");
   }
-  protected getAffixes(isNegative: boolean): ICurrencyAffixes {
-    if (this.hasAuthoredAffixes) {
-      return { prefix: this.prefix || "", suffix: this.suffix || "", signInAffix: false };
+  public set currencyPattern(val: string) {
+    this.setExplicitPropertyValue("currencyPattern", val || undefined);
+  }
+  // The pattern the mask renders with: the authored one, then survey.regionalFormat, then the
+  // format locale's curated one - the first valid wins. "" when nothing resolves. Read-only, never
+  // serialized. An authored pattern is read directly, an inherited one through the format cache.
+  public get activeCurrencyPattern(): string {
+    const pattern = this.currencyPattern;
+    if (!!pattern && isValidCurrencyPattern(pattern)) return pattern;
+    return this.getFormatValue("currencyPattern", isValidCurrencyPattern) || "";
+  }
+  /**
+   * @deprecated Use the `currencyPattern` property instead. Kept for backward compatibility: it returns the text rendered before a positive number, and an assigned value is written into `currencyPattern`.
+   */
+  public get prefix(): string {
+    return this.activePrefix;
+  }
+  public set prefix(val: string) {
+    this.setAffix(val, true);
+  }
+  /**
+   * @deprecated Use the `currencyPattern` property instead. Kept for backward compatibility: it returns the text rendered after a positive number, and an assigned value is written into `currencyPattern`.
+   */
+  public get suffix(): string {
+    return this.activeSuffix;
+  }
+  public set suffix(val: string) {
+    this.setAffix(val, false);
+  }
+  // A mask JSON is applied twice when a question loads - setData, then JsonObject's own pass over
+  // the same keys in their JSON order - so an affix met while loading waits for the end of the
+  // load: it then rewrites the pattern that JSON carries instead of being overwritten by it.
+  private pendingAffixes: { prefix?: string, suffix?: string };
+  public endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    const pending = this.pendingAffixes;
+    this.pendingAffixes = undefined;
+    if (!pending) return;
+    this.setAffix(pending.prefix, true);
+    this.setAffix(pending.suffix, false);
+  }
+  // Writes an obsolete affix into currencyPattern as literal text - there is no escape, so an "@"
+  // in it places the symbol and a "#", a "-" or a digit makes the pattern invalid. The side that is
+  // not assigned keeps its template, "@" and "-" included, when a pattern is authored, and becomes
+  // "" otherwise: authoring one affix used to author both, and a mask that is still loading has no
+  // survey yet, so copying the inherited side would bake the english text in.
+  private setAffix(val: string, isPrefix: boolean): void {
+    // setData assigns every registered property, so a pattern-only JSON reaches this with
+    // undefined right after the pattern was stored
+    if (val === undefined || val === null) return;
+    if (this.isLoadingFromJson) {
+      this.pendingAffixes = this.pendingAffixes || {};
+      this.pendingAffixes[isPrefix ? "prefix" : "suffix"] = val;
+      return;
     }
-    const symbol = this.currencySymbol;
-    const pattern = !!symbol ? this.getFormatValue("currencyPattern", isValidCurrencyPattern) : undefined;
-    // an explicitly empty symbol, or a locale that curates neither a symbol nor a pattern, leaves
-    // the number bare
-    if (!pattern) return { prefix: "", suffix: "", signInAffix: false };
+    const pattern = this.currencyPattern || "";
+    // The number is the "#" nearest to the side that is kept, so that a literal "#" written by an
+    // earlier assignment of the same affix stays in that affix and a repeated assignment is a
+    // no-op. A valid pattern has only one.
+    const numberIndex = isPrefix ? pattern.lastIndexOf(numberToken) : pattern.indexOf(numberToken);
+    let prefix = numberIndex > -1 ? pattern.substring(0, numberIndex) : "";
+    let suffix = numberIndex > -1 ? pattern.substring(numberIndex + 1) : "";
+    if (isPrefix) {
+      prefix = String(val);
+    } else {
+      suffix = String(val);
+    }
+    // The assigned text is literal, so only the retained side can place the sign. Otherwise it
+    // goes right before the number, where the old affix mode rendered it: "$ -#" is "$ -123".
+    const retained = isPrefix ? suffix : prefix;
+    const sign = retained.indexOf(signToken) > -1 ? "" : signToken;
+    this.currencyPattern = prefix + sign + numberToken + suffix;
+  }
+
+  protected getAffixes(isNegative: boolean): ICurrencyAffixes {
+    const pattern = this.activeCurrencyPattern;
+    const hasSymbol = pattern.indexOf(symbolToken) > -1;
+    const symbol = hasSymbol ? this.currencySymbol : "";
+    // No pattern resolves, or an explicitly empty symbol meets a pattern that places one: the
+    // number is left bare. A pattern without "@" is literal text and renders as it is.
+    if (!pattern || hasSymbol && !symbol) return { prefix: "", suffix: "", signInAffix: false };
     // one pattern serves both forms: a positive amount drops the sign, a negative one keeps it
     // where the pattern puts it or gets it at the very beginning
     let template = pattern;
@@ -167,13 +213,13 @@ export class InputMaskCurrency extends InputMaskNumeric {
   private getRenderedAffixes(): { positive: ICurrencyAffixes, negative: ICurrencyAffixes } {
     return { positive: this.getAffixes(false), negative: this.getAffixes(true) };
   }
-  // The prefix the mask renders right now: an authored prefix, or the part of the format
-  // locale's currency pattern that precedes a positive number. Read-only, never serialized.
+  // The prefix the mask renders right now: the part of activeCurrencyPattern that precedes a
+  // positive number, with the symbol inserted. Read-only, never serialized.
   public get activePrefix(): string {
     return this.getAffixes(false).prefix;
   }
-  // The suffix the mask renders right now: an authored suffix, or the part of the format
-  // locale's currency pattern that follows a positive number. Read-only, never serialized.
+  // The suffix the mask renders right now: the part of activeCurrencyPattern that follows a
+  // positive number, with the symbol inserted. Read-only, never serialized.
   public get activeSuffix(): string {
     return this.getAffixes(false).suffix;
   }
@@ -299,10 +345,6 @@ export class InputMaskCurrency extends InputMaskNumeric {
 Serializer.addClass(
   "currencymask",
   [
-    // an assigned affix is written even when it is an empty string: "" suppresses the affixes,
-    // while an omitted key lets the format locale place the currency symbol
-    { name: "prefix", onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("prefix") },
-    { name: "suffix", onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("suffix") },
     // the format locale's own symbol is the default, so an unset property is not written while an
     // explicit "" - "render no symbol" - is
     {
@@ -310,6 +352,12 @@ Serializer.addClass(
       defaultFunc: (obj: InputMaskCurrency) => !!obj ? obj.getFormatValue("currencySymbol", isValidCurrencySymbol) || "" : "",
       onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("currencySymbol")
     },
+    { name: "currencyPattern", onSerializeValue: (obj: InputMaskCurrency) => obj.getExplicitPropertyValue("currencyPattern") },
+    // Obsolete views over currencyPattern: never written, but an old JSON still assigns them. They
+    // are registered after currencyPattern because setData assigns in this order, so the affixes of
+    // a JSON that - wrongly - carries both are applied last and win.
+    { name: "prefix", isSerializable: false, visible: false },
+    { name: "suffix", isSerializable: false, visible: false },
   ],
   () => {
     return new InputMaskCurrency();

@@ -131,6 +131,9 @@ export class InputMaskBase extends Base implements IInputMask {
     const res: any = {};
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
+      // getSerializableValue does not check this itself - JsonObject.valueToJson does - and an
+      // obsolete property kept for old JSONs (the currency mask's prefix) must not be written
+      if (!property.isPropertySerializable(this)) return;
       // the same routine Base.toJSON() uses, so that this path and survey.toJSON() agree on
       // computed defaults and on onSerializeValue
       const value = property.getSerializableValue(this);

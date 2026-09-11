@@ -196,6 +196,8 @@ describe("JsonSchemaTests", () => {
 
     expect(schema.definitions.currencymask.allOf, "currencymask has allOf for inheritance").toBeTruthy();
     expect(schema.definitions.currencymask.allOf[0].$ref, "currencymask extends numericmask").toBe("numericmask");
-    expect(schema.definitions.currencymask.allOf[1].properties.prefix, "currencymask has prefix property").toBeTruthy();
+    expect(schema.definitions.currencymask.allOf[1].properties.currencyPattern, "currencymask has currencyPattern property").toBeTruthy();
+    expect(schema.definitions.currencymask.allOf[1].properties.prefix, "the obsolete prefix is not in the schema").toBeUndefined();
+    expect(schema.definitions.currencymask.allOf[1].properties.suffix, "the obsolete suffix is not in the schema").toBeUndefined();
   });
 });

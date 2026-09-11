@@ -1104,7 +1104,7 @@ describe("Numeric mask: localization", () => {
     const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
     expect(json.pages[0].elements[0].maskSettings, "the numeric getData path").toEqual({ decimalSeparator: ",", thousandsSeparator: "", precision: 3 });
     expect(q1.maskSettings.getData(), "getData agrees with the question json").toEqual(json.pages[0].elements[0].maskSettings);
-    expect(json.pages[0].elements[1].maskSettings, "the currency getData path").toEqual({ decimalSeparator: ",", thousandsSeparator: "", prefix: "$ " });
+    expect(json.pages[0].elements[1].maskSettings, "the currency getData path").toEqual({ decimalSeparator: ",", thousandsSeparator: "", currencyPattern: "$ -#" });
     expect(q2.maskSettings.getData(), "getData agrees with the question json").toEqual(json.pages[0].elements[1].maskSettings);
 
     const maskJson = q1.maskSettings.toJSON();

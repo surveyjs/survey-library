@@ -953,7 +953,7 @@ Serializer.addClass(
         return obj.maskSettings.getData();
       },
       // An object whose every value is empty is dropped as a default, which would lose an
-      // authored "" separator or affix. Anything getData() writes was written on purpose.
+      // authored "" separator or symbol. Anything getData() writes was written on purpose.
       onSerializeValue: function (obj: any) {
         const data = obj.maskSettings.getData();
         return Object.keys(data).length > 0 ? data : undefined;

@@ -307,6 +307,11 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
   scope: Array<ScopeFrame>): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
+  // item names are unique per question, the way matrix column names are per matrix
+  const itemNames = new CIMultiMap<ElementRecord>();
+  state.index.namespaces.push({
+    label: "multiple text \"" + (record.name || record.path) + "\"", map: itemNames,
+  });
   const itemProps = state.metadata.getItemExpressionProps("multipletext", "items");
   const locProps = state.metadata.getLocalizableProps("multipletextitem");
   json.items.forEach((item: any, i: number) => {
@@ -318,7 +323,10 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
       isUnknownType: false, valueType: getValueTypeInfo("text", item),
     };
     state.index.allElements.push(itemRecord);
-    if (itemRecord.name) record.multipleTextItems.set(itemRecord.name, itemRecord);
+    if (itemRecord.name) {
+      record.multipleTextItems.set(itemRecord.name, itemRecord);
+      itemNames.add(itemRecord.name, itemRecord);
+    }
     addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
     addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, scope);
     addValidatorSites(state, item, itemPath, itemRecord, scope);

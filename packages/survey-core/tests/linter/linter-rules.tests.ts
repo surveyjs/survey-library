@@ -124,6 +124,23 @@ describe("name/duplicate", () => {
       ],
     }, "name/duplicate")).toHaveLength(0);
   });
+  test("duplicate item names in one multipletext are flagged, across questions clean", () => {
+    const findings = byRule({
+      elements: [{
+        type: "multipletext", name: "q1",
+        items: [{ name: "item1" }, { name: "item1" }],
+      }],
+    }, "name/duplicate");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].items[1]");
+    expect(findings[0].messageData.scope).toBe("multiple text \"q1\"");
+    expect(byRule({
+      elements: [
+        { type: "multipletext", name: "q1", items: [{ name: "item1" }] },
+        { type: "multipletext", name: "q2", items: [{ name: "item1" }] },
+      ],
+    }, "name/duplicate")).toHaveLength(0);
+  });
   test("duplicate valueNames are NOT flagged (legal feature)", () => {
     expect(byRule({
       elements: [

@@ -63,6 +63,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
+    this.handleOnFocus = this.handleOnFocus.bind(this);
   }
   protected getStateElement() {
     return this.item;
@@ -110,6 +112,12 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
       this.question.value = event.target.value;
     }
     this.setState({ value: this.question.value });
+  }
+  handleOnKeyDown(event: React.KeyboardEvent) {
+    this.question.onItemKeyDown(this.item, event.nativeEvent);
+  }
+  handleOnFocus(event: any) {
+    this.question.onItemFocusIn(this.item);
   }
 
   protected renderElement(): React.JSX.Element {
@@ -196,6 +204,9 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            onKeyDown={this.handleOnKeyDown}
+            onFocus={this.handleOnFocus}
+            tabIndex={this.question.getItemTabIndex(item)}
             required={this.question.inputRequiredAttribute}
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}

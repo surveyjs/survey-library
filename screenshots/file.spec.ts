@@ -216,10 +216,22 @@ frameworks.forEach(framework => {
       await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
 
+      // Wait for all 4 files to finish async processing before sorting
+      await page.waitForFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        return question && Array.isArray(question.value) && question.value.length === 4;
+      });
+
       await page.evaluate(() => {
         const order = ["Badger.png", "Bird.png", "Read Me.txt", "Flamingo.png"];
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
+      });
+
+      // Wait for fileIndexAction to be initialized after the value update
+      await page.waitForFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        return !!(question && question.fileIndexAction);
       });
 
       await page.evaluate(() => {

@@ -1042,6 +1042,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get isRowsDynamic(): boolean {
     return false;
   }
+  startLoadingFromJson(json?: any): void {
+    super.startLoadingFromJson(json);
+    // toJSON() writes "cellType" after "columns". Apply it first: a column with the default cellType
+    // accepts the properties of the matrix cell type, and it must know that type when its JSON is loaded.
+    if (!!json && !!json.cellType) {
+      this.cellType = json.cellType;
+    }
+  }
+  endLoadingFromJson(): void {
+    // cellType changes are not propagated while loading, bring the default columns in line with it
+    this.updateColumnsCellType();
+    super.endLoadingFromJson();
+  }
   private isUpdating: boolean;
   protected get isUpdateLocked(): boolean {
     return this.isLoadingFromJson || this.isUpdating;

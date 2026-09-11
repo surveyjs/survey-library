@@ -55,11 +55,24 @@ export interface NotArraySite {
   owner: PropertyOwner;
 }
 
+// An object the deserializer builds a survey object out of: the site a required property is
+// checked against. "owner" is the nearest named ancestor-or-self the way the other sites name
+// it; "ownName" is the object's own name, absent when it has none - which is what
+// property/required reports.
+export interface ObjectSite {
+  className: string;
+  json: any;
+  path: string;
+  owner: PropertyOwner;
+  ownName?: string;
+}
+
 export interface PropertyWalkResult {
   props: Array<PropertySite>;
   unknownKeys: Array<UnknownKeySite>;
   aliasPairs: Array<AliasPairSite>;
   notArrays: Array<NotArraySite>;
+  objects: Array<ObjectSite>;
 }
 
 interface WalkState {
@@ -174,6 +187,10 @@ function walkObject(state: WalkState, json: any, className: string, path: string
   // */unknown-type rules own whatever the JSON says here
   if (!known) return;
   const owner = ownerOf(json, className, parentOwner);
+  state.result.objects.push({
+    className: className, json: json, path: path, owner: owner,
+    ownName: typeof json.name === "string" && !!json.name ? json.name : undefined,
+  });
   const reportUnknown = !isComponentClass(state, className, json);
   const keys = Object.keys(json);
   keys.forEach(key => {
@@ -209,7 +226,7 @@ export function walkProperties(json: any, metadata: LintMetadata, options: ISurv
   settings: ILintResolvedSettings): PropertyWalkResult {
   const state: WalkState = {
     metadata: metadata, options: options, settings: settings, visited: new WeakSet(),
-    result: { props: [], unknownKeys: [], aliasPairs: [], notArrays: [] },
+    result: { props: [], unknownKeys: [], aliasPairs: [], notArrays: [], objects: [] },
   };
   walkObject(state, json, SURVEY_CLASS, "", undefined, {}, 0);
   return state.result;

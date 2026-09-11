@@ -48,6 +48,10 @@ export const SurveyLintReasons = Object.freeze({
     // a valueName with a "." in it, which references read as a path
     valueNameDotted: "valueNameDotted",
   }),
+  // a property the class requires and the JSON leaves out or empty
+  "property/required": Object.freeze({
+    missing: "missing",
+  }),
   // a single value written where the property holds an array; the deserializer wraps it
   "property/not-an-array": Object.freeze({
     notAnArray: "notAnArray",

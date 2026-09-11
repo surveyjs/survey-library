@@ -472,3 +472,56 @@ describe("linter vs runtime: a non-array written for an array property", () => {
     });
   });
 });
+
+// property/required mirrors JsonRequiredPropertyError. The deserializer reports the first
+// missing property of an object only, so every fixture leaves out one property per object.
+describe("linter vs runtime: required properties", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "requiredproperty")
+      .map((e: any) => e.propertyName + "@" + e.className)
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/required")
+      .map(f => f.messageData.key + "@" + f.messageData.className)
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a question without a name", json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] } },
+    { title: "a question with an empty name", json: { elements: [{ type: "text", name: "" }] } },
+    { title: "a column and an item without a name", json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ cellType: "text" }] },
+        { type: "multipletext", name: "mt1", items: [{ title: "t" }] },
+      ],
+    } },
+    { title: "a multiple text without items", json: { elements: [{ type: "multipletext", name: "mt1" }] } },
+    { title: "a calculated value without a name", json: { elements: [{ type: "text", name: "q1" }], calculatedValues: [{ expression: "1" }] } },
+    { title: "triggers without their targets", json: {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [
+        { type: "setvalue", expression: "{q1} = 1", setValue: 2 },
+        { type: "copyvalue", expression: "{q1} = 1", setToName: "q1" },
+        { type: "skip", expression: "{q1} = 1" },
+      ],
+    } },
+    { title: "a choice without a value is left alone", json: { elements: [{ type: "checkbox", name: "q1", choices: [{ text: "a" }] }] } },
+    { title: "a survey with every required property", json: {
+      pages: [{ name: "p1", elements: [
+        { type: "text", name: "q1" },
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }] },
+        { type: "multipletext", name: "mt1", items: [{ name: "i1" }] },
+      ] }],
+      calculatedValues: [{ name: "cv", expression: "1" }],
+      triggers: [{ type: "setvalue", expression: "{q1} = 1", setToName: "q1" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer requires", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+});

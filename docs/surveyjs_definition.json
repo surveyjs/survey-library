@@ -578,6 +578,9 @@
     "fitToContainer": {
       "type": "boolean"
     },
+    "focusMode": {
+      "type": "boolean"
+    },
     "headerView": {
       "type": "string",
       "enum": [

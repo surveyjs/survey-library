@@ -249,6 +249,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return needScroll;
   }
+  public static ScrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement): void {
+    if (!el || !scroller) return;
+    const elRect = el.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    if (elRect.top < scrollerRect.top) {
+      scroller.scrollTop += elRect.top - scrollerRect.top;
+    } else if (elRect.bottom > scrollerRect.bottom) {
+      scroller.scrollTop += elRect.bottom - scrollerRect.bottom;
+    }
+  }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
     if (removeSpaces) {
@@ -263,17 +273,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return null;
   }
-  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement): boolean {
+  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
     if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl) : false;
+    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl, scrollIntoScroller) : false;
     if (!res) {
       setTimeout(() => {
-        SurveyElement.focusElementCore(elementId, containerEl);
+        SurveyElement.focusElementCore(elementId, containerEl, scrollIntoScroller);
       }, isTimeOut ? 100 : 10);
     }
     return res;
   }
-  private static focusElementCore(element: string | (() => HTMLElement), containerEl?: HTMLElement): boolean {
+  private static focusElementCore(element: string | (() => HTMLElement), containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
     const { root } = settings.environment;
     if (!root && !containerEl) return false;
 
@@ -285,7 +295,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
-      SurveyElement.ScrollElementToViewCore(el, true, false);
+      // scrollIntoView() measures against the window, so in a locked container it cannot tell that an
+      // element is hidden by the inner scroll region. Scroll that region directly instead.
+      const scroller = scrollIntoScroller && el.closest ? el.closest(".sv-scroll__scroller") as HTMLElement : null;
+      if (scroller) {
+        SurveyElement.ScrollElementIntoScroller(el, scroller);
+      } else {
+        SurveyElement.ScrollElementToViewCore(el, true, false);
+      }
       el.focus({ focusVisible: false } as any);
       return true;
     }
@@ -618,6 +635,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get titleSettings(): ISurveyTitleSettings {
     return this.survey as ISurveyTitleSettings;
+  }
+  protected get isInFocusMode(): boolean {
+    return !!(this.survey as any)?.focusMode;
   }
   public get lifecycleCallbacks(): ISurveyElementLifecycle {
     return this.survey as ISurveyElementLifecycle;

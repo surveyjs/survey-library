@@ -139,6 +139,13 @@ export class Survey extends SurveyElementBase<any, any>
   public set css(value: any) {
     this.survey.css = value;
   }
+  protected wrapPageScroll(content: React.JSX.Element | null): React.JSX.Element {
+    return (
+      <Scroll disabled={this.survey.pageScrollDisabled} keyboardReachable={this.survey.focusMode}>
+        {content}
+      </Scroll>
+    );
+  }
   protected renderCompleted(): React.JSX.Element | null {
     if (!this.survey.showCompletedPage) return null;
 
@@ -188,7 +195,7 @@ export class Survey extends SurveyElementBase<any, any>
             style={style}
           >
             <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
-            {activePage}
+            {this.wrapPageScroll(activePage)}
             <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
             {this.survey.showBrandInfo ? <BrandInfo /> : null}
           </div>

@@ -145,6 +145,11 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
       rootElement.classList.add("root-element");
+      // focusMode fills 100% of its container, so this wrapper has to pass the host height through
+      // the shadow boundary. Other tests keep it content-sized, the way a plain div behaves.
+      if (self.survey.focusMode) {
+        rootElement.style.height = "100%";
+      }
       const styles = document.createElement("style");
       styles.textContent = `
         *,

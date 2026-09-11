@@ -1,7 +1,7 @@
 <ng-template #template>
     <ng-container *ngIf="!disabled">
         <div class="sv-scroll__wrapper" #container>
-            <div class="sv-scroll__scroller sv-drag-target-skipped" (scroll)="model.onScrollContainer()">
+            <div class="sv-scroll__scroller sv-drag-target-skipped" [attr.tabindex]="keyboardReachable ? 0 : null" (scroll)="model.onScrollContainer()">
                 <div class="sv-scroll__container">
                     <ng-container *ngTemplateOutlet="transparentTemplate"></ng-container>
                 </div>

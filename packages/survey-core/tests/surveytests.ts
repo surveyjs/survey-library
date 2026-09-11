@@ -15294,6 +15294,69 @@ describe("Survey", () => {
     settings.animationEnabled = false;
   });
 
+  test("Check survey focusMode getRootCss and scroll flags", () => {
+    settings.animationEnabled = true;
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          type: "text",
+          name: "q1",
+        }
+      ]
+    });
+    survey.css = defaultCss;
+    expect(survey.focusMode).toBeFalsy();
+    expect(survey.pageScrollDisabled).toBeTruthy();
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
+
+    survey.focusMode = true;
+    expect(survey.pageScrollDisabled).toBeFalsy();
+    expect(survey.rootScrollDisabled).toBeTruthy();
+    expect(survey.formScrollDisabled).toBeTruthy();
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container sd-root-modern--focus");
+
+    // focusMode brings its own locked-container styles and does not silently turn fitToContainer on.
+    survey.fitToContainer = false;
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--focus");
+    expect(survey.rootScrollDisabled).toBeTruthy();
+
+    survey.focusMode = false;
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
+    expect(survey.pageScrollDisabled).toBeTruthy();
+    expect(survey.rootScrollDisabled).toBeTruthy();
+
+    const json = survey.toJSON();
+    expect(json.focusMode).toBeFalsy();
+    survey.focusMode = true;
+    expect(survey.toJSON().focusMode).toBeTruthy();
+
+    const fromJson = new SurveyModel({ focusMode: true, elements: [{ type: "text", name: "q1" }] });
+    expect(fromJson.focusMode).toBeTruthy();
+    expect(fromJson.pageScrollDisabled).toBeFalsy();
+    settings.animationEnabled = false;
+  });
+
+  test("ScrollElementIntoScroller keeps the element inside the scroller", () => {
+    const scroller = document.createElement("div");
+    const el = document.createElement("div");
+    scroller.appendChild(el);
+    document.body.appendChild(scroller);
+    scroller.getBoundingClientRect = () => ({ top: 100, bottom: 200, left: 0, right: 100, width: 100, height: 100, x: 0, y: 100, toJSON: () => {} }) as DOMRect;
+    el.getBoundingClientRect = () => ({ top: 250, bottom: 280, left: 0, right: 100, width: 100, height: 30, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
+    scroller.scrollTop = 0;
+    SurveyElement.ScrollElementIntoScroller(el, scroller);
+    expect(scroller.scrollTop).toBe(80);
+    el.getBoundingClientRect = () => ({ top: 50, bottom: 80, left: 0, right: 100, width: 100, height: 30, x: 0, y: 50, toJSON: () => {} }) as DOMRect;
+    scroller.scrollTop = 90;
+    SurveyElement.ScrollElementIntoScroller(el, scroller);
+    expect(scroller.scrollTop).toBe(40);
+    el.getBoundingClientRect = () => ({ top: 120, bottom: 150, left: 0, right: 100, width: 100, height: 30, x: 0, y: 120, toJSON: () => {} }) as DOMRect;
+    scroller.scrollTop = 40;
+    SurveyElement.ScrollElementIntoScroller(el, scroller);
+    expect(scroller.scrollTop).toBe(40);
+    scroller.remove();
+  });
+
   test("Check survey isMobile in design mode", () => {
     const survey = new SurveyModel({
       "elements": [

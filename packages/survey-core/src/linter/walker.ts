@@ -201,10 +201,19 @@ function guardLeave(state: WalkState): void {
   state.depth--;
 }
 
+// The deserializer wraps a single object written where an array belongs into a one-item array
+// (property/not-an-array reports the spelling), so the element exists and is walked as [0].
+function asElementArray(value: any): Array<any> | undefined {
+  if (Array.isArray(value)) return value;
+  if (!!value && typeof value === "object") return [value];
+  return undefined;
+}
+
 function getArrayByKeys(json: any, keys: Array<string>): { key: string, elements: Array<any> } | undefined {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (Array.isArray(json[key])) return { key: key, elements: json[key] };
+    const elements = asElementArray(json[key]);
+    if (elements) return { key: key, elements: elements };
   }
   return undefined;
 }
@@ -618,8 +627,9 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),
   };
 
-  if (Array.isArray(json.pages)) {
-    json.pages.forEach((page: any, i: number) => {
+  const pages = asElementArray(json.pages);
+  if (pages) {
+    pages.forEach((page: any, i: number) => {
       if (page && typeof page === "object") walkPage(state, page, "pages[" + i + "]");
     });
   } else {

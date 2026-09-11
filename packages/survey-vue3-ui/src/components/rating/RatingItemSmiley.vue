@@ -17,6 +17,9 @@
       :disabled="question.isDisabledAttr"
       :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick(((e.target as any).value))"
+      @keydown="(e) => question.onItemKeyDown(index, e)"
+      @focus="() => question.onItemFocusIn(index)"
+      :tabindex="question.getItemTabIndex(index)"
       :aria-label="question.ariaLabel"
     />
     <SvComponent

@@ -13,7 +13,7 @@ import { PopupModel } from "../src/popup";
 import { setOldTheme } from "./oldTheme";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
-import { describe, test, expect, vi } from "vitest";
+import { afterEach, beforeEach, describe, test, expect, vi } from "vitest";
 test("check allowhover class in design mode", () => {
   const config = {
     elements: [
@@ -2227,3 +2227,120 @@ test("Test rateItem class on changing value, Bug#10737", () => {
   expect(containsSelected(item1), "item1 className after change select").toBe(false);
   expect(containsSelected(item2), "item2 className after change select").toBe(true);
 });
+
+function createKeyboardEvent(key: string): any {
+  return {
+    key: key,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn()
+  };
+}
+function createRating(json?: any): QuestionRatingModel {
+  const survey = new SurveyModel({
+    elements: [Object.assign({ type: "rating", name: "q1", rateMax: 5 }, json || {})]
+  });
+  return <QuestionRatingModel>survey.getQuestionByName("q1");
+}
+
+test("Rating: arrow keys select an item when settings.selectionFollowsFocus is enabled", () => {
+  const q1 = createRating();
+  expect(q1.isKeyboardNavigationEnabled).toBe(false);
+  expect(q1.getItemTabIndex(0)).toBe(undefined);
+
+  const event = createKeyboardEvent("ArrowRight");
+  q1.onItemKeyDown(0, event);
+  expect(event.preventDefault).toHaveBeenCalledTimes(0);
+  expect(q1.focusedItemIndex).toBe(-1);
+});
+
+describe("Rating: arrow keys move focus without selecting an item", () => {
+  beforeEach(() => {
+    settings.selectionFollowsFocus = false;
+  });
+  afterEach(() => {
+    settings.selectionFollowsFocus = true;
+  });
+
+  test("The group has a single tab stop", () => {
+    const q1 = createRating();
+    expect(q1.getItemTabIndex(0)).toBe(0);
+    expect(q1.getItemTabIndex(1)).toBe(-1);
+    expect(q1.getItemTabIndex(4)).toBe(-1);
+
+    q1.value = 3;
+    expect(q1.getItemTabIndex(0)).toBe(-1);
+    expect(q1.getItemTabIndex(2)).toBe(0);
+
+    q1.onItemFocusIn(4);
+    expect(q1.getItemTabIndex(2)).toBe(-1);
+    expect(q1.getItemTabIndex(4)).toBe(0);
+  });
+  test("An arrow key moves focus and keeps the value", () => {
+    const q1 = createRating();
+    const event = createKeyboardEvent("ArrowRight");
+    q1.onItemKeyDown(0, event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.focusedItemIndex).toBe(1);
+    expect(q1.isEmpty()).toBe(true);
+
+    q1.onItemKeyDown(1, createKeyboardEvent("ArrowDown"));
+    expect(q1.focusedItemIndex).toBe(2);
+    q1.onItemKeyDown(2, createKeyboardEvent("ArrowLeft"));
+    expect(q1.focusedItemIndex).toBe(1);
+    q1.onItemKeyDown(1, createKeyboardEvent("ArrowUp"));
+    expect(q1.focusedItemIndex).toBe(0);
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("Focus wraps around and Home/End keys are supported", () => {
+    const q1 = createRating();
+    q1.onItemKeyDown(0, createKeyboardEvent("ArrowLeft"));
+    expect(q1.focusedItemIndex).toBe(4);
+    q1.onItemKeyDown(4, createKeyboardEvent("ArrowRight"));
+    expect(q1.focusedItemIndex).toBe(0);
+    q1.onItemKeyDown(0, createKeyboardEvent("End"));
+    expect(q1.focusedItemIndex).toBe(4);
+    q1.onItemKeyDown(4, createKeyboardEvent("Home"));
+    expect(q1.focusedItemIndex).toBe(0);
+  });
+  test("The Space and Enter keys select the focused item", () => {
+    const q1 = createRating();
+    q1.onItemKeyDown(0, createKeyboardEvent("ArrowRight"));
+    q1.onItemKeyDown(1, createKeyboardEvent("ArrowRight"));
+    expect(q1.isEmpty()).toBe(true);
+
+    const spaceEvent = createKeyboardEvent(" ");
+    q1.onItemKeyDown(2, spaceEvent);
+    expect(spaceEvent.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.value).toBe(3);
+
+    q1.onItemKeyDown(4, createKeyboardEvent("Enter"));
+    expect(q1.value).toBe(5);
+  });
+  test("The Space key clears the value of the selected item", () => {
+    const q1 = createRating();
+    q1.value = 3;
+    q1.onItemKeyDown(2, createKeyboardEvent(" "));
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("A read-only question ignores the Space key", () => {
+    const q1 = createRating();
+    q1.readOnly = true;
+    const event = createKeyboardEvent(" ");
+    q1.onItemKeyDown(2, event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(q1.isEmpty()).toBe(true);
+  });
+  test("An unrelated key is passed through", () => {
+    const q1 = createRating();
+    const event = createKeyboardEvent("Tab");
+    q1.onItemKeyDown(0, event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(0);
+    expect(q1.focusedItemIndex).toBe(-1);
+  });
+  test("Keyboard navigation is disabled in the dropdown display mode", () => {
+    const q1 = createRating({ displayMode: "dropdown" });
+    expect(q1.isKeyboardNavigationEnabled).toBe(false);
+    expect(q1.getItemTabIndex(0)).toBe(undefined);
+  });
+});
+

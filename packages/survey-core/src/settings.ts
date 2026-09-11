@@ -386,6 +386,10 @@ export var settings = {
    * - `"default"` - Behaves as a standard `<input>` element.
    */
   enterKeyAction: "default" as "moveToNextEditor" | "loseFocus" | "default",
+  // Specifies whether arrow keys select the item they move focus to within Rating Scale questions.
+  // `true` (default) - native radio group behavior: an arrow key moves focus and immediately selects the item.
+  // `false` - an arrow key only moves focus, the Space or Enter key selects the focused item.
+  selectionFollowsFocus: true,
   /**
    * An object that configures string comparison.
    *

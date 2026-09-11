@@ -16,6 +16,8 @@ export class RatingItemBase extends SurveyElementBase<IRatingItemProps, any> {
   constructor(props: any) {
     super(props);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
+    this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
+    this.handleOnFocus = this.handleOnFocus.bind(this);
   }
   get question(): QuestionRatingModel {
     return this.props.question;
@@ -31,6 +33,15 @@ export class RatingItemBase extends SurveyElementBase<IRatingItemProps, any> {
   }
   handleOnMouseDown(event: any) {
     this.question.onMouseDown();
+  }
+  handleOnKeyDown(event: React.KeyboardEvent) {
+    this.question.onItemKeyDown(this.index, event.nativeEvent);
+  }
+  handleOnFocus(event: any) {
+    this.question.onItemFocusIn(this.index);
+  }
+  get itemTabIndex(): number {
+    return this.question.getItemTabIndex(this.index);
   }
 }
 export class RatingItem extends RatingItemBase {
@@ -52,6 +63,9 @@ export class RatingItem extends RatingItemBase {
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
           onChange={() => { }}
+          onKeyDown={this.handleOnKeyDown}
+          onFocus={this.handleOnFocus}
+          tabIndex={this.itemTabIndex}
           aria-label={this.question.ariaLabel}
         />
         <span className={this.question.cssClasses.itemText} data-text={this.item.text}>{itemText}</span>

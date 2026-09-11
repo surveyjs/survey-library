@@ -8,6 +8,7 @@ import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
+import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
@@ -89,7 +90,7 @@ export class RatingItem extends ItemValue {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question implements IRatingItemOwner {
+export class QuestionRatingModel extends Question implements IRatingItemOwner, IKeyboardNavigableItems {
   constructor(name: string) {
     super(name);
 
@@ -672,6 +673,60 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     this.visibleChoices.forEach(item => item.highlight = "none");
     this.resetItemsVisuals();
   }
+
+  //#region keyboard navigation
+  @property({ defaultValue: -1 }) focusedItemIndex: number;
+  private keyboardNavigatorValue: ItemsKeyboardNavigator;
+  private get keyboardNavigator(): ItemsKeyboardNavigator {
+    if (!this.keyboardNavigatorValue) {
+      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
+    }
+    return this.keyboardNavigatorValue;
+  }
+  // When disabled, the items behave as a native radio group: an arrow key moves focus
+  // and selects an item at the same time.
+  public get isKeyboardNavigationEnabled(): boolean {
+    return !settings.selectionFollowsFocus && !this.isDropdown && !this.isDesignMode;
+  }
+  public getItemTabIndex(index: number): number {
+    return this.isKeyboardNavigationEnabled ? this.keyboardNavigator.getItemTabIndex(index) : undefined;
+  }
+  public onItemFocusIn(index: number): void {
+    if (!this.isKeyboardNavigationEnabled) return;
+    this.keyboardNavigator.onItemFocusIn(index);
+  }
+  public onItemKeyDown(index: number, event: any): void {
+    if (!this.isKeyboardNavigationEnabled) return;
+    this.keyboardNavigator.onItemKeyDown(index, event);
+  }
+  public get keyboardItemsCount(): number {
+    return this.visibleChoices.length;
+  }
+  public get isKeyboardItemsReadOnly(): boolean {
+    return this.isReadOnlyAttr || this.isDisabledAttr;
+  }
+  public get isKeyboardItemsRtl(): boolean {
+    if (!DomDocumentHelper.isAvailable()) return false;
+    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
+  }
+  public getKeyboardItemId(index: number): string {
+    return this.getInputId(index);
+  }
+  public isKeyboardItemEnabled(index: number): boolean {
+    const item = this.visibleChoices[index];
+    return !!item && item.isEnabled !== false && !this.isDisabledAttr;
+  }
+  public isKeyboardItemSelected(index: number): boolean {
+    const item = this.visibleChoices[index];
+    return !!item && !this.isEmpty() && this.value == item.value;
+  }
+  public selectKeyboardItem(index: number): void {
+    const item = this.visibleChoices[index];
+    if (!!item) {
+      this.setValueFromClick(item.value);
+    }
+  }
+  //#endregion
 
   public get itemSmallMode() {
     return !this.isSingleInputActive && this.inMatrixMode && settings.matrix.rateSize == "small";

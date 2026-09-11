@@ -286,6 +286,40 @@ frameworks.forEach(framework => {
       expect(value).toBe(3);
     });
 
+    test("keyboard: arrow keys move focus, Space selects", async ({ page }) => {
+      await page.evaluate(() => {
+        (window as any).Survey.settings.selectionFollowsFocus = false;
+      });
+      await initSurvey(page, framework, json);
+
+      const getValue = async () => {
+        return await page.evaluate(() => {
+          return (window as any).survey.getAllQuestions()[0].value;
+        });
+      };
+      const getFocusedItemValue = async () => {
+        return await page.evaluate(() => {
+          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+          let element: any = document.activeElement;
+          while(element?.shadowRoot?.activeElement) {
+            element = element.shadowRoot.activeElement;
+          }
+          return element?.value;
+        });
+      };
+
+      await page.keyboard.press("Tab");
+      expect(await getFocusedItemValue()).toBe("1");
+
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("ArrowRight");
+      expect(await getFocusedItemValue()).toBe("3");
+      expect(await getValue()).toBe(undefined);
+
+      await page.keyboard.press("Space");
+      expect(await getValue()).toBe(3);
+    });
+
     test("Do not scroll the window if question has a large title text", async ({ page }) => {
       await page.setViewportSize({ width: 350, height: 667 });
       await initSurvey(page, framework, {

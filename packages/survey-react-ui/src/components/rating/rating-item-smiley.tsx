@@ -28,6 +28,9 @@ export class RatingItemSmiley extends RatingItemBase {
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
           onChange={() => { }}
+          onKeyDown={this.handleOnKeyDown}
+          onFocus={this.handleOnFocus}
+          tabIndex={this.itemTabIndex}
           aria-label={this.question.ariaLabel}
         />
         <SvgIcon

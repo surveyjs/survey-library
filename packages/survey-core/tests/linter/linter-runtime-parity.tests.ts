@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
+import { JsonObject } from "../../src/jsonobject";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionSelectBase } from "../../src/question_baseselect";
@@ -576,5 +577,51 @@ describe("linter vs runtime: missing and unknown types", () => {
     test(entry.title + ": the linter reports what the deserializer drops", () => {
       expect(lintTokens(entry.json)).toEqual(runtimeTokens(entry.json));
     });
+  });
+});
+
+// property/invalid-value (notInChoices) mirrors JsonIncorrectPropertyValueError, which the
+// deserializer reports only when asked to validate property values.
+describe("linter vs runtime: values outside the allowed set", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel();
+    const converter = new JsonObject();
+    converter.toObject(json, survey, { validatePropertyValues: true });
+    return converter.errors
+      .filter(e => e.type === "incorrectvalue")
+      .map((e: any) => e.property.name + "=" + JSON.stringify(e.value))
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/invalid-value" && f.reason === "notInChoices")
+      .map(f => f.messageData.key + "=" + JSON.stringify(f.messageData.value))
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a misspelled enum value", json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "sss" }] } },
+    { title: "an enum value in the wrong case", json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] } },
+    { title: "a survey-level enum and a question-level one", json: {
+      questionTitleLocation: "Left",
+      elements: [{ type: "text", name: "q1", titleLocation: "topp" }],
+    } },
+    { title: "a number spelled as a string is still that number", json: {
+      elements: [{ type: "rating", name: "q1", rateMax: "5" }],
+    } },
+    { title: "the default locale spelled out", json: { locale: "default", elements: [{ type: "text", name: "q1" }] } },
+    { title: "a survey the serializer accepts whole", json: {
+      locale: "de", questionTitleLocation: "left",
+      elements: [{ type: "text", name: "q1", clearIfInvisible: "onComplete", titleLocation: "top" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer rejects", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+  test("\"default\" is an accepted spelling of the survey locale - for both", () => {
+    const json = { locale: "default", elements: [{ type: "text", name: "q1" }] };
+    expect(runtimeKeys(json)).toEqual([]);
+    expect(lintKeys(json)).toEqual([]);
   });
 });

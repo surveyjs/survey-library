@@ -8764,6 +8764,8 @@ function isStrCiEqual(a: string, b: string) {
 Serializer.addClass("survey", [
   {
     name: "locale",
+    // the spelling the Creator and getLocalizationJSON use for the default locale
+    acceptedValues: [settings.localization.defaultLocaleName],
     choices: () => {
       return surveyLocalization.getLocales(true);
     },

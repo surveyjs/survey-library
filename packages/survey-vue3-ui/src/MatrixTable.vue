@@ -35,7 +35,7 @@
           </template>
         </tr>
       </thead>
-      <tbody>
+      <tbody :class="question.getTableBodyCss()">
         <template
           v-for="row in table.renderedRows"
           :key="question.inputId + '_' + row.id"
@@ -48,7 +48,7 @@
         </template>
       </tbody>
       <tfoot v-if="table.showFooter">
-        <tr>
+        <tr :class="table.footerRow.className">
           <SvComponent
             :is="'survey-matrixdropdown-cell'"
             :cell="cell"

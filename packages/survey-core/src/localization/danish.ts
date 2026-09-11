@@ -111,6 +111,8 @@ export var danishSurveyStrings = {
   noUploadFilesHandler: "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Angiv en værdi for dit valgfrie svar.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Værdien '{0}' er ikke en af de tilgængelige muligheder.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Din fil bliver uploadet. Vent nogle sekunder og prøv eventuelt igen.",
   // "Loading..."
@@ -246,7 +248,25 @@ export var danishSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Statuslinje",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Side {0}"
+  progressbarPage: "Side {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "å",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "t",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "T",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "f",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "F"
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });

@@ -111,6 +111,8 @@ export var italianSurveyStrings = {
   noUploadFilesHandler: "I file non possono essere caricati. Aggiungere un gestore per l'evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Inserire il valore 'altro'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Il valore '{0}' non è una delle opzioni disponibili.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "File in caricamento. Attendi alcuni secondi e riprova",
   // "Loading..."
@@ -246,7 +248,25 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indicatore",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Pagina {0}"
+  progressbarPage: "Pagina {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "g",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "a",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

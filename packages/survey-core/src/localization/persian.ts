@@ -111,6 +111,8 @@ export var persianSurveyStrings = {
   noUploadFilesHandler: "پروندهها را نمیتوان بارگذاری کرد. لطفا یک گرداننده برای رویداد \"onUploadFiles\" اضافه کنید.",
   // "Response required: enter another value."
   otherRequiredError: "مقدار 'دیگر' را وارد کنید",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "مقدار «{0}» یکی از گزینه های موجود نیست.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "فایل در حال آیلود است. لطفا صبر کنید.",
   // "Loading..."

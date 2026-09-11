@@ -1,6 +1,6 @@
 <template>
   <div ref="root">
-    <div v-if="question.getShowToolbar('top')" :class="question.cssClasses.footer">
+    <div v-if="question.getShowToolbar('top')" :class="question.getToolbarCssClass('top')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>
     <SvComponent
@@ -13,7 +13,7 @@
       v-else
       :question="question"
     />
-    <div v-if="question.getShowToolbar('bottom')" :class="question.cssClasses.footer">
+    <div v-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>
   </div>

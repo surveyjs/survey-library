@@ -88,6 +88,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   getElementId(id: string): string;
   //#endregion
 
+  //#region Locale
+  // the locale that drives formats (masks); regionLocale || locale on the survey
+  getFormatLocale(): string;
+  //#endregion
+
   //#region Question lookup
   getQuestionByName(name: string): IQuestion;
   getQuestionsByValueName(valueName: string): IQuestion[];

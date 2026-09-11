@@ -1,3 +1,12 @@
+/* Open Sans for the test pages. survey-core ships no font of its own: the theme only
+   names font families and the host page supplies the faces. These are the exact v34
+   files the library used to reference, so the reference screenshots stay valid - the
+   current release of the family (what fonts.googleapis.com/css2 serves) has different
+   metrics and changes the width of anything that sizes itself to its text, a popup for
+   instance. The link belongs to the root document: @font-face does not work inside a
+   shadow dom. Each package needs its own copy because every test server has its own
+   static root. */
+
 /* cyrillic-ext */
 @font-face {
   font-family: 'Open Sans';
@@ -236,8 +245,4 @@
   font-stretch: 100%;
   src: url(https://fonts.gstatic.com/s/opensans/v34/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-:root, :host {
-  --font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

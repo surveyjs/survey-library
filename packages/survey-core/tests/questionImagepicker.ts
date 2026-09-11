@@ -430,3 +430,108 @@ test("inputRequiredAttribute", () => {
   q.isRequired = false;
   expect(q.inputRequiredAttribute).toBe(false);
 });
+
+// Server-side rendering ships the image element with its src already in the markup, so a
+// cached file can finish loading before the UI layer attaches its load handler - and no
+// framework replays the event for an element that has already loaded. These stubs model
+// exactly that state, and keep the tests off the network.
+function createRenderedImage(src: string, naturalWidth: number, naturalHeight: number, complete: boolean = true): HTMLImageElement {
+  const image = document.createElement("img");
+  image.setAttribute("src", src);
+  Object.defineProperty(image, "complete", { value: complete });
+  Object.defineProperty(image, "naturalWidth", { value: naturalWidth });
+  Object.defineProperty(image, "naturalHeight", { value: naturalHeight });
+  return image;
+}
+
+function createImagePickerWithRoot(choices: Array<any>) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "imagepicker",
+        name: "question1",
+        choices: choices
+      }
+    ]
+  });
+  survey.css = defaultCss;
+  const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
+  const container = document.createElement("div");
+  const itemsContainer = document.createElement("div");
+  itemsContainer.className = survey.css.imagepicker.root;
+  container.appendChild(itemsContainer);
+  return { question, container, itemsContainer };
+}
+
+const twoImageChoices = [
+  { value: "lion", imageLink: "lion.jpg" },
+  { value: "panda", imageLink: "panda.jpg" }
+];
+
+test("afterRender reads sizes of images loaded before the load handler was attached", () => {
+  const { question, container, itemsContainer } = createImagePickerWithRoot(twoImageChoices);
+  itemsContainer.appendChild(createRenderedImage("lion.jpg", 300, 200));
+  itemsContainer.appendChild(createRenderedImage("panda.jpg", 300, 200));
+
+  question.afterRender(container);
+
+  expect(question.choices[0]["aspectRatio"]).toBe(1.5);
+  expect(question.choices[1]["aspectRatio"]).toBe(1.5);
+
+  question["processResponsiveness"](0, 300);
+  expect(question.renderedImageWidth).toBe(300);
+  expect(question.renderedImageHeight).toBe(200);
+});
+
+test("afterRender ignores images that are still loading or failed to load", () => {
+  const { question, container, itemsContainer } = createImagePickerWithRoot(twoImageChoices);
+  // A file that failed to load also reports complete, with a zero natural size.
+  itemsContainer.appendChild(createRenderedImage("lion.jpg", 0, 0));
+  itemsContainer.appendChild(createRenderedImage("panda.jpg", 300, 200, false));
+
+  question.afterRender(container);
+
+  expect(question.choices[0]["aspectRatio"]).toBeUndefined();
+  expect(question.choices[1]["aspectRatio"]).toBeUndefined();
+
+  question["processResponsiveness"](0, 300);
+  expect(question.renderedImageHeight).toBe(133);
+});
+
+test("afterRender keeps an aspect ratio the load event already delivered", () => {
+  const { question, container, itemsContainer } = createImagePickerWithRoot(twoImageChoices);
+  itemsContainer.appendChild(createRenderedImage("lion.jpg", 300, 200));
+  question.choices[0]["aspectRatio"] = 3;
+
+  question.afterRender(container);
+
+  expect(question.choices[0]["aspectRatio"]).toBe(3);
+});
+
+test("afterRender reads no sizes when the image size is set explicitly", () => {
+  const { question, container, itemsContainer } = createImagePickerWithRoot(twoImageChoices);
+  question.imageWidth = 150;
+  question.imageHeight = 100;
+  itemsContainer.appendChild(createRenderedImage("lion.jpg", 300, 200));
+
+  question.afterRender(container);
+
+  expect(question.choices[0]["aspectRatio"]).toBeUndefined();
+  expect(question.renderedImageHeight).toBe(100);
+});
+
+test("afterRender reads sizes of videos loaded before the handler was attached", () => {
+  const { question, container, itemsContainer } = createImagePickerWithRoot([{ value: "lion", imageLink: "lion.mp4" }]);
+  question.contentMode = "video";
+  const video = document.createElement("video");
+  video.setAttribute("src", "lion.mp4");
+  Object.defineProperty(video, "readyState", { value: 1 /* HAVE_METADATA */ });
+  Object.defineProperty(video, "videoWidth", { value: 400 });
+  Object.defineProperty(video, "videoHeight", { value: 200 });
+  itemsContainer.appendChild(video);
+
+  question.afterRender(container);
+
+  expect(question.choices[0]["aspectRatio"]).toBe(2);
+});
+

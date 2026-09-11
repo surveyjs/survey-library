@@ -68,6 +68,8 @@ If you set the [`maskType`](https://surveyjs.io/form-library/documentation/api-r
 
 Example: `mm/dd/yyyy HH:MM:ss`
 
+The pattern syntax is canonical and locale-independent: the placeholders above keep their meaning in every survey locale, and `pattern` is not a localizable string. If you leave `pattern` unspecified for a "datetime" mask, the date order and separators are derived from the survey locale. The characters displayed for unfilled placeholders may be localized independently of the pattern syntax.
+
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
 **Related APIs:** [`settings.maskSettings`](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)

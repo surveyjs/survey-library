@@ -111,6 +111,8 @@ export var indonesianStrings = {
   noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nilai '{0}' bukanlah salah satu pilihan yang tersedia.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   // "Loading..."

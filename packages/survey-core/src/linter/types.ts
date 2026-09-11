@@ -1,3 +1,5 @@
+import { ISurveyVariablePresets, SurveyModel } from "survey-core";
+
 export type LintSeverity = "error" | "warning" | "info" | "off";
 export type LintFindingSeverity = "error" | "warning" | "info";
 
@@ -20,6 +22,21 @@ export interface ISurveyLintOptions {
   knownFunctions?: Array<string>;
   components?: { [typeName: string]: IComponentDef };
   reportSuppressed?: boolean;
+  // The host's variable definition and its named presets - the object survey-core declares and
+  // the tester carries at the root of a suite too. The definition's questions are a second
+  // source of known variable names next to knownVariables, and the presets are checked against
+  // them. Everything inside the object is data the variable/preset rule reports on; only the
+  // object itself has to be one.
+  variablePresets?: ISurveyVariablePresets;
+  // The definition the host already has as a model. It wins over variablePresets.definition,
+  // which is then never loaded: the JSON is not always the truth - a definition with custom
+  // question types, with choices assigned in code, or one a Creator is editing right now is a
+  // model first - and not always cheap, since a host that lints on every keystroke would
+  // otherwise pay a fromJSON of the definition per call. The model is borrowed, never owned:
+  // the run disposes nothing and loads nothing into it. What it does change is the model's
+  // data, which validateVariables overwrites with the values of every preset it checks, so
+  // this must be an instrument and not a definition someone is filling in at the same time.
+  variableDefinitionModel?: SurveyModel;
 }
 
 export interface ILintReproductionExpect {
@@ -83,4 +100,20 @@ export interface ILintRuleInfo {
 
 export interface IRenderOptions {
   includeSuppressed?: boolean;
+}
+
+export interface SeverityCounts {
+  error: number;
+  warning: number;
+  info: number;
+}
+
+export function countBySeverity(findings: Array<ILintFinding>): SeverityCounts {
+  const res: SeverityCounts = { error: 0, warning: 0, info: 0 };
+  findings.forEach(finding => {
+    if (finding.severity === "error") res.error++;
+    else if (finding.severity === "warning") res.warning++;
+    else res.info++;
+  });
+  return res;
 }

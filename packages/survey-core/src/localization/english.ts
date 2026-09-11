@@ -57,6 +57,7 @@ export var englishStrings = {
   exceedMaxFiles: "The maximum number of files you can upload is {0}.",
   noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event.",
   otherRequiredError: "Response required: enter another value.",
+  variableValueNotInChoices: "The value '{0}' is not one of the available choices.",
   uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
@@ -124,7 +125,16 @@ export var englishStrings = {
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
   progressbar: "Progress bar",
-  progressbarPage: "Page {0}"
+  progressbarPage: "Page {0}",
+  maskPlaceholderDay: "d", // [Do not translate]
+  maskPlaceholderMonth: "m", // [Do not translate]
+  maskPlaceholderYear: "y", // [Do not translate]
+  maskPlaceholderHour12: "h", // [Do not translate]
+  maskPlaceholderHour24: "H", // [Do not translate]
+  maskPlaceholderMinute: "M", // [Do not translate]
+  maskPlaceholderSecond: "s", // [Do not translate]
+  maskPlaceholderTimeMarkerLower: "t", // [Do not translate]
+  maskPlaceholderTimeMarkerUpper: "T" // [Do not translate]
 };
 
 /*

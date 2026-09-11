@@ -88,7 +88,21 @@ function sortAttributes(elements: Array<HTMLElement>) {
   }
 }
 
+// Emulates the shipped survey-core.css: with the probe variable resolvable the
+// runtime skips its CSSOM fallback delivery of the base theme variables, which
+// would otherwise land on the root element's style attribute and pollute the
+// snapshots (see ensureBaseThemeStyles in survey-core).
+function ensureBaseThemeProbeStylesheet(): void {
+  const id = "markup-base-theme-variables";
+  if (typeof document === "undefined" || document.getElementById(id)) return;
+  const style = document.createElement("style");
+  style.id = id;
+  style.textContent = ":where(.sd-theme-root) { --sjs2-base-unit-size: 8px; }";
+  document.head.appendChild(style);
+}
+
 export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, platform: any): void {
+  ensureBaseThemeProbeStylesheet();
   var id = "surveyElement" + platform.name;
   var surveyElement = document.getElementById(id);
   var reportElement = document.getElementById(id + "_report");

@@ -24,6 +24,8 @@ This step-by-step tutorial will guide you through the process of integrating the
 
 ## Link SurveyJS Resources
 
+### Add Scripts and Style Sheets
+
 SurveyJS Form Library is composed of two key parts: `survey-core` (platform-independent logic) and `survey-js-ui` (view models). Both are provided as script files, with `survey-core` also including a style sheet. To integrate these resources, insert the following links into the `<head>` tag of your HTML page:
 
 ```html
@@ -36,13 +38,29 @@ SurveyJS Form Library is composed of two key parts: `survey-core` (platform-inde
 </head>
 ```
 
-The style sheet above applies the Default theme. SurveyJS Form Library also includes several other predefined themes, which are illustrated below, along with a flexible theme customization mechanism based on CSS variables.
+The style sheet above applies the Default theme. SurveyJS Form Library also includes several other predefined themes, which are illustrated below, along with a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
 If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](/documentation/themes-and-custom-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.1.0, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To load Open Sans from Google Fonts, add the following links to the page's `<head>`. You can also host the font files yourself.
+
+```html
+<head>
+    <!-- ... -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- ... -->
+</head>
+```
 
 ## Create a Model
 
@@ -77,6 +95,11 @@ const survey = new Survey.Model(surveyJson);
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Open Sans font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
     <title>My First Survey</title>
     <meta charset="utf-8">
     <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
@@ -146,6 +169,11 @@ As a result, you should see the following survey:
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Open Sans font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
     <title>My First Survey</title>
     <meta charset="utf-8">
     <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">
@@ -247,6 +275,11 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Open Sans font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
     <title>My First Survey</title>
     <meta charset="utf-8">
     <link href="https://unpkg.com/survey-core/survey-core.min.css" rel="stylesheet">

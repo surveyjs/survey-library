@@ -111,6 +111,8 @@ export var czechSurveyStrings = {
   noUploadFilesHandler: "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Zadejte prosím jinou hodnotu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Hodnota '{0}' není jednou z dostupných možností.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Váš soubor se nahrává. Zkuste to prosím za několik sekund.",
   // "Loading..."
@@ -246,7 +248,25 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Indikátor průběhu",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Stránka {0}"
+  progressbarPage: "Stránka {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "d",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "m",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "r",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "h",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "H",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "M",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "s",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "t",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "T"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

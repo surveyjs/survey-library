@@ -1,7 +1,7 @@
 import { Action } from "./actions/action";
 import { Base, ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { HashTable, Helpers } from "./helpers";
+import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -259,6 +259,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     super(name);
     this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
+    this.addExpressionProperty("maxValueExpression", (obj: Base, res: any): void => {
+      this.max = res ?? this.renderedMax;
+    });
+    this.addExpressionProperty("minValueExpression", (obj: Base, res: any): void => {
+      this.min = res ?? this.renderedMin;
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -818,15 +824,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.questionRootElement = undefined;
   }
 
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
-    this.runExpressionByProperty("maxValueExpression", properties, (value: number) => {
-      this.max = value ?? this.renderedMax;
-    });
-    this.runExpressionByProperty("minValueExpression", properties, (value: number) => {
-      this.min = value ?? this.renderedMin;
-    });
-  }
   protected setNewValue(newValue: any): void {
     newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);

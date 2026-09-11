@@ -111,6 +111,8 @@ export var slovenianStrings = {
   noUploadFilesHandler: "Datotek ni mogoče naložiti. Dodajte obravnavo za dogodek 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Obvezen odgovor: vnesite drugo vrednost.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vrednost '{0}' ni ena izmed razpoložljivih možnosti.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Vaša datoteka se nalaga. Počakajte nekaj sekund in poskusite znova.",
   // "Loading..."

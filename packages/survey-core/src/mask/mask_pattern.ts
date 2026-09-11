@@ -169,6 +169,8 @@ export class InputMaskPattern extends InputMaskBase {
    *
    * Example: `mm/dd/yyyy HH:MM:ss`
    *
+   * The pattern syntax is canonical and locale-independent: the placeholders above keep their meaning in every survey locale, and `pattern` is not a localizable string. If you leave `pattern` unspecified for a "datetime" mask, the date order and separators are derived from the survey locale. The characters displayed for unfilled placeholders may be localized independently of the pattern syntax.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see [settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)
    */
@@ -186,6 +188,12 @@ export class InputMaskPattern extends InputMaskBase {
 
   public getType(): string {
     return "patternmask";
+  }
+  public getInputDirection(): "ltr" | "auto" {
+    return this.getInputDirectionByLiterals();
+  }
+  protected getLiteralText(): string {
+    return (this.literals || []).filter(l => l.type !== "regex").map(l => l.value).join("");
   }
 
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {

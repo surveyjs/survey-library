@@ -276,6 +276,12 @@ export class InputMaskNumeric extends InputMaskBase {
   public getTextAlignment(): "left" | "right" | "auto" {
     return "right";
   }
+  public getInputDirection(): "ltr" | "auto" {
+    return this.getInputDirectionByLiterals();
+  }
+  protected getLiteralText(): string {
+    return (this.decimalSeparator || "") + (this.thousandsSeparator || "");
+  }
   public getMaskedValue(src: any): string {
     let input: string = (src === undefined || src === null) ? "" : src.toString();
     input = input.replace(".", this.decimalSeparator);

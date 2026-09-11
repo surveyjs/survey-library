@@ -39,7 +39,9 @@ npm install survey-vue3-ui
 
 ## Configure Styles
 
-SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+### Add Themes
+
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
@@ -57,7 +59,32 @@ import 'survey-core/survey-core.css';
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-[Themes & Styles](/documentation/themes-and-custom-styles (linkStyle))
+[Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.1.0, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/install), run the following command:
+
+```sh
+npm install @fontsource/open-sans
+```
+
+The following example imports font weights 400, 600, and 700 alongside the component style sheets. You can also place the font imports in your application's entry file or root layout to load them once for all SurveyJS components.
+
+```html
+<script setup lang="ts">
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
+import 'survey-core/survey-core.css';
+</script>
+
+<template>
+  <!-- ... -->
+</template>
+```
 
 ## Create a Model
 
@@ -100,6 +127,9 @@ const survey = new Model(surveyJson);
 
 ```html
 <script setup lang="ts">
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
 import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 
@@ -161,6 +191,9 @@ If you replicate the code correctly, you should see the following survey:
 
 ```html
 <script setup lang="ts">
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
 import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { SurveyComponent } from 'survey-vue3-ui';
@@ -266,6 +299,9 @@ To view the application, run `npm run dev` in a command line and open [http://lo
 
 ```html
 <script setup lang="ts">
+import '@fontsource/open-sans/400.css';
+import '@fontsource/open-sans/600.css';
+import '@fontsource/open-sans/700.css';
 import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { SurveyComponent } from 'survey-vue3-ui';

@@ -89,7 +89,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -1282,6 +1282,11 @@ export class SurveyModel extends SurveyElementCore
     if (name === "locale") {
       this.onSurveyLocaleChanged();
     }
+    if (name === "regionLocale") {
+      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
+      // displayed strings the way a locale change does
+      this.localeChanged();
+    }
     if (name === "randomSeed") {
       this.randomSeedChanged();
     }
@@ -1478,18 +1483,31 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
+      // The advanced header is created together with the other layout elements. There is nothing to
+      // update until they are requested for the first time.
+      if (!target.isLayoutElementsCreated) return;
       if (newValue === "basic") {
         target.removeLayoutElement("advanced-header");
       } else {
         const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
-          const advHeader = new Cover();
-          target.insertAdvancedHeader(advHeader);
+          target.insertAdvancedHeader(target.createAdvancedHeader());
         }
       }
     }
   }) headerView: "advanced" | "basic";
 
+  protected get isLayoutElementsCreated(): boolean {
+    return !!this.getPropertyValue("layoutElements");
+  }
+  protected createAdvancedHeader(): Cover {
+    const advHeader = new Cover();
+    advHeader.survey = this;
+    if (!!this.appliedTheme) {
+      advHeader.fromTheme(this.appliedTheme);
+    }
+    return advHeader;
+  }
   protected insertAdvancedHeader(advHeader: Cover): void {
     advHeader.survey = this;
     this.layoutElements.push(advHeader.createLayoutElements()[0]);
@@ -2130,6 +2148,18 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("locale", value);
   }
+  // The respondent's regional locale. It drives formats only (e.g. the date order and
+  // separators of a locale-preset datetime mask); displayed strings keep following `locale`.
+  // Typically assigned at runtime by the host application.
+  public get regionLocale(): string {
+    return this.getPropertyValue("regionLocale", "");
+  }
+  public set regionLocale(value: string) {
+    this.setPropertyValue("regionLocale", value);
+  }
+  public getFormatLocale(): string {
+    return this.regionLocale || this.locale;
+  }
   private onSurveyLocaleChanged(): void {
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
@@ -2410,8 +2440,17 @@ export class SurveyModel extends SurveyElementCore
   //#endregion
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
+  // The box-shadow reset variables travel inside the style binding itself: anything
+  // set imperatively on the root element's style can be wiped whenever a renderer
+  // re-renders the attribute from themeVariables. They are derived from the raw
+  // base + theme values (no DOM read), so a theme switch recomputes them
+  // synchronously with the cssVariables they accompany (see _applyTheme).
+  private resetVariables: { [index: string]: string };
   public get themeVariables() {
-    return Object.assign({}, this.cssVariables);
+    if (!this.resetVariables) {
+      this.resetVariables = createBoxShadowResetVariables(this.cssVariables);
+    }
+    return Object.assign({}, this.resetVariables, this.cssVariables);
   }
 
   @property() _isMobile = false;
@@ -5592,7 +5631,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
-    this.clearResetVariablesStyle();
+    // Heals a root the document stylesheet cannot reach (a shadow root carrying its
+    // own, older css): when the per-element probe finds the base variables missing,
+    // they are delivered through CSSOM (an adopted stylesheet on the element's root
+    // node, or per-element properties). The box-shadow resets need no per-element
+    // work: they ride inside the themeVariables style binding.
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(observedElement);
+    }
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -6782,17 +6828,27 @@ export class SurveyModel extends SurveyElementCore
     return this.questionTriggersKeys;
   }
   private runConditionOnValueChanged(name: string, value: any) {
+    const values: HashTable<any> = {};
+    values[name] = value;
+    this.runConditionOnValuesChanged(values, name);
+  }
+  // One conditions pass for all the changed names at once. The optional name is the value that
+  // changed first-hand: the question-level triggers (resetValueIf/setValueIf) use it to skip the
+  // question that is being set. A batch has no such name and passes none.
+  private runConditionOnValuesChanged(values: HashTable<any>, name?: string): void {
     if (!this.questionTriggersKeys) {
       this.questionTriggersKeys = {};
     }
-    this.questionTriggersKeys[name] = value;
+    for (const key in values) {
+      this.questionTriggersKeys[key] = values[key];
+    }
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
     } else {
       this.isRunningConditionOnValueChanged = true;
       this.runConditions();
       this.isRunningConditionOnValueChanged = false;
-      this.runQuestionsTriggers(name, value);
+      this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
       this.questionTriggersKeys = undefined;
     }
   }
@@ -6809,7 +6865,7 @@ export class SurveyModel extends SurveyElementCore
       pages[i].runCondition(properties);
     }
   }
-  private runQuestionsTriggers(name: string, value: any): void {
+  private runQuestionsTriggers(name?: string, value?: any): void {
     if (this.isDisplayMode || this.isDesignMode) return;
     const questions = this.getAllQuestions();
     questions.forEach(q => {
@@ -7096,25 +7152,102 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a variable value.
    *
-   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
    * @param name A variable name.
    * @param newValue A new variable value.
    * @see getVariable
    * @see getVariableNames
+   * @see setVariables
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
     const oldValue = this.getVariable(name);
+    name = this.setVariableCore(name, newValue);
+    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
+      const changed: HashTable<{ newValue: any, oldValue: any }> = {};
+      changed[name] = { newValue: newValue, oldValue: oldValue };
+      this.variablesChangedCore(changed, name);
+    }
+  }
+  // What both setVariable and setVariables run once every variable is written: one conditions pass
+  // over all the changed names, then the survey triggers, and only then the events, so a handler
+  // always observes a settled model
+  private variablesChangedCore(changed: HashTable<{ newValue: any, oldValue: any }>, name?: string): void {
+    const values: HashTable<any> = {};
+    for (const key in changed) {
+      values[key] = changed[key].newValue;
+    }
+    this.runConditionOnValuesChanged(values, name);
+    this.checkTriggers(changed, false, false, false, name);
+    for (const key in changed) {
+      this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
+    }
+  }
+  // The only place that writes the variables hash. A variable shadows a data key with the same
+  // name, so the data key is deleted under the name exactly as it was passed in, before the
+  // variable name itself is lower-cased.
+  private setVariableCore(name: string, newValue: any): string {
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
-    this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.checkTriggersAndRunConditions(name, newValue, oldValue);
-      this.onVariableChanged.fire(this, { name: name, value: newValue });
+    return name;
+  }
+  /**
+   * Sets multiple variables at once.
+   *
+   * Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
+   *
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param variables An object containing the variable names and their new values.
+   * @param clearPrevious Pass `true` to remove all existing variables that are not included in `variables`.
+   * @see getVariable
+   * @see getVariableNames
+   * @since 3.0.4
+   */
+  public setVariables(variables: { [name: string]: any }, clearPrevious: boolean = false): void {
+    const hasNewValues = !!variables && typeof variables === "object";
+    if (!hasNewValues && !clearPrevious) return;
+    // Variable names are case-insensitive, so two keys that differ in case only are one variable
+    // and the last of them wins - the same rule as in SurveyVariablePresets.validateVariables()
+    const newValues: HashTable<any> = {};
+    if (hasNewValues) {
+      for (const key in variables) {
+        if (!key) continue;
+        newValues[key.toLowerCase()] = variables[key];
+      }
     }
+    const changed: HashTable<{ newValue: any, oldValue: any }> = {};
+    for (const name in newValues) {
+      const oldValue = this.getVariable(name);
+      if (!Helpers.isTwoValueEquals(oldValue, newValues[name])) {
+        changed[name] = { newValue: newValues[name], oldValue: oldValue };
+      }
+    }
+    if (clearPrevious) {
+      // Collect the removed names before the hash is dropped, otherwise their old values are gone
+      for (const name in this.variablesHash) {
+        if (Object.prototype.hasOwnProperty.call(newValues, name)) continue;
+        const oldValue = this.getVariable(name);
+        if (!Helpers.isTwoValueEquals(oldValue, undefined)) {
+          changed[name] = { newValue: undefined, oldValue: oldValue };
+        }
+      }
+      this.variablesHash = {};
+    }
+    if (hasNewValues) {
+      for (const key in variables) {
+        if (!key) continue;
+        this.setVariableCore(key, variables[key]);
+      }
+    }
+    if (Object.keys(changed).length === 0) return;
+    // One notification and one recalculation for the entire batch: elements and expressions never
+    // see a state in which a part of the variables is set
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.variablesChangedCore(changed);
   }
   /**
    * Returns the names of all variables in the survey.
@@ -8374,6 +8507,9 @@ export class SurveyModel extends SurveyElementCore
     res.push(...this.progressTextModel.createLayoutElements());
     res.push(...this.tocModel.createLayoutElements());
     res.push(...this.navigationLayoutModel.createLayoutElements());
+    if (this.headerView !== "basic") {
+      res.push(...this.createAdvancedHeader().createLayoutElements());
+    }
     this.isCreatingLayout = false;
     return res;
   }
@@ -8464,6 +8600,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
+  private appliedTheme: ITheme | undefined;
   /**
    * Applies a specified theme to the survey.
    *
@@ -8491,16 +8628,19 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
+    this.appliedTheme = theme;
     if ("header" in theme && !theme.headerView) {
       this.headerView = "advanced";
     }
-    if (this.headerView !== "basic") {
+    // The header is built from the applied theme in createAdvancedHeader, so it has to be re-created
+    // here only when the layout elements are already in place.
+    if (this.headerView !== "basic" && this.isLayoutElementsCreated) {
       this.removeLayoutElement("advanced-header");
-      const advHeader = new Cover();
-      advHeader.fromTheme(theme);
-      this.insertAdvancedHeader(advHeader);
+      this.insertAdvancedHeader(this.createAdvancedHeader());
     }
-    this.clearResetVariablesStyle();
+    // Recomputed from the new theme's raw values on the next themeVariables read,
+    // so the renderers deliver the fresh resets in the same render as the theme.
+    this.resetVariables = undefined;
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
@@ -8508,22 +8648,13 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() private _themeStyle: string;
   public get themeStyle(): string {
-    if (!this._themeStyle) {
-      this._themeStyle = createBaseThemeStyle();
+    if (this._themeStyle === undefined) {
+      // Empty when survey-core.css already delivers the variables: the renderers then
+      // emit no <style> at all, which a strict `style-src` CSP would refuse.
+      this._themeStyle = areBaseThemeVariablesInDocument() ? "" : createBaseThemeStyle();
     }
     return this._themeStyle;
   }
-  @property() private _resetVariablesStyle: string;
-  public get resetVariablesStyle(): string {
-    if (!this._resetVariablesStyle) {
-      this._resetVariablesStyle = createResetVariablesStyle(this.rootElement);
-    }
-    return this._resetVariablesStyle;
-  }
-  private clearResetVariablesStyle(): void {
-    this._resetVariablesStyle = undefined;
-  }
-
   private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
   public waitAndExecute(action: any): void {
     this.taskManager.waitAndExecute(action);
@@ -8641,6 +8772,9 @@ Serializer.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     },
   },
+  // formats-only regional locale; kept out of the property grid until the survey-creator
+  // side is designed
+  { name: "regionLocale", visible: false },
   { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
   {
     name: "description:text",
@@ -8946,7 +9080,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
-  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
+  { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

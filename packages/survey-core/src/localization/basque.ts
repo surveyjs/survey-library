@@ -111,6 +111,8 @@ export var basqueSurveyStrings = {
   noUploadFilesHandler: "Artxiboak ezin dira kargatu. Gaineratu kontrolatzaile bat 'onUploadFiles' ekitaldirako.",
   // "Response required: enter another value."
   otherRequiredError: "Mesedez, beste estimazioa gehitu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' balioa ez da eskuragarri dauden aukeretako bat.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Zure fitxategia igotzen ari da. Mesedez, segundo batzuk itxaron eta saiatu berriro.",
   // "Loading..."

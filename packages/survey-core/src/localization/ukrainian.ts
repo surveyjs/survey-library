@@ -111,6 +111,8 @@ export var ukrainianSurveyStrings = {
   noUploadFilesHandler: "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Будь ласка, введіть дані в поле 'Інше'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Цінність «{0}» не є одним із доступних варіантів.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Ваш файл завантажується. Зачекайте декілька секунд і спробуйте знову.",
   // "Loading..."
@@ -246,7 +248,25 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Progress bar"
   progressbar: "Індикатор прогресу",
   // [Auto-translated] "Page {0}"
-  progressbarPage: "Сторінка {0}"
+  progressbarPage: "Сторінка {0}",
+  // "d" - a day placeholder symbol in a datetime input mask
+  maskPlaceholderDay: "д",
+  // "m" - a month placeholder symbol in a datetime input mask
+  maskPlaceholderMonth: "м",
+  // "y" - a year placeholder symbol in a datetime input mask
+  maskPlaceholderYear: "р",
+  // "h" - a 12-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour12: "г",
+  // "H" - a 24-hour placeholder symbol in a datetime input mask
+  maskPlaceholderHour24: "Г",
+  // "M" - a minute placeholder symbol in a datetime input mask
+  maskPlaceholderMinute: "х",
+  // "s" - a second placeholder symbol in a datetime input mask
+  maskPlaceholderSecond: "с",
+  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerLower: "п",
+  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  maskPlaceholderTimeMarkerUpper: "П"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

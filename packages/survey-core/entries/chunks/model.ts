@@ -83,6 +83,13 @@ function checkPrefix(prefix: string): boolean {
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
+export {
+  SurveyVariablePresets,
+  ISurveyVariablePreset,
+  ISurveyVariablePresets,
+  ISurveyVariableError,
+  ISurveyVariableValidationResult
+} from "../../src/variablePresets";
 export { DomWindowHelper, DomDocumentHelper } from "../../src/global_variables_utils";
 export {
   AnswerCountValidator,
@@ -155,7 +162,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -329,6 +336,9 @@ export * from "../../src/utils/icons";
 export * from "../../src/utils/key2click";
 export * from "../../src/utils/animation-dom";
 export { InputMaskBase } from "../../src/mask/mask_base";
+export { IMaskLocaleChange } from "../../src/mask/mask_utils";
+export { IDateTimeInputFragments } from "../../src/mask/mask_datetime";
+export { ILocaleData, localeData, getLocaleDataValue } from "../../src/locale-data";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
 export { InputMaskNumeric } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";

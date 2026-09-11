@@ -951,6 +951,99 @@ test("rateStep changing rateMax", () => {
   expect(q1.rateCount).toBe(3);
 });
 
+test("rateMin is greater than rateMax in JSON, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 10, rateMax: 1 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(1);
+  expect(q1.rateMax, "rateMax").toBe(1);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([1]);
+
+  q1.rateType = "stars";
+  q1.rateColorMode = "scale";
+  q1.minRateDescription = "Bad";
+  expect(q1.visibleChoices.map(item => item.value), "one item after re-render").toEqual([1]);
+  expect(q1.rateCount, "rateCount after re-render").toBe(1);
+
+  q1.rateMax = 4;
+  expect(q1.rateMin, "rateMin #2").toBe(1);
+  expect(q1.rateCount, "rateCount #2").toBe(4);
+  expect(q1.visibleChoices.map(item => item.value), "items #2").toEqual([1, 2, 3, 4]);
+});
+
+test("rateMin is greater than rateMax in JSON with rateStep, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 5, rateMax: 3, rateStep: 2 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(3);
+  expect(q1.rateMax, "rateMax").toBe(3);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([3]);
+
+  q1.rateStep = 3;
+  expect(q1.rateStep, "rateStep is not reduced to 0").toBe(3);
+  expect(q1.visibleChoices.map(item => item.value), "one item after rateStep change").toEqual([3]);
+});
+
+test("rateMin is equal to rateMax in JSON renders one item, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 3, rateMax: 3 }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMin").toBe(3);
+  expect(q1.rateMax, "rateMax").toBe(3);
+  expect(q1.rateCount, "rateCount").toBe(1);
+  expect(q1.visibleChoices.map(item => item.value), "one item").toEqual([3]);
+
+  q1.rateCount = 3;
+  expect(q1.rateMin, "rateMin #2").toBe(3);
+  expect(q1.rateMax, "rateMax #2").toBe(5);
+  expect(q1.visibleChoices.map(item => item.value), "items #2").toEqual([3, 4, 5]);
+});
+
+test("rateMin is greater than rateMax, the one item scale is restored from JSON, Bug#11832", () => {
+  const jsons = [
+    { rateMin: 10, rateMax: 1 },
+    { rateMin: 10 },
+    { rateMin: 10, rateMax: 7 }
+  ];
+  jsons.forEach(json => {
+    const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", ...json }] });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    const rateValue = q1.rateMax;
+    expect(q1.visibleChoices.map(item => item.value), JSON.stringify(json) + ": one item").toEqual([rateValue]);
+
+    const survey2 = new SurveyModel({ elements: [{ type: "rating", ...q1.toJSON() }] });
+    const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
+    expect(q2.rateMin, JSON.stringify(json) + ": rateMin").toBe(rateValue);
+    expect(q2.rateMax, JSON.stringify(json) + ": rateMax").toBe(rateValue);
+    expect(q2.rateCount, JSON.stringify(json) + ": rateCount").toBe(1);
+    expect(q2.visibleChoices.map(item => item.value), JSON.stringify(json) + ": one item after reload").toEqual([rateValue]);
+  });
+});
+
+test("rateCount: 1 in JSON with rateMin or rateMax, Bug#11832", () => {
+  let survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 3, rateCount: 1 }] });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMax, "rateMin + rateCount -> rateMax").toBe(3);
+  expect(q1.visibleChoices.map(item => item.value), "rateMin + rateCount -> items").toEqual([3]);
+
+  survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMax: 7, rateCount: 1 }] });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(q1.rateMin, "rateMax + rateCount -> rateMin").toBe(7);
+  expect(q1.visibleChoices.map(item => item.value), "rateMax + rateCount -> items").toEqual([7]);
+});
+
+test("rateCount can't be less than 2 for a regular scale, Bug#11832", () => {
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1" }] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateCount = 1;
+  expect(q1.rateCount, "rateCount").toBe(2);
+  expect(q1.rateMax, "rateMax").toBe(2);
+  q1.rateMin = 2;
+  expect(q1.rateMin, "rateMin is clamped").toBe(1);
+  q1.rateMax = 1;
+  expect(q1.rateMax, "rateMax is clamped").toBe(2);
+  expect(q1.visibleChoices.map(item => item.value), "items").toEqual([1, 2]);
+});
+
 test("rateValues changing rateCount", () => {
   var json = {
     elements: [
@@ -1447,6 +1540,30 @@ test("rating colors when vars used", () => {
   expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
   expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
   expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
+});
+
+test("rating colors for one item when rateMin is greater than rateMax, Bug#11832", () => {
+  document.documentElement.style.setProperty("--sd-rating-bad-color", "#c8140a");
+  document.documentElement.style.setProperty("--sd-rating-normal-color", "gold");
+  document.documentElement.style.setProperty("--sd-rating-good-color", "rgb(10,200,20)");
+
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1", rateMin: 10, rateMax: 1 }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  expect(q1.visibleRateValues.length).toBe(1);
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color", null);
+  document.documentElement.style.setProperty("--sd-rating-normal-color", null);
+  document.documentElement.style.setProperty("--sd-rating-good-color", null);
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 
   rootElement.remove();

@@ -2,8 +2,9 @@
   <label [class]="question.cssClasses.radioLabel">
     <input
       type="radio"
-      [attr.name]="question.questionName" [attr.aria-errormessage]="question.ariaErrormessage" [value]="value" [checked]="question.value == value" (input)="change()"
+      [attr.name]="question.questionName" [attr.id]="question.getRadioItemId(question.getRadioItemIndex(value))" [attr.aria-errormessage]="question.ariaErrormessage" [value]="value" [checked]="question.value == value" (input)="change()"
       [disabled]="question.isDisabledAttr" [readonly]="question.isReadOnlyAttr" [class]="question.cssClasses.itemRadioControl || ''"
+      [attr.tabindex]="question.getItemTabIndex(value)" (keydown)="question.onItemKeyDown(value, $event)" (focus)="question.onItemFocusIn(value)"
     />
     <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator">
       <svg

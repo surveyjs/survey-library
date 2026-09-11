@@ -104,6 +104,9 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
         onChange={() => {
           this.model.onChange();
         }}
+        onKeyDown={(event) => this.model.onKeyDown(event.nativeEvent)}
+        onFocus={() => this.model.onFocus()}
+        tabIndex={this.model.tabIndex}
         aria-required={this.model.isRequired}
         aria-label={this.model.caption.renderedHtml}
         aria-invalid={this.model.hasErrors}

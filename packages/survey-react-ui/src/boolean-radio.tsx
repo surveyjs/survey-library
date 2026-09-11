@@ -20,6 +20,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
           <input
             type="radio"
             name={this.question.questionName}
+            id={this.question.getRadioItemId(this.question.getRadioItemIndex(value))}
             value={value}
             aria-errormessage={this.question.ariaErrormessage}
             checked={value === this.question.value}
@@ -27,6 +28,9 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             readOnly={this.question.isReadOnlyAttr}
             className={cssClasses.itemRadioControl}
             onChange={handleOnChange}
+            onKeyDown={(event) => this.question.onItemKeyDown(value, event.nativeEvent)}
+            onFocus={() => this.question.onItemFocusIn(value)}
+            tabIndex={this.question.getItemTabIndex(value)}
           />
           {this.question.cssClasses.materialRadioDecorator ?
             (<span className={cssClasses.materialRadioDecorator}>

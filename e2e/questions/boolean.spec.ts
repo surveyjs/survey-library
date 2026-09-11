@@ -332,6 +332,39 @@ frameworks.forEach((framework) => {
       expect(names[0]).not.toBe(names[2]);
     });
 
+    test("keyboard: arrow keys move focus, Space selects", async ({ page }) => {
+      await page.evaluate(() => {
+        (window as any).Survey.settings.itemsKeyboard.selectionFollowsFocus = false;
+      });
+      await initSurvey(page, framework, jsonRadio);
+
+      const getValue = async () => {
+        return await page.evaluate(() => {
+          return (window as any).survey.getAllQuestions()[0].value;
+        });
+      };
+      const getFocusedItemValue = async () => {
+        return await page.evaluate(() => {
+          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+          let element: any = document.activeElement;
+          while(element?.shadowRoot?.activeElement) {
+            element = element.shadowRoot.activeElement;
+          }
+          return element?.value;
+        });
+      };
+
+      await page.keyboard.press("Tab");
+      expect(await getFocusedItemValue()).toBe("false");
+
+      await page.keyboard.press("ArrowRight");
+      expect(await getFocusedItemValue()).toBe("true");
+      expect(await getValue()).toBe(undefined);
+
+      await page.keyboard.press("Space");
+      expect(await getValue()).toBe(true);
+    });
+
     test("check arrow keydowns with swapOrder", async ({ page }) => {
       await initSurvey(page, framework, {
         elements: [

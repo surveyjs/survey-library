@@ -12,6 +12,9 @@
       :class="model.css.control"
       v-model="renderedValue"
       :value="model.value"
+      :tabindex="model.tabIndex"
+      @keydown="(e) => model.onKeyDown(e)"
+      @focus="() => model.onFocus()"
     />
     <div :class="model.css.decorator">
       <SvComponent

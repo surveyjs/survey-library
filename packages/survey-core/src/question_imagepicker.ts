@@ -8,8 +8,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { settings } from "./settings";
-import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
@@ -64,7 +62,7 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
  */
-export class QuestionImagePickerModel extends QuestionCheckboxBase implements IKeyboardNavigableItems {
+export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
@@ -138,28 +136,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase implements IK
   }
 
   //#region keyboard navigation
-  @property({ defaultValue: -1 }) focusedItemIndex: number;
-  private keyboardNavigatorValue: ItemsKeyboardNavigator;
-  private get keyboardNavigator(): ItemsKeyboardNavigator {
-    if (!this.keyboardNavigatorValue) {
-      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
-    }
-    return this.keyboardNavigatorValue;
-  }
-  public get isKeyboardNavigationEnabled(): boolean {
-    return !settings.itemsKeyboard.selectionFollowsFocus && !this.multiSelect && !this.isDesignMode;
-  }
-  public getItemTabIndex(item: ItemValue): number {
-    if (!this.isKeyboardNavigationEnabled) return undefined;
-    return this.keyboardNavigator.getItemTabIndex(this.getKeyboardItemIndex(item));
-  }
-  public onItemFocusIn(item: ItemValue): void {
-    if (!this.isKeyboardNavigationEnabled) return;
-    this.keyboardNavigator.onItemFocusIn(this.getKeyboardItemIndex(item));
-  }
-  public onItemKeyDown(item: ItemValue, event: any): void {
-    if (!this.isKeyboardNavigationEnabled) return;
-    this.keyboardNavigator.onItemKeyDown(this.getKeyboardItemIndex(item), event);
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return !this.multiSelect;
   }
   public get keyboardItems(): Array<ItemValue> {
     const result: Array<ItemValue> = [];
@@ -169,37 +147,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase implements IK
       this.visibleChoices.forEach(item => result.push(item));
     }
     return result;
-  }
-  public get keyboardItemsCount(): number {
-    return this.keyboardItems.length;
-  }
-  public get isKeyboardItemsReadOnly(): boolean {
-    return this.isReadOnlyAttr || this.isDisabledAttr;
-  }
-  public get isKeyboardItemsRtl(): boolean {
-    if (!DomDocumentHelper.isAvailable()) return false;
-    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
-  }
-  public getKeyboardItemId(index: number): string {
-    const item = this.keyboardItems[index];
-    return item ? this.getItemId(item) : "";
-  }
-  public isKeyboardItemEnabled(index: number): boolean {
-    const item = this.keyboardItems[index];
-    return !!item && this.getItemEnabled(item);
-  }
-  public isKeyboardItemSelected(index: number): boolean {
-    const item = this.keyboardItems[index];
-    return !!item && this.isItemSelected(item);
-  }
-  public selectKeyboardItem(index: number): void {
-    const item = this.keyboardItems[index];
-    if (!!item && !this.isReadOnlyAttr) {
-      this.value = item.value;
-    }
-  }
-  private getKeyboardItemIndex(item: ItemValue): number {
-    return this.keyboardItems.indexOf(item);
   }
   //#endregion
   public clearIncorrectValues() {

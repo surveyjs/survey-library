@@ -6,9 +6,6 @@ import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
 import { updateListCssValues } from "./utils/dom-utils";
-import { DomDocumentHelper } from "./global_variables_utils";
-import { settings } from "./settings";
-import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 export class ButtonGroupItemValue extends ChoiceItem {
   protected getBaseType(): string {
@@ -30,7 +27,7 @@ export class ButtonGroupItemValue extends ChoiceItem {
   @property() showCaption: boolean;
 }
 
-export class QuestionButtonGroupModel extends QuestionCheckboxBase implements IKeyboardNavigableItems {
+export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
@@ -123,61 +120,8 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase implements IK
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
   //#region keyboard navigation
-  @property({ defaultValue: -1 }) focusedItemIndex: number;
-  private keyboardNavigatorValue: ItemsKeyboardNavigator;
-  private get keyboardNavigator(): ItemsKeyboardNavigator {
-    if (!this.keyboardNavigatorValue) {
-      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
-    }
-    return this.keyboardNavigatorValue;
-  }
-  public get isKeyboardNavigationEnabled(): boolean {
-    return !settings.itemsKeyboard.selectionFollowsFocus && !this.isDropdown && !this.isDesignMode;
-  }
-  public getItemTabIndex(item: ItemValue): number {
-    if (!this.isKeyboardNavigationEnabled) return undefined;
-    return this.keyboardNavigator.getItemTabIndex(this.getKeyboardItemIndex(item));
-  }
-  public onItemFocusIn(item: ItemValue): void {
-    if (!this.isKeyboardNavigationEnabled) return;
-    this.keyboardNavigator.onItemFocusIn(this.getKeyboardItemIndex(item));
-  }
-  public onItemKeyDown(item: ItemValue, event: any): void {
-    if (!this.isKeyboardNavigationEnabled) return;
-    this.keyboardNavigator.onItemKeyDown(this.getKeyboardItemIndex(item), event);
-  }
-  public get keyboardItems(): Array<ItemValue> {
-    return this.visibleChoices;
-  }
-  public get keyboardItemsCount(): number {
-    return this.keyboardItems.length;
-  }
-  public get isKeyboardItemsReadOnly(): boolean {
-    return this.isReadOnlyAttr || this.isDisabledAttr;
-  }
-  public get isKeyboardItemsRtl(): boolean {
-    if (!DomDocumentHelper.isAvailable()) return false;
-    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
-  }
-  public getKeyboardItemId(index: number): string {
-    return this.getInputId(index);
-  }
-  public isKeyboardItemEnabled(index: number): boolean {
-    const item = this.keyboardItems[index];
-    return !!item && this.getItemEnabled(item);
-  }
-  public isKeyboardItemSelected(index: number): boolean {
-    const item = this.keyboardItems[index];
-    return !!item && this.isItemSelected(item);
-  }
-  public selectKeyboardItem(index: number): void {
-    const item = this.keyboardItems[index];
-    if (!!item) {
-      this.selectItem(item);
-    }
-  }
-  private getKeyboardItemIndex(item: ItemValue): number {
-    return this.keyboardItems.indexOf(item);
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return !this.isDropdown;
   }
   //#endregion
 

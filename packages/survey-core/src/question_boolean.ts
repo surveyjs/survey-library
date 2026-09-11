@@ -8,7 +8,6 @@ import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
-import { settings } from "./settings";
 import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 function isBooleanDisplayMode(val: string): boolean {
@@ -342,15 +341,9 @@ export class QuestionBooleanModel extends Question implements IKeyboardNavigable
 
   //#region keyboard navigation
   @property({ defaultValue: -1 }) focusedItemIndex: number;
-  private keyboardNavigatorValue: ItemsKeyboardNavigator;
-  private get keyboardNavigator(): ItemsKeyboardNavigator {
-    if (!this.keyboardNavigatorValue) {
-      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
-    }
-    return this.keyboardNavigatorValue;
-  }
-  public get isKeyboardNavigationEnabled(): boolean {
-    return !settings.itemsKeyboard.selectionFollowsFocus && this.getRenderAsValue() === "radio" && !this.isDesignMode;
+  private keyboardNavigator = new ItemsKeyboardNavigator(this);
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return this.getRenderAsValue() === "radio";
   }
   public getRadioItemId(index: number): string {
     return this.inputId + "_" + index;
@@ -364,15 +357,12 @@ export class QuestionBooleanModel extends Question implements IKeyboardNavigable
     return isTrueFirst ? this.getValueFalse() : this.getValueTrue();
   }
   public getItemTabIndex(value: any): number {
-    if (!this.isKeyboardNavigationEnabled) return undefined;
     return this.keyboardNavigator.getItemTabIndex(this.getRadioItemIndex(value));
   }
   public onItemFocusIn(value: any): void {
-    if (!this.isKeyboardNavigationEnabled) return;
     this.keyboardNavigator.onItemFocusIn(this.getRadioItemIndex(value));
   }
   public onItemKeyDown(value: any, event: any): void {
-    if (!this.isKeyboardNavigationEnabled) return;
     this.keyboardNavigator.onItemKeyDown(this.getRadioItemIndex(value), event);
   }
   protected getFirstInputElementId(): string | (() => HTMLElement) {
@@ -380,13 +370,6 @@ export class QuestionBooleanModel extends Question implements IKeyboardNavigable
   }
   public get keyboardItemsCount(): number {
     return 2;
-  }
-  public get isKeyboardItemsReadOnly(): boolean {
-    return this.isReadOnlyAttr || this.isDisabledAttr;
-  }
-  public get isKeyboardItemsRtl(): boolean {
-    if (!DomDocumentHelper.isAvailable()) return false;
-    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
   }
   public getKeyboardItemId(index: number): string {
     return this.getRadioItemId(index);

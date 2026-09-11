@@ -23,6 +23,7 @@ import { PanelModel, PanelModelBase } from "./panel";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
+import { IKeyboardNavigableItems, ItemsKeyboardNavigator } from "./utils/items-keyboard-navigator";
 
 const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
@@ -2636,7 +2637,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
-export class QuestionCheckboxBase extends QuestionSelectBase {
+export class QuestionCheckboxBase extends QuestionSelectBase implements IKeyboardNavigableItems {
   colCountChangedCallback: () => void;
   /**
    * Gets or sets the number of columns used to arrange choice items.
@@ -2664,6 +2665,47 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
   }
+
+  //#region keyboard navigation
+  @property({ defaultValue: -1 }) focusedItemIndex: number;
+  private keyboardNavigator = new ItemsKeyboardNavigator(this);
+  public get keyboardItems(): Array<ItemValue> {
+    return this.visibleChoices;
+  }
+  public get keyboardItemsCount(): number {
+    return this.keyboardItems.length;
+  }
+  public getKeyboardItemId(index: number): string {
+    const item = this.keyboardItems[index];
+    return item ? this.getItemId(item) : "";
+  }
+  public isKeyboardItemEnabled(index: number): boolean {
+    const item = this.keyboardItems[index];
+    return !!item && this.getItemEnabled(item);
+  }
+  public isKeyboardItemSelected(index: number): boolean {
+    const item = this.keyboardItems[index];
+    return !!item && this.isItemSelected(item);
+  }
+  public selectKeyboardItem(index: number): void {
+    const item = this.keyboardItems[index];
+    if (!!item) {
+      this.selectItem(item);
+    }
+  }
+  public getItemTabIndex(item: ItemValue): number {
+    return this.keyboardNavigator.getItemTabIndex(this.getKeyboardItemIndex(item));
+  }
+  public onItemFocusIn(item: ItemValue): void {
+    this.keyboardNavigator.onItemFocusIn(this.getKeyboardItemIndex(item));
+  }
+  public onItemKeyDown(item: ItemValue, event: any): void {
+    this.keyboardNavigator.onItemKeyDown(this.getKeyboardItemIndex(item), event);
+  }
+  protected getKeyboardItemIndex(item: ItemValue): number {
+    return this.keyboardItems.indexOf(item);
+  }
+  //#endregion
 }
 
 function checkCopyPropVisibility(obj: any, mode: string): boolean {

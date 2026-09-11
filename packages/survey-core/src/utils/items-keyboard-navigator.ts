@@ -1,5 +1,6 @@
 import { ElementHelper } from "../element-helper";
 import { DomDocumentHelper } from "../global_variables_utils";
+import type { Question } from "../question";
 import { getElement, getRootNode, preventDefaults } from "./dom-utils";
 
 // A question that renders a group of items (rating buttons, radio buttons) and wants
@@ -7,8 +8,7 @@ import { getElement, getRootNode, preventDefaults } from "./dom-utils";
 export interface IKeyboardNavigableItems {
   keyboardItemsCount: number;
   focusedItemIndex: number;
-  isKeyboardItemsReadOnly: boolean;
-  isKeyboardItemsRtl: boolean;
+  isKeyboardNavigationEnabled: boolean;
   getKeyboardItemId(index: number): string;
   isKeyboardItemEnabled(index: number): boolean;
   isKeyboardItemSelected(index: number): boolean;
@@ -19,21 +19,23 @@ export interface IKeyboardNavigableItems {
 // the group has a single tab stop, arrow keys move focus between the items, and
 // the Space or Enter key selects the focused item.
 export class ItemsKeyboardNavigator {
-  constructor(private owner: IKeyboardNavigableItems) { }
+  constructor(private owner: IKeyboardNavigableItems & Question) { }
 
   public getItemTabIndex(index: number): number {
+    if (!this.owner.isKeyboardNavigationEnabled) return undefined;
     return index === this.getActiveItemIndex() ? 0 : -1;
   }
   public onItemFocusIn(index: number): void {
+    if (!this.owner.isKeyboardNavigationEnabled) return;
     this.owner.focusedItemIndex = index;
   }
   public onItemKeyDown(index: number, event: any): void {
-    if (index < 0 || this.owner.keyboardItemsCount <= 0 || !event) return;
+    if (!this.owner.isKeyboardNavigationEnabled || index < 0 || this.owner.keyboardItemsCount <= 0 || !event) return;
     const key = event.key;
     const keyCode = event.keyCode;
     if (key === " " || key === "Spacebar" || keyCode === 32 || key === "Enter" || keyCode === 13) {
       preventDefaults(event);
-      if (!this.owner.isKeyboardItemsReadOnly && this.owner.isKeyboardItemEnabled(index)) {
+      if (!this.isReadOnly && this.owner.isKeyboardItemEnabled(index)) {
         this.owner.selectKeyboardItem(index);
       }
       return;
@@ -64,7 +66,7 @@ export class ItemsKeyboardNavigator {
     const count = this.owner.keyboardItemsCount;
     if (key === "Home" || keyCode === 36) return this.getEnabledItemIndex(0, 1);
     if (key === "End" || keyCode === 35) return this.getEnabledItemIndex(count - 1, -1);
-    const isRtl = this.owner.isKeyboardItemsRtl;
+    const isRtl = this.isRtl;
     let delta = 0;
     if (key === "ArrowUp" || keyCode === 38) delta = -1;
     else if (key === "ArrowDown" || keyCode === 40) delta = 1;
@@ -96,5 +98,12 @@ export class ItemsKeyboardNavigator {
     const rootNode = !!sourceElement?.getRootNode ? getRootNode(sourceElement) : null;
     if (!rootNode) return getElement(elementId);
     return rootNode.querySelector(`#${CSS.escape(elementId)}`);
+  }
+  private get isReadOnly(): boolean {
+    return this.owner.isReadOnlyAttr || this.owner.isDisabledAttr;
+  }
+  private get isRtl(): boolean {
+    if (!DomDocumentHelper.isAvailable()) return false;
+    return DomDocumentHelper.isRtlDirection((<any>this.owner.survey)?.rootElement);
   }
 }

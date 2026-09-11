@@ -676,38 +676,23 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
 
   //#region keyboard navigation
   @property({ defaultValue: -1 }) focusedItemIndex: number;
-  private keyboardNavigatorValue: ItemsKeyboardNavigator;
-  private get keyboardNavigator(): ItemsKeyboardNavigator {
-    if (!this.keyboardNavigatorValue) {
-      this.keyboardNavigatorValue = new ItemsKeyboardNavigator(this);
-    }
-    return this.keyboardNavigatorValue;
-  }
+  private keyboardNavigator = new ItemsKeyboardNavigator(this);
   // When disabled, the items behave as a native radio group: an arrow key moves focus
   // and selects an item at the same time.
-  public get isKeyboardNavigationEnabled(): boolean {
-    return !settings.itemsKeyboard.selectionFollowsFocus && !this.isDropdown && !this.isDesignMode;
+  protected supportsItemsKeyboardNavigation(): boolean {
+    return !this.isDropdown;
   }
   public getItemTabIndex(index: number): number {
-    return this.isKeyboardNavigationEnabled ? this.keyboardNavigator.getItemTabIndex(index) : undefined;
+    return this.keyboardNavigator.getItemTabIndex(index);
   }
   public onItemFocusIn(index: number): void {
-    if (!this.isKeyboardNavigationEnabled) return;
     this.keyboardNavigator.onItemFocusIn(index);
   }
   public onItemKeyDown(index: number, event: any): void {
-    if (!this.isKeyboardNavigationEnabled) return;
     this.keyboardNavigator.onItemKeyDown(index, event);
   }
   public get keyboardItemsCount(): number {
     return this.visibleChoices.length;
-  }
-  public get isKeyboardItemsReadOnly(): boolean {
-    return this.isReadOnlyAttr || this.isDisabledAttr;
-  }
-  public get isKeyboardItemsRtl(): boolean {
-    if (!DomDocumentHelper.isAvailable()) return false;
-    return DomDocumentHelper.isRtlDirection(this.survey?.rootElement);
   }
   public getKeyboardItemId(index: number): string {
     return this.getInputId(index);

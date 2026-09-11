@@ -23,6 +23,8 @@ import { PanelModel, PanelModelBase } from "./panel";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
+import { preventDefaults } from "./utils/dom-utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
@@ -2663,6 +2665,49 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
+  }
+  // Radiogroup and single-select image picker: when auto-advance is on, arrows only
+  // move focus. Native radios would set the value on every arrow and skip the page.
+  protected get interceptsAutoAdvanceKeyboard(): boolean {
+    return false;
+  }
+  public onItemKeyDown(item: ItemValue, event: any): void {
+    if (!this.interceptsAutoAdvanceKeyboard || this.isInputReadOnly) return;
+    if (!(<SurveyModel>this.survey)?.autoAdvanceEnabled) return;
+    const key = event.key;
+    if (key === " " || key === "Enter") {
+      if (!this.getItemEnabled(item)) return;
+      preventDefaults(event);
+      this.onKeyboardSelect();
+      this.selectItem(item);
+      return;
+    }
+    if (key === "ArrowDown" || key === "ArrowUp" || key === "ArrowLeft" || key === "ArrowRight" || key === "Home" || key === "End") {
+      preventDefaults(event);
+      this.focusAdjacentChoice(item, key);
+    }
+  }
+  private focusAdjacentChoice(item: ItemValue, key: string): void {
+    const items = this.visibleChoices.filter(choice => this.getItemEnabled(choice));
+    if (items.length === 0) return;
+    let index = items.findIndex(choice => choice === item);
+    if (index < 0) index = 0;
+    if (key === "Home") {
+      index = 0;
+    } else if (key === "End") {
+      index = items.length - 1;
+    } else {
+      index = (index + this.getKeyboardMoveDelta(key) + items.length) % items.length;
+    }
+    SurveyElement.FocusElement(this.getItemId(items[index]), false, (<SurveyModel>this.survey)?.rootElement);
+  }
+  private getKeyboardMoveDelta(key: string): number {
+    const isRtl = !!this.survey && DomDocumentHelper.isAvailable() && DomDocumentHelper.isRtlDirection(this.survey.rootElement);
+    if (key === "ArrowDown") return 1;
+    if (key === "ArrowUp") return -1;
+    if (key === "ArrowRight") return isRtl ? -1 : 1;
+    if (key === "ArrowLeft") return isRtl ? 1 : -1;
+    return 0;
   }
 }
 

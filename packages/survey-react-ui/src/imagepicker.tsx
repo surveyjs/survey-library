@@ -196,6 +196,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            onKeyDown={(event) => this.question.onItemKeyDown(item, event)}
             required={this.question.inputRequiredAttribute}
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}

@@ -54,6 +54,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true && !this.selectedItem?.showCommentArea;
   }
+  protected get interceptsAutoAdvanceKeyboard(): boolean {
+    return true;
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);
     delete json["allowClear"];

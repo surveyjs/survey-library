@@ -8,6 +8,7 @@
         :id="question.getItemId(item)"
         :aria-errormessage="question.ariaErrormessage"
         :checked="question.isItemSelected(item)"
+        @keydown="(e) => question.onItemKeyDown(item, e)"
         @input="
           (e) => {
             change();

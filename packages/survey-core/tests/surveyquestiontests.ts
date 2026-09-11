@@ -633,6 +633,59 @@ describe("Survey_Questions", () => {
     expect(survey.currentPageNo, "Still stay on the first page").toBe(0);
   });
 
+  test("Radiogroup: arrow keys do not auto-advance, Space does", () => {
+    const createEvent = (key: string) => {
+      let prevented = false;
+      return {
+        key,
+        preventDefault: () => { prevented = true; },
+        stopPropagation: () => {},
+        get defaultPrevented() { return prevented; }
+      };
+    };
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b", "c"] }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const arrowEvent = createEvent("ArrowDown");
+    question.onItemKeyDown(question.visibleChoices[0], arrowEvent);
+    expect(arrowEvent.defaultPrevented, "arrow key is intercepted").toBe(true);
+    expect(question.isEmpty(), "an arrow key does not select an item").toBe(true);
+    expect(survey.currentPageNo, "an arrow key does not auto-advance").toBe(0);
+
+    const spaceEvent = createEvent(" ");
+    question.onItemKeyDown(question.visibleChoices[1], spaceEvent);
+    expect(spaceEvent.defaultPrevented, "Space is intercepted").toBe(true);
+    expect(question.value, "Space selects the focused item").toBe("b");
+    expect(survey.currentPageNo, "Space auto-advances").toBe(1);
+  });
+
+  test("Radiogroup: arrows keep native behavior when auto-advance is off", () => {
+    const createEvent = (key: string) => {
+      let prevented = false;
+      return {
+        key,
+        preventDefault: () => { prevented = true; },
+        stopPropagation: () => {},
+        get defaultPrevented() { return prevented; }
+      };
+    };
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b", "c"] }] }
+      ]
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const arrowEvent = createEvent("ArrowDown");
+    question.onItemKeyDown(question.visibleChoices[0], arrowEvent);
+    expect(arrowEvent.defaultPrevented, "native arrows are not intercepted").toBe(false);
+    expect(question.isEmpty(), "handler does not select when auto-advance is off").toBe(true);
+  });
+
   test("Validators for text question + getAllErrors", () => {
     var mText = new QuestionTextModel("");
     expect(mText.validate(), "There is no error by default").toBe(true);

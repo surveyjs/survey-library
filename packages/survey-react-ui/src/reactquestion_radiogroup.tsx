@@ -82,6 +82,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             disabled={!this.question.getItemEnabled(this.item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            onKeyDown={(event) => this.question.onItemKeyDown(this.item, event)}
             aria-label={this.ariaLabel}
           />
           {

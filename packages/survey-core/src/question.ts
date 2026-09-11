@@ -2765,6 +2765,11 @@ export class Question extends SurveyElement<Question>
   onMouseDown(): void {
     this.isMouseDown = true;
   }
+  // Marks the next value change as an explicit commit (mouse click or Space/Enter).
+  // Arrow-key navigation must not call this, or auto-advance would fire on every arrow.
+  public onKeyboardSelect(): void {
+    this.isMouseDown = true;
+  }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     if (!this.isUpdatingValueFromSurvey && this.survey) {

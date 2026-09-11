@@ -45,10 +45,21 @@ export interface AliasPairSite {
   owner: PropertyOwner;
 }
 
+// A non-array value written for an array property. The deserializer wraps it into a one-item
+// array (JsonObject.valueToObj), so the value works - and the spelling is a defect all the same.
+export interface NotArraySite {
+  className: string;
+  key: string;
+  value: any;
+  path: string;
+  owner: PropertyOwner;
+}
+
 export interface PropertyWalkResult {
   props: Array<PropertySite>;
   unknownKeys: Array<UnknownKeySite>;
   aliasPairs: Array<AliasPairSite>;
+  notArrays: Array<NotArraySite>;
 }
 
 interface WalkState {
@@ -177,10 +188,18 @@ function walkObject(state: WalkState, json: any, className: string, path: string
       }
       return;
     }
+    const value = json[key];
     state.result.props.push({
-      className: className, key: key, prop: prop, value: json[key],
+      className: className, key: key, prop: prop, value: value,
       path: keyPath, json: json, owner: owner,
     });
+    // the deserializer's own test (valueToObj): a property with a setter of its own takes the
+    // value as it is, every other array property wraps a truthy non-array
+    if (prop.isArray && !prop.hasToUseSetValue && !!value && !Array.isArray(value)) {
+      state.result.notArrays.push({
+        className: className, key: key, value: value, path: keyPath, owner: owner,
+      });
+    }
     addAliasPair(state, json, prop, key, keyPath, owner, className, keys);
     walkValue(state, json[key], prop, keyPath, json, owner, depth);
   });
@@ -190,7 +209,7 @@ export function walkProperties(json: any, metadata: LintMetadata, options: ISurv
   settings: ILintResolvedSettings): PropertyWalkResult {
   const state: WalkState = {
     metadata: metadata, options: options, settings: settings, visited: new WeakSet(),
-    result: { props: [], unknownKeys: [], aliasPairs: [] },
+    result: { props: [], unknownKeys: [], aliasPairs: [], notArrays: [] },
   };
   walkObject(state, json, SURVEY_CLASS, "", undefined, {}, 0);
   return state.result;

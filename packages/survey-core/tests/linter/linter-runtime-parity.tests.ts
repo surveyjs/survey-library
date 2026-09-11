@@ -429,3 +429,46 @@ describe("linter vs runtime: unknown properties", () => {
     });
   });
 });
+
+// property/not-an-array mirrors JsonRequiredArrayPropertyError: the deserializer wraps a
+// non-array value written for an array property and records the key it found it under.
+describe("linter vs runtime: a non-array written for an array property", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "arrayproperty")
+      .map((e: any) => e.propertyName + "@" + e.className)
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/not-an-array")
+      .map(f => f.messageData.key + "@" + f.messageData.className)
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "one element object under elements", json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] } },
+    { title: "one element object under the questions alias", json: { pages: [{ name: "p1", questions: { type: "text", name: "q1" } }] } },
+    { title: "one page object under pages", json: { pages: { name: "p1", elements: [{ type: "text", name: "q1" }] } } },
+    { title: "a string under choices", json: { elements: [{ type: "checkbox", name: "q1", choices: "a" }] } },
+    { title: "one column object and one item object", json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: { name: "c1" } },
+        { type: "multipletext", name: "mt1", items: { name: "i1" } },
+      ],
+    } },
+    { title: "one trigger object and one validator object", json: {
+      elements: [{ type: "text", name: "q1", validators: { type: "numeric" } }],
+      triggers: { type: "complete", expression: "{q1} = 1" },
+    } },
+    { title: "a survey the serializer accepts whole", json: {
+      pages: [{ name: "p1", elements: [{ type: "checkbox", name: "q1", choices: ["a"], validators: [] }] }],
+      triggers: [],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer wraps", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+});

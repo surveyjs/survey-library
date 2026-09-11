@@ -48,6 +48,10 @@ export const SurveyLintReasons = Object.freeze({
     // a valueName with a "." in it, which references read as a path
     valueNameDotted: "valueNameDotted",
   }),
+  // a single value written where the property holds an array; the deserializer wraps it
+  "property/not-an-array": Object.freeze({
+    notAnArray: "notAnArray",
+  }),
   // a property the JSON states and the runtime does not keep
   "property/dead": Object.freeze({
     notSerializable: "notSerializable",

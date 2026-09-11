@@ -128,6 +128,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     json: { elements: [{ type: "text", name: "q1", valueName: "user.email" }] },
   },
   {
+    ruleId: "property/not-an-array", reason: "notAnArray",
+    json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] },
+  },
+  {
     ruleId: "property/dead", reason: "notSerializable",
     json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
   },

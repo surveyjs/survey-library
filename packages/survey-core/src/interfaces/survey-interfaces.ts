@@ -89,8 +89,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#endregion
 
   //#region Locale
-  // the locale that drives formats (masks); regionLocale || locale on the survey
+  // the locale that drives formats (masks); regionalFormat.locale || locale on the survey
   getFormatLocale(): string;
+  // a format override stored in the survey's regional format (an ILocaleData field name), or
+  // undefined when the field inherits the locale data
+  getRegionalFormatValue(field: string): string;
   //#endregion
 
   //#region Question lookup

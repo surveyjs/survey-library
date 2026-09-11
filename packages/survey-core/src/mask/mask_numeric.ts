@@ -1,7 +1,7 @@
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { InputMaskBase } from "./mask_base";
-import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
+import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
 
 interface INumericalComposition {
   integralPart: string;
@@ -27,6 +27,18 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
   return arr;
 }
 
+// A curated decimal separator has to be a single character that cannot be mistaken for part of
+// a number. "" is rejected: a number needs a way to spell its fractional part.
+export function isValidDecimalSeparator(value: string): boolean {
+  if (!value) return false;
+  return Array.from(value).length === 1 && value !== "-" && !value.match(numberDefinition);
+}
+// The same rule, except that "" is meaningful here and means "do not group".
+export function isValidThousandsSeparator(value: string): boolean {
+  if (value === "") return true;
+  return isValidDecimalSeparator(value);
+}
+
 /**
  * A class that describes an input mask of the `"numeric"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
  *
@@ -48,6 +60,9 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
  * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskNumeric extends InputMaskBase {
+  // Keep the format used for text separate from the default lookup cache: callbacks may read
+  // the new locale's defaults before localeChanged() converts text from the previous locale.
+  private textSeparators: { decimal: string, thousands: string };
   /**
    * Specifies whether respondents can enter negative values.
    *
@@ -59,11 +74,16 @@ export class InputMaskNumeric extends InputMaskBase {
   /**
    * A symbol used to separate the fractional part from the integer part of a displayed number.
    *
-   * Default value: `"."`
+   * Default value: the symbol that the survey's format locale uses (`"."` in English)
    * @see precision
    * @see thousandsSeparator
    */
-  @property() decimalSeparator: string;
+  public get decimalSeparator(): string {
+    return this.getPropertyValue("decimalSeparator");
+  }
+  public set decimalSeparator(val: string) {
+    this.setExplicitPropertyValue("decimalSeparator", val);
+  }
   /**
    * Limits how many digits to retain after the decimal point for a displayed number.
    *
@@ -76,10 +96,22 @@ export class InputMaskNumeric extends InputMaskBase {
   /**
    * A symbol used to separate the digits of a large number into groups of three.
    *
-   * Default value: `","`
+   * Default value: the symbol that the survey's format locale uses (`","` in English)
    * @see decimalSeparator
    */
-  @property() thousandsSeparator: string;
+  public get thousandsSeparator(): string {
+    return this.getPropertyValue("thousandsSeparator");
+  }
+  public set thousandsSeparator(val: string) {
+    this.setExplicitPropertyValue("thousandsSeparator", val);
+  }
+  // The decimal separator is primary: a locale's grouping symbol that collides with it - which a
+  // partial override reaches without any bad curation - suppresses grouping instead of rendering
+  // a number that cannot be parsed back.
+  public getDefaultThousandsSeparator(): string {
+    const res = this.getFormatValue("thousandsSeparator", isValidThousandsSeparator);
+    return res === this.decimalSeparator ? "" : res;
+  }
   /**
    * A minimum value that respondents can enter.
    * @see max
@@ -126,8 +158,11 @@ export class InputMaskNumeric extends InputMaskBase {
   }
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
+    this.textSeparators = { decimal: this.decimalSeparator, thousands: this.thousandsSeparator };
     let displayIntegralPart = parsedNumber.integralPart;
-    if (insertThousandsSeparator && !!displayIntegralPart && !!this.thousandsSeparator) {
+    // two authored separators that are the same character would render a number that parses back
+    // as something else, so grouping yields there as well
+    if (insertThousandsSeparator && !!displayIntegralPart && !!this.thousandsSeparator && this.thousandsSeparator !== this.decimalSeparator) {
       displayIntegralPart = splitString(displayIntegralPart).join(this.thousandsSeparator);
     }
     let displayFractionalPart = parsedNumber.fractionalPart;
@@ -214,9 +249,16 @@ export class InputMaskNumeric extends InputMaskBase {
     return true;
   }
 
-  public parseNumber(src: string): INumericalComposition {
+  // The separators are parameters so that text entered under the previous locale can be read
+  // with the pair that produced it; both default to the mask's current values.
+  public parseNumber(src: string, decimalSeparator?: string, thousandsSeparator?: string): INumericalComposition {
     const result: INumericalComposition = { integralPart: "", fractionalPart: "", hasDecimalSeparator: false, isNegative: false };
     const input = (src === undefined || src === null) ? "" : src.toString();
+    const decimal = decimalSeparator !== undefined ? decimalSeparator : this.decimalSeparator;
+    const thousands = thousandsSeparator !== undefined ? thousandsSeparator : this.thousandsSeparator;
+    if (decimalSeparator === undefined && thousandsSeparator === undefined) {
+      this.textSeparators = { decimal, thousands };
+    }
     let minusCharCount = 0;
 
     for (let inputIndex = 0; inputIndex < input.length; inputIndex++) {
@@ -228,13 +270,13 @@ export class InputMaskNumeric extends InputMaskBase {
           }
           break;
         }
-        case this.decimalSeparator: {
+        case decimal: {
           if (this.precision > 0) {
             result.hasDecimalSeparator = true;
           }
           break;
         }
-        case this.thousandsSeparator: {
+        case thousands: {
           break;
         }
         default: {
@@ -267,8 +309,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return displayText;
   }
 
-  private getNumberUnmaskedValue(str: string): number | undefined {
-    const parsedNumber = this.parseNumber(str);
+  private getNumberUnmaskedValue(str: string, decimalSeparator?: string, thousandsSeparator?: string): number | undefined {
+    const parsedNumber = this.parseNumber(str, decimalSeparator, thousandsSeparator);
     if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
   }
@@ -281,6 +323,33 @@ export class InputMaskNumeric extends InputMaskBase {
   }
   protected getLiteralText(): string {
     return (this.decimalSeparator || "") + (this.thousandsSeparator || "");
+  }
+  public get isLocaleDependent(): boolean { return true; }
+  protected getLocaleChangeInput(text: string): string {
+    return text;
+  }
+  protected getLocaleChangeOutput(text: string): string {
+    return text;
+  }
+  public localeChanged(state?: IMaskLocaleChange): void {
+    const prev = this.textSeparators;
+    const prevDecimal = !!prev ? prev.decimal : undefined;
+    const enteredNumber = !!prev && !!state && !!state.enteredText
+      ? this.parseNumber(this.getLocaleChangeInput(state.enteredText), prev.decimal, prev.thousands) : undefined;
+    // a masked value is stored as text in the previous locale's format
+    const savedNumber = !!prev && !!state && !!state.value
+      ? this.getNumberUnmaskedValue(this.getLocaleChangeInput(state.value), prev.decimal, prev.thousands) : undefined;
+    super.localeChanged();
+    // Only the rendered text is locale dependent - a stored number is not - but the empty mask
+    // and every displayed value change. Notify the owner question and the input element adapter
+    // the same way a property change does.
+    this.onPropertyChanged.fire(this, { name: "locale", oldValue: prevDecimal, newValue: this.decimalSeparator });
+    if (!!enteredNumber && !this.numericalCompositionIsEmpty(enteredNumber)) {
+      state.enteredText = this.getLocaleChangeOutput(this.displayNumber(enteredNumber));
+    }
+    if (savedNumber !== undefined) {
+      state.value = this.getMaskedValue(savedNumber);
+    }
   }
   public getMaskedValue(src: any): string {
     let input: string = (src === undefined || src === null) ? "" : src.toString();
@@ -318,8 +387,20 @@ Serializer.addClass(
   "numericmask",
   [
     { name: "allowNegativeValues:boolean", default: true },
-    { name: "decimalSeparator", default: ".", maxLength: 1 },
-    { name: "thousandsSeparator", default: ",", maxLength: 1 },
+    // The default follows the survey's format locale. obj is undefined for a metadata query
+    // (prop.defaultValue, the Creator, the JSON schema), which is answered with the canonical
+    // value. onSerializeValue writes an assigned value even when it equals the current default:
+    // "the author assigned it" and "it differs from today's default" are no longer the same.
+    {
+      name: "decimalSeparator", maxLength: 1,
+      defaultFunc: (obj: InputMaskNumeric) => !!obj ? obj.getFormatValue("decimalSeparator", isValidDecimalSeparator) || "." : ".",
+      onSerializeValue: (obj: InputMaskNumeric) => obj.getExplicitPropertyValue("decimalSeparator")
+    },
+    {
+      name: "thousandsSeparator", maxLength: 1,
+      defaultFunc: (obj: InputMaskNumeric) => !!obj ? obj.getDefaultThousandsSeparator() : ",",
+      onSerializeValue: (obj: InputMaskNumeric) => obj.getExplicitPropertyValue("thousandsSeparator")
+    },
     { name: "precision:number", default: 2, minValue: 0 },
     { name: "min:number" },
     { name: "max:number" },

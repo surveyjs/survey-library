@@ -54,6 +54,7 @@ import {
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
+import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
@@ -1282,11 +1283,6 @@ export class SurveyModel extends SurveyElementCore
     if (name === "locale") {
       this.onSurveyLocaleChanged();
     }
-    if (name === "regionLocale") {
-      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
-      // displayed strings the way a locale change does
-      this.localeChanged();
-    }
     if (name === "randomSeed") {
       this.randomSeedChanged();
     }
@@ -2148,17 +2144,115 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("locale", value);
   }
-  // The respondent's regional locale. It drives formats only (e.g. the date order and
-  // separators of a locale-preset datetime mask); displayed strings keep following `locale`.
-  // Typically assigned at runtime by the host application.
-  public get regionLocale(): string {
-    return this.getPropertyValue("regionLocale", "");
-  }
-  public set regionLocale(value: string) {
-    this.setPropertyValue("regionLocale", value);
-  }
+  // The locale that drives formats: regionalFormat.locale when set, the survey locale otherwise.
+  // Reads the stored object so that a mask lookup never creates one.
   public getFormatLocale(): string {
-    return this.regionLocale || this.locale;
+    const options = this.regionalFormatValue;
+    return (!!options ? options.locale : undefined) || this.locale;
+  }
+  // Survey-wide format overrides (date and time patterns, numeric separators, currency
+  // pattern) and the region locale, which drives formats only (e.g. the date order and
+  // separators of a locale-preset datetime mask) while displayed strings keep following
+  // `locale`. Created on first read, like choicesByUrl on a select question, and serialized only
+  // when a field is stored.
+  public get regionalFormat(): RegionalFormat {
+    return this.getPropertyValue("regionalFormat", undefined, () => this.createRegionalFormat());
+  }
+  public set regionalFormat(val: RegionalFormat) {
+    if (!val) return;
+    this.replaceRegionalFormat(val.toJSON());
+  }
+  // The stored object, or undefined when the property has never been read or set.
+  private get regionalFormatValue(): RegionalFormat {
+    return this.getPropertyValueWithoutDefault("regionalFormat");
+  }
+  public getRegionalFormatValue(field: string): string {
+    const options = this.regionalFormatValue;
+    return !!options ? options.getExplicitPropertyValue(field) : undefined;
+  }
+  // The json is applied before the notifications are wired: a whole-object replacement reports
+  // itself once in replaceRegionalFormat(), not a second time through the child's load callback.
+  private createRegionalFormat(json?: any): RegionalFormat {
+    const res = new RegionalFormat();
+    res.owner = this;
+    res.loadingOwner = this;
+    if (json !== undefined) {
+      res.fromJSON(json);
+    }
+    res.loadingCompletedCallback = (changedNames: Array<string>): void => {
+      // A JSON loaded into this object directly (survey.regionalFormat.fromJSON(...)) fires no
+      // property events of its own, so the refresh and the notifications happen here, once the
+      // whole JSON is applied. A survey load is refreshed by refreshRegionalFormatAfterLoad().
+      if (this.isLoadingFromJson) return;
+      this.localeChanged();
+      changedNames.forEach(name => {
+        this.onNestedPropertyChanged.fire(this, { name: "regionalFormat", newValue: (<any>res)[name], nestedName: name });
+      });
+    };
+    res.onPropertyChanged.add((_, options) => {
+      // Deserialization must not rebuild the masks once per field. The object fires nothing while
+      // the survey loads (loadingOwner), and refreshRegionalFormatAfterLoad() does one refresh at
+      // the end of the load if the options changed.
+      if (this.isLoadingFromJson) return;
+      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
+      // displayed strings the way a locale change does
+      this.localeChanged();
+      this.onNestedPropertyChanged.fire(this, { name: "regionalFormat", newValue: options.newValue, nestedName: options.name });
+    });
+    return res;
+  }
+  // The single replacement path of the setter and of the serializer's onSetValue. A fresh object
+  // is loaded rather than the existing one: JsonObject.toObjectCore() visits only the supplied
+  // keys, so loading into the existing object would leave omitted fields behind. Loading fires no
+  // child events, so the refresh and the survey notification are explicit and happen once, after
+  // the object is fully populated; during survey deserialization both are deferred to
+  // refreshRegionalFormatAfterLoad().
+  private replaceRegionalFormat(json: any): void {
+    const oldValue = this.regionalFormatValue;
+    if (!!oldValue) {
+      oldValue.dispose();
+    }
+    const newValue = this.createRegionalFormat(json || {});
+    this.setPropertyValueDirectly("regionalFormat", newValue);
+    if (this.isLoadingFromJson) return;
+    this.localeChanged();
+    this.propertyValueChanged("regionalFormat", oldValue, newValue);
+  }
+  // The serializer's entry point. During a survey load startLoadingFromJson() has already applied
+  // the key - before the elements, whose masks and masked default values resolve formats while
+  // they load - so reaching the key here must not replace the object underneath them. The
+  // serializer then loads the same JSON into the existing object (JsonObject.valueToObj does that
+  // for a property with a className), which is the same value and changes nothing.
+  private setRegionalFormatFromJson(json: any): void {
+    if (this.isLoadingFromJson) return;
+    this.replaceRegionalFormat(json);
+  }
+  private resetRegionalFormat(): void {
+    const oldValue = this.regionalFormatValue;
+    if (!oldValue) return;
+    oldValue.dispose();
+    this.setPropertyValueDirectly("regionalFormat", undefined);
+  }
+  private regionalFormatBeforeLoad: { json: any, hadPages: boolean };
+  private getRegionalFormatJSON(): any {
+    const options = this.regionalFormatValue;
+    return !!options && !options.isEmpty ? options.toJSON() : undefined;
+  }
+  // Loading fires no property events, so a mask that already holds a resolved format keeps it
+  // unless something rebuilds it, and fromJSON() retains the existing questions when the JSON
+  // supplies no pages or elements. One comparison after the load replaces the per-field rebuild:
+  // those questions are refreshed once when the options changed, a removal by
+  // startLoadingFromJson() included, and not at all when they did not. Questions that the load
+  // itself created need nothing - startLoadingFromJson() put the options in place before them -
+  // so a survey that had no pages when the load began is never refreshed here.
+  // onLocaleChangedEvent belongs to locale changes and is never fired here.
+  private refreshRegionalFormatAfterLoad(): void {
+    const before = this.regionalFormatBeforeLoad;
+    this.regionalFormatBeforeLoad = undefined;
+    if (!before || !before.hadPages) return;
+    if (!Helpers.isTwoValueEquals(before.json, this.getRegionalFormatJSON())) {
+      this.localeChanged();
+    }
   }
   private onSurveyLocaleChanged(): void {
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
@@ -7051,6 +7145,20 @@ export class SurveyModel extends SurveyElementCore
     if (json && json.locale) {
       this.locale = json.locale;
     }
+    // only a survey that already has questions can hold a mask with a resolved format
+    this.regionalFormatBeforeLoad = { json: this.getRegionalFormatJSON(), hadPages: this.pages.length > 0 };
+    if (!!json) {
+      // Applied here, before the property loop reaches the elements, exactly like `locale` above.
+      // Masks and masked default values resolve their formats while the elements load, so the
+      // position of the regionalFormat key in the JSON must not decide what a masked default
+      // parses as. A JSON without the key means "no overrides" and drops the previous object -
+      // the serializer never calls onSetValue for a key that is not there.
+      if (!!json.regionalFormat) {
+        this.replaceRegionalFormat(json.regionalFormat);
+      } else {
+        this.resetRegionalFormat();
+      }
+    }
   }
   public setJsonObject(jsonObj: any): void {
     this.fromJSON(jsonObj);
@@ -7072,6 +7180,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.setCalculatedWidthModeUpdater();
+    this.refreshRegionalFormatAfterLoad();
     this.onEndLoadingFromJson.fire(this, {});
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
@@ -8678,6 +8787,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.layoutElements.splice(0, this.layoutElements.length);
     }
+    this.resetRegionalFormat();
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
@@ -8772,9 +8882,18 @@ Serializer.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     },
   },
-  // formats-only regional locale; kept out of the property grid until the survey-creator
-  // side is designed
-  { name: "regionLocale", visible: false },
+  // Survey-wide format overrides and the region locale. Written only when a field is stored:
+  // reading the property creates an empty object, and an empty object must not add a
+  // "regionalFormat": {} key to every survey that ever read it. onSerializeValue bypasses the
+  // serializer's default check, which treats an object whose every value is "" as empty and
+  // would drop { thousandsSeparator: "" }.
+  {
+    name: "regionalFormat:regionalformat",
+    className: "regionalformat",
+    onGetValue: (obj: any): any => obj.getRegionalFormatJSON(),
+    onSerializeValue: (obj: any): any => obj.getRegionalFormatJSON(),
+    onSetValue: (obj: any, value: any): void => { obj.setRegionalFormatFromJson(value); },
+  },
   { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
   {
     name: "description:text",

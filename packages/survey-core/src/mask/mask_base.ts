@@ -3,6 +3,8 @@ import { ISurvey, ISurveyImpl } from "../base-interfaces";
 import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { IInputMask, IMaskedInputResult, IMaskLocaleChange, ITextInputParams, hasStrongRtlText } from "./mask_utils";
+import { getLocaleDataValue, ILocaleData } from "../locale-data";
+import { surveyLocalization } from "../surveyStrings";
 
 /**
  * A base class for classes that implement input masks:
@@ -20,7 +22,17 @@ export class InputMaskBase extends Base implements IInputMask {
    */
   @property() saveMaskedValue: boolean;
 
-  public owner: ISurveyImpl;
+  private ownerValue: ISurveyImpl;
+  private formatValues: { [field: string]: string };
+  private formatValuesLocale: string;
+
+  public get owner(): ISurveyImpl { return this.ownerValue; }
+  // Attaching the mask to another owner may change every resolved format default even when the
+  // locale name does not: the new survey can carry its own format overrides.
+  public set owner(val: ISurveyImpl) {
+    this.ownerValue = val;
+    this.clearFormatValueCache();
+  }
 
   // Indicates that the displayed masked value depends on the survey locale.
   public get isLocaleDependent(): boolean { return false; }
@@ -28,10 +40,79 @@ export class InputMaskBase extends Base implements IInputMask {
   // state with the text to display and the value to store.
   public localeChanged(state?: IMaskLocaleChange): void {
     super.localeChanged();
+    this.clearFormatValueCache();
   }
 
   public getSurvey(live: boolean = false): ISurvey {
     return this.owner?.getSurvey();
+  }
+
+  // The locale whose formats the mask follows: the survey's format locale, then the mask's own
+  // locale owner, then the currently selected one. The survey may be a stub without the method.
+  protected get formatLocale(): string {
+    const survey = this.getSurvey();
+    const res = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : this.getLocale();
+    return res || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
+  }
+  // The single seam every mask asks for a format default through. Public because the serializer
+  // defaultFunc closures call it on a typed instance from outside the class body.
+  public getFormatValue(field: keyof ILocaleData, isValid?: (value: string) => boolean): string {
+    const locale = this.formatLocale || "";
+    if (this.formatValues === undefined || this.formatValuesLocale !== locale) {
+      this.formatValues = {};
+      this.formatValuesLocale = locale;
+    }
+    // a read per input character walks this, so a hit must cost no more than the lookup
+    if (field in this.formatValues) return this.formatValues[field];
+    let res = this.getSurveyFormatValue(field, isValid);
+    if (res === undefined) {
+      res = getLocaleDataValue(locale, field, isValid);
+    }
+    this.formatValues[field] = res;
+    return res;
+  }
+  // An override authored in the survey's regional format outranks the curated locale data and
+  // passes the same validator, so a broken override falls through to the table instead of
+  // breaking the mask. The survey may be a stub without the method.
+  private getSurveyFormatValue(field: keyof ILocaleData, isValid?: (value: string) => boolean): string {
+    const survey = this.getSurvey();
+    if (!survey || !survey.getRegionalFormatValue) return undefined;
+    const res = survey.getRegionalFormatValue(field);
+    if (res === undefined || res === null) return undefined;
+    return !isValid || isValid(res) ? res : undefined;
+  }
+  // The value the cache already holds, without resolving one. A mask that re-formats an entry
+  // made under the previous locale reads the old defaults here, before the cache is dropped.
+  protected getCachedFormatValue(field: keyof ILocaleData): string {
+    return !!this.formatValues ? this.formatValues[field] : undefined;
+  }
+  protected clearFormatValueCache(): void {
+    this.formatValues = undefined;
+    this.formatValuesLocale = undefined;
+  }
+
+  // Stores an assignment even when it equals the currently resolved default: with a locale
+  // dependent default the two are different things and only an explicit value survives a locale
+  // change. Base.setPropertyValue compares against the resolved value and would drop it.
+  protected setExplicitPropertyValue(name: string, val: any): void {
+    if (this.isDisposed) return;
+    if (!this.isLoadingFromJson) {
+      const prop = this.getPropertyByName(name);
+      if (!!prop) {
+        val = prop.settingValue(this, val);
+      }
+    }
+    if (val === this.getPropertyValueWithoutDefault(name)) return;
+    const oldValue = this.getPropertyValue(name);
+    this.setPropertyValueDirectly(name, val);
+    const newValue = this.getPropertyValue(name);
+    if (!this.isTwoValueEquals(oldValue, newValue)) {
+      this.propertyValueChanged(name, oldValue, newValue);
+    }
+  }
+  // The stored value, or undefined when the property inherits its default.
+  public getExplicitPropertyValue(name: string): any {
+    return this.getPropertyValueWithoutDefault(name);
   }
 
   public getType(): string {
@@ -41,17 +122,23 @@ export class InputMaskBase extends Base implements IInputMask {
   public setData(json: any): void {
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
-      const currentValue = json[property.name];
-      (this as any)[property.name] = currentValue !== undefined ? currentValue : property.getDefaultValue(this);
+      // an omitted key leaves the property unset instead of storing today's default: a locale
+      // dependent default must keep resolving on every read, not freeze at deserialization time
+      (this as any)[property.name] = json[property.name];
     });
   }
   public getData(): any {
     const res: any = {};
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
-      const currentValue = (this as any)[property.name];
-      if (!property.isDefaultValue(currentValue)) {
-        res[property.name] = currentValue;
+      // getSerializableValue does not check this itself - JsonObject.valueToJson does - and an
+      // obsolete property kept for old JSONs (the currency mask's prefix) must not be written
+      if (!property.isPropertySerializable(this)) return;
+      // the same routine Base.toJSON() uses, so that this path and survey.toJSON() agree on
+      // computed defaults and on onSerializeValue
+      const value = property.getSerializableValue(this);
+      if (value !== undefined) {
+        res[property.name] = value;
       }
     });
 

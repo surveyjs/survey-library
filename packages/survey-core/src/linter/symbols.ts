@@ -256,8 +256,14 @@ export interface Namespace {
 
 export interface SurveyIndex {
   json: any;
+  // the elements a bare {name} resolves to: survey-level pages, panels and questions. A question
+  // inside a dynamic-panel template or a matrix row is reached through its scope instead.
   byName: CIMultiMap<ElementRecord>;
   byValueName: CIMultiMap<ElementRecord>;
+  // every page, panel and question by name, scopes included: element names are unique across the
+  // whole survey - a template or a detail panel is no namespace of its own - and this is the map
+  // name/duplicate reads
+  elementNames: CIMultiMap<ElementRecord>;
   calculatedValues: CIMap<CalculatedValueRecord>;
   // every calculated value in declaration order, duplicates included: the map keeps only
   // the first of a repeated name, which is the defect name/duplicate reports

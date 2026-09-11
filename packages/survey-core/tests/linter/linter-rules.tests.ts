@@ -91,13 +91,16 @@ describe("name/duplicate", () => {
       ],
     }, "name/duplicate")).toHaveLength(1);
   });
-  test("same template name in two different dynamic panels is clean", () => {
-    expect(byRule({
+  test("same template name in two different dynamic panels is flagged - a template is no namespace", () => {
+    const findings = byRule({
       elements: [
         { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "inner" }] },
         { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "inner" }] },
       ],
-    }, "name/duplicate")).toHaveLength(0);
+    }, "name/duplicate");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[1].templateElements[0]");
+    expect(findings[0].messageData.scope).toBeFalsy();
   });
   test("duplicate names inside ONE template are flagged", () => {
     expect(byRule({

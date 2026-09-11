@@ -117,6 +117,7 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   state.index.allElements.push(record);
   const frame = getCapturingFrame(record.scope);
   if (record.name) {
+    state.index.elementNames.add(record.name, record);
     if (frame) {
       const map = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
       map.add(record.name, record);
@@ -364,9 +365,6 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     };
     record.templateNames = frame.templateNames;
     templateScope = scope.concat([frame]);
-    state.index.namespaces.push({
-      label: "dynamic panel \"" + (record.name || record.path) + "\"", map: frame.templateNames,
-    });
   }
 
   addSitesFromProps(state, json, path, state.metadata.getElementExpressionProps(type, "question"),
@@ -592,6 +590,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
+    elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],
     triggers: [],
@@ -611,7 +610,9 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
   }
-  index.namespaces.push({ label: "", map: index.byName });
+  // one namespace for every page, panel and question - a dynamic-panel template shares it, the
+  // way the Creator's designer keeps element names unique across the whole survey
+  index.namespaces.push({ label: "", map: index.elementNames });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),

@@ -2227,3 +2227,100 @@ test("Test rateItem class on changing value, Bug#10737", () => {
   expect(containsSelected(item1), "item1 className after change select").toBe(false);
   expect(containsSelected(item2), "item2 className after change select").toBe(true);
 });
+test("clearIncorrectValues removes a value that is not in rateValues, Bug#11829", () => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "question1",
+            choices: [
+              { value: "0", text: "" },
+              { value: "1", text: "" },
+              { value: "2", text: "" }
+            ]
+          },
+          {
+            type: "rating",
+            name: "satisfaction-numeric",
+            title: "How satisfied are you with our product?",
+            description: "Numeric rating scale",
+            autoGenerate: false,
+            rateCount: 10,
+            rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    "question1": "11",
+    "satisfaction-numeric": 11
+  };
+  expect(survey.data).toEqual({
+    "question1": "11",
+    "satisfaction-numeric": 11
+  });
+  survey.clearIncorrectValues();
+  expect(survey.data, "non-existing rating value is cleared").toEqual({});
+});
+test("clearIncorrectValues keeps an existing rating value", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        autoGenerate: false,
+        rateValues: [1, 2, 3, 4, 5]
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.value = 5;
+  q1.clearIncorrectValues();
+  expect(q1.value, "existing rate value is kept").toBe(5);
+  q1.value = 11;
+  q1.clearIncorrectValues();
+  expect(q1.isEmpty(), "non-existing rate value is cleared").toBeTruthy();
+});
+test("clearIncorrectValues for auto-generated rate values", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        rateMin: 1,
+        rateMax: 5
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.value = 3;
+  q1.clearIncorrectValues();
+  expect(q1.value, "value in generated range is kept").toBe(3);
+  q1.value = 11;
+  q1.clearIncorrectValues();
+  expect(q1.isEmpty(), "value outside generated range is cleared").toBeTruthy();
+});
+test("clearIncorrectValues respects survey.keepIncorrectValues", () => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        autoGenerate: false,
+        rateValues: [1, 2, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  survey.keepIncorrectValues = true;
+  q1.value = 11;
+  survey.clearIncorrectValues();
+  expect(q1.value, "incorrect value is kept").toBe(11);
+  survey.keepIncorrectValues = false;
+  survey.clearIncorrectValues();
+  expect(q1.isEmpty(), "incorrect value is cleared").toBeTruthy();
+});

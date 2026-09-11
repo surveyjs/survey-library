@@ -315,6 +315,9 @@ function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: 
 function initDefaultCssVariables(convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
   if (isPanelless) {
     convertedCssVariable["--sjs2-color-component-panel-default-bg"] = "transparent";
+    convertedCssVariable["--sjs2-layout-component-panel-header-padding-left"] = "var(--sjs2-spacing-x000)";
+    convertedCssVariable["--sjs2-layout-component-panel-header-padding-right"] = "var(--sjs2-spacing-x000)";
+    convertedCssVariable["--sjs2-layout-component-panel-content-area-padding-horizontal"] = "var(--sjs2-spacing-x000)";
   }
 }
 

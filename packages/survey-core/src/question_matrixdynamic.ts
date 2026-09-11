@@ -1134,7 +1134,8 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
     if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
+        // A navigation check, not a validation: it must not show errors or expand detail panels/questions.
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext({ fireCallback: false }))) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }

@@ -113,6 +113,8 @@ export var portugueseBrSurveyStrings = {
   noUploadFilesHandler: "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Por favor, informe o outro valor.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "O valor '{0}' não é uma das opções disponíveis.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Seu arquivo está sendo carregado. Por favor, aguarde alguns segundos e tente novamente.",
   // "Loading..."

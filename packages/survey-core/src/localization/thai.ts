@@ -111,6 +111,8 @@ export var thaiStrings = {
   noUploadFilesHandler: "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'",
   // "Response required: enter another value."
   otherRequiredError: "กรุณาใส่ค่าอื่น",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "ค่า '{0}' ไม่ใช่ตัวเลือกที่มีอยู่",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "ไฟล์ของคุณกำลังอัพโหลดอยู่. กรุณารอสักครู่แล้วทำการลองอีกครั้ง",
   // "Loading..."

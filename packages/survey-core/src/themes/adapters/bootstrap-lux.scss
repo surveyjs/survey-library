@@ -143,6 +143,8 @@
 
   /* inherited letter-spacing on the survey root */
   letter-spacing: 1px;
+
+  --sjs-bs-matrix-cell-padding: 1.5rem;
 }
 
 [data-bs-theme="dark"] .sd-boolean-switch__button.sd-boolean-switch__button:not(:focus) {
@@ -171,21 +173,13 @@
   padding-inline: 0.5rem;
 }
 
-.sd-table.sd-table.sd-table>tbody>tr {
-  &>th, &>td {
-    &:where(:not(.sd-table__cell--error)) {
-      padding: 1.5rem;
-      font-size: 0.875rem;
-      text-transform: uppercase;
-    }
-  }
+.sd-table__cell--row-text,
+.sd-table__cell--header {
+  text-transform: uppercase;
 }
-
-.sd-table.sd-table.sd-table>thead>tr {
-  &>th, &>td {
-    padding: 1.5rem;
-    font-size: 0.875rem;
-  }
+.sd-table__cell--row-text {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
 }
 
 /* panel */
@@ -193,7 +187,7 @@
   border-color: transparent;
 }
 
-.sd-element__header~hr {
+.sd-element__header ~ hr {
   background-color: transparent;
 }
 

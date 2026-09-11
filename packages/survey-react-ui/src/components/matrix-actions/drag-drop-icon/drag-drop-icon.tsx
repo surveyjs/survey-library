@@ -1,7 +1,8 @@
 import * as React from "react";
-import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "survey-core";
+import { Base, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
 import { ReactSurveyElement } from "../../../reactquestion_element";
+import { SvgIcon } from "../../../components/svg-icon/svg-icon";
 
 export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement {
   private get question(): QuestionMatrixDropdownModelBase {
@@ -10,14 +11,19 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
   private get row(): MatrixDropdownRowModelBase {
     return this.props.item.data.row;
   }
+  protected getStateElement(): Base | null {
+    return this.props.item;
+  }
   protected renderElement(): React.JSX.Element | null {
     return <div onPointerDown={(event: any) => { this.question.onPointerDown(event.nativeEvent, this.row); }}>{this.renderIcon()}</div>;
   }
   protected renderIcon(): React.JSX.Element {
     if (this.question.iconDragElement) {
-      return (<svg className={this.question.cssClasses.dragElementDecorator} >
-        <use xlinkHref={this.question.iconDragElement}></use>
-      </svg>);
+      return <SvgIcon
+        className={this.question.cssClasses.dragElementDecorator}
+        size={this.props.item.iconSize}
+        iconName={this.props.item.iconName}
+      ></SvgIcon>;
     } else {
       return (<span className={this.question.cssClasses.iconDrag} />);
     }

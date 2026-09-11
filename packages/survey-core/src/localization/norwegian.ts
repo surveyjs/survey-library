@@ -111,6 +111,8 @@ export var norwegianSurveyStrings = {
   noUploadFilesHandler: "Filer kan ikke lastes opp. Legg til et behandlingsprogram for onUploadFiles-hendelsen.",
   // "Response required: enter another value."
   otherRequiredError: "Vennligst skriv inn den andre verdien.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Verdien '{0}' er ikke et av de tilgjengelige valgene.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Filen din lastes opp. Vennligst vent noen sekunder og prøv igjen.",
   // "Loading..."

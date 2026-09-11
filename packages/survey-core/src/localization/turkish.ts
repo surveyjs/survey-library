@@ -111,6 +111,8 @@ export var turkishSurveyStrings = {
   noUploadFilesHandler: "Dosyalar yüklenemiyor. Lütfen 'onUploadFiles' olayı için bir işleyici ekleyin.",
   // "Response required: enter another value."
   otherRequiredError: "Lütfen diğer değerleri girin.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' değeri mevcut seçeneklerden biri değildir.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Dosyanız yükleniyor. Lütfen birkaç saniye bekleyin ve tekrar deneyin.",
   // "Loading..."

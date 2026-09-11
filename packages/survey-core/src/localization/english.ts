@@ -57,6 +57,7 @@ export var englishStrings = {
   exceedMaxFiles: "The maximum number of files you can upload is {0}.",
   noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event.",
   otherRequiredError: "Response required: enter another value.",
+  variableValueNotInChoices: "The value '{0}' is not one of the available choices.",
   uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",

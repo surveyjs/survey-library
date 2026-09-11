@@ -111,6 +111,8 @@ export var malaySurveyStrings = {
   noUploadFilesHandler: "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Respons diperlukan: masukkan nilai lain.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Nilai '{0}' bukanlah salah satu pilihan yang tersedia.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fail anda sedang dimuat naik. Sila tunggu beberapa saat dan cuba lagi.",
   // "Loading..."

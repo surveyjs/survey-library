@@ -530,6 +530,23 @@ describe("reference/unknown - other reference sites", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].path).toBe("elements[1].bindings.rowCount");
   });
+  test("panelCountExpression and rowCountExpression are validated, Issue#11793", () => {
+    const findings = unknownRefs({
+      elements: [
+        { type: "text", name: "price" },
+        {
+          type: "paneldynamic", name: "p1", panelCountExpression: "{pric}",
+          templateElements: [{ type: "text", name: "q1" }],
+        },
+        { type: "matrixdynamic", name: "m1", rowCountExpression: "{pric}", columns: [{ name: "c1" }] },
+      ],
+    });
+    expect(findings).toHaveLength(2);
+    expect(findings[0].path).toBe("elements[1].panelCountExpression");
+    expect(findings[0].suggestion).toBe("price");
+    expect(findings[1].path).toBe("elements[2].rowCountExpression");
+    expect(findings[1].suggestion).toBe("price");
+  });
   test("expressions in every question prop are scanned", () => {
     const findings = unknownRefs({
       elements: [

@@ -6922,17 +6922,27 @@ export class SurveyModel extends SurveyElementCore
     return this.questionTriggersKeys;
   }
   private runConditionOnValueChanged(name: string, value: any) {
+    const values: HashTable<any> = {};
+    values[name] = value;
+    this.runConditionOnValuesChanged(values, name);
+  }
+  // One conditions pass for all the changed names at once. The optional name is the value that
+  // changed first-hand: the question-level triggers (resetValueIf/setValueIf) use it to skip the
+  // question that is being set. A batch has no such name and passes none.
+  private runConditionOnValuesChanged(values: HashTable<any>, name?: string): void {
     if (!this.questionTriggersKeys) {
       this.questionTriggersKeys = {};
     }
-    this.questionTriggersKeys[name] = value;
+    for (const key in values) {
+      this.questionTriggersKeys[key] = values[key];
+    }
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
     } else {
       this.isRunningConditionOnValueChanged = true;
       this.runConditions();
       this.isRunningConditionOnValueChanged = false;
-      this.runQuestionsTriggers(name, value);
+      this.runQuestionsTriggers(name, !!name ? values[name] : undefined);
       this.questionTriggersKeys = undefined;
     }
   }
@@ -6949,7 +6959,7 @@ export class SurveyModel extends SurveyElementCore
       pages[i].runCondition(properties);
     }
   }
-  private runQuestionsTriggers(name: string, value: any): void {
+  private runQuestionsTriggers(name?: string, value?: any): void {
     if (this.isDisplayMode || this.isDesignMode) return;
     const questions = this.getAllQuestions();
     questions.forEach(q => {
@@ -7251,25 +7261,101 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a variable value.
    *
-   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
    * @param name A variable name.
    * @param newValue A new variable value.
    * @see getVariable
    * @see getVariableNames
+   * @see setVariables
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
     const oldValue = this.getVariable(name);
+    name = this.setVariableCore(name, newValue);
+    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
+      const changed: HashTable<{ newValue: any, oldValue: any }> = {};
+      changed[name] = { newValue: newValue, oldValue: oldValue };
+      this.variablesChangedCore(changed, name);
+    }
+  }
+  // What both setVariable and setVariables run once every variable is written: one conditions pass
+  // over all the changed names, then the survey triggers, and only then the events, so a handler
+  // always observes a settled model
+  private variablesChangedCore(changed: HashTable<{ newValue: any, oldValue: any }>, name?: string): void {
+    const values: HashTable<any> = {};
+    for (const key in changed) {
+      values[key] = changed[key].newValue;
+    }
+    this.runConditionOnValuesChanged(values, name);
+    this.checkTriggers(changed, false, false, false, name);
+    for (const key in changed) {
+      this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
+    }
+  }
+  // The only place that writes the variables hash. A variable shadows a data key with the same
+  // name, so the data key is deleted under the name exactly as it was passed in, before the
+  // variable name itself is lower-cased.
+  private setVariableCore(name: string, newValue: any): string {
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
-    this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.checkTriggersAndRunConditions(name, newValue, oldValue);
-      this.onVariableChanged.fire(this, { name: name, value: newValue });
+    return name;
+  }
+  /**
+   * Sets multiple variables at once.
+   *
+   * Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
+   *
+   * [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param variables An object containing the variable names and their new values.
+   * @param clearPrevious Pass `true` to remove all existing variables that are not included in `variables`.
+   * @see getVariable
+   * @see getVariableNames
+   */
+  public setVariables(variables: { [name: string]: any }, clearPrevious: boolean = false): void {
+    const hasNewValues = !!variables && typeof variables === "object";
+    if (!hasNewValues && !clearPrevious) return;
+    // Variable names are case-insensitive, so two keys that differ in case only are one variable
+    // and the last of them wins - the same rule as in SurveyVariablePresets.validateVariables()
+    const newValues: HashTable<any> = {};
+    if (hasNewValues) {
+      for (const key in variables) {
+        if (!key) continue;
+        newValues[key.toLowerCase()] = variables[key];
+      }
     }
+    const changed: HashTable<{ newValue: any, oldValue: any }> = {};
+    for (const name in newValues) {
+      const oldValue = this.getVariable(name);
+      if (!Helpers.isTwoValueEquals(oldValue, newValues[name])) {
+        changed[name] = { newValue: newValues[name], oldValue: oldValue };
+      }
+    }
+    if (clearPrevious) {
+      // Collect the removed names before the hash is dropped, otherwise their old values are gone
+      for (const name in this.variablesHash) {
+        if (Object.prototype.hasOwnProperty.call(newValues, name)) continue;
+        const oldValue = this.getVariable(name);
+        if (!Helpers.isTwoValueEquals(oldValue, undefined)) {
+          changed[name] = { newValue: undefined, oldValue: oldValue };
+        }
+      }
+      this.variablesHash = {};
+    }
+    if (hasNewValues) {
+      for (const key in variables) {
+        if (!key) continue;
+        this.setVariableCore(key, variables[key]);
+      }
+    }
+    if (Object.keys(changed).length === 0) return;
+    // One notification and one recalculation for the entire batch: elements and expressions never
+    // see a state in which a part of the variables is set
+    this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.variablesChangedCore(changed);
   }
   /**
    * Returns the names of all variables in the survey.

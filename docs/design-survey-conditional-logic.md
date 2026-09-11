@@ -11,7 +11,7 @@ This help topic describes how to implement custom conditional logic and add dyna
 Survey UI texts support placeholders whose values are computed at runtime to make the texts dynamic. Placeholders can be used in the following places:
 
 - Titles and descriptions of surveys, pages, panels, and questions
-- Properties that accept HTML markup ([`completedHtml`](https://surveyjs.io/Documentation/Library?id=surveymodel#completedHtml), [`loadingHtml`](https://surveyjs.io/Documentation/Library?id=surveymodel#loadingHtml), etc.)
+- Properties that accept HTML markup ([`completedHtml`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml), [`loadingHtml`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml), etc.)
 - [Expressions](#expressions)
 
 You can use the following values as placeholders:
@@ -342,7 +342,7 @@ const surveyJson = {
 
 ### Variables
 
-Variables are used to store JavaScript-calculated values. To create or change a variable, call the Survey's [`setVariable(name, value)`](https://surveyjs.io/Documentation/Library?id=surveymodel#setVariable) method. In the following code, this method sets a `currentYear` variable used to display the current year in an Html question:
+Variables are used to store JavaScript-calculated values. To create or change a variable, call the Survey's [`setVariable(name, value)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#setVariable) method. In the following code, this method sets a `currentYear` variable used to display the current year in an Html question:
 
 ```js
 import { Model } from "survey-core";
@@ -360,23 +360,39 @@ const survey = new Model(surveyJson);
 survey.setVariable("currentyear", new Date().getFullYear());
 ```
 
-If you need to get a variable's value, call the [`getVariable(name)`](https://surveyjs.io/Documentation/Library?id=surveymodel#getVariable) method. For example, the following code outputs the `currentyear` variable's value into the browser's console:
+If you need to get a variable's value, call the [`getVariable(name)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getVariable) method. For example, the following code outputs the `currentyear` variable's value into the browser's console:
 
 ```js
 console.log(survey.getVariable("currentyear"));
 ```
 
-You can also call the [`getVariableNames()`](https://surveyjs.io/Documentation/Library?id=surveymodel#getVariableNames) method to get a list of all available variables:
+You can also call the [`getVariableNames()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getVariableNames) method to get a list of all available variables:
 
 ```js
 console.log(survey.getVariableNames()); // Outputs [ "currentyear" ]
+```
+
+If you want to set several variables at once, call the [`setVariables(variables, clearPrevious)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#setVariables) method. Unlike a sequence of `setVariable(name, value)` calls, this method updates all variables before recalculating expressions and running triggers. As a result, expressions are never evaluated in an intermediate state while the variables are being updated.
+
+```js
+survey.setVariables({ tier: "gold", yearsInBusiness: 12 });
+```
+
+The second parameter controls variables missing from the `variables` object: `false` (default) merges values, while `true` deletes them. This is the only way to remove a variable.
+
+```js
+survey.setVariables({ tier: "silver" }, true);
+console.log(survey.getVariableNames()); // Outputs [ "tier" ]
+
+// Removes all variables
+survey.setVariables({}, true);
 ```
 
 ### Calculated Values
 
 Calculated values allow you to register an [expression](#expressions) under a required name. If the expression includes [questions](#question-values), [variables](#variables), or [functions](#built-in-functions), it is recalculated each time their values are changed.
 
-To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/Documentation/Library?id=surveymodel#calculatedValues) array in the survey JSON schema. Each object in this array should contain the following fields:
+To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#calculatedValues) array in the survey JSON schema. Each object in this array should contain the following fields:
 
 - `name` - A name that identifies the calculated value.
 - `expression` - An expression that returns the calculated value.
@@ -466,7 +482,7 @@ Expressions can include question names, variables, and calculated values (descri
 
 ### Supported Operators
 
-The SurveyJS expression engine is built upon the <a href="https://github.com/pegjs/pegjs" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
+The SurveyJS expression engine is built upon the <a href="https://github.com/peggyjs/peggy#peggy" target="_blank">Peggy</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
 
 | Operator | Description | Expression example |
 | -------- | ----------- | ------------------ |
@@ -1058,7 +1074,7 @@ registerFunction({
 
 ### Expression Validation
 
-Starting with SurveyJS v2.5.7, expressions can be validated using the [`validateExpressions(options)`](/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
+Expressions can be validated using the [`validateExpressions(options)`](/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
 
 This method detects the following types of errors:
 
@@ -1120,6 +1136,8 @@ const results = survey.validateExpressions({
   semantics: false
 });
 ```
+
+> Starting with SurveyJS v3.0.2, you can use the [SurveyJS Linter](/form-library/documentation/survey-json-validation#use-the-surveyjs-linter) to validate expressions and detect logic issues.
 
 ## Conditional Visibility
 

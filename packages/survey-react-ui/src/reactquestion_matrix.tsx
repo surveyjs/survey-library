@@ -34,7 +34,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var rowsTH = this.question.hasRows ? <td /> : null;
+    var rowsTH = this.question.hasRows ? <td className={this.question.emptyCellCss}/> : null;
     var headers: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
@@ -81,7 +81,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
           <table className={this.question.getTableCss()} role="presentation">
             {header}
-            <tbody>{rows}</tbody>
+            <tbody className={this.question.getTableBodyCss()}>{rows}</tbody>
           </table>
         </fieldset>
       </div>

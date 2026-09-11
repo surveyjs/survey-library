@@ -111,6 +111,8 @@ export var czechSurveyStrings = {
   noUploadFilesHandler: "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Zadejte prosím jinou hodnotu.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Hodnota '{0}' není jednou z dostupných možností.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Váš soubor se nahrává. Zkuste to prosím za několik sekund.",
   // "Loading..."

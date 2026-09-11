@@ -83,6 +83,13 @@ function checkPrefix(prefix: string): boolean {
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
+export {
+  SurveyVariablePresets,
+  ISurveyVariablePreset,
+  ISurveyVariablePresets,
+  ISurveyVariableError,
+  ISurveyVariableValidationResult
+} from "../../src/variablePresets";
 export { DomWindowHelper, DomDocumentHelper } from "../../src/global_variables_utils";
 export {
   AnswerCountValidator,

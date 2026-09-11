@@ -5520,7 +5520,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     expect(rows[2].cells[rows[2].cells.length - 1].isActionsCell, "the last cell in detail panel is actions cell").toBe(true);
 
-    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
+    expect(rows[2].cells[rows[2].cells.length - 1].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
   });
 
   test("Detail panel, rendered table mobile - expand collapse", () => {
@@ -6514,8 +6514,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.renderedTable.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
     var rows = matrix.renderedTable.rows;
-    expect(rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
-    expect(rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell").toBe(true);
+    expect(rows[1].cells[0].isActionsCell, "isActionsCell").toBe(true);
+    expect(rows[3].cells[0].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[1].cells[2].isActionsCell, "isActionsCell").toBe(true);
     expect(rows[3].cells[2].isActionsCell, "isActionsCell").toBe(true);
   });
@@ -7905,12 +7905,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(table.rows[1].isErrorsRow).toBe(false);
 
     expect(table.rows[0].visible).toBe(true);
-    expect(table.rows[0].cells.length, "header + 2 columns + 2 errors").toBe(5);
+    expect(table.rows[0].cells.length, "header + 2 columns").toBe(3);
     expect(table.rows[0].cells[0].hasTitle).toBe(true);
-    expect(table.rows[0].cells[1].isErrorsCell).toBe(true);
+    expect(table.rows[0].cells[1].hasQuestion).toBe(true);
     expect(table.rows[0].cells[2].hasQuestion).toBe(true);
-    expect(table.rows[0].cells[3].isErrorsCell).toBe(true);
-    expect(table.rows[0].cells[4].hasQuestion).toBe(true);
   });
   test("matrixdynamic.removeRow & confirmActionAsync, #6736", () => {
     const prevAsync = settings.confirmActionAsync;
@@ -8468,14 +8466,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     const table = matrix.renderedTable;
     expect(table.headerRow.cells.length, "Drag handler cell + one column + actions cell").toBe(3);
-    expect(table.rows[1].cells[0].isDragHandlerCell, "isDragHandlerCell, row#1").toBe(false);
-    expect(table.rows[3].cells[0].isDragHandlerCell, "isDragHandlerCell, row#2").toBe(false);
-    expect(table.rows[5].cells[0].isDragHandlerCell, "isDragHandlerCell, row#3").toBe(true);
-    expect(table.rows[7].cells[0].isDragHandlerCell, "isDragHandlerCell, row#4").toBe(true);
+    expect(table.rows[1].cells[0].isActionsCell, "isActionsCell, row#1").toBe(false);
+    expect(table.rows[3].cells[0].isActionsCell, "isActionsCell, row#2").toBe(false);
+    expect(table.rows[5].cells[0].isActionsCell, "isActionsCell, row#3").toBe(true);
+    expect(table.rows[7].cells[0].isActionsCell, "isActionsCell, row#4").toBe(true);
     expect(table.rows[1].cells[0].isEmpty, "isEmpty, row#1").toBe(true);
     expect(table.rows[3].cells[0].isEmpty, "isEmpty, row#2").toBe(true);
-    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBe(false);
-    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBe(false);
+    expect(table.rows[5].cells[0].isEmpty, "isEmpty, row#3").toBeFalsy();
+    expect(table.rows[7].cells[0].isEmpty, "isEmpty, row#4").toBeFalsy();
   });
   test("Do not re-create rows on changing allowRowReorder property", () => {
     var survey = new SurveyModel({
@@ -8673,24 +8671,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeFalsy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeFalsy();
+    expect(renderedTable.rows[1].cells[2].isVisible).toBeFalsy();
     survey.data = { matrix: { row1: { col1: 1 }, row2: { col1: 1 } } };
     expect(renderedTable.rows[0].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[0].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[0].cells[4].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[0].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[1].isVisible).toBeTruthy();
     expect(renderedTable.rows[1].cells[2].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[3].isVisible).toBeTruthy();
-    expect(renderedTable.rows[1].cells[4].isVisible).toBeTruthy();
   });
 
   test("check displayMode property", () => {
@@ -9744,5 +9734,335 @@ describe("Survey_QuestionMatrixDynamic", () => {
     prop.defaultValue = undefined;
     prop.defaultValueFunc = defaultFunc;
     expect(new QuestionMatrixDynamicModel("q1").cellType, "the default cellType is restored").toBe("dropdown");
+  });
+  test("rowCountExpression calculates rowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{services.length}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "No selected choices - no rows").toBe(0);
+    survey.setValue("services", ["A", "B"]);
+    expect(matrix.rowCount, "Two selected choices - two rows").toBe(2);
+    expect(matrix.visibleRows.length, "Two rows are created").toBe(2);
+    matrix.visibleRows[0].cells[0].question.value = "note1";
+    matrix.visibleRows[1].cells[0].question.value = "note2";
+    survey.setValue("services", ["A"]);
+    expect(matrix.rowCount, "One selected choice - one row").toBe(1);
+    expect(survey.getValue("details"), "The removed row data is discarded").toEqual([{ note: "note1" }]);
+  });
+  test("rowCountExpression is calculated on loading data, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "services", choices: ["A", "B", "C", "D"] },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{services.length}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    survey.data = { services: ["A", "B", "C"] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "rowCount is calculated on setting the survey data").toBe(3);
+    expect(matrix.visibleRows.length, "Three rows are created").toBe(3);
+  });
+  test("rowCountExpression has priority over the loaded data, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    survey.data = { n: 2, details: [{ note: "a" }, { note: "b" }, { note: "c" }, { note: "d" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The expression wins over the longer data array").toBe(2);
+  });
+  test("rowCountExpression is limited by minRowCount and maxRowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}", minRowCount: 2, maxRowCount: 4,
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The empty result is increased to minRowCount").toBe(2);
+    survey.setValue("n", 10);
+    expect(matrix.rowCount, "The result is decreased to maxRowCount").toBe(4);
+    survey.setValue("n", 1);
+    expect(matrix.rowCount, "The result is increased to minRowCount").toBe(2);
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The result is within the limits").toBe(3);
+  });
+  test("rowCountExpression is limited by settings.matrix.maxRowCount, Issue#11793", () => {
+    const prevMaxRowCount = settings.matrix.maxRowCount;
+    settings.matrix.maxRowCount = 5;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "n" },
+          {
+            type: "matrixdynamic", name: "details",
+            rowCountExpression: "{n}",
+            columns: [{ name: "note" }]
+          }
+        ]
+      });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+      survey.setValue("n", 100);
+      expect(matrix.rowCount, "The result is capped, not ignored").toBe(5);
+    } finally {
+      settings.matrix.maxRowCount = prevMaxRowCount;
+    }
+  });
+  test("rowCountExpression with an invalid result, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", "abc");
+    expect(matrix.rowCount, "A non-numeric result is treated as 0").toBe(0);
+    survey.setValue("n", -5);
+    expect(matrix.rowCount, "A negative result is treated as 0").toBe(0);
+    survey.setValue("n", 2.7);
+    expect(matrix.rowCount, "A fractional result is rounded down").toBe(2);
+  });
+  test("rowCountExpression disables adding and removing rows, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    expect(matrix.canAddRow, "canAddRow is disabled by the expression").toBe(false);
+    expect(matrix.canRemoveRows, "canRemoveRows is disabled by the expression").toBe(false);
+    matrix.rowCountExpression = "";
+    expect(matrix.canAddRow, "canAddRow is restored").toBe(true);
+    expect(matrix.canRemoveRows, "canRemoveRows is restored").toBe(true);
+  });
+  test("rowCountExpression owns the row count, addRow does not change it, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 2);
+    matrix.addRow();
+    expect(matrix.rowCount, "The expression restores the count right away").toBe(2);
+    expect(matrix.visibleRows.length, "The rows array is in sync with rowCount").toBe(2);
+    matrix.removeRow(0);
+    expect(matrix.rowCount, "The expression restores the removed row").toBe(2);
+    expect(matrix.visibleRows.length, "The rows array is in sync with rowCount").toBe(2);
+    survey.setValue("n", 4);
+    expect(matrix.rowCount, "The count follows the expression").toBe(4);
+  });
+  test("rowCountExpression has priority over the rowCount binding, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          bindings: { rowCount: "cnt" },
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The expression sets the count").toBe(3);
+    expect(survey.getValue("cnt"), "The count is not written into the bound value").toBeFalsy();
+    survey.setValue("cnt", 7);
+    expect(matrix.rowCount, "The binding does not override the expression").toBe(3);
+    matrix.rowCountExpression = "";
+    survey.setValue("cnt", 5);
+    expect(matrix.rowCount, "The binding works again after clearing the expression").toBe(5);
+    matrix.rowCount = 6;
+    expect(survey.getValue("cnt"), "The count is written back into the bound value again").toBe(6);
+  });
+  test("rowCount binding works without rowCountExpression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "cnt" },
+        {
+          type: "matrixdynamic", name: "details",
+          bindings: { rowCount: "cnt" },
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("cnt", 3);
+    expect(matrix.rowCount, "The binding sets the count").toBe(3);
+    matrix.addRow();
+    expect(matrix.rowCount, "The row is added").toBe(4);
+    expect(survey.getValue("cnt"), "The count is written back into the bound value").toBe(4);
+  });
+  test("rowCountExpression uses an arithmetic expression, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{a} * {b}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("a", 2);
+    survey.setValue("b", 3);
+    expect(matrix.rowCount, "The arithmetic result is used").toBe(6);
+  });
+  test("rowCountExpression with an async function, Issue#11793", () => {
+    let returnResult: (res: any) => void;
+    function asyncRowCount(params: any[]): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncRowCount", asyncRowCount, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "asyncRowCount({n})",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    returnResult(0);
+    expect(matrix.rowCount, "The initial async run is completed").toBe(0);
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "The count is not set until the async run completes").toBe(0);
+    returnResult(3);
+    expect(matrix.rowCount, "The count is set when the async run completes").toBe(3);
+    FunctionFactory.Instance.unregister("asyncRowCount");
+  });
+  test("rowCountExpression in a matrix inside a dynamic panel, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "panel", panelCount: 2,
+          templateElements: [
+            { type: "text", name: "n" },
+            {
+              type: "matrixdynamic", name: "details",
+              rowCountExpression: "{panel.n}",
+              columns: [{ name: "note" }]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("n").value = 2;
+    panel.panels[1].getQuestionByName("n").value = 3;
+    const matrix1 = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("details");
+    const matrix2 = <QuestionMatrixDynamicModel>panel.panels[1].getQuestionByName("details");
+    expect(matrix1.rowCount, "The first panel matrix uses its own panel value").toBe(2);
+    expect(matrix2.rowCount, "The second panel matrix uses its own panel value").toBe(3);
+  });
+  test("rowCountExpression is calculated on assigning it at runtime, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        { type: "matrixdynamic", name: "details", rowCount: 0, columns: [{ name: "note" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 3);
+    expect(matrix.rowCount, "There are no rows before the expression is set").toBe(0);
+    matrix.rowCountExpression = "{n}";
+    expect(matrix.rowCount, "The expression is calculated right after it is assigned").toBe(3);
+  });
+  test("rowCountExpression is recalculated on changing minRowCount and maxRowCount, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}", maxRowCount: 4,
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    survey.setValue("n", 10);
+    expect(matrix.rowCount, "The result is limited by maxRowCount").toBe(4);
+    matrix.maxRowCount = 8;
+    expect(matrix.rowCount, "Increasing maxRowCount recalculates the count").toBe(8);
+    matrix.maxRowCount = 20;
+    expect(matrix.rowCount, "The count does not exceed the expression result").toBe(10);
+    matrix.minRowCount = 15;
+    expect(matrix.rowCount, "Increasing minRowCount recalculates the count").toBe(15);
+    matrix.minRowCount = 0;
+    expect(matrix.rowCount, "Decreasing minRowCount recalculates the count").toBe(10);
+  });
+  test("rowCountExpression is not calculated in the design mode, Issue#11793", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCount: 3, rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.rowCount, "The authored rowCount is used in the design mode").toBe(3);
+  });
+  test("rowCountExpression is serialized, Issue#11793", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "n" },
+        {
+          type: "matrixdynamic", name: "details",
+          rowCountExpression: "{n}",
+          columns: [{ name: "note" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("details");
+    expect(matrix.toJSON().rowCountExpression, "The expression is serialized").toBe("{n}");
   });
 });

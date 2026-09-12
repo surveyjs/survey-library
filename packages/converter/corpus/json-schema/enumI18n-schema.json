@@ -1,0 +1,87 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "country": {
+        "type": "string",
+        "enum": [
+          "DE",
+          "IT",
+          "JP",
+          "US",
+          "RU",
+          "Other"
+        ]
+      },
+      "countryNoAutocomplete": {
+        "type": "string",
+        "enum": [
+          "DE",
+          "IT",
+          "JP",
+          "US",
+          "RU",
+          "Other"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "oneOf": [
+          {
+            "const": "pending",
+            "title": "Pending"
+          },
+          {
+            "const": "approved",
+            "title": "Approved"
+          },
+          {
+            "const": "rejected",
+            "title": "Rejected"
+          }
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Group",
+        "label": "Enum with i18n (Autocomplete)",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/country",
+            "label": "Country (with autocomplete)"
+          }
+        ]
+      },
+      {
+        "type": "Group",
+        "label": "Enum with i18n (Dropdown)",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/countryNoAutocomplete",
+            "label": "Country (dropdown)",
+            "options": {
+              "autocomplete": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "Group",
+        "label": "OneOf Enum with i18n",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/status",
+            "label": "Status"
+          }
+        ]
+      }
+    ]
+  }
+}

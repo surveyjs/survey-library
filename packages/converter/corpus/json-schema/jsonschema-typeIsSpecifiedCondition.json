@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "oneOf": [
+      {
+        "type": "string",
+        "enum": [
+          "string",
+          "number",
+          "integer",
+          "array",
+          "object",
+          "boolean",
+          "null"
+        ]
+      },
+      {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "array",
+            "object",
+            "boolean",
+            "null"
+          ]
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    ]
+  }
+}

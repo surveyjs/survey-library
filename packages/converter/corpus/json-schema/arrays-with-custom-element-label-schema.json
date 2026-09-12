@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "comments": {
+        "type": "array",
+        "title": "Messages",
+        "items": {
+          "type": "object",
+          "properties": {
+            "message1": {
+              "type": "string"
+            },
+            "message2": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/comments",
+        "options": {
+          "elementLabelProp": "message2",
+          "detail": {
+            "type": "VerticalLayout",
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/message1"
+              },
+              {
+                "type": "Control",
+                "scope": "#/properties/message2"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

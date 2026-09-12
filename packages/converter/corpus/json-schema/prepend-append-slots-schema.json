@@ -1,0 +1,83 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "displayName": {
+        "type": "string",
+        "description": "Decorative icon"
+      },
+      "password": {
+        "type": "string",
+        "description": "Dynamic strength meter"
+      },
+      "username": {
+        "type": "string",
+        "maxLength": 20,
+        "description": "Availability checker (try \"admin\" or \"user\")"
+      },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "Copy to clipboard"
+      },
+      "temperature": {
+        "type": "integer",
+        "minimum": -50,
+        "maximum": 50,
+        "description": "Temperature with dynamic icon and unit (°C)"
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Label",
+        "text": "Prepend Slot Only"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/displayName",
+        "options": {
+          "clearable": false
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/password",
+        "options": {
+          "clearable": false
+        }
+      },
+      {
+        "type": "Label",
+        "text": "Append Slot Only"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/username",
+        "options": {
+          "clearable": false
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/email",
+        "options": {
+          "clearable": false
+        }
+      },
+      {
+        "type": "Label",
+        "text": "Both Prepend and Append"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/temperature",
+        "options": {
+          "clearable": false
+        }
+      }
+    ]
+  }
+}

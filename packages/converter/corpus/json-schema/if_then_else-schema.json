@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "b": {
+      "type": "boolean"
+    },
+    "c": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "if": {
+    "properties": {
+      "b": {
+        "enum": [
+          false
+        ]
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "c"
+    ]
+  }
+}

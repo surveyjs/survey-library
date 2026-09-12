@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "dead": {
+      "type": "boolean"
+    },
+    "kindOfDead": {
+      "type": "string",
+      "enum": [
+        "Zombie",
+        "Vampire",
+        "Ghoul"
+      ]
+    },
+    "vegetables": {
+      "type": "boolean"
+    },
+    "kindOfVegetables": {
+      "type": "string",
+      "enum": [
+        "All",
+        "Some",
+        "Only potatoes"
+      ]
+    },
+    "vitaminDeficiency": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Vitamin A",
+        "Vitamin B",
+        "Vitamin C"
+      ]
+    }
+  }
+}

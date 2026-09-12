@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$defs": {
+      "Base": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer"
+          }
+        }
+      },
+      "Child": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/$defs/Base"
+          },
+          {
+            "properties": {
+              "geometry": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "type": "object",
+    "properties": {
+      "element": {
+        "$ref": "#/$defs/Child"
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Label",
+        "text": "AllOfRenderer"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/element"
+      },
+      {
+        "type": "Label",
+        "text": "Manual controls"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/element/properties/width"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/element/properties/geometry"
+      }
+    ]
+  }
+}

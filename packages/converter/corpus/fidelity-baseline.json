@@ -1,0 +1,44 @@
+{
+  "definitions": 95,
+  "fieldsIn": 433,
+  "fieldsOut": 322,
+  "buckets": {
+    "unsupported": 51,
+    "unknown": 0,
+    "assumed": 9,
+    "dropped": 55
+  },
+  "weightedClean": 96,
+  "fidelityRatio": 0.7436,
+  "cleanPerField": 0.2217,
+  "perSource": {
+    "formio": {
+      "definitions": 7,
+      "fieldsIn": 28,
+      "fieldsOut": 24,
+      "buckets": {
+        "unsupported": 4,
+        "unknown": 0,
+        "assumed": 1,
+        "dropped": 6
+      },
+      "weightedClean": 9,
+      "fidelityRatio": 0.8571,
+      "cleanPerField": 0.3214
+    },
+    "json-schema": {
+      "definitions": 88,
+      "fieldsIn": 405,
+      "fieldsOut": 298,
+      "buckets": {
+        "unsupported": 47,
+        "unknown": 0,
+        "assumed": 8,
+        "dropped": 49
+      },
+      "weightedClean": 87,
+      "fidelityRatio": 0.7358,
+      "cleanPerField": 0.2148
+    }
+  }
+}

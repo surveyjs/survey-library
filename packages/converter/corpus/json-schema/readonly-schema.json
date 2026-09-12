@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "readonly": {
+        "type": "string",
+        "readOnly": true
+      },
+      "readonlyByUISchema": {
+        "type": "string"
+      },
+      "notReadonly": {
+        "type": "string"
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/readonly",
+        "label": "A readonly field"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/readonlyByUISchema",
+        "label": "A readonly field by ui schema",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/notReadonly",
+        "label": "A normal field"
+      }
+    ]
+  }
+}

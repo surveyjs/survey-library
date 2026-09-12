@@ -53,6 +53,12 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await expect(page.locator("span").filter({ hasText: "John" })).toBeVisible();
     });
+  });
+
+  test.describe(`${framework} HTML font inheritance`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
 
     [false, true].forEach((completedPage) => {
       test(`HTML font inheritance ${completedPage ? "completed page" : "question"}`, async ({ page }) => {

@@ -2134,6 +2134,7 @@ export class SurveyModel extends SurveyElementCore
    * [Localization & Globalization help topic](https://surveyjs.io/form-library/documentation/survey-localization (linkStyle))
    *
    * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
+   * @see regionalFormat
    */
   public get locale(): string {
     return this.getPropertyValueWithoutDefault("locale") || surveyLocalization.currentLocale;
@@ -2150,11 +2151,17 @@ export class SurveyModel extends SurveyElementCore
     const options = this.regionalFormatValue;
     return (!!options ? options.locale : undefined) || this.locale;
   }
-  // Survey-wide format overrides (date and time patterns, numeric separators, currency
-  // pattern) and the region locale, which drives formats only (e.g. the date order and
-  // separators of a locale-preset datetime mask) while displayed strings keep following
-  // `locale`. Created on first read, like choicesByUrl on a select question, and serialized only
-  // when a field is stored.
+  /**
+   * Configures date, time, number, and currency formats for [input masks](/form-library/examples/masked-input-fields/) throughout the survey.
+   *
+   * Formats follow the survey's [`locale`](#locale) by default. To configure formats independently of the survey's display language, set the `regionalFormat` object's [`locale`](/form-library/documentation/api-reference/regionalformat#locale) property to a locale code with a region, such as `"en-US"`.
+   *
+   * In addition, you can override regional date and time patterns, numeric separators, the currency symbol, and the currency pattern. See the [`RegionalFormat`](/form-library/documentation/api-reference/regionalformat) API reference for details.
+   *
+   * Those survey-wide settings can in turn be overridden by settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object. The inheritance order is:
+   *
+   * `SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
+   */
   public get regionalFormat(): RegionalFormat {
     return this.getPropertyValue("regionalFormat", undefined, () => this.createRegionalFormat());
   }

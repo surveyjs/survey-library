@@ -164,8 +164,8 @@ export class InputMaskPattern extends InputMaskBase {
    * - `hh` - Hours in 12-hour format, with leading zero for single-digit values.
    * - `MM` - Minutes.
    * - `ss` - Seconds.
-   * - `TT` - 12-hour clock period in upper case (AM/PM).
-   * - `tt` - 12-hour clock period in lower case (am/pm).
+   * - `TT` - 12-hour clock period in uppercase (AM/PM).
+   * - `tt` - 12-hour clock period in lowercase (am/pm).
    *
    * Example: `mm/dd/yyyy HH:MM:ss`
    *

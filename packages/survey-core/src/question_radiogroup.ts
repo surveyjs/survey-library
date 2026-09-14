@@ -5,6 +5,7 @@ import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Radio Button Group question type.
@@ -53,6 +54,18 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true && !this.selectedItem?.showCommentArea;
+  }
+  // Arrow keys change the selected value via the native radio group. Auto-advance
+  // waits for Enter so keyboard users can review the choice before leaving the page.
+  public onKeyDown(event: any): void {
+    if (event.key !== "Enter" && event.keyCode !== 13) return;
+    if (this.isEmpty() || this.isInputReadOnly) return;
+    const survey = this.survey as SurveyModel;
+    if (!survey || !survey.autoAdvanceEnabled) return;
+    if (event.preventDefault) event.preventDefault();
+    this.isMouseDown = true;
+    survey.tryGoNextPageAutomatic(this.getValueName());
+    this.isMouseDown = false;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);

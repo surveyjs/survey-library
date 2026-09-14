@@ -1044,4 +1044,107 @@ describe("question slider", () => {
     expect(q.max, "max is calculated on a value change").toBe(60);
     expect(q.min, "min is calculated on a value change").toBe(20);
   });
+
+  test("A change event is ignored unless preceded by pointerdown or keydown, Bug#11843", () => {
+    const json = { elements: [{ type: "slider", name: "q1", defaultValue: 50 }] };
+    const change = (val: number): any => ({ target: { value: String(val) } });
+
+    // Keyboard gesture: keydown -> change -> keyup commits the value
+    const survey1 = new SurveyModel(json);
+    const q1 = <QuestionSliderModel>survey1.getQuestionByName("q1");
+    q1.handleKeyDown(<any>{});
+    q1.handleOnChange(change(30), 0);
+    q1.handleKeyUp(<any>{});
+    expect(q1.value, "keyboard gesture commits the value").toBe(30);
+
+    // No gesture: an assistive technology or a test sets the input value and dispatches a change
+    const survey2 = new SurveyModel(json);
+    const q2 = <QuestionSliderModel>survey2.getQuestionByName("q1");
+    q2.handleOnChange(change(30), 0);
+    expect([...q2.renderedValue], "renderedValue follows a change without a gesture").toEqual([30]);
+    expect(q2.value, "a change without a gesture commits the value").toBe(30);
+    expect(survey2.getValue("q1"), "survey value is updated").toBe(30);
+
+    q2.handleOnChange(change(41.4), 0);
+    expect(q2.value, "the value is rounded to the step").toBe(41);
+    q2.handleOnChange(<any>{ target: { value: "abc" } }, 0);
+    expect(q2.value, "a non-numeric value is ignored").toBe(41);
+    q2.readOnly = true;
+    q2.handleOnChange(change(60), 0);
+    expect(q2.value, "read-only question ignores the change").toBe(41);
+  });
+
+  test("A change without a gesture in a range slider, Bug#11843", () => {
+    const survey = new SurveyModel({ elements: [{ type: "slider", name: "q1", sliderType: "range", defaultValue: [20, 60] }] });
+    const q = <QuestionSliderModel>survey.getQuestionByName("q1");
+    const change = (val: number): any => ({ target: { value: String(val) } });
+
+    q.handleOnChange(change(70), 0);
+    expect([...q.value], "thumbs are swapped and the value is sorted").toEqual([60, 70]);
+
+    q.handleOnChange(change(60), 1);
+    expect([...q.value], "thumbs closer than minRangeLength are rejected").toEqual([60, 70]);
+
+    q.maxRangeLength = 30;
+    q.handleOnChange(change(95), 1);
+    expect([...q.value], "range longer than maxRangeLength is rejected").toEqual([60, 70]);
+    q.handleOnChange(change(85), 1);
+    expect([...q.value], "range within maxRangeLength is committed").toEqual([60, 85]);
+  });
+
+  test("The extra change Firefox raises after pointerup doesn't break the value, Bug#11843", () => {
+    const survey = new SurveyModel({ elements: [{ type: "slider", name: "q1", defaultValue: 50 }] });
+    const q = <QuestionSliderModel>survey.getQuestionByName("q1");
+    const change = (val: number): any => ({ target: { value: String(val) } });
+    q.afterRenderQuestionElement(<any>{ querySelector: () => ({ style: { setProperty: () => {} } }) });
+
+    q.handlePointerDown(<any>{});
+    q.handleOnChange(change(30.4), 0);
+    q.handlePointerUp(<any>{ stopPropagation: () => {} });
+    expect(q.value, "the drag is committed and rounded to the step").toBe(30);
+
+    q.handleOnChange(change(30.4), 0);
+    expect(q.value, "the extra change keeps the value").toBe(30);
+    expect([...q.renderedValue], "the extra change keeps renderedValue").toEqual([30]);
+  });
+
+  test("Dragging a thumb of a range slider too close to another one reverts the value on pointerup", () => {
+    const survey = new SurveyModel({ elements: [{ type: "slider", name: "q1", sliderType: "range", defaultValue: [20, 60] }] });
+    const q = <QuestionSliderModel>survey.getQuestionByName("q1");
+    const change = (val: number): any => ({ target: { value: String(val) } });
+    q.afterRenderQuestionElement(<any>{ querySelector: () => ({ style: { setProperty: () => {} } }) });
+    expect(q.allowSwap, "allowSwap is on by default").toBe(true);
+
+    q.handlePointerDown(<any>{});
+    q.handleOnChange(change(59.6), 0);
+    expect([...q.renderedValue], "the thumb follows the pointer").toEqual([59.6, 60]);
+    q.handlePointerUp(<any>{ stopPropagation: () => {} });
+    expect([...q.value], "the value is reverted, the thumbs are closer than the step").toEqual([20, 60]);
+    expect([...q.renderedValue], "renderedValue is reverted").toEqual([20, 60]);
+
+    q.handleOnChange(change(59.6), 0);
+    expect([...q.value], "the extra Firefox change keeps the reverted value").toEqual([20, 60]);
+
+    q.handlePointerDown(<any>{});
+    q.handleOnChange(change(40.3), 0);
+    q.handlePointerUp(<any>{ stopPropagation: () => {} });
+    expect([...q.value], "a valid drag after the revert is committed").toEqual([40, 60]);
+
+    q.handlePointerDown(<any>{});
+    q.handleOnChange(change(70.2), 0);
+    q.handlePointerUp(<any>{ stopPropagation: () => {} });
+    expect([...q.value], "thumbs are swapped on a drag").toEqual([60, 70]);
+  });
+
+  test("Keyboard gesture keeps a copy of the value it started with", () => {
+    const survey = new SurveyModel({ elements: [{ type: "slider", name: "q1", sliderType: "range", defaultValue: [20, 60] }] });
+    const q = <QuestionSliderModel>survey.getQuestionByName("q1");
+    const change = (val: number): any => ({ target: { value: String(val) } });
+
+    q.handleKeyDown(<any>{}, 0);
+    q.handleOnChange(change(21), 0);
+    expect([...<number[]>q["oldValue"]], "oldValue is not changed by the gesture").toEqual([20, 60]);
+    q.handleKeyUp(<any>{});
+    expect([...q.value], "the keyboard change is committed").toEqual([21, 60]);
+  });
 });

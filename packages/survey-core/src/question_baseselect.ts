@@ -2664,6 +2664,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
   }
+  protected getFirstInputElementId(): string {
+    return this.inputId + "_0";
+  }
 }
 
 function checkCopyPropVisibility(obj: any, mode: string): boolean {

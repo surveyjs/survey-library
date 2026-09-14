@@ -67,6 +67,29 @@ describe("name/duplicate", () => {
     expect(findings[0].path).toBe("pages[1].elements[0]");
     expect(findings[0].related).toHaveLength(2);
   });
+  test("the message states the name is duplicated, without a count or a kind list", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q1" },
+        { type: "text", name: "q1" },
+      ],
+    }, "name/duplicate");
+    expect(findings).toHaveLength(2);
+    expect(findings[0].message).toBe("The name \"q1\" is duplicated.");
+    expect(findings[0].messageData.count).toBeUndefined();
+    expect(findings[0].messageData.kinds).toBeUndefined();
+  });
+  test("the message of a duplicate inside a namespace names the scope", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "col1" }, { name: "col1" }],
+      }],
+    }, "name/duplicate");
+    expect(findings[0].message).toBe("The name \"col1\" is duplicated inside matrix \"m1\".");
+    expect(findings[0].messageData.scope).toBe("matrix \"m1\"");
+  });
   test("question vs panel name clash is flagged", () => {
     expect(byRule({
       elements: [

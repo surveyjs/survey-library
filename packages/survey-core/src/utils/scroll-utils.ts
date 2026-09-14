@@ -79,6 +79,42 @@ export function isDocumentScroller(scroller: HTMLElement): boolean {
   return !!scroller && (scroller === docEl || scroller === body || (!!doc && scroller === doc.scrollingElement));
 }
 
+const scrollerAnimationIds = new WeakMap<HTMLElement, number>();
+const smoothScrollDuration = 500;
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function animateScrollTo(scroller: HTMLElement, top: number, duration: number): void {
+  const prevId = scrollerAnimationIds.get(scroller);
+  const win = DomWindowHelper.getWindow();
+  if (prevId && win) {
+    win.cancelAnimationFrame(prevId);
+  }
+  const start = scroller.scrollTop;
+  const change = top - start;
+  if (Math.abs(change) < 1 || duration <= 0) {
+    scroller.scrollTop = top;
+    scrollerAnimationIds.delete(scroller);
+    return;
+  }
+  let startedAt: number | null = null;
+  const step = (now: number) => {
+    if (startedAt === null) startedAt = now;
+    const t = Math.min(1, (now - startedAt) / duration);
+    scroller.scrollTop = start + change * easeInOutCubic(t);
+    if (t < 1) {
+      const id = DomWindowHelper.requestAnimationFrame(step);
+      if (id !== null) scrollerAnimationIds.set(scroller, id);
+    } else {
+      scrollerAnimationIds.delete(scroller);
+    }
+  };
+  const id = DomWindowHelper.requestAnimationFrame(step);
+  if (id !== null) scrollerAnimationIds.set(scroller, id);
+}
+
 export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement, options?: { block?: ScrollLogicalPosition, behavior?: ScrollBehavior }): void {
   if (!el || !scroller) return;
   const elRect = el.getBoundingClientRect();
@@ -100,8 +136,8 @@ export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement
   if (Math.abs(delta) < 1) return;
   const top = scroller.scrollTop + delta;
   const behavior = options?.behavior || "auto";
-  if (behavior !== "auto" && typeof scroller.scrollTo === "function") {
-    scroller.scrollTo({ top, behavior });
+  if (behavior !== "auto") {
+    animateScrollTo(scroller, top, smoothScrollDuration);
   } else {
     scroller.scrollTop = top;
   }

@@ -15313,12 +15313,21 @@ describe("Survey", () => {
     scroller.scrollTop = 50;
     scrollElementIntoScroller(el, scroller, { block: "center" });
     expect(scroller.scrollTop).toBe(0);
-    let scrollToOptions: any;
-    scroller.scrollTo = ((options: any) => { scrollToOptions = options; }) as any;
+    const originalRAF = window.requestAnimationFrame;
+    let now = 0;
+    window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      now += 250;
+      cb(now);
+      return now;
+    }) as any;
     el.getBoundingClientRect = () => ({ top: 250, bottom: 290, left: 0, right: 100, width: 100, height: 40, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
     scroller.scrollTop = 80;
-    scrollElementIntoScroller(el, scroller, { block: "center", behavior: "smooth" });
-    expect(scrollToOptions).toEqual({ top: 150, behavior: "smooth" });
+    try {
+      scrollElementIntoScroller(el, scroller, { block: "center", behavior: "smooth" });
+      expect(scroller.scrollTop).toBe(150);
+    } finally {
+      window.requestAnimationFrame = originalRAF;
+    }
     scroller.remove();
   });
 

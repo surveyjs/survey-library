@@ -5,6 +5,7 @@ import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "sv-ng-panel, '[sv-ng-panel]'",
   templateUrl: "./panel.component.html",
+  styleUrls: ["./hide-host.scss"]
 })
 export class PanelComponent extends BaseAngular<PanelModel> implements AfterViewInit {
   @Input() model!: PanelModel;

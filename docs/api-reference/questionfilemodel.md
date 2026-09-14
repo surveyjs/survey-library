@@ -68,6 +68,21 @@ Default value: `false`
 
 **Related APIs:** [`maxFiles`](#maxFiles)
 
+### `cameraFacingMode`
+
+**Type**: `string`
+
+Specifies the preferred camera to open for the File Upload question. Applies only if [`sourceType`](#sourceType) is `"camera"` or `"file-camera"`.
+
+Possible values:
+
+- `"user"` (default) &ndash; Prefer the front-facing camera
+- `"environment"` &ndash; Prefer the rear-facing camera
+
+The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
+
+Available since: v3.1.0
+
 ### `confirmDelete`
 
 **Type**: `boolean`
@@ -168,13 +183,15 @@ Disable this property only to implement a custom preview.
 
 **Type**: `string`
 
-Specifies the source of uploaded files.
+Specifies which sources respondents can use to upload files.
 
 Possible values:
 
-- `"file"` (default) - Allows respondents to select a local file.
-- `"camera"` - Allows respondents to capture and upload a photo.
-- `"file-camera"` - Allows respondents to select a local file or capture a photo.
+- `"file"` (default) &ndash; Allows respondents to select local files.
+- `"camera"` &ndash; Uses the device camera to capture and upload a photo. If no camera is available, the question falls back to file selection.
+- `"file-camera"` &ndash; Allows respondents to select local files or capture and upload a photo with the device camera. If no camera is available, file selection remains available.
+
+Use [`cameraFacingMode`](#cameraFacingMode) to specify the preferred camera for photo capture.
 
 [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
 

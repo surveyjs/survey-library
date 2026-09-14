@@ -17,8 +17,8 @@ product: Form Library
 - [`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) — A base class for all SurveyJS objects.
 - [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdynamicmodel.md) — A class that describes the Dynamic Matrix question type.
 - [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
-- [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md) — A class that describes an item in a Multiple Textboxes question.
 - [`QuestionFileModel`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodel.md) — A class that describes the File Upload question type.
+- [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md) — A class that describes an item in a Multiple Textboxes question.
 - [`QuestionSliderModel`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel.md) — A class that describes the Slider question type.
 - [`QuestionTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontextmodel.md) — A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
 - [`QuestionRatingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionratingmodel.md) — A class that describes the Rating Scale question type.

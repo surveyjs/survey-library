@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.0.3 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.0.4 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.3/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.4/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -441,7 +441,8 @@ A class that describes the File Upload question type. Inherits the properties of
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `acceptedCategories` | `image, video, audio, document, archive, custom` |  | An array of predefined file category names used to control which files users can upload. |
-| `sourceType` | `file, camera, file-camera` | `"file"` | Specifies the source of uploaded files. |
+| `cameraFacingMode` | `user, environment` | `"user"` | Specifies the preferred camera to open for the File Upload question. |
+| `sourceType` | `file, camera, file-camera` | `"file"` | Specifies which sources respondents can use to upload files. |
 | `acceptedTypes` | `string` |  | An `accept` attribute value for the underlying `<input>` element. |
 | `allowImagesPreview` | `boolean` | `true` | Specifies whether to show a preview of image files. |
 | `allowMultiple` | `boolean` |  | Specifies whether users can upload multiple files. |
@@ -616,6 +617,7 @@ A class that describes the Dynamic Matrix question type. Inherits the properties
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
+| `rowCountExpression` | `expression` |  | An expression that dynamically calculates the row count. |
 | `addRowButtonLocation` | `default, top, bottom, topBottom` | `"default"` | Specifies the location of the Add Row button. |
 | `addRowText` *(loc)* | `string` |  | A caption for the Add Row button. |
 | `allowAddRows` | `boolean` | `true` | Specifies whether users are allowed to add new rows. |
@@ -718,6 +720,7 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `templateElements` | `array` of `question` |  | An array of questions and panels included in a panel template. |
+| `panelCountExpression` | `expression` |  | An expression that dynamically calculates the panel count. |
 | `templateVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each panel. |
 | `displayMode` | `list, carousel, tab` | `"list"` | Specifies how to display panels. |
 | `newPanelPosition` | `next, last` | `"last"` | Specifies the position of newly added panels. |

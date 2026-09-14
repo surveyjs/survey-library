@@ -499,7 +499,7 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "728px",
+        "width": "760px",
         autoFocusFirstQuestion: false
       });
 

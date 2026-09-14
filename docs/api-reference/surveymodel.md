@@ -2111,7 +2111,7 @@ Sets a question value (answer).
 
 Sets a variable value.
 
-[Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+[Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
 
 **Parameters:**
 
@@ -2119,6 +2119,23 @@ Sets a variable value.
 | ---- | ---- | ----------- |
 | `name` | `string` | A variable name. |
 | `newValue` | `any` | A new variable value. |
+
+**Related APIs:** [`getVariable`](#getVariable), [`getVariableNames`](#getVariableNames), [`setVariables`](#setVariables)
+
+### `setVariables()`
+
+Sets multiple variables at once.
+
+Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
+
+[Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `variables` | `{ [name: string]: any; }` | An object containing the variable names and their new values. |
+| `clearPrevious` | `boolean` | Pass `true` to remove all existing variables that are not included in `variables`. |
 
 **Related APIs:** [`getVariable`](#getVariable), [`getVariableNames`](#getVariableNames)
 

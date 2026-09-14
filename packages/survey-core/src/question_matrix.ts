@@ -489,6 +489,9 @@ export class QuestionMatrixModel
   private formatCss(val: string) : string {
     return (val || "").replace("{type}", this.checkType);
   }
+  public get emptyCellCss() {
+    return new CssClassBuilder().append(this.cssClasses.cell).append(this.cssClasses.emptyCell).toString();
+  }
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;

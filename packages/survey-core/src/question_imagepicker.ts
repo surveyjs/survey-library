@@ -447,7 +447,42 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement)?.gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
+      this.loadRenderedContentSizes(observedElement);
     }
+  }
+  // Reads the sizes of content that finished loading before the UI layer attached its
+  // `load` handler. Server-side rendering ships the `img`/`video` element with its
+  // `src` already in the markup, so a cached file can be ready before hydration, and no
+  // framework replays `load` for an element that has already loaded. Without this the
+  // aspect ratio stays undefined and `processResponsiveness` falls back to `minImageHeight`.
+  private loadRenderedContentSizes(observedElement: Element): void {
+    if (!this.isResponsive) return;
+    const isVideo = this.contentMode === "video";
+    const elements = observedElement.querySelectorAll(isVideo ? "video" : "img");
+    if (elements.length === 0) return;
+    const elementBySrc: { [index: string]: any } = {};
+    for (let i = 0; i < elements.length; i++) {
+      // The attribute, not the property: the property resolves to an absolute URL.
+      const src = elements[i].getAttribute("src");
+      if (!!src && elementBySrc[src] === undefined) {
+        elementBySrc[src] = elements[i];
+      }
+    }
+    this.choices.forEach((choice: ItemValue) => {
+      const item = choice as ImageItemValue;
+      if (item["aspectRatio"] !== undefined) return;
+      const element = elementBySrc[item.locImageLink.renderedHtml];
+      if (!!element && this.isContentReady(element, isVideo)) {
+        this.onContentLoaded(item, { target: element });
+      }
+    });
+  }
+  private isContentReady(element: any, isVideo: boolean): boolean {
+    // Content that failed to load also reports `complete`, hence the size check. Those
+    // items are the `error` handler's business.
+    return isVideo
+      ? element.readyState >= 1 /* HAVE_METADATA */ && element.videoWidth > 0
+      : element.complete && element.naturalWidth > 0;
   }
   //a11y
   public get ariaRole(): string {

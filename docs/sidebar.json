@@ -87,6 +87,10 @@
       "Title": "Data Validation"
     },
     {
+      "Name": "survey-json-validation",
+      "Title": "Survey JSON Validation"
+    },
+    {
       "Name": "survey-localization",
       "Title": "Localization & Globalization"
     },

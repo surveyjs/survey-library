@@ -269,8 +269,8 @@ To try the functionality, you can add a custom property of the `"color"` type to
 ```html
 <!-- src/components/SurveyCreator.vue -->
 <script setup lang="ts">
-import "survey-core/survey-core.min.css";
-import "survey-creator-core/survey-creator-core.min.css";
+import "survey-core/survey-core.css";
+import "survey-creator-core/survey-creator-core.css";
 
 import { Serializer } from "survey-core";
 import { SurveyCreatorModel } from "survey-creator-core";

@@ -1,13 +1,12 @@
 <ng-template #template>
   <td [class]="cell.className" *ngIf="canRender" [title]="cell.getTitle()"
     [style]="getCellStyle()" [attr.colspan]="cell.colSpans" (focusin)="cell.focusIn()" #cellContainer>
-    <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell"
-      [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>
     <sv-action-bar *ngIf="cell.isActionsCell" [model]="cell.item.getData()" [handleClick]="false"></sv-action-bar>
     <ng-container *ngIf="cell.hasPanel">
       <ng-template [component]="{ name: panelComponentName, data: panelComponentData }"></ng-template>
     </ng-container>
     <div *ngIf="cell.isErrorsCell && cell.question?.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
+    <div *ngIf="cell.showErrorsTop && cell.question.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
     <span *ngIf="cell.showResponsiveTitle" [class]="cell.responsiveTitleCss">
       <sv-ng-string [model]="cell.responsiveLocTitle"></sv-ng-string>
       <sv-ng-matrixheaderrequired [column]="cell.column" [question]="cell.matrix">
@@ -35,6 +34,7 @@
       <div *ngIf="cell.isOtherChoice" [class]="cell.question.getCommentAreaCss(true)" [question]="cell.question" [item]="cell.question.otherItem"
         sv-ng-comment-choice></div>
     </div>
+    <div *ngIf="cell.showErrorsBottom && cell.question.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
     <ng-container *ngIf="cell.hasTitle">
       <ng-template
         [component]="{ name: question.getCellWrapperComponentName($any(cell)), data: { componentData: question.getCellWrapperComponentData($any(cell))} }">

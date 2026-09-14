@@ -132,7 +132,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskPattern extends InputMaskBase {
   private literals: Array<IMaskLiteral> = [];
@@ -169,9 +169,11 @@ export class InputMaskPattern extends InputMaskBase {
    *
    * Example: `mm/dd/yyyy HH:MM:ss`
    *
-   * The pattern syntax is canonical and locale-independent: the placeholders above keep their meaning in every survey locale, and `pattern` is not a localizable string. If you leave `pattern` unspecified for a "datetime" mask, the date order and separators are derived from the survey locale. The characters displayed for unfilled placeholders may be localized independently of the pattern syntax.
+   * The pattern syntax is locale-independent&mdash;the placeholders above keep their meaning in every locale. However, the characters displayed for unfilled placeholders may be localized.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * A `"datetime"` mask inherits its default format from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings and format locale. Setting an explicit `pattern` overrides those default formats.
+   *
+   * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see [settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)
    */
   @property() pattern: string;

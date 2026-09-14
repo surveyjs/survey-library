@@ -76,7 +76,9 @@ export function isValidCurrencyPattern(value: string): boolean {
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * The mask inherits its currency symbol, currency pattern, and numeric separators from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings. Explicit values in `maskSettings` override these defaults.
+ *
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskCurrency extends InputMaskNumeric {
   // The affixes the currently displayed text was wrapped with, kept apart from the format lookup
@@ -85,21 +87,42 @@ export class InputMaskCurrency extends InputMaskNumeric {
   // because an entered text and a saved value may differ in sign.
   private textAffixes: { positive: ICurrencyAffixes, negative: ICurrencyAffixes };
 
-  // The currency symbol the survey's format locale places around the number. It defaults to the
-  // symbol of that locale's own currency and is the author's to override - a survey in german may
-  // well ask for dollars - while the pattern decides where the symbol goes and where the minus
-  // sign goes with it. An explicit "" renders no symbol. A pattern without "@" ignores it.
+  /**
+   * A currency symbol or code displayed by the mask, for example, `"$"` or `"USD"`.
+   *
+   * The symbol's position is specified by the `@` token in the [`currencyPattern`](#currencyPattern). A pattern without this token displays no symbol.
+   *
+   * Specify this property to override the survey-wide currency symbol, or use an empty string to display no symbol.
+   *
+   * Default value: `undefined` (the mask inherits [`regionalFormat.currencySymbol`](/form-library/documentation/api-reference/regionalformat#currencySymbol) or the symbol used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"$"` in English))
+   */
   public get currencySymbol(): string {
     return this.getPropertyValue("currencySymbol");
   }
   public set currencySymbol(val: string) {
     this.setExplicitPropertyValue("currencySymbol", val);
   }
-  // The pattern authored on this mask, in the "#"/"@"/"-" grammar above. Unlike currencySymbol
-  // and the separators it has no defaultFunc: an unset pattern must read as empty so that an editor
-  // can show the inherited one (activeCurrencyPattern) as a placeholder rather than as a value.
-  // An empty pattern has no meaning of its own - "no affixes" is spelled currencySymbol: "" - so
-  // "" is stored as unset.
+  /**
+   * A pattern that specifies the position of the number, currency symbol, and minus sign.
+   *
+   * The pattern supports the following tokens:
+   *
+   * - `#` &ndash; The formatted number, including decimal and thousands separators. Required exactly once.
+   * - `@` &ndash; *(Optional)* The [currency symbol](#currencySymbol).
+   * - `-` &ndash; *(Optional)* The minus sign for negative values. Omitted for positive values. If this token is absent, the minus sign appears at the beginning of a negative value.
+   *
+   * Other characters are displayed as literal text. Digits and control characters are not allowed.
+   *
+   * Examples:
+   *
+   * - `"@#"` &rarr; `$1.2`
+   * - `"#@"` &rarr; `1.2$`
+   * - `"@ -#"` &rarr; `$ -1.2`
+   *
+   * A valid explicit pattern overrides [`regionalFormat.currencyPattern`](/form-library/documentation/api-reference/regionalformat#currencyPattern). If this property is unset, empty, or invalid, the mask uses the regional pattern, falling back to the [format locale](/form-library/documentation/api-reference/regionalformat#locale)'s currency pattern.
+   *
+   * Default value: `undefined` (the mask inherits its currency pattern)
+   */
   public get currencyPattern(): string {
     return this.getPropertyValue("currencyPattern");
   }
@@ -115,7 +138,8 @@ export class InputMaskCurrency extends InputMaskNumeric {
     return this.getFormatValue("currencyPattern", isValidCurrencyPattern) || "";
   }
   /**
-   * @deprecated Use the `currencyPattern` property instead. Kept for backward compatibility: it returns the text rendered before a positive number, and an assigned value is written into `currencyPattern`.
+   * One or several symbols to be displayed before the currency value.
+   * @deprecated Use the [`currencyPattern`](#currencyPattern) property instead.
    */
   public get prefix(): string {
     return this.activePrefix;
@@ -124,7 +148,8 @@ export class InputMaskCurrency extends InputMaskNumeric {
     this.setAffix(val, true);
   }
   /**
-   * @deprecated Use the `currencyPattern` property instead. Kept for backward compatibility: it returns the text rendered after a positive number, and an assigned value is written into `currencyPattern`.
+   * One or several symbols to be displayed after the currency value.
+   * @deprecated Use the [`currencyPattern`](#currencyPattern) property instead.
    */
   public get suffix(): string {
     return this.activeSuffix;

@@ -73,7 +73,7 @@ export class RegionalFormat extends Base implements ILocaleData {
   /**
    * A symbol that separates the digits of a large number into groups of three in [numeric](/form-library/documentation/api-reference/inputmasknumeric) and [currency input masks](/form-library/documentation/api-reference/inputmaskcurrency).
    *
-   * Set this property to an empty string to disable grouping. Grouping is also disabled if the separator matches the mask's [decimal separator](#decimalSeparator).
+   * Set this property to an empty string to disable grouping. Grouping is also disabled if the separator matches the mask's [`decimalSeparator`](#decimalSeparator).
    *
    * An explicit [`thousandsSeparator`](/form-library/documentation/api-reference/inputmasknumeric#thousandsSeparator) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
    *

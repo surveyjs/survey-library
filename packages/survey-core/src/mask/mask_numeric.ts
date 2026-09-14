@@ -57,7 +57,7 @@ export function isValidThousandsSeparator(value: string): boolean {
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskNumeric extends InputMaskBase {
   // Keep the format used for text separate from the default lookup cache: callbacks may read
@@ -72,9 +72,11 @@ export class InputMaskNumeric extends InputMaskBase {
    */
   @property() allowNegativeValues: boolean;
   /**
-   * A symbol used to separate the fractional part from the integer part of a displayed number.
+   * A symbol that separates the integer and fractional parts of a displayed number.
    *
-   * Default value: the symbol that the survey's format locale uses (`"."` in English)
+   * Specify this property to override the survey-wide decimal separator.
+   *
+   * Default value: `undefined` (the mask inherits [`regionalFormat.decimalSeparator`](/form-library/documentation/api-reference/regionalformat#decimalSeparator) or the separator used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"."` in English))
    * @see precision
    * @see thousandsSeparator
    */
@@ -94,9 +96,11 @@ export class InputMaskNumeric extends InputMaskBase {
    */
   @property() precision: number;
   /**
-   * A symbol used to separate the digits of a large number into groups of three.
+   * A symbol that separates the digits of a large number into groups of three.
    *
-   * Default value: the symbol that the survey's format locale uses (`","` in English)
+   * Set this property to override the survey-wide thousands separator, or use an empty string to disable grouping. Grouping is also disabled if the separator matches this mask's [`decimalSeparator`](#decimalSeparator).
+   *
+   * Default value: `undefined` (the mask inherits [`regionalFormat.thousandsSeparator`](/form-library/documentation/api-reference/regionalformat#thousandsSeparator) or the separator used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`","` in English))
    * @see decimalSeparator
    */
   public get thousandsSeparator(): string {

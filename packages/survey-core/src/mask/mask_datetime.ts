@@ -160,6 +160,8 @@ function isValidLocaleTimePattern(pattern: string): boolean {
 /**
  * A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
  *
+ * The mask inherits its format from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings and format locale. Set [`pattern`](#pattern) to specify a custom format.
+ *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
  * ```js
@@ -175,7 +177,7 @@ function isValidLocaleTimePattern(pattern: string): boolean {
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskDateTime extends InputMaskPattern {
   private defaultDate = "1970-01-01T";

@@ -65,9 +65,11 @@ lintSurvey(surveyJson, {
 | `lintSurvey(json, options?): ISurveyLintResult` | Runs every enabled rule over the survey JSON. |
 | `getRules(): Array<ILintRuleInfo>` | The rule registry: `{ id, defaultSeverity }` per rule. |
 | `renderFindings(result \| findings, options?): string` | Human-readable text report (`{ includeSuppressed?: boolean }`). |
+| `applyFix(json, fix): any` | Applies one fix and returns the repaired JSON, leaving the input untouched. See [Fixes](#fixes). |
 | `SurveyLintReasons` | `reason` values per rule id — the localization key, see [Localization](#localization). |
 | `SurveyLintHintReasons` | `hint.reason` values. |
 | `SurveyLintReproductionReasons` | `reproduction.reason` values. |
+| `SurveyLintFixReasons` | `fix.reason` values per rule id, see [Fixes](#fixes). |
 
 ### Result
 
@@ -92,6 +94,7 @@ interface ILintFinding {
   elementName?: string;
   elementType?: string;
   suggestion?: string;                 // closest known name, when the defect looks like a typo
+  fix?: ILintFix;                      // the one mechanical repair, when the defect has one
   related?: Array<{ path: string, elementName?: string }>;
   reproduction?: ILintReproduction;    // steps demonstrating the defect: { set } / { expect }
 }
@@ -149,6 +152,7 @@ interface ISurveyLintOptions {
   knownFunctions?: Array<string>;   // functions registered elsewhere/later
   components?: { [typeName: string]: { questionJSON?: any, elementsJSON?: Array<any> } };
   reportSuppressed?: boolean;       // keep suppressed findings in result.suppressed
+  newElementName?: (nameKind: string, taken: Array<string>) => string;  // how a fix names an element
   variablePresets?: ISurveyVariablePresets;   // the variable definition and its named presets
   variableDefinitionModel?: SurveyModel;      // that definition, as a model the host already has
 }
@@ -180,6 +184,80 @@ interface ISurveyLintOptions {
   *does* change is the model's **data** — every preset it checks is assigned to it — so pass an
   instrument, not a definition a user is filling in at that moment. Anything but a `SurveyModel`
   is a `TypeError`.
+
+## Fixes
+
+A finding whose defect has exactly one mechanical repair carries it as data:
+
+```ts
+interface ILintFix {
+  reason: string;                  // one of SurveyLintFixReasons[ruleId]
+  edits: Array<ILintFixEdit>;
+}
+
+interface ILintFixEdit {
+  op: "set" | "remove" | "rename" | "wrap";
+  path: string;                    // addresses the linted JSON, the way ILintFinding.path does
+  value?: any;                     // "set"
+  key?: string;                    // "rename"
+}
+```
+
+The linter never sees the document text, so an edit says **what** to change and not where in the
+text it stands. `op` acts on what `path` addresses: `set` writes a value and is the one op whose
+last segment may be missing yet, `remove` drops a key or splices an array item, `rename` gives a
+key another name where it stands, and `wrap` turns a value into a one-item array. A `value` is
+always a scalar or a string the linter composed, never a piece of the document itself - so a host
+that writes an edit back into text never copies an annotation into it.
+
+`applyFix(json, fix)` applies one fix and returns the repaired JSON. The input is left exactly as
+it was, the way `lintSurvey` leaves it: the containers on the way to the edit are copied and the
+rest of the document stays shared. It takes one fix at a time on purpose - removing an array item
+renumbers every path after it - so a host that repairs everything lints again after each one:
+
+```js
+let current = surveyJson;
+for (;;) {
+  const finding = lintSurvey(current).findings.filter(f => !!f.fix)[0];
+  if (!finding) break;
+  current = applyFix(current, finding.fix);
+}
+```
+
+`fix.reason` names what the repair does, and every value is listed in `SurveyLintFixReasons` -
+the same contract as `SurveyLintReasons`, for a host that labels the repair it offers.
+
+### Names a fix invents
+
+Two fixes have to make up a name: `name/duplicate` renames the later twin, and `property/required`
+names an element that has none. The linter spells it in English - `question1`, `page1`, `panel1` -
+and `options.newElementName(nameKind, taken)` lets a host spell it in the language its user works
+in. `nameKind` is `"page"`, `"panel"` or `"question"` (a matrix column, a multiple-text item and a
+calculated value are named the way a question is); `taken` is every name the document spells plus
+the ones this run has already handed out, so two duplicates never get one name.
+
+### Which rules offer a fix
+
+| Rule id | The repair |
+| --- | --- |
+| `name/duplicate` | A free name for the later twin (`elementNames` only - nothing says which calculated value a reference meant). |
+| `property/required` | A name for an element that has none. Every other required property states something no other key implies. |
+| `property/not-an-array` | The value becomes the one item of the array, which is what the deserializer does with it. |
+| `property/unknown` | Rename the key to the suggested property, or drop it - which is what the deserializer does anyway. A typo written next to the property it misspells is dropped rather than renamed over it. |
+| `property/dead` | Drop the key: it is written for nothing whichever way it is dead. |
+| `property/invalid-value` | The allowed value the suggestion spells, with its own type; or the bound an out-of-range number falls off. |
+| `element/unknown-type`, `trigger/unknown-type`, `validator/unknown-type`, `mask/mismatch` | Write the suggested type. |
+| `trigger/unknown-target`, `choices/dead-source`, `reference/unknown` (`keyNameNotFound`) | Write the suggested name. Only the segment that did not resolve is respelled. |
+| `reference/unknown` (in an expression, a binding or a piped text) | Respell the reference inside the string that carries it. The whole `{...}` token is replaced, so `{q1}` never matches inside `{q10}`. |
+| `expression/unknown-function` | Respell the call. Matched on an identifier boundary, so the same word written as an argument stays. |
+| `choices/duplicate` | Drop the repeated item (`duplicateValue` only - an item colliding with a built-in one can as well be repaired by the toggle that shows it). |
+
+A defect with no unique repair carries no fix: a cycle, a contradiction, an unreachable element,
+an empty page, a dead validator, a `valueName` with a dot in it, a count that contradicts its own
+bounds. Neither does one the document has no place for - a reference inside an `inArray` filter or
+inside a condition synthesized from a legacy trigger is a string the analysis carved out of
+another one, and no property holds it.
+
 
 ## Rules
 
@@ -426,6 +504,8 @@ WARN  expression/unknown-choice
 | `condition-eval.ts` | Three-valued evaluation of a condition over the modules above. |
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
 | `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
+| `fix-apply.ts` | `applyFix` — one fix onto a copy of the JSON. |
+| `new-name.ts` | The name a fix gives a new element, asked of the host first. |
 | `rule.ts` | `ILintRule`, `LintContext` (site iteration, memoized verdicts and domains, `report`), severity resolution and suppression matching. |
 | `reasons.ts` | The frozen `(ruleId, reason)` tables a host localizes on. |
 | `rules/` | One file per rule, registered in `rules/index.ts`. |

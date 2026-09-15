@@ -61,9 +61,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
       .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
-  protected getFirstInputElementId(): string {
-    return this.inputId + "_0";
-  }
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }

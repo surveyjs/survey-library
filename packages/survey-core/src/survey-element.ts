@@ -242,15 +242,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       // Native focus scrolling fights the centering animation; preventScroll lets the
       // survey move the focused question itself.
+      // Keep the keyboard focus ring so :focus-visible styles apply (radio, checkbox, boolean, image picker).
       const scroller = scrollIntoScroller && el.closest ? el.closest(".sv-scroll__scroller") as HTMLElement : null;
       if (scroller) {
         scrollElementIntoScroller(el, scroller);
-        el.focus({ focusVisible: false, preventScroll: true } as any);
+        el.focus({ focusVisible: true, preventScroll: true } as any);
       } else if (scrollIntoScroller) {
-        el.focus({ focusVisible: false, preventScroll: true } as any);
+        el.focus({ focusVisible: true, preventScroll: true } as any);
       } else {
         SurveyElement.ScrollElementToViewCore(el, true, false);
-        el.focus({ focusVisible: false } as any);
+        el.focus({ focusVisible: true } as any);
       }
       return true;
     }

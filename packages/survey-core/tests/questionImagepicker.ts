@@ -535,3 +535,12 @@ test("afterRender reads sizes of videos loaded before the handler was attached",
   expect(question.choices[0]["aspectRatio"]).toBe(2);
 });
 
+test("getFirstInputElementId targets the first choice input, bug#11844", () => {
+  const survey = new SurveyModel({
+    elements: [{ type: "imagepicker", name: "q1", choices: [{ value: "lion", imageLink: "lion.jpg" }] }]
+  });
+  const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+  expect((<any>question).getFirstInputElementId()).toBe(question.inputId + "_0");
+  expect(question.getItemId(question.visibleChoices[0])).toBe(question.inputId + "_0");
+});
+

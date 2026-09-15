@@ -380,3 +380,56 @@ describe("trigger/unknown-target fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("choices/dead-source fix", () => {
+  test("the question the author meant replaces the missing source", () => {
+    const json = {
+      elements: [
+        { type: "dropdown", name: "q1", choices: ["a", "b"] },
+        { type: "dropdown", name: "q2", choicesFromQuestion: "q11" },
+      ],
+    };
+    const finding = findingOf(json, "choices/dead-source");
+    expect(finding.reason).toBe("missing");
+    expect(finding.suggestion).toBe("q1");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["choices/dead-source"].setName,
+      edits: [{ op: "set", path: "elements[1].choicesFromQuestion", value: "q1" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "choices/dead-source")).toHaveLength(0);
+  });
+  test("the column the author meant replaces the missing field", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "src", columns: [{ name: "col1" }] },
+        {
+          type: "dropdown", name: "q1", choicesFromQuestion: "src",
+          choiceValuesFromQuestion: "col9",
+        },
+      ],
+    };
+    const finding = findingOf(json, "choices/dead-source");
+    expect(finding.reason).toBe("missing-field");
+    expect(finding.fix.edits).toEqual([
+      { op: "set", path: "elements[1].choiceValuesFromQuestion", value: "col1" },
+    ]);
+  });
+  test("a source that is not a source at all gets no fix", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "src" },
+        { type: "dropdown", name: "q1", choicesFromQuestion: "src" },
+      ],
+    };
+    const finding = findingOf(json, "choices/dead-source");
+    expect(finding.reason).toBe("not-a-source");
+    expect(finding.fix).toBeUndefined();
+  });
+  test("a question copying its choices from itself gets no fix", () => {
+    const json = { elements: [{ type: "dropdown", name: "q1", choicesFromQuestion: "q1" }] };
+    const finding = findingOf(json, "choices/dead-source");
+    expect(finding.reason).toBe("self");
+    expect(finding.fix).toBeUndefined();
+  });
+});

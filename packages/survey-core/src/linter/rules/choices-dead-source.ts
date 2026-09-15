@@ -3,9 +3,17 @@ import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { nameCandidates, resolveCarryForwardSource } from "../expression-utils";
 import { CIMultiMap, ElementRecord, getEffectiveType } from "../symbols";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { ILintFix } from "../types";
 
 const reasons = SurveyLintReasons["choices/dead-source"];
+const fixReasons = SurveyLintFixReasons["choices/dead-source"];
+
+// Both properties hold a plain name, so the whole value is respelled.
+function setNameFix(path: string, suggestion: string): ILintFix | undefined {
+  if (!suggestion) return undefined;
+  return { reason: fixReasons.setName, edits: [{ op: "set", path: path, value: suggestion }] };
+}
 
 // carry-forward sources that provide an array of objects to pick fields from
 const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
@@ -27,6 +35,8 @@ export const choicesDeadSourceRule: ILintRule = {
       const resolved = resolveCarryForwardSource(sourceName, record, ctx.index);
       const source = resolved.source;
       if (!source || (source.kind !== "question" && source.kind !== "column")) {
+        const sourceSuggestion = closestMatch(sourceName, resolved.candidates ||
+          nameCandidates(ctx.index, ctx.options, { accepts: rec => rec.kind === "question" }));
         ctx.report({
           message: "\"" + record.name + "\" copies its choices from \"" + sourceName +
             "\", but no question with that name exists.",
@@ -35,8 +45,8 @@ export const choicesDeadSourceRule: ILintRule = {
           messageData: { name: record.name, source: sourceName },
           elementName: record.name,
           elementType: record.type,
-          suggestion: closestMatch(sourceName, resolved.candidates ||
-            nameCandidates(ctx.index, ctx.options, { accepts: rec => rec.kind === "question" })),
+          suggestion: sourceSuggestion,
+          fix: setNameFix(path, sourceSuggestion),
         });
         return;
       }
@@ -75,6 +85,7 @@ export const choicesDeadSourceRule: ILintRule = {
         const checkField = (fieldValue: string, fieldPath: string, prop: string) => {
           if (!fieldValue) return;
           if (fields.has(fieldValue)) return;
+          const fieldSuggestion = closestMatch(fieldValue, fields.names());
           ctx.report({
             message: "\"" + record.name + "\" reads " + prop + " \"" + fieldValue + "\" from \"" + sourceName +
               "\", but " + sourceType + " \"" + sourceName + "\" has no such " +
@@ -87,7 +98,8 @@ export const choicesDeadSourceRule: ILintRule = {
             },
             elementName: record.name,
             elementType: record.type,
-            suggestion: closestMatch(fieldValue, fields.names()),
+            suggestion: fieldSuggestion,
+            fix: setNameFix(fieldPath, fieldSuggestion),
             related: [{ path: source.path, elementName: source.name }],
           });
         };

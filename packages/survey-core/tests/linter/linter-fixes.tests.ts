@@ -664,3 +664,149 @@ describe("property/invalid-value out-of-range fix", () => {
     expect(typeof finding.fix.edits[0].value).toBe("number");
   });
 });
+
+// One fixture per (ruleId, fix reason) the table declares. A new fix reason without a fixture
+// fails the last test of this block, the way linter-reasons pins the message reasons.
+const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
+  {
+    ruleId: "choices/dead-source", fixReason: "setName",
+    json: {
+      elements: [
+        { type: "dropdown", name: "q1", choices: ["a", "b"] },
+        { type: "dropdown", name: "q2", choicesFromQuestion: "q11" },
+      ],
+    },
+  },
+  {
+    ruleId: "choices/duplicate", fixReason: "removeItem",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b", "a"] }] },
+  },
+  {
+    ruleId: "element/unknown-type", fixReason: "setType",
+    json: { elements: [{ type: "textt", name: "q1" }] },
+  },
+  {
+    ruleId: "expression/unknown-function", fixReason: "renameFunction",
+    json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'col1')" },
+      ],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", fixReason: "setMaskType",
+    json: { elements: [{ type: "text", name: "q1", maskType: "currencyy" }] },
+  },
+  {
+    ruleId: "name/duplicate", fixReason: "renameElement",
+    json: { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/dead", fixReason: "removeKey",
+    json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "clampToRange",
+    json: { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "useAllowedValue",
+    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] },
+  },
+  {
+    ruleId: "property/not-an-array", fixReason: "wrapInArray",
+    json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] },
+  },
+  {
+    ruleId: "property/required", fixReason: "setName",
+    json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] },
+  },
+  {
+    ruleId: "property/unknown", fixReason: "renameKey",
+    json: { elements: [{ type: "text", name: "q1", titlee: "T" }] },
+  },
+  {
+    ruleId: "property/unknown", fixReason: "removeKey",
+    json: { elements: [{ type: "text", name: "q1", zzzzzzzzzz: 1 }] },
+  },
+  {
+    ruleId: "reference/unknown", fixReason: "renameReference",
+    json: {
+      elements: [
+        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{frut} = 'a'" },
+      ],
+    },
+  },
+  {
+    ruleId: "reference/unknown", fixReason: "setKeyName",
+    json: {
+      elements: [{ type: "matrixdynamic", name: "m1", keyName: "col9", columns: [{ name: "col1" }] }],
+    },
+  },
+  {
+    ruleId: "trigger/unknown-target", fixReason: "setName",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvalue", setToName: "q22", setValue: 1 }],
+    },
+  },
+  {
+    ruleId: "trigger/unknown-type", fixReason: "setType",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvaluee", setToName: "q2", setValue: 1 }],
+    },
+  },
+  {
+    ruleId: "validator/unknown-type", fixReason: "setType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "numericc", minValue: 1 }] }] },
+  },
+];
+
+describe("the fix reason table", () => {
+  FIX_FIXTURES.forEach(entry => {
+    test(entry.ruleId + " reaches " + entry.fixReason, () => {
+      const found = lintSurvey(entry.json).findings.filter(f =>
+        !!f.fix && f.ruleId === entry.ruleId && f.fix.reason === entry.fixReason);
+      expect(found.length).toBeGreaterThan(0);
+    });
+  });
+  test("every declared fix reason has a fixture, and every fixture a declared reason", () => {
+    const declared: Array<string> = [];
+    Object.keys(SurveyLintFixReasons).forEach(ruleId => {
+      const table: any = (<any>SurveyLintFixReasons)[ruleId];
+      Object.keys(table).forEach(key => declared.push(ruleId + "/" + table[key]));
+    });
+    const covered = FIX_FIXTURES.map(entry => entry.ruleId + "/" + entry.fixReason);
+    expect(declared.filter(name => covered.indexOf(name) < 0)).toEqual([]);
+    expect(covered.filter(name => declared.indexOf(name) < 0)).toEqual([]);
+  });
+});
+
+describe("applying fixes one after another", () => {
+  test("the defects run out and the input is never touched", () => {
+    const json = {
+      pages: [{
+        name: "p1",
+        elements: {
+          type: "dropdown", name: "q1", choices: ["a", "b", "a"], titlee: "Pick one",
+        },
+      }],
+      mode: "display",
+    };
+    const before = JSON.stringify(json);
+    let current: any = json;
+    for (let i = 0; i < 20; i++) {
+      const fixable = lintSurvey(current).findings.filter(f => !!f.fix)[0];
+      if (!fixable) break;
+      current = applyFix(current, fixable.fix);
+    }
+    expect(lintSurvey(current).findings.filter(f => !!f.fix)).toHaveLength(0);
+    expect(JSON.stringify(json)).toBe(before);
+    expect(current.pages[0].elements).toEqual([
+      { type: "dropdown", name: "q1", choices: ["a", "b"], title: "Pick one" },
+    ]);
+  });
+});

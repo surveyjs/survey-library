@@ -81,7 +81,7 @@ Possible values:
 
 The question retains the camera selected by the respondent when the camera is closed and reopened. Actual camera selection depends on browser and device support. A respondent can switch cameras using the Flip button in the UI.
 
-Available since: v3.1.0
+Available since: v3.0.4
 
 ### `confirmDelete`
 

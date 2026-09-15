@@ -300,6 +300,10 @@
             {
               "Name": "inputmaskpattern",
               "Title": "InputMaskPattern"
+            },
+            {
+              "Name": "regionalformat",
+              "Title": "RegionalFormat"
             }
           ]
         },

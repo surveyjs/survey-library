@@ -1,10 +1,13 @@
 import { SurveyIndex } from "./symbols";
 import { ISurveyLintOptions } from "./types";
 
-// The three words a host has for a new element. A matrix column and a multiple-text item are
+// The three words a host has for a new element. Asked with an element kind or with the class the
+// deserializer would build: a matrix column, a multiple-text item and a calculated value are all
 // named the way a question is, which is how a Creator names them too.
 function normalizeNameKind(kind: string): string {
-  return kind === "page" || kind === "panel" ? kind : "question";
+  if (kind === "page") return "page";
+  if (kind === "panel" || kind === "flowpanel") return "panel";
+  return "question";
 }
 
 // The English spelling, and the smallest number that is free: the same name a Creator would

@@ -165,3 +165,38 @@ describe("name/duplicate fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("property/required fix", () => {
+  test("an element with no name gets one", () => {
+    const json = { pages: [{ name: "p1", elements: [{ type: "text" }] }] };
+    const finding = findingOf(json, "property/required");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/required"].setName,
+      edits: [{ op: "set", path: "pages[0].elements[0].name", value: "question1" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.pages[0].elements[0]).toEqual({ type: "text", name: "question1" });
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/required")).toHaveLength(0);
+  });
+  test("a matrix column is named the way a question is", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ cellType: "text" }] }] };
+    expect(findingOf(json, "property/required").fix.edits[0].value).toBe("question1");
+  });
+  test("a required property that is not a name gets no fix", () => {
+    const json = { triggers: [{ type: "setvalue", setValue: 1 }] };
+    const findings = lintSurvey(json).findings.filter(f => f.ruleId === "property/required");
+    expect(findings.length).toBeGreaterThan(0);
+    findings.forEach(finding => {
+      expect(finding.messageData.key).not.toBe("name");
+      expect(finding.fix).toBeUndefined();
+    });
+  });
+  test("a name invented here never collides with one invented for a duplicate", () => {
+    const json = {
+      elements: [{ type: "text" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }],
+    };
+    const names = lintSurvey(json).findings.filter(f => !!f.fix).map(f => f.fix.edits[0].value);
+    expect(names).toHaveLength(2);
+    expect(names[0]).not.toBe(names[1]);
+  });
+});

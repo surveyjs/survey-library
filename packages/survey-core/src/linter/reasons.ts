@@ -266,4 +266,7 @@ export const SurveyLintFixReasons = Object.freeze({
   "property/not-an-array": Object.freeze({
     wrapInArray: "wrapInArray",
   }),
+  "property/required": Object.freeze({
+    setName: "setName",
+  }),
 });

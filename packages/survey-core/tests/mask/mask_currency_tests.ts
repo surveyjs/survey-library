@@ -1,10 +1,51 @@
-import { JsonObject } from "../../src/jsonobject";
-import { InputMaskCurrency } from "../../src/mask/mask_currency";
+import { JsonObject, Serializer } from "../../src/jsonobject";
+import { InputMaskCurrency, isValidCurrencyPattern } from "../../src/mask/mask_currency";
+import { InputMaskNumeric } from "../../src/mask/mask_numeric";
+import { InputMaskBase } from "../../src/mask/mask_base";
+import { InputElementAdapter } from "../../src/mask/input_element_adapter";
+import { localeData } from "../../src/locale-data";
 import { ITextInputParams } from "../../src/mask/mask_utils";
 import { QuestionTextModel } from "../../src/question_text";
+import { QuestionMultipleTextModel } from "../../src/question_multipletext";
+import { SurveyModel } from "../../src/survey";
+import { surveyLocalization } from "../../src/surveyStrings";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 describe("Currency mask", () => {
+  test.each([
+    { prefix: "$ ", suffix: "", saveMaskedValue: false },
+    { prefix: "", suffix: " EUR", saveMaskedValue: false },
+    { prefix: "$ ", suffix: " USD", saveMaskedValue: true }
+  ])("Locale changes preserve entered currency affixes: %j", ({ prefix, suffix, saveMaskedValue }) => {
+    const previousLocale = surveyLocalization.currentLocale;
+    const survey = new SurveyModel({ locale: "de", elements: [{
+      type: "text", name: "q1", maskType: "currency", maskSettings: { prefix, suffix, saveMaskedValue }
+    }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.value = 1234;
+      input.focus();
+      input.value = prefix + "1.234,5" + suffix;
+
+      survey.locale = "en";
+      expect(input.value).toBe(prefix + "1,234.5" + suffix);
+      expect(q.inputValue).toBe(input.value);
+      expect(q.value).toBe(saveMaskedValue ? prefix + "1,234" + suffix : 1234);
+      expect(q.maskSettings.getUnmaskedValue(input.value)).toBe(1234.5);
+
+      input.value = prefix + "-1,234." + suffix;
+      survey.regionalFormat.locale = "de";
+      expect(input.value).toBe(prefix + "-1.234," + suffix);
+    } finally {
+      survey.dispose();
+      input.remove();
+      surveyLocalization.currentLocale = previousLocale;
+    }
+  });
+
   test("Serialize InputMaskCurrency properties", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();
@@ -41,8 +82,8 @@ describe("Currency mask", () => {
         allowNegativeValues: false,
         min: 0,
         max: 1000,
-        prefix: "$",
-        suffix: " USD"
+        // the obsolete affixes are written as the pattern they produced
+        currencyPattern: "$-# USD"
       }
     });
   });
@@ -66,8 +107,10 @@ describe("Currency mask", () => {
     expect(maskSettings.allowNegativeValues, "numbermask allowNegativeValues").toBe(true);
     expect(maskSettings.min, "currency min").toBeUndefined();
     expect(maskSettings.max, "currency max").toBeUndefined();
-    expect(maskSettings.prefix, "currency prefix").toBeUndefined();
-    expect(maskSettings.suffix, "currency suffix").toBeUndefined();
+    expect(maskSettings.currencyPattern, "currency pattern").toBeUndefined();
+    // the obsolete affixes read what is rendered: the english pattern places the dollar first
+    expect(maskSettings.prefix, "currency prefix").toBe("$");
+    expect(maskSettings.suffix, "currency suffix").toBe("");
 
     jsonObject.toObject({
       name: "q1",
@@ -94,6 +137,7 @@ describe("Currency mask", () => {
     expect(maskSettings.allowNegativeValues, "currency allowNegativeValues").toBe(true);
     expect(maskSettings.min, "currency min").toBe(0);
     expect(maskSettings.max, "currency max").toBe(1000);
+    expect(maskSettings.currencyPattern, "currency pattern").toBe("$-# USD");
     expect(maskSettings.prefix, "currency prefix").toBe("$");
     expect(maskSettings.suffix, "currency suffix").toBe(" USD");
   });
@@ -102,6 +146,7 @@ describe("Currency mask", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$_";
     maskInstance.suffix = "_USD";
+    expect(maskInstance.currencyPattern, "the affixes are written into the pattern").toBe("$_-#_USD");
 
     let args: ITextInputParams = { prevValue: "$_1_USD", selectionStart: 0, selectionEnd: 0, insertedChars: "" };
     maskInstance.unwrapInputArgs(args);
@@ -121,6 +166,8 @@ describe("Currency mask", () => {
   test("get currency masked invalid text", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$ ";
+    // the sign goes right before the number, where the old affix mode rendered it
+    expect(maskInstance.currencyPattern, "the prefix is written into the pattern").toBe("$ -#");
     expect(maskInstance.getMaskedValue("")).toBe("");
     expect(maskInstance.getMaskedValue("9")).toBe("$ 9");
     expect(maskInstance.getMaskedValue("123A")).toBe("$ 123");
@@ -543,5 +590,1146 @@ describe("Currency mask", () => {
     result = maskInstance.processInput({ insertedChars: "", selectionStart: 3, selectionEnd: 4, prevValue: "$ -1", inputDirection: "forward" });
     expect(result.value, "remove 1").toBe("$ -");
     expect(result.caretPosition, "remove 1").toBe(3);
+  });
+});
+
+// written as escapes so that this file stays ascii: the euro sign, the CLDR currency sign (an
+// ordinary literal in the pattern grammar), a right-to-left mark and the saudi riyal symbol
+const euro = "\u20AC";
+const currencySign = "\u00A4";
+const rlm = "\u200F";
+const riyal = "\u0631.\u0633";
+const dollar = "$";
+const pound = "\u00A3";
+
+const createCurrencySurvey = (maskSettings?: any, locale?: string): SurveyModel => {
+  return new SurveyModel({ locale: locale, elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: maskSettings }] });
+};
+const getCurrencyMask = (survey: SurveyModel): InputMaskCurrency => {
+  return <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+};
+
+describe("Currency mask: inherited localization", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  test("A currency mask renders the format locale's separators inside its affixes", () => {
+    const survey = createCurrencySurvey({ prefix: "$ " }, "de");
+    const mask = getCurrencyMask(survey);
+    expect(mask.decimalSeparator, "german decimal").toBe(",");
+    expect(mask.thousandsSeparator, "german thousands").toBe(".");
+    expect(mask.getMaskedValue(1234.56), "german rendering").toBe("$ 1.234,56");
+    survey.locale = "";
+  });
+
+  test("The unmasked value is the same number under every locale", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD" });
+    const mask = getCurrencyMask(survey);
+    ["", "de", "fr", "nl", "ru"].forEach(locale => {
+      survey.locale = locale;
+      const masked = mask.getMaskedValue(1234.56);
+      expect(mask.getUnmaskedValue(masked), "locale " + JSON.stringify(locale) + " of " + JSON.stringify(masked)).toBe(1234.56);
+    });
+    survey.locale = "";
+  });
+
+  test("The separators resolve identically on the currency and the numeric mask", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maskType: "numeric" },
+        { type: "text", name: "q2", maskType: "currency", maskSettings: { prefix: "$ " } }
+      ]
+    });
+    const numeric = <InputMaskNumeric>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
+    const currency = <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q2")).maskSettings;
+    ["", "de", "fr", "ru"].forEach(locale => {
+      survey.locale = locale;
+      expect(currency.decimalSeparator, "decimal, locale " + JSON.stringify(locale)).toBe(numeric.decimalSeparator);
+      expect(currency.thousandsSeparator, "thousands, locale " + JSON.stringify(locale)).toBe(numeric.thousandsSeparator);
+      expect(currency.getMaskedValue(1234.56), "masked, locale " + JSON.stringify(locale)).toBe("$ " + numeric.getMaskedValue(1234.56));
+    });
+    survey.locale = "";
+  });
+
+  test("The separator defaultFunc of the numeric mask is inherited by the currency mask", () => {
+    const prop = Serializer.findProperty("currencymask", "decimalSeparator");
+    // a metadata query - the property grid, the json schema - has no instance to resolve with
+    expect(prop.defaultValue, "the canonical default").toBe(".");
+    const survey = createCurrencySurvey(undefined, "de");
+    const mask = getCurrencyMask(survey);
+    expect(mask.getExplicitPropertyValue("decimalSeparator"), "nothing is stored").toBeUndefined();
+    expect(prop.getDefaultValue(mask), "resolved for the mask's survey").toBe(",");
+    expect(mask.decimalSeparator, "the getter returns the locale value").toBe(",");
+    expect(mask.thousandsSeparator, "and so does the thousands separator").toBe(".");
+    survey.locale = "";
+  });
+
+  test("An authored separator on a currency mask still wins", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", decimalSeparator: "*", thousandsSeparator: "|" }, "de");
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(1234.56)).toBe("$ 1|234*56");
+    survey.locale = "";
+  });
+});
+
+describe("Currency mask: affix wrapping", () => {
+  test("An affix that also occurs inside the number is still rendered", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = ",";
+    maskInstance.suffix = ".";
+    expect(maskInstance.currencyPattern).toBe(",-#.");
+    expect(maskInstance.getMaskedValue(1234.5), "the affixes are added at the boundaries").toBe(",1,234.5.");
+    expect(maskInstance.getUnmaskedValue(",1,234.5."), "and removed there").toBe(1234.5);
+  });
+
+  test("unwrapInputArgs strips an affix only at the text boundary", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = ",";
+    const args: ITextInputParams = { prevValue: ",1,234", selectionStart: 6, selectionEnd: 6, insertedChars: "" };
+    maskInstance.unwrapInputArgs(args);
+    expect(args.prevValue, "the leading prefix is removed").toBe("1,234");
+    expect(args.selectionStart, "the caret follows it").toBe(5);
+
+    const inner: ITextInputParams = { prevValue: "1,234", selectionStart: 5, selectionEnd: 5, insertedChars: "" };
+    maskInstance.unwrapInputArgs(inner);
+    expect(inner.prevValue, "the same character inside the number is not an affix").toBe("1,234");
+    expect(inner.selectionStart, "and the caret does not move").toBe(5);
+  });
+
+  test("Explicitly empty affixes leave the number alone", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "";
+    maskInstance.suffix = "";
+    expect(maskInstance.currencyPattern, "a bare number with the sign in front").toBe("-#");
+    expect(maskInstance.getMaskedValue(1234)).toBe("1,234");
+    const args: ITextInputParams = { prevValue: "1,234", selectionStart: 5, selectionEnd: 5, insertedChars: "" };
+    maskInstance.unwrapInputArgs(args);
+    expect(args.prevValue).toBe("1,234");
+    expect(args.selectionStart).toBe(5);
+  });
+});
+
+describe("Currency mask: the locale placed symbol", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+    delete localeData["xx"];
+  });
+
+  test("Every pattern shape places the symbol and the sign", () => {
+    const shapes = [
+      { pattern: "@#", positive: euro + "1,234.56", negative: "-" + euro + "1,234.56" },
+      { pattern: "# @", positive: "1,234.56 " + euro, negative: "-1,234.56 " + euro },
+      { pattern: "@ -#", positive: euro + " 1,234.56", negative: euro + " -1,234.56" },
+      { pattern: "-@ #", positive: euro + " 1,234.56", negative: "-" + euro + " 1,234.56" },
+      { pattern: "@-#", positive: euro + "1,234.56", negative: euro + "-1,234.56" },
+      { pattern: "#- @", positive: "1,234.56 " + euro, negative: "1,234.56- " + euro },
+      { pattern: "# @-", positive: "1,234.56 " + euro, negative: "1,234.56 " + euro + "-" },
+      // the former CLDR symbol and subpattern separator are literal text now
+      { pattern: currencySign + " #", positive: currencySign + " 1,234.56", negative: "-" + currencySign + " 1,234.56" },
+      { pattern: "#; @", positive: "1,234.56; " + euro, negative: "-1,234.56; " + euro },
+      // nothing places the symbol, so none is rendered
+      { pattern: "#", positive: "1,234.56", negative: "-1,234.56" },
+      { pattern: "# EUR", positive: "1,234.56 EUR", negative: "-1,234.56 EUR" }
+    ];
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    shapes.forEach(shape => {
+      // the resolved pattern is cached per locale, so the data changes while no locale is set
+      survey.regionalFormat.locale = "";
+      localeData["xx"] = { decimalSeparator: ".", thousandsSeparator: ",", currencyPattern: shape.pattern };
+      survey.regionalFormat.locale = "xx";
+      const title = "pattern " + JSON.stringify(shape.pattern);
+      expect(mask.getMaskedValue(1234.56), title).toBe(shape.positive);
+      expect(mask.getMaskedValue(-1234.56), title + ", negative").toBe(shape.negative);
+      expect(mask.getUnmaskedValue(shape.positive), title + ", round trip").toBe(1234.56);
+      expect(mask.getUnmaskedValue(shape.negative), title + ", negative round trip").toBe(-1234.56);
+    });
+    survey.regionalFormat.locale = "";
+  });
+
+  test.each([
+    { title: "a prefix only", settings: { prefix: "$ " }, positive: "$ 1,234.56", negative: "$ -1,234.56" },
+    { title: "a suffix only", settings: { suffix: " USD" }, positive: "1,234.56 USD", negative: "-1,234.56 USD" },
+    { title: "an empty prefix", settings: { prefix: "" }, positive: "1,234.56", negative: "-1,234.56" },
+    { title: "an empty suffix", settings: { suffix: "" }, positive: "1,234.56", negative: "-1,234.56" },
+    { title: "both affixes", settings: { prefix: "$ ", suffix: " USD" }, positive: "$ 1,234.56 USD", negative: "$ -1,234.56 USD" },
+    { title: "neither affix", settings: {}, positive: "\u20AC1,234.56", negative: "-\u20AC1,234.56" }
+  ])("A currency symbol next to $title", ({ settings, positive, negative }) => {
+    const survey = createCurrencySurvey(Object.assign({ currencySymbol: euro }, settings));
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(1234.56), "positive").toBe(positive);
+    expect(mask.getMaskedValue(-1234.56), "negative").toBe(negative);
+    expect(mask.getUnmaskedValue(positive), "positive round trip").toBe(1234.56);
+    expect(mask.getUnmaskedValue(negative), "negative round trip").toBe(-1234.56);
+  });
+
+  test("An unset symbol renders the one the format locale writes", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    expect([mask.activePrefix, mask.activeSuffix], "the english dollar goes first").toEqual([dollar, ""]);
+    expect(mask.getMaskedValue(1234.56), "english").toBe(dollar + "1,234.56");
+    expect(mask.getMaskedValue(-1234.56), "english negative").toBe("-" + dollar + "1,234.56");
+    expect(mask.getUnmaskedValue(dollar + "1,234.56"), "round trip").toBe(1234.56);
+    survey.locale = "de";
+    expect([mask.activePrefix, mask.activeSuffix], "the german euro goes last").toEqual(["", " " + euro]);
+    expect(mask.getMaskedValue(1234.56), "german").toBe("1.234,56 " + euro);
+    survey.locale = "en-gb";
+    expect(mask.getMaskedValue(1234.56), "a regional locale writes its own currency").toBe(pound + "1,234.56");
+    survey.locale = "";
+  });
+
+  test("An authored symbol beats the one the locale writes", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(1234.56), "the authored symbol").toBe(euro + "1,234.56");
+    mask.resetPropertyValue("currencySymbol");
+    expect(mask.getMaskedValue(1234.56), "clearing it restores the locale's").toBe(dollar + "1,234.56");
+  });
+
+  test("A symbol in survey.regionalFormat beats the locale table and is beaten by the mask", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    survey.regionalFormat.currencySymbol = pound;
+    expect(mask.getMaskedValue(1234.56), "the survey wide override").toBe(pound + "1,234.56");
+    mask.currencySymbol = euro;
+    expect(mask.getMaskedValue(1234.56), "the mask still wins").toBe(euro + "1,234.56");
+    mask.resetPropertyValue("currencySymbol");
+    survey.regionalFormat.currencySymbol = "12";
+    expect(mask.getMaskedValue(1234.56), "an invalid override falls through to the table").toBe(dollar + "1,234.56");
+  });
+
+  test("The locale's symbol is a default: an unset property is not serialized, an assigned one is", () => {
+    const survey = createCurrencySurvey({}, "de");
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencySymbol, "the german default is readable").toBe(euro);
+    expect(mask.getData(), "nothing to write").toEqual({});
+    mask.currencySymbol = euro;
+    expect(mask.getData(), "an assignment is written even when it repeats the default").toEqual({ currencySymbol: euro });
+    mask.currencySymbol = "";
+    expect(mask.getData(), "and so is an empty symbol").toEqual({ currencySymbol: "" });
+    const survey2 = new SurveyModel(survey.toJSON());
+    expect(getCurrencyMask(survey2).getMaskedValue(1234.56), "the suppressed symbol survives a reload").toBe("1.234,56");
+    survey.locale = "";
+  });
+
+  test("An empty symbol renders no affix either", () => {
+    const survey = createCurrencySurvey({ currencySymbol: "" });
+    const mask = getCurrencyMask(survey);
+    expect(mask.activePrefix).toBe("");
+    expect(mask.getMaskedValue(1234.56)).toBe("1,234.56");
+  });
+
+  test("The active affixes follow the locale, the symbol and the authored pattern", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    expect([mask.activePrefix, mask.activeSuffix], "english places the symbol first").toEqual([euro, ""]);
+    survey.locale = "de";
+    expect([mask.activePrefix, mask.activeSuffix], "german places it last").toEqual(["", " " + euro]);
+    survey.locale = "nl";
+    expect([mask.activePrefix, mask.activeSuffix], "dutch adds a space").toEqual([euro + " ", ""]);
+    mask.prefix = "$ ";
+    expect([mask.activePrefix, mask.activeSuffix], "an authored affix wins").toEqual(["$ ", ""]);
+    // the obsolete affix stores nothing of its own: the pattern it wrote is what is cleared
+    mask.resetPropertyValue("currencyPattern");
+    expect([mask.activePrefix, mask.activeSuffix], "clearing it restores the locale").toEqual([euro + " ", ""]);
+    survey.locale = "";
+  });
+
+  test("Explicitly empty affixes round trip and keep the symbol suppressed", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, prefix: "", suffix: "" });
+    expect(getCurrencyMask(survey).getMaskedValue(1234.56), "authored mode").toBe("1,234.56");
+
+    const json = survey.toJSON();
+    const maskJson = json.pages[0].elements[0].maskSettings;
+    expect(maskJson.currencyPattern, "the empty affixes are written as a bare number pattern").toBe("-#");
+    expect("prefix" in maskJson, "no prefix key").toBe(false);
+    expect("suffix" in maskJson, "no suffix key").toBe(false);
+    expect(maskJson.currencySymbol, "the symbol is written").toBe(euro);
+
+    const survey2 = new SurveyModel(json);
+    expect(getCurrencyMask(survey2).getMaskedValue(1234.56), "the same text after a reload").toBe("1,234.56");
+    expect(getCurrencyMask(survey2).getMaskedValue(-1234.56), "and the same negative text").toBe("-1,234.56");
+  });
+
+  test("An unset affix is not serialized while a symbol is", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro }, "de");
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].maskSettings, "the survey json").toEqual({ currencySymbol: euro });
+    expect(getCurrencyMask(survey).getData(), "the getData path agrees").toEqual({ currencySymbol: euro });
+    survey.locale = "";
+  });
+
+  test.each(["en", "nl"])("Formatted change events and pasted amounts preserve their value under %s", (locale) => {
+    const survey = createCurrencySurvey({ currencySymbol: riyal }, locale);
+    const mask = getCurrencyMask(survey);
+    const input = document.createElement("input");
+    const adapter = new InputElementAdapter(mask, input);
+    try {
+      [1234.56, -1234.56].forEach(value => {
+        const formatted = mask.getMaskedValue(value);
+        input.value = formatted;
+        adapter.changeHandler({ target: input });
+        expect(input.value, "a change event preserves the formatted amount").toBe(formatted);
+        expect(mask.getUnmaskedValue(input.value)).toBe(value);
+
+        input.value = mask.getMaskedValue(99);
+        input.setSelectionRange(0, input.value.length);
+        adapter.beforeInputHandler({
+          data: formatted, inputType: "insertFromPaste", target: input, preventDefault: () => { }
+        });
+        expect(input.value, "pasting replaces the selected amount").toBe(formatted);
+        expect(mask.getUnmaskedValue(input.value)).toBe(value);
+      });
+    } finally {
+      adapter.dispose();
+      survey.dispose();
+    }
+  });
+
+  // A digit in an obsolete affix ({ prefix: "1", suffix: "3" } rendered "11233") is no longer
+  // expressible: the affix becomes pattern text, where a digit is invalid. The symbol still may be.
+  test.each([
+    { settings: { currencySymbol: "1" }, value: 123, expected: "1123" },
+    { settings: { currencySymbol: "1" }, value: -123, expected: "-1123" },
+    { settings: { currencySymbol: "3", currencyPattern: "# @" }, value: 123, expected: "123 3" }
+  ])("Affixes overlapping the number are added exactly once: %j", ({ settings, value, expected }) => {
+    const survey = createCurrencySurvey(settings);
+    const mask = getCurrencyMask(survey);
+    try {
+      expect(mask.getMaskedValue(value)).toBe(expected);
+      expect(mask.getUnmaskedValue(expected)).toBe(value);
+    } finally {
+      survey.dispose();
+    }
+  });
+
+  test.each([
+    { locale: "en", symbol: "$", signPosition: 0 },
+    { locale: "nl", symbol: "$", signPosition: 2 },
+    { locale: "en", symbol: "-$", signPosition: 0 }
+  ])("Deleting the localized sign preserves the digits: %j", ({ locale, symbol, signPosition }) => {
+    const survey = createCurrencySurvey({ currencySymbol: symbol }, locale);
+    const mask = getCurrencyMask(survey);
+    const input = document.createElement("input");
+    const adapter = new InputElementAdapter(mask, input);
+    try {
+      ["deleteContentForward", "deleteContentBackward"].forEach(inputType => {
+        input.value = mask.getMaskedValue(-123);
+        const caret = signPosition + (inputType === "deleteContentBackward" ? 1 : 0);
+        input.setSelectionRange(caret, caret);
+        adapter.beforeInputHandler({ data: null, inputType, target: input, preventDefault: () => { } });
+        expect(input.value, inputType).toBe(mask.getMaskedValue(123));
+        expect(mask.getUnmaskedValue(input.value), inputType).toBe(123);
+        expect(input.selectionStart, inputType).toBe(mask.activePrefix.length);
+      });
+    } finally {
+      adapter.dispose();
+      survey.dispose();
+    }
+  });
+
+  test("A symbol is inserted as literal text", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    // every pattern symbol inside the symbol text stays literal: the symbol is inserted after the
+    // pattern is read
+    ["@#-", "#", "@", riyal, "9", "-", ".", "$"].forEach(symbol => {
+      mask.currencySymbol = symbol;
+      const title = "symbol " + JSON.stringify(symbol);
+      const positive = mask.getMaskedValue(1234.56);
+      const negative = mask.getMaskedValue(-1234.56);
+      expect(positive, title).toBe(symbol + "1,234.56");
+      expect(negative, title + ", negative").toBe("-" + symbol + "1,234.56");
+      expect(mask.getUnmaskedValue(positive), title + ", round trip").toBe(1234.56);
+      expect(mask.getUnmaskedValue(negative), title + ", negative round trip").toBe(-1234.56);
+    });
+    mask.currencySymbol = riyal;
+    expect(mask.getUnmaskedValue("1,234.56"), "a bare number is still accepted").toBe(1234.56);
+    expect(mask.getUnmaskedValue("$ 123"), "and so is text around one").toBe(123);
+  });
+
+  test.each([false, true])("A symbol that contains the decimal separator keeps the numeric meaning, saveMaskedValue=%s", (saveMaskedValue) => {
+    const survey = createCurrencySurvey({ currencySymbol: riyal, saveMaskedValue: saveMaskedValue });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = riyal + "1,234.56";
+    expect(q.inputValue, "the rendered text").toBe(riyal + "1,234.56");
+    expect(q.value, "the stored value").toBe(saveMaskedValue ? riyal + "1,234.56" : 1234.56);
+    expect(q.getExpressionValue(q.value), "the expression value").toBe(1234.56);
+
+    q.inputValue = "-" + riyal + "1,234.56";
+    expect(q.value, "the stored negative value").toBe(saveMaskedValue ? "-" + riyal + "1,234.56" : -1234.56);
+    expect(q.getExpressionValue(q.value), "the negative expression value").toBe(-1234.56);
+  });
+
+  test("Typing under a locale that puts the symbol first", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    const adapter = new InputElementAdapter(mask, testInput);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: testInput, preventDefault: () => { } });
+    };
+    const remove = (inputType: string, caret: number): void => {
+      testInput.setSelectionRange(caret, caret);
+      adapter.beforeInputHandler({ data: null, inputType: inputType, target: testInput, preventDefault: () => { } });
+    };
+
+    type("1");
+    expect(testInput.value, "type 1").toBe(euro + "1");
+    expect(testInput.selectionStart, "caret after 1").toBe(2);
+
+    type("2");
+    type("3");
+    type("4");
+    expect(testInput.value, "type 4").toBe(euro + "1,234");
+    expect(testInput.selectionStart, "caret after 4").toBe(6);
+
+    type(".");
+    type("5");
+    expect(testInput.value, "type the fraction").toBe(euro + "1,234.5");
+    expect(testInput.selectionStart, "caret after the fraction").toBe(8);
+
+    remove("deleteContentBackward", 6);
+    expect(testInput.value, "backspace over the 4").toBe(euro + "123.5");
+    expect(testInput.selectionStart, "caret after the backspace").toBe(4);
+
+    remove("deleteContentForward", 4);
+    expect(testInput.value, "delete the decimal separator").toBe(euro + "1,235");
+    expect(testInput.selectionStart, "caret after the delete").toBe(5);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("Typing a negative value under a locale that puts the sign between the symbol and the number", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createCurrencySurvey({ currencySymbol: euro }, "nl");
+    const mask = getCurrencyMask(survey);
+    const adapter = new InputElementAdapter(mask, testInput);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: testInput, preventDefault: () => { } });
+    };
+
+    type("-");
+    expect(testInput.value, "the sign alone").toBe(euro + " -");
+    expect(testInput.selectionStart, "caret after the sign").toBe(3);
+
+    type("1");
+    expect(testInput.value, "type 1").toBe(euro + " -1");
+    expect(testInput.selectionStart, "caret after 1").toBe(4);
+
+    type("2");
+    type("3");
+    type("4");
+    expect(testInput.value, "type 4").toBe(euro + " -1.234");
+    expect(testInput.selectionStart, "caret after 4").toBe(8);
+
+    testInput.setSelectionRange(8, 8);
+    adapter.beforeInputHandler({ data: null, inputType: "deleteContentBackward", target: testInput, preventDefault: () => { } });
+    expect(testInput.value, "backspace over the 4").toBe(euro + " -123");
+    expect(testInput.selectionStart, "caret after the backspace").toBe(6);
+    expect(mask.getUnmaskedValue(testInput.value), "the entered number").toBe(-123);
+
+    adapter.dispose();
+    testInput.remove();
+    survey.locale = "";
+  });
+
+  test("Typing the sign first under a locale that puts the sign first", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    const adapter = new InputElementAdapter(mask, testInput);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: testInput, preventDefault: () => { } });
+    };
+
+    type("-");
+    expect(testInput.value, "the sign alone").toBe("-" + euro);
+    expect(testInput.selectionStart, "caret after the sign").toBe(2);
+
+    type("5");
+    expect(testInput.value, "type 5").toBe("-" + euro + "5");
+    expect(testInput.selectionStart, "caret after 5").toBe(3);
+    expect(mask.getUnmaskedValue(testInput.value), "the entered number").toBe(-5);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("allowNegativeValues false keeps the sign out of a locale placed affix", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, allowNegativeValues: false });
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue("-1234.56")).toBe(euro + "1,234.56");
+    const result = mask.processInput({ insertedChars: "-", selectionStart: 1, selectionEnd: 1, prevValue: euro, inputDirection: "forward" });
+    // an empty entry has no affixes of its own, as a currency mask has always rendered it
+    expect(result.value, "the sign is not accepted").toBe("");
+  });
+
+  test.each([
+    { title: "an authored prefix", settings: { prefix: "$ " }, before: "$ 1.234,5", after: "$ 1,234.5" },
+    { title: "a locale placed symbol", settings: { currencySymbol: "\u20AC" }, before: "1.234,5 \u20AC", after: "\u20AC1,234.5" },
+    // the symbol itself changes with the locale here, not only its position
+    { title: "the locale's own symbol", settings: {}, before: "1.234,5 \u20AC", after: "$1,234.5" }
+  ])("A half typed entry survives a locale change with $title", ({ settings, before, after }) => {
+    const survey = createCurrencySurvey(settings, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      input.focus();
+      input.value = before;
+      survey.locale = "en";
+      expect(input.value, "the entry is re-formatted").toBe(after);
+      expect(q.inputValue, "the question keeps the same text").toBe(after);
+      expect(getCurrencyMask(survey).getUnmaskedValue(input.value), "it still means the same number").toBe(1234.5);
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test("A negative entry with a trailing decimal separator survives a locale change", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      input.focus();
+      input.value = "-1.234, " + euro;
+      survey.locale = "en";
+      expect(input.value, "the sign moves in front of the symbol").toBe("-" + euro + "1,234.");
+      expect(q.inputValue).toBe("-" + euro + "1,234.");
+      survey.regionalFormat.locale = "nl";
+      expect(input.value, "and between the symbol and the number").toBe(euro + " -1.234,");
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test("A focused deletion survives a locale change with a locale placed symbol", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.value = 1234;
+      expect(input.value, "the german rendering").toBe("1.234 " + euro);
+      input.focus();
+      input.setSelectionRange(0, input.value.length);
+      q["maskInputAdapter"].beforeInputHandler({
+        data: null, inputType: "deleteContentBackward", target: input, preventDefault: () => { }
+      });
+      expect(input.value, "the field is emptied").toBe("");
+
+      survey.locale = "en";
+      expect(input.value, "an emptied field stays empty").toBe("");
+      expect(q.inputValue).toBe("");
+      expect(q.value, "the stored number is untouched").toBe(1234);
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test("A saved value and an entered text with different signs are converted independently", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.inputValue = "1234,56";
+      expect(q.value, "the german masked value is stored").toBe("1.234,56 " + euro);
+      input.focus();
+      input.value = "-1.234,5 " + euro;
+
+      survey.locale = "en";
+      expect(q.value, "the positive saved value").toBe(euro + "1,234.56");
+      expect(input.value, "the negative entry").toBe("-" + euro + "1,234.5");
+      expect(q.getExpressionValue(q.value), "the expression value").toBe(1234.56);
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test.each(["locale", "regionalFormat.locale"])("Reading the active affixes in a callback during a %s change preserves both texts", (propertyName) => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    try {
+      q.afterRenderQuestionElement(input);
+      q.inputValue = "1234,56";
+      input.focus();
+      input.value = "-1.234,5 " + euro;
+      q.localeChangedCallback = () => {
+        const mask = getCurrencyMask(survey);
+        // the new defaults, read before the mask converts the text the previous ones produced
+        expect(mask.activePrefix).toBe(euro);
+        expect(mask.activeSuffix).toBe("");
+        expect(mask.decimalSeparator).toBe(".");
+      };
+
+      if (propertyName === "locale") { survey.locale = "en"; } else { survey.regionalFormat.locale = "en"; }
+      expect(q.value, "the saved value").toBe(euro + "1,234.56");
+      expect(input.value, "the entered text").toBe("-" + euro + "1,234.5");
+      q.localeChangedCallback = undefined;
+    } finally {
+      survey.dispose();
+      input.remove();
+    }
+  });
+
+  test("A masked value stored under one locale is re-masked into the new locale's affixes", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "-1234,56";
+    expect(q.value, "the german masked value").toBe("-1.234,56 " + euro);
+
+    survey.regionalFormat.locale = "nl";
+    expect(q.value, "the dutch masked value").toBe(euro + " -1.234,56");
+    expect(q.inputValue, "the rendered text follows").toBe(euro + " -1.234,56");
+    expect(q.getExpressionValue(q.value), "the number never changes").toBe(-1234.56);
+    survey.dispose();
+  });
+
+  test("Pattern validation", () => {
+    expect(isValidCurrencyPattern("@#"), "a leading symbol").toBe(true);
+    expect(isValidCurrencyPattern("# @"), "a trailing symbol").toBe(true);
+    expect(isValidCurrencyPattern("@ -#"), "a placed sign").toBe(true);
+    expect(isValidCurrencyPattern("#- @"), "a trailing sign").toBe(true);
+    expect(isValidCurrencyPattern("# EUR"), "no symbol: nothing is placed").toBe(true);
+    expect(isValidCurrencyPattern("#"), "the number alone").toBe(true);
+    expect(isValidCurrencyPattern(currencySign + " #"), "the CLDR currency sign is a literal").toBe(true);
+    expect(isValidCurrencyPattern("#; @"), "and so is a semicolon").toBe(true);
+    expect(isValidCurrencyPattern("@#;@ -#"), "a former subpattern pair spells the number twice").toBe(false);
+    expect(isValidCurrencyPattern(""), "an empty pattern").toBe(false);
+    expect(isValidCurrencyPattern(undefined), "no pattern").toBe(false);
+    expect(isValidCurrencyPattern("@##"), "two numbers").toBe(false);
+    expect(isValidCurrencyPattern("@@#"), "two symbols").toBe(false);
+    expect(isValidCurrencyPattern("-@ -#"), "two signs").toBe(false);
+    expect(isValidCurrencyPattern("@"), "no number").toBe(false);
+    expect(isValidCurrencyPattern("@ -"), "a sign and no number").toBe(false);
+    expect(isValidCurrencyPattern("@1#"), "a digit").toBe(false);
+    expect(isValidCurrencyPattern("@#" + rlm), "a control character").toBe(false);
+  });
+
+  test("An invalid pattern falls through the chain", () => {
+    localeData["xx"] = { currencyPattern: "@#" + rlm };
+    const survey = createCurrencySurvey({ currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    survey.regionalFormat.locale = "xx";
+    expect(mask.getMaskedValue(1234.56), "the english pattern is used instead").toBe(euro + "1,234.56");
+    survey.regionalFormat.locale = "";
+  });
+
+  test("The sign goes where the pattern puts it, and at the very beginning otherwise", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(-1234.56), "@#").toBe("-$1,234.56");
+    survey.regionalFormat.locale = "de";
+    survey.regionalFormat.currencyPattern = "# @";
+    expect(mask.getMaskedValue(-1234.56), "# @").toBe("-1.234,56 " + euro);
+    survey.regionalFormat.currencyPattern = "@ -#";
+    expect(mask.getMaskedValue(1234.56), "@ -#, positive").toBe(euro + " 1.234,56");
+    expect(mask.getMaskedValue(-1234.56), "@ -#, negative").toBe(euro + " -1.234,56");
+    survey.regionalFormat.currencyPattern = "#- @";
+    expect(mask.getMaskedValue(1234.56), "#- @, positive").toBe("1.234,56 " + euro);
+    expect(mask.getMaskedValue(-1234.56), "#- @, negative").toBe("1.234,56- " + euro);
+    expect(mask.getUnmaskedValue("1.234,56- " + euro), "#- @, negative round trip").toBe(-1234.56);
+    expect(mask.getUnmaskedValue("1.234,56 " + euro), "#- @, positive round trip").toBe(1234.56);
+  });
+
+  test("Typing the sign into a field whose pattern places it in the suffix", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = createCurrencySurvey({ currencySymbol: euro }, "de");
+    survey.regionalFormat.currencyPattern = "#- @";
+    const mask = getCurrencyMask(survey);
+    const adapter = new InputElementAdapter(mask, testInput);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: testInput, preventDefault: () => { } });
+    };
+    try {
+      type("1");
+      type("2");
+      type("3");
+      type("4");
+      expect(testInput.value, "type 4").toBe("1.234 " + euro);
+      expect(testInput.selectionStart, "caret after 4").toBe(5);
+
+      type("-");
+      expect(testInput.value, "the sign goes into the suffix").toBe("1.234- " + euro);
+      expect(testInput.selectionStart, "the caret stays with the digits").toBe(5);
+
+      type("5");
+      expect(testInput.value, "type 5").toBe("12.345- " + euro);
+      expect(testInput.selectionStart, "caret after 5").toBe(6);
+      expect(mask.getUnmaskedValue(testInput.value), "the entered number").toBe(-12345);
+
+      testInput.setSelectionRange(7, 7);
+      adapter.beforeInputHandler({ data: null, inputType: "deleteContentBackward", target: testInput, preventDefault: () => { } });
+      expect(testInput.value, "backspace over the sign").toBe("12.345 " + euro);
+      expect(mask.getUnmaskedValue(testInput.value), "the number is positive again").toBe(12345);
+    } finally {
+      adapter.dispose();
+      testInput.remove();
+      survey.dispose();
+    }
+  });
+
+  test("Symbol text that contains a pattern symbol is literal", () => {
+    const survey = createCurrencySurvey({ currencySymbol: "US$" });
+    survey.regionalFormat.currencyPattern = "@ #";
+    const mask = getCurrencyMask(survey);
+    expect(mask.getMaskedValue(1234.56), "US$").toBe("US$ 1,234.56");
+    expect(mask.getMaskedValue(-1234.56), "US$, negative").toBe("-US$ 1,234.56");
+    mask.currencySymbol = "#";
+    expect(mask.getMaskedValue(1234.56), "a literal #").toBe("# 1,234.56");
+    expect(mask.getUnmaskedValue("# 1,234.56"), "the number is still parsed").toBe(1234.56);
+    expect(mask.getMaskedValue(-1234.56), "a literal #, negative").toBe("-# 1,234.56");
+    expect(mask.getUnmaskedValue("-# 1,234.56"), "the negative number is still parsed").toBe(-1234.56);
+  });
+
+  test("The caret shift uses the rendered affix length of a symbol longer than one character", () => {
+    const survey = createCurrencySurvey({ currencySymbol: "US$" });
+    survey.regionalFormat.currencyPattern = "@ #";
+    const mask = getCurrencyMask(survey);
+    const affixes = (isNegative: boolean): any => mask["getAffixes"](isNegative);
+    expect(affixes(false).prefix, "the positive prefix").toBe("US$ ");
+    expect(affixes(true).prefix, "a sign in the prefix makes the negative one a character longer").toBe("-US$ ");
+
+    let args: ITextInputParams = { prevValue: "US$ 1,234", selectionStart: 9, selectionEnd: 9, insertedChars: "" };
+    mask.unwrapInputArgs(args);
+    expect([args.prevValue, args.selectionStart, args.selectionEnd], "positive").toEqual(["1,234", 5, 5]);
+    args = { prevValue: "-US$ 1,234", selectionStart: 10, selectionEnd: 10, insertedChars: "" };
+    mask.unwrapInputArgs(args);
+    expect([args.prevValue, args.selectionStart, args.selectionEnd], "negative").toEqual(["-1,234", 6, 6]);
+
+    let result = mask.processInput({ insertedChars: "5", selectionStart: 9, selectionEnd: 9, prevValue: "US$ 1,234", inputDirection: "forward" });
+    expect([result.value, result.caretPosition], "typing after a positive number").toEqual(["US$ 12,345", 10]);
+    result = mask.processInput({ insertedChars: "5", selectionStart: 10, selectionEnd: 10, prevValue: "-US$ 1,234", inputDirection: "forward" });
+    expect([result.value, result.caretPosition], "typing after a negative number").toEqual(["-US$ 12,345", 11]);
+
+    survey.regionalFormat.currencyPattern = "@ #-";
+    expect(affixes(true).prefix, "a sign in the suffix leaves the prefixes equal").toBe(affixes(false).prefix);
+    args = { prevValue: "US$ 1,234-", selectionStart: 9, selectionEnd: 9, insertedChars: "" };
+    mask.unwrapInputArgs(args);
+    expect([args.prevValue, args.selectionStart, args.selectionEnd], "negative, sign in the suffix").toEqual(["-1,234", 6, 6]);
+    result = mask.processInput({ insertedChars: "5", selectionStart: 9, selectionEnd: 9, prevValue: "US$ 1,234-", inputDirection: "forward" });
+    expect([result.value, result.caretPosition], "typing before a trailing sign").toEqual(["US$ 12,345-", 10]);
+  });
+
+  const isRtlSeriesMerged = typeof (<any>InputMaskBase.prototype).getInputDirection === "function";
+  test.skipIf(!isRtlSeriesMerged)("The input direction follows the resolved symbol - needs bug/11809-mask-rtl", () => {
+    const survey = createCurrencySurvey({ currencySymbol: riyal });
+    const mask = getCurrencyMask(survey);
+    expect((<any>mask).getLiteralText(), "the symbol is part of the literal text").toContain(riyal);
+    expect((<any>mask).getInputDirection(), "a right-to-left symbol opts out of the forced direction").toBe("auto");
+
+    mask.currencySymbol = euro;
+    survey.locale = "de";
+    expect((<any>mask).getInputDirection(), "a left-to-right symbol does not").toBe("ltr");
+    survey.locale = "";
+  });
+});
+
+describe("Currency mask: currencyPattern and the obsolete affixes", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+  const render = (mask: InputMaskCurrency): Array<string> => [mask.getMaskedValue(1234.56), mask.getMaskedValue(-1234.56)];
+  const getMaskJson = (survey: SurveyModel): any => survey.toJSON().pages[0].elements[0].maskSettings;
+
+  test("activeCurrencyPattern resolves the authored pattern, then the regional format, then the locale", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern, "nothing is authored").toBeUndefined();
+    expect(mask.activeCurrencyPattern, "english").toBe("@#");
+    survey.locale = "de";
+    expect(mask.activeCurrencyPattern, "german").toBe("# @");
+    survey.regionalFormat.currencyPattern = "@ -#";
+    expect(mask.activeCurrencyPattern, "the regional format override").toBe("@ -#");
+    mask.currencyPattern = "# @-";
+    expect(mask.activeCurrencyPattern, "the authored pattern").toBe("# @-");
+    expect(render(mask), "and it is what renders").toEqual(["1.234,56 " + euro, "1.234,56 " + euro + "-"]);
+    mask.currencyPattern = "@##";
+    expect(mask.activeCurrencyPattern, "an invalid authored pattern falls through").toBe("@ -#");
+    survey.regionalFormat.currencyPattern = undefined;
+    expect(mask.activeCurrencyPattern, "down to the locale").toBe("# @");
+    survey.locale = "";
+  });
+
+  test("activeCurrencyPattern is empty when nothing resolves", () => {
+    localeData["xx"] = { decimalSeparator: ".", thousandsSeparator: "," };
+    const saved = localeData["en"].currencyPattern;
+    try {
+      delete localeData["en"].currencyPattern;
+      const survey = createCurrencySurvey();
+      survey.regionalFormat.locale = "xx";
+      expect(getCurrencyMask(survey).activeCurrencyPattern).toBe("");
+      expect(getCurrencyMask(survey).getMaskedValue(1234.56), "a bare number").toBe("1,234.56");
+    } finally {
+      localeData["en"].currencyPattern = saved;
+      delete localeData["xx"];
+    }
+  });
+
+  test("An empty currencyPattern is stored as unset", () => {
+    const mask = new InputMaskCurrency();
+    mask.currencyPattern = "@ #";
+    mask.currencyPattern = "";
+    expect(mask.getExplicitPropertyValue("currencyPattern")).toBeUndefined();
+    expect(mask.getData(), "nothing is written").toEqual({});
+  });
+
+  test("The prefix and suffix getters return the rendered affixes of the inherited pattern", () => {
+    const survey = createCurrencySurvey();
+    const mask = getCurrencyMask(survey);
+    expect([mask.prefix, mask.suffix], "english").toEqual([dollar, ""]);
+    survey.locale = "de";
+    expect([mask.prefix, mask.suffix], "german").toEqual(["", " " + euro]);
+    expect(mask.getExplicitPropertyValue("prefix"), "they store nothing").toBeUndefined();
+    survey.locale = "";
+  });
+
+  test("An affix assigned over an authored pattern keeps the other side's template", () => {
+    const survey = createCurrencySurvey({ currencyPattern: "@ #" });
+    const mask = getCurrencyMask(survey);
+    mask.suffix = " EUR";
+    expect(mask.currencyPattern, "the symbol is kept and the sign goes before the number").toBe("@ -# EUR");
+    expect(render(mask)).toEqual(["$ 1,234.56 EUR", "$ -1,234.56 EUR"]);
+  });
+
+  test("An affix assigned without an authored pattern clears the other side", () => {
+    const survey = createCurrencySurvey({}, "de");
+    const mask = getCurrencyMask(survey);
+    mask.prefix = "$ ";
+    expect(mask.currencyPattern, "the inherited \" @\" is not copied").toBe("$ -#");
+    expect(render(mask)).toEqual(["$ 1.234,56", "$ -1.234,56"]);
+    survey.locale = "";
+  });
+
+  test("A sign in the retained side stays where it is", () => {
+    const survey = createCurrencySurvey({ currencyPattern: "@ -#" });
+    const mask = getCurrencyMask(survey);
+    mask.suffix = " EUR";
+    expect(mask.currencyPattern).toBe("@ -# EUR");
+    expect(render(mask)).toEqual(["$ 1,234.56 EUR", "$ -1,234.56 EUR"]);
+
+    mask.currencyPattern = "#- @";
+    mask.prefix = "$";
+    expect(mask.currencyPattern, "a sign after the number is retained with the suffix").toBe("$#- @");
+    expect(render(mask)).toEqual(["$1,234.56 $", "$1,234.56- $"]);
+  });
+
+  test("A sign in the replaced side is inserted again before the number", () => {
+    const survey = createCurrencySurvey({ currencyPattern: "@-#" });
+    const mask = getCurrencyMask(survey);
+    mask.prefix = "$";
+    expect(mask.currencyPattern).toBe("$-#");
+    expect(render(mask)).toEqual(["$1,234.56", "$-1,234.56"]);
+
+    mask.currencyPattern = "# @-";
+    mask.suffix = " USD";
+    expect(mask.currencyPattern).toBe("-# USD");
+    expect(render(mask)).toEqual(["1,234.56 USD", "-1,234.56 USD"]);
+  });
+
+  test("An empty affix is an assignment", () => {
+    const survey = createCurrencySurvey({ currencyPattern: "@ -# USD" });
+    const mask = getCurrencyMask(survey);
+    mask.prefix = "";
+    expect(mask.currencyPattern, "over an authored pattern").toBe("-# USD");
+    mask.resetPropertyValue("currencyPattern");
+    mask.suffix = "";
+    expect(mask.currencyPattern, "without one").toBe("-#");
+    expect(render(mask), "a bare number with the sign in front").toEqual(["1,234.56", "-1,234.56"]);
+  });
+
+  test.each([undefined, null])("Assigning %s to an affix changes nothing", (value) => {
+    const survey = createCurrencySurvey({ currencyPattern: "@# USD" });
+    const mask = getCurrencyMask(survey);
+    let changes = 0;
+    mask.onPropertyChanged.add(() => changes++);
+    mask.prefix = value;
+    mask.suffix = value;
+    expect(mask.currencyPattern, "the authored pattern").toBe("@# USD");
+    expect(changes, "no notification").toBe(0);
+    const plain = new InputMaskCurrency();
+    plain.prefix = value;
+    expect(plain.currencyPattern, "and nothing is authored on a mask without one").toBeUndefined();
+  });
+
+  // Known limit of the grammar: an affix is written as pattern text without an escape, so the
+  // pattern symbols and digits in an old affix no longer render literally.
+  test("An \"@\" in an affix places the symbol", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ prefix: "@ " }));
+    expect(mask.currencyPattern).toBe("@ -#");
+    expect(mask.activeCurrencyPattern, "a valid pattern").toBe("@ -#");
+    expect(render(mask)).toEqual(["$ 1,234.56", "$ -1,234.56"]);
+  });
+  test("A \"#\" in an affix makes the pattern invalid", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ prefix: "# " }));
+    expect(mask.currencyPattern).toBe("# -#");
+    expect(mask.activeCurrencyPattern, "the locale default").toBe("@#");
+    expect(render(mask)).toEqual(["$1,234.56", "-$1,234.56"]);
+  });
+  test("A \"-\" in an affix makes the pattern invalid", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ prefix: "- " }));
+    expect(mask.currencyPattern).toBe("- -#");
+    expect(mask.activeCurrencyPattern, "the locale default").toBe("@#");
+    expect(render(mask)).toEqual(["$1,234.56", "-$1,234.56"]);
+  });
+  test("A digit in an affix makes the pattern invalid", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ prefix: "Q1: " }));
+    expect(mask.currencyPattern).toBe("Q1: -#");
+    expect(mask.activeCurrencyPattern, "the locale default").toBe("@#");
+    expect(render(mask)).toEqual(["$1,234.56", "-$1,234.56"]);
+  });
+
+  test("A pattern-only JSON round trips unchanged through setData and getData", () => {
+    const mask = new InputMaskCurrency();
+    mask.setData({ currencyPattern: "@# USD" });
+    expect(mask.currencyPattern, "the undefined affixes do not erase it").toBe("@# USD");
+    expect(JSON.stringify(mask.getData())).toBe(JSON.stringify({ currencyPattern: "@# USD" }));
+  });
+
+  test("A pattern-only JSON round trips unchanged through the survey", () => {
+    const json = { pages: [{ name: "page1", elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { currencyPattern: "@# USD" } }] }] };
+    const survey = new SurveyModel(json);
+    expect(JSON.stringify(survey.toJSON())).toBe(JSON.stringify(json));
+    expect(getCurrencyMask(survey).getMaskedValue(1234.56)).toBe("$1,234.56 USD");
+  });
+
+  test.each([
+    { prefix: "EUR ", currencyPattern: "@# USD" },
+    { currencyPattern: "@# USD", prefix: "EUR " }
+  ])("A JSON that carries a pattern and an affix applies the affix last: %j", (settings) => {
+    const mask = new InputMaskCurrency();
+    mask.setData(settings);
+    expect(mask.currencyPattern, "setData").toBe("EUR -# USD");
+    const direct = new InputMaskCurrency();
+    direct.fromJSON(settings);
+    expect(direct.currencyPattern, "fromJSON visits the keys in their JSON order").toBe("EUR -# USD");
+    const survey = createCurrencySurvey(settings);
+    expect(getCurrencyMask(survey).currencyPattern, "a question applies the JSON twice").toBe("EUR -# USD");
+  });
+
+  test.each(["# ", "- ", "@ ", "$ "])("Assigning the same prefix again is a no-op: %j", (prefix) => {
+    const mask = new InputMaskCurrency();
+    mask.prefix = prefix;
+    const pattern = mask.currencyPattern;
+    mask.prefix = prefix;
+    expect(mask.currencyPattern, "prefix").toBe(pattern);
+    mask.resetPropertyValue("currencyPattern");
+    mask.suffix = prefix.split("").reverse().join("");
+    const suffixPattern = mask.currencyPattern;
+    mask.suffix = prefix.split("").reverse().join("");
+    expect(mask.currencyPattern, "suffix").toBe(suffixPattern);
+  });
+
+  test("An empty symbol hides the symbol of a pattern that places one, not the text of one that does not", () => {
+    let mask = getCurrencyMask(createCurrencySurvey({ prefix: "$ ", currencySymbol: "" }));
+    expect(render(mask), "no \"@\": the pattern is literal text").toEqual(["$ 1,234.56", "$ -1,234.56"]);
+    mask = getCurrencyMask(createCurrencySurvey({ currencyPattern: "@ #", currencySymbol: "" }));
+    expect(render(mask), "an \"@\" pattern renders a bare number, no trailing space").toEqual(["1,234.56", "-1,234.56"]);
+  });
+
+  test.each([
+    {
+      title: "both affixes", settings: { prefix: "$ ", suffix: " USD" }, locale: "",
+      pattern: "$ -# USD", positive: "$ 1,234.56 USD", negative: "$ -1,234.56 USD"
+    },
+    { title: "an empty prefix", settings: { prefix: "" }, locale: "", pattern: "-#", positive: "1,234.56", negative: "-1,234.56" },
+    { title: "a prefix under german", settings: { prefix: "$" }, locale: "de", pattern: "$-#", positive: "$1.234,56", negative: "$-1.234,56" },
+    {
+      title: "a prefix with an empty symbol", settings: { prefix: "$ ", currencySymbol: "" }, locale: "de",
+      pattern: "$ -#", positive: "$ 1.234,56", negative: "$ -1.234,56"
+    }
+  ])("An old JSON with $title loads into a pattern and saves without affixes", ({ settings, locale, pattern, positive, negative }) => {
+    const survey = createCurrencySurvey(settings, locale || undefined);
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern, "the loaded pattern").toBe(pattern);
+    expect(render(mask), "the old rendering").toEqual([positive, negative]);
+    const maskJson = getMaskJson(survey);
+    expect(maskJson.currencyPattern, "survey.toJSON writes the pattern").toBe(pattern);
+    expect("prefix" in maskJson || "suffix" in maskJson, "and no affix key").toBe(false);
+    expect("prefix" in mask.getData() || "suffix" in mask.getData(), "getData has none either").toBe(false);
+    const survey2 = new SurveyModel(survey.toJSON());
+    expect(render(getCurrencyMask(survey2)), "the same rendering after a reload").toEqual([positive, negative]);
+    survey.locale = "";
+  });
+
+  test("An old JSON on a multiple text item loads into a pattern and saves without affixes", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "multipletext", name: "q1", items: [{ name: "i1", maskType: "currency", maskSettings: { prefix: "$ ", suffix: " USD" } }] }]
+    });
+    const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+    const mask = <InputMaskCurrency>q.items[0].maskSettings;
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect(render(mask)).toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(survey.toJSON().pages[0].elements[0].items[0].maskSettings).toEqual({ currencyPattern: "$ -# USD" });
+  });
+
+  test("The affixes are registered as non-serializable and hidden", () => {
+    ["prefix", "suffix"].forEach(name => {
+      const prop = Serializer.findProperty("currencymask", name);
+      expect(prop.isSerializable, name + " is not serialized").toBe(false);
+      expect(prop.visible, name + " is hidden").toBe(false);
+    });
+    const names = Serializer.getProperties("currencymask").map(prop => prop.name);
+    expect(names.indexOf("currencyPattern") < names.indexOf("prefix"), "the pattern is assigned first").toBe(true);
+    expect(names.indexOf("currencySymbol") < names.indexOf("currencyPattern"), "after the symbol").toBe(true);
+  });
+
+  test("An authored pattern is literal text across a locale change, an inherited one follows the locale", () => {
+    const survey = createCurrencySurvey({ prefix: "$ " }, "de");
+    const authored = getCurrencyMask(survey);
+    expect([authored.activePrefix, authored.activeSuffix], "german").toEqual(["$ ", ""]);
+    survey.locale = "en";
+    expect([authored.activePrefix, authored.activeSuffix], "the affixes do not move").toEqual(["$ ", ""]);
+    expect(authored.getMaskedValue(1234.56), "only the separators follow").toBe("$ 1,234.56");
+    authored.resetPropertyValue("currencyPattern");
+    survey.locale = "de";
+    expect([authored.activePrefix, authored.activeSuffix], "the inherited pattern follows the locale").toEqual(["", " " + euro]);
+    survey.locale = "";
+  });
+});
+
+describe("Currency mask: loading prefix and suffix from JSON", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+  const render = (mask: InputMaskCurrency): Array<string> => [mask.getMaskedValue(1234.56), mask.getMaskedValue(-1234.56)];
+
+  test("Load prefix and suffix with new SurveyModel(json)", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD" });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern, "currencyPattern").toBe("$ -# USD");
+    expect(mask.prefix, "prefix").toBe("$ ");
+    expect(mask.suffix, "suffix").toBe(" USD");
+    expect(render(mask), "rendered").toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(mask.getUnmaskedValue("$ 1,234.56 USD"), "unmasked").toBe(1234.56);
+    expect(mask.getUnmaskedValue("$ -1,234.56 USD"), "unmasked negative").toBe(-1234.56);
+    q.value = 1234.56;
+    expect(q.inputValue, "question inputValue").toBe("$ 1,234.56 USD");
+    q.inputValue = "$ -99 USD";
+    expect(q.value, "question value").toBe(-99);
+    expect(survey.toJSON().pages[0].elements[0].maskSettings, "toJSON").toEqual({ currencyPattern: "$ -# USD" });
+  });
+
+  test("Load suffix before prefix: the key order does not matter", () => {
+    const survey = createCurrencySurvey({ suffix: " USD", prefix: "$ " });
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect([mask.prefix, mask.suffix]).toEqual(["$ ", " USD"]);
+    expect(render(mask)).toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+  });
+
+  test("Load prefix only", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ prefix: "$ " }));
+    expect(mask.currencyPattern).toBe("$ -#");
+    expect([mask.prefix, mask.suffix]).toEqual(["$ ", ""]);
+    expect(render(mask)).toEqual(["$ 1,234.56", "$ -1,234.56"]);
+  });
+
+  test("Load suffix only", () => {
+    const mask = getCurrencyMask(createCurrencySurvey({ suffix: " USD" }));
+    expect(mask.currencyPattern).toBe("-# USD");
+    expect([mask.prefix, mask.suffix], "the english \"$\" prefix is not kept").toEqual(["", " USD"]);
+    expect(render(mask)).toEqual(["1,234.56 USD", "-1,234.56 USD"]);
+  });
+
+  test("Load prefix and suffix under a german survey", () => {
+    let survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD" }, "de");
+    let mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect(render(mask), "the separators follow the locale").toEqual(["$ 1.234,56 USD", "$ -1.234,56 USD"]);
+    survey = createCurrencySurvey({ suffix: " USD" }, "de");
+    mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern, "the german \" @\" suffix is replaced").toBe("-# USD");
+    expect(render(mask)).toEqual(["1.234,56 USD", "-1.234,56 USD"]);
+    survey.locale = "";
+  });
+
+  test("Load prefix and suffix together with currencySymbol", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD", currencySymbol: euro });
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect(render(mask), "the pattern has no \"@\", so the symbol is not rendered").toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(survey.toJSON().pages[0].elements[0].maskSettings).toEqual({ currencySymbol: euro, currencyPattern: "$ -# USD" });
+  });
+
+  test("Load prefix and suffix with survey.fromJSON into an existing survey", () => {
+    const survey = new SurveyModel();
+    survey.fromJSON({ elements: [{ type: "text", name: "q1", maskType: "currency", maskSettings: { prefix: "$ ", suffix: " USD" } }] });
+    const mask = getCurrencyMask(survey);
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect(render(mask)).toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(survey.toJSON().pages[0].elements[0].maskSettings).toEqual({ currencyPattern: "$ -# USD" });
+  });
+
+  test("Load prefix and suffix into the mask directly: fromJSON and setData", () => {
+    const fromJson = new InputMaskCurrency();
+    fromJson.fromJSON({ prefix: "$ ", suffix: " USD" });
+    expect(fromJson.currencyPattern, "fromJSON").toBe("$ -# USD");
+    expect(render(fromJson), "fromJSON rendered").toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(fromJson.toJSON(), "toJSON").toEqual({ currencyPattern: "$ -# USD" });
+
+    const setData = new InputMaskCurrency();
+    setData.setData({ prefix: "$ ", suffix: " USD" });
+    expect(setData.currencyPattern, "setData").toBe("$ -# USD");
+    expect(setData.getData(), "getData").toEqual({ currencyPattern: "$ -# USD" });
+  });
+
+  test("Load prefix and suffix, save and load again", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD" });
+    const survey2 = new SurveyModel(survey.toJSON());
+    const mask = getCurrencyMask(survey2);
+    expect(mask.currencyPattern).toBe("$ -# USD");
+    expect([mask.prefix, mask.suffix]).toEqual(["$ ", " USD"]);
+    expect(render(mask)).toEqual(["$ 1,234.56 USD", "$ -1,234.56 USD"]);
+    expect(survey2.toJSON()).toEqual(survey.toJSON());
+  });
+
+  test("Type into a mask loaded with prefix and suffix", () => {
+    const survey = createCurrencySurvey({ prefix: "$ ", suffix: " USD" });
+    const mask = getCurrencyMask(survey);
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    const adapter = new InputElementAdapter(mask, input);
+    const type = (chars: string): void => {
+      adapter.beforeInputHandler({ data: chars, inputType: "insertText", target: input, preventDefault: () => { } });
+    };
+    try {
+      type("1");
+      expect(input.value, "type 1").toBe("$ 1 USD");
+      expect(input.selectionStart, "caret after 1").toBe(3);
+      type("2");
+      type("3");
+      type("4");
+      expect(input.value, "type 4").toBe("$ 1,234 USD");
+      expect(input.selectionStart, "caret after 4").toBe(7);
+      type("-");
+      expect(input.value, "the sign goes right before the number").toBe("$ -1,234 USD");
+      expect(input.selectionStart, "caret stays after 4").toBe(8);
+      expect(mask.getUnmaskedValue(input.value)).toBe(-1234);
+    } finally {
+      adapter.dispose();
+      input.remove();
+      survey.dispose();
+    }
   });
 });

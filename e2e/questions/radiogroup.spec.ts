@@ -1,4 +1,5 @@
 import { frameworks, url, urlV2, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, test, expect, getButtonByText } from "../helper";
+import { Survey } from "../surveyHelper";
 
 const title = "radiogroup";
 
@@ -591,3 +592,38 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} inputPerPage`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+
+    test("nested choice elements are separate steps, Bug#11824", async ({ page }) => {
+      await initSurvey(page, framework, {
+        questionsOnPageMode: "inputPerPage",
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] },
+          { type: "text", name: "q2" }
+        ]
+      });
+      const radioInputs = page.locator("input[type='radio']");
+      const textInputs = page.locator("input[type='text']");
+      await page.getByText("item2", { exact: true }).click();
+      await expect(radioInputs).toHaveCount(2);
+      await expect(textInputs).toHaveCount(0);
+
+      await new Survey(page).nextPage();
+      await expect(textInputs).toHaveCount(1);
+      await expect(radioInputs).toHaveCount(0);
+      await textInputs.fill("abc");
+
+      await new Survey(page).prevPage();
+      await expect(radioInputs).toHaveCount(2);
+      await expect(textInputs).toHaveCount(0);
+      await expect(page.locator("input[type='radio'][value='item2']")).toBeChecked();
+      const data = await page.evaluate(() => (window as any).survey.data);
+      expect(data).toEqual({ q1: "item2", nested1: "abc" });
+    });
+  });
+});

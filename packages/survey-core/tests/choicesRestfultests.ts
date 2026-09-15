@@ -1629,6 +1629,59 @@ test("Clear choices on changing variables", () => {
     expect(survey.data, "Drop the saved value that is not among available choices").toEqual({});
   });
 
+  test.each([false, true])("choicesByUrl: keep a saved value while URL parameters are missing, allowEmptyResponse=%s, #11851", (allowEmptyResponse) => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "countries/{region}";
+    question.choicesByUrl.allowEmptyResponse = allowEmptyResponse;
+    question.onSurveyLoad();
+    question.value = "foo";
+    expect(question.restFulTest.sentRequestCounter, "No request has been sent").toBe(0);
+    expect(question.choicesByUrl.isWaitingForParameters).toBe(true);
+    expect(question.visibleChoices.length).toBe(0);
+    survey.doComplete();
+    expect(survey.data, "Preserve the answer until remote choices are available").toEqual({ country: "foo" });
+  });
+
+  test("choicesByUrl: keep a saved value while reloading an empty remote list, #11851", () => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    question.onSurveyLoad();
+    expect(question.restFulTest.sentRequestCounter).toBe(1);
+    question.restFulTest.blockSendingRequest = true;
+    question.choicesByUrl.url = "countries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    question.value = "foo";
+    expect(question.choicesByUrl.isRunning).toBe(true);
+    survey.clearIncorrectValues();
+    expect(question.value, "The previous empty list cannot validate the new answer").toBe("foo");
+    question.restFulTest.unblockSendRequest();
+    expect(question.visibleChoices.length).toBeGreaterThan(0);
+    expect(question.choicesByUrl.isRunning).toBe(false);
+    survey.doComplete();
+    expect(survey.data, "Validate the answer against the loaded list").toEqual({});
+  });
+
+  test("choicesByUrl: keep a saved value after a failed request with allowEmptyResponse, #11851", () => {
+    const survey = new SurveyModel();
+    const question = new QuestionDropdownModelTester("country");
+    survey.addNewPage("p1").addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    question.onSurveyLoad();
+    question.value = "foo";
+    question.choicesByUrl.error = new SurveyError("Request failed");
+    question.choicesByUrl.getResultCallback([]);
+    expect(question.errors.length).toBe(1);
+    survey.doComplete();
+    expect(survey.data, "A failed request is not a successful empty response").toEqual({ country: "foo" });
+  });
+
   test("matrix dynamic and has other, Bug #2854", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");

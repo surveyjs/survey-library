@@ -113,6 +113,8 @@ export var haitianCreoleStrings = {
   noUploadFilesHandler: "Fichye yo pa ka telechaje. Tanpri ajoute yon moun kap okipe evènman 'onUploadFiles' la.",
   // "Response required: enter another value."
   otherRequiredError: "Repons obligatwa: antre yon lòt valè.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Valè '{0}' se pa youn nan chwa ki disponib",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fichye w ap telechaje. Tanpri tann plizyè segonn epi eseye ankò.",
   // "Loading..."

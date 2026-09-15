@@ -60,10 +60,17 @@ export function getSurveyBusyState(survey: any): ISurveyTestBusyState {
 // "what" names the action the wait belongs to, as a phrase: the "complete" command, the start state
 // of the test. It reaches the message of the timeout error and nothing else.
 export async function waitForSurvey(context: ISurveyTestContext, what: string): Promise<void> {
-  const survey: any = context.survey;
+  return waitForSurveyModel(context.survey, context.options, context.signal, what);
+}
+
+// The same wait for a model that has no context of its own: the variable definition of the suite is
+// built beside the survey under test, out of the same suite and with the same providers, and its
+// choicesByUrl questions and asynchronous expressions settle under the same budget.
+export async function waitForSurveyModel(survey: any, options: ISurveyTestOptions,
+  signal: AbortSignal, what: string): Promise<void> {
   let busy = getSurveyBusyState(survey);
   if (!busy) return;
-  const timeout = getAsyncTimeout(context.options);
+  const timeout = getAsyncTimeout(options);
   // A caller that sets the budget to zero asks for no waiting at all and takes the consequences.
   if (timeout <= 0) return;
   const start = Date.now();
@@ -71,7 +78,7 @@ export async function waitForSurvey(context: ISurveyTestContext, what: string): 
   while(!!busy) {
     // A stopped run stops waiting. The runner notices the signal the moment this returns, and an
     // operation the survey is still holding is the caller's decision, not a broken case.
-    if (!!context.signal && context.signal.aborted) return;
+    if (!!signal && signal.aborted) return;
     if (Date.now() - start >= timeout) throw createTimeoutError(what, busy, timeout);
     await delayTurn(turns === 0 ? 0 : ASYNC_POLL_INTERVAL);
     turns++;

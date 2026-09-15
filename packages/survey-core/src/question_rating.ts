@@ -190,6 +190,10 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
       this.updateRateMin();
     }
     if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined)this.autoGenerate = !this.jsonObj.rateValues.length;
+    if (this.autoGenerate && this.rateMin > this.rateMax) {
+      // JSON can contain rateMin > rateMax (onSettingValue is skipped on loading). Collapse the scale to a single rate value.
+      this.setPropertyValueDirectly("rateMin", this.rateMax);
+    }
     this.updateRateCount();
     this.setIconsToRateValues();
   }
@@ -424,7 +428,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   private resetRenderedItems() {
     if (this.autoGenerate) {
       const rateValues = this.createRateValues();
-      this.rateMax = rateValues[rateValues.length - 1].value;
+      if (rateValues.length > 0) {
+        this.rateMax = rateValues[rateValues.length - 1].value;
+      }
     }
     this.resetPropertyValue("visibleChoices");
   }
@@ -662,6 +668,12 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
+  public clearIncorrectValues(): void {
+    if (this.isEmpty() || this.survey?.keepIncorrectValues) return;
+    if (!ItemValue.getItemByValue(this.visibleRateValues, this.value)) {
+      this.clearValue(true);
+    }
+  }
   public setValueFromClick(value: any) {
     if (this.isReadOnlyAttr) return;
     if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
@@ -758,8 +770,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     if (!startColor || !endColor) return null;
     const curColor = [0, 0, 0, 0];
+    const ratio = normalIndex > 0 ? index / normalIndex : 0;
     for (let i = 0; i < 4; i++) {
-      curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * index / normalIndex;
+      curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * ratio;
       if (i < 3) curColor[i] = Math.trunc(curColor[i]);
     }
     return "rgba(" + curColor[0] + ", " + curColor[1] + ", " + curColor[2] + ", " + curColor[3] + ")";
@@ -1027,7 +1040,8 @@ Serializer.addClass(
       name: "rateCount:number",
       default: 5,
       onSettingValue: (obj: any, val: any): any => {
-        if (val < 2) return 2;
+        // A single-value scale (rateMin equals rateMax) is possible only after loading an invalid JSON.
+        if (val < 2) return obj.autoGenerate && obj.rateMin === obj.rateMax ? 1 : 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
         if (val > 10 && obj.rateType == "smileys") return 10;
         return val;
@@ -1045,6 +1059,7 @@ Serializer.addClass(
     {
       name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
+        if (obj.rateCount === 1 && val === obj.rateMax) return val;
         return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
       },
       visibleIf: function (obj: any) {
@@ -1054,6 +1069,7 @@ Serializer.addClass(
     {
       name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
+        if (obj.rateCount === 1 && val === obj.rateMin) return val;
         return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
       },
       visibleIf: function (obj: any) {
@@ -1064,7 +1080,7 @@ Serializer.addClass(
       name: "rateStep:number", default: 1, minValue: 0.1,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) val = 1;
-        if (val > obj.rateMax - obj.rateMin)
+        if (obj.rateMax > obj.rateMin && val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
       },

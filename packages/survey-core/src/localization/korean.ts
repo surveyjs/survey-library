@@ -111,6 +111,8 @@ export var koreanStrings = {
   noUploadFilesHandler: "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오.",
   // "Response required: enter another value."
   otherRequiredError: "다른 질문을 작성하십시오.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "값 '{0}'는 선택 가능한 옵션 중 하나가 아닙니다.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "파일 업로드 중입니다. 잠시 후 다시 시도하십시오.",
   // "Loading..."

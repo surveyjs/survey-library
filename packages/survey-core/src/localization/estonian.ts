@@ -111,6 +111,8 @@ export var estonianSurveyStrings = {
   noUploadFilesHandler: "Faile ei saa üles laadida. Palun lisage sündmuse \"onUploadFiles\" jaoks käitleja.",
   // "Response required: enter another value."
   otherRequiredError: "Sisesta palun muu vastus.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Väärtus '{0}' ei ole üks saadaolevatest valikutest.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Sinu fail laeb üles. Palun oota mõned sekundid ning proovi seejärel uuesti.",
   // "Loading..."

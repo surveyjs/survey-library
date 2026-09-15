@@ -1069,6 +1069,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
   }
+  public getToolbarCssClass(location?: "top" | "bottom"): string {
+    return new CssClassBuilder().append(this.cssClasses.toolbar)
+      .append(this.cssClasses.toolbarBottom, location == "bottom")
+      .append(this.cssClasses.toolbarTop, location == "top").toString();
+  }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;
     if (!location) return showToolbar;
@@ -1132,7 +1137,8 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
     if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
+        // A navigation check, not a validation: it must not show errors or expand detail panels/questions.
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext({ fireCallback: false }))) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }

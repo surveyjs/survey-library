@@ -111,6 +111,8 @@ export var kazakhStrings = {
   noUploadFilesHandler: "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз.",
   // "Response required: enter another value."
   otherRequiredError: "Өтінеміз, “Басқа” жолына деректі енгізіңіз",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "'{0}' мәні қолжетімді таңдаулардың бірі емес.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Сіздің файлыңыз жүктеліп жатыр. Бірнеше секунд тосып, қайтадан байқап көріңіз.",
   // "Loading..."

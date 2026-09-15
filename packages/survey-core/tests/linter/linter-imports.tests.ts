@@ -16,6 +16,13 @@ import { describe, test, expect } from "vitest";
 // very defects the linter looks for. The core's stateless utilities are NOT models and
 // are meant to be reused: ConditionsParser, ValueGetter and TextPreProcessor own the
 // parsing rules the linter would otherwise reimplement, so instantiating them is fine.
+//
+// The rule is about the LINTED DOCUMENT. The variable definition (options.variablePresets /
+// options.variableDefinitionModel) is a different document - the host's own, already
+// normalized by the host's build, and linted separately - so it is read through
+// SurveyVariablePresets, which builds its model inside survey-core. Naming SurveyModel in
+// src/linter to check "instanceof" is not a construction either: what is forbidden below is
+// "new SurveyModel".
 const FORBIDDEN_CONSTRUCTIONS = [
   "SurveyModel", "PageModel", "PanelModel", "Question", "ItemValue", "Trigger", "Serializer",
 ];

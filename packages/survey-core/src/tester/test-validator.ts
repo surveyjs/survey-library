@@ -5,8 +5,9 @@ import { ISurveyTestIssue, SurveyTestIssueCodes, SurveyTestSeverity } from "./te
 
 const DATA_MODES = ["input", "restore"];
 // A start describes a starting state only. Options and variables have exactly one path each, and it
-// does not go through a start.
-const START_RESERVED_KEYS = ["options", "variables"];
+// does not go through a start - a preset reference included: it is the other way of writing the
+// variables, so it belongs where they do.
+const START_RESERVED_KEYS = ["options", "variables", "variablePreset"];
 const FUNCTION_STUB_KEYS = ["async", "delay", "result", "results", "error"];
 const FUNCTION_RESULT_KEYS = ["params", "result", "delay", "error"];
 const WEB_STUB_KEYS = ["status", "statusText", "response", "delay"];
@@ -25,6 +26,8 @@ export class SurveyTestValidator {
     this.validateVariables(tests.variables, "variables", issues);
     this.validateFunctions(tests.functions, "functions", issues);
     this.validateWeb(tests.web, "web", issues);
+    const presetNames = this.validateVariablePresets(tests, issues);
+    this.validateVariablePresetReference(tests, "", presetNames, issues);
     const startNames = this.validateStarts(tests, issues);
     const testsArray = tests.tests;
     if (!Array.isArray(testsArray) || testsArray.length === 0) {
@@ -48,14 +51,16 @@ export class SurveyTestValidator {
           nameIndexes[name] = i;
         }
       }
-      this.validateTest(test, path, startNames).forEach(issue => issues.push(issue));
+      this.validateTest(test, path, startNames, presetNames).forEach(issue => issues.push(issue));
     }
     return issues;
   }
 
-  // startNames is optional: a test validated on its own has no suite to resolve a named start
-  // against, and guessing there would report an error that does not exist.
-  public validateTest(test: ISurveyTest, path: string, startNames?: Array<string>): Array<ISurveyTestIssue> {
+  // startNames and presetNames are optional, and for the same reason: a test validated on its own has
+  // no suite to resolve a named start or a named preset against, and guessing there would report an
+  // error that does not exist.
+  public validateTest(test: ISurveyTest, path: string, startNames?: Array<string>,
+    presetNames?: Array<string>): Array<ISurveyTestIssue> {
     const issues: Array<ISurveyTestIssue> = [];
     if (!this.isObject(test)) {
       this.addIssue(issues, SurveyTestIssueCodes.notAnObject, "A test must be an object.", { path: path });
@@ -66,6 +71,7 @@ export class SurveyTestValidator {
     }
     this.validateOptions(test.options, path + ".options", issues);
     this.validateVariables(test.variables, path + ".variables", issues);
+    this.validateVariablePresetReference(test, path, presetNames, issues);
     this.validateFunctions(test.functions, path + ".functions", issues);
     this.validateWeb(test.web, path + ".web", issues);
     this.validateTestStart(test, path, startNames, issues);
@@ -296,6 +302,97 @@ export class SurveyTestValidator {
     if (typeof stub.delay === "number") return true;
     if (!Array.isArray(rows)) return false;
     return rows.some((row: any) => this.isObject(row) && typeof row.delay === "number");
+  }
+
+  // The shape of the container and of its entries, and nothing about what a variable is: whether a key
+  // of a preset is a variable of the definition is a question for the definition model, which this
+  // validator never builds. The names it returns are what a reference resolves against.
+  private validateVariablePresets(tests: ISurveyTests, issues: Array<ISurveyTestIssue>): Array<string> {
+    const names: Array<string> = [];
+    const source: any = tests.variablePresets;
+    if (source === undefined) return names;
+    if (!this.isObject(source)) {
+      this.addIssue(issues, SurveyTestIssueCodes.variablePresetsNotAnObject,
+        "\"variablePresets\" must be an object with a \"definition\" and a \"presets\" array.",
+        { path: "variablePresets" });
+      return names;
+    }
+    if (source.definition !== undefined && !this.isObject(source.definition)) {
+      this.addIssue(issues, SurveyTestIssueCodes.variableDefinitionNotAnObject,
+        "\"variablePresets.definition\" must be a survey JSON: one question per host variable.",
+        { path: "variablePresets.definition" });
+    }
+    const presets = source.presets;
+    if (presets === undefined) return names;
+    if (!Array.isArray(presets)) {
+      this.addIssue(issues, SurveyTestIssueCodes.variablePresetListNotAnArray,
+        "\"variablePresets.presets\" must be an array.", { path: "variablePresets.presets" });
+      return names;
+    }
+    // Object.create(null): a preset named "constructor" read back off Object.prototype would look
+    // like an entry that was already registered.
+    const nameIndexes: { [name: string]: number } = Object.create(null);
+    for (let i = 0; i < presets.length; i++) {
+      const preset: any = presets[i];
+      const path = "variablePresets.presets[" + i + "]";
+      if (!this.isObject(preset)) {
+        this.addIssue(issues, SurveyTestIssueCodes.variablePresetNotAnObject,
+          "A \"presets\" entry must be an object.", { path: path });
+        continue;
+      }
+      const name = preset.name;
+      if (!this.isNonEmptyString(name)) {
+        this.addIssue(issues, SurveyTestIssueCodes.variablePresetNameMissing,
+          "A \"presets\" entry must have a non-empty \"name\": a preset is referenced by it.", { path: path });
+      } else if (nameIndexes[name] !== undefined) {
+        // A warning, like a duplicate test name: the first entry answers every reference, and the
+        // second one is unreachable rather than broken.
+        this.addIssue(issues, SurveyTestIssueCodes.duplicateVariablePresetName,
+          "Two \"presets\" entries are named \"" + name + "\" (entries " + nameIndexes[name] + " and " + i +
+          "). Preset names should be unique.",
+          { path: path, severity: "warning", data: { name: name, indexes: [nameIndexes[name], i] } });
+      } else {
+        nameIndexes[name] = i;
+        names.push(name);
+      }
+      // A preset is a data record of the definition survey, so it carries "variables" the way a test
+      // does - and an entry without them declares nothing.
+      if (!this.isObject(preset.variables)) {
+        this.addIssue(issues, SurveyTestIssueCodes.variablesNotAnObject,
+          "The \"variables\" of a preset must be an object: it is a data record of the variable definition.",
+          { path: path + ".variables" });
+      }
+    }
+    return names;
+  }
+
+  // One level - the suite or one test - references a preset or writes the values inline, never both.
+  // "level" is the object that carries the two keys; path is "" for the suite root.
+  private validateVariablePresetReference(level: any, path: string, presetNames: Array<string> | undefined,
+    issues: Array<ISurveyTestIssue>): void {
+    const name = level.variablePreset;
+    if (name === undefined) return;
+    const prefix = !!path ? path + "." : "";
+    const refPath = prefix + "variablePreset";
+    if (level.variables !== undefined) {
+      this.addIssue(issues, SurveyTestIssueCodes.variablesAndPresetBothSet,
+        "\"variablePreset\" and \"variables\" cannot be used together: a preset is referenced by name " +
+        "or the values are written inline, never a name with overrides on top. Override a preset from " +
+        "the other level - the suite references it, the test writes what it changes.",
+        { path: refPath, data: { name: name } });
+    }
+    if (!this.isNonEmptyString(name)) {
+      this.addIssue(issues, SurveyTestIssueCodes.variablePresetNotAString,
+        "\"variablePreset\" must be a non-empty name from \"variablePresets.presets\".", { path: refPath });
+      return;
+    }
+    if (!presetNames) return;
+    if (presetNames.indexOf(name) >= 0) return;
+    const closest = getClosestName(name, presetNames);
+    this.addIssue(issues, SurveyTestIssueCodes.unknownVariablePresetReference,
+      "The preset \"" + name + "\" is referenced, but \"variablePresets.presets\" contains no entry with this name.",
+      { path: refPath, data: { name: name, presets: presetNames },
+        suggestion: !!closest ? "Did you mean \"" + closest + "\"?" : undefined });
   }
 
   // Duplicate names and unresolved references are reported up front, for the whole suite, before any

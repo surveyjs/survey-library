@@ -425,6 +425,34 @@ describe("SurveyTestRunner: options, variables and start", () => {
     });
     expect(statuses(result), "both tests pass").toEqual(["passed", "passed"]);
   });
+  test("The resolved variables are the only variables the survey runs with", async () => {
+    registerVisibleCheck();
+    // The runner owns what makes a run reproducible: a variable a model factory sets is not a
+    // variable the case declared, so it is gone before the first step (issue #11814).
+    const survey = {
+      elements: [
+        { type: "text", name: "q1", visibleIf: "{region} = 'us'" },
+        { type: "text", name: "q2", visibleIf: "{leftover} notempty" },
+      ],
+    };
+    const result = await new SurveyTestRunner(survey, {
+      variables: { region: "us" },
+      tests: [{
+        name: "the factory variable does not survive",
+        steps: [{ expect: { q1: { visible: true }, q2: { visible: false } } }],
+      }],
+    }).run({
+      createSurvey: (json: any, context: any): SurveyModel => {
+        const model = new SurveyModel();
+        context.attachProviders(model);
+        model.fromJSON(json);
+        model.setVariable("leftover", "from the factory");
+        model.setVariable("region", "eu");
+        return model;
+      },
+    });
+    expect(statuses(result), "the test passes").toEqual(["passed"]);
+  });
   test("A referenced start is cloned per test and never mutated", async () => {
     const startEntry = {
       name: "midFlow",
@@ -550,6 +578,144 @@ describe("SurveyTestRunner: options, variables and start", () => {
     expect(codes(result.tests[1].issues), "an unknown page name").toEqual([SurveyTestIssueCodes.unknownStartPage]);
     expect(codes(result.tests[2].issues), "an invisible page").toEqual([SurveyTestIssueCodes.startPageNotVisible]);
     expect(result.tests[1].steps.length, "a broken start runs no step").toEqual(0);
+  });
+});
+
+// A level - the suite or one test - either references a preset by name or writes the values inline.
+// The two resolved levels then merge per name, exactly as two inline objects do (issue #11814).
+describe("SurveyTestRunner: variable presets", () => {
+  const container = {
+    presets: [
+      { name: "gold customer", variables: { tier: "gold", years: 12 } },
+      { name: "newcomer", variables: { tier: "basic", years: 0 } },
+    ],
+  };
+  // The default factory, counted: a test that ends before the model exists must not have called it.
+  function runCounted(survey: any, tests: any, count: { value: number }): Promise<ISurveyTestsResult> {
+    return new SurveyTestRunner(survey, tests).run({
+      createSurvey: (json: any, context: any): SurveyModel => {
+        count.value++;
+        const model = new SurveyModel();
+        context.attachProviders(model);
+        model.fromJSON(json);
+        return model;
+      },
+    });
+  }
+  test("A test references a preset, or overrides the root preset per name", async () => {
+    const result = await run(twoQuestionSurvey, {
+      variablePresets: container,
+      variablePreset: "newcomer",
+      tests: [
+        { name: "gold sees the discount page", variablePreset: "gold customer", steps: [] },
+        { name: "one year in", variables: { years: 1 }, steps: [] },
+      ],
+    });
+    expect(statuses(result)).toEqual(["passed", "passed"]);
+    expect(result.tests[0].variables, "the values of the preset the test named").toEqual({ tier: "gold", years: 12 });
+    expect(result.tests[1].variables, "the root preset, with the one name the test wrote over it")
+      .toEqual({ tier: "basic", years: 1 });
+  });
+  test("A test preset wins per name and the root preset keeps the rest", async () => {
+    const result = await run(twoQuestionSurvey, {
+      variablePresets: {
+        presets: [
+          { name: "root", variables: { tier: "basic", years: 0, region: "eu" } },
+          { name: "test", variables: { tier: "gold" } },
+        ],
+      },
+      variablePreset: "root",
+      tests: [{ name: "t", variablePreset: "test", steps: [] }],
+    });
+    expect(result.tests[0].variables, "merged per name, like two inline objects")
+      .toEqual({ tier: "gold", years: 0, region: "eu" });
+  });
+  test("The name the test referenced is reported, the root one is not", async () => {
+    const result = await run(twoQuestionSurvey, {
+      variablePresets: container,
+      variablePreset: "newcomer",
+      tests: [
+        { name: "by reference", variablePreset: "gold customer", steps: [] },
+        { name: "inline", variables: { tier: "gold" }, steps: [] },
+      ],
+    });
+    expect(result.tests[0].variablePreset).toEqual("gold customer");
+    // The root preset needs no field: what it resolved to is in the reported variables.
+    expect(result.tests[1].variablePreset).toBeUndefined();
+    expect(result.tests[1].variables).toEqual({ tier: "gold", years: 0 });
+  });
+  test("The values of a preset are cloned, never aliased", async () => {
+    registerCommand({
+      name: "mutateVariableForTest",
+      allowSurvey: true,
+      allowElement: false,
+      payloadType: "nameMap",
+      run: (context: ISurveyTestContext, target: ISurveyTestTarget, params: any) => {
+        Object.keys(params).forEach(name => {
+          const value = context.survey.getVariable(name);
+          Object.keys(params[name]).forEach(key => { value[key] = params[name][key]; });
+        });
+      },
+    });
+    const suite = {
+      variablePresets: { presets: [{ name: "gold customer", variables: { profile: { tier: "gold" } } }] },
+      variablePreset: "gold customer",
+      tests: [
+        { name: "mutates the variable", steps: [{ mutateVariableForTest: { survey: { profile: { tier: "silver" } } } }] },
+        { name: "starts from the original values", steps: [] },
+      ],
+    };
+    const before = JSON.stringify(suite.variablePresets);
+    const result = await run(twoQuestionSurvey, suite);
+    expect(statuses(result)).toEqual(["passed", "passed"]);
+    expect(result.tests[0].variables.profile.tier, "the test mutated its own copy").toEqual("silver");
+    expect(result.tests[1].variables.profile.tier, "the next test starts from the preset").toEqual("gold");
+    expect(JSON.stringify(suite.variablePresets), "the suite object belongs to the caller").toEqual(before);
+  });
+  test("runTest() resolves a preset of its suite", async () => {
+    const runner = new SurveyTestRunner(twoQuestionSurvey, <any>{
+      variablePresets: container,
+      variablePreset: "newcomer",
+      tests: [],
+    });
+    const result = await runner.runTest(<any>{ name: "single", variablePreset: "gold customer", steps: [] });
+    expect(result.status).toEqual("passed");
+    expect(result.variablePreset).toEqual("gold customer");
+    expect(result.variables).toEqual({ tier: "gold", years: 12 });
+  });
+  test("A preset name that resolves to nothing ends the test before the model factory", async () => {
+    const count = { value: 0 };
+    const result = await runCounted(twoQuestionSurvey, {
+      variablePresets: container,
+      tests: [{ name: "t", variablePreset: "gold custmer", steps: [{ expect: { q1: { empty: true } } }] }],
+    }, count);
+    expect(statuses(result)).toEqual(["error"]);
+    expect(codes(allIssues(result))).toEqual([SurveyTestIssueCodes.unknownVariablePresetReference]);
+    expect(count.value, "no model is created for a case that cannot be resolved").toEqual(0);
+  });
+  test("A root reference runTest() cannot resolve is a case error of that test", async () => {
+    const count = { value: 0 };
+    // runTest() validates the test it is given, not the suite around it, so the root reference is
+    // resolved where every unresolvable reference is: at run time, before the factory.
+    const runner = new SurveyTestRunner(twoQuestionSurvey, <any>{
+      variablePresets: container,
+      variablePreset: "no such preset",
+      tests: [],
+    });
+    const result = await runner.runTest(<any>{ name: "single", steps: [] }, {
+      createSurvey: (json: any, context: any): SurveyModel => {
+        count.value++;
+        const model = new SurveyModel();
+        context.attachProviders(model);
+        model.fromJSON(json);
+        return model;
+      },
+    });
+    expect(result.status).toEqual("error");
+    expect(codes(result.issues)).toEqual([SurveyTestIssueCodes.unknownVariablePresetReference]);
+    expect(result.issues[0].path).toEqual("test");
+    expect(result.issues[0].data).toEqual({ name: "no such preset", presets: ["gold customer", "newcomer"] });
+    expect(count.value).toEqual(0);
   });
 });
 

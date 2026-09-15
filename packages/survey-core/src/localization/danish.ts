@@ -111,6 +111,8 @@ export var danishSurveyStrings = {
   noUploadFilesHandler: "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Angiv en værdi for dit valgfrie svar.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Værdien '{0}' er ikke en af de tilgængelige muligheder.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Din fil bliver uploadet. Vent nogle sekunder og prøv eventuelt igen.",
   // "Loading..."

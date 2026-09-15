@@ -17,13 +17,13 @@
         </ng-container>
       </tr>
     </thead>
-    <tbody>
+    <tbody [class]="question.getTableBodyCss()">
       <ng-container *ngFor="let row of table.renderedRows; trackBy: trackRowBy">
         <sv-ng-matrix-row [model]="row" [question]="question"></sv-ng-matrix-row>
       </ng-container>
     </tbody>
     <tfoot *ngIf="table.showFooter">
-      <tr>
+      <tr [class]="table.footerRow.className">
         <sv-ng-matrixdropdown-cell [cell]="cell" [question]="question"
           *ngFor="let cell of table.footerRow.cells; trackBy: trackCellBy">
         </sv-ng-matrixdropdown-cell>

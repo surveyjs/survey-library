@@ -111,6 +111,8 @@ export var bulgarianStrings = {
   noUploadFilesHandler: "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Моля, въведете другата стойност.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Стойността \"{0}\" не е сред наличните опции.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
   // "Loading..."

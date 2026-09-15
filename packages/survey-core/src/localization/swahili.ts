@@ -111,6 +111,8 @@ export var swahiliStrings = {
   noUploadFilesHandler: "Faili haziwezi kupakiwa. Tafadhali ongeza kishiko kwa tukio la 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Tafadhali ingiza thamani nyingine.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Thamani '{0}' sio moja wapo ya chaguo zinazopatikana.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Faili yako inapakia.Tafadhali subiri sekunde kadhaa na ujaribu tena.",
   // "Loading..."

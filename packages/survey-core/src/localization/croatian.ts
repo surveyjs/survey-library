@@ -111,6 +111,8 @@ export var croatianStrings = {
   noUploadFilesHandler: "Datoteke se ne mogu prenijeti. Dodajte rukovatelja za događaj 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Unesite drugu vrijednost.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vrijednost '{0}' nije jedna od dostupnih opcija.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Vaša datoteka se prenosi. Pričekajte nekoliko sekundi i pokušajte ponovno.",
   // "Loading..."

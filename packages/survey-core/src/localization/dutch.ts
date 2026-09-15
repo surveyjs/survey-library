@@ -111,6 +111,8 @@ export var dutchSurveyStrings = {
   noUploadFilesHandler: "Bestanden kunnen niet worden geüpload. Voeg een handler toe voor de gebeurtenis 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "De waarde '{0}' is niet een van de beschikbare opties.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Uw bestand wordt geüpload. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   // "Loading..."

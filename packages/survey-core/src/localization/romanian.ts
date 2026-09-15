@@ -111,6 +111,8 @@ export var romanianSurveyStrings = {
   noUploadFilesHandler: "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Trebuie să completați câmpul 'Altul'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Valoarea \"{0}\" nu este una dintre opțiunile disponibile.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Fișierul dumneavoastră este în curs de încărcare. Vă rugăm așteptați câteva secunde și reveniți apoi.",
   // "Loading..."

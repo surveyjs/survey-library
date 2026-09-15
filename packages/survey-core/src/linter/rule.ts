@@ -1,3 +1,4 @@
+import { SurveyVariablePresets } from "survey-core";
 import {
   ILintFinding, ILintHint, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
 } from "./types";
@@ -95,8 +96,12 @@ export class LintContext {
   // several rules ask about the same record, and a domain costs rebuilding the value set
   private valueDomains = new Map<ElementRecord, ValueDomain | undefined>();
   private neverVisible: NeverVisibleAnalysis;
+  // variablePresets is the run's companion over options.variablePresets /
+  // options.variableDefinitionModel, or undefined when neither was given. It is the only way a
+  // rule reaches the definition: the names are already snapshotted on the index, the questions
+  // and the value verdicts are not.
   constructor(public index: SurveyIndex, public options: ISurveyLintOptions,
-    public metadata: LintMetadata) {}
+    public metadata: LintMetadata, public variablePresets?: SurveyVariablePresets) {}
   public forEachSite(filter: SiteFilter, cb: (site: ExpressionSite) => void): void {
     this.index.expressionSites.forEach(site => {
       if (filter === "unparsable") {

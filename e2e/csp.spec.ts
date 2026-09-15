@@ -9,12 +9,14 @@ const NONCE = "e2e-nonce";
 // Strict for everything the library is responsible for (style-src, font-src, img-src).
 // The script-src allowances cover the needs of the test pages themselves: the react
 // page loads jquery/showdown from cdnjs and react from esm.sh, and carries one inline
-// module script (stamped with the nonce by the route rewrite below).
+// module script (stamped with the nonce by the route rewrite below). The font host is
+// the test pages' too - they supply Open Sans through their own fonts.css, while the
+// library itself requests no font at all.
 const CSP = [
   "default-src 'self'",
   `script-src 'self' 'nonce-${NONCE}' https://cdnjs.cloudflare.com https://esm.sh`,
   `style-src 'self' 'nonce-${NONCE}' 'report-sample'`,
-  "font-src 'self'",
+  "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self'",
   "connect-src 'self' https://esm.sh",
 ].join("; ");
@@ -115,12 +117,6 @@ frameworks.forEach((framework) => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         return getComputedStyle(document.querySelector(".sd-root-modern")).getPropertyValue("--sjs2-border-effect-surface-default-reset").trim();
       })).not.toBe("");
-      // The fonts load from 'self' instead of fonts.gstatic.com.
-      expect(await page.evaluate(async () => {
-        await (document as any).fonts.ready;
-        return (document as any).fonts.check("16px \"Open Sans\"");
-      })).toBeTruthy();
-
       await page.locator("input[type=text]").fill("csp");
       await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual({ name_q: "csp" });

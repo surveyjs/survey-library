@@ -4,6 +4,8 @@ import { referenceUnknownRule } from "./reference-unknown";
 import { referenceSelfRule } from "./reference-self";
 import { nameDuplicateRule } from "./name-duplicate";
 import { nameShadowingRule } from "./name-shadowing";
+import { variableCollisionRule } from "./variable-collision";
+import { variablePresetRule } from "./variable-preset";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
 import { propertyDeadRule } from "./property-dead";
@@ -38,6 +40,8 @@ export const allRules: Array<ILintRule> = [
   referenceSelfRule,
   nameDuplicateRule,
   nameShadowingRule,
+  variableCollisionRule,
+  variablePresetRule,
   elementUnknownTypeRule,
   propertyUnknownRule,
   propertyDeadRule,

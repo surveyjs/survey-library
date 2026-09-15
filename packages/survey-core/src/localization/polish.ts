@@ -111,6 +111,8 @@ export var polishSurveyStrings = {
   noUploadFilesHandler: "Nie można przesłać plików. Dodaj moduł obsługi zdarzenia \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "Proszę podać inną odpowiedź.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Wartość \"{0}\" nie jest jedną z dostępnych opcji.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   // "Loading..."

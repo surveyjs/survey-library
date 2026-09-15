@@ -111,6 +111,8 @@ export var finnishSurveyStrings = {
   noUploadFilesHandler: "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle.",
   // "Response required: enter another value."
   otherRequiredError: "Tarkenna vastaustasi tekstikenttään.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Arvo '{0}' ei ole yksi käytettävissä olevista vaihtoehdoista.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Tiedostoa lähetetään. Odota muutama sekunti ja yritä uudelleen.",
   // "Loading..."

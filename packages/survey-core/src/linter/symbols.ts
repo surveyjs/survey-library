@@ -270,6 +270,10 @@ export interface SurveyIndex {
   namespaces: Array<Namespace>;
   // effective settings for this run, snapshotted from the shared survey-core settings
   settings: ILintResolvedSettings;
+  // the names of the host's variable definition, snapshotted once from the run's
+  // SurveyVariablePresets - empty when no definition was given. The value is the
+  // definition's own spelling of the name, which a finding quotes.
+  definitionVariables: CIMap<string>;
   // The element a data key names: the runtime reads a value by name, and a valueName
   // replaces the name as that key.
   findByDataName(name: string): ElementRecord | undefined;

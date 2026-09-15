@@ -111,6 +111,8 @@ export var lithuaniaSurveyStrings = {
   noUploadFilesHandler: "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją.",
   // "Response required: enter another value."
   otherRequiredError: "Įveskite kitą reikšmę.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Vertė \"{0}\" nėra viena iš galimų pasirinkimų.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
   // "Loading..."

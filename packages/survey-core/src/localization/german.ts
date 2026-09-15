@@ -111,6 +111,8 @@ export var germanSurveyStrings = {
   noUploadFilesHandler: "Dateien können nicht hochgeladen werden. Fügen Sie einen Handler für das Ereignis 'onUploadFiles' hinzu.",
   // "Response required: enter another value."
   otherRequiredError: "Bitte geben Sie einen Wert an.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Der Wert '{0}' ist keine der verfügbaren Optionen.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Bitte warten Sie bis der Upload Ihrer Dateien abgeschlossen ist.",
   // "Loading..."

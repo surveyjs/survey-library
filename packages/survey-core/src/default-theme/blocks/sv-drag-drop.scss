@@ -46,39 +46,15 @@
     align-items: center;
     line-height: 0;
   }
-
-  .sd-table__cell.sd-table__cell--drag {
-    >div {
-      background-color: var(--sjs2-color-component-panel-default-bg);
-      min-height: var(--sjs2-size-x600);
-    }
+}
+.sv-matrix-row--drag-drop-ghost-mod {
+  td {
+    background-color: $background-dim;
   }
-}
 
-.sd-table__cell--header,
-.sd-table__cell {
-  &.sd-table__cell--drag {
-    padding-right: 0;
-    padding-left: 0;
+  td > * {
+    visibility: hidden;
   }
-}
-
-.sd-question--mobile {
-
-  .sd-table__cell--header,
-  .sd-table__cell {
-    &.sd-table__cell--drag {
-      display: none;
-    }
-  }
-}
-
-.sv-matrix-row--drag-drop-ghost-mod td {
-  background-color: $background-dim;
-}
-
-.sv-matrix-row--drag-drop-ghost-mod td>* {
-  visibility: hidden;
 }
 
 .sv-drag-drop-choices-shortcut {
@@ -93,7 +69,6 @@
     height: var(--sjs2-size-x600);
 
     .sv-ranking-item__text {
-
       .sv-string-viewer,
       .sv-string-editor {
         overflow: hidden;

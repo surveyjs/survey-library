@@ -50,7 +50,9 @@ npm install survey-angular-ui
 
 ## Configure Styles
 
-SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+### Add Themes
+
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible [theme customization mechanism](/documentation/design-tokens-css-customization) based on CSS variables.
 
 <img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
@@ -93,6 +95,64 @@ import "survey-core/survey-core.css";
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
 [Themes](/documentation/themes-and-custom-styles (linkStyle))
+
+### Add Fonts
+
+Starting with SurveyJS v3.1.0, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+
+To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/install), run the following command:
+
+```sh
+npm install @fontsource/open-sans
+```
+
+The configuration below includes the font style sheets for weights 400, 600, and 700. Add them once to your application's global styles.
+
+<details>
+    <summary>NgModule-based components</summary>  
+
+```js
+// angular.json
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  // ...
+  "projects": {
+    "project-name": {
+      "projectType": "application",
+      // ...
+      "architect": {
+        "build": {
+          // ...
+          "options": {
+            // ...
+            "styles": [
+              "src/styles.css",
+              "node_modules/@fontsource/open-sans/400.css",
+              "node_modules/@fontsource/open-sans/600.css",
+              "node_modules/@fontsource/open-sans/700.css",
+              "node_modules/survey-core/survey-core.css",
+            ],
+            // ...
+          }
+        }
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Standalone components</summary>  
+
+```js
+// survey.component.ts
+import "@fontsource/open-sans/400.css";
+import "@fontsource/open-sans/600.css";
+import "@fontsource/open-sans/700.css";
+import "survey-core/survey-core.css";
+```
+</details>
 
 ## Create a Model
 

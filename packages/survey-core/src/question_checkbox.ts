@@ -63,9 +63,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.createNewArray("renderedValue");
     this.createNewArray("value");
   }
-  protected getFirstInputElementId(): string {
-    return this.inputId + "_0";
-  }
   /**
    * Specifies a property name used to store selected values.
    *

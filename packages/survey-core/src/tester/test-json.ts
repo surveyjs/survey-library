@@ -1,3 +1,5 @@
+import type { ISurveyVariablePresets } from "survey-core";
+
 // The JSON format of a test suite. It is public API: a visual editor for it is planned in SurveyJS
 // Builder, so every construct follows one shape: <keyword> -> <target name> -> <payload>.
 // The survey definition is deliberately not a part of this format - it is handed to the runner as a
@@ -8,6 +10,15 @@ export interface ISurveyTests {
   description?: string;
   options?: ISurveyTestOptions;
   variables?: { [name: string]: any };
+  // What the host injects into the survey, described once: the variable definition and the named
+  // records of values for it. The tester declares no interface of its own for it - the container is
+  // the core's ISurveyVariablePresets, imported from "survey-core", so a Creator that keeps one per
+  // application saves the object it has straight into the suite, and the linter reads the same one.
+  variablePresets?: ISurveyVariablePresets;
+  // A name from "variablePresets.presets", instead of writing the values inline. Exclusive with
+  // "variables" at this level: a preset is referenced or the values are written, never a name with
+  // overrides on top of it.
+  variablePreset?: string;
   starts?: Array<ISurveyTestStartDefinition>;
   // What the survey takes from outside itself. Both are maps by key - the function name, the url - and
   // both are merged per key, test over suite, like the variables above them.
@@ -27,6 +38,9 @@ export interface ISurveyTest {
   options?: ISurveyTestOptions;
   // Merged over ISurveyTests.variables, per variable name.
   variables?: { [name: string]: any };
+  // A name from ISurveyTests.variablePresets.presets. Exclusive with "variables" of this test; the
+  // values it resolves to merge over the resolved root ones per name, like inline variables.
+  variablePreset?: string;
   // Merged over ISurveyTests.functions and ISurveyTests.web, per name and per url: a test overrides
   // one entry without restating the map.
   functions?: { [name: string]: ISurveyTestFunctionStub };

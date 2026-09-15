@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
@@ -20,6 +20,7 @@
     "build:translate": "survey-utils translate library --path ../..",
     "test:translate": "survey-utils check-strings library --path ../..",
     "build:doc": "survey-utils generate-doc library-build --path ../.. --out ./packages/survey-core/build",
+    "build:doc:site": "survey-utils generate-doc library-site --path ../.. --out ../../../surveyjs-site-data",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",

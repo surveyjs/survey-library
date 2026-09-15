@@ -111,6 +111,8 @@ export var japaneseSurveyStrings = {
   noUploadFilesHandler: "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。",
   // "Response required: enter another value."
   otherRequiredError: "回答が必要です：他の値を入力してください。",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "「{0}」という値は選択肢の一つではありません。",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "ファイルをアップロード中です。しばらくしてから再度お試し下さい",
   // "Loading..."

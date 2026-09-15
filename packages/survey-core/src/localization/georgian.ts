@@ -111,6 +111,8 @@ export var georgianSurveyStrings = {
   noUploadFilesHandler: "ფაილების ატვირთვა შეუძლებელია. გთხოვთ, დაამატოთ დამმუშავებელი 'onUploadFiles' ღონისძიებისთვის.",
   // [Auto-translated] "Response required: enter another value."
   otherRequiredError: "საჭიროა პასუხი: შეიყვანეთ სხვა მნიშვნელობა.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "მნიშვნელობა \"{0}\" არ არის ერთ-ერთი ხელმისაწვდომი არჩევანი.",
   // [Auto-translated] "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "თქვენი ფაილი ატვირთვაა. გთხოვთ დაელოდოთ რამდენიმე წამს და კიდევ სცადოთ.",
   // [Auto-translated] "Loading..."

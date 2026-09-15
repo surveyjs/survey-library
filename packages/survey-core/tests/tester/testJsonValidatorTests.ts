@@ -329,6 +329,142 @@ describe("SurveyTestValidator: options and variables", () => {
   });
 });
 
+// The container carries the variable definition and the named records of values for it. What is
+// checked here is its shape and its references: whether a key of a preset is a variable of the
+// definition is a question for the definition model, which this validator never builds (issue #11814).
+describe("SurveyTestValidator: variable presets", () => {
+  const oneTest = [{ name: "t1", steps: [{ set: { q1: 1 } }] }];
+  function validatePresets(presets: any, suite?: any): Array<ISurveyTestIssue> {
+    return validate(Object.assign({ variablePresets: presets, tests: oneTest }, suite || {}));
+  }
+  test("\"variablePresets\" must be an object", () => {
+    const issues = validatePresets([{ name: "gold" }]);
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.variablePresetsNotAnObject]);
+    expect(paths(issues)).toEqual(["variablePresets"]);
+  });
+  test("\"definition\" must be a survey JSON and \"presets\" an array", () => {
+    let issues = validatePresets({ definition: "survey.json" });
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.variableDefinitionNotAnObject]);
+    expect(paths(issues)).toEqual(["variablePresets.definition"]);
+    issues = validatePresets({ presets: { gold: {} } });
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.variablePresetListNotAnArray]);
+    expect(paths(issues)).toEqual(["variablePresets.presets"]);
+  });
+  test("A preset is an object with a name and a \"variables\" record", () => {
+    const issues = validatePresets({
+      presets: [
+        "gold",
+        { variables: { tier: "gold" } },
+        { name: "newcomer" },
+        { name: "ok", variables: { tier: "basic" } },
+      ],
+    });
+    expect(codes(issues)).toEqual([
+      SurveyTestIssueCodes.variablePresetNotAnObject,
+      SurveyTestIssueCodes.variablePresetNameMissing,
+      SurveyTestIssueCodes.variablesNotAnObject,
+    ]);
+    expect(paths(issues)).toEqual([
+      "variablePresets.presets[0]",
+      "variablePresets.presets[1]",
+      "variablePresets.presets[2].variables",
+    ]);
+  });
+  test("Two presets sharing a name is a warning, like two tests sharing one", () => {
+    const issues = validatePresets({
+      presets: [
+        { name: "gold customer", variables: { tier: "gold" } },
+        { name: "gold customer", variables: { tier: "basic" } },
+        { name: "Gold Customer", variables: { tier: "basic" } },
+      ],
+    });
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.duplicateVariablePresetName]);
+    expect(issues[0].severity, "the first entry answers every reference").toBe("warning");
+    expect(issues[0].path).toBe("variablePresets.presets[1]");
+    expect(issues[0].data).toEqual({ name: "gold customer", indexes: [0, 1] });
+  });
+  test("A reference names a preset of the suite, at either level", () => {
+    const issues = validate({
+      variablePresets: { presets: [{ name: "gold customer", variables: { tier: "gold" } }] },
+      variablePreset: "gold customer",
+      tests: [
+        { name: "t1", variablePreset: "gold customer", steps: [{ set: { q1: 1 } }] },
+        { name: "t2", variablePreset: "gold custmer", steps: [{ set: { q1: 1 } }] },
+      ],
+    });
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.unknownVariablePresetReference]);
+    expect(issues[0].path).toBe("tests[1].variablePreset");
+    expect(issues[0].data).toEqual({ name: "gold custmer", presets: ["gold customer"] });
+    expect(issues[0].suggestion).toBe("Did you mean \"gold customer\"?");
+  });
+  test("A reference must be a non-empty string", () => {
+    const issues = validate({
+      variablePresets: { presets: [{ name: "gold customer", variables: { tier: "gold" } }] },
+      variablePreset: "",
+      tests: [{ name: "t1", variablePreset: 3, steps: [{ set: { q1: 1 } }] }],
+    });
+    expect(codes(issues)).toEqual([
+      SurveyTestIssueCodes.variablePresetNotAString,
+      SurveyTestIssueCodes.variablePresetNotAString,
+    ]);
+    expect(paths(issues)).toEqual(["variablePreset", "tests[0].variablePreset"]);
+  });
+  test("One level references a preset or writes the values, never both", () => {
+    const issues = validate({
+      variablePresets: { presets: [{ name: "gold customer", variables: { tier: "gold" } }] },
+      variablePreset: "gold customer",
+      variables: { years: 1 },
+      tests: [{
+        name: "t1",
+        variablePreset: "gold customer",
+        variables: { years: 2 },
+        steps: [{ set: { q1: 1 } }],
+      }],
+    });
+    expect(codes(issues)).toEqual([
+      SurveyTestIssueCodes.variablesAndPresetBothSet,
+      SurveyTestIssueCodes.variablesAndPresetBothSet,
+    ]);
+    expect(paths(issues)).toEqual(["variablePreset", "tests[0].variablePreset"]);
+  });
+  test("A test overriding a root preset per name is the way to write it", () => {
+    const issues = validate({
+      variablePresets: {
+        definition: { elements: [{ type: "text", name: "years" }] },
+        presets: [{ name: "gold customer", variables: { tier: "gold" } }],
+      },
+      variablePreset: "gold customer",
+      tests: [{ name: "one year in", variables: { years: 1 }, steps: [{ set: { q1: 1 } }] }],
+    });
+    expect(codes(issues), "the two levels are independent").toEqual([]);
+  });
+  test("A start cannot carry a preset reference, as it cannot carry variables", () => {
+    const issues = validate({
+      variablePresets: { presets: [{ name: "gold customer", variables: { tier: "gold" } }] },
+      starts: [{ name: "midFlow", variablePreset: "gold customer", data: { q1: 1 } }],
+      tests: [{ name: "t1", start: "midFlow", steps: [{ set: { q1: 1 } }] }],
+    });
+    expect(codes(issues)).toEqual([SurveyTestIssueCodes.startHasReservedKey]);
+    expect(issues[0].path).toBe("starts[0].variablePreset");
+    expect(issues[0].data.key).toBe("variablePreset");
+  });
+  test("A preset named \"constructor\" is not a duplicate of itself", () => {
+    const issues = validatePresets({
+      presets: [{ name: "constructor", variables: { tier: "gold" } }],
+    });
+    expect(codes(issues)).toEqual([]);
+  });
+  test("A named preset is not resolved when a test is validated without its suite", () => {
+    const validator = new SurveyTestValidator();
+    const test: any = { name: "t1", variablePreset: "gold customer", steps: [{ set: { q1: 1 } }] };
+    expect(codes(validator.validateTest(test, "tests[0]")),
+      "There is no suite to resolve the name against").toEqual([]);
+    expect(codes(validator.validateTest(test, "tests[0]", undefined, ["newcomer"])),
+      "The known names are passed in").toEqual([SurveyTestIssueCodes.unknownVariablePresetReference]);
+    expect(codes(validator.validateTest(test, "tests[0]", undefined, ["gold customer"]))).toEqual([]);
+  });
+});
+
 describe("SurveyTestValidator: starts", () => {
   function validateStarts(starts: any): Array<ISurveyTestIssue> {
     return validate({ starts: starts, tests: [{ name: "t1", steps: [{ set: { q1: 1 } }] }] });

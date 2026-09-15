@@ -111,6 +111,8 @@ export var italianSurveyStrings = {
   noUploadFilesHandler: "I file non possono essere caricati. Aggiungere un gestore per l'evento 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Inserire il valore 'altro'",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Il valore '{0}' non è una delle opzioni disponibili.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "File in caricamento. Attendi alcuni secondi e riprova",
   // "Loading..."

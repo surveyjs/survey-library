@@ -111,6 +111,8 @@ export var vietnameseSurveyStrings = {
   noUploadFilesHandler: "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Vui lòng điền giá trị khác.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Giá trị '{0}' không phải là một trong những lựa chọn có sẵn.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Tập tin đang được tải lên. Vui lòng chờ một lúc và thử lại.",
   // "Loading..."

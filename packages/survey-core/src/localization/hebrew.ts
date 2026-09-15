@@ -111,6 +111,8 @@ export var hebrewSurveyStrings = {
   noUploadFilesHandler: "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "נא להזין נתונים בשדה \"אחר\"",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "הערך '{0}' אינו אחת מהאפשרויות הזמינות.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "הקובץ שלך נטען. המתן מספר שניות ונסה שוב.",
   // "Loading..."

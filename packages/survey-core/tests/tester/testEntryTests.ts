@@ -17,7 +17,8 @@ import { SurveyTestCheckFactory as InternalCheckFactory } from "../../src/tester
 import { SurveyTestRunner as InternalRunner } from "../../src/tester/test-runner";
 import { SurveyTestTargets as InternalTargets } from "../../src/tester/test-targets";
 import { parseSurveyTestStep as InternalParseStep } from "../../src/tester/test-authoring";
-import { SurveyModel } from "survey-core";
+import { SurveyModel, SurveyVariablePresets } from "survey-core";
+import type { ISurveyVariablePreset, ISurveyVariablePresets } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -325,6 +326,40 @@ describe("survey-core/tester entry point", () => {
     expect(getSurveyTestDetailKind(undefined)).toBeUndefined();
     expect(getSurveyTestDetailKind("expression"), "a string is not a detail object").toBeUndefined();
     expect(getSurveyTestCheckDetails(undefined), "an absent details object reads as empty").toEqual({});
+  });
+
+  // The container of the variable definition is the core's, and the tester declares no interface of
+  // its own for it: a Creator that keeps one per application saves the object it has straight into the
+  // suite, and the linter reads the same one. This test must compile (issue #11814).
+  test("A suite carries the variable presets container of survey-core", async () => {
+    const variablePresets: ISurveyVariablePresets = {
+      definition: { elements: [{ type: "dropdown", name: "tier", choices: ["basic", "gold"] }] },
+      presets: [<ISurveyVariablePreset>{ name: "gold customer", variables: { tier: "gold" } }],
+    };
+    const tests: ISurveyTests = {
+      variablePresets: variablePresets,
+      variablePreset: "gold customer",
+      tests: [{
+        name: "the survey sees the preset",
+        steps: [{ expect: { survey: { variables: { tier: "gold" } } } }],
+      }],
+    };
+    const result = await runSurveyTests(survey, tests);
+    expect(result.status).toBe("passed");
+    expect(result.tests[0].variables).toEqual({ tier: "gold" });
+    // The names of the two containers are the same object, so a suite and a lint call cannot drift.
+    expect(new SurveyVariablePresets(tests.variablePresets).getPresetNames()).toEqual(["gold customer"]);
+  });
+
+  test("The issue codes of the variable definition are exported", () => {
+    [
+      "variablePresetsNotAnObject", "variableDefinitionNotAnObject", "variablePresetListNotAnArray",
+      "variablePresetNotAnObject", "variablePresetNameMissing", "duplicateVariablePresetName",
+      "variablePresetNotAString", "unknownVariablePresetReference", "variablesAndPresetBothSet",
+      "variableDefinitionFailed", "variableInvalid", "variableNotDefined",
+    ].forEach(code => {
+      expect((<any>SurveyTestIssueCodes)[code], code).toBe(code);
+    });
   });
 
   test("None of it leaks into the main survey-core entry point", () => {

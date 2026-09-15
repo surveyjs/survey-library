@@ -111,6 +111,8 @@ export var frenchSurveyStrings = {
   noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l'événement 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Merci de préciser le champ 'Autre'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "La valeur « {0} » n’est pas l’une des options disponibles.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   // "Loading..."

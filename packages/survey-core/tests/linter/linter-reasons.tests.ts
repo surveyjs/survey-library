@@ -1,16 +1,21 @@
 import { describe, test, expect } from "vitest";
 import {
-  getRules, lintSurvey, ILintFinding, SurveyLintHintReasons, SurveyLintReasons,
+  getRules, lintSurvey, ILintFinding, ISurveyLintOptions, SurveyLintHintReasons, SurveyLintReasons,
   SurveyLintReproductionReasons,
 } from "../../src/linter/index";
 
-function findingsOf(json: any, ruleId: string): Array<ILintFinding> {
-  return lintSurvey(json).findings.filter(f => f.ruleId === ruleId);
+function findingsOf(json: any, ruleId: string, options?: ISurveyLintOptions): Array<ILintFinding> {
+  return lintSurvey(json, options).findings.filter(f => f.ruleId === ruleId);
 }
 
+// The variable definition the variable/* fixtures are read against: its top-level questions are
+// the host variables.
+const VARIABLE_DEFINITION = { elements: [{ type: "text", name: "tier" }] };
+
 // One fixture per (ruleId, reason): the table is only useful if every value in it is actually
-// produced by a rule, and every value a rule produces is in it.
-const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
+// produced by a rule, and every value a rule produces is in it. A fixture carries "options" when
+// the reason needs one - the variable/* rules are off without a variable presets object.
+const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurveyLintOptions }> = [
   {
     ruleId: "expression/syntax", reason: "unparsable",
     json: { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", visibleIf: "{q1} ===" }] },
@@ -622,6 +627,73 @@ const CASES: Array<{ ruleId: string, reason: string, json: any }> = [
     },
   },
   {
+    ruleId: "variable/collision", reason: "questionShadowed",
+    json: { elements: [{ type: "text", name: "tier" }] },
+    options: { variablePresets: { definition: VARIABLE_DEFINITION } },
+  },
+  {
+    ruleId: "variable/collision", reason: "calculatedValueShadowed",
+    json: {
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [{ name: "tier", expression: "1 + 1" }],
+    },
+    options: { variablePresets: { definition: VARIABLE_DEFINITION } },
+  },
+  {
+    ruleId: "variable/preset", reason: "definitionNotAnObject",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { definition: "x" } },
+  },
+  {
+    ruleId: "variable/preset", reason: "presetsNotAnArray",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { presets: <any>{} } },
+  },
+  {
+    ruleId: "variable/preset", reason: "presetNotAnObject",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { presets: <any>["x"] } },
+  },
+  {
+    ruleId: "variable/preset", reason: "presetNameMissing",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { presets: <any>[{ variables: {} }] } },
+  },
+  {
+    ruleId: "variable/preset", reason: "presetVariablesNotAnObject",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: { variablePresets: { presets: <any>[{ name: "gold" }] } },
+  },
+  {
+    ruleId: "variable/preset", reason: "duplicateName",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: {
+      variablePresets: {
+        presets: [{ name: "gold", variables: {} }, { name: "gold", variables: {} }],
+      },
+    },
+  },
+  {
+    ruleId: "variable/preset", reason: "unknownVariable",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: {
+      variablePresets: {
+        definition: VARIABLE_DEFINITION,
+        presets: [{ name: "gold", variables: { teir: "gold" } }],
+      },
+    },
+  },
+  {
+    ruleId: "variable/preset", reason: "invalidValue",
+    json: { elements: [{ type: "text", name: "q1" }] },
+    options: {
+      variablePresets: {
+        definition: { elements: [{ type: "dropdown", name: "tier", choices: ["basic", "gold"] }] },
+        presets: [{ name: "gold", variables: { tier: "platinum" } }],
+      },
+    },
+  },
+  {
     ruleId: "page/empty", reason: "emptyTemplate",
     json: { elements: [{ type: "paneldynamic", name: "pd", templateElements: [] }] },
   },
@@ -672,7 +744,7 @@ describe("linter reasons - the (ruleId, reason) table", () => {
 describe("linter reasons - every reason is reachable", () => {
   CASES.forEach(entry => {
     test(entry.ruleId + " / " + entry.reason, () => {
-      const findings = findingsOf(entry.json, entry.ruleId);
+      const findings = findingsOf(entry.json, entry.ruleId, entry.options);
       expect(findings.length).toBeGreaterThan(0);
       expect(findings.map(f => f.reason)).toContain(entry.reason);
     });
@@ -697,7 +769,7 @@ describe("linter reasons - every finding carries one", () => {
   test("no fixture produces a finding without a reason from its rule's table", () => {
     const bad: Array<string> = [];
     CASES.forEach(entry => {
-      lintSurvey(entry.json).findings.forEach(finding => {
+      lintSurvey(entry.json, entry.options).findings.forEach(finding => {
         const table = SurveyLintReasons[finding.ruleId];
         if (!finding.reason || !table || !table[finding.reason]) {
           bad.push(finding.ruleId + " -> " + finding.reason);
@@ -709,7 +781,7 @@ describe("linter reasons - every finding carries one", () => {
   test("a reproduction, when present, carries a reason from its table", () => {
     const bad: Array<string> = [];
     CASES.forEach(entry => {
-      lintSurvey(entry.json).findings.forEach(finding => {
+      lintSurvey(entry.json, entry.options).findings.forEach(finding => {
         if (!finding.reproduction) return;
         const reason = finding.reproduction.reason;
         if (!reason || !SurveyLintReproductionReasons[reason]) {

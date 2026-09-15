@@ -111,6 +111,8 @@ export var icelandicSurveyStrings = {
   noUploadFilesHandler: "Ekki er hægt að hlaða upp skrám. Vinsamlegast bættu við rekli fyrir 'onUploadFiles' atvikið.",
   // "Response required: enter another value."
   otherRequiredError: "Vinamlegast fyllið út hitt gildið.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Gildið '{0}' er ekki ein af þeim valkostum sem eru í boði.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Skráinn þín var send. Vinsamlegast bíðið í nokkrar sekúndur og reynið aftur.",
   // "Loading..."

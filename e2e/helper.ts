@@ -14,6 +14,22 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+// The test pages load Open Sans from a CDN because survey-core ships no font. An
+// @font-face is fetched lazily, so anything that measures text - a popup sizing itself
+// to its content - would be laid out with the fallback font and keep that size once the
+// real font arrives. Requesting the faces explicitly (fonts.ready alone resolves before
+// a lazy face is even requested) makes the wait deterministic.
+const fontWeights = [400, 600, 700];
+
+export async function waitForFonts(page: Page): Promise<void> {
+  await page.evaluate(async (weights) => {
+    const fonts = (document as any).fonts;
+    if (!fonts) return;
+    await Promise.all(weights.map((weight) => fonts.load(`${weight} 16px "Open Sans"`)));
+    await fonts.ready;
+  }, fontWeights);
+}
+
 export async function compareScreenshot(
   page: Page,
   elementSelector: string | Locator | undefined,
@@ -31,6 +47,8 @@ export async function compareScreenshot(
       threshold?: number,
       timeout?: number,
   } = {}) {
+  await waitForFonts(page);
+
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {
     currentElement = page.locator(currentElement);
@@ -71,6 +89,7 @@ export async function resetFocusToBody(page: Page): Promise<void> {
   });
 }
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
+  await waitForFonts(page);
   if (!!props) {
     Object.keys(props).forEach(name => {
       if (typeof props[name] == "function") {

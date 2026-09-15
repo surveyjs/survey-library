@@ -111,6 +111,8 @@ export var arabicSurveyStrings = {
   noUploadFilesHandler: "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\".",
   // "Response required: enter another value."
   otherRequiredError: "الرجاء إدخال قيمة أخرى",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "القيمة '{0}' ليست من الخيارات المتاحة.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "تحميل الملف الخاص بك. يرجى الانتظار عدة ثوان والمحاولة لاحقًا",
   // "Loading..."

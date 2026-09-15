@@ -111,6 +111,8 @@ export var greekSurveyStrings = {
   noUploadFilesHandler: "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Παρακαλώ συμπληρώστε την τιμή για το πεδίο 'άλλο'.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "Η τιμή «{0}» δεν είναι μία από τις διαθέσιμες επιλογές.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "Το αρχείο σας ανεβαίνει. Παρακαλώ περιμένετε μερικά δευτερόλεπτα και δοκιμάστε ξανά.",
   // "Loading..."

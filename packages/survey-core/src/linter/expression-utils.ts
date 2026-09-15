@@ -106,7 +106,11 @@ export function stripCommentSuffix(name: string, lintSettings: ILintResolvedSett
   return name.substring(0, name.length - suffix.length);
 }
 
-function isKnownVariable(name: string, options: ISurveyLintOptions): boolean {
+// The two sources of host-variable names are a union: what the host listed by hand, and what
+// the variable definition declares. Neither is more true than the other, and one host declaring
+// a name twice is not a defect.
+function isKnownVariable(name: string, index: SurveyIndex, options: ISurveyLintOptions): boolean {
+  if (index.definitionVariables.has(name)) return true;
   const vars = options.knownVariables;
   if (!Array.isArray(vars)) return false;
   return vars.some(v => equalsCI(v, name));
@@ -145,7 +149,8 @@ export interface NameCandidateFilter {
   // which indexed elements answer the name being suggested for
   accepts: (record: ElementRecord) => boolean;
   // add the names that answer as data without being elements: valueNames, calculated
-  // values, options.knownVariables and the built-in variables
+  // values, the host variables (options.knownVariables and the variable definition) and
+  // the built-in variables
   values?: boolean;
 }
 
@@ -162,6 +167,7 @@ export function nameCandidates(index: SurveyIndex, options: ISurveyLintOptions,
   index.byValueName.forEach((_, name) => res.push(name));
   index.calculatedValues.forEach((_, name) => res.push(name));
   if (Array.isArray(options.knownVariables)) res.push(...options.knownVariables);
+  res.push(...index.definitionVariables.names());
   res.push(...builtInVariableNames());
   return res;
 }
@@ -435,7 +441,7 @@ function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: IS
     if (!isFoldableRange(ref.segments, 0, end)) continue;
     const joined = ref.segments.slice(0, end).map(seg => seg.name).join(".");
     if (!index.byName.has(joined) && !index.byValueName.has(joined) &&
-      !index.calculatedValues.has(joined) && !isKnownVariable(joined, options)) {
+      !index.calculatedValues.has(joined) && !isKnownVariable(joined, index, options)) {
       continue;
     }
     const last = ref.segments[end - 1];
@@ -570,7 +576,7 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
     ref.resolvedKind = "calculatedValue";
     return ref;
   }
-  if (isKnownVariable(root, options)) {
+  if (isKnownVariable(root, index, options)) {
     ref.status = "resolved";
     ref.resolvedKind = "knownVariable";
     return ref;

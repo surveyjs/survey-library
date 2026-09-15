@@ -111,6 +111,8 @@ export var catalanSurveyStrings = {
   noUploadFilesHandler: "No es poden carregar fitxers. Afegiu un controlador per a l'esdeveniment 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Si us plau afegiu l'altra estimació.",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "El valor '{0}' no és una de les opcions disponibles.",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "El seu arxiu s'està pujant. Si us plau esperi uns segons i intenteu-ho de nou.",
   // [Auto-translated] "Loading..."

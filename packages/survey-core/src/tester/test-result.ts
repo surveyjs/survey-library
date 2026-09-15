@@ -40,6 +40,9 @@ export interface ISurveyTestResult {
   start?: ISurveyTestStart;
   // Set when the test referenced a named start.
   startName?: string;
+  // Set when the test itself referenced a variable preset. A preset referenced by the suite needs no
+  // field of its own: its values are what "variables" above reports, exactly as root variables are.
+  variablePreset?: string;
   steps: Array<ISurveyTestStepResult>;
   issues: Array<ISurveyTestIssue>;
 }
@@ -119,11 +122,29 @@ export const SurveyTestIssueCodes = Object.freeze({
   webStubNotAnObject: "webStubNotAnObject",
   webStubHasNoResponse: "webStubHasNoResponse",
   unknownStubKey: "unknownStubKey",
+  // The variable presets container of the suite: the definition of the host variables and the named
+  // records of values for it. The container is the core's ISurveyVariablePresets, so what is checked
+  // here is only its shape - whether a key is a variable of the definition is a run-time question.
+  variablePresetsNotAnObject: "variablePresetsNotAnObject",
+  variableDefinitionNotAnObject: "variableDefinitionNotAnObject",
+  variablePresetListNotAnArray: "variablePresetListNotAnArray",
+  variablePresetNotAnObject: "variablePresetNotAnObject",
+  variablePresetNameMissing: "variablePresetNameMissing",
+  duplicateVariablePresetName: "duplicateVariablePresetName",
+  variablePresetNotAString: "variablePresetNotAString",
+  unknownVariablePresetReference: "unknownVariablePresetReference",
+  variablesAndPresetBothSet: "variablesAndPresetBothSet",
   // Run-time codes: everything below is reported by the runner, not by the validator.
   surveyMissing: "surveyMissing",
   surveyJsonExpected: "surveyJsonExpected",
   surveyFactoryFailed: "surveyFactoryFailed",
   surveyFactoryInvalidResult: "surveyFactoryInvalidResult",
+  // The variable definition of the suite could not be loaded, so nothing can be checked against it.
+  variableDefinitionFailed: "variableDefinitionFailed",
+  // The variables of the test are not what the definition describes: a value it rejects stops the
+  // test, a name it does not declare is a warning and the variable is not set on the survey.
+  variableInvalid: "variableInvalid",
+  variableNotDefined: "variableNotDefined",
   reservedTargetName: "reservedTargetName",
   unknownTarget: "unknownTarget",
   ambiguousTarget: "ambiguousTarget",

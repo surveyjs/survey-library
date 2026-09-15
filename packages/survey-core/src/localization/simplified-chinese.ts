@@ -111,6 +111,8 @@ export var simplifiedChineseSurveyStrings = {
   noUploadFilesHandler: "无法上传文件。请为“onUploadFiles”事件添加处理程序。",
   // "Response required: enter another value."
   otherRequiredError: "请完成其他问题",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "“{0}”这个数值并不是可选的选项之一。",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "文件上传中... 请耐心等待几秒后重试",
   // "Loading..."

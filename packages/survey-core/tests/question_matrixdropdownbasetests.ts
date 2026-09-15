@@ -97,15 +97,20 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
 
     matrix.cssClasses.root = "rootClass";
+    matrix.cssClasses.body = "bodyClass";
+    matrix.cssClasses.bodyAlternativeRows = "bodyAlternativeRowsClass";
     matrix.cssClasses.rootAlternateRows = "rootAlternateRowsClass";
     matrix.cssClasses.rootVerticalAlignTop = "rootVerticalAlignTopClass";
     matrix.cssClasses.rootVerticalAlignMiddle = "rootVerticalAlignMiddleClass";
 
     expect(matrix.getTableCss(), "table css is rootVerticalAlignMiddleClass").toBe("rootClass rootVerticalAlignMiddleClass");
+    expect(matrix.getTableBodyCss(), "table body css is bodyClass").toBe("bodyClass");
     matrix.verticalAlign = "top";
     expect(matrix.getTableCss(), "default table css is rootVerticalAlignTopClass").toBe("rootClass rootVerticalAlignTopClass");
+    expect(matrix.getTableBodyCss(), "table body css is bodyClass").toBe("bodyClass");
     matrix.alternateRows = true;
-    expect(matrix.getTableCss(), "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass").toBe("rootClass rootAlternateRowsClass rootVerticalAlignTopClass");
+    expect(matrix.getTableCss(), "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass").toBe("rootClass rootVerticalAlignTopClass");
+    expect(matrix.getTableBodyCss(), "table body css is bodyClass bodyAlternativeRowsClass").toBe("bodyClass bodyAlternativeRowsClass");
   });
 
   test("table autocolumn width", () => {

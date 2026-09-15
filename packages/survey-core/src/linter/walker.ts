@@ -1,4 +1,4 @@
-import { TextPreProcessor, buildTriggerExpression } from "survey-core";
+import { SurveyVariablePresets, TextPreProcessor, buildTriggerExpression } from "survey-core";
 import { ISurveyLintOptions, IComponentDef } from "./types";
 import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
@@ -578,7 +578,8 @@ function addInArrayConditionSites(state: WalkState): void {
   });
 }
 
-export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata): SurveyIndex {
+export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata,
+  variablePresets?: SurveyVariablePresets): SurveyIndex {
   const index: SurveyIndex = {
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
@@ -592,10 +593,16 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     containers: [],
     namespaces: [],
     settings: resolveLintSettings(),
+    definitionVariables: new CIMap<string>(),
     findByDataName(name: string): ElementRecord | undefined {
       return this.byName.first(name) || this.byValueName.first(name);
     },
   };
+  // One snapshot per run: the classifiers ask about a name once per reference, and deriving the
+  // names costs the companion its definition model on the first ask.
+  if (!!variablePresets) {
+    variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
+  }
   index.namespaces.push({ label: "", map: index.byName });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,

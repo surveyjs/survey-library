@@ -22,9 +22,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return "radiogroup";
   }
   supportElementsInChoice(): boolean { return true; }
-  protected getFirstInputElementId(): string {
-    return this.inputId + "_0";
-  }
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
    */

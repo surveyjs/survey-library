@@ -111,6 +111,8 @@ export var urduSurveyStrings = {
   noUploadFilesHandler: "فائلیں اپ لوڈ نہیں کی جا سکتیں۔ براہ کرم 'آن اپ لوڈ فائلز' ایونٹ کے لئے ایک ہینڈلر شامل کریں۔",
   // "Response required: enter another value."
   otherRequiredError: "براہ کرم دوسری عدد درج کریں۔ ",
+  // [Auto-translated] "The value '{0}' is not one of the available choices."
+  variableValueNotInChoices: "ویلیو '{0}' دستیاب انتخابوں میں سے ایک نہیں ہے۔",
   // "Your file is uploading. Please wait several seconds and try again."
   uploadingFile: "آپ کی فائل اپ لوڈ ہو رہی ہے۔ براہ کرم چند سیکنڈ انتظار کریں اور دوبارہ کوشش کریں۔",
   // "Loading..."

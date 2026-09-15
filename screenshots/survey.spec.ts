@@ -299,7 +299,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: true,
-        autoFocusFirstQuestion: true,
         headerView: "basic",
         "title": "American History",
         "showTimer": true,

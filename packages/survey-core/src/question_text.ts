@@ -47,6 +47,9 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private updateMaskAdapter() {
     this.deleteMaskAdapter();
+    // The displayed text may be formatted by the previous mask (an incomplete entry, or an empty
+    // mask text kept after a blur or a locale change), so it is rendered anew from the value.
+    this.updateInputValue();
     this.createMaskAdapter();
   }
   onSetMaskType(newValue: string) {

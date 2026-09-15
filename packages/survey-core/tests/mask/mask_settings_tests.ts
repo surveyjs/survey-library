@@ -348,6 +348,33 @@ describe("Question text: Input mask", () => {
     expect(q.inputStyle, "mask removed").toEqual({ width: "", textAlign: "left" });
   });
 
+  test("Changing maskType drops the text rendered by the previous mask", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", maskType: "datetime" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const input = document.createElement("input");
+    q.afterRenderQuestionElement(input);
+    //a blur stores the empty mask text; a locale change renders it in the new locale
+    q.inputValue = "mm/dd/yyyy";
+    survey.locale = "de";
+    expect(q.inputValue).toBe("TT.MM.JJJJ");
+
+    q.maskType = "numeric";
+    expect(q.inputValue, "empty numeric mask").toBe("");
+    expect(input.value, "empty numeric mask in the element").toBe("");
+
+    q.maskType = "datetime";
+    q.inputValue = "01.0M.JJJJ";
+    expect(q.inputValue, "incomplete entry").toBe("01.0M.JJJJ");
+    q.maskType = "pattern";
+    expect(q.inputValue, "incomplete datetime entry is dropped").toBe(q.maskSettings.getMaskedValue(""));
+
+    q.maskType = "numeric";
+    q.value = 123;
+    q.inputType = "number";
+    expect(q.inputValue, "no mask shows the value").toBe(123);
+    survey.locale = "";
+  });
+
   test("getControlClass marks a masked input", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const q = <QuestionTextModel>survey.getQuestionByName("q1");

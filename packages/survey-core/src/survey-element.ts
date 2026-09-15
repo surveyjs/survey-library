@@ -636,8 +636,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get titleSettings(): ISurveyTitleSettings {
     return this.survey as ISurveyTitleSettings;
   }
-  protected get isInFocusMode(): boolean {
-    return !!(this.survey as any)?.focusMode;
+  protected get isFocusedModeEnabled(): boolean {
+    return !!(this.survey as any)?.focusedModeEnabled;
   }
   public get lifecycleCallbacks(): ISurveyElementLifecycle {
     return this.survey as ISurveyElementLifecycle;

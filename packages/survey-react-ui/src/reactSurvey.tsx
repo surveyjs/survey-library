@@ -141,7 +141,7 @@ export class Survey extends SurveyElementBase<any, any>
   }
   protected wrapPageScroll(content: React.JSX.Element | null): React.JSX.Element {
     return (
-      <Scroll disabled={this.survey.pageScrollDisabled} keyboardReachable={this.survey.focusMode}>
+      <Scroll disabled={this.survey.pageScrollDisabled} keyboardReachable={this.survey.focusedModeEnabled}>
         {content}
       </Scroll>
     );

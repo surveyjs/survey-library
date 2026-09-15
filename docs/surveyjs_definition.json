@@ -575,7 +575,7 @@
     "fitToContainer": {
       "type": "boolean"
     },
-    "focusMode": {
+    "focusedModeEnabled": {
       "type": "boolean"
     },
     "headerView": {

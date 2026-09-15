@@ -15294,7 +15294,7 @@ describe("Survey", () => {
     settings.animationEnabled = false;
   });
 
-  test("Check survey focusMode getRootCss and scroll flags", () => {
+  test("Check survey focusedModeEnabled getRootCss and scroll flags", () => {
     settings.animationEnabled = true;
     const survey = new SurveyModel({
       "elements": [
@@ -15305,33 +15305,33 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.focusMode).toBeFalsy();
+    expect(survey.focusedModeEnabled).toBeFalsy();
     expect(survey.pageScrollDisabled).toBeTruthy();
     expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
-    survey.focusMode = true;
+    survey.focusedModeEnabled = true;
     expect(survey.pageScrollDisabled).toBeFalsy();
     expect(survey.rootScrollDisabled).toBeTruthy();
     expect(survey.formScrollDisabled).toBeTruthy();
     expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container sd-root-modern--focus");
 
-    // focusMode brings its own locked-container styles and does not silently turn fitToContainer on.
+    // focusedModeEnabled brings its own locked-container styles and does not silently turn fitToContainer on.
     survey.fitToContainer = false;
     expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--focus");
     expect(survey.rootScrollDisabled).toBeTruthy();
 
-    survey.focusMode = false;
+    survey.focusedModeEnabled = false;
     expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
     expect(survey.pageScrollDisabled).toBeTruthy();
     expect(survey.rootScrollDisabled).toBeTruthy();
 
     const json = survey.toJSON();
-    expect(json.focusMode).toBeFalsy();
-    survey.focusMode = true;
-    expect(survey.toJSON().focusMode).toBeTruthy();
+    expect(json.focusedModeEnabled).toBeFalsy();
+    survey.focusedModeEnabled = true;
+    expect(survey.toJSON().focusedModeEnabled).toBeTruthy();
 
-    const fromJson = new SurveyModel({ focusMode: true, elements: [{ type: "text", name: "q1" }] });
-    expect(fromJson.focusMode).toBeTruthy();
+    const fromJson = new SurveyModel({ focusedModeEnabled: true, elements: [{ type: "text", name: "q1" }] });
+    expect(fromJson.focusedModeEnabled).toBeTruthy();
     expect(fromJson.pageScrollDisabled).toBeFalsy();
     settings.animationEnabled = false;
   });

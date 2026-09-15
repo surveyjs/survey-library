@@ -15,7 +15,7 @@ async function setHostHeight(page, height = "600px") {
 }
 
 const shortJson = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   showQuestionNumbers: true,
   questionsOnPageMode: "questionPerPage",
@@ -29,7 +29,7 @@ const shortJson = {
 };
 
 const longJson = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   showQuestionNumbers: true,
   showProgressBar: true,
@@ -53,14 +53,14 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 700 });
       await initSurvey(page, framework, shortJson);
       await resetFocusToBody(page);
-      await compareScreenshot(page, ".sd-root-modern--focus", "focus-mode-short.png");
+      await compareScreenshot(page, ".sd-root-modern--focus", "focused-mode-enabled-short.png");
     });
 
     test("Check focus mode long page with topbottom progress", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 700 });
       await initSurvey(page, framework, longJson);
       await resetFocusToBody(page);
-      await compareScreenshot(page, ".sd-root-modern--focus", "focus-mode-long-topbottom.png");
+      await compareScreenshot(page, ".sd-root-modern--focus", "focused-mode-enabled-long-topbottom.png");
     });
 
     test("Check focus mode with TOC", async ({ page }) => {
@@ -70,14 +70,14 @@ frameworks.forEach(framework => {
         showTOC: true
       });
       await resetFocusToBody(page);
-      await compareScreenshot(page, ".sd-root-modern--focus", "focus-mode-toc.png");
+      await compareScreenshot(page, ".sd-root-modern--focus", "focused-mode-enabled-toc.png");
     });
 
     test("Check focus mode mobile", async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 700 });
       await initSurvey(page, framework, shortJson);
       await resetFocusToBody(page);
-      await compareScreenshot(page, ".sd-root-modern--focus", "focus-mode-mobile.png");
+      await compareScreenshot(page, ".sd-root-modern--focus", "focused-mode-enabled-mobile.png");
     });
   });
 });

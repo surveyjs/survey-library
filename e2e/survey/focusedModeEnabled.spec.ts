@@ -1,10 +1,10 @@
 /* eslint-disable surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom */
 import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
-const title = "focusMode";
+const title = "focusedModeEnabled";
 
 const shortJson = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   questionsOnPageMode: "questionPerPage",
   elements: [
@@ -14,7 +14,7 @@ const shortJson = {
 };
 
 const longJson = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   showProgressBar: true,
   progressBarLocation: "topBottom",

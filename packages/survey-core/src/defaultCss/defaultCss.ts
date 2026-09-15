@@ -21,7 +21,7 @@ export var defaultCss = {
   rootReadOnly: "sd-root--readonly",
   rootCompact: "sd-root--compact",
   rootFitToContainer: "sd-root-modern--full-container",
-  rootFocusMode: "sd-root-modern--focus",
+  rootFocusedModeEnabled: "sd-root-modern--focus",
   rootKeyboardOpen: "sd-root-modern--keyboard-open",
   rootWrapper: "sd-root-modern__wrapper",
   rootWrapperFixed: "sd-root-modern__wrapper--fixed",

@@ -2,7 +2,7 @@ import { checkA11y, injectAxe } from "axe-playwright";
 import { axeOptions, frameworks, initSurvey, url } from "./helper";
 import { test, expect } from "@playwright/test";
 
-const title = "focusMode";
+const title = "focusedModeEnabled";
 
 async function setHostHeight(page, height = "600px") {
   await page.evaluate((h) => {
@@ -16,7 +16,7 @@ async function setHostHeight(page, height = "600px") {
 }
 
 const json = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   questionsOnPageMode: "questionPerPage",
   elements: [
@@ -26,7 +26,7 @@ const json = {
 };
 
 const longJson = {
-  focusMode: true,
+  focusedModeEnabled: true,
   autoFocusFirstQuestion: false,
   elements: Array.from({ length: 10 }, (_, i) => ({
     type: "comment",

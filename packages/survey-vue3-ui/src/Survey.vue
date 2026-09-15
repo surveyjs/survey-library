@@ -66,7 +66,7 @@
                       ></SvComponent>
                       <!-- A disabled sv-scroll still stays in the Vue tree and shifts advanced-header layout. -->
                       <SvComponent
-                        v-if="vueSurvey.focusMode"
+                        v-if="vueSurvey.focusedModeEnabled"
                         :is="'sv-scroll'"
                         :disabled="false"
                         :keyboardReachable="true"

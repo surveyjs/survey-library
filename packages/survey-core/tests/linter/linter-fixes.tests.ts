@@ -272,3 +272,24 @@ describe("validator/unknown-type fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("mask/mismatch fix", () => {
+  test("the known mask the author meant replaces the unknown one", () => {
+    const json = { elements: [{ type: "text", name: "q1", maskType: "currencyy" }] };
+    const finding = findingOf(json, "mask/mismatch");
+    expect(finding.suggestion).toBe("currency");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["mask/mismatch"].setMaskType,
+      edits: [{ op: "set", path: "elements[0].maskType", value: "currency" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].maskType).toBe("currency");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "mask/mismatch")).toHaveLength(0);
+  });
+  test("a mask defect that is not a misspelled type gets no fix", () => {
+    const json = { elements: [{ type: "text", name: "q1", maskSettings: { saveMaskedValue: true } }] };
+    const finding = findingOf(json, "mask/mismatch");
+    expect(finding.reason).not.toBe("unknownMaskType");
+    expect(finding.fix).toBeUndefined();
+  });
+});

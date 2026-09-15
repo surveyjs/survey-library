@@ -249,3 +249,26 @@ describe("trigger/unknown-type fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("validator/unknown-type fix", () => {
+  test("the registered validator type the author meant replaces the unknown one", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", validators: [{ type: "numericc", minValue: 1 }] }],
+    };
+    const finding = findingOf(json, "validator/unknown-type");
+    expect(finding.suggestion).toBe("numeric");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["validator/unknown-type"].setType,
+      edits: [{ op: "set", path: "elements[0].validators[0].type", value: "numeric" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].validators[0]).toEqual({ type: "numeric", minValue: 1 });
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "validator/unknown-type")).toHaveLength(0);
+  });
+  test("a validator with no type gets no fix", () => {
+    const json = { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] };
+    const finding = findingOf(json, "validator/unknown-type");
+    expect(finding.reason).toBe("noType");
+    expect(finding.fix).toBeUndefined();
+  });
+});

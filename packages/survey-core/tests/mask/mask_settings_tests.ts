@@ -638,6 +638,23 @@ describe("Question text: Input mask", () => {
     maskSettings.prefix = "$";
     expect(q.value, "q.value #2").toBe(123);
     expect(q.inputValue, "q.inputValue #2").toBe("$123");
+    expect(maskSettings.currencyPattern, "the prefix is written into the pattern").toBe("$-#");
+  });
+
+  test("Currency Input Mask: an assigned prefix notifies as a currencyPattern change", () => {
+    const q = new QuestionTextModel("q1");
+    q.maskType = "currency";
+    q.value = 123;
+    const maskSettings = <InputMaskCurrency>q.maskSettings;
+    const maskChanges: Array<string> = [];
+    const nestedChanges: Array<string> = [];
+    maskSettings.onPropertyChanged.add((_, options) => maskChanges.push(options.name));
+    q.onNestedPropertyChanged.add((_, options) => nestedChanges.push(options.nestedName));
+
+    maskSettings.prefix = "EUR ";
+    expect(maskChanges, "the mask").toEqual(["currencyPattern"]);
+    expect(nestedChanges, "the question").toEqual(["currencyPattern"]);
+    expect(q.inputValue, "the input value is rendered again").toBe("EUR 123");
   });
 
   test("Pattern mask: validation error on incomplete pattern value", () => {
@@ -814,11 +831,11 @@ describe("Question text: Input mask", () => {
     expect(q.errors.length, "errors cleared").toBe(0);
   });
 
-  test("Only the datetime mask is locale dependent", () => {
+  test("The format bearing masks are locale dependent", () => {
     expect(new InputMaskBase().isLocaleDependent, "base").toBe(false);
     expect(new InputMaskPattern().isLocaleDependent, "pattern").toBe(false);
-    expect(new InputMaskNumeric().isLocaleDependent, "numeric").toBe(false);
-    expect(new InputMaskCurrency().isLocaleDependent, "currency").toBe(false);
+    expect(new InputMaskNumeric().isLocaleDependent, "numeric").toBe(true);
+    expect(new InputMaskCurrency().isLocaleDependent, "currency").toBe(true);
     expect(new InputMaskDateTime().isLocaleDependent, "datetime").toBe(true);
   });
 

@@ -120,16 +120,17 @@ export class QuestionTextModel extends QuestionTextBase {
   public localeChanged(): void {
     super.localeChanged();
     if (this.maskTypeIsEmpty || !this.maskSettings.isLocaleDependent) return;
-    // While the element is focused, an in-progress entry may exist only in it - masked
-    // keystrokes are written there directly and reach _inputValue on blur - so its text has to
-    // be captured before localeChanged() below rebuilds the mask and rerenders the element.
-    // Without focus a blur has already synchronized _inputValue, which stays authoritative
-    // (a programmatic inputValue assignment updates the model first, not the element).
+    // While the element is focused, an entry may exist only in it - masked keystrokes are
+    // written there directly and reach _inputValue on blur - so its text has to be captured
+    // before localeChanged() below rebuilds the mask and rerenders the element. That text is
+    // always handed over, including when an answer is already stored: the edits of a respondent
+    // who is retyping an existing answer live nowhere else. Without focus a blur has already
+    // synchronized _inputValue, which stays authoritative (a programmatic inputValue assignment
+    // updates the model first, not the element), and only an entry that is incomplete - and so
+    // not stored in the question value - has to be carried across.
     const isEditing = !!this.maskInputAdapter && this.maskInputAdapter.isInputElementFocused;
-    const enteredText = isEditing ? this.maskInputAdapter.inputElementText : this._inputValue;
     const state: IMaskLocaleChange = {
-      // an incomplete entry is not stored in the question value
-      enteredText: this.isEmpty() ? enteredText : undefined,
+      enteredText: isEditing ? this.maskInputAdapter.inputElementText : (this.isEmpty() ? this._inputValue : undefined),
       // a masked value is stored in the format of the previous locale
       value: this.maskSettings.saveMaskedValue ? this.value : undefined
     };
@@ -139,7 +140,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!!state.value && state.value !== this.value) {
       this.value = state.value;
     }
-    if (!!state.enteredText) {
+    if (state.enteredText !== undefined) {
       this._inputValue = state.enteredText;
       this.maskInputAdapter?.updateInputElementText(state.enteredText);
     }
@@ -1082,6 +1083,12 @@ Serializer.addClass(
       },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();
+      },
+      // An object whose every value is empty is dropped as a default, which would lose an
+      // authored "" separator or symbol. Anything getData() writes was written on purpose.
+      onSerializeValue: function (obj: any) {
+        const data = obj.maskSettings.getData();
+        return Object.keys(data).length > 0 ? data : undefined;
       },
       onSetValue: function (obj: any, value: any) {
         obj.maskSettings.setData(value);

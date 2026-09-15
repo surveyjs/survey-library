@@ -331,6 +331,7 @@ export * from "../../src/utils/browser";
 export * from "../../src/utils/color";
 export * from "../../src/utils/confirm-dialog";
 export * from "../../src/utils/dom-utils";
+export * from "../../src/utils/scroll-utils";
 export * from "../../src/utils/file-utils";
 export * from "../../src/utils/icons";
 export * from "../../src/utils/key2click";

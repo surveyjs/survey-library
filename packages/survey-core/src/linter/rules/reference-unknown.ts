@@ -7,10 +7,11 @@ import {
   CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef,
 } from "../symbols";
 import { didYouMean } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 import { ILintHint } from "../types";
 
 const reasons = SurveyLintReasons["reference/unknown"];
+const fixReasons = SurveyLintFixReasons["reference/unknown"];
 
 function segmentName(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
@@ -151,6 +152,10 @@ function checkKeyName(ctx: LintContext, record: ElementRecord): void {
       label + ", so duplicate-key validation never runs." + didYouMean(suggestion),
     path: record.path + ".keyName",
     reason: reasons.keyNameNotFound,
+    fix: !suggestion ? undefined : {
+      reason: fixReasons.setKeyName,
+      edits: [{ op: "set", path: record.path + ".keyName", value: suggestion }],
+    },
     messageData: {
       name: record.name,
       questionType: record.type,

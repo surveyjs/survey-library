@@ -433,3 +433,28 @@ describe("choices/dead-source fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("reference/unknown keyName fix", () => {
+  test("the column the author meant replaces the keyName that names nothing", () => {
+    const json = {
+      elements: [{ type: "matrixdynamic", name: "m1", keyName: "col9", columns: [{ name: "col1" }] }],
+    };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "keyNameNotFound")[0];
+    expect(finding.suggestion).toBe("col1");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["reference/unknown"].setKeyName,
+      edits: [{ op: "set", path: "elements[0].keyName", value: "col1" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].keyName).toBe("col1");
+    expect(lintSurvey(fixed).findings.filter(f => f.reason === "keyNameNotFound")).toHaveLength(0);
+  });
+  test("a keyName nothing is close to gets no fix", () => {
+    const json = {
+      elements: [{ type: "matrixdynamic", name: "m1", keyName: "zzzzzzzzzz", columns: [{ name: "col1" }] }],
+    };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "keyNameNotFound")[0];
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+});

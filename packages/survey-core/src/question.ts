@@ -270,6 +270,17 @@ export class ValidationContext extends AsyncElementsRunner {
   }
 }
 
+// The kind of value a question stores, independent of the question type: what a consumer that
+// exchanges plain data with the survey - a JSON Schema, a text or voice interface, an AI agent -
+// has to send back. Question.getValueType() answers it, every question type for itself.
+export type QuestionValueType = "string" | "number" | "boolean" | "date" | "array" | "object";
+
+// The value type a question that stores whatever its items carry reports: the type of one of them.
+export function getScalarValueType(val: any): QuestionValueType {
+  if (typeof val === "number") return "number";
+  return typeof val === "boolean" ? "boolean" : "string";
+}
+
 /**
  * A base class for all questions.
  */
@@ -605,6 +616,62 @@ export class Question extends SurveyElement<Question>
     return res;
   }
   public choicesLoaded(): void { }
+  /**
+   * Returns the expected type of an answer to this question.
+   *
+   * The following table illustrates how the return value depends on the question type:
+   *
+   * | Question type | Value type(s) |
+   * | ------------- | ------------- |
+   * | Checkboxes | `"array"` |
+   * | Dropdown | `"string"` \| `"number"` \| `"boolean"` |
+   * | Dynamic Matrix | `"array"` |
+   * | Dynamic Panel | `"array"` |
+   * | Expression | `"string"` |
+   * | File Upload | `"array"` |
+   * | Image Picker | `"string"` \| `"array"` |
+   * | Long Text | `"string"` |
+   * | Multi-Select Dropdown | `"array"` |
+   * | Multi-Select Matrix | `"object"` |
+   * | Multiple Textboxes | `"object"` |
+   * | Radio Button Group | `"string"` \| `"number"` \| `"boolean"` |
+   * | Ranking | `"array"` |
+   * | Rating Scale | `"number"` \| `"string"` \| `"boolean"` |
+   * | Slider | `"number"` \| `"array"` |
+   * | Signature | `"string"` |
+   * | Single-Line Input | `"string"` \| `"number"` \| `"date"` |
+   * | Single-Select Matrix | `"object"` |
+   * | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
+   * @hidefor QuestionImageModel, QuestionHtmlModel
+   */
+  public getValueType(): QuestionValueType {
+    return "string";
+  }
+  /**
+   * Returns `true` if the question exposes a collection of choice items that define its possible values.
+   *
+   * The following question types return `true`:
+   *
+   * - Checkboxes
+   * - Dropdown
+   * - Image Picker
+   * - Multi-Select Dropdown
+   * - Radio Button Group
+   * - Ranking
+   * - Rating Scale
+   * - Yes/No (Boolean)
+   *
+   * [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+   */
+  public isSelectQuestion(): boolean {
+    return false;
+  }
+  // Returns `false` when the value can only be produced through the question's own UI - a file to
+  // upload, a signature to draw, an image region to click. A consumer that renders nothing (a chat,
+  // a voice front end, an AI agent) cannot answer such a question at all.
+  public get hasPlainInput(): boolean {
+    return this.hasInput;
+  }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
@@ -969,9 +1036,11 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputQuestion(): Question {
     const res = this.singleInputBehavior.singleInputQuestion;
-    // A stored "self" without a summary is a question at its own step (a select question with
-    // nested choice elements before its nested inputs): render the question's own content.
-    if (res === this && !this.singleInputSummary) return undefined;
+    // A stored "self" that is not a summary step is a question at its own step (a select question with
+    // nested choice elements before its nested inputs): render the question's own content. Asked of the
+    // behavior, not of singleInputSummary: building a summary reads the parent container's css, which
+    // reads this getter again for a dynamic container nested in another one.
+    if (res === this && !this.singleInputBehavior.isSelfSummaryStep()) return undefined;
     return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
@@ -1930,25 +1999,26 @@ export class Question extends SurveyElement<Question>
    *
    * | Question type | Value type(s) |
    * | ------------- | ------------- |
-   * | Checkboxes | <code>Array&lt;string &#124; number&gt;</code> |
-   * | Dropdown | `string` \| `number` |
+   * | Checkboxes | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
+   * | Dropdown | `string` \| `number` \| `boolean` |
    * | Dynamic Matrix | `Array<object>` |
    * | Dynamic Panel | `Array<object>` |
-   * | Expression | `string` \| `number` \| `boolean` |
+   * | Expression | `string` |
    * | File Upload | `File` \| `Array<File>` |
-   * | Image Picker | <code>Array&lt;string &#124; number&gt;</code> |
+   * | Image Picker | `string` \| `Array<string>` |
    * | Long Text | `string` |
-   * | Multi-Select Dropdown | <code>Array&lt;string &#124; number&gt;</code> |
+   * | Multi-Select Dropdown | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
    * | Multi-Select Matrix | `object` |
-   * | Multiple Textboxes | `Array<string>` |
-   * | Radio Button Group | `string` \| `number` |
-   * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
-   * | Rating Scale | `number` \| `string` |
-   * | Slider | <code>Array&lt;string &#124; number&gt;</code> |
-   * | Signature | `string` (base64-encoded image) |
+   * | Multiple Textboxes | `object` |
+   * | Radio Button Group | `string` \| `number` \| `boolean` |
+   * | Ranking | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
+   * | Rating Scale | `number` \| `string` \| `boolean` |
+   * | Slider | `number` \| `Array<number>` |
+   * | Signature | `string` |
    * | Single-Line Input | `string` \| `number` \| `Date` |
    * | Single-Select Matrix | `object` |
-   * | Yes/No (Boolean) | `boolean` \| `string` |
+   * | Yes/No (Boolean) | `boolean` \| `string` \| `number` |
+   * @see getValueType
    * @hidefor QuestionImageModel, QuestionHtmlModel
    */
   public get value(): any {

@@ -7,6 +7,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
+import { QuestionValueType } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
@@ -181,6 +182,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public getType(): string {
     return "matrixdropdown";
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
   }
   protected getAllChildren(): Base[] {
     return [

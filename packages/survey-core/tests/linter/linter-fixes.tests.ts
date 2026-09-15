@@ -67,3 +67,35 @@ describe("property/not-an-array fix", () => {
     expect(applyFix(json, finding.fix).elements[0].choices).toEqual(["a"]);
   });
 });
+
+describe("property/invalid-value fix", () => {
+  test("the allowed value the author meant replaces the one that was written", () => {
+    const json = { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] };
+    const finding = findingOf(json, "property/invalid-value");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/invalid-value"].useAllowedValue,
+      edits: [{ op: "set", path: "elements[0].clearIfInvisible", value: "onComplete" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].clearIfInvisible).toBe("onComplete");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/invalid-value")).toHaveLength(0);
+  });
+  test("the fix carries the allowed value itself, not the spelling of it", () => {
+    const json = { elements: [{ type: "checkbox", name: "q1", choices: ["a"], colCount: 7 }] };
+    const finding = findingOf(json, "property/invalid-value");
+    expect(typeof finding.suggestion).toBe("string");
+    expect(finding.fix.edits[0].value).toBe(Number(finding.suggestion));
+    expect(typeof finding.fix.edits[0].value).toBe("number");
+  });
+  test("a value nothing is close to gets no fix", () => {
+    const json = { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] };
+    const finding = findingOf(json, "property/invalid-value");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+  test("a dotted valueName gets no fix - the flat key it meant is unknowable", () => {
+    const json = { elements: [{ type: "text", name: "q1", valueName: "a.b" }] };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "valueNameDotted")[0];
+    expect(finding.fix).toBeUndefined();
+  });
+});

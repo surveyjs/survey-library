@@ -1,10 +1,12 @@
 import { ILintRule, LintContext } from "../rule";
+import { ILintFix } from "../types";
 import { PropertySite } from "../property-walk";
 import { closestMatch } from "../levenshtein";
 import { didYouMean, quoteValues } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["property/invalid-value"];
+const fixReasons = SurveyLintFixReasons["property/invalid-value"];
 
 function ownerText(name?: string, className?: string): string {
   if (!!name) return "\"" + name + "\"";
@@ -46,6 +48,15 @@ function matches(allowed: Array<any>, value: any): boolean {
   return allowed.some(item => item == value);
 }
 
+// The suggestion is a spelling - String(item) - while the property holds the value itself, and
+// "5" is not 5 to a setter that compares what it was given. So the fix carries the allowed entry
+// the spelling came from, with its own type.
+function allowedValue(allowed: Array<any>, suggestion: string): any {
+  if (suggestion === undefined) return undefined;
+  const found = allowed.filter(item => String(item) === suggestion);
+  return found.length > 0 ? found[0] : undefined;
+}
+
 function caseInsensitiveMatch(allowed: Array<any>, value: any): string | undefined {
   if (typeof value !== "string") return undefined;
   const lower = value.toLowerCase();
@@ -74,7 +85,14 @@ function checkChoices(ctx: LintContext, site: PropertySite): void {
     elementName: site.owner.name,
     elementType: site.owner.type,
     suggestion: suggestion,
+    fix: buildFix(allowed, suggestion, site),
   });
+}
+
+function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix | undefined {
+  const value = allowedValue(allowed, suggestion);
+  if (value === undefined) return undefined;
+  return { reason: fixReasons.useAllowedValue, edits: [{ op: "set", path: site.path, value: value }] };
 }
 
 function toNumber(site: PropertySite): number | undefined {

@@ -14,6 +14,7 @@ import { FoldedCondition, foldCondition, getConstResolver } from "./condition-ev
 import { analyzeNeverVisible, NeverVisibleAnalysis } from "./never-visible";
 import { getRecordValueDomain, getValueDomain, ValueDomain } from "./value-domain";
 import { PropertyWalkResult, walkProperties } from "./property-walk";
+import { createNameFactory } from "./new-name";
 
 export interface ILintRule {
   id: string;
@@ -93,6 +94,7 @@ export class LintContext {
   private currentSeverity: LintFindingSeverity;
   private constantEnv: ConstantEnv;
   private propertyWalk: PropertyWalkResult;
+  private nameFactory: (kind: string) => string;
   // several rules ask about the same site, and a verdict now costs an evaluation
   private verdicts = new Map<ExpressionSite, ConditionVerdict>();
   // several rules ask about the same record, and a domain costs rebuilding the value set
@@ -120,6 +122,14 @@ export class LintContext {
     this.forEachSite("parsed", site => getIifConditionSubSites(site).forEach(cb));
   }
   // The property-level view of the JSON, shared by the property/* rules.
+  // The name a fix gives a new element. One factory per run, shared by every rule: two fixes
+  // that both invent a name must not invent the same one.
+  public newElementName(kind: string): string {
+    if (!this.nameFactory) {
+      this.nameFactory = createNameFactory(this.index, this.options);
+    }
+    return this.nameFactory(kind);
+  }
   public getPropertyWalk(): PropertyWalkResult {
     if (!this.propertyWalk) {
       this.propertyWalk = walkProperties(this.index.json, this.metadata, this.options, this.index.settings);

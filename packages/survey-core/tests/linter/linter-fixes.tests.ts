@@ -99,3 +99,69 @@ describe("property/invalid-value fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("name/duplicate fix", () => {
+  const twice = { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] };
+
+  test("the later element gets a free name of its own kind", () => {
+    const finding = findingOf(twice, "name/duplicate");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["name/duplicate"].renameElement,
+      edits: [{ op: "set", path: "elements[1].name", value: "question1" }],
+    });
+    const fixed = applyFix(twice, finding.fix);
+    expect(fixed.elements.map((el: any) => el.name)).toEqual(["q1", "question1"]);
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "name/duplicate")).toHaveLength(0);
+  });
+  test("a page is named after a page and a panel after a panel", () => {
+    const pages = {
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p1", elements: [{ type: "text", name: "q2" }] },
+      ],
+    };
+    expect(findingOf(pages, "name/duplicate").fix.edits[0].value).toBe("page1");
+    const panels = {
+      elements: [
+        { type: "panel", name: "x", elements: [{ type: "text", name: "q1" }] },
+        { type: "panel", name: "x", elements: [{ type: "text", name: "q2" }] },
+      ],
+    };
+    expect(findingOf(panels, "name/duplicate").fix.edits[0].value).toBe("panel1");
+  });
+  test("one run never hands out the same name twice", () => {
+    const thrice = {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }],
+    };
+    const names = lintSurvey(thrice).findings
+      .filter(f => f.ruleId === "name/duplicate").map(f => f.fix.edits[0].value);
+    expect(names).toEqual(["question1", "question2"]);
+  });
+  test("a name a matrix column already uses is not handed out", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "question1" }] },
+        { type: "text", name: "q1" }, { type: "text", name: "q1" },
+      ],
+    };
+    expect(findingOf(json, "name/duplicate").fix.edits[0].value).toBe("question2");
+  });
+  test("the host spells the name itself through options.newElementName", () => {
+    const seen: Array<any> = [];
+    const findings = lintSurvey(twice, {
+      newElementName: (kind: string, taken: Array<string>) => {
+        seen.push({ kind: kind, taken: taken });
+        return "frage1";
+      },
+    }).findings.filter(f => f.ruleId === "name/duplicate");
+    expect(findings[0].fix.edits[0].value).toBe("frage1");
+    expect(seen).toHaveLength(1);
+    expect(seen[0].kind).toBe("question");
+    expect(seen[0].taken).toContain("q1");
+  });
+  test("a duplicate calculated value gets no fix - a reference cannot tell which one it meant", () => {
+    const json = { calculatedValues: [{ name: "c1", expression: "1" }, { name: "c1", expression: "2" }] };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "calculatedValueNames")[0];
+    expect(finding.fix).toBeUndefined();
+  });
+});

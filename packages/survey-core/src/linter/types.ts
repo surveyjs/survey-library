@@ -22,6 +22,11 @@ export interface ISurveyLintOptions {
   knownFunctions?: Array<string>;
   components?: { [typeName: string]: IComponentDef };
   reportSuppressed?: boolean;
+  // Names a new element for a fix that has to invent one. "nameKind" is "page", "panel" or
+  // "question"; "taken" is every name the document already spells, plus the ones this run has
+  // handed out. A host that shows its user another language spells the name in it - the linter
+  // knows only the English words - and one that passes nothing gets "question1" and its kin.
+  newElementName?: (nameKind: string, taken: Array<string>) => string;
   // The host's variable definition and its named presets - the object survey-core declares and
   // the tester carries at the root of a suite too. The definition's questions are a second
   // source of known variable names next to knownVariables, and the presets are checked against

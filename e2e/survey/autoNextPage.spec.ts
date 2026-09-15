@@ -154,6 +154,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("Enter");
+      await page.waitForTimeout(500);
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

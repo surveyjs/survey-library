@@ -795,6 +795,10 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     if (this.hasPanel && (!!this.detailPanelValue || !context || !context.isOnValueChanging)) {
       this.ensureDetailPanel();
+      // Creating the panel adds its questions to the survey, and in the input-per-page mode that
+      // re-runs the navigation, which may validate this very row again while the panel is still being
+      // created. That nested call finds no panel yet; the call that is creating it validates it.
+      if (!this.detailPanel) return res;
       const isValid = this.detailPanel.validateElement(context);
       const rec = <any>context;
       if (!rec.hideErroredPanel && !isValid && context.fireCallback) {
@@ -1041,6 +1045,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get isContainer(): boolean { return true; }
   public get isRowsDynamic(): boolean {
     return false;
+  }
+  startLoadingFromJson(json?: any): void {
+    super.startLoadingFromJson(json);
+    // toJSON() writes "cellType" after "columns". Apply it first: a column with the default cellType
+    // accepts the properties of the matrix cell type, and it must know that type when its JSON is loaded.
+    if (!!json && !!json.cellType) {
+      this.cellType = json.cellType;
+    }
+  }
+  endLoadingFromJson(): void {
+    // cellType changes are not propagated while loading, bring the default columns in line with it
+    this.updateColumnsCellType();
+    super.endLoadingFromJson();
   }
   private isUpdating: boolean;
   protected get isUpdateLocked(): boolean {

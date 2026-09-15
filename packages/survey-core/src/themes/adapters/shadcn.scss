@@ -367,8 +367,8 @@
   /* the ring color; panel separators are off (transparent) across adapters */
   --sjs2-color-component-panel-default-border: color-mix(in oklab, var(--foreground) 10%, transparent);
   --sjs2-color-component-panel-default-separator: transparent;
-  --sjs2-border-effect-component-panel-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-typography-font-size-component-panel-title: var(--text-base);
   --sjs2-typography-line-height-component-panel-title: var(--text-base--line-height);
@@ -415,8 +415,8 @@
   --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-simple-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
@@ -439,8 +439,8 @@
   --sjs2-color-component-panel-nested-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-nested-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-nested-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-nested-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-nested-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-nested-default-border), var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-nested-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-nested-box-padding-top: 0;
@@ -483,8 +483,9 @@
   --sjs2-color-component-panel-dynamic-default-bg: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-component-panel-dynamic-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-dynamic-default-separator: transparent;
-  --sjs2-border-effect-component-panel-dynamic-default: var(--sjs2-shadcn-card-ring)
-    var(--sjs2-color-component-panel-dynamic-default-border), var(--sjs2-shadcn-card-shadow);
+  --sjs2-border-effect-component-panel-dynamic-default:
+    var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-dynamic-default-border),
+    var(--sjs2-shadcn-card-shadow);
 
   --sjs2-layout-component-panel-dynamic-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-dynamic-box-padding-top: 0;
@@ -759,30 +760,37 @@
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
 }
-.sd-table.sd-table.sd-table > tbody > tr {
-  & > th,
-  & > td {
-    &:where(:not(.sd-table__cell--error)) {
-      border-top: 1px solid var(--border);
-      border-bottom: none;
-      padding: calc(var(--spacing) * 2);
-      .sd-radio {
-        padding: 0;
-      }
-      .sd-radio__decorator {
-        margin: 0;
-      }
-    }
+.sjs-theme-overrides {
+  --sjs2-border-width-component-matrix-default-separator: 1px;
+  --sjs2-color-component-matrix-default-separator: var(--border);
+  --sjs2-layout-component-matrix-cell-padding-top: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-padding-right: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-top: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-bottom: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-header-cell-padding-right: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-left-padding-left: calc(var(--spacing) * 2);
+  --sjs2-layout-component-matrix-cell-right-padding-right: calc(var(--spacing) * 2);
+
+  --sjs2-layout-component-matrix-box-padding-left: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-matrix-box-padding-right: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-matrix-box-padding-top: 0;
+  --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+}
+.sd-table__cell {
+  .sd-radio {
+    padding: 0;
+  }
+  .sd-radio__decorator {
+    margin: 0;
   }
 }
-.sd-table.sd-table.sd-table > thead > tr {
-  & > th,
-  & > td {
-      border-top: none;
-      border-bottom: none;
-      padding: calc(var(--spacing) * 2);
-  }
+.sd-table__row--data:last-of-type {
+  border-bottom: none;
 }
+
 .sd-table__cell--header,
 .sd-table__cell--row-text {
   height: var(--sjs2-shadcn-table-header-height);
@@ -794,7 +802,6 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
-  margin: 0;
   svg {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);

@@ -303,7 +303,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       } else {
         SurveyElement.ScrollElementToViewCore(el, true, false);
       }
-      el.focus({ focusVisible: false } as any);
+      // Keep the keyboard focus ring so :focus-visible styles apply (radio, checkbox, boolean, image picker).
+      el.focus({ focusVisible: true } as any);
       return true;
     }
     return false;

@@ -6,6 +6,9 @@
     "locale": {
       "type": "string"
     },
+    "regionalFormat": {
+      "$ref": "#/definitions/regionalformat"
+    },
     "title": {
       "oneOf": [
         {
@@ -619,6 +622,33 @@
           "type": "string"
         },
         "en": {
+          "type": "string"
+        }
+      }
+    },
+    "regionalformat": {
+      "type": "object",
+      "$id": "regionalformat",
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "datePattern": {
+          "type": "string"
+        },
+        "timePattern": {
+          "type": "string"
+        },
+        "decimalSeparator": {
+          "type": "string"
+        },
+        "thousandsSeparator": {
+          "type": "string"
+        },
+        "currencySymbol": {
+          "type": "string"
+        },
+        "currencyPattern": {
           "type": "string"
         }
       }
@@ -1923,6 +1953,9 @@
             },
             "rowCount": {
               "type": "number"
+            },
+            "rowCountExpression": {
+              "type": "string"
             },
             "minRowCount": {
               "type": "number"
@@ -3241,6 +3274,14 @@
         },
         {
           "properties": {
+            "patternPreset": {
+              "type": "string",
+              "enum": [
+                "localeDate",
+                "localeTime",
+                "localeDateTime"
+              ]
+            },
             "min": {
               "type": "string"
             },
@@ -3291,10 +3332,10 @@
         },
         {
           "properties": {
-            "prefix": {
+            "currencySymbol": {
               "type": "string"
             },
-            "suffix": {
+            "currencyPattern": {
               "type": "string"
             }
           }
@@ -3730,6 +3771,13 @@
             },
             "allowCameraAccess": {
               "type": "boolean"
+            },
+            "cameraFacingMode": {
+              "type": "string",
+              "enum": [
+                "user",
+                "environment"
+              ]
             }
           }
         }
@@ -4405,6 +4453,9 @@
                 9,
                 10
               ]
+            },
+            "panelCountExpression": {
+              "type": "string"
             },
             "minPanelCount": {
               "type": "number"

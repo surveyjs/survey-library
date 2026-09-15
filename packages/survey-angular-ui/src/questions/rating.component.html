@@ -1,5 +1,6 @@
   <div [class]="model.ratingRootCss" #contentElement>
       <fieldset 
+          (keydown)="model.onKeyDown($event)"
           [attr.role]="model.a11y_input_ariaRole"
           [attr.aria-required]="model.a11y_input_ariaRequired"
           [attr.aria-label]="model.a11y_input_ariaLabel"

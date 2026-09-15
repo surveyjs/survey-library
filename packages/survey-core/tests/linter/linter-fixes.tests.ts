@@ -458,3 +458,93 @@ describe("reference/unknown keyName fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+function refFinding(json: any, path: string): ILintFinding {
+  return lintSurvey(json).findings
+    .filter(f => f.ruleId === "reference/unknown" && f.path === path)[0];
+}
+
+describe("reference/unknown reference fix", () => {
+  test("the name the author meant replaces the reference inside the expression", () => {
+    const json = {
+      elements: [
+        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{frut} = 'a'" },
+      ],
+    };
+    const finding = refFinding(json, "elements[1].visibleIf");
+    expect(finding.suggestion).toBe("fruit");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["reference/unknown"].renameReference,
+      edits: [{ op: "set", path: "elements[1].visibleIf", value: "{fruit} = 'a'" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[1].visibleIf).toBe("{fruit} = 'a'");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
+  });
+  test("a reference that is a prefix of another one is left alone", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1" }, { type: "text", name: "q10" },
+        { type: "text", name: "q3", visibleIf: "{q11} = 1 and {q10} = 2" },
+      ],
+    };
+    const finding = refFinding(json, "elements[2].visibleIf");
+    expect(finding.suggestion).toBe("q1");
+    expect(finding.fix.edits[0].value).toBe("{q1} = 1 and {q10} = 2");
+  });
+  test("only the segment that did not resolve is respelled, the scope prefix stays", () => {
+    const json = {
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "col1" }, { name: "col2", visibleIf: "{row.col9} = 1" }],
+      }],
+    };
+    const finding = refFinding(json, "elements[0].columns[1].visibleIf");
+    expect(finding.reason).toBe("scopedUnknown");
+    expect(finding.fix.edits[0].value).toBe("{row.col1} = 1");
+  });
+  test("a binding holds the bare name, so the whole value is respelled", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", inputType: "number" },
+        { type: "matrixdynamic", name: "m2", columns: [{ name: "c1" }], bindings: { rowCount: "q11" } },
+      ],
+    };
+    const finding = refFinding(json, "elements[1].bindings.rowCount");
+    expect(finding.fix.edits).toEqual([
+      { op: "set", path: "elements[1].bindings.rowCount", value: "q1" },
+    ]);
+  });
+  test("a name piped into a text is respelled inside that text", () => {
+    const json = {
+      elements: [
+        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
+        { type: "text", name: "q2", title: "Hello {frut}!" },
+      ],
+    };
+    const finding = refFinding(json, "elements[1].title");
+    expect(finding.messageData.refKind).toBe("textPiping");
+    expect(finding.fix.edits).toEqual([
+      { op: "set", path: "elements[1].title", value: "Hello {fruit}!" },
+    ]);
+  });
+  test("a reference nothing is close to gets no fix", () => {
+    const json = { elements: [{ type: "text", name: "q1", visibleIf: "{zzzzzzzzzz} = 1" }] };
+    const finding = refFinding(json, "elements[0].visibleIf");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+  test("a reference inside an inArray filter gets no fix - that string is no property of its own", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "expression", name: "e1", expression: "sumInArray({m1}, 'col1', '{col9} > 5')" },
+      ],
+    };
+    const findings = lintSurvey(json).findings
+      .filter(f => f.path.indexOf("inArray") > -1);
+    expect(findings.length).toBeGreaterThan(0);
+    findings.forEach(finding => expect(finding.fix).toBeUndefined());
+  });
+});

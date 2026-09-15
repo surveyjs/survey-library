@@ -475,6 +475,7 @@ function collectTextRefs(state: WalkState, text: string, path: string, prop: str
     if (/^[0-9]+$/.test(name)) return;
     state.index.nameRefs.push({
       name: name, path: path, prop: prop, owner: owner, scope: scope.slice(), kind: kind,
+      text: text,
     });
   });
 }

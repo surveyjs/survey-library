@@ -207,6 +207,9 @@ export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";
 export interface NameRef {
   name: string;
   path: string;
+  // the string the reference was read out of, for the kinds that carry one (a piped text, a
+  // choicesByUrl url). A binding holds the bare name, so its whole value is the reference.
+  text?: string;
   // the property the reference was written in; the other kinds name it through their kind
   prop?: string;
   owner?: ElementRecord;

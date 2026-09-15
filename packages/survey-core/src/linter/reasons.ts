@@ -258,6 +258,7 @@ export const SurveyLintSuggestionReasons = Object.freeze({
 // the repair it offers by the (ruleId, fix.reason) pair.
 export const SurveyLintFixReasons = Object.freeze({
   "reference/unknown": Object.freeze({
+    renameReference: "renameReference",
     setKeyName: "setKeyName",
   }),
   "choices/dead-source": Object.freeze({

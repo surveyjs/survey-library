@@ -65,6 +65,29 @@ export interface ILintHint {
   name: string;
 }
 
+// A machine-applicable repair of one finding, addressed the way the finding itself is: by a path
+// into the linted JSON. The linter never sees the document text, so an edit says what to change
+// and not where in the text it stands - a host that edits text resolves the path itself.
+export type LintFixOp = "set" | "remove" | "rename" | "wrap";
+
+export interface ILintFixEdit {
+  op: LintFixOp;
+  // addresses the linted JSON the way ILintFinding.path does. "set" names the property to write
+  // and is the one op whose last segment may be missing; the others name what is already there.
+  path: string;
+  // "set": the new value. A scalar or a string the linter composed, never a piece of the document
+  // itself - so a host that writes an edit back into text never copies an annotation into it.
+  value?: any;
+  // "rename": the name the key takes
+  key?: string;
+}
+
+export interface ILintFix {
+  // one of SurveyLintFixReasons[ruleId] - what the repair does, for a host that labels it
+  reason: string;
+  edits: Array<ILintFixEdit>;
+}
+
 export interface ILintFinding {
   ruleId: string;
   severity: LintFindingSeverity;
@@ -80,6 +103,8 @@ export interface ILintFinding {
   elementName?: string;
   elementType?: string;
   suggestion?: string;
+  // the repair to offer, when the defect has exactly one mechanical one
+  fix?: ILintFix;
   related?: Array<ILintRelated>;
   reproduction?: ILintReproduction;
 }

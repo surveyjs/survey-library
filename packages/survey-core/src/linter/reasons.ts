@@ -253,3 +253,11 @@ export const SurveyLintSuggestionReasons = Object.freeze({
   setNumberInputType: "setNumberInputType",
   useContainsOrAnyof: "useContainsOrAnyof",
 });
+
+// ILintFix.reason - what a fix does, per rule. Public API like the tables above: a host labels
+// the repair it offers by the (ruleId, fix.reason) pair.
+export const SurveyLintFixReasons = Object.freeze({
+  "property/not-an-array": Object.freeze({
+    wrapInArray: "wrapInArray",
+  }),
+});

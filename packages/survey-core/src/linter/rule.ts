@@ -1,6 +1,7 @@
 import { SurveyVariablePresets } from "survey-core";
 import {
-  ILintFinding, ILintHint, ISurveyLintOptions, ISuppression, LintFindingSeverity, LintSeverity,
+  ILintFinding, ILintFix, ILintHint, ISurveyLintOptions, ISuppression, LintFindingSeverity,
+  LintSeverity,
 } from "./types";
 import { ElementRecord, ExpressionSite, ParsedRef, SurveyIndex } from "./symbols";
 import { LintMetadata } from "./metadata";
@@ -62,6 +63,7 @@ export type ReportInput = {
   elementName?: string,
   elementType?: string,
   suggestion?: string,
+  fix?: ILintFix,
   related?: ILintFinding["related"],
   reproduction?: ILintFinding["reproduction"],
 };
@@ -224,6 +226,7 @@ export class LintContext {
     if (input.elementName) finding.elementName = input.elementName;
     if (input.elementType) finding.elementType = input.elementType;
     if (input.suggestion) finding.suggestion = input.suggestion;
+    if (input.fix) finding.fix = input.fix;
     if (input.related && input.related.length > 0) finding.related = input.related;
     if (input.reproduction) finding.reproduction = input.reproduction;
     if (isSuppressed(finding, this.options.suppress)) {

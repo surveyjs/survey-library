@@ -583,3 +583,26 @@ describe("expression/unknown-function fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("choices/duplicate fix", () => {
+  test("the repeated item is dropped", () => {
+    const json = { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b", "a"] }] };
+    const finding = findingOf(json, "choices/duplicate");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["choices/duplicate"].removeItem,
+      edits: [{ op: "remove", path: "elements[0].choices[2]" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].choices).toEqual(["a", "b"]);
+    expect(json.elements[0].choices).toHaveLength(3);
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "choices/duplicate")).toHaveLength(0);
+  });
+  test("an item that collides with a built-in one gets no fix - the toggle is a repair too", () => {
+    const json = {
+      elements: [{ type: "checkbox", name: "q1", showNoneItem: true, choices: ["a", "none"] }],
+    };
+    const finding = findingOf(json, "choices/duplicate");
+    expect(finding.reason).toBe("specialItemCollision");
+    expect(finding.fix).toBeUndefined();
+  });
+});

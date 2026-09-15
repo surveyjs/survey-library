@@ -2299,7 +2299,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
     if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
-    if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
+    // Wait until remote choices have loaded. An empty loaded list is a valid result
+    // when allowEmptyResponse is true and should still drop unknown saved values.
+    if (this.waitingChoicesByURL) return false;
     return true;
   }
   protected canAddCustomChoices(): boolean {

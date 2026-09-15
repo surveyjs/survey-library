@@ -1597,6 +1597,38 @@ test("Clear choices on changing variables", () => {
     expect(question2.isEmpty(), "Value is empty, locale choices").toBe(true);
   });
 
+  test("choicesByUrl: drop a saved value that is not in the remote list on Complete, #11851", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const question = new QuestionDropdownModelTester("country");
+    survey.pages[0].addQuestion(question);
+    question.choicesByUrl.url = "countries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.choicesByUrl.valueName = "name";
+    question.choicesByUrl.allowEmptyResponse = true;
+    survey.data = { country: "foo" };
+    question.onSurveyLoad();
+    expect(question.value, "Keep the value until Complete").toBe("foo");
+    expect(question.visibleChoices.length > 0, "Remote list is loaded").toBe(true);
+    survey.doComplete();
+    expect(survey.data, "Drop the saved value that is not among available choices").toEqual({});
+  });
+
+  test("choicesByUrl: drop a saved value when the remote list is empty and allowEmptyResponse is true, #11851", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const question = new QuestionDropdownModelTester("country");
+    survey.pages[0].addQuestion(question);
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.allowEmptyResponse = true;
+    survey.data = { country: "foo" };
+    question.onSurveyLoad();
+    expect(question.value, "Keep the value until Complete, same as a non-empty remote list").toBe("foo");
+    expect(question.visibleChoices.length, "Remote list is empty").toBe(0);
+    survey.doComplete();
+    expect(survey.data, "Drop the saved value that is not among available choices").toEqual({});
+  });
+
   test("matrix dynamic and has other, Bug #2854", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");

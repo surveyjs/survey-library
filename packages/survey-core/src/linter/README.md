@@ -245,7 +245,7 @@ the ones this run has already handed out, so two duplicates never get one name.
 | `property/not-an-array` | The value becomes the one item of the array, which is what the deserializer does with it. |
 | `property/unknown` | Rename the key to the suggested property, or drop it - which is what the deserializer does anyway. A typo written next to the property it misspells is dropped rather than renamed over it. |
 | `property/dead` | Drop the key: it is written for nothing whichever way it is dead. |
-| `property/invalid-value` | The allowed value the suggestion spells, with its own type; or the bound an out-of-range number falls off. |
+| `property/invalid-value` | The allowed value the suggestion spells, with its own type; the bound an out-of-range number falls off; or, when nothing is close to the value, the key itself, since the property falls back to its default either way. |
 | `element/unknown-type`, `trigger/unknown-type`, `validator/unknown-type`, `mask/mismatch` | Write the suggested type. |
 | `trigger/unknown-target`, `choices/dead-source`, `reference/unknown` (`keyNameNotFound`) | Write the suggested name. Only the segment that did not resolve is respelled. |
 | `reference/unknown` (in an expression, a binding or a piped text) | Respell the reference inside the string that carries it. The whole `{...}` token is replaced, so `{q1}` never matches inside `{q10}`. |

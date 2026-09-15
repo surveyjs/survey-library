@@ -297,6 +297,7 @@ export const SurveyLintFixReasons = Object.freeze({
   }),
   "property/invalid-value": Object.freeze({
     clampToRange: "clampToRange",
+    removeKey: "removeKey",
     useAllowedValue: "useAllowedValue",
   }),
   "property/not-an-array": Object.freeze({

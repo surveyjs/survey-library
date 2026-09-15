@@ -89,10 +89,15 @@ function checkChoices(ctx: LintContext, site: PropertySite): void {
   });
 }
 
-function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix | undefined {
+function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix {
   const value = allowedValue(allowed, suggestion);
-  if (value === undefined) return undefined;
-  return { reason: fixReasons.useAllowedValue, edits: [{ op: "set", path: site.path, value: value }] };
+  if (value !== undefined) {
+    return { reason: fixReasons.useAllowedValue, edits: [{ op: "set", path: site.path, value: value }] };
+  }
+  // nothing says which of the allowed values was meant, and picking one would be a guess dressed
+  // up as a repair. Dropping the key is what the value already amounts to: the runtime cannot
+  // hold it, so the property falls back to its default either way.
+  return { reason: fixReasons.removeKey, edits: [{ op: "remove", path: site.path }] };
 }
 
 function toNumber(site: PropertySite): number | undefined {

@@ -87,11 +87,17 @@ describe("property/invalid-value fix", () => {
     expect(finding.fix.edits[0].value).toBe(Number(finding.suggestion));
     expect(typeof finding.fix.edits[0].value).toBe("number");
   });
-  test("a value nothing is close to gets no fix", () => {
+  test("a value nothing is close to is dropped, and the default takes over", () => {
     const json = { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] };
     const finding = findingOf(json, "property/invalid-value");
     expect(finding.suggestion).toBeUndefined();
-    expect(finding.fix).toBeUndefined();
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/invalid-value"].removeKey,
+      edits: [{ op: "remove", path: "elements[0].clearIfInvisible" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0]).toEqual({ type: "text", name: "q1" });
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/invalid-value")).toHaveLength(0);
   });
   test("a dotted valueName gets no fix - the flat key it meant is unknowable", () => {
     const json = { elements: [{ type: "text", name: "q1", valueName: "a.b" }] };
@@ -709,6 +715,10 @@ const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
   {
     ruleId: "property/invalid-value", fixReason: "clampToRange",
     json: { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "removeKey",
+    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] },
   },
   {
     ruleId: "property/invalid-value", fixReason: "useAllowedValue",

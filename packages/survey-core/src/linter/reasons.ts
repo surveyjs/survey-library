@@ -257,6 +257,10 @@ export const SurveyLintSuggestionReasons = Object.freeze({
 // ILintFix.reason - what a fix does, per rule. Public API like the tables above: a host labels
 // the repair it offers by the (ruleId, fix.reason) pair.
 export const SurveyLintFixReasons = Object.freeze({
+  "property/unknown": Object.freeze({
+    renameKey: "renameKey",
+    removeKey: "removeKey",
+  }),
   "mask/mismatch": Object.freeze({
     setMaskType: "setMaskType",
   }),

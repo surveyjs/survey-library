@@ -293,3 +293,36 @@ describe("mask/mismatch fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("property/unknown fix", () => {
+  test("a misspelled key is renamed where it stands", () => {
+    const json = { elements: [{ type: "text", name: "q1", titlee: "T", description: "d" }] };
+    const finding = findingOf(json, "property/unknown");
+    expect(finding.suggestion).toBe("title");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/unknown"].renameKey,
+      edits: [{ op: "rename", path: "elements[0].titlee", key: "title" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(Object.keys(fixed.elements[0])).toEqual(["type", "name", "title", "description"]);
+    expect(fixed.elements[0].title).toBe("T");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/unknown")).toHaveLength(0);
+  });
+  test("a key nothing is close to is dropped - the deserializer drops it anyway", () => {
+    const json = { elements: [{ type: "text", name: "q1", zzzzzzzzzz: 1 }] };
+    const finding = findingOf(json, "property/unknown");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/unknown"].removeKey,
+      edits: [{ op: "remove", path: "elements[0].zzzzzzzzzz" }],
+    });
+    expect(applyFix(json, finding.fix).elements[0]).toEqual({ type: "text", name: "q1" });
+  });
+  test("a typo written next to the property it misspells is dropped, not renamed over it", () => {
+    const json = { elements: [{ type: "text", name: "q1", title: "kept", titlee: "typo" }] };
+    const finding = findingOf(json, "property/unknown");
+    expect(finding.suggestion).toBe("title");
+    expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].titlee" }]);
+    expect(applyFix(json, finding.fix).elements[0]).toEqual({ type: "text", name: "q1", title: "kept" });
+  });
+});

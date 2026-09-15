@@ -30,6 +30,7 @@ export interface UnknownKeySite {
   className: string;
   key: string;
   path: string;
+  json: any;
   knownKeys: Array<string>;
   owner: PropertyOwner;
 }
@@ -200,7 +201,8 @@ function walkObject(state: WalkState, json: any, className: string, path: string
     if (!prop) {
       if (reportUnknown) {
         state.result.unknownKeys.push({
-          className: className, key: key, path: keyPath, knownKeys: known.names, owner: owner,
+          className: className, key: key, path: keyPath, json: json,
+          knownKeys: known.names, owner: owner,
         });
       }
       return;

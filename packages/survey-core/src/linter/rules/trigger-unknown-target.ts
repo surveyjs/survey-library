@@ -3,10 +3,13 @@ import {
   buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, suggestForRef,
 } from "../expression-utils";
 import { ParsedRef, TriggerRecord } from "../symbols";
-import { ILintReproduction } from "../types";
-import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
+import { ILintFix, ILintReproduction } from "../types";
+import {
+  SurveyLintFixReasons, SurveyLintReasons, SurveyLintReproductionReasons,
+} from "../reasons";
 
 const reasons = SurveyLintReasons["trigger/unknown-target"];
+const fixReasons = SurveyLintFixReasons["trigger/unknown-target"];
 
 type TargetKind = "questionvalue" | "question" | "page";
 
@@ -55,6 +58,19 @@ function isAcceptedTarget(ref: ParsedRef, kind: TargetKind): boolean {
   return ref.resolvedKind === "element" && !!record && record.kind === "question";
 }
 
+// The property holds the name as the author wrote it, and a dotted one names a container and
+// something inside it - so only the segment that did not resolve is respelled and the rest stays.
+function setNameFix(path: string, name: string, index: number,
+  suggestion: string): ILintFix | undefined {
+  if (!suggestion || !name) return undefined;
+  const parts = name.split(".");
+  if (index < 0 || index >= parts.length) return undefined;
+  parts[index] = suggestion;
+  const value = parts.join(".");
+  if (value === name) return undefined;
+  return { reason: fixReasons.setName, edits: [{ op: "set", path: path, value: value }] };
+}
+
 export const triggerUnknownTargetRule: ILintRule = {
   id: "trigger/unknown-target",
   defaultSeverity: "error",
@@ -70,12 +86,14 @@ export const triggerUnknownTargetRule: ILintRule = {
           trigger: trigger.type, prop: target.prop, name: target.name, kind: target.kind,
         };
         if (target.kind === "page") {
+          const pageSuggestion = rootSuggestion(ctx, ref, "page");
           ctx.report({
             message: "The " + trigger.type + " trigger targets page \"" + target.name + "\", which does not exist.",
             path: target.path,
             reason: reasons.pageNotFound,
             messageData: messageData,
-            suggestion: rootSuggestion(ctx, ref, "page"),
+            suggestion: pageSuggestion,
+            fix: setNameFix(target.path, target.name, 0, pageSuggestion),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
@@ -95,10 +113,12 @@ export const triggerUnknownTargetRule: ILintRule = {
             reason: reasons.segmentNotFound,
             messageData: messageData,
             suggestion: ref.suggestion,
+            fix: setNameFix(target.path, target.name, ref.unknownSegmentIndex, ref.suggestion),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
         }
+        const rootSuggestionValue = rootSuggestion(ctx, ref, target.kind);
         const kindText = target.kind === "question" ? "question" : "question or variable";
         ctx.report({
           message: "The " + trigger.type + " trigger " +
@@ -110,7 +130,8 @@ export const triggerUnknownTargetRule: ILintRule = {
           path: target.path,
           reason: reasons.rootNotFound,
           messageData: messageData,
-          suggestion: rootSuggestion(ctx, ref, target.kind),
+          suggestion: rootSuggestionValue,
+          fix: setNameFix(target.path, target.name, 0, rootSuggestionValue),
           reproduction: buildReproduction(trigger, target.name),
         });
       });

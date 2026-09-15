@@ -326,3 +326,57 @@ describe("property/unknown fix", () => {
     expect(applyFix(json, finding.fix).elements[0]).toEqual({ type: "text", name: "q1", title: "kept" });
   });
 });
+
+describe("trigger/unknown-target fix", () => {
+  test("the question the author meant replaces the missing target", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvalue", setToName: "q22", setValue: 1 }],
+    };
+    const finding = findingOf(json, "trigger/unknown-target");
+    expect(finding.suggestion).toBe("q2");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["trigger/unknown-target"].setName,
+      edits: [{ op: "set", path: "triggers[0].setToName", value: "q2" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "trigger/unknown-target")).toHaveLength(0);
+  });
+  test("the page the author meant replaces the missing one", () => {
+    const json = {
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      ],
+      triggers: [{ type: "visible", expression: "{q1} notempty", pages: ["p22"] }],
+    };
+    const finding = findingOf(json, "trigger/unknown-target");
+    expect(finding.reason).toBe("pageNotFound");
+    expect(finding.fix.edits).toEqual([{ op: "set", path: "triggers[0].pages[0]", value: "p2" }]);
+    expect(applyFix(json, finding.fix).triggers[0].pages).toEqual(["p2"]);
+  });
+  test("only the segment that did not resolve is respelled, the index stays", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "text", name: "src" },
+      ],
+      triggers: [{
+        type: "copyvalue", expression: "{src} notempty", setToName: "m1[0].col9", fromName: "src",
+      }],
+    };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "segmentNotFound")[0];
+    expect(finding.fix.edits).toEqual([
+      { op: "set", path: "triggers[0].setToName", value: "m1[0].col1" },
+    ]);
+  });
+  test("a target nothing is close to gets no fix", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ type: "setvalue", setToName: "zzzzzzzzzz", setValue: 1 }],
+    };
+    const finding = findingOf(json, "trigger/unknown-target");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+});

@@ -287,7 +287,7 @@ describe("mask/mismatch fix", () => {
     expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "mask/mismatch")).toHaveLength(0);
   });
   test("a mask defect that is not a misspelled type gets no fix", () => {
-    const json = { elements: [{ type: "text", name: "q1", maskSettings: { saveMaskedValue: true } }] };
+    const json = { elements: [{ type: "text", name: "q1", maskSettings: { pattern: "99" } }] };
     const finding = findingOf(json, "mask/mismatch");
     expect(finding.reason).not.toBe("unknownMaskType");
     expect(finding.fix).toBeUndefined();

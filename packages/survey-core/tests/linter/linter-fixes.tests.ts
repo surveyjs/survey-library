@@ -200,3 +200,29 @@ describe("property/required fix", () => {
     expect(names[0]).not.toBe(names[1]);
   });
 });
+
+describe("element/unknown-type fix", () => {
+  test("the registered type the author meant replaces the unknown one", () => {
+    const json = { elements: [{ type: "textt", name: "q1" }] };
+    const finding = findingOf(json, "element/unknown-type");
+    expect(finding.suggestion).toBe("text");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["element/unknown-type"].setType,
+      edits: [{ op: "set", path: "elements[0].type", value: "text" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0]).toEqual({ type: "text", name: "q1" });
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "element/unknown-type")).toHaveLength(0);
+  });
+  test("a type nothing is close to gets no fix", () => {
+    const json = { elements: [{ type: "zzzzzzzzzz", name: "q1" }] };
+    const finding = findingOf(json, "element/unknown-type");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+  test("an element with no type at all gets no fix - nothing suggests a spelling", () => {
+    const json = { elements: [{ name: "q1" }] };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "missingType")[0];
+    expect(finding.fix).toBeUndefined();
+  });
+});

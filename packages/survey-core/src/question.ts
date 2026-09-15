@@ -1036,9 +1036,11 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputQuestion(): Question {
     const res = this.singleInputBehavior.singleInputQuestion;
-    // A stored "self" without a summary is a question at its own step (a select question with
-    // nested choice elements before its nested inputs): render the question's own content.
-    if (res === this && !this.singleInputSummary) return undefined;
+    // A stored "self" that is not a summary step is a question at its own step (a select question with
+    // nested choice elements before its nested inputs): render the question's own content. Asked of the
+    // behavior, not of singleInputSummary: building a summary reads the parent container's css, which
+    // reads this getter again for a dynamic container nested in another one.
+    if (res === this && !this.singleInputBehavior.isSelfSummaryStep()) return undefined;
     return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {

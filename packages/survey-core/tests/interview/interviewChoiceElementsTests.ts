@@ -8,6 +8,7 @@ import type { IInterview, IInterviewItem } from "survey-core/interview";
 import { SurveyModel, surveyLocalization } from "survey-core";
 import type { Question } from "survey-core";
 import { getInterviewInputs } from "../../src/interview/interview-items";
+import { getAddress } from "../../src/interview/interview-address";
 
 import { describe, expect, test } from "vitest";
 
@@ -96,7 +97,7 @@ function scriptedAgent(answers: { [name: string]: any }): (document: string) => 
 
 describe("interview nested elements in choice items (issue #11818)", () => {
   // The model's rules the tier is built on, pinned once: a later core change fails here first.
-  test("The model: the panel shows on a value write, its questions have no parent question and write to the top", () => {
+  test("The model: the panel shows on a value write, its questions have their owner as parent question and write to the top", () => {
     const survey = new SurveyModel(petJson());
     const owner: any = survey.getQuestionByName("hasPet");
     const petName = survey.getQuestionByName("petName");
@@ -104,7 +105,10 @@ describe("interview nested elements in choice items (issue #11818)", () => {
     expect(owner.choices[0].isPanelShowing, "no rendering is needed").toBe(true);
     expect(owner.getNestedQuestions(true, false), "the walk the mode is built on misses them").toEqual([]);
     expect(survey.getAllQuestions().map(q => q.name), "and so does the page list").toEqual(["hasPet", "contacts", "note"]);
-    expect(petName.parentQuestion).toBeFalsy();
+    // The link inputPerPage walks the choice's questions by (Bug#11824) - not a container: the value
+    // below stays at the top level, and the interview addresses the question by its bare name.
+    expect(petName.parentQuestion === owner, "the owner is the parent question").toBe(true);
+    expect(getAddress(petName)).toBe("petName");
     petName.value = "Rex";
     expect(survey.data).toEqual({ hasPet: "Yes", petName: "Rex" });
     survey.setValue("hasPet", "No");
@@ -387,6 +391,7 @@ describe("interview nested elements in choice items (issue #11818)", () => {
       await iv.answer("Yes");
       expect(iv.current().name).toBe("petName");
       expect(iv.survey.currentSingleElement).toBe(iv.survey.getQuestionByName("hasPet"));
+      expect(iv.survey.getQuestionByName("hasPet").singleInputQuestion.name, "the model stands on the owner's step").toBe("petName");
       await iv.answer("Rex");
       await iv.answer(3);
       expect(iv.current()).toBe(null);

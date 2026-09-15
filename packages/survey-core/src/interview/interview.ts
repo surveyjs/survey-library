@@ -11,7 +11,7 @@ import {
   getInterviewInputs, getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid,
   makeInputCurrent, updateCurrentItem, validateInput,
 } from "./interview-items";
-import { getAddress, getQuestionDepth, resolveAddress } from "./interview-address";
+import { getAddress, getParentContainer, getQuestionDepth, resolveAddress } from "./interview-address";
 import { applySummaryAction } from "./interview-summary";
 import {
   IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchCurrent, getBatchEntries,
@@ -707,7 +707,7 @@ export class Interview implements IInterview {
 // entry that removal took is no longer anywhere, so it reports nothing.
 function getWrittenContainerAddress(survey: SurveyModel, container: IInterviewContainer): string | undefined {
   const question = container.question;
-  if (!question.parentQuestion) return container.address;
+  if (!getParentContainer(question)) return container.address;
   const address = getAddress(question);
   if (!address || resolveAddress(survey, address).question !== question) return undefined;
   return address;

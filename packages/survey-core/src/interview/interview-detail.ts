@@ -1,5 +1,5 @@
 import type { Question, SurveyModel } from "survey-core";
-import { MAX_NESTING_DEPTH } from "./interview-address";
+import { MAX_NESTING_DEPTH, getParentContainer } from "./interview-address";
 
 // The one place a row's detail panel is brought into being. A row of a matrix creates its detail
 // panel lazily: until something asks for it, row.questions and row.visibleQuestions are the cells
@@ -78,7 +78,7 @@ function ensureInQuestion(question: Question, depth: number): void {
 
 function ensureInChoices(owner: Question, depth: number): void {
   const target: any = owner;
-  if (!!owner.parentQuestion || typeof target.supportElementsInChoice !== "function" ||
+  if (!!getParentContainer(owner) || typeof target.supportElementsInChoice !== "function" ||
     target.supportElementsInChoice() !== true) return;
   const choices: Array<any> = target.visibleChoices;
   if (!Array.isArray(choices)) return;

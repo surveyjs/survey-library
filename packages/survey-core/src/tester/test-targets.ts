@@ -91,6 +91,22 @@ export function getRowSegment(matrix: any, row: any, index: number): string {
   return rowName === undefined ? undefined : "." + rowName;
 }
 
+// A question's container: its parentQuestion, except for a question inside a choice of a radiogroup or
+// a checkbox. The model links that question to the select question so that the inputPerPage mode walks
+// it as a step, but its value stays at the top level of data, so its target name is its bare name. A
+// choice panel carries its choice ("choiceItem"), and the choice names its owner.
+function getParentContainer(question: any): any {
+  const parent = question.parentQuestion;
+  if (!parent) return undefined;
+  let node = question.parent;
+  for (let depth = 0; depth < MAX_TARGET_DEPTH && !!node; depth++) {
+    const choice = node.choiceItem;
+    if (!!choice) return choice.choiceOwner === parent ? undefined : parent;
+    node = node.parent;
+  }
+  return parent;
+}
+
 function getRowName(row: any): string {
   const name = !!row ? row.rowName : undefined;
   if (name === undefined || name === null || String(name) === "") return undefined;
@@ -169,7 +185,7 @@ export class SurveyTestTargetResolver {
     if (!path) return undefined;
     let current = question;
     for (let depth = 0; depth < MAX_TARGET_DEPTH; depth++) {
-      const parent = current.parentQuestion;
+      const parent = getParentContainer(current);
       if (!parent) return path;
       const parentName = this.getOwnName(parent);
       const segment = !!parentName ? this.getContainerSegment(parent, current, context) : undefined;

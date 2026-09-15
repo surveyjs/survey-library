@@ -70,7 +70,7 @@ export function getAddress(question: Question): string | undefined {
   // One hop per container above the question: the loop reads a parent MAX_NESTING_DEPTH times at
   // most, and a question at the ceiling returns on the check after the last hop.
   for (let depth = 0; depth <= MAX_NESTING_DEPTH; depth++) {
-    const parent: any = current.parentQuestion;
+    const parent: any = getParentContainer(current);
     if (!parent) return path;
     if (!parent.name) return undefined;
     const segment = getContainerSegment(parent, current);
@@ -86,11 +86,35 @@ export function getAddress(question: Question): string | undefined {
 export function getQuestionDepth(question: Question): number {
   let current: any = question;
   let depth = 0;
-  while(!!current && !!current.parentQuestion && depth <= MAX_NESTING_DEPTH) {
-    current = current.parentQuestion;
+  while(!!current && !!getParentContainer(current) && depth <= MAX_NESTING_DEPTH) {
+    current = getParentContainer(current);
     depth++;
   }
   return depth;
+}
+
+// The container a question is an input of: its parentQuestion, except for a question inside a choice
+// of a radiogroup or a checkbox. The model links that question to the select question as its
+// parentQuestion, so that the inputPerPage mode walks it as a step of its owner, but its value stays at
+// the top level of data under its own name. For the interview it is a root in both modes - addressed by
+// its bare name, a property of its own in the answer schema - and never a nested input of its owner.
+// Every parent hop of the interview goes through here rather than reading parentQuestion.
+export function getParentContainer(question: Question): Question | undefined {
+  const parent: any = !!question ? question.parentQuestion : undefined;
+  if (!parent || isInChoiceOf(question, parent)) return undefined;
+  return parent;
+}
+
+// A choice panel carries its choice (ChoiceItem.createPanel sets "choiceItem" on it), and the choice
+// names its owner. Static panels between the question and the choice panel are walked through.
+function isInChoiceOf(question: Question, owner: Question): boolean {
+  let node: any = question.parent;
+  for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
+    const choice = node.choiceItem;
+    if (!!choice) return choice.choiceOwner === owner;
+    node = node.parent;
+  }
+  return false;
 }
 
 // What identifies, inside the parent, the entry the child belongs to. "" for a container whose

@@ -1,7 +1,7 @@
 import { describeQuestion } from "survey-core";
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
-import { MAX_NESTING_DEPTH, getAddress } from "./interview-address";
+import { MAX_NESTING_DEPTH, getAddress, getParentContainer } from "./interview-address";
 import { getSummaryDescription } from "./interview-summary";
 
 // The inventory: everything the interview can address, in document order, derived from the
@@ -79,15 +79,14 @@ export function getRootQuestions(survey: SurveyModel): Array<Question> {
 // - so the inventory creates nothing.
 function addChoiceQuestions(owner: Question, res: Array<Question>, depth: number): void {
   // Only for a question that belongs to no entry. The model gives a choice panel the survey as its
-  // data provider and no parentQuestion, so the questions of a select question inside a dynamic panel,
-  // a detail panel or a composite would write to the top level of data, one key shared by every
-  // entry - an address that told the truth about the data would share one value across entries, and
-  // one that told the truth about the structure would name a key the model never writes. Those
-  // questions stay out until ChoiceItem.setPanelSurvey (src/question_baseselect.ts) hands the panel the
-  // owner's data provider and parent question; this condition is the one to drop then, and the
-  // address grammar and the entry fields pick the questions up as they are. The questions of a choice
-  // have no parentQuestion either, so a radiogroup inside a choice passes it too.
-  if (!!owner.parentQuestion || depth >= MAX_NESTING_DEPTH || !hasChoiceElements(owner)) return;
+  // data provider, so the questions of a select question inside a dynamic panel, a detail panel or a
+  // composite would write to the top level of data, one key shared by every entry - an address that
+  // told the truth about the data would share one value across entries, and one that told the truth
+  // about the structure would name a key the model never writes. Those questions stay out until
+  // ChoiceItem.setPanelSurvey (src/question_baseselect.ts) hands the panel the owner's data provider;
+  // this condition is the one to drop then. A question of a choice has its owner as parentQuestion,
+  // which getParentContainer does not count as a container, so a radiogroup inside a choice passes it.
+  if (!!getParentContainer(owner) || depth >= MAX_NESTING_DEPTH || !hasChoiceElements(owner)) return;
   const choices: Array<any> = (<any>owner).visibleChoices;
   if (!Array.isArray(choices)) return;
   choices.forEach(choice => {
@@ -217,14 +216,14 @@ export function getUnreportedContainers(inputs: Array<IInterviewInput>): Array<I
   const res: Array<IInterviewContainer> = [];
   inputs.forEach(input => { seen[input.question.id] = true; });
   inputs.forEach(input => {
-    let parent = input.question.parentQuestion;
+    let parent = getParentContainer(input.question);
     for (let depth = 0; depth < MAX_NESTING_DEPTH && !!parent; depth++) {
       if (seen[parent.id] !== true) {
         seen[parent.id] = true;
         const address = getAddress(parent);
         if (!!address) res.push({ address: address, question: parent });
       }
-      parent = parent.parentQuestion;
+      parent = getParentContainer(parent);
     }
   });
   return res;
@@ -353,16 +352,19 @@ export function getInputErrors(input: IInterviewInput): Array<string> {
 // survey.currentSingleQuestion and its currentSingleInputQuestion always agree with current(): a UI
 // rendering the same model shows the input the interview is asking for.
 //
-// A root inside a choice is the exception: the mode's navigation list (getSingleElements()) does not
-// know it, and while such a question is the model's current the survey does not consider itself at
-// the end - a survey with an onServerValidateQuestions handler validates and then stays running. So
-// the model's current for it is its choice's owner - the outermost one - which is also what a UI on
-// the same model shows: the panel under its choice. current() is unaffected: it is derived from the
-// inventory, never read off the model.
+// A root inside a choice is not a page element: the model's current for it is its choice's owner - the
+// outermost one. The mode walks the questions of the owner's selected choices as the owner's own
+// steps (its parentQuestion link), so the question is focused as that step, and a UI on the same model
+// shows it; the survey then also considers itself at the end on the last of them, which a survey with
+// an onServerValidateQuestions handler needs to complete. A host that turned the owner's steps off
+// through onCheckSingleInputPerPageMode gets the owner alone, with the panel under its choice.
+// current() is unaffected: it is derived from the inventory, never read off the model.
 export function makeInputCurrent(survey: SurveyModel, input: IInterviewInput): void {
   if (!input) return;
   const owner = getChoiceOwner(input.root);
-  if (input.question === input.root) {
+  const directOwner = getDirectChoiceOwner(input.root);
+  const isOwnerStep = !!directOwner && survey.supportsNestedSingleInput(directOwner);
+  if (input.question === input.root && !isOwnerStep) {
     survey.currentSingleQuestion = owner || input.root;
   } else {
     // Sets the root current and walks setSingleInputQuestion down the whole parent chain; its final

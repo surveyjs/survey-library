@@ -548,3 +548,38 @@ describe("reference/unknown reference fix", () => {
     findings.forEach(finding => expect(finding.fix).toBeUndefined());
   });
 });
+
+describe("expression/unknown-function fix", () => {
+  test("the registered function the author meant replaces the unknown one", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'col1')" },
+      ],
+    };
+    const finding = findingOf(json, "expression/unknown-function");
+    expect(finding.suggestion).toBe("sumInArray");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["expression/unknown-function"].renameFunction,
+      edits: [{ op: "set", path: "elements[1].expression", value: "sumInArray({m1}, 'col1')" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "expression/unknown-function")).toHaveLength(0);
+  });
+  test("only the call is renamed, not the same word written as an argument", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'sumInArrey')" },
+      ],
+    };
+    const finding = findingOf(json, "expression/unknown-function");
+    expect(finding.fix.edits[0].value).toBe("sumInArray({m1}, 'sumInArrey')");
+  });
+  test("a function nothing is close to gets no fix", () => {
+    const json = { elements: [{ type: "expression", name: "e1", expression: "zzzzzzzzzz(1)" }] };
+    const finding = findingOf(json, "expression/unknown-function");
+    expect(finding.suggestion).toBeUndefined();
+    expect(finding.fix).toBeUndefined();
+  });
+});

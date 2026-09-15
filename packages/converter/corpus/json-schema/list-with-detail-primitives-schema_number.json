@@ -1,0 +1,17 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "an-array-of-numbers": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "ListWithDetail",
+    "scope": "#/properties/an-array-of-strings"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "comments": {
+        "description": "Description for array of String Type",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maxLength": 5
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/comments"
+      }
+    ]
+  }
+}

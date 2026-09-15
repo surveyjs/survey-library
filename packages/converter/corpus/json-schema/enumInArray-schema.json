@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "plainEnum": {
+          "type": "string",
+          "enum": [
+            "foo",
+            "bar"
+          ]
+        },
+        "oneOfEnum": {
+          "type": "string",
+          "oneOf": [
+            {
+              "const": "foo",
+              "title": "Foo"
+            },
+            {
+              "const": "bar",
+              "title": "Bar"
+            },
+            {
+              "const": "foobar",
+              "title": "FooBar"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#"
+      }
+    ]
+  }
+}

@@ -4,9 +4,11 @@ import { getInputType } from "../value-types";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
 import { POSITION_KEY } from "../property-walk";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { ILintFix } from "../types";
 
 const reasons = SurveyLintReasons["mask/mismatch"];
+const fixReasons = SurveyLintFixReasons["mask/mismatch"];
 
 // maskTypeIsEmpty (question_text.ts): a mask reaches the input only for these two.
 const MASK_INPUT_TYPES = ["text", "tel"];
@@ -28,7 +30,7 @@ function getSettings(json: any): any {
 }
 
 function report(ctx: LintContext, record: ElementRecord, message: string, reason: string,
-  path: string, messageData: { [key: string]: any }, suggestion?: string): void {
+  path: string, messageData: { [key: string]: any }, suggestion?: string, fix?: ILintFix): void {
   ctx.report({
     message: message,
     path: path,
@@ -37,6 +39,7 @@ function report(ctx: LintContext, record: ElementRecord, message: string, reason
     elementName: record.name,
     elementType: record.type,
     suggestion: suggestion,
+    fix: fix,
   });
 }
 
@@ -104,13 +107,18 @@ function checkRecord(ctx: LintContext, record: ElementRecord): void {
   const maskClass = ctx.metadata.resolveMaskClass(maskType);
   if (!maskClass) {
     const known = ctx.metadata.getMaskTypes();
+    const suggestion = closestMatch(maskType, known);
     report(ctx, record,
       "The maskType \"" + maskType + "\" of \"" + record.name + "\" is not a known mask - the " +
-      "runtime falls back to no mask at all." + didYouMean(closestMatch(maskType, known)),
+      "runtime falls back to no mask at all." + didYouMean(suggestion),
       reasons.unknownMaskType,
       record.path + ".maskType",
       { maskType: maskType, known: known },
-      closestMatch(maskType, known));
+      suggestion,
+      !suggestion ? undefined : {
+        reason: fixReasons.setMaskType,
+        edits: [{ op: "set", path: record.path + ".maskType", value: suggestion }],
+      });
     return;
   }
   const hasMask = maskClass !== BASE_MASK_CLASS;

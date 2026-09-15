@@ -117,6 +117,7 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   state.index.allElements.push(record);
   const frame = getCapturingFrame(record.scope);
   if (record.name) {
+    state.index.elementNames.add(record.name, record);
     if (frame) {
       const map = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
       map.add(record.name, record);
@@ -200,10 +201,19 @@ function guardLeave(state: WalkState): void {
   state.depth--;
 }
 
+// The deserializer wraps a single object written where an array belongs into a one-item array
+// (property/not-an-array reports the spelling), so the element exists and is walked as [0].
+function asElementArray(value: any): Array<any> | undefined {
+  if (Array.isArray(value)) return value;
+  if (!!value && typeof value === "object") return [value];
+  return undefined;
+}
+
 function getArrayByKeys(json: any, keys: Array<string>): { key: string, elements: Array<any> } | undefined {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (Array.isArray(json[key])) return { key: key, elements: json[key] };
+    const elements = asElementArray(json[key]);
+    if (elements) return { key: key, elements: elements };
   }
   return undefined;
 }
@@ -307,6 +317,11 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
   scope: Array<ScopeFrame>): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
+  // item names are unique per question, the way matrix column names are per matrix
+  const itemNames = new CIMultiMap<ElementRecord>();
+  state.index.namespaces.push({
+    label: "multiple text \"" + (record.name || record.path) + "\"", map: itemNames,
+  });
   const itemProps = state.metadata.getItemExpressionProps("multipletext", "items");
   const locProps = state.metadata.getLocalizableProps("multipletextitem");
   json.items.forEach((item: any, i: number) => {
@@ -318,7 +333,10 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
       isUnknownType: false, valueType: getValueTypeInfo("text", item),
     };
     state.index.allElements.push(itemRecord);
-    if (itemRecord.name) record.multipleTextItems.set(itemRecord.name, itemRecord);
+    if (itemRecord.name) {
+      record.multipleTextItems.set(itemRecord.name, itemRecord);
+      itemNames.add(itemRecord.name, itemRecord);
+    }
     addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
     addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, scope);
     addValidatorSites(state, item, itemPath, itemRecord, scope);
@@ -356,9 +374,6 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     };
     record.templateNames = frame.templateNames;
     templateScope = scope.concat([frame]);
-    state.index.namespaces.push({
-      label: "dynamic panel \"" + (record.name || record.path) + "\"", map: frame.templateNames,
-    });
   }
 
   addSitesFromProps(state, json, path, state.metadata.getElementExpressionProps(type, "question"),
@@ -460,6 +475,7 @@ function collectTextRefs(state: WalkState, text: string, path: string, prop: str
     if (/^[0-9]+$/.test(name)) return;
     state.index.nameRefs.push({
       name: name, path: path, prop: prop, owner: owner, scope: scope.slice(), kind: kind,
+      text: text,
     });
   });
 }
@@ -584,6 +600,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
+    elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],
     triggers: [],
@@ -603,14 +620,17 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
   }
-  index.namespaces.push({ label: "", map: index.byName });
+  // one namespace for every page, panel and question - a dynamic-panel template shares it, the
+  // way the Creator's designer keeps element names unique across the whole survey
+  index.namespaces.push({ label: "", map: index.elementNames });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),
   };
 
-  if (Array.isArray(json.pages)) {
-    json.pages.forEach((page: any, i: number) => {
+  const pages = asElementArray(json.pages);
+  if (pages) {
+    pages.forEach((page: any, i: number) => {
       if (page && typeof page === "object") walkPage(state, page, "pages[" + i + "]");
     });
   } else {

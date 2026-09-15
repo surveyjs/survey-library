@@ -10,6 +10,8 @@ import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
 import { propertyDeadRule } from "./property-dead";
 import { propertyInvalidValueRule } from "./property-invalid-value";
+import { propertyNotAnArrayRule } from "./property-not-an-array";
+import { propertyRequiredRule } from "./property-required";
 import { expressionUnknownFunctionRule } from "./expression-unknown-function";
 import { cycleCalculatedValueRule } from "./cycle-calculated-value";
 import { cycleTriggerRule } from "./cycle-trigger";
@@ -46,6 +48,8 @@ export const allRules: Array<ILintRule> = [
   propertyUnknownRule,
   propertyDeadRule,
   propertyInvalidValueRule,
+  propertyNotAnArrayRule,
+  propertyRequiredRule,
   expressionUnknownFunctionRule,
   cycleCalculatedValueRule,
   cycleTriggerRule,

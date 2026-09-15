@@ -3,9 +3,10 @@ import { ElementRecord, getEffectiveType } from "../symbols";
 import { isDescendantOf, isMatrixDropdown } from "../metadata";
 import { getItemValueRaw, getSpecialChoiceDefs, getSpecialItemText, getSpecialItemToggleProp } from "../value-types";
 import { runtimeEquals } from "../value-domain";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["choices/duplicate"];
+const fixReasons = SurveyLintFixReasons["choices/duplicate"];
 
 // The itemvalue arrays of this element. A matrix column is here as its own record, so its
 // own choices are checked once and the shared choices of the matrix once - a column
@@ -53,6 +54,8 @@ function reportDuplicates(ctx: LintContext, record: ElementRecord, prop: string,
       elementName: record.name,
       elementType: record.type,
       related: [{ path: first.path, elementName: record.name }],
+      // the later item goes: the first one is the one every reference to the value already means
+      fix: { reason: fixReasons.removeItem, edits: [{ op: "remove", path: path }] },
     });
   });
 }

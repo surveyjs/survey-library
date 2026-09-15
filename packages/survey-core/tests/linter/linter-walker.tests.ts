@@ -36,6 +36,25 @@ describe("walker paths and normalization", () => {
     const inner = index.allElements.filter(el => el.name === "inner")[0];
     expect(inner.path).toBe("pages[0].questions[0].questions[0].questions[0]");
   });
+  test("an object written where an elements array belongs is indexed as its one element", () => {
+    // the deserializer wraps such a value into a one-item array, so the element does exist
+    const index = buildIndex({
+      pages: [{ name: "p1", elements: { type: "text", name: "q1", visibleIf: "{x} = 1" } }],
+    }, {}, new LintMetadata());
+    expect(index.byName.has("q1")).toBeTruthy();
+    expect(index.expressionSites[0].path).toBe("pages[0].elements[0].visibleIf");
+    // and the page is not empty
+    expect(lintSurvey({
+      pages: [{ name: "p1", elements: { type: "text", name: "q1" } }],
+    }).findings.filter(f => f.ruleId === "page/empty")).toHaveLength(0);
+  });
+  test("an object written where the pages array belongs is indexed as its one page", () => {
+    const index = buildIndex({
+      pages: { name: "p1", elements: [{ type: "text", name: "q1" }] },
+    }, {}, new LintMetadata());
+    expect(index.byName.has("p1")).toBeTruthy();
+    expect(index.byName.first("q1").path).toBe("pages[0].elements[0]");
+  });
   test("template elements are not registered globally", () => {
     const index = buildIndex({
       elements: [{

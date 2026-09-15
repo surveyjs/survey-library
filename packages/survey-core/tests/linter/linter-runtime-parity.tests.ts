@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
+import { JsonObject } from "../../src/jsonobject";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionSelectBase } from "../../src/question_baseselect";
@@ -427,5 +428,200 @@ describe("linter vs runtime: unknown properties", () => {
     test(entry.title + ": the linter reports what the deserializer drops", () => {
       expect(lintUnknownKeys(entry.json)).toEqual(runtimeUnknownKeys(entry.json));
     });
+  });
+});
+
+// property/not-an-array mirrors JsonRequiredArrayPropertyError: the deserializer wraps a
+// non-array value written for an array property and records the key it found it under.
+describe("linter vs runtime: a non-array written for an array property", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "arrayproperty")
+      .map((e: any) => e.propertyName + "@" + e.className)
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/not-an-array")
+      .map(f => f.messageData.key + "@" + f.messageData.className)
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "one element object under elements", json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] } },
+    { title: "one element object under the questions alias", json: { pages: [{ name: "p1", questions: { type: "text", name: "q1" } }] } },
+    { title: "one page object under pages", json: { pages: { name: "p1", elements: [{ type: "text", name: "q1" }] } } },
+    { title: "a string under choices", json: { elements: [{ type: "checkbox", name: "q1", choices: "a" }] } },
+    { title: "one column object and one item object", json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: { name: "c1" } },
+        { type: "multipletext", name: "mt1", items: { name: "i1" } },
+      ],
+    } },
+    { title: "one trigger object and one validator object", json: {
+      elements: [{ type: "text", name: "q1", validators: { type: "numeric" } }],
+      triggers: { type: "complete", expression: "{q1} = 1" },
+    } },
+    { title: "a survey the serializer accepts whole", json: {
+      pages: [{ name: "p1", elements: [{ type: "checkbox", name: "q1", choices: ["a"], validators: [] }] }],
+      triggers: [],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer wraps", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+});
+
+// property/required mirrors JsonRequiredPropertyError. The deserializer reports the first
+// missing property of an object only, so every fixture leaves out one property per object.
+describe("linter vs runtime: required properties", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "requiredproperty")
+      .map((e: any) => e.propertyName + "@" + e.className)
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/required")
+      .map(f => f.messageData.key + "@" + f.messageData.className)
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a question without a name", json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] } },
+    { title: "a question with an empty name", json: { elements: [{ type: "text", name: "" }] } },
+    { title: "a column and an item without a name", json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ cellType: "text" }] },
+        { type: "multipletext", name: "mt1", items: [{ title: "t" }] },
+      ],
+    } },
+    { title: "a multiple text without items", json: { elements: [{ type: "multipletext", name: "mt1" }] } },
+    { title: "a calculated value without a name", json: { elements: [{ type: "text", name: "q1" }], calculatedValues: [{ expression: "1" }] } },
+    { title: "triggers without their targets", json: {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [
+        { type: "setvalue", expression: "{q1} = 1", setValue: 2 },
+        { type: "copyvalue", expression: "{q1} = 1", setToName: "q1" },
+        { type: "skip", expression: "{q1} = 1" },
+      ],
+    } },
+    { title: "a choice without a value is left alone", json: { elements: [{ type: "checkbox", name: "q1", choices: [{ text: "a" }] }] } },
+    { title: "a survey with every required property", json: {
+      pages: [{ name: "p1", elements: [
+        { type: "text", name: "q1" },
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }] },
+        { type: "multipletext", name: "mt1", items: [{ name: "i1" }] },
+      ] }],
+      calculatedValues: [{ name: "cv", expression: "1" }],
+      triggers: [{ type: "setvalue", expression: "{q1} = 1", setToName: "q1" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer requires", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+});
+
+// The */unknown-type rules mirror JsonMissingTypeError and JsonIncorrectTypeError: an object
+// under a baseClassName property (elements, templateElements, triggers, validators) that the
+// serializer cannot build - no type, or a type it does not know - is dropped at runtime.
+describe("linter vs runtime: missing and unknown types", () => {
+  const RUNTIME_KIND: { [baseClassName: string]: string } = {
+    question: "element", surveytrigger: "trigger", surveyvalidator: "validator",
+  };
+  function runtimeTokens(json: any): Array<string> {
+    const survey = new SurveyModel(json);
+    return (survey.jsonErrors || [])
+      .filter(e => e.type === "missingtypeproperty" || e.type === "incorrecttypeproperty")
+      .map((e: any) => RUNTIME_KIND[e.baseClassName] + ":" + (e.type === "missingtypeproperty" ? "missing" : "unknown"))
+      .sort();
+  }
+  function lintTokens(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "element/unknown-type" || f.ruleId === "trigger/unknown-type" ||
+        f.ruleId === "validator/unknown-type")
+      .map(f => f.ruleId.split("/")[0] + ":" +
+        (f.reason === "missingType" || f.reason === "noType" ? "missing" : "unknown"))
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a question without a type", json: { pages: [{ name: "p1", elements: [{ name: "q1" }] }] } },
+    { title: "a question with an unknown type", json: { elements: [{ type: "text_custom", name: "q1" }] } },
+    { title: "inside a panel and a dynamic-panel template", json: {
+      elements: [
+        { type: "panel", name: "pn", elements: [{ name: "q1" }] },
+        { type: "paneldynamic", name: "pd", templateElements: [{ type: "nosuch", name: "q2" }] },
+      ],
+    } },
+    { title: "triggers without a type and with an unknown one", json: {
+      elements: [{ type: "text", name: "q1" }],
+      triggers: [{ expression: "{q1} = 1" }, { type: "nosuchtrigger", expression: "{q1} = 1" }],
+    } },
+    { title: "validators without a type and with an unknown one", json: {
+      elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }, { type: "nosuchvalidator" }] }],
+    } },
+    { title: "a survey the serializer builds whole", json: {
+      elements: [
+        { type: "text", name: "q1", validators: [{ type: "numeric" }] },
+        { type: "panel", name: "pn", elements: [{ type: "comment", name: "q2" }] },
+      ],
+      triggers: [{ type: "complete", expression: "{q1} = 1" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer drops", () => {
+      expect(lintTokens(entry.json)).toEqual(runtimeTokens(entry.json));
+    });
+  });
+});
+
+// property/invalid-value (notInChoices) mirrors JsonIncorrectPropertyValueError, which the
+// deserializer reports only when asked to validate property values.
+describe("linter vs runtime: values outside the allowed set", () => {
+  function runtimeKeys(json: any): Array<string> {
+    const survey = new SurveyModel();
+    const converter = new JsonObject();
+    converter.toObject(json, survey, { validatePropertyValues: true });
+    return converter.errors
+      .filter(e => e.type === "incorrectvalue")
+      .map((e: any) => e.property.name + "=" + JSON.stringify(e.value))
+      .sort();
+  }
+  function lintKeys(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "property/invalid-value" && f.reason === "notInChoices")
+      .map(f => f.messageData.key + "=" + JSON.stringify(f.messageData.value))
+      .sort();
+  }
+  const CASES: Array<{ title: string, json: any }> = [
+    { title: "a misspelled enum value", json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "sss" }] } },
+    { title: "an enum value in the wrong case", json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] } },
+    { title: "a survey-level enum and a question-level one", json: {
+      questionTitleLocation: "Left",
+      elements: [{ type: "text", name: "q1", titleLocation: "topp" }],
+    } },
+    { title: "a number spelled as a string is still that number", json: {
+      elements: [{ type: "rating", name: "q1", rateMax: "5" }],
+    } },
+    { title: "the default locale spelled out", json: { locale: "default", elements: [{ type: "text", name: "q1" }] } },
+    { title: "a survey the serializer accepts whole", json: {
+      locale: "de", questionTitleLocation: "left",
+      elements: [{ type: "text", name: "q1", clearIfInvisible: "onComplete", titleLocation: "top" }],
+    } },
+  ];
+  CASES.forEach(entry => {
+    test(entry.title + ": the linter reports what the deserializer rejects", () => {
+      expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
+    });
+  });
+  test("\"default\" is an accepted spelling of the survey locale - for both", () => {
+    const json = { locale: "default", elements: [{ type: "text", name: "q1" }] };
+    expect(runtimeKeys(json)).toEqual([]);
+    expect(lintKeys(json)).toEqual([]);
   });
 });

@@ -2,9 +2,18 @@ import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
 import { getInputType, isMinMaxInputType } from "../value-types";
 import { AliasPairSite, PropertySite } from "../property-walk";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { ILintFix } from "../types";
 
 const reasons = SurveyLintReasons["property/dead"];
+const fixReasons = SurveyLintFixReasons["property/dead"];
+
+// The key is written for nothing, whichever way it is dead, so dropping it changes no behaviour
+// and says what the runtime already does. An inert bound has a second honest repair - change the
+// inputType - and a finding carries one fix, so the harmless one is the one offered.
+function removeKeyFix(path: string): ILintFix {
+  return { reason: fixReasons.removeKey, edits: [{ op: "remove", path: path }] };
+}
 
 // min/max/step are registered on every text question, but the runtime applies them only to the
 // inputTypes whose editor has bounds (isMinMaxType, question_text.ts).
@@ -28,6 +37,7 @@ function checkNotSerializable(ctx: LintContext, site: PropertySite): void {
     messageData: { key: site.key, className: site.className, name: site.owner.name },
     elementName: site.owner.name,
     elementType: site.owner.type,
+    fix: removeKeyFix(site.path),
   });
 }
 
@@ -49,6 +59,7 @@ function checkAliasPair(ctx: LintContext, pair: AliasPairSite): void {
     elementName: pair.owner.name,
     elementType: pair.owner.type,
     related: [{ path: pair.path }, { path: pair.aliasPath }],
+    fix: removeKeyFix(pair.path),
   });
 }
 
@@ -67,6 +78,7 @@ function checkInertBounds(ctx: LintContext, record: ElementRecord): void {
       messageData: { key: key, inputType: inputType, name: record.name },
       elementName: record.name,
       elementType: record.type,
+      fix: removeKeyFix(record.path + "." + key),
     });
   });
 }

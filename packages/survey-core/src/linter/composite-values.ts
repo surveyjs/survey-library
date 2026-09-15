@@ -3,6 +3,13 @@ import { equalsCI, stripCommentSuffix } from "./expression-utils";
 import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
+import { POSITION_KEY } from "./property-walk";
+
+// The keys an author wrote: a host may hand the linter a JSON its parser annotated with a position
+// marker on every object literal (see POSITION_KEY), and that marker is no data key.
+function userKeys(value: any): Array<string> {
+  return Object.keys(value).filter(key => key !== POSITION_KEY);
+}
 
 // One defect found inside a composite value: either a key naming nothing the question holds,
 // or a cell value the addressed sub-element can never hold.
@@ -71,7 +78,7 @@ function buildKeyMap(map: CIMultiMap<ElementRecord>): CIMultiMap<ElementRecord> 
 function checkRowObject(row: any, keys: CIMultiMap<ElementRecord>,
   unknownKind: "unknownColumnKey" | "unknownQuestionKey", ctx: CompositeContext): void {
   if (!isPlainObject(row)) return;
-  Object.keys(row).forEach(key => {
+  userKeys(row).forEach(key => {
     const found = findByKey(keys, key, ctx.settings);
     if (!found.known) {
       ctx.issues.push({ kind: unknownKind, key: key, candidates: keys.names() });
@@ -92,7 +99,7 @@ function checkMatrixObject(record: ElementRecord, value: any, ctx: CompositeCont
   const domain: ValueSetDomain | undefined = columnValues.length > 0
     ? { kind: "set", record: record, values: columnValues, listed: columnValues }
     : undefined;
-  Object.keys(value).forEach(key => {
+  userKeys(value).forEach(key => {
     if (!rows.some(row => equalsCI(String(row), key))) {
       ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
       return;
@@ -105,7 +112,7 @@ function checkMatrixDropdownObject(record: ElementRecord, value: any, ctx: Compo
   if (!isPlainObject(value) || !record.matrixColumns) return;
   const rows = record.matrixRowValues || [];
   const keys = buildKeyMap(record.matrixColumns);
-  Object.keys(value).forEach(key => {
+  userKeys(value).forEach(key => {
     if (!rows.some(row => equalsCI(String(row), key))) {
       ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
       return;

@@ -67,6 +67,29 @@ describe("name/duplicate", () => {
     expect(findings[0].path).toBe("pages[1].elements[0]");
     expect(findings[0].related).toHaveLength(2);
   });
+  test("the message states the name is duplicated, without a count or a kind list", () => {
+    const findings = byRule({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q1" },
+        { type: "text", name: "q1" },
+      ],
+    }, "name/duplicate");
+    expect(findings).toHaveLength(2);
+    expect(findings[0].message).toBe("The name \"q1\" is duplicated.");
+    expect(findings[0].messageData.count).toBeUndefined();
+    expect(findings[0].messageData.kinds).toBeUndefined();
+  });
+  test("the message of a duplicate inside a namespace names the scope", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1",
+        columns: [{ name: "col1" }, { name: "col1" }],
+      }],
+    }, "name/duplicate");
+    expect(findings[0].message).toBe("The name \"col1\" is duplicated inside matrix \"m1\".");
+    expect(findings[0].messageData.scope).toBe("matrix \"m1\"");
+  });
   test("question vs panel name clash is flagged", () => {
     expect(byRule({
       elements: [
@@ -91,13 +114,16 @@ describe("name/duplicate", () => {
       ],
     }, "name/duplicate")).toHaveLength(1);
   });
-  test("same template name in two different dynamic panels is clean", () => {
-    expect(byRule({
+  test("same template name in two different dynamic panels is flagged - a template is no namespace", () => {
+    const findings = byRule({
       elements: [
         { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "inner" }] },
         { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "inner" }] },
       ],
-    }, "name/duplicate")).toHaveLength(0);
+    }, "name/duplicate");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[1].templateElements[0]");
+    expect(findings[0].messageData.scope).toBeFalsy();
   });
   test("duplicate names inside ONE template are flagged", () => {
     expect(byRule({
@@ -124,6 +150,23 @@ describe("name/duplicate", () => {
       ],
     }, "name/duplicate")).toHaveLength(0);
   });
+  test("duplicate item names in one multipletext are flagged, across questions clean", () => {
+    const findings = byRule({
+      elements: [{
+        type: "multipletext", name: "q1",
+        items: [{ name: "item1" }, { name: "item1" }],
+      }],
+    }, "name/duplicate");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].path).toBe("elements[0].items[1]");
+    expect(findings[0].messageData.scope).toBe("multiple text \"q1\"");
+    expect(byRule({
+      elements: [
+        { type: "multipletext", name: "q1", items: [{ name: "item1" }] },
+        { type: "multipletext", name: "q2", items: [{ name: "item1" }] },
+      ],
+    }, "name/duplicate")).toHaveLength(0);
+  });
   test("duplicate valueNames are NOT flagged (legal feature)", () => {
     expect(byRule({
       elements: [
@@ -142,6 +185,19 @@ describe("element/unknown-type", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].severity).toBe("info");
     expect(findings[0].suggestion).toBe("checkbox");
+  });
+  test("a question without a type has its own reason and no suggestion", () => {
+    const findings = byRule({
+      elements: [{ name: "q1" }, { type: "", name: "q2" }],
+    }, "element/unknown-type");
+    expect(findings.map(f => f.path)).toEqual(["elements[0]", "elements[1]"]);
+    findings.forEach(finding => {
+      expect(finding.reason).toBe("missingType");
+      expect(finding.suggestion).toBeUndefined();
+      expect(finding.message).toContain("has no type");
+      expect(finding.message).not.toContain("options.components");
+    });
+    expect(findings[0].messageData).toEqual({ reason: "missingType", name: "q1", type: "" });
   });
   test("type passed via options.components is known", () => {
     expect(byRule({

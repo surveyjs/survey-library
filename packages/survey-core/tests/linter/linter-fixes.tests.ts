@@ -226,3 +226,26 @@ describe("element/unknown-type fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("trigger/unknown-type fix", () => {
+  test("the registered trigger type the author meant replaces the unknown one", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvaluee", setToName: "q2", setValue: 1 }],
+    };
+    const finding = findingOf(json, "trigger/unknown-type");
+    expect(finding.suggestion).toBe("setvalue");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["trigger/unknown-type"].setType,
+      edits: [{ op: "set", path: "triggers[0].type", value: "setvalue" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.triggers[0].type).toBe("setvalue");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "trigger/unknown-type")).toHaveLength(0);
+  });
+  test("a trigger with no type gets no fix", () => {
+    const json = { elements: [{ type: "text", name: "q1" }], triggers: [{ setToName: "q1" }] };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "noType" && f.elementType === "trigger")[0];
+    expect(finding.fix).toBeUndefined();
+  });
+});

@@ -116,6 +116,9 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
   const aboveMax = typeof max === "number" && value > max;
   if (!belowMin && !aboveMax) return;
   const range = (typeof min === "number" ? min : "") + ".." + (typeof max === "number" ? max : "");
+  // the nearest value the property can hold: the bound the value falls off is the only one of the
+  // two the author is known to have meant to respect
+  const bound = belowMin ? min : max;
   ctx.report({
     message: "The " + site.key + " of " + ownerText(site.owner.name, site.className) + " is " +
       value + ", outside its allowed range " + range + ".",
@@ -127,6 +130,7 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
     },
     elementName: site.owner.name,
     elementType: site.owner.type,
+    fix: { reason: fixReasons.clampToRange, edits: [{ op: "set", path: site.path, value: bound }] },
   });
 }
 

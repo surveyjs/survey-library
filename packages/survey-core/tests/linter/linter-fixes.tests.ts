@@ -641,3 +641,26 @@ describe("property/dead fix", () => {
     expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].min" }]);
   });
 });
+
+describe("property/invalid-value out-of-range fix", () => {
+  test("a value below the minimum is pulled up to it", () => {
+    const json = {
+      elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }],
+    };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "outOfRange")[0];
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/invalid-value"].clampToRange,
+      edits: [{ op: "set", path: "elements[0].rowCount", value: 0 }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].rowCount).toBe(0);
+    expect(lintSurvey(fixed).findings.filter(f => f.reason === "outOfRange")).toHaveLength(0);
+  });
+  test("a value above the maximum is pulled down to it", () => {
+    const json = { backgroundOpacity: 5, elements: [{ type: "text", name: "q1" }] };
+    const finding = lintSurvey(json).findings.filter(f => f.reason === "outOfRange")[0];
+    expect(finding.fix.edits[0].path).toBe("backgroundOpacity");
+    expect(finding.fix.edits[0].value).toBe(finding.messageData.max);
+    expect(typeof finding.fix.edits[0].value).toBe("number");
+  });
+});

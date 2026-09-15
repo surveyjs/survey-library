@@ -473,8 +473,24 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
+  private isEnterKey: boolean;
   supportAutoAdvance(): boolean {
-    return this.isMouseDown === true || this.isDropdown;
+    return this.isMouseDown === true || this.isDropdown || this.isEnterKey === true;
+  }
+  public onKeyDown(event: any): void {
+    if (event.key !== "Enter" && event.keyCode !== 13) return;
+    if (this.isReadOnlyAttr || this.isDesignMode) return;
+    const raw = event.target?.value;
+    if (raw === undefined || raw === null || raw === "") return;
+    event.preventDefault();
+    this.isEnterKey = true;
+    const prevValue = this.value;
+    this.value = raw;
+    if (prevValue === this.value && !this.isEmpty()) {
+      const survey = this.survey as SurveyModel;
+      survey?.tryGoNextPageAutomatic(this.getValueName());
+    }
+    this.isEnterKey = false;
   }
   public supportOther(): boolean {
     return false;
@@ -654,7 +670,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     }
   }
   public setValueFromClick(value: any) {
-    if (this.isReadOnlyAttr) return;
+    if (this.isReadOnlyAttr || this.isEnterKey) return;
     if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
       this.clearValue(true);
     } else {

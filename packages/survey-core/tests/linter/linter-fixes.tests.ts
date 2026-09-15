@@ -606,3 +606,38 @@ describe("choices/duplicate fix", () => {
     expect(finding.fix).toBeUndefined();
   });
 });
+
+describe("property/dead fix", () => {
+  test("a property the serializer drops is dropped from the JSON too", () => {
+    const json = { mode: "display", elements: [{ type: "text", name: "q1" }] };
+    const finding = findingOf(json, "property/dead");
+    expect(finding.reason).toBe("notSerializable");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["property/dead"].removeKey,
+      edits: [{ op: "remove", path: "mode" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.mode).toBeUndefined();
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/dead")).toHaveLength(0);
+  });
+  test("the losing half of an alias pair is the one dropped", () => {
+    const json = {
+      elements: [{
+        type: "checkbox", name: "q1", choices: ["a", "b"], showOtherItem: true, hasOther: false,
+      }],
+    };
+    const finding = findingOf(json, "property/dead");
+    expect(finding.reason).toBe("aliasDuplicate");
+    expect(finding.messageData.winner).toBe("hasOther");
+    expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].showOtherItem" }]);
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].hasOther).toBe(false);
+    expect(fixed.elements[0].showOtherItem).toBeUndefined();
+  });
+  test("a bound the inputType has no use for is dropped", () => {
+    const json = { elements: [{ type: "text", name: "q1", inputType: "text", min: 1 }] };
+    const finding = findingOf(json, "property/dead");
+    expect(finding.reason).toBe("inertMinMax");
+    expect(finding.fix.edits).toEqual([{ op: "remove", path: "elements[0].min" }]);
+  });
+});

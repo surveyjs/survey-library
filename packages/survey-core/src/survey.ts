@@ -1692,7 +1692,6 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   @property() autoFocusFirstError: boolean;
-  // Scrolls the focused question to the middle of the survey container. Not serialized.
   @property({ defaultValue: false, onSet: (_newValue, target: SurveyModel) => {
     target.setupAutoCenterFocusedQuestion();
   } }) autoCenterFocusedQuestion: boolean;

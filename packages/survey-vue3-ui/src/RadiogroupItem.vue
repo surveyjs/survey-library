@@ -13,6 +13,7 @@
             change();
           }
         "
+        @keydown="question.onKeyDown?.($event)"
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"

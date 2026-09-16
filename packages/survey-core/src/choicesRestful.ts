@@ -192,6 +192,9 @@ export class ChoicesRestful extends Base {
   public get isWaitingForParameters() {
     return this.url && !this.processedUrl;
   }
+  public get canUseResult(): boolean {
+    return !this.isRunning && !this.isWaitingForParameters && !this.error;
+  }
   protected useChangedItemsResults(): boolean {
     return ChoicesRestful.getCachedItemsResult(this);
   }

@@ -91,3 +91,51 @@ describe("property/required", () => {
     })).toHaveLength(0);
   });
 });
+
+// The runtime trims and lower-cases a question name, so a number or a boolean written for it
+// stops the survey from loading - and used to stop the linter too, in the walker's name maps.
+describe("property/required - a name that is not a string", () => {
+  test("a numeric question name is reported at the name key, spelled out as the fix", () => {
+    const res = findings({ elements: [{ type: "text", name: <any>5 }] });
+    expect(res).toHaveLength(1);
+    expect(res[0].reason).toBe("notAString");
+    expect(res[0].severity).toBe("error");
+    expect(res[0].path).toBe("elements[0].name");
+    expect(res[0].messageData).toEqual({
+      reason: "notAString", key: "name", className: "text", name: "5", value: 5,
+    });
+    expect(res[0].elementName).toBe("5");
+    expect(res[0].message).toBe("The name of the text is 5, not a string - the survey cannot load it.");
+    expect(res[0].fix).toEqual({
+      reason: "setName", edits: [{ op: "set", path: "elements[0].name", value: "5" }],
+    });
+  });
+  test("a column, an item and a calculated value with such a name are reported, and nothing throws", () => {
+    const res = findings({
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: <any>1 }] },
+        { type: "multipletext", name: "mt1", items: [{ name: <any>true }] },
+      ],
+      calculatedValues: [{ name: <any>7, expression: "1" }],
+    });
+    expect(res.map(f => f.path)).toEqual([
+      "calculatedValues[0].name", "elements[0].columns[0].name", "elements[1].items[0].name",
+    ]);
+    expect(res.every(f => f.reason === "notAString")).toBe(true);
+  });
+  test("a page and a panel with such a name are reported too - the runtime trims a name whatever it belongs to", () => {
+    const res = findings({
+      pages: [{ name: <any>1, elements: [{ type: "panel", name: <any>5, elements: [{ type: "text", name: "q1" }] }] }],
+    });
+    expect(res.map(f => f.path).sort()).toEqual(["pages[0].elements[0].name", "pages[0].name"]);
+    expect(res.every(f => f.reason === "notAString")).toBe(true);
+    expect(res.map(f => f.messageData.className).sort()).toEqual(["page", "panel"]);
+    expect(res.map(f => f.fix.edits[0].value).sort()).toEqual(["1", "5"]);
+  });
+  test("the name is indexed by its spelling, so a reference to it resolves", () => {
+    const result = lintSurvey({
+      elements: [{ type: "text", name: <any>5 }, { type: "text", name: "q2", visibleIf: "{5} = 1" }],
+    });
+    expect(result.findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
+  });
+});

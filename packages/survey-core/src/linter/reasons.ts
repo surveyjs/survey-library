@@ -37,6 +37,15 @@ export const SurveyLintReasons = Object.freeze({
     totalKeyCollision: "totalKeyCollision",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
+  // a name the runtime cannot key its plain data objects by: a member of Object.prototype
+  "name/reserved": Object.freeze({
+    questionName: "questionName",
+    valueName: "valueName",
+    columnName: "columnName",
+    itemName: "itemName",
+    rowValue: "rowValue",
+    calculatedValueName: "calculatedValueName",
+  }),
   // a key that matches no property of the class the JSON says it belongs to
   "property/unknown": Object.freeze({
     unknownProperty: "unknownProperty",
@@ -48,9 +57,11 @@ export const SurveyLintReasons = Object.freeze({
     // a valueName with a "." in it, which references read as a path
     valueNameDotted: "valueNameDotted",
   }),
-  // a property the class requires and the JSON leaves out or empty
+  // a property the class requires and the JSON leaves out or empty - or, for a name, writes as
+  // a number or a boolean, which the runtime cannot load
   "property/required": Object.freeze({
     missing: "missing",
+    notAString: "notAString",
   }),
   // a single value written where the property holds an array; the deserializer wraps it
   "property/not-an-array": Object.freeze({
@@ -293,6 +304,9 @@ export const SurveyLintFixReasons = Object.freeze({
     setType: "setType",
   }),
   "name/duplicate": Object.freeze({
+    renameElement: "renameElement",
+  }),
+  "name/reserved": Object.freeze({
     renameElement: "renameElement",
   }),
   "property/invalid-value": Object.freeze({

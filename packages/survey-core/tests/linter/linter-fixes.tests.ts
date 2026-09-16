@@ -172,6 +172,46 @@ describe("name/duplicate fix", () => {
   });
 });
 
+describe("name/reserved fix", () => {
+  test("a reserved question name is replaced with a free one", () => {
+    const json = { elements: [{ type: "text", name: "toString" }] };
+    const finding = findingOf(json, "name/reserved");
+    expect(finding.fix).toEqual({
+      reason: SurveyLintFixReasons["name/reserved"].renameElement,
+      edits: [{ op: "set", path: "elements[0].name", value: "question1" }],
+    });
+    const fixed = applyFix(json, finding.fix);
+    expect(fixed.elements[0].name).toBe("question1");
+    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "name/reserved")).toHaveLength(0);
+  });
+  test("a column, an item and a calculated value are named the way a question is", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "toString" }] },
+        { type: "multipletext", name: "mt", items: [{ name: "valueOf" }] },
+      ],
+      calculatedValues: [{ name: "constructor", expression: "1" }],
+    };
+    const edits = lintSurvey(json).findings.filter(f => f.ruleId === "name/reserved").map(f => f.fix.edits[0]);
+    expect(edits).toEqual([
+      { op: "set", path: "calculatedValues[0].name", value: "question3" },
+      { op: "set", path: "elements[0].columns[0].name", value: "question1" },
+      { op: "set", path: "elements[1].items[0].name", value: "question2" },
+    ]);
+  });
+  test("a valueName and a matrix row get no fix - neither has one repair", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", valueName: "toString" },
+        { type: "matrix", name: "m", rows: ["valueOf"], columns: ["c1"] },
+      ],
+    };
+    const findings = lintSurvey(json).findings.filter(f => f.ruleId === "name/reserved");
+    expect(findings.map(f => f.reason)).toEqual(["valueName", "rowValue"]);
+    expect(findings.every(f => f.fix === undefined)).toBe(true);
+  });
+});
+
 describe("property/required fix", () => {
   test("an element with no name gets one", () => {
     const json = { pages: [{ name: "p1", elements: [{ type: "text" }] }] };
@@ -707,6 +747,10 @@ const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
   {
     ruleId: "name/duplicate", fixReason: "renameElement",
     json: { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "name/reserved", fixReason: "renameElement",
+    json: { elements: [{ type: "text", name: "toString" }] },
   },
   {
     ruleId: "property/dead", fixReason: "removeKey",

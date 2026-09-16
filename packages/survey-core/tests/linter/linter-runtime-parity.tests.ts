@@ -625,3 +625,102 @@ describe("linter vs runtime: values outside the allowed set", () => {
     expect(lintKeys(json)).toEqual([]);
   });
 });
+
+describe("linter vs runtime: reserved names", () => {
+  const RESERVED = [
+    "constructor", "__proto__", "toString", "valueOf", "hasOwnProperty", "isPrototypeOf",
+    "propertyIsEnumerable", "toLocaleString", "__defineGetter__", "__defineSetter__",
+    "__lookupGetter__", "__lookupSetter__",
+  ];
+  // The survey keeps its answers in a plain object: under such a key it reads the prototype
+  // member instead of the answer, and the write throws on the way or is silently lost.
+  function keepsAnswer(name: string): boolean {
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: name }] });
+      survey.setValue(name, 1);
+      return survey.getValue(name) === 1;
+    } catch{
+      return false;
+    }
+  }
+  RESERVED.forEach(name => {
+    test("a question named \"" + name + "\" cannot keep its answer, and the rule reports it", () => {
+      expect(keepsAnswer(name)).toBe(false);
+      expect(errors({ elements: [{ type: "text", name: name }] })).toEqual(["name/reserved @ elements[0].name"]);
+    });
+  });
+  // Policy rather than parity: the runtime lower-cases its variable names and its question lookup
+  // hashes, so a spelling that survives in one slot collides in another ("Constructor" as a
+  // question, "__Proto__" as a calculated value). One list, any case, any context is the rule an
+  // author can remember.
+  test("another spelling of a member is reserved by policy", () => {
+    ["ToString", "tostring", "Constructor", "__Proto__"].forEach(name => {
+      expect(errors({ elements: [{ type: "text", name: name }] }), name)
+        .toEqual(["name/reserved @ elements[0].name"]);
+    });
+  });
+  test("a name padded with spaces is trimmed by the runtime, so it is reserved too", () => {
+    expect(keepsAnswer(" toString ")).toBe(false);
+    expect(errors({ elements: [{ type: "text", name: " toString " }] })).toEqual(["name/reserved @ elements[0].name"]);
+  });
+  test("a column named toString throws once a row is built", () => {
+    const json = {
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a" }, { name: "toString" }] }],
+    };
+    const survey = new SurveyModel(json);
+    expect(() => { cellQuestion(survey, "m", 0, 1).value = "x"; }).toThrow();
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].columns[1].name"]);
+  });
+  test("a multiple text item named toString throws on write", () => {
+    const json = { elements: [{ type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "toString" }] }] };
+    const survey = new SurveyModel(json);
+    const question = <any>survey.getQuestionByName("mt");
+    expect(() => { question.items[0].value = "x"; question.items[1].value = "y"; }).toThrow();
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].items[1].name"]);
+  });
+  test("a matrix row named toString throws on write", () => {
+    const json = { elements: [{ type: "matrix", name: "m", rows: ["r1", "toString"], columns: ["c1", "c2"] }] };
+    const survey = new SurveyModel(json);
+    const matrix = <any>survey.getQuestionByName("m");
+    expect(() => { matrix.visibleRows[1].value = "c1"; }).toThrow();
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].rows[1]"]);
+  });
+  test("a calculated value named __proto__ never reaches the result", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [{ name: "__proto__", expression: "1 + 1", includeIntoResult: true }],
+    };
+    const survey = new SurveyModel(json);
+    survey.setValue("q1", 1);
+    // the survey data is a plain object, so the key is silently dropped
+    expect(Object.keys(survey.data)).toEqual(["q1"]);
+    expect(errors(json)).toEqual(["name/reserved @ calculatedValues[0].name"]);
+  });
+  test("a page and a panel may carry the name - neither keys a plain object", () => {
+    const json = {
+      pages: [{
+        name: "toString",
+        elements: [{ type: "panel", name: "valueOf", elements: [{ type: "text", name: "q1" }] }],
+      }],
+    };
+    const survey = new SurveyModel(json);
+    survey.setValue("q1", 1);
+    expect(survey.data).toEqual({ q1: 1 });
+    expect(survey.getPageByName("toString")).toBeTruthy();
+    expect(survey.getPanelByName("valueOf")).toBeTruthy();
+    expect(errors(json)).toEqual([]);
+  });
+});
+
+describe("linter vs runtime: a name that is not a string", () => {
+  // the runtime trims a name whatever it belongs to, so a page or a panel named by a number
+  // stops the survey from loading the way a question does - and neither has a required name
+  test("a page and a panel named by a number do not load, and property/required reports them", () => {
+    const pageJson = { pages: [{ name: 1, elements: [{ type: "text", name: "q1" }] }] };
+    const panelJson = { elements: [{ type: "panel", name: 5, elements: [{ type: "text", name: "q1" }] }] };
+    expect(() => new SurveyModel(pageJson)).toThrow();
+    expect(() => new SurveyModel(panelJson)).toThrow();
+    expect(errors(pageJson)).toEqual(["property/required @ pages[0].name"]);
+    expect(errors(panelJson)).toEqual(["property/required @ elements[0].name"]);
+  });
+});

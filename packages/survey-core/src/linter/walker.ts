@@ -33,6 +33,15 @@ function isNonEmptyString(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
 }
 
+// The name the index goes by. The runtime rejects a number or a boolean written for a name -
+// property/required reports it - but the linter must not stop on it, and its spelling is the key
+// a reference would resolve to. Anything else written there is no name at all.
+function nameOf(value: any): string {
+  if (typeof value === "string") return value;
+  if (!!value && (typeof value === "number" || typeof value === "boolean")) return String(value);
+  return "";
+}
+
 function itemValueFrame(owner: ElementRecord): ScopeFrameItemValue {
   return { kind: "itemValue", owner: owner };
 }
@@ -240,7 +249,7 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>): ElementRecord {
   if (!guardEnter(state, json)) return undefined;
   const record: ElementRecord = {
-    name: json.name || "", type: (json.type || "").toLowerCase(), kind: "panel",
+    name: nameOf(json.name), type: (json.type || "").toLowerCase(), kind: "panel",
     path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: false, valueType: { shape: "none" },
     panelDescendantNames: new CIMap<ElementRecord>(),
@@ -280,7 +289,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       const effectiveCellType = cellType === "default" ? defaultCellType : cellType;
       const columnJson = column;
       const columnRecord: ElementRecord = {
-        name: column.name || "", type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
+        name: nameOf(column.name), type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
         path: columnPath, json: columnJson, parent: record, scope: rowScope.slice(),
         isUnknownType: false,
         valueType: getValueTypeInfo(effectiveCellType, columnJson),
@@ -328,7 +337,7 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
     if (!item || typeof item !== "object") return;
     const itemPath = path + ".items[" + i + "]";
     const itemRecord: ElementRecord = {
-      name: item.name || "", type: "multipletextitem", kind: "multipletextitem",
+      name: nameOf(item.name), type: "multipletextitem", kind: "multipletextitem",
       path: itemPath, json: item, parent: record, scope: scope.slice(),
       isUnknownType: false, valueType: getValueTypeInfo("text", item),
     };
@@ -352,7 +361,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   const componentDef = components && Object.prototype.hasOwnProperty.call(components, type)
     ? components[type] : undefined;
   const record: ElementRecord = {
-    name: json.name || "", valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
+    name: nameOf(json.name), valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
     type: type, kind: "question", path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: !state.metadata.isKnownElementType(type) && !componentDef,
     componentDef: componentDef,
@@ -511,7 +520,7 @@ function addTextRefsFromProps(state: WalkState, json: any, basePath: string, pro
 function walkPage(state: WalkState, json: any, path: string): void {
   if (!guardEnter(state, json)) return;
   const record: ElementRecord = {
-    name: json.name || "", type: "page", kind: "page", path: path, json: json,
+    name: nameOf(json.name), type: "page", kind: "page", path: path, json: json,
     scope: [], isUnknownType: false, valueType: { shape: "none" },
   };
   registerRecord(state, record, []);
@@ -651,20 +660,22 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   if (Array.isArray(json.calculatedValues)) {
     json.calculatedValues.forEach((cv: any, i: number) => {
-      if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
+      if (!cv || typeof cv !== "object") return;
+      const name = nameOf(cv.name);
+      if (!name) return;
       const path = "calculatedValues[" + i + "]";
-      const record: CalculatedValueRecord = { name: cv.name, path: path };
+      const record: CalculatedValueRecord = { name: name, path: path };
       // the list records every declaration, the map only the first of a repeated name;
       // a name that is only whitespace addresses nothing, so it gets neither a site nor
       // a place in the map - name/duplicate still sees it in the list
       index.calculatedValueList.push(record);
-      if (!isNonEmptyString(cv.name)) return;
+      if (!isNonEmptyString(name)) return;
       record.expression = isNonEmptyString(cv.expression) ? cv.expression : undefined;
       if (record.expression) {
         record.site = addSite(state, record.expression, "expression",
           joinPath(path, "expression"), "expression", undefined, []);
       }
-      index.calculatedValues.set(cv.name, record);
+      index.calculatedValues.set(name, record);
     });
   }
 

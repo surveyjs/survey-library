@@ -51,6 +51,19 @@ export interface IInterviewAddressResolution {
   isBad?: boolean;
 }
 
+// Names, addresses and the keys an agent sends are arbitrary text, and "constructor", "toString" and
+// "__proto__" are text like any other. A lookup keyed by them has no prototype: a missing name reads
+// undefined rather than an Object.prototype member, and a write never lands on a shared built-in.
+export function createNameLookup<T>(): { [name: string]: T } {
+  return Object.create(null);
+}
+
+// The same for an object a consumer receives - a schema's properties map: a plain object, whose key is
+// an own property even when the name is "__proto__", where an assignment would replace its prototype.
+export function setOwnValue(target: any, name: string, value: any): void {
+  Object.defineProperty(target, name, { value: value, enumerable: true, writable: true, configurable: true });
+}
+
 export function formatAddressSegment(segment: IInterviewAddressSegment): string {
   return quoteSegment(segment.name) + (segment.index === undefined ? "" : "[" + segment.index + "]");
 }

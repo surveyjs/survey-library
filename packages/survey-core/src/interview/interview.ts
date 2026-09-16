@@ -11,7 +11,9 @@ import {
   getInterviewInputs, getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid,
   makeInputCurrent, updateCurrentItem, validateInput,
 } from "./interview-items";
-import { getAddress, getParentContainer, getQuestionDepth, resolveAddress } from "./interview-address";
+import {
+  createNameLookup, getAddress, getParentContainer, getQuestionDepth, resolveAddress,
+} from "./interview-address";
 import { applySummaryAction } from "./interview-summary";
 import {
   IInterviewBatchEntry, findBatchEntry, getBatchAddresses, getBatchCurrent, getBatchEntries,
@@ -234,7 +236,7 @@ export class Interview implements IInterview {
     // asked for yet are not errors of this call (interview-records.ts).
     const hadErrors: { [id: string]: boolean } = {};
     wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
-    const written: IBatchWritten = { addresses: {}, questions: {}, containers: [] };
+    const written: IBatchWritten = { addresses: createNameLookup<boolean>(), questions: {}, containers: [] };
     const writeErrors: Array<IInterviewError> = [];
     // A pass that writes consumes at least one key, so there are at most as many passes as keys. A
     // pass that writes nothing changes nothing, and the one after it would resolve nothing new.
@@ -322,7 +324,7 @@ export class Interview implements IInterview {
     // value: the entries are grown and shrunk through the model's own summary, which is what the UI
     // offers a respondent.
     if (target.isSummary) return this.answerSummary(target, value, inputs);
-    const prepared = prepareValue(target.item, target.address, value);
+    const prepared = prepareValue(target.item, target.address, value, target.question.value);
     if (!!prepared.error) {
       // Nothing was written, so nothing changed: the result carries the one coded error and the same
       // current item.
@@ -437,7 +439,7 @@ export class Interview implements IInterview {
     if (!!container) return this.writeBatchContainer(container, address, fresh.item, write, written, hadErrors);
     const question = fresh.input.question;
     if (write.hasValue) {
-      const prepared = prepareValue(fresh.input.item, address, write.value);
+      const prepared = prepareValue(fresh.input.item, address, write.value, question.value);
       if (!!prepared.error) return [prepared.error];
       question.value = prepared.value;
       if (prepared.hasComment) question.comment = prepared.comment;
@@ -537,8 +539,10 @@ export class Interview implements IInterview {
   }
 
   private isAnswered(input: IInterviewInput): boolean {
-    if (this.skipped.has(input.address) && input.item.required === true) {
-      // A skipped item that a requiredIf turned required leaves the set: required means asked.
+    if (this.skipped.has(input.address) && input.item.required === true && !input.isSummary) {
+      // A skipped item that a requiredIf turned required leaves the set: required means asked. Not a
+      // summary step: its entry in the set is the "done" of the list, not a skip, and a required
+      // container that is empty or invalid stays current through isInputValid without losing it.
       this.skipped.remove(input.address);
     }
     return isInputAnswered(input, this.skipped.has(input.address));
@@ -769,9 +773,10 @@ interface IBatchResolution {
 // batch is a set of answers, not a sequence of gestures. A comment lands with the item it belongs to.
 function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [address: string]: any },
   keys: Array<string>, commentSuffix: string): IBatchResolution {
-  const refused: { [key: string]: IInterviewError } = {};
+  // The keys are the agent's text, and "toString" is a key like any other.
+  const refused = createNameLookup<IInterviewError>();
   const unresolved: Array<string> = [];
-  const byAddress: { [address: string]: IBatchWrite } = {};
+  const byAddress = createNameLookup<IBatchWrite>();
   const writes: Array<IBatchWrite> = [];
   keys.forEach(key => {
     const target = findBatchTarget(entries, key, commentSuffix);

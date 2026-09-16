@@ -1,7 +1,8 @@
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
 import {
-  IInterviewInput, getInputErrors, getRootQuestions, isContainerQuestion, isInputValid, isOnStartPage,
+  IInterviewInput, getInputErrors, getRootQuestions, isContainerQuestion, isInputValid, isInShowingChoice,
+  isOnStartPage,
 } from "./interview-items";
 import { createBatchItem, isContainerAnswered, isDynamicContainer } from "./interview-fields";
 import { isRecordsAnswered } from "./interview-records";
@@ -142,7 +143,9 @@ export function isBatchWritable(entry: IInterviewBatchEntry): boolean {
 // the state the earlier writes left behind, not the state the call started in.
 export function refreshBatchEntry(entry: IInterviewBatchEntry): IInterviewBatchEntry {
   const question = entry.input ? entry.input.question : (entry.container || entry.records);
-  if (!question || !question.isVisibleInSurvey || isOnStartPage(question)) return undefined;
+  if (!question || !question.isVisibleInSurvey || isOnStartPage(question) || !isInShowingChoice(question)) {
+    return undefined;
+  }
   const item = createBatchItem(question);
   if (!item) return undefined;
   if (!!entry.records) {

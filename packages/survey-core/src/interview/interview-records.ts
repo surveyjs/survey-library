@@ -409,10 +409,18 @@ function addEntry(container: Question): any {
     return target.addPanel(-1);
   }
   // addRow checks canAddRow itself, fires onMatrixRowAdding, and shows the detail panel when
-  // detailPanelShowOnAdding says so.
+  // detailPanelShowOnAdding says so. It returns nothing, so the new row is the one allRows did not hold
+  // before - not the last of visibleRows: a rowsVisibleIf may hide the new row, and the last visible
+  // one is then an existing entry the add's values would overwrite. allRows, because a hidden row is
+  // still the row this add created, and a new panel a templateVisibleIf hides is patched the same way.
+  const before: Array<any> = getAllRows(target).slice();
   target.addRow(false);
-  const rows: Array<any> = target.visibleRows;
-  return rows.length > 0 ? rows[rows.length - 1] : undefined;
+  const added = getAllRows(target).filter(row => before.indexOf(row) < 0);
+  return added.length > 0 ? added[added.length - 1] : undefined;
+}
+
+function getAllRows(matrix: any): Array<any> {
+  return Array.isArray(matrix.allRows) ? matrix.allRows : [];
 }
 
 // Descending position, each on the entry object the plan resolved: removing from the back leaves the

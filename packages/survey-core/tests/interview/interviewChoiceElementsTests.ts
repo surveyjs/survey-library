@@ -559,6 +559,54 @@ describe("interview nested elements in choice items (issue #11818)", () => {
     expect(batchNames(iv)).toEqual(["contacts", "note"]);
   });
 
+  test("Batch mode: a question named after the key that deselects its choice is refused", async () => {
+    const iv = await createInterview({
+      elements: [{
+        type: "radiogroup", name: "hasPet", defaultValue: "Yes",
+        choices: [{ value: "Yes", elements: [{ type: "text", name: "petName" }] }, "No"],
+      }],
+    });
+    expect(batchNames(iv)).toContain("petName");
+    // The question's own isVisibleInSurvey stays true after the deselection; its choice is the switch.
+    const res = await iv.answerAll({ hasPet: "No", petName: "Rex" });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "petName", code: InterviewErrorCodes.notAskable }]);
+    expect(res.becameHidden).toContain("petName");
+    expect(iv.data).toEqual({ hasPet: "No" });
+    expect(batchNames(iv)).not.toContain("petName");
+  });
+
+  test("Batch mode: a question in a nested choice is refused when an outer or an inner choice is deselected", async () => {
+    const json = {
+      elements: [{
+        type: "radiogroup", name: "hasPet", defaultValue: "Yes",
+        choices: [
+          { value: "Yes", elements: [{
+            type: "radiogroup", name: "petType", defaultValue: "Dog",
+            choices: [{ value: "Dog", elements: [
+              { type: "radiogroup", name: "dogSize", choices: ["S", "L"], showCommentArea: true },
+            ] }, "Cat"],
+          }] },
+          "No",
+        ],
+      }],
+    };
+    const outer = await createInterview(json);
+    // Neither the value nor the comment of the now-hidden question is written.
+    const hidden = await outer.answerAll({ hasPet: "No", dogSize: "S", "dogSize-Comment": "small" });
+    expect(hidden.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "dogSize", code: InterviewErrorCodes.notAskable }]);
+    expect(outer.data.hasPet).toBe("No");
+    expect(outer.data.dogSize).toBeUndefined();
+    expect(outer.data["dogSize-Comment"]).toBeUndefined();
+
+    const inner = await createInterview(json);
+    const res = await inner.answerAll({ petType: "Cat", dogSize: "L" });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "dogSize", code: InterviewErrorCodes.notAskable }]);
+    expect(inner.data).toEqual({ hasPet: "Yes", petType: "Cat" });
+  });
+
   test("The README loop terminates, one turn more than the same survey without questions in its choices", async () => {
     const answers = {
       hasPet: "Yes", petName: "Rex", petAge: 3, contacts: ["email"], emailAddr: "ann@example.com", note: "hi",

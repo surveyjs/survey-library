@@ -224,6 +224,25 @@ describe("interview answer schema (issue #11818)", () => {
     expect(schema.required).toEqual(["contact"]);
   });
 
+  // Only a multiple text: survey-core itself cannot build matrix rows or columns, or choice questions,
+  // under these names.
+  test("A field named after an Object.prototype member is an own property, in field order", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "multipletext", name: "contact", items: [{ name: "constructor" }, { name: "toString" }, { name: "__proto__" }, { name: "email" }] },
+      ],
+    });
+    const schema = iv.getAnswerSchema();
+    const contact = schema.properties.contact.properties;
+    expect(Object.keys(contact)).toEqual(["constructor", "toString", "__proto__", "email"]);
+    expect(Object.getPrototypeOf(contact)).toBe(Object.prototype);
+    expect(Object.keys(JSON.parse(JSON.stringify(schema)).properties.contact.properties))
+      .toEqual(["constructor", "toString", "__proto__", "email"]);
+    const tools = iv.getTools();
+    expect(tools).toHaveLength(3);
+    expect(tools.some(tool => tool.name === "answer_survey")).toBe(true);
+  });
+
   test("A matrix dropdown nests one object per row", async () => {
     expect(await propertyOf({
       type: "matrixdropdown", name: "matrix", title: "Matrix",

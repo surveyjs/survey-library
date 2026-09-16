@@ -177,7 +177,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
 | `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
-| `notAChoice` | The value is not among the choices the item lists. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. |
+| `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
@@ -1024,7 +1024,7 @@ to its own fields, one level up.
 
 The writes are **sequential, and each answer is re-checked immediately before its own write** against
 the state its predecessors left behind: the item must still be visible and askable — an earlier write
-may have hidden it (`notAskable`) — and the pre-checks of single mode (`notAChoice`, `notANumber`, the
+may have hidden it, or deselected the choice that holds it (`notAskable`) — and the pre-checks of single mode (`notAChoice`, `notANumber`, the
 silent array wrapping) run against the choices *as they are now*, which `choicesFromQuestion` and
 `choicesVisibleIf` may have moved. **A key that fails is skipped and the rest are written**: one bad
 answer of a turn must not throw away the good ones, and the errors say which key was refused and why.
@@ -1620,6 +1620,7 @@ fetches a meta-schema at run time. The mapping, per item:
 | `title`, `description` | `title`, `description` |
 | `choices` (and no `choicesUnknown`) | `enum` of the values, `other` included |
 | `rateValues` | `enum` of the values |
+| a choice with `disabled: true` | still in the `enum`: the schema is widened, never narrowed, and a disabled choice the question already holds is accepted. `answer()` / `answerAll()` refuse a new selection of it with `notAChoice`. |
 | `valueType: "string"` | `type: "string"` |
 | `valueType: "number"` | `type: "number"` |
 | `valueType: "boolean"` | `enum` of the two values — `[false, true]`, or the custom `valueFalse`/`valueTrue` pair. One rule for every question that offers a set, and no special case to get wrong. |

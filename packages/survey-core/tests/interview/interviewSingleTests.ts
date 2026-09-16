@@ -430,6 +430,67 @@ describe("interview single-input mode (issue #11818)", () => {
     expect(bad.errors[0].code).toBe(InterviewErrorCodes.notAChoice);
   });
 
+  test("A rating refuses a value outside its scale before writing", async () => {
+    const iv = await createInterview({
+      elements: [{ type: "rating", name: "rating", rateMin: 1, rateMax: 5 }],
+    });
+    expect(iv.current().rateValues.map(item => item.value)).toEqual([1, 2, 3, 4, 5]);
+    const result = await iv.answer(99);
+    expect(result.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "rating", code: InterviewErrorCodes.notAChoice }]);
+    expect(iv.data.rating).toBeUndefined();
+    expect(iv.current().name).toBe("rating");
+    const valid = await iv.answer("rating", 3);
+    expect(valid.errors).toEqual([]);
+    expect(iv.data.rating).toBe(3);
+    const cleared = await iv.answer("rating", null);
+    expect(cleared.errors).toEqual([]);
+    expect(iv.data.rating).toBeUndefined();
+  });
+
+  test("A disabled choice is refused before writing, and an enabled one is accepted", async () => {
+    const iv = await createInterview({
+      elements: [{ type: "radiogroup", name: "choice", choices: [{ value: "yes", enableIf: "false" }, "no"] }],
+    });
+    expect(iv.current().choices.find(item => item.value === "yes").disabled).toBe(true);
+    const result = await iv.answer("yes");
+    expect(result.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "choice", code: InterviewErrorCodes.notAChoice }]);
+    expect(result.errors[0].message).toContain("disabled");
+    expect(iv.data.choice).toBeUndefined();
+    const batch = await iv.answerAll({ choice: "yes" });
+    expect(batch.errors.map(error => error.code)).toEqual([InterviewErrorCodes.notAChoice]);
+    expect(iv.data.choice).toBeUndefined();
+    const valid = await iv.answer("choice", "no");
+    expect(valid.errors).toEqual([]);
+    expect(iv.data.choice).toBe("no");
+  });
+
+  test("A stored selection that becomes disabled stays accepted; a new selection of it is refused", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "boolean", name: "lock" },
+        { type: "checkbox", name: "pets", defaultValue: ["cat"],
+          choices: [{ value: "cat", enableIf: "{lock} <> true" }, "dog", "fish"] },
+      ],
+    });
+    await iv.answerAll({ lock: true });
+    expect(iv.getBatchDocument().items.length).toBe(0);
+    // Already selected: resending it with another choice is the same answer plus "dog".
+    const kept = await iv.answerAll({ pets: ["cat", "dog"] });
+    expect(kept.errors).toEqual([]);
+    expect(iv.data.pets).toEqual(["cat", "dog"]);
+    // Dropping it is allowed, as clearing the question is.
+    const dropped = await iv.answer("pets", ["dog"]);
+    expect(dropped.errors).toEqual([]);
+    expect(iv.data.pets).toEqual(["dog"]);
+    // No longer stored: selecting it again is a new selection of a disabled choice.
+    const again = await iv.answer("pets", ["cat", "dog"]);
+    expect(again.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "pets", code: InterviewErrorCodes.notAChoice }]);
+    expect(iv.data.pets).toEqual(["dog"]);
+  });
+
   test("A number input refuses a value that is not a number", async () => {
     const iv = await createInterview(petJson);
     await iv.answer("Yes");

@@ -453,6 +453,43 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
     expect(comment.errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
   });
 
+  // "constructor" is the one such name survey-core stores for a multiple text item: "toString" throws
+  // there and "__proto__" is dropped.
+  test("A field named constructor is written without touching built-in objects", async () => {
+    const objectKeys = Object.getOwnPropertyNames(Object).slice();
+    const iv = await createInterview({
+      elements: [{ type: "multipletext", name: "contact", items: [{ name: "constructor" }, { name: "email" }] }],
+    });
+    const res = await iv.answerAll({ contact: { constructor: "c", email: "a@b.c" } });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.contact).toEqual({ constructor: "c", email: "a@b.c" });
+    expect(Object.getOwnPropertyNames(Object)).toEqual(objectKeys);
+  });
+
+  test("An unknown key named after an Object.prototype member is unknownQuestion, at the root and in a field", async () => {
+    const toStringKeys = Object.getOwnPropertyNames(Object.prototype.toString).slice();
+    const iv = await createInterview({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "multipletext", name: "contact", items: [{ name: "email" }] },
+      ],
+    });
+    // JSON.parse, so "__proto__" is an own key rather than the prototype of the literal.
+    const root = await iv.answerAll(JSON.parse("{\"toString\": \"x\", \"__proto__\": \"y\", \"q1\": \"ok\"}"));
+    expect(root.errors.map(error => ({ name: error.name, code: error.code }))).toEqual([
+      { name: "toString", code: InterviewErrorCodes.unknownQuestion },
+      { name: "__proto__", code: InterviewErrorCodes.unknownQuestion },
+    ]);
+    expect(iv.data.q1).toBe("ok");
+    const field = await iv.answerAll({ contact: JSON.parse("{\"toString\": \"x\", \"constructor\": \"y\", \"email\": \"a@b.c\"}") });
+    expect(field.errors.map(error => ({ name: error.name, code: error.code }))).toEqual([
+      { name: "contact.toString", code: InterviewErrorCodes.unknownQuestion },
+      { name: "contact.constructor", code: InterviewErrorCodes.unknownQuestion },
+    ]);
+    expect(iv.data.contact).toEqual({ email: "a@b.c" });
+    expect(Object.getOwnPropertyNames(Object.prototype.toString)).toEqual(toStringKeys);
+  });
+
   test("A comment key inside an object writes the comment", async () => {
     ComponentCollection.Instance.add(<any>{
       name: "petcmp",

@@ -2,7 +2,7 @@ import { Helpers, describeQuestion } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
 import { IInterviewContainer, hasChoiceElements } from "./interview-items";
-import { formatAddressSegment, getAddress } from "./interview-address";
+import { createNameLookup, formatAddressSegment, getAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
 import {
   badActionError, badRecordError, notAChoiceError, notANumberError, notAskableError,
@@ -442,7 +442,7 @@ export function writeContainerValue(container: Question, address: string, value:
 function writeRows(res: IFieldWriteResult, container: Question, address: string, values: any,
   commentSuffix: string, nesting: IInterviewNesting): void {
   const rows = getContainerRows(container, address, nesting) || [];
-  const order: { [name: string]: number } = {};
+  const order = createNameLookup<number>();
   rows.forEach((row, index) => { order[row.name] = index; });
   sortKeys(Object.keys(values), key => order[key]).forEach(key => {
     const value = values[key];
@@ -502,7 +502,7 @@ interface IFieldWrite {
 export function writeFields(res: IFieldWriteResult, values: any, commentSuffix: string, owner: IFieldOwner,
   nesting: IInterviewNesting): void {
   const fields = owner.getFields();
-  const order: { [name: string]: number } = {};
+  const order = createNameLookup<number>();
   fields.forEach((field, index) => { order[field.name] = index; });
   const writes = groupKeys(values, fields, commentSuffix);
   sortKeys(Object.keys(writes), key => order[key]).forEach(name => {
@@ -512,7 +512,7 @@ export function writeFields(res: IFieldWriteResult, values: any, commentSuffix: 
 
 function groupKeys(values: any, fields: Array<IInterviewField>,
   commentSuffix: string): { [name: string]: IFieldWrite } {
-  const res: { [name: string]: IFieldWrite } = {};
+  const res = createNameLookup<IFieldWrite>();
   const get = (name: string): IFieldWrite => {
     if (!res[name]) res[name] = { name: name, hasValue: false, hasComment: false };
     return res[name];
@@ -569,7 +569,7 @@ function writeField(res: IFieldWriteResult, write: IFieldWrite, owner: IFieldOwn
     return;
   }
   if (write.hasValue) {
-    const prepared = prepareValue(field.item, field.address, write.value);
+    const prepared = prepareValue(field.item, field.address, write.value, field.question.value);
     if (!!prepared.error) {
       res.errors.push(prepared.error);
       return;
@@ -646,8 +646,9 @@ export interface IPreparedValue {
 // A text consumer has neither, so the same three mistakes are caught here, each with a code the
 // consumer can act on, and nothing is written when one of them fires. The tester's
 // checkValueEnterable exists for the same reason. One implementation: single mode checks an item
-// with it, batch mode a root, and the field write above a field.
-export function prepareValue(item: IInterviewItem, address: string, value: any): IPreparedValue {
+// with it, batch mode a root, and the field write above a field. "stored" is the question's value
+// before the write: a choice that is disabled now is still accepted where it is already selected.
+export function prepareValue(item: IInterviewItem, address: string, value: any, stored?: any): IPreparedValue {
   if (isAction(value)) {
     return { error: badActionError(address, value.action) };
   }
@@ -663,7 +664,7 @@ export function prepareValue(item: IInterviewItem, address: string, value: any):
     !Array.isArray(res.value)) {
     res.value = [res.value];
   }
-  const choicesError = checkChoices(item, address, res.value);
+  const choicesError = checkChoices(item, address, res.value, stored);
   if (!!choicesError) return { error: choicesError };
   const numberError = checkNumber(item, address, res.value);
   if (!!numberError) return { error: numberError };
@@ -680,17 +681,29 @@ export function isPlainObject(value: any): boolean {
 
 // Only when the set can be enumerated: choices that are still loading from a web service, or that a
 // lazy-loading dropdown fetches page by page, are described as choicesUnknown and nothing is checked
-// against them. "other" and "none" are choices like any other - they are in the described list.
-function checkChoices(item: IInterviewItem, address: string, value: any): IInterviewError {
-  if (!item.choices || item.choicesUnknown || Helpers.isValueEmpty(value)) return undefined;
-  const available = item.choices.map(choice => choice.value);
+// against them. "other" and "none" are choices like any other - they are in the described list. A
+// rating lists its scale under rateValues and is checked against it the same way.
+//
+// A choice a choicesEnableIf turned off is refused as a new selection - a respondent cannot click it -
+// and accepted where the question already holds it: the UI keeps a checked item checked when it turns
+// off, so resending ["cat", "dog"] with "cat" stored and disabled is the same answer plus "dog".
+function checkChoices(item: IInterviewItem, address: string, value: any, stored: any): IInterviewError {
+  const choices = item.choices || item.rateValues;
+  if (!choices || item.choicesUnknown || Helpers.isValueEmpty(value)) return undefined;
+  const available = choices.filter(choice => choice.disabled !== true).map(choice => choice.value);
+  const storedValues: Array<any> = Helpers.isValueEmpty(stored) ? [] : Array.isArray(stored) ? stored : [stored];
   const values: Array<any> = Array.isArray(value) ? value : [value];
   for (let i = 0; i < values.length; i++) {
-    if (!available.some(choice => Helpers.isTwoValueEquals(choice, values[i]))) {
-      return notAChoiceError(address, values[i], available);
-    }
+    if (containsValue(available, values[i])) continue;
+    const choice = choices.filter(described => Helpers.isTwoValueEquals(described.value, values[i]))[0];
+    if (!!choice && containsValue(storedValues, values[i])) continue;
+    return notAChoiceError(address, values[i], available, !!choice);
   }
   return undefined;
+}
+
+function containsValue(values: Array<any>, value: any): boolean {
+  return values.some(item => Helpers.isTwoValueEquals(item, value));
 }
 
 function checkNumber(item: IInterviewItem, address: string, value: any): IInterviewError {

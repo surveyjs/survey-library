@@ -129,14 +129,34 @@ export function getChoiceOwner(question: Question): Question | undefined {
 }
 
 function getDirectChoiceOwner(question: Question): Question | undefined {
+  const choice = getDirectChoice(question);
+  return !!choice ? choice.choiceOwner || undefined : undefined;
+}
+
+function getDirectChoice(question: Question): any {
   let node: any = !!question ? question.parent : undefined;
   // Static panels: the bound only stops a cycle.
   for (let depth = 0; depth < MAX_NESTING_DEPTH && !!node; depth++) {
-    const choice = node.choiceItem;
-    if (!!choice) return choice.choiceOwner || undefined;
+    if (!!node.choiceItem) return node.choiceItem;
     node = node.parent;
   }
   return undefined;
+}
+
+// The rule addChoiceQuestions applies on the way down, read on the way up for one question: every
+// choice between it and its outermost owner is still showing its panel, and every owner is still
+// visible. A question's own isVisibleInSurvey stays true after its choice is deselected, so a batch
+// that deselects the choice and then names the question checks this before the write.
+export function isInShowingChoice(question: Question): boolean {
+  let node = question;
+  for (let depth = 0; depth < MAX_NESTING_DEPTH; depth++) {
+    const choice = getDirectChoice(node);
+    if (!choice) return true;
+    const owner: Question = choice.choiceOwner;
+    if (!owner || choice.isPanelShowing !== true || !owner.isVisibleInSurvey) return false;
+    node = owner;
+  }
+  return false;
 }
 
 export function isOnStartPage(question: Question): boolean {

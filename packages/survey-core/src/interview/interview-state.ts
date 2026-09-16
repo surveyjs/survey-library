@@ -2,6 +2,7 @@ import { describeQuestion } from "survey-core";
 import type { SurveyModel } from "survey-core";
 import type { IInterviewChanges } from "./interview-types";
 import { IInterviewInput, isOnStartPage } from "./interview-items";
+import { createNameLookup } from "./interview-address";
 
 // The state the model has no notion of, and the "before" picture every mutating call is compared
 // against. Two things live here: the set of addresses the interviewee chose to skip, and the
@@ -20,7 +21,7 @@ export interface IInterviewStateEntry {
 // interview remembers the gesture, because the input it asks next must not be the one it was just
 // told to leave alone.
 export class InterviewSkipped {
-  private items: { [address: string]: boolean } = {};
+  private items = createNameLookup<boolean>();
 
   public has(address: string): boolean {
     return this.items[address] === true;
@@ -32,7 +33,7 @@ export class InterviewSkipped {
     delete this.items[address];
   }
   public clear(): void {
-    this.items = {};
+    this.items = createNameLookup<boolean>();
   }
 }
 
@@ -41,7 +42,7 @@ export class InterviewSkipped {
 // makes visible has something to be compared with.
 export function takeSnapshot(survey: SurveyModel, inputs: Array<IInterviewInput>): Array<IInterviewStateEntry> {
   const res: Array<IInterviewStateEntry> = [];
-  const seen: { [address: string]: boolean } = {};
+  const seen = createNameLookup<boolean>();
   inputs.forEach(input => {
     seen[input.address] = true;
     res.push({ address: input.address, required: input.item.required === true, visible: true });
@@ -95,7 +96,7 @@ export function noChanges(): IInterviewChanges {
 }
 
 function toMap(entries: Array<IInterviewStateEntry>): { [address: string]: IInterviewStateEntry } {
-  const res: { [address: string]: IInterviewStateEntry } = {};
+  const res = createNameLookup<IInterviewStateEntry>();
   entries.forEach(entry => { res[entry.address] = entry; });
   return res;
 }

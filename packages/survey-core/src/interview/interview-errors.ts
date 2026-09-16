@@ -83,11 +83,14 @@ export function unknownToolError(name: string): Error {
   return new Error("unknown tool: " + name);
 }
 
-export function notAChoiceError(name: string, value: any, choices: Array<any>): IInterviewError {
+// "isDisabled": the value is one of the question's choices, and a choicesEnableIf has turned it off.
+export function notAChoiceError(name: string, value: any, choices: Array<any>, isDisabled?: boolean): IInterviewError {
+  const why = isDisabled === true
+    ? " is a choice of " + quoteValue(name) + " that is disabled now"
+    : " is not among the choices of " + quoteValue(name);
   return {
     name: name,
-    message: "The value " + quoteValue(value) + " is not among the choices of " + quoteValue(name) +
-      ". Available choices: " + quoteValues(choices) + ".",
+    message: "The value " + quoteValue(value) + why + ". Available choices: " + quoteValues(choices) + ".",
     code: InterviewErrorCodes.notAChoice,
   };
 }

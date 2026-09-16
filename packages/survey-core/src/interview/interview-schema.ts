@@ -1,5 +1,6 @@
 import type { IQuestionChoiceDescription, IQuestionConstraints } from "survey-core";
 import type { IInterviewEntry, IInterviewItem, IInterviewRow } from "./interview-types";
+import { createNameLookup, setOwnValue } from "./interview-address";
 
 // The answers of a batch call as a JSON Schema, so that an agent's function-calling API constrains
 // what it may send instead of the interview refusing it afterwards. Draft 2020-12 keywords only, and
@@ -25,9 +26,9 @@ export function createAnswerSchema(items: Array<IInterviewItem>, commentSuffix: 
     // A container and a question with no plain input are in the document, so the agent knows they
     // exist, and never in the schema: there is no value it could send for either.
     if (item.unsupported === true) return;
-    properties[item.name] = createItemProperty(item, commentSuffix);
+    setOwnValue(properties, item.name, createItemProperty(item, commentSuffix));
     if (!!item.comment) {
-      properties[item.name + commentSuffix] = createCommentProperty(item);
+      setOwnValue(properties, item.name + commentSuffix, createCommentProperty(item));
     }
     // A disabled item is offered read-only rather than left out, so an agent is told the question
     // exists and that an enableIf currently refuses it - and it is never demanded.
@@ -71,12 +72,12 @@ function isContainerItem(item: IInterviewItem): boolean {
 function createRowsProperty(item: IInterviewItem, commentSuffix: string): any {
   const properties: any = {};
   item.rows.forEach((row: IInterviewRow) => {
-    properties[row.name] = {
+    setOwnValue(properties, row.name, {
       title: row.title,
       type: "object",
       properties: createFieldProperties(row.fields, commentSuffix),
       additionalProperties: false,
-    };
+    });
   });
   return createObjectProperty(item, ROWS_DESCRIPTION, properties);
 }
@@ -206,7 +207,7 @@ function createObjectProperty(item: IInterviewItem, text: string, properties: an
 // its root twin yields, nested where the field sits.
 function createFieldProperties(fields: Array<IInterviewItem>, commentSuffix: string): any {
   const order: Array<string> = [];
-  const byName: { [name: string]: Array<IInterviewItem> } = {};
+  const byName = createNameLookup<Array<IInterviewItem>>();
   fields.forEach(field => {
     if (field.unsupported === true) return;
     if (!byName[field.name]) {
@@ -220,10 +221,10 @@ function createFieldProperties(fields: Array<IInterviewItem>, commentSuffix: str
     const group = byName[name];
     const property = createUnionProperty(group, commentSuffix);
     if (property === undefined) return;
-    res[name] = createNullable(property);
+    setOwnValue(res, name, createNullable(property));
     // A container takes no comment key: the suffix belongs to a field one level further down.
     if (!group.some(isContainerItem) && group.some(field => !!field.comment)) {
-      res[name + commentSuffix] = createNullable(createCommentProperty(group[0]));
+      setOwnValue(res, name + commentSuffix, createNullable(createCommentProperty(group[0])));
     }
   });
   return res;

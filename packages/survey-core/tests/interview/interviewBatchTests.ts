@@ -164,6 +164,42 @@ describe("interview batch mode (issue #11818)", () => {
     expect(iv.data.pick).toBe("Cat");
   });
 
+  test("A choice is checked against the enableIf an earlier key of the same call turned on", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "boolean", name: "open" },
+        { type: "radiogroup", name: "choice", choices: [{ value: "yes", enableIf: "{open} = true" }, "no"] },
+      ],
+    });
+    const closed = await iv.answerAll({ choice: "yes" });
+    expect(closed.errors.map(error => error.code)).toEqual([InterviewErrorCodes.notAChoice]);
+    const opened = await iv.answerAll({ open: true, choice: "yes" });
+    expect(opened.errors).toEqual([]);
+    expect(iv.data).toEqual({ open: true, choice: "yes" });
+  });
+
+  test("A rating scale is checked for generated and authored values, and inside a container", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "rating", name: "score", rateMax: 3 },
+        { type: "rating", name: "level", rateValues: [{ value: "low", text: "Low" }, { value: "high", text: "High" }] },
+        { type: "matrixdropdown", name: "grid", rows: ["r1"], columns: [{ name: "stars", cellType: "rating", rateMax: 3 }] },
+      ],
+    });
+    const refused = await iv.answerAll({ score: 9, level: "mid", grid: { r1: { stars: 7 } } });
+    expect(refused.errors.map(error => ({ name: error.name, code: error.code }))).toEqual([
+      { name: "score", code: InterviewErrorCodes.notAChoice },
+      { name: "level", code: InterviewErrorCodes.notAChoice },
+      { name: "grid.r1.stars", code: InterviewErrorCodes.notAChoice },
+    ]);
+    expect(iv.data).toEqual({});
+    const nested = await iv.answer("grid.r1.stars", 8);
+    expect(nested.errors.map(error => error.code)).toEqual([InterviewErrorCodes.notAChoice]);
+    const accepted = await iv.answerAll({ score: 2, level: "high", grid: { r1: { stars: 3 } } });
+    expect(accepted.errors).toEqual([]);
+    expect(iv.data).toEqual({ score: 2, level: "high", grid: { r1: { stars: 3 } } });
+  });
+
   test("A comment is a key of its own, named the way the model names it", async () => {
     const iv = await createInterview({
       elements: [{ type: "dropdown", name: "petType", choices: ["Dog", "Cat"], showOtherItem: true }],

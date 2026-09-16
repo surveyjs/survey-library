@@ -45,6 +45,23 @@ function itemsJson(extra?: any, columns?: Array<any>): any {
   };
 }
 
+// A new row with show: false is hidden by rowsVisibleIf when addRow creates it, so the last visible
+// row is an existing one.
+function hiddenRowJson(): any {
+  return {
+    elements: [{
+      type: "matrixdynamic", name: "rows", rowCount: 1,
+      defaultValue: [{ name: "Keep", show: true }],
+      defaultRowValue: { show: false },
+      rowsVisibleIf: "{row.show} = true",
+      columns: [
+        { name: "name", cellType: "text" },
+        { name: "show", cellType: "boolean" },
+      ],
+    }],
+  };
+}
+
 // The loop an integrator writes, driven by a scripted agent (README, "The loop").
 async function runAgentLoop(interview: IInterview, agent: (document: string) => any): Promise<number> {
   let result = await interview.answerAll(agent(interview.describeAll()));
@@ -265,6 +282,32 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(res.errors[0].name).toBe("items[1]");
     // The patch of the first position ran; only the add was refused.
     expect(iv.data).toEqual({ items: [{ sku: "A-1" }] });
+  });
+
+  test("A row a rowsVisibleIf hides when it is added takes the add's values, not an existing row", async () => {
+    const iv = await createInterview(hiddenRowJson());
+    expect(iv.data.rows[0]).toEqual({ name: "Keep", show: true });
+    const res = await iv.answerAll({ rows: [{}, { name: "New", show: true }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.rows).toEqual([{ name: "Keep", show: true }, { name: "New", show: true }]);
+  });
+
+  test("A row that stays hidden after its add still takes the add's values", async () => {
+    const iv = await createInterview(hiddenRowJson());
+    const res = await iv.answerAll({ rows: [{}, { name: "Hidden" }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.rows).toEqual([{ name: "Keep", show: true }, { name: "Hidden", show: false }]);
+    expect((<any>iv.survey.getQuestionByName("rows")).visibleRows.length).toBe(1);
+  });
+
+  test("A host that refuses a row a rowsVisibleIf would hide is cannotAdd, and no row is patched", async () => {
+    const survey = new SurveyModel(hiddenRowJson());
+    survey.onMatrixRowAdding.add((_, options) => { options.allow = false; });
+    const iv = await createInterview(survey);
+    const res = await iv.answerAll({ rows: [{}, { name: "New", show: true }] });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "rows[1]", code: InterviewErrorCodes.cannotAdd }]);
+    expect(iv.data.rows).toEqual([{ name: "Keep", show: true }]);
   });
 
   test("A detail panel the model opens on adding is part of the entry", async () => {

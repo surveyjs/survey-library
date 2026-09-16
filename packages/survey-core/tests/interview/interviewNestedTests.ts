@@ -226,6 +226,71 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(completed.errors).toEqual([{ name: "medications", message: "Response required." }]);
   });
 
+  test("done advances past a filled required dynamic panel", async () => {
+    const iv = await createInterview({
+      elements: [
+        {
+          type: "paneldynamic", name: "records", isRequired: true, panelCount: 1,
+          templateElements: [{ type: "text", name: "name", isRequired: true }],
+        },
+        { type: "text", name: "next", isRequired: true },
+      ],
+    });
+    await iv.answer("Alice");
+    expect(iv.current().name).toBe("records");
+    const result = await iv.answer({ action: "done" });
+    expect(result.errors).toEqual([]);
+    expect(result.current.name).toBe("next");
+    expect(iv.current().name).toBe("next");
+    await iv.answer("Finished");
+    expect(iv.current()).toBeNull();
+    expect((await iv.complete()).completed).toBe(true);
+  });
+
+  test("A required dynamic panel re-opens on add, and done finishes it again", async () => {
+    const iv = await createInterview({
+      elements: [
+        {
+          type: "paneldynamic", name: "records", isRequired: true, panelCount: 1,
+          templateElements: [{ type: "text", name: "name", isRequired: true }],
+        },
+        { type: "text", name: "next" },
+      ],
+    });
+    await iv.answer("Alice");
+    await iv.answer({ action: "done" });
+    expect(iv.current().name).toBe("next");
+    const added = await iv.answer("records", { action: "add" });
+    expect(added.current.name).toBe("records[1].name");
+    await iv.answer("Bob");
+    expect(iv.current().name, "the list is open again once the new entry is filled").toBe("records");
+    await iv.answer({ action: "done" });
+    expect(iv.current().name).toBe("next");
+  });
+
+  test("done advances past a filled required dynamic matrix, and a removal re-opens it", async () => {
+    const iv = await createInterview({
+      elements: [
+        {
+          type: "matrixdynamic", name: "items", isRequired: true, rowCount: 2, minRowCount: 1,
+          columns: [{ name: "sku", cellType: "text", isRequired: true }],
+        },
+        { type: "text", name: "next" },
+      ],
+    });
+    await iv.answer("A-1");
+    await iv.answer("A-2");
+    expect(iv.current().name).toBe("items");
+    const done = await iv.answer({ action: "done" });
+    expect(done.errors).toEqual([]);
+    expect(done.current.name).toBe("next");
+    await iv.answer("items", { action: "remove", index: 1 });
+    expect(iv.current().name).toBe("items");
+    await iv.answer({ action: "done" });
+    expect(iv.current().name).toBe("next");
+    expect(iv.data.items).toEqual([{ sku: "A-1" }]);
+  });
+
   test("A duplicated key is reported under the entry that carries it", async () => {
     const iv = await createInterview(medicationsJson({ keyName: "name" }));
     await addEntry(iv, "Aspirin", "10mg");

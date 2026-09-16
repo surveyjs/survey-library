@@ -1,9 +1,10 @@
-import { Helpers, describeQuestion } from "survey-core";
+import { Helpers } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
 import { IInterviewContainer, hasChoiceElements } from "./interview-items";
 import { createNameLookup, formatAddressSegment, getAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
+import { describeQuestion } from "./question-description";
 import {
   badActionError, badRecordError, notAChoiceError, notANumberError, notAskableError,
   unknownQuestionError,

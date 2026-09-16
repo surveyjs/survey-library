@@ -359,13 +359,3 @@ export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
 export { default as BaseTheme } from "../../src/default-theme/base-theme";
-
-// The question description layer: one plain record per question, shared with survey-core/tester,
-// survey-core/interview and the Creator JSON -> text generator (issue #11818).
-export { describeQuestion } from "../../src/question-description";
-export type {
-  IQuestionChoiceDescription,
-  IQuestionConstraints,
-  IQuestionDescription,
-  IQuestionDescriptionOptions
-} from "../../src/question-description";

@@ -1,5 +1,5 @@
-import type { IQuestionChoiceDescription, IQuestionConstraints } from "survey-core";
 import type { IInterviewEntry, IInterviewItem, IInterviewRow } from "./interview-types";
+import type { IQuestionChoiceDescription, IQuestionConstraints } from "./question-description";
 import { createNameLookup, setOwnValue } from "./interview-address";
 
 // The answers of a batch call as a JSON Schema, so that an agent's function-calling API constrains

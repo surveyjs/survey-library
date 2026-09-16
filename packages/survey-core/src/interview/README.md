@@ -1752,6 +1752,7 @@ about.
 | File | Responsibility |
 | --- | --- |
 | `interview-types.ts` | The public interfaces of the whole module: options, item, summary, action, error, changes, result, document, tool definition. |
+| `question-description.ts` | `describeQuestion()` / `IQuestionDescription`: one plain record per question, read through the live model — the record every item extends. Exported from `survey-core/interview` for a consumer that describes questions itself, such as the Creator's JSON → text generator. |
 | `interview.ts` | `createInterview` — model intake, the one property the interview sets, the start page — and the `Interview` class: the selection rule, the four calls of single-input mode, the pre-checks and the documents. |
 | `interview-items.ts` | The inventory over the model's single inputs, including the questions inside a selected choice, the item records, the three predicates (answered / valid / errors) and the one function that makes an input current. |
 | `interview-address.ts` | The address grammar in both directions: derived from a nested question by walking its containers, and resolved against the live model. The twin of the tester's `test-targets.ts`. |
@@ -1777,9 +1778,10 @@ from `"survey-core"` is really exported by `"survey-core"`: the bundle declares 
 so a symbol the public surface does not export would be `undefined` at run time while the unit tests,
 which alias the specifier to `entries/index.ts`, kept passing.
 
-Shared functionality lives in survey-core, not here: the per-question record the items are built from
-is `describeQuestion` / `IQuestionDescription` (`src/question-description.ts`), exported from
-`"survey-core"` and used by the tester and, later, by the Creator as well.
+What the model knows about a question stays in survey-core — `Question.getValueType()`,
+`isSelectQuestion()`, `hasPlainInput`, `getValueChoices()`, `hasUnknownChoices` — and the record
+built from it, `describeQuestion` / `IQuestionDescription`, lives here and is exported from
+`"survey-core/interview"`.
 
 ## Build and test
 

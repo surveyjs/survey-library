@@ -19,6 +19,17 @@ export type {
   IInterviewToolDefinition,
 } from "../src/interview/interview-types";
 
+// The question description layer: one plain record per question, which every interview item
+// extends. Exported for a consumer that describes questions itself - the Creator's JSON -> text
+// generator.
+export { describeQuestion } from "../src/interview/question-description";
+export type {
+  IQuestionChoiceDescription,
+  IQuestionConstraints,
+  IQuestionDescription,
+  IQuestionDescriptionOptions,
+} from "../src/interview/question-description";
+
 // The one entry point into the runtime. It is asynchronous because the model may still be loading
 // choices from a web service or running an asynchronous expression when it is handed over, and an
 // interview that described that model would describe a state that is about to change.

@@ -1,8 +1,8 @@
-import { describeQuestion } from "survey-core";
 import type { SurveyModel } from "survey-core";
 import type { IInterviewChanges } from "./interview-types";
 import { IInterviewInput, isOnStartPage } from "./interview-items";
 import { createNameLookup } from "./interview-address";
+import { describeQuestion } from "./question-description";
 
 // The state the model has no notion of, and the "before" picture every mutating call is compared
 // against. Two things live here: the set of addresses the interviewee chose to skip, and the

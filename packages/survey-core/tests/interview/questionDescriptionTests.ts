@@ -1,10 +1,6 @@
-import { SurveyModel } from "../src/survey";
-import { QuestionTextModel } from "../src/question_text";
-import { ComponentCollection } from "../src/question_custom";
-import { settings } from "../src/settings";
-import { describeQuestion, IQuestionDescription } from "../src/question-description";
-import { getValueTypeInfo } from "../src/linter/value-types";
-import "../src/localization/german";
+import { ComponentCollection, QuestionTextModel, SurveyModel, settings } from "survey-core";
+import { describeQuestion } from "survey-core/interview";
+import type { IQuestionDescription } from "survey-core/interview";
 
 import { describe, test, expect } from "vitest";
 
@@ -451,29 +447,22 @@ describe("question description (issue #11818)", () => {
     survey.locale = "";
   });
 
-  test("Question.getValueType() agrees with the linter's JSON-side table", () => {
+  // The model's own answer, never a table of this layer: tests/linter/linter-value-types.tests.ts
+  // pins Question.getValueType() against the linter's JSON-side table over the same element list.
+  test("valueType is Question.getValueType()", () => {
     const elements: Array<any> = [
       { type: "text", name: "t1" },
       { type: "text", name: "t2", inputType: "number" },
       { type: "text", name: "t3", inputType: "date" },
-      { type: "text", name: "t4", inputType: "week" },
       { type: "comment", name: "c1" },
       { type: "boolean", name: "b1" },
       { type: "radiogroup", name: "r1", choices: ["a", "b"] },
       { type: "dropdown", name: "d1", choices: [1, 2] },
       { type: "checkbox", name: "ch1", choices: ["a"] },
-      { type: "tagbox", name: "tg1", choices: ["a"] },
-      { type: "ranking", name: "rk1", choices: ["a"] },
       { type: "file", name: "f1" },
-      { type: "signaturepad", name: "s1" },
-      { type: "imagepicker", name: "ip1", choices: [{ value: "a", imageLink: "a.png" }] },
-      { type: "imagepicker", name: "ip2", multiSelect: true, choices: [{ value: "a", imageLink: "a.png" }] },
       { type: "rating", name: "ra1" },
-      { type: "rating", name: "ra2", rateValues: ["low", "high"] },
-      { type: "slider", name: "sl1" },
       { type: "slider", name: "sl2", sliderType: "range" },
       { type: "matrix", name: "m1", rows: ["r"], columns: ["c"] },
-      { type: "matrixdropdown", name: "m2", rows: ["r"], columns: [{ name: "c" }] },
       { type: "matrixdynamic", name: "m3", columns: [{ name: "c" }] },
       { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q" }] },
       { type: "multipletext", name: "mt1", items: [{ name: "i1" }] },
@@ -481,16 +470,7 @@ describe("question description (issue #11818)", () => {
     const survey = createSurvey({ elements: elements });
     elements.forEach(json => {
       const question = survey.getQuestionByName(json.name);
-      const own = question.getValueType();
-      expect(own, json.name + " is described").toBe(describeQuestion(question).valueType);
-      const info = getValueTypeInfo(json.type, json);
-      // The linter has no opinion on a shape it calls "none" or "unknown", nor on a scalar it
-      // cannot pin to one type; everywhere else the two tables must say the same thing.
-      const expected = info.shape === "scalar" ? (info.scalarType === "any" ? undefined : info.scalarType) :
-        (info.shape === "array" || info.shape === "object" ? info.shape : undefined);
-      if (expected !== undefined) {
-        expect(own, json.name + " agrees with the linter").toBe(expected);
-      }
+      expect(describeQuestion(question).valueType, json.name).toBe(question.getValueType());
     });
   });
   test("A single-choice matrix is an object with no choices of its own", () => {

@@ -1,5 +1,5 @@
 import type { SurveyModel } from "survey-core";
-import type { IQuestionDescription } from "survey-core";
+import type { IQuestionDescription } from "./question-description";
 
 // The public surface of survey-core/interview. Everything the six tiers of issue #11818 add is
 // declared here, so a later tier fills in behavior and never changes a shape a consumer already
@@ -11,8 +11,8 @@ export interface IInterviewOptions {
 }
 
 // An item the interviewee can be asked: one single input of the model's inputPerPage mode
-// (overview 2.1). "name" is the address (overview 1); the description fields come from the core's
-// question description layer; the rest is filled by tier 04 (plain questions) and tier 06 (nested
+// (overview 2.1). "name" is the address (overview 1); the description fields come from the
+// question description layer (question-description.ts); the rest is filled by tier 04 (plain questions) and tier 06 (nested
 // inputs, summary steps).
 export interface IInterviewItem extends IQuestionDescription {
   name: string;

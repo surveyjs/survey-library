@@ -1,8 +1,8 @@
-import { describeQuestion } from "survey-core";
 import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
 import { MAX_NESTING_DEPTH, getAddress, getParentContainer } from "./interview-address";
 import { getSummaryDescription } from "./interview-summary";
+import { describeQuestion } from "./question-description";
 
 // The inventory: everything the interview can address, in document order, derived from the
 // structure of the survey and recomputed on every call - the model is the state and nothing here is

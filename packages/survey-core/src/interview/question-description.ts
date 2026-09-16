@@ -1,19 +1,12 @@
-import { Question, QuestionValueType } from "./question";
-import { ISelectQuestion } from "./question_baseselect";
-import { ItemValue } from "./itemvalue";
-import { QuestionTextBase } from "./question_textbase";
-import { QuestionTextModel } from "./question_text";
-import { QuestionSliderModel } from "./question_slider";
-import { QuestionCheckboxModel } from "./question_checkbox";
-import { QuestionRatingModel } from "./question_rating";
-import { QuestionMultipleTextModel } from "./question_multipletext";
-import { QuestionCustomModel, QuestionCompositeModel } from "./question_custom";
-import { QuestionPanelDynamicModel } from "./question_paneldynamic";
-import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { settings } from "./settings";
+import {
+  QuestionCheckboxModel, QuestionCompositeModel, QuestionCustomModel, QuestionMatrixDynamicModel,
+  QuestionMultipleTextModel, QuestionPanelDynamicModel, QuestionRatingModel, QuestionSliderModel,
+  QuestionTextBase, QuestionTextModel, settings,
+} from "survey-core";
+import type { ISelectQuestion, ItemValue, Question, QuestionValueType } from "survey-core";
 
 // One plain record per question: what a consumer that cannot render the model - a chat or voice
-// front end, an AI agent, the tester, a JSON -> text generator - needs in order to ask for a value
+// front end, an AI agent, a JSON -> text generator - needs in order to ask for a value
 // and to accept one back. Nothing is derived here that the model can answer: the value type, the
 // items to offer, the role of each item and whether a question can be answered at all are asked of
 // the question (Question.getValueType(), isSelectQuestion(), hasPlainInput, ISelectQuestion), and

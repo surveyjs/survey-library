@@ -58,7 +58,7 @@ import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -106,6 +106,11 @@ import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 
 export var DefaultTheme = DefaultLightTheme;
+
+// A hash keyed by names an author chooses (question names, value names, variable names)
+function createHash(): HashTable<any> {
+  return Object.create(null);
+}
 
 // The variables a survey answers by itself. They are declared nowhere in the survey
 // JSON and resolve before any question, calculated value or variable of the same name.
@@ -275,8 +280,11 @@ export class SurveyModel extends SurveyElementCore
     this.commentSuffix = val;
   }
 
-  private valuesHash: HashTable<any> = {};
-  private variablesHash: HashTable<any> = {};
+  // Both hashes are created by createHash() - null-prototype objects: the keys are question value
+  // names and variable names, and a name like "constructor" or "valueOf" must not read an
+  // Object.prototype member back (Bug#11858)
+  private valuesHash: HashTable<any> = createHash();
+  private variablesHash: HashTable<any> = createHash();
   private editingObjValue: Base;
 
   //#region Event declarations
@@ -2105,7 +2113,7 @@ export class SurveyModel extends SurveyElementCore
     if (hasChanges) {
       /* bypass the data setter: this only filters incorrect keys out of the current state
       and should not mark pages as shown the way an external data assignment does */
-      this.valuesHash = {};
+      this.valuesHash = createHash();
       this.setDataCore(data);
     }
   }
@@ -3351,7 +3359,7 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   public set data(data: any) {
-    this.valuesHash = {};
+    this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
   }
@@ -3471,7 +3479,7 @@ export class SurveyModel extends SurveyElementCore
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
-      this.valuesHash = {};
+      this.valuesHash = createHash();
     }
     if (data) {
       for (var key in data) {
@@ -3739,6 +3747,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getDataFromValueHash(valuesHash, key);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
+    // "__proto__" is never stored (Bug#11858): the data getter copies values into a plain object,
+    // where this key would replace the prototype of the returned data instead of adding a key
+    if (isProtoKey(key)) return;
     if (!!this.editingObj) {
       Serializer.setObjPropertyValue(this.editingObj, key, value);
     } else {
@@ -7276,7 +7287,8 @@ export class SurveyModel extends SurveyElementCore
    * @see setVariables
    */
   public setVariable(name: string, newValue: any): void {
-    if (!name) return;
+    // "__proto__" is ignored: the plain "changed" object below would get its prototype replaced (Bug#11858)
+    if (!name || isProtoKey(name.toLowerCase())) return;
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(name);
@@ -7302,7 +7314,7 @@ export class SurveyModel extends SurveyElementCore
   }
   // The only place that writes the variables hash. A variable shadows a data key with the same
   // name, so the data key is deleted under the name exactly as it was passed in, before the
-  // variable name itself is lower-cased.
+  // variable name itself is lower-cased. Callers skip "__proto__" before calling it (Bug#11858).
   private setVariableCore(name: string, newValue: any): string {
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
@@ -7331,7 +7343,9 @@ export class SurveyModel extends SurveyElementCore
     const newValues: HashTable<any> = {};
     if (hasNewValues) {
       for (const key in variables) {
-        if (!key) continue;
+        // "__proto__" is skipped here and in the write loop below: assigning it to the plain
+        // newValues/changed objects would replace their prototype (Bug#11858)
+        if (!key || isProtoKey(key.toLowerCase())) continue;
         newValues[key.toLowerCase()] = variables[key];
       }
     }
@@ -7351,11 +7365,11 @@ export class SurveyModel extends SurveyElementCore
           changed[name] = { newValue: undefined, oldValue: oldValue };
         }
       }
-      this.variablesHash = {};
+      this.variablesHash = createHash();
     }
     if (hasNewValues) {
       for (const key in variables) {
-        if (!key) continue;
+        if (!key || isProtoKey(key.toLowerCase())) continue;
         this.setVariableCore(key, variables[key]);
       }
     }
@@ -7769,17 +7783,19 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashesRemoved(<Question>question, oldName, oldValueName);
     this.questionHashesAdded(<Question>question);
   }
+  // Null-prototype hashes: the keys are question names, and "constructor", "toString" or "valueOf"
+  // must not resolve to an Object.prototype member (Bug#11858)
   private questionHashes = {
-    names: {},
-    namesInsensitive: {},
-    valueNames: {},
-    valueNamesInsensitive: {},
+    names: createHash(),
+    namesInsensitive: createHash(),
+    valueNames: createHash(),
+    valueNamesInsensitive: createHash(),
   };
   private questionHashesClear() {
-    this.questionHashes.names = {};
-    this.questionHashes.namesInsensitive = {};
-    this.questionHashes.valueNames = {};
-    this.questionHashes.valueNamesInsensitive = {};
+    this.questionHashes.names = createHash();
+    this.questionHashes.namesInsensitive = createHash();
+    this.questionHashes.valueNames = createHash();
+    this.questionHashes.valueNamesInsensitive = createHash();
   }
   private questionHashesPanelAdded(panel: PanelModelBase) {
     if (this.isLoadingFromJson) return;

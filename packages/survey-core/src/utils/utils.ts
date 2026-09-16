@@ -44,11 +44,26 @@ export function getRenderedStyleSize(val: string | number): string {
   return val as string;
 }
 
+// "__proto__" is the only key that cannot be stored as an own key of a plain object: the assignment
+// goes through the accessor and replaces the object's prototype, and a merge into it pollutes
+// Object.prototype (Bug#11856). It is skipped by mergeValues, and the survey never stores it as a data
+// key or a variable name (Bug#11858). Element names are not checked: a question named "__proto__"
+// loads and works, only its value does not reach survey.data.
+// "constructor" and "prototype" are not in the list on purpose: they are valid question names, and a
+// merge assigns them as own keys - an inherited "constructor" is a function, which mergeValues
+// replaces with a new object instead of merging into it.
+export function isProtoKey(key: string): boolean {
+  return key === "__proto__";
+}
+
 export function mergeValues(src: any, dest: any): void {
   if (!dest || !src) return;
   if (typeof dest !== "object") return;
-  for (var key in src) {
-    var value = src[key];
+  const keys = Object.keys(src);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (isProtoKey(key)) continue;
+    const value = src[key];
     if (!Array.isArray(value) && value && typeof value === "object") {
       if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
       mergeValues(value, dest[key]);

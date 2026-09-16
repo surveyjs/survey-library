@@ -1837,6 +1837,46 @@ describe("Survey_QuestionMatrixDynamic", () => {
     matrix.visibleRows[1].cells[1].value = 40;
     expect(matrix.visibleTotalRow.cells[1].value, "total sum #3").toBe(50);
   });
+  test("matrix dynamic rowsVisibleIf hides the new row: onMatrixRowAdded & detailPanelShowOnAdding target the new row, Bug#11857", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: 0,
+          rowsVisibleIf: "{row.col1} = 'Keep'", cellType: "text",
+          detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+          columns: [{ name: "col1" }],
+          detailElements: [{ type: "text", name: "q1" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.value = [{ col1: "Keep" }];
+    expect(matrix.visibleRows.length, "the existing row is visible").toBe(1);
+    const addedRows: Array<any> = [];
+    survey.onMatrixRowAdded.add((_, options) => { addedRows.push(options.row); });
+    matrix.addRow();
+    expect(matrix.allRows.length, "the row is added").toBe(2);
+    expect(matrix.visibleRows.length, "the new row is hidden by rowsVisibleIf").toBe(1);
+    const newRow = matrix.allRows[1];
+    expect(addedRows.length, "onMatrixRowAdded is fired once").toBe(1);
+    expect(addedRows[0] === newRow, "onMatrixRowAdded receives the new row").toBe(true);
+    expect(newRow.isDetailPanelShowing, "detail panel is shown for the new row").toBe(true);
+    expect(matrix.allRows[0].isDetailPanelShowing, "detail panel is not shown for the existing row").toBe(false);
+
+    let focusedQuestionId = "";
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+    matrix.addRowUI();
+    expect(matrix.allRows.length, "the row is added from UI").toBe(3);
+    expect(focusedQuestionId, "do not focus a cell of an existing row when the new row is hidden").toBe("");
+    matrix.rowsVisibleIf = "";
+    matrix.addRowUI();
+    expect(focusedQuestionId, "focus the new visible row").toBe(matrix.allRows[3].cells[0].question.inputId);
+    SurveyElement.FocusElement = oldFunc;
+  });
   test("matrix dropdown rowsVisibleIf, defaultValue & designMode, Bug#9279", () => {
     const json = {
       elements: [

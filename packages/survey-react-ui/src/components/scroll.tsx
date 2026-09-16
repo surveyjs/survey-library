@@ -5,6 +5,7 @@ import { ScrollViewModel } from "survey-core";
 interface IScrollComponentProps {
   children: React.ReactNode;
   disabled?: boolean;
+  keyboardReachable?: boolean;
   onInnerHeightChanged?: (hasScroll: boolean) => void;
 }
 export class Scroll extends React.Component<IScrollComponentProps, any> {
@@ -34,7 +35,7 @@ export class Scroll extends React.Component<IScrollComponentProps, any> {
     return this.props.disabled ?
       <>{this.props.children}</> :
       <div ref={this.rootRef} className="sv-scroll__wrapper">
-        <div className="sv-scroll__scroller sv-drag-target-skipped" onScroll={() => this.model.onScrollContainer()}>
+        <div className="sv-scroll__scroller sv-drag-target-skipped" tabIndex={this.props.keyboardReachable ? 0 : undefined} onScroll={() => this.model.onScrollContainer()}>
           <div className="sv-scroll__container">
             {this.props.children}
           </div>

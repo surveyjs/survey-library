@@ -2,8 +2,6 @@ import { Serializer } from "../jsonobject";
 import { property } from "../decorators";
 import { InputMaskPattern } from "./mask_pattern";
 import { IMaskedInputResult, IMaskLocaleChange, ITextInputParams, numberDefinition } from "./mask_utils";
-import { getLocaleDataValue } from "../locale-data";
-import { surveyLocalization } from "../surveyStrings";
 
 type DateTimeMaskLexemType = "month" | "day" | "year" | "hour" | "minute" | "second" | "timeMarker" | "separator"
 export interface IDateTimeMaskLexem {
@@ -162,6 +160,8 @@ function isValidLocaleTimePattern(pattern: string): boolean {
 /**
  * A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
  *
+ * The mask inherits its format from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings and format locale. Set [`pattern`](#pattern) to specify a custom format.
+ *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
  * ```js
@@ -177,7 +177,7 @@ function isValidLocaleTimePattern(pattern: string): boolean {
  * }
  * ```
  *
- * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+ * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskDateTime extends InputMaskPattern {
   private defaultDate = "1970-01-01T";
@@ -251,22 +251,16 @@ export class InputMaskDateTime extends InputMaskPattern {
       this.updateLiterals();
     }
   }
-  private get patternLocale(): string {
-    const survey = this.getSurvey();
-    const res = !!survey && !!survey.getFormatLocale ? survey.getFormatLocale() : this.getLocale();
-    return res || surveyLocalization.currentLocale || surveyLocalization.defaultLocale;
-  }
   private calcActivePattern(): string {
     if (!!this.pattern) return this.pattern;
-    const locale = this.patternLocale;
     // a JSON author may spell the preset in any case
     const preset = (this.patternPreset || "").toLowerCase();
     if (preset === "localetime") {
-      return getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern) || "";
+      return this.getFormatValue("timePattern", isValidLocaleTimePattern) || "";
     }
     if (preset === "localedatetime") {
-      const datePattern = getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern);
-      const timePattern = getLocaleDataValue(locale, "timePattern", isValidLocaleTimePattern);
+      const datePattern = this.getFormatValue("datePattern", isValidLocaleDatePattern);
+      const timePattern = this.getFormatValue("timePattern", isValidLocaleTimePattern);
       // composed from the two resolved fields rather than curated as one: a locale that defined
       // a date and a time pattern but no combined one would otherwise fall back to the english
       // field order and separators for the whole pattern
@@ -274,7 +268,7 @@ export class InputMaskDateTime extends InputMaskPattern {
       return datePattern || timePattern || "";
     }
     if (preset === "localedate") {
-      return getLocaleDataValue(locale, "datePattern", isValidLocaleDatePattern) || "";
+      return this.getFormatValue("datePattern", isValidLocaleDatePattern) || "";
     }
     // an unrecognized preset leaves the mask without a pattern, as if none were set
     return this.pattern || "";

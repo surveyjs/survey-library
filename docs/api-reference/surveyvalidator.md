@@ -34,6 +34,8 @@ Errors block survey progress until resolved. Warnings indicate potential issues 
 
 > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
 
+[Demo: Validator Notification Types](/form-library/examples/validator-notification-types/)
+
 ### `text`
 
 **Type**: `string`

@@ -263,9 +263,9 @@ export var russianSurveyStrings = {
   maskPlaceholderMinute: "М",
   // "s" - a second placeholder symbol in a datetime input mask
   maskPlaceholderSecond: "с",
-  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "п",
-  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerUpper: "П"
 };
 

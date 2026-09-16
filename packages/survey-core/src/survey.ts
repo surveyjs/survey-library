@@ -2161,6 +2161,7 @@ export class SurveyModel extends SurveyElementCore
    * Those survey-wide settings can in turn be overridden by settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object. The inheritance order is:
    *
    * `SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
+   * @since 3.1.0
    */
   public get regionalFormat(): RegionalFormat {
     return this.getPropertyValue("regionalFormat", undefined, () => this.createRegionalFormat());

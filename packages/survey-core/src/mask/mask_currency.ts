@@ -95,6 +95,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
    * Specify this property to override the survey-wide currency symbol, or use an empty string to display no symbol.
    *
    * Default value: `undefined` (the mask inherits [`regionalFormat.currencySymbol`](/form-library/documentation/api-reference/regionalformat#currencySymbol) or the symbol used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"$"` in English))
+   * @since 3.1.0
    */
   public get currencySymbol(): string {
     return this.getPropertyValue("currencySymbol");
@@ -122,6 +123,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
    * A valid explicit pattern overrides [`regionalFormat.currencyPattern`](/form-library/documentation/api-reference/regionalformat#currencyPattern). If this property is unset, empty, or invalid, the mask uses the regional pattern, falling back to the [format locale](/form-library/documentation/api-reference/regionalformat#locale)'s currency pattern.
    *
    * Default value: `undefined` (the mask inherits its currency pattern)
+   * @since 3.1.0
    */
   public get currencyPattern(): string {
     return this.getPropertyValue("currencyPattern");

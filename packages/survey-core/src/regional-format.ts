@@ -15,6 +15,7 @@ export const regionalFormatCategory = "regionalFormat";
  * Set [`locale`](#locale) to select default formats independently of the survey's display language, or specify individual properties to override the locale defaults.
  *
  * Settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object take precedence over these survey-wide settings.
+ * @since 3.1.0
  */
 export class RegionalFormat extends Base implements ILocaleData {
   public owner: ISurvey;
@@ -37,6 +38,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s date pattern)
    * @see timePattern
+   * @since 3.1.0
    */
   @property() datePattern: string;
   /**
@@ -59,6 +61,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s time pattern)
    * @see datePattern
+   * @since 3.1.0
    */
   @property() timePattern: string;
   /**
@@ -68,6 +71,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s decimal separator)
    * @see thousandsSeparator
+   * @since 3.1.0
    */
   @property() decimalSeparator: string;
   /**
@@ -78,6 +82,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    * An explicit [`thousandsSeparator`](/form-library/documentation/api-reference/inputmasknumeric#thousandsSeparator) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s thousands separator)
+   * @since 3.1.0
    */
   @property() thousandsSeparator: string;
   /**
@@ -88,6 +93,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    * An explicit [`currencySymbol`](/form-library/documentation/api-reference/inputmaskcurrency#currencySymbol) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s currency symbol)
+   * @since 3.1.0
    */
   @property() currencySymbol: string;
   /**
@@ -110,6 +116,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    * An explicit [`currencyPattern`](/form-library/documentation/api-reference/inputmaskcurrency#currencyPattern) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
    *
    * Default value: `undefined` (uses the [format locale](#locale)'s currency pattern)
+   * @since 3.1.0
    */
   @property() currencyPattern: string;
 
@@ -121,6 +128,7 @@ export class RegionalFormat extends Base implements ILocaleData {
    * Use a BCP 47 language tag, such as `"de"`, `"en-GB"`, or `"pt-BR"`. If a format is unavailable for the specified locale, the language's format is used, with the English format as a fallback. Format properties in this object override these locale defaults.
    *
    * Default value: `undefined` (uses the survey's locale)
+   * @since 3.1.0
    */
   public get locale(): string {
     return this.getPropertyValue("locale");

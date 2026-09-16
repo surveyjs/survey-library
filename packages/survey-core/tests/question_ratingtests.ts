@@ -2086,6 +2086,40 @@ test("supportAutoAdvance", () => {
   q1.displayMode = "dropdown";
   expect(q1.supportAutoAdvance(), "#4").toBe(true);
 });
+test("supportAutoAdvance on Enter, bug#11845", () => {
+  const prevDelay = settings.autoAdvanceDelay;
+  settings.autoAdvanceDelay = 0;
+  try {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "rating", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    expect(survey.currentPage.name).toBe(survey.pages[0].name);
+
+    q1.onKeyDown({ key: "Enter", target: { value: "3" }, preventDefault: () => {} });
+    expect(q1.value).toBe(3);
+    expect(survey.currentPage.name, "auto-advance after Enter sets a value").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    q1.value = 2;
+    expect(survey.currentPage.name).toBe(survey.pages[0].name);
+    q1.onKeyDown({ key: "Enter", target: { value: "2" }, preventDefault: () => {} });
+    expect(q1.value).toBe(2);
+    expect(survey.currentPage.name, "auto-advance on Enter when value is already set").toBe(survey.pages[1].name);
+
+    survey.currentPageNo = 0;
+    q1.value = 4;
+    q1.onKeyDown({ key: " ", target: { value: "5" }, preventDefault: () => {} });
+    expect(q1.value, "non-Enter keys do not change the value").toBe(4);
+    expect(survey.currentPage.name, "non-Enter keys do not auto-advance").toBe(survey.pages[0].name);
+  } finally {
+    settings.autoAdvanceDelay = prevDelay;
+  }
+});
 test("Check hasMin/MaxRateDescription properties on loading", () => {
   const survey = new SurveyModel({
     elements: [

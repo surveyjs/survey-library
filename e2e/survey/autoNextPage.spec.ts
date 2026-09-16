@@ -205,8 +205,8 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
-      await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
+      await page.waitForTimeout(500);
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe(3);

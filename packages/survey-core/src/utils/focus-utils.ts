@@ -1,6 +1,6 @@
 import { settings } from "../settings";
 import { DomDocumentHelper } from "../global_variables_utils";
-import { getClosestSurveyScroller, scrollElementIntoScroller } from "./scroll-utils";
+import { getClosestSurveyScroller, revealElementHorizontally, scrollElementIntoScroller } from "./scroll-utils";
 
 export type FocusElementTarget = string | (() => HTMLElement);
 
@@ -47,6 +47,9 @@ export function focusElementCore(target: FocusElementTarget, options: IFocusElem
     if (scroller) {
       scrollElementIntoScroller(el, scroller);
     }
+    // preventScroll also switches off the native horizontal reveal, e.g. of a matrix cell
+    // outside the visible part of its horizontally scrolling table.
+    revealElementHorizontally(el);
     el.focus(getFocusOptions(true));
   } else {
     options.scrollIntoView && options.scrollIntoView(el);

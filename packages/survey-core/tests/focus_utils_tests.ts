@@ -132,4 +132,25 @@ describe("focus-utils via SurveyElement.FocusElement", () => {
     expect(scrollToViewLog).toHaveLength(0);
     expect(outsideSpy).toHaveBeenCalledWith({ focusVisible: true, preventScroll: true });
   });
+
+  test("scrollIntoScroller reveals a horizontally clipped input before focusing, default focus leaves it to the browser", () => {
+    const table = document.createElement("div");
+    table.style.overflowX = "auto";
+    Object.defineProperty(table, "scrollWidth", { configurable: true, value: 900 });
+    Object.defineProperty(table, "clientWidth", { configurable: true, value: 200 });
+    host.appendChild(table);
+    mockRect(table, 0, 100, 100, 200);
+    const input = createInput("clipped_input", table);
+    mockRect(input, 10, 20, 500, 50);
+    let scrollLeftOnFocus: number;
+    input.addEventListener("focus", () => { scrollLeftOnFocus = table.scrollLeft; });
+
+    expect(SurveyElement.FocusElement("clipped_input", false, host)).toBe(true);
+    expect(table.scrollLeft).toBe(0);
+    input.blur();
+    expect(SurveyElement.FocusElement("clipped_input", false, host, true)).toBe(true);
+    // The input right edge (550) is 250px past the right edge of the table band (300).
+    expect(table.scrollLeft).toBe(250);
+    expect(scrollLeftOnFocus).toBe(250);
+  });
 });

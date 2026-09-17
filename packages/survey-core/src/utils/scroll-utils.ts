@@ -65,7 +65,19 @@ export function getScrollContainerForElement(el: HTMLElement): HTMLElement | nul
   if (!el) return null;
   const innerScroller = getClosestSurveyScroller(el);
   if (innerScroller) return innerScroller;
-  return (findScrollableParent(el.parentElement) as HTMLElement) || null;
+  let res = findScrollableParent(el.parentElement) as HTMLElement;
+  // Inside a shadow root the lookup ends at the host whether it scrolls or not; a host that
+  // does not scroll hands the search over to its own tree, up to the document.
+  while(!!res && !!res.shadowRoot && !isVerticalScroller(res)) {
+    res = findScrollableParent(res.parentElement) as HTMLElement;
+  }
+  return res || null;
+}
+
+function isVerticalScroller(el: HTMLElement): boolean {
+  if (el.scrollHeight <= el.clientHeight) return false;
+  const overflowY = DomDocumentHelper.getComputedStyle(el)?.overflowY;
+  return overflowY === "auto" || overflowY === "scroll";
 }
 
 export function isDocumentScroller(scroller: HTMLElement): boolean {
@@ -83,6 +95,94 @@ export function getScrollerViewport(scroller: HTMLElement): { top: number, heigh
   }
   const rect = scroller.getBoundingClientRect();
   return { top: rect.top, height: rect.height || (rect.bottom - rect.top) };
+}
+
+// How far a scroller has to move along one axis to bring the [elStart, elEnd] span into the [viewStart, viewEnd] band
+// with the least movement. Zero when the span is already inside. A span longer than the band keeps its leading
+// edge (the trailing one when alignEnd is set, e.g. the right edge in RTL) unless it already covers the whole band.
+export function getNearestScrollDelta(elStart: number, elEnd: number, viewStart: number, viewEnd: number, alignEnd: boolean = false): number {
+  if (elEnd - elStart > viewEnd - viewStart) {
+    if (elStart <= viewStart && elEnd >= viewEnd) return 0;
+    return alignEnd ? elEnd - viewEnd : elStart - viewStart;
+  }
+  if (elStart < viewStart) return elStart - viewStart;
+  if (elEnd > viewEnd) return elEnd - viewEnd;
+  return 0;
+}
+
+function getHorizontalViewport(scroller: HTMLElement): { left: number, right: number } {
+  if (isDocumentScroller(scroller)) {
+    const docEl = DomDocumentHelper.getDocumentElement();
+    return { left: 0, right: (!!docEl && docEl.clientWidth) || DomWindowHelper.getInnerWidth() || 0 };
+  }
+  // clientLeft skips the border and, in RTL, a vertical scrollbar placed on the left.
+  const left = scroller.getBoundingClientRect().left + scroller.clientLeft;
+  return { left: left, right: left + scroller.clientWidth };
+}
+
+function isHorizontalScroller(el: HTMLElement): boolean {
+  if (el.scrollWidth <= el.clientWidth) return false;
+  if (isDocumentScroller(el)) return el === (DomDocumentHelper.getDocument()?.scrollingElement || DomDocumentHelper.getDocumentElement());
+  const overflowX = DomDocumentHelper.getComputedStyle(el)?.overflowX;
+  // A hidden overflow cannot be scrolled by the user, but it still clips and native focus scrolls it too.
+  return overflowX === "auto" || overflowX === "scroll" || overflowX === "hidden";
+}
+
+function getParentAcrossShadowRoot(el: HTMLElement): HTMLElement {
+  if (el.parentElement) return el.parentElement;
+  const root: any = typeof el.getRootNode === "function" ? el.getRootNode() : null;
+  return (!!root && root !== el && root.host) || null;
+}
+
+// The part of the element that horizontally sticky siblings on the way up to the scroller (a matrix row header,
+// an actions cell) currently cover: the element can be inside the scroller's band and still be hidden under them.
+function getStickyOverlapDelta(el: HTMLElement, scroller: HTMLElement): number {
+  const elRect = el.getBoundingClientRect();
+  let node = el;
+  while(!!node && node !== scroller) {
+    const parent = node.parentElement;
+    const siblings = !!parent ? parent.children : <any>[];
+    for (let i = 0; i < siblings.length; i++) {
+      const sibling = siblings[i] as HTMLElement;
+      if (sibling === node) continue;
+      const style = DomDocumentHelper.getComputedStyle(sibling);
+      if (!style || style.position !== "sticky") continue;
+      const rect = sibling.getBoundingClientRect();
+      if (rect.bottom <= elRect.top || rect.top >= elRect.bottom || rect.right <= elRect.left || rect.left >= elRect.right) continue;
+      if (style.left !== "auto" && rect.left <= elRect.left) return elRect.left - rect.right;
+      if (style.right !== "auto" && rect.right >= elRect.right) return elRect.right - rect.left;
+    }
+    node = parent;
+  }
+  return 0;
+}
+
+function revealElementInHorizontalScroller(el: HTMLElement, scroller: HTMLElement): void {
+  const elRect = el.getBoundingClientRect();
+  const { left, right } = getHorizontalViewport(scroller);
+  const delta = getNearestScrollDelta(elRect.left, elRect.right, left, right, DomDocumentHelper.isRtlDirection(scroller));
+  // The scroll offset is negative in RTL, but it still grows to the right, so a visual delta applies as is.
+  if (Math.abs(delta) >= 1) {
+    scroller.scrollLeft += delta;
+  }
+  const stickyDelta = getStickyOverlapDelta(el, scroller);
+  if (Math.abs(stickyDelta) >= 1) {
+    scroller.scrollLeft += stickyDelta;
+  }
+}
+
+// Brings the element into every horizontally clipping ancestor, innermost first, with the least movement.
+// The survey calls it when it focuses with preventScroll, which suppresses the native horizontal reveal
+// together with the vertical one. Vertical positioning stays with scrollElementIntoScroller.
+export function revealElementHorizontally(el: HTMLElement): void {
+  if (!el || typeof el.getBoundingClientRect !== "function") return;
+  let parent = getParentAcrossShadowRoot(el);
+  while(!!parent) {
+    if (isHorizontalScroller(parent)) {
+      revealElementInHorizontalScroller(el, parent);
+    }
+    parent = getParentAcrossShadowRoot(parent);
+  }
 }
 
 interface IScrollAnimation {

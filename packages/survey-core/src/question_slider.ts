@@ -298,6 +298,9 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public getType(): string {
     return "slider";
   }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),

@@ -1,0 +1,321 @@
+{
+ "description": "4517 Washington Ave. Manchester, Kentucky 39495 Phone + 1(603) 555-01-23",
+ "logo": "https://api.surveyjs.io/private/Surveys/files?name=4ebcc722-41e0-44e9-b6b3-f7de10bb61c7",
+ "logoWidth": "auto",
+ "logoHeight": "24",
+ "logoPosition": "right",
+ "completedHtml": "<div style=\"max-width:320px;text-align:center;margin:48px auto;\">\n\n<h3>You're done.</h3>\n</div>",
+ "pages": [
+  {
+   "name": "page1",
+   "elements": [
+    {
+     "type": "html",
+     "name": "html1",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:-8px; margin-top:0px;\">\nThis sales contract (hereinafter referred to as the \"Agreement\") is entered into as of\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "date",
+     "width": "30%",
+     "minWidth": "64px",
+     "maxWidth": "",
+     "defaultValueExpression": "today()",
+     "inputType": "date",
+     "placeholder": "date"
+    },
+    {
+     "type": "html",
+     "name": "html2",
+     "width": "144px",
+     "minWidth": "144px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "html": "<p style=\"line-height: 36px;\">\nby and between\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "seller-name",
+     "minWidth": "256px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "placeholder": "seller's full legal name"
+    },
+    {
+     "type": "html",
+     "name": "html3",
+     "width": "208px",
+     "minWidth": "208px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nwith a mailing address of\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "seller-address-line-1",
+     "minWidth": "64px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "placeholder": "seller's address"
+    },
+    {
+     "type": "text",
+     "name": "seller-address-line-2",
+     "width": "100%",
+     "minWidth": "256px"
+    },
+    {
+     "type": "html",
+     "name": "html4",
+     "width": "344px",
+     "minWidth": "344px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\n(hereinafter referred to as the \"Seller\") and\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "buyer-name",
+     "minWidth": "256px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "placeholder": "buyer's full legal name"
+    },
+    {
+     "type": "html",
+     "name": "html5",
+     "width": "208px",
+     "minWidth": "208px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nwith a mailing address of\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "buyer-address-line-1",
+     "minWidth": "64px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "placeholder": "buyer's address"
+    },
+    {
+     "type": "text",
+     "name": "buyer-address-line-2",
+     "width": "100%",
+     "minWidth": "256px"
+    },
+    {
+     "type": "html",
+     "name": "html6",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:40px; margin-top:-8px;\">\n(hereinafter referred to as the \"Buyer\"), collectively referred to as the \"Parties\", both\nof whom agree to be bound by this Agreement.\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html7",
+     "width": "100%",
+     "minWidth": "256px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nThe Seller is the manufacturer and distributor of the following product(s):\n</p>"
+    },
+    {
+     "type": "comment",
+     "name": "goods",
+     "width": "100%",
+     "minWidth": "256px",
+     "rows": 1,
+     "placeholder": "detailed description of the goods",
+     "autoGrow": true,
+     "allowResize": false
+    },
+    {
+     "type": "html",
+     "name": "html8",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:40px; margin-top:-8px;\">\n(hereinafter referred to as the \"Goods\"). \n<br>\nThe Buyer wishes to purchase the\naforementioned product(s).\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html9",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:-8px; margin-top:-8px;\">\nTHEREFORE, the Parties agree as follows:\n<br>\n<b>1. Sale of Goods.</b> The Seller shall make available for sale, and the Buyer shall purchase the Goods.\n<br>\n<b>2. Delivery and Shipping.</b>\n</p>"
+    },
+    {
+     "type": "comment",
+     "name": "delivery-details",
+     "width": "100%",
+     "minWidth": "256px",
+     "rows": 1,
+     "placeholder": "include details regarding the delivery and shipping terms",
+     "autoGrow": true,
+     "allowResize": false
+    },
+    {
+     "type": "html",
+     "name": "html10",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:-8px; margin-top:-8px;\">\n<b>3. Purchase Price and Payments.</b> \n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html11",
+     "width": "400px",
+     "minWidth": "400px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nThe Seller agrees to sell the Goods to the Buyer for\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "price",
+     "minWidth": "64px",
+     "maxWidth": "",
+     "startWithNewLine": false
+    },
+    {
+     "type": "html",
+     "name": "html12",
+     "width": "208px",
+     "minWidth": "208px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "html": "<p style=\"line-height: 36px;\">\neuros.\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html13",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:-8px; margin-top:-8px;\">\nThe Seller will provide an invoice to the Buyer at the time of delivery or pick-up.\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html14",
+     "width": "312px",
+     "minWidth": "312px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nAll invoices must be paid, in full, within\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "terms",
+     "minWidth": "64px",
+     "maxWidth": "",
+     "startWithNewLine": false
+    },
+    {
+     "type": "html",
+     "name": "html15",
+     "width": "272px",
+     "minWidth": "272px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "html": "<p style=\"line-height: 36px;\">\ndays.\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html16",
+     "width": "240px",
+     "minWidth": "240px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\nAny balances not paid within\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "grace-period",
+     "minWidth": "48px",
+     "maxWidth": "",
+     "startWithNewLine": false
+    },
+    {
+     "type": "html",
+     "name": "html17",
+     "width": "200px",
+     "minWidth": "200px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "html": "<p style=\"line-height: 36px;\">\ndays will be subject to a\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "penalty-percentage",
+     "minWidth": "48px",
+     "maxWidth": "",
+     "startWithNewLine": false
+    },
+    {
+     "type": "html",
+     "name": "html18",
+     "width": "208px",
+     "minWidth": "208px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 36px;\">\n% late payment penalty.\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html19",
+     "width": "100%",
+     "minWidth": "256px",
+     "html": "<p style=\"line-height: 52px;margin-bottom:0px; margin-top:-8px;\">\n<b>4. Inspection of Goods and Rejection.</b> The Buyer is entitled to inspect the Goods promptly upon delivery or receipt. The Buyer shall have a reasonable period, not exceeding\n</p>"
+    },
+    {
+     "type": "text",
+     "name": "inspect-period",
+     "minWidth": "64px",
+     "maxWidth": ""
+    },
+    {
+     "type": "html",
+     "name": "html20",
+     "width": "560px",
+     "minWidth": "256px",
+     "maxWidth": "",
+     "startWithNewLine": false,
+     "html": "<p style=\"line-height: 36px;\">\ndays, from the date of delivery to thoroughly inspect the Goods and\n</p>"
+    },
+    {
+     "type": "html",
+     "name": "html21",
+     "width": "208px",
+     "minWidth": "208px",
+     "maxWidth": "",
+     "html": "<p style=\"line-height: 52px;margin-bottom:16px; \">\nensure they conform to the specifications and quality agreed upon in this Agreement. If the Goods do not meet the agreed-upon standards or are found to be damaged, the Buyer has the right to reject the Goods.\n</p>"
+    },
+    {
+     "type": "signaturepad",
+     "name": "seller-signature",
+     "minWidth": "256px",
+     "signatureWidth": 480,
+     "signatureHeight": 260,
+     "signatureAutoScaleEnabled":  true,
+     "placeholder": "Seller signature"
+    },
+    {
+     "type": "signaturepad",
+     "name": "buyer-signature",
+     "minWidth": "256px",
+     "startWithNewLine": false,
+     "signatureWidth": 480,
+     "signatureHeight": 260,
+     "signatureAutoScaleEnabled":  true,
+     "placeholder": "Buyer signature"
+    },
+    {
+     "type": "html",
+     "name": "html22",
+     "html": "<div style=\"height:8px\"></div>"
+    }
+   ],
+   "questionTitleLocation": "hidden",
+   "title": "Sales Contract"
+  }
+ ],
+ "questionTitleLocation": "left",
+ "questionErrorLocation": "bottom",
+ "completeText": "Sign",
+ "questionsOnPageMode": "singlePage",
+ "widthMode": "static",
+ "width": "55%"
+}

@@ -94,6 +94,7 @@
   div,
   p {
     @include articleDefaultFont;
+    font-weight: inherit;
   }
 
   a {

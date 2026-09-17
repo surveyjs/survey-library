@@ -3,7 +3,7 @@ import { defaultListCss } from "../src/list";
 import { doKey2ClickDown, doKey2ClickUp } from "../src/utils/key2click";
 import { sanitizeEditableContent, getSafeUrl, isBase64URL } from "../src/utils/dom-utils";
 import { configConfirmDialog } from "../src/utils/confirm-dialog";
-import { compareArrays, mulberry32 } from "../src/utils/utils";
+import { compareArrays, mulberry32, mergeValues, mergeObjects, isProtoKey } from "../src/utils/utils";
 import { setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation } from "../src/utils/animation-dom";
 import { getRootNode, getActiveElement } from "../src/utils/dom-utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } from "../src/utils/devices";
@@ -14,7 +14,7 @@ import { createBoxShadow, parseBoxShadow } from "../src/utils/shadow-effects";
 import { Base } from "../src/base";
 import { EventBase } from "../src/event";
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, afterEach } from "vitest";
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
   element.innerHTML = text;
   const selection = document.getSelection();
@@ -1237,4 +1237,68 @@ test("Check createBoxShadow and parseBoxShadow functions", () => {
 
   createdBoxShadow = createBoxShadow([{} as any]);
   expect(createdBoxShadow).toBeFalsy();
+});
+
+describe("mergeValues and prototype keys", () => {
+  afterEach(() => {
+    delete (Object.prototype as any).polluted;
+  });
+  test("A __proto__ key is not merged, Bug#11856", () => {
+    const dest: any = {};
+    mergeValues(JSON.parse("{ \"a\": 1, \"__proto__\": { \"polluted\": \"yes\" } }"), dest);
+    expect(({} as any).polluted, "Object.prototype is untouched").toBeUndefined();
+    expect(Object.getPrototypeOf(dest), "the destination prototype is untouched").toBe(Object.prototype);
+    expect(Object.keys(dest), "only the real key is merged").toEqual(["a"]);
+    expect(dest.a).toBe(1);
+  });
+  test("A nested __proto__ key is not merged, Bug#11856", () => {
+    const dest: any = { a: { b: 1 } };
+    mergeValues(JSON.parse("{ \"a\": { \"c\": 2, \"__proto__\": { \"polluted\": \"yes\" } }, \"d\": { \"__proto__\": { \"polluted\": \"yes\" } } }"), dest);
+    expect(({} as any).polluted, "Object.prototype is untouched").toBeUndefined();
+    expect(dest).toEqual({ a: { b: 1, c: 2 }, d: {} });
+    expect(Object.getPrototypeOf(dest.a)).toBe(Object.prototype);
+    expect(Object.getPrototypeOf(dest.d)).toBe(Object.prototype);
+  });
+  test("mergeObjects skips __proto__ in every source, Bug#11856", () => {
+    const res: any = mergeObjects({}, JSON.parse("{ \"__proto__\": { \"polluted\": \"yes\" } }"), JSON.parse("{ \"a\": { \"__proto__\": { \"polluted\": \"yes\" } } }"));
+    expect(({} as any).polluted, "Object.prototype is untouched").toBeUndefined();
+    expect(res).toEqual({ a: {} });
+  });
+  test("constructor and prototype keys are merged as own keys and never reach a shared prototype, Bug#11856", () => {
+    const dest: any = {};
+    mergeValues(JSON.parse("{ \"constructor\": { \"prototype\": { \"polluted\": \"yes\" } }, \"prototype\": { \"polluted\": \"yes\" } }"), dest);
+    expect(({} as any).polluted, "Object.prototype is untouched").toBeUndefined();
+    expect((Object as any).prototype.polluted, "Object.prototype through Object is untouched").toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(dest, "constructor"), "constructor is an own key").toBe(true);
+    expect(dest.constructor).toEqual({ prototype: { polluted: "yes" } });
+    expect(dest.prototype).toEqual({ polluted: "yes" });
+    expect(Object.getPrototypeOf(dest)).toBe(Object.prototype);
+  });
+  test("Primitive values under Object.prototype member names are merged as own keys, Bug#11858", () => {
+    const dest: any = {};
+    mergeValues({ constructor: 1, toString: "a", valueOf: [1, 2] }, dest);
+    expect(Object.keys(dest)).toEqual(["constructor", "toString", "valueOf"]);
+    expect(dest.constructor).toBe(1);
+    expect(dest.toString).toBe("a");
+    expect(dest.valueOf).toEqual([1, 2]);
+  });
+  test("Only own keys of the source are merged; nested objects deep-merge and arrays are assigned by reference", () => {
+    const src: any = Object.create({ inherited: 1 });
+    const arr = [1, 2];
+    src.own = { b: 2 };
+    src.arr = arr;
+    const dest: any = { own: { a: 1 } };
+    mergeValues(src, dest);
+    expect(dest.inherited, "inherited key is not merged").toBeUndefined();
+    expect(dest.own).toEqual({ a: 1, b: 2 });
+    expect(dest.arr).toBe(arr);
+  });
+  test("isProtoKey", () => {
+    expect(isProtoKey("__proto__")).toBe(true);
+    expect(isProtoKey("__PROTO__")).toBe(false);
+    expect(isProtoKey("constructor")).toBe(false);
+    expect(isProtoKey("prototype")).toBe(false);
+    expect(isProtoKey("toString")).toBe(false);
+    expect(isProtoKey("")).toBe(false);
+  });
 });

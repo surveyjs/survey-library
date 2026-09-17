@@ -64,7 +64,6 @@ import { wrapUrlForBackgroundImage } from "../src/utils/dom-utils";
 import { increaseHeightByContent } from "../src/utils/text-area";
 import { Helpers } from "../src/helpers";
 import { defaultCss } from "../src/defaultCss/defaultCss";
-import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
 import { DomWindowHelper } from "../src/global_variables_utils";
 import { ListModel } from "../src/list";
@@ -74,7 +73,6 @@ import { ConsoleWarnings } from "../src/console-warnings";
 import { CustomError } from "../src/error";
 import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
-
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { IConfirmDialogOptions } from "../src/popup";
 describe("Survey", () => {
@@ -21902,5 +21900,174 @@ describe("Survey", () => {
     expect(rootElement).toBe("survey_root_element");
     expect(options.rootElement).toBeUndefined();
     settings.confirmActionAsync = oldSettingsFunc;
+  });
+});
+
+describe("Survey: Object.prototype member names and the __proto__ key", () => {
+  afterEach(() => {
+    delete (Object.prototype as any).polluted;
+  });
+  const payload = "{ \"polluted\": \"yes\" }";
+
+  test("mergeData does not pollute Object.prototype, Bug#11856", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] });
+    survey.mergeData(JSON.parse("{ \"q1\": 1, \"__proto__\": " + payload + " }"));
+    expect(({} as any).polluted, "Object.prototype is untouched").toBeUndefined();
+    expect(survey.data, "the real key is merged").toEqual({ q1: 1 });
+    expect(survey.getQuestionByName("q1").value).toBe(1);
+    survey.getQuestionByName("q2").value = 2;
+    expect(survey.data, "the survey keeps working").toEqual({ q1: 1, q2: 2 });
+  });
+  test("applyTheme does not pollute Object.prototype, Bug#11856", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.applyTheme(JSON.parse("{ \"cssVariables\": { \"--my-color\": \"red\", \"__proto__\": " + payload + " }, \"__proto__\": " + payload + " }"));
+    expect(({} as any).polluted, "Object.prototype is untouched, no base theme").toBeUndefined();
+    expect(survey.themeVariables["--my-color"]).toBe("red");
+
+    survey.applyTheme(
+      JSON.parse("{ \"cssVariables\": { \"--my-color\": \"blue\" }, \"__proto__\": " + payload + " }"),
+      JSON.parse("{ \"cssVariables\": { \"--my-base-color\": \"green\", \"__proto__\": " + payload + " }, \"__proto__\": " + payload + " }")
+    );
+    expect(({} as any).polluted, "Object.prototype is untouched, with a base theme").toBeUndefined();
+    expect(survey.themeVariables["--my-color"]).toBe("blue");
+    expect(survey.themeVariables["--my-base-color"]).toBe("green");
+  });
+  test("The css setter and ActionContainer.cssClasses do not pollute Object.prototype, Bug#11856", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.css = JSON.parse("{ \"root\": \"my-root\", \"__proto__\": " + payload + " }");
+    expect(({} as any).polluted, "Object.prototype is untouched, survey.css").toBeUndefined();
+    expect(survey.css.root).toBe("my-root");
+
+    const container = new ActionContainer();
+    container.cssClasses = JSON.parse("{ \"root\": \"my-bar\", \"__proto__\": " + payload + " }");
+    expect(({} as any).polluted, "Object.prototype is untouched, ActionContainer").toBeUndefined();
+    expect(container.cssClasses.root).toBe("my-bar");
+  });
+
+  ["Constructor", "constructor", "toString", "valueOf", "hasOwnProperty"].forEach((name: string) => {
+    test("A question named '" + name + "' loads, is found and stores values, Bug#11858", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: name }, { type: "text", name: "q2" }] });
+      const q = survey.getQuestionByName(name);
+      expect(q, "found by name").toBe(survey.getAllQuestions()[0]);
+      expect(survey.getQuestionByName(name.toUpperCase(), true), "found case-insensitively").toBe(q);
+      expect(survey.getQuestionsByValueName(name), "found by value name").toEqual([q]);
+
+      expect(q.value, "unanswered value").toBeUndefined();
+      expect(q.isEmpty(), "unanswered isEmpty").toBe(true);
+      expect(survey.getValue(name), "unanswered survey value").toBeUndefined();
+      expect(survey.data, "unanswered data").toEqual({});
+
+      q.value = "abc";
+      expect(survey.getValue(name)).toBe("abc");
+      expect(survey.data).toEqual({ [name]: "abc" });
+      expect(JSON.stringify(survey.data)).toBe("{\"" + name + "\":\"abc\"}");
+      survey.data = { [name]: "xyz", q2: 1 };
+      expect(q.value, "data round-trip").toBe("xyz");
+      survey.mergeData({ [name]: "merged" });
+      expect(q.value, "mergeData").toBe("merged");
+      survey.clearValue(name);
+      expect(q.isEmpty(), "cleared").toBe(true);
+      expect(survey.data).toEqual({ q2: 1 });
+
+      q.name = "q1";
+      expect(survey.getQuestionByName("q1"), "renamed").toBe(q);
+      expect(survey.getQuestionByName(name), "old name after rename").toBeNull();
+      q.name = name;
+      expect(survey.getQuestionByName(name), "renamed back").toBe(q);
+      expect(survey.getQuestionByName("q1"), "intermediate name after renaming back").toBeNull();
+
+      survey.pages[0].removeElement(q);
+      expect(survey.getQuestionByName(name), "removed").toBeNull();
+      expect(survey.getQuestionsByValueName(name), "removed, by value name").toBeNull();
+      survey.dispose();
+    });
+    test("valueName '" + name + "' on a question with another name, Bug#11858", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", valueName: name }] });
+      const q = survey.getQuestionByName("q1");
+      expect(survey.getQuestionsByValueName(name)).toEqual([q]);
+      expect(survey.getQuestionByValueName(name.toUpperCase(), true)).toBe(q);
+      expect(q.isEmpty()).toBe(true);
+      q.value = 5;
+      expect(survey.data).toEqual({ [name]: 5 });
+      survey.dispose();
+    });
+    test("Expressions and triggers read a question named '" + name + "', Bug#11858", () => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: name },
+          { type: "text", name: "q2", visibleIf: "{" + name + "} notempty" },
+          { type: "text", name: "q3" }
+        ],
+        triggers: [{ type: "setvalue", expression: "{" + name + "} = 'go'", setToName: "q3", setValue: "done" }]
+      });
+      const q = survey.getQuestionByName(name);
+      const q2 = survey.getQuestionByName("q2");
+      const q3 = survey.getQuestionByName("q3");
+      expect(q2.isVisible, "hidden while unanswered").toBe(false);
+      survey.runTriggers();
+      expect(q3.isEmpty(), "trigger does not run while unanswered").toBe(true);
+      q.value = "stop";
+      expect(q2.isVisible, "visible after a value").toBe(true);
+      expect(q3.isEmpty(), "trigger does not run on another value").toBe(true);
+      q.value = "go";
+      expect(q3.value, "trigger runs").toBe("done");
+      survey.dispose();
+    });
+  });
+  test("Lookups of missing Object.prototype member names, Bug#11858", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(survey.getQuestionByName("toString")).toBeNull();
+    expect(survey.getQuestionByName("hasOwnProperty", true)).toBeNull();
+    expect(survey.getQuestionsByValueName("constructor")).toBeNull();
+    expect(survey.getQuestionByValueName("constructor", true)).toBeNull();
+    expect(survey.getValue("valueOf")).toBeUndefined();
+    expect(survey.getVariable("constructor")).toBeUndefined();
+    expect(survey.getVariableNames()).toEqual([]);
+    expect(survey.runCondition("{constructor} empty"), "an unknown name is empty in an expression").toBe(true);
+    survey.dispose();
+  });
+  test("Variables named after Object.prototype members, Bug#11858", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.setVariable("Constructor", 5);
+    expect(survey.getVariable("constructor")).toBe(5);
+    expect(survey.getVariableNames()).toEqual(["constructor"]);
+    expect(survey.runCondition("{constructor} = 5")).toBe(true);
+    survey.setVariables({ valueOf: 1, toString: 2 });
+    expect(survey.getVariable("valueOf")).toBe(1);
+    expect(survey.getVariable("tostring")).toBe(2);
+    survey.setVariables({ toString: 3 }, true);
+    expect(survey.getVariableNames()).toEqual(["tostring"]);
+    survey.dispose();
+  });
+
+  test("__proto__ is never stored as a data key or a variable name, Bug#11858", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const check = (reason: string) => {
+      expect(({} as any).polluted, reason + ": Object.prototype is untouched").toBeUndefined();
+      expect(Object.getPrototypeOf(survey.data), reason + ": data prototype").toBe(Object.prototype);
+      expect(Object.keys(survey.data), reason + ": data keys").toEqual(["q1"]);
+    };
+    survey.setValue("q1", 1);
+    survey.setValue("__proto__", JSON.parse(payload));
+    check("setValue");
+    survey.data = JSON.parse("{ \"q1\": 2, \"__proto__\": " + payload + " }");
+    check("data setter");
+    survey.setDataCore(JSON.parse("{ \"q1\": 3, \"__proto__\": " + payload + " }"));
+    check("setDataCore");
+    survey.mergeData(JSON.parse("{ \"q1\": 4, \"__proto__\": " + payload + " }"));
+    check("mergeData");
+    expect(survey.getValue("q1")).toBe(4);
+    expect(survey.getValue("__proto__")).toBeUndefined();
+
+    survey.setVariable("__proto__", JSON.parse(payload));
+    survey.setVariable("__PROTO__", JSON.parse(payload));
+    survey.setVariables(JSON.parse("{ \"v1\": 1, \"__proto__\": " + payload + " }"));
+    check("variables");
+    expect(survey.getVariable("__proto__")).toBeUndefined();
+    expect(survey.getVariableNames()).toEqual(["v1"]);
+    expect(survey.getVariable("v1")).toBe(1);
+    survey.setVariables({ v2: 2 }, true);
+    expect(survey.getVariableNames(), "clearPrevious").toEqual(["v2"]);
+    survey.dispose();
   });
 });

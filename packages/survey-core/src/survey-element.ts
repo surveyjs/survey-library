@@ -29,7 +29,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
-import { scrollElementIntoScroller, scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
@@ -219,43 +220,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
-    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl, scrollIntoScroller) : false;
-    if (!res) {
-      setTimeout(() => {
-        SurveyElement.focusElementCore(elementId, containerEl, scrollIntoScroller);
-      }, isTimeOut ? 100 : 10);
-    }
-    return res;
-  }
-  private static focusElementCore(element: string | (() => HTMLElement), containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
-    const { root } = settings.environment;
-    if (!root && !containerEl) return false;
-
-    let el: HTMLElement;
-    if (typeof element == "string") {
-      el = containerEl ? containerEl.querySelector(`#${CSS.escape(element)}`) : root.getElementById(element);
-    } else {
-      el = element();
-    }
-    // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-    if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
-      // Native focus scrolling fights the centering animation; preventScroll lets the
-      // survey move the focused question itself.
-      // Keep the keyboard focus ring so :focus-visible styles apply (radio, checkbox, boolean, image picker).
-      const scroller = scrollIntoScroller && el.closest ? el.closest(".sv-scroll__scroller") as HTMLElement : null;
-      if (scroller) {
-        scrollElementIntoScroller(el, scroller);
-        el.focus({ focusVisible: true, preventScroll: true } as any);
-      } else if (scrollIntoScroller) {
-        el.focus({ focusVisible: true, preventScroll: true } as any);
-      } else {
-        SurveyElement.ScrollElementToViewCore(el, true, false);
-        el.focus({ focusVisible: true } as any);
-      }
-      return true;
-    }
-    return false;
+    return focusElement(elementId, isTimeOut, {
+      containerEl: containerEl,
+      scrollIntoScroller: scrollIntoScroller,
+      scrollIntoView: (el: HTMLElement) => { SurveyElement.ScrollElementToViewCore(el, true, false); }
+    });
   }
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");

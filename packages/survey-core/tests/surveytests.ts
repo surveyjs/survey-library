@@ -1,6 +1,6 @@
 import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
-import { getQuestionElementForScroller, scrollElementIntoScroller } from "../src/utils/scroll-utils";
+import { AnimationFrameQueue, mockRect } from "./test-helpers";
 import { SurveyModel, DefaultTheme } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel, QuestionRowModel } from "../src/panel";
@@ -75,7 +75,7 @@ import { CustomError } from "../src/error";
 import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { IConfirmDialogOptions } from "../src/popup";
 describe("Survey", () => {
   settings.autoAdvanceDelay = 0;
@@ -15295,104 +15295,144 @@ describe("Survey", () => {
     settings.animationEnabled = false;
   });
 
-  test("ScrollElementIntoScroller centers a question that fits the scroller", () => {
-    const scroller = document.createElement("div");
-    const el = document.createElement("div");
-    scroller.appendChild(el);
-    document.body.appendChild(scroller);
-    scroller.getBoundingClientRect = () => ({ top: 100, bottom: 300, left: 0, right: 100, width: 100, height: 200, x: 0, y: 100, toJSON: () => {} }) as DOMRect;
-    el.getBoundingClientRect = () => ({ top: 250, bottom: 290, left: 0, right: 100, width: 100, height: 40, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
-    scroller.scrollTop = 80;
-    scrollElementIntoScroller(el, scroller, { block: "center" });
-    // Question center is at 270, scroller center is at 200, so scroll by +70.
-    expect(scroller.scrollTop).toBe(150);
-    el.getBoundingClientRect = () => ({ top: 180, bottom: 220, left: 0, right: 100, width: 100, height: 40, x: 0, y: 180, toJSON: () => {} }) as DOMRect;
-    scrollElementIntoScroller(el, scroller, { block: "center" });
-    expect(scroller.scrollTop).toBe(150);
-    el.getBoundingClientRect = () => ({ top: 50, bottom: 350, left: 0, right: 100, width: 100, height: 300, x: 0, y: 50, toJSON: () => {} }) as DOMRect;
-    scroller.scrollTop = 50;
-    scrollElementIntoScroller(el, scroller, { block: "center" });
-    expect(scroller.scrollTop).toBe(0);
-    const originalRAF = window.requestAnimationFrame;
-    let now = 0;
-    window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
-      now += 250;
-      cb(now);
-      return now;
-    }) as any;
-    el.getBoundingClientRect = () => ({ top: 250, bottom: 290, left: 0, right: 100, width: 100, height: 40, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
-    scroller.scrollTop = 80;
-    try {
-      scrollElementIntoScroller(el, scroller, { block: "center", behavior: "smooth" });
-      expect(scroller.scrollTop).toBe(150);
-    } finally {
-      window.requestAnimationFrame = originalRAF;
+  describe("autoCenterFocusedQuestion", () => {
+    let frames: AnimationFrameQueue;
+    let roots: Array<HTMLElement>;
+    beforeEach(() => {
+      frames = new AnimationFrameQueue();
+      frames.install();
+      roots = [];
+    });
+    afterEach(() => {
+      frames.uninstall();
+      roots.forEach(root => root.remove());
+    });
+    // A rendered survey root with a 200px survey scroller at top 100 and a 40px question at top 250 (scrollTop 80).
+    function renderQuestion(survey: SurveyModel, name: string = "q1"): { root: HTMLElement, scroller: HTMLElement, input: HTMLInputElement } {
+      const q = survey.getQuestionByName(name);
+      const root = document.createElement("div");
+      const scroller = document.createElement("div");
+      scroller.className = "sv-scroll__scroller";
+      const question = document.createElement("div");
+      question.id = q.id;
+      question.setAttribute("data-name", name);
+      const input = document.createElement("input");
+      input.id = q.inputId;
+      // jsdom performs no layout, so offsetParent is always null and the input would count as hidden.
+      Object.defineProperty(input, "offsetParent", { configurable: true, get: () => question });
+      question.appendChild(input);
+      scroller.appendChild(question);
+      root.appendChild(scroller);
+      document.body.appendChild(root);
+      mockRect(scroller, 100, 200);
+      // Content rectangles move with the scroll position, as in a real layout.
+      const followScroll = (el: HTMLElement, contentTop: number, height: number) => {
+        el.getBoundingClientRect = () => {
+          const top = contentTop - scroller.scrollTop;
+          return { top: top, bottom: top + height, left: 0, right: 100, width: 100, height: height, x: 0, y: top, toJSON: () => { } } as DOMRect;
+        };
+      };
+      followScroll(question, 330, 40);
+      followScroll(input, 340, 20);
+      scroller.scrollTop = 80;
+      roots.push(root);
+      return { root, scroller, input };
     }
-    scroller.remove();
-  });
+    function focusIn(el: HTMLElement): void {
+      el.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    }
 
-  test("GetQuestionElementForScroller returns the closest question root", () => {
-    const question = document.createElement("div");
-    question.setAttribute("data-name", "q1");
-    const input = document.createElement("input");
-    question.appendChild(input);
-    document.body.appendChild(question);
-    expect(getQuestionElementForScroller(input)).toBe(question);
-    expect(getQuestionElementForScroller(question)).toBe(question);
-    const orphan = document.createElement("input");
-    document.body.appendChild(orphan);
-    expect(getQuestionElementForScroller(orphan)).toBe(orphan);
-    question.remove();
-    orphan.remove();
-  });
+    test("the property is off by default, not serialized, and toggles centering", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      expect(survey.autoCenterFocusedQuestion).toBe(false);
+      const { root, scroller, input } = renderQuestion(survey);
+      survey.afterRenderSurvey(root);
+      frames.runFrame();
+      focusIn(input);
+      expect(scroller.scrollTop, "off by default").toBe(80);
 
-  test("focusin centers the question when autoCenterFocusedQuestion is on", () => {
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    survey.autoCenterFocusedQuestion = true;
-    const host = document.createElement("div");
-    host.style.overflowY = "auto";
-    Object.defineProperty(host, "scrollHeight", { configurable: true, value: 800 });
-    Object.defineProperty(host, "clientHeight", { configurable: true, value: 200 });
-    const question = document.createElement("div");
-    question.setAttribute("data-name", "q1");
-    const input = document.createElement("input");
-    question.appendChild(input);
-    host.appendChild(question);
-    document.body.appendChild(host);
-    survey.rootElement = host;
-    host.getBoundingClientRect = () => ({ top: 100, bottom: 300, left: 0, right: 100, width: 100, height: 200, x: 0, y: 100, toJSON: () => {} }) as DOMRect;
-    question.getBoundingClientRect = () => ({ top: 250, bottom: 290, left: 0, right: 100, width: 100, height: 40, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
-    input.getBoundingClientRect = () => ({ top: 260, bottom: 280, left: 0, right: 100, width: 100, height: 20, x: 0, y: 260, toJSON: () => {} }) as DOMRect;
-    host.scrollTop = 80;
-    survey["onFocusedQuestionFocusIn"]({ target: input } as FocusEvent);
-    expect(host.scrollTop).toBe(150);
-    host.remove();
-  });
+      survey.autoCenterFocusedQuestion = true;
+      expect(survey.toJSON().autoCenterFocusedQuestion).toBeUndefined();
+      frames.runFrame();
+      focusIn(input);
+      expect(scroller.scrollTop, "turned on").toBe(150);
 
-  test("autoCenterFocusedQuestion is off by default and does not center on focusin", () => {
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    expect(survey.autoCenterFocusedQuestion).toBeFalsy();
-    const host = document.createElement("div");
-    host.style.overflowY = "auto";
-    Object.defineProperty(host, "scrollHeight", { configurable: true, value: 800 });
-    Object.defineProperty(host, "clientHeight", { configurable: true, value: 200 });
-    const question = document.createElement("div");
-    question.setAttribute("data-name", "q1");
-    const input = document.createElement("input");
-    question.appendChild(input);
-    host.appendChild(question);
-    document.body.appendChild(host);
-    survey.rootElement = host;
-    host.getBoundingClientRect = () => ({ top: 100, bottom: 300, left: 0, right: 100, width: 100, height: 200, x: 0, y: 100, toJSON: () => {} }) as DOMRect;
-    question.getBoundingClientRect = () => ({ top: 250, bottom: 290, left: 0, right: 100, width: 100, height: 40, x: 0, y: 250, toJSON: () => {} }) as DOMRect;
-    input.getBoundingClientRect = () => ({ top: 260, bottom: 280, left: 0, right: 100, width: 100, height: 20, x: 0, y: 260, toJSON: () => {} }) as DOMRect;
-    host.scrollTop = 80;
-    survey["onFocusedQuestionFocusIn"]({ target: input } as FocusEvent);
-    expect(host.scrollTop).toBe(80);
-    survey.autoCenterFocusedQuestion = true;
-    expect(survey.autoCenterFocusedQuestion).toBeTruthy();
-    expect(survey.toJSON().autoCenterFocusedQuestion).toBeUndefined();
-    host.remove();
+      survey.autoCenterFocusedQuestion = false;
+      scroller.scrollTop = 80;
+      frames.runFrame();
+      focusIn(input);
+      expect(scroller.scrollTop, "turned off").toBe(80);
+      survey.dispose();
+    });
+
+    test("a value set before rendering is applied when the survey is rendered", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      survey.autoCenterFocusedQuestion = true;
+      const { root, scroller, input } = renderQuestion(survey);
+      survey.afterRenderSurvey(root);
+      focusIn(input);
+      expect(scroller.scrollTop, "attached on the next frame").toBe(80);
+      frames.runFrame();
+      focusIn(input);
+      expect(scroller.scrollTop).toBe(150);
+      survey.dispose();
+    });
+
+    test("destroying, rendering again, and disposing follow the rendered root", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      survey.autoCenterFocusedQuestion = true;
+      const first = renderQuestion(survey);
+      survey.afterRenderSurvey(first.root);
+      frames.runFrame();
+      survey.beforeDestroySurveyElement();
+      frames.runFrame();
+      focusIn(first.input);
+      expect(first.scroller.scrollTop, "destroyed").toBe(80);
+
+      const second = renderQuestion(survey);
+      survey.afterRenderSurvey(second.root);
+      frames.runFrame();
+      focusIn(first.input);
+      expect(first.scroller.scrollTop, "the old root stays detached").toBe(80);
+      focusIn(second.input);
+      expect(second.scroller.scrollTop, "rendered again").toBe(150);
+
+      second.scroller.scrollTop = 80;
+      survey.dispose();
+      frames.runFrame();
+      focusIn(second.input);
+      expect(second.scroller.scrollTop, "disposed").toBe(80);
+    });
+
+    test("rendering into another element without destroying detaches the previous root", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      survey.autoCenterFocusedQuestion = true;
+      const first = renderQuestion(survey);
+      survey.afterRenderSurvey(first.root);
+      frames.runFrame();
+      const second = renderQuestion(survey);
+      survey.afterRenderSurvey(second.root);
+      frames.runFrame();
+      focusIn(first.input);
+      expect(first.scroller.scrollTop).toBe(80);
+      focusIn(second.input);
+      expect(second.scroller.scrollTop).toBe(150);
+      survey.dispose();
+    });
+
+    test("programmatic question focus centers the question and focuses the input without native scrolling", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      survey.autoCenterFocusedQuestion = true;
+      const { root, scroller, input } = renderQuestion(survey);
+      survey.afterRenderSurvey(root);
+      frames.runFrame();
+      const focusSpy = vi.spyOn(input, "focus");
+      survey.getQuestionByName("q1").focus();
+      expect(scroller.scrollTop).toBe(150);
+      expect(focusSpy).toHaveBeenCalledWith({ focusVisible: true, preventScroll: true });
+      expect(document.activeElement).toBe(input);
+      survey.dispose();
+    });
   });
 
   test("Check survey isMobile in design mode", () => {
@@ -20689,7 +20729,7 @@ describe("Survey", () => {
     const input = document.createElement("input");
     input.id = question.inputId;
     // jsdom does not perform layout, so `offsetParent` is always null and
-    // SurveyElement.focusElementCore() bails out before calling focus().
+    // focusElementCore() in utils/focus-utils bails out before calling focus().
     Object.defineProperty(input, "offsetParent", { configurable: true, get: () => survey.rootElement });
     survey.rootElement.appendChild(input);
     root.shadowRoot?.appendChild(survey.rootElement);

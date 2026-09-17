@@ -57,7 +57,7 @@ import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
-import { getQuestionElementForScroller, getScrollContainerForElement, isDocumentScroller, scrollElementIntoScroller } from "./utils/scroll-utils";
+import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -1689,7 +1689,7 @@ export class SurveyModel extends SurveyElementCore
    */
   @property() autoFocusFirstError: boolean;
   @property({ defaultValue: false, onSet: (_newValue, target: SurveyModel) => {
-    target.setupAutoCenterFocusedQuestion();
+    target.focusedQuestionScroll.setup();
   } }) autoCenterFocusedQuestion: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
@@ -5776,7 +5776,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
-    this.setupAutoCenterFocusedQuestion();
+    this.focusedQuestionScroll.setup();
   }
   forceProcessResponsiveness(): void {
     if (!!this._processingResponsivenessFunc) {
@@ -5786,7 +5786,7 @@ export class SurveyModel extends SurveyElementCore
   beforeDestroySurveyElement() {
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
-    this.disposeAutoCenterFocusedQuestion();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
@@ -6230,7 +6230,7 @@ export class SurveyModel extends SurveyElementCore
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
           if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
             this.suspendLazyRendering();
-            this.scrollFocusedQuestionIntoView(htmlElement);
+            this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
@@ -8798,7 +8798,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose(): void {
     this.unConnectEditingObj();
-    this.disposeAutoCenterFocusedQuestion();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
@@ -8846,62 +8846,12 @@ export class SurveyModel extends SurveyElementCore
     return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
   }
 
-  private focusedQuestionFocusInHandler: (e: FocusEvent) => void;
-  private focusedQuestionSetupGeneration = 0;
-
-  private setupAutoCenterFocusedQuestion(): void {
-    this.disposeAutoCenterFocusedQuestion();
-    if (!this.autoCenterFocusedQuestion || !this.rootElement || !DomWindowHelper.isAvailable()) return;
-    const generation = ++this.focusedQuestionSetupGeneration;
-    DomWindowHelper.requestAnimationFrame(() => {
-      if (generation !== this.focusedQuestionSetupGeneration || !this.rootElement) return;
-      this.addFocusedQuestionScrollListener();
-    });
-  }
-
-  private disposeAutoCenterFocusedQuestion(): void {
-    this.focusedQuestionSetupGeneration++;
-    this.removeFocusedQuestionScrollListener();
-  }
-
-  private addFocusedQuestionScrollListener(): void {
-    this.focusedQuestionFocusInHandler = (e: FocusEvent) => this.onFocusedQuestionFocusIn(e);
-    this.rootElement.addEventListener("focusin", this.focusedQuestionFocusInHandler);
-  }
-
-  private removeFocusedQuestionScrollListener(): void {
-    if (this.rootElement && this.focusedQuestionFocusInHandler) {
-      this.rootElement.removeEventListener("focusin", this.focusedQuestionFocusInHandler);
+  private focusedQuestionScrollValue: FocusedQuestionScrollController;
+  private get focusedQuestionScroll(): FocusedQuestionScrollController {
+    if (!this.focusedQuestionScrollValue) {
+      this.focusedQuestionScrollValue = new FocusedQuestionScrollController(this);
     }
-    this.focusedQuestionFocusInHandler = undefined;
-  }
-
-  private get focusedQuestionScrollBehavior(): ScrollBehavior {
-    return settings.animationEnabled ? "smooth" : "auto";
-  }
-  private scrollFocusedQuestionIntoView(target: HTMLElement): void {
-    if (!this.autoCenterFocusedQuestion) return;
-    if (!target || typeof target.getBoundingClientRect !== "function") return;
-    const questionEl = getQuestionElementForScroller(target);
-    const elToScroll = questionEl || target;
-    const scroller = getScrollContainerForElement(elToScroll)
-      || ((this.scrollerElement && this.scrollerElement.contains(elToScroll)) ? this.scrollerElement as HTMLElement : null);
-    if (!scroller) return;
-    const questionRect = elToScroll.getBoundingClientRect();
-    const visibleHeight = isDocumentScroller(scroller)
-      ? (DomWindowHelper.getInnerHeight() || scroller.clientHeight)
-      : scroller.getBoundingClientRect().height;
-    // A question that fits the container is centered. A taller one would clip the
-    // focused control if we centered the question box, so keep that control in view.
-    const el = questionEl && questionRect.height <= visibleHeight ? questionEl : target;
-    scrollElementIntoScroller(el, scroller, {
-      block: "center",
-      behavior: this.focusedQuestionScrollBehavior
-    });
-  }
-  private onFocusedQuestionFocusIn(e: FocusEvent): void {
-    if (!this.autoCenterFocusedQuestion) return;
-    this.scrollFocusedQuestionIntoView(e.target as HTMLElement);
+    return this.focusedQuestionScrollValue;
   }
 
   public onScroll(): void {

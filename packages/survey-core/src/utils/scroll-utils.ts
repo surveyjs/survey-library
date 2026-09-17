@@ -36,7 +36,7 @@ export function scrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoVi
         lastPos = newPos;
         same = 0;
       }
-      requestAnimationFrame(checkPos);
+      DomWindowHelper.requestAnimationFrame(checkPos);
     };
     DomWindowHelper.requestAnimationFrame(checkPos);
   }
@@ -56,18 +56,14 @@ export function scrollElementToViewCore(el: Element, checkLeft: boolean, scrollI
   return needScroll;
 }
 
-export function scrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-  return scrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
-}
-
-export function getQuestionElementForScroller(el: HTMLElement): HTMLElement {
-  if (!el || typeof el.closest !== "function") return el;
-  return (el.closest("[data-name]") as HTMLElement) || el;
+export function getClosestSurveyScroller(el: HTMLElement): HTMLElement | null {
+  if (!el || typeof el.closest !== "function") return null;
+  return el.closest(".sv-scroll__scroller") as HTMLElement;
 }
 
 export function getScrollContainerForElement(el: HTMLElement): HTMLElement | null {
   if (!el) return null;
-  const innerScroller = typeof el.closest === "function" ? el.closest(".sv-scroll__scroller") as HTMLElement : null;
+  const innerScroller = getClosestSurveyScroller(el);
   if (innerScroller) return innerScroller;
   return (findScrollableParent(el.parentElement) as HTMLElement) || null;
 }
@@ -77,6 +73,16 @@ export function isDocumentScroller(scroller: HTMLElement): boolean {
   const docEl = DomDocumentHelper.getDocumentElement();
   const body = DomDocumentHelper.getBody();
   return !!scroller && (scroller === docEl || scroller === body || (!!doc && scroller === doc.scrollingElement));
+}
+
+// The visible band of a scroller in viewport coordinates. A document scroller is visible through the window,
+// so its own bounding rectangle (the whole page) does not describe what the user sees.
+export function getScrollerViewport(scroller: HTMLElement): { top: number, height: number } {
+  if (isDocumentScroller(scroller)) {
+    return { top: 0, height: DomWindowHelper.getInnerHeight() || scroller.clientHeight };
+  }
+  const rect = scroller.getBoundingClientRect();
+  return { top: rect.top, height: rect.height || (rect.bottom - rect.top) };
 }
 
 const scrollerAnimationIds = new WeakMap<HTMLElement, number>();
@@ -118,12 +124,7 @@ function animateScrollTo(scroller: HTMLElement, top: number, duration: number): 
 export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement, options?: { block?: ScrollLogicalPosition, behavior?: ScrollBehavior }): void {
   if (!el || !scroller) return;
   const elRect = el.getBoundingClientRect();
-  const scrollerRect = scroller.getBoundingClientRect();
-  const documentScroller = isDocumentScroller(scroller);
-  const visibleTop = documentScroller ? 0 : scrollerRect.top;
-  const visibleHeight = documentScroller
-    ? (DomWindowHelper.getInnerHeight() || scroller.clientHeight)
-    : (scrollerRect.height || (scrollerRect.bottom - scrollerRect.top));
+  const { top: visibleTop, height: visibleHeight } = getScrollerViewport(scroller);
   let delta = 0;
   const block = options?.block || "nearest";
   if (block === "center" && elRect.height < visibleHeight) {

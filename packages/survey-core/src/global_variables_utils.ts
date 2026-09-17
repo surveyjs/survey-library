@@ -47,6 +47,11 @@ export class DomWindowHelper {
     }
     return null;
   }
+  public static cancelAnimationFrame(id: number): void {
+    if (DomWindowHelper.isAvailable()) {
+      window.cancelAnimationFrame(id);
+    }
+  }
   public static isEventListenerAvailable(): boolean {
     if (!DomWindowHelper.isAvailable()) return false;
     return typeof window.addEventListener === "function" && typeof window.removeEventListener === "function";

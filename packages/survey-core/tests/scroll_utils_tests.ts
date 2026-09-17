@@ -1,6 +1,6 @@
-import { getScrollContainerForElement, getScrollerViewport, scrollElementIntoScroller } from "../src/utils/scroll-utils";
+import { cancelScrollAnimation, getScrollContainerForElement, getScrollerViewport, scrollElementIntoScroller } from "../src/utils/scroll-utils";
 import { SurveyElement } from "../src/survey-element";
-import { AnimationFrameQueue, mockRect } from "./test-helpers";
+import { AnimationFrameQueue, mockRect, mockScrolledRect } from "./test-helpers";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
 describe("scroll-utils", () => {
@@ -129,5 +129,109 @@ describe("scroll-utils", () => {
     frames.runFrame();
     expect(done).toBe(3);
     expect(frames.pendingCount).toBe(0);
+  });
+});
+
+describe("scroll-utils: animation cancellation", () => {
+  let frames: AnimationFrameQueue;
+  let fixtures: Array<HTMLElement>;
+  // A 200px scroller at viewport top 0 holding question A (content top 300, height 40).
+  // Centering A from scrollTop 0 targets 220; the 500ms animation reaches 110 halfway through.
+  function createScroller(): { scroller: HTMLElement, questionA: HTMLElement } {
+    const scroller = document.createElement("div");
+    const questionA = document.createElement("div");
+    scroller.appendChild(questionA);
+    document.body.appendChild(scroller);
+    mockRect(scroller, 0, 200);
+    mockScrolledRect(questionA, scroller, 300, 40);
+    scroller.scrollTop = 0;
+    fixtures.push(scroller);
+    return { scroller, questionA };
+  }
+  function addQuestion(scroller: HTMLElement, contentTop: number): HTMLElement {
+    const question = document.createElement("div");
+    scroller.appendChild(question);
+    mockScrolledRect(question, scroller, contentTop, 40);
+    return question;
+  }
+  function startCenteringHalfway(scroller: HTMLElement, question: HTMLElement): void {
+    scrollElementIntoScroller(question, scroller, { block: "center", behavior: "smooth" });
+    frames.runFrames(2);
+    expect(scroller.scrollTop).toBe(110);
+  }
+  beforeEach(() => {
+    frames = new AnimationFrameQueue(250);
+    frames.install();
+    fixtures = [];
+  });
+  afterEach(() => {
+    frames.uninstall();
+    fixtures.forEach(el => el.remove());
+  });
+
+  test("a request that needs no movement stops an obsolete animation", () => {
+    const { scroller, questionA } = createScroller();
+    // At scrollTop 110, B (content top 190) is centered: 190 - 110 + 20 = 100.
+    const questionB = addQuestion(scroller, 190);
+    startCenteringHalfway(scroller, questionA);
+    scrollElementIntoScroller(questionB, scroller, { block: "center", behavior: "smooth" });
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(110);
+    expect(frames.pendingCount).toBe(0);
+  });
+
+  test("an immediate scroll replaces a running smooth scroll", () => {
+    const { scroller, questionA } = createScroller();
+    // At scrollTop 110, C (content top 500) needs +310 to be centered.
+    const questionC = addQuestion(scroller, 500);
+    startCenteringHalfway(scroller, questionA);
+    scrollElementIntoScroller(questionC, scroller, { block: "center" });
+    expect(scroller.scrollTop).toBe(420);
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(420);
+    expect(frames.pendingCount).toBe(0);
+  });
+
+  test("a smooth scroll replaces a running smooth scroll and only the latest target wins", () => {
+    const { scroller, questionA } = createScroller();
+    const questionC = addQuestion(scroller, 500);
+    startCenteringHalfway(scroller, questionA);
+    scrollElementIntoScroller(questionC, scroller, { block: "center", behavior: "smooth" });
+    frames.runFrames(2);
+    expect(scroller.scrollTop).toBeCloseTo(265, 0);
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(420);
+    expect(frames.pendingCount).toBe(0);
+  });
+
+  test("animations on independent scrollers do not cancel each other", () => {
+    const first = createScroller();
+    const second = createScroller();
+    scrollElementIntoScroller(first.questionA, first.scroller, { block: "center", behavior: "smooth" });
+    frames.runFrame();
+    scrollElementIntoScroller(second.questionA, second.scroller, { block: "center", behavior: "smooth" });
+    frames.runFrames(4);
+    expect(first.scroller.scrollTop).toBe(220);
+    expect(second.scroller.scrollTop).toBe(220);
+    expect(frames.pendingCount).toBe(0);
+  });
+
+  test("cancelScrollAnimation accepts frame id zero, respects the owner, and is safe to repeat", () => {
+    frames.uninstall();
+    frames = new AnimationFrameQueue(250, 0);
+    frames.install();
+    const { scroller, questionA } = createScroller();
+    const owner = {};
+    scrollElementIntoScroller(questionA, scroller, { block: "center", behavior: "smooth", owner: owner });
+    cancelScrollAnimation(scroller, {});
+    expect(frames.pendingCount, "another owner cannot cancel").toBe(1);
+    // The pending frame has id 0.
+    cancelScrollAnimation(scroller, owner);
+    cancelScrollAnimation(scroller, owner);
+    cancelScrollAnimation(scroller);
+    cancelScrollAnimation(null as any);
+    expect(frames.pendingCount).toBe(0);
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(0);
   });
 });

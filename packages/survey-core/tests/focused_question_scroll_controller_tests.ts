@@ -1,5 +1,6 @@
 import { FocusedQuestionScrollController, IFocusedQuestionScrollHost } from "../src/focused-question-scroll-controller";
-import { AnimationFrameQueue, mockRect } from "./test-helpers";
+import { AnimationFrameQueue, mockRect, mockScrolledRect } from "./test-helpers";
+import { settings } from "../src/settings";
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
 describe("FocusedQuestionScrollController", () => {
@@ -174,5 +175,122 @@ describe("FocusedQuestionScrollController", () => {
     host.autoCenterFocusedQuestion = true;
     controller.scrollIntoView(question);
     expect(scroller.scrollTop).toBe(150);
+  });
+});
+
+describe("FocusedQuestionScrollController: animation cancellation", () => {
+  let frames: AnimationFrameQueue;
+  let fixtures: Array<HTMLElement>;
+  const animationEnabled = settings.animationEnabled;
+
+  // A 200px survey scroller at viewport top 0 holding a question with content top 300 and height 40.
+  // Centering from scrollTop 0 targets 220; the 500ms animation reaches 110 halfway through.
+  function createRoot(): { root: HTMLElement, scroller: HTMLElement, question: HTMLElement } {
+    const root = document.createElement("div");
+    const scroller = document.createElement("div");
+    scroller.className = "sv-scroll__scroller";
+    const question = document.createElement("div");
+    question.setAttribute("data-name", "q1");
+    scroller.appendChild(question);
+    root.appendChild(scroller);
+    document.body.appendChild(root);
+    mockRect(scroller, 0, 200);
+    mockScrolledRect(question, scroller, 300, 40);
+    scroller.scrollTop = 0;
+    fixtures.push(root);
+    return { root, scroller, question };
+  }
+  function install(firstFrameId?: number): void {
+    frames = new AnimationFrameQueue(250, firstFrameId);
+    frames.install();
+  }
+  beforeEach(() => {
+    settings.animationEnabled = true;
+    fixtures = [];
+  });
+  afterEach(() => {
+    frames.uninstall();
+    settings.animationEnabled = animationEnabled;
+    fixtures.forEach(el => el.remove());
+  });
+
+  test("dispose stops the active animation, accepts frame id zero, and is safe to repeat", () => {
+    install(0);
+    const { root, scroller, question } = createRoot();
+    const controller = new FocusedQuestionScrollController({ autoCenterFocusedQuestion: true, rootElement: root });
+    // The animation's first frame gets id 0.
+    controller.scrollIntoView(question);
+    controller.dispose();
+    controller.dispose();
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(0);
+    expect(frames.pendingCount).toBe(0);
+
+    controller.scrollIntoView(question);
+    frames.runFrames(2);
+    expect(scroller.scrollTop).toBe(110);
+    controller.dispose();
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(110);
+    expect(frames.pendingCount).toBe(0);
+    controller.dispose();
+  });
+
+  test("a cancelled animation frame that still runs neither writes nor schedules more frames", () => {
+    install();
+    // Simulates a frame that was already dispatched when the cancellation happened.
+    window.cancelAnimationFrame = (() => { }) as any;
+    const { root, scroller, question } = createRoot();
+    const controller = new FocusedQuestionScrollController({ autoCenterFocusedQuestion: true, rootElement: root });
+    controller.scrollIntoView(question);
+    frames.runFrames(2);
+    controller.dispose();
+    frames.runFrames(4);
+    expect(scroller.scrollTop).toBe(110);
+    expect(frames.pendingCount).toBe(0);
+  });
+
+  test("disposing an earlier owner does not cancel a later owner's animation on a shared document scroller", () => {
+    install();
+    const docEl = document.documentElement;
+    const center = window.innerHeight / 2;
+    const createDocumentRoot = (contentTop: number) => {
+      const root = document.createElement("div");
+      const question = document.createElement("div");
+      question.setAttribute("data-name", "q");
+      root.appendChild(question);
+      document.body.appendChild(root);
+      mockScrolledRect(question, docEl, contentTop, 40);
+      fixtures.push(root);
+      return { root, question };
+    };
+    const first = createDocumentRoot(center + 400);
+    const second = createDocumentRoot(center + 1000);
+    const firstController = new FocusedQuestionScrollController({ autoCenterFocusedQuestion: true, rootElement: first.root });
+    const secondController = new FocusedQuestionScrollController({ autoCenterFocusedQuestion: true, rootElement: second.root });
+    docEl.scrollTop = 0;
+    try {
+      firstController.scrollIntoView(first.question);
+      frames.runFrames(2);
+      expect(docEl.scrollTop).toBe(210);
+      secondController.scrollIntoView(second.question);
+      frames.runFrame();
+      firstController.dispose();
+      frames.runFrames(4);
+      // The second question center reaches the window center: content center 1020 + center - scrollTop = center.
+      expect(docEl.scrollTop).toBe(1020);
+      expect(frames.pendingCount).toBe(0);
+
+      secondController.scrollIntoView(first.question);
+      frames.runFrames(2);
+      const halfway = docEl.scrollTop;
+      secondController.dispose();
+      frames.runFrames(4);
+      expect(docEl.scrollTop, "the owner cancels its own animation").toBe(halfway);
+    } finally {
+      firstController.dispose();
+      secondController.dispose();
+      docEl.scrollTop = 0;
+    }
   });
 });

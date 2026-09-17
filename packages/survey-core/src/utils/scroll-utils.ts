@@ -85,44 +85,72 @@ export function getScrollerViewport(scroller: HTMLElement): { top: number, heigh
   return { top: rect.top, height: rect.height || (rect.bottom - rect.top) };
 }
 
-const scrollerAnimationIds = new WeakMap<HTMLElement, number>();
+interface IScrollAnimation {
+  owner: any;
+  frameId: number | null;
+}
+const scrollerAnimations = new WeakMap<HTMLElement, IScrollAnimation>();
 const smoothScrollDuration = 500;
+
+export interface IScrollElementIntoScrollerOptions {
+  block?: ScrollLogicalPosition;
+  behavior?: ScrollBehavior;
+  // Identifies who started a smooth scroll so that only that owner's teardown cancels it.
+  owner?: any;
+}
+
+// Stops the running smooth scroll of the scroller. With an owner, only an animation started by that owner
+// is stopped: surveys that share a scroller (e.g. the document) must not cancel each other's newer requests.
+export function cancelScrollAnimation(scroller: HTMLElement, owner?: any): void {
+  const animation = !!scroller ? scrollerAnimations.get(scroller) : undefined;
+  if (!animation || (owner !== undefined && animation.owner !== owner)) return;
+  scrollerAnimations.delete(scroller);
+  if (animation.frameId !== null) {
+    DomWindowHelper.cancelAnimationFrame(animation.frameId);
+    animation.frameId = null;
+  }
+}
 
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function animateScrollTo(scroller: HTMLElement, top: number, duration: number): void {
-  const prevId = scrollerAnimationIds.get(scroller);
-  const win = DomWindowHelper.getWindow();
-  if (prevId && win) {
-    win.cancelAnimationFrame(prevId);
-  }
+function animateScrollTo(scroller: HTMLElement, top: number, duration: number, owner: any): void {
   const start = scroller.scrollTop;
   const change = top - start;
   if (Math.abs(change) < 1 || duration <= 0) {
     scroller.scrollTop = top;
-    scrollerAnimationIds.delete(scroller);
     return;
   }
+  const animation: IScrollAnimation = { owner: owner, frameId: null };
+  const requestFrame = () => {
+    animation.frameId = DomWindowHelper.requestAnimationFrame(step);
+    if (animation.frameId === null) {
+      scrollerAnimations.delete(scroller);
+    }
+  };
   let startedAt: number | null = null;
   const step = (now: number) => {
+    // A cancelled or replaced animation stops even when its frame was already dispatched.
+    if (scrollerAnimations.get(scroller) !== animation) return;
+    animation.frameId = null;
     if (startedAt === null) startedAt = now;
     const t = Math.min(1, (now - startedAt) / duration);
     scroller.scrollTop = start + change * easeInOutCubic(t);
     if (t < 1) {
-      const id = DomWindowHelper.requestAnimationFrame(step);
-      if (id !== null) scrollerAnimationIds.set(scroller, id);
+      requestFrame();
     } else {
-      scrollerAnimationIds.delete(scroller);
+      scrollerAnimations.delete(scroller);
     }
   };
-  const id = DomWindowHelper.requestAnimationFrame(step);
-  if (id !== null) scrollerAnimationIds.set(scroller, id);
+  scrollerAnimations.set(scroller, animation);
+  requestFrame();
 }
 
-export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement, options?: { block?: ScrollLogicalPosition, behavior?: ScrollBehavior }): void {
+export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement, options?: IScrollElementIntoScrollerOptions): void {
   if (!el || !scroller) return;
+  // Any new request supersedes the running animation, including a request that needs no movement.
+  cancelScrollAnimation(scroller);
   const elRect = el.getBoundingClientRect();
   const { top: visibleTop, height: visibleHeight } = getScrollerViewport(scroller);
   let delta = 0;
@@ -138,7 +166,7 @@ export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement
   const top = scroller.scrollTop + delta;
   const behavior = options?.behavior || "auto";
   if (behavior !== "auto") {
-    animateScrollTo(scroller, top, smoothScrollDuration);
+    animateScrollTo(scroller, top, smoothScrollDuration, options?.owner);
   } else {
     scroller.scrollTop = top;
   }

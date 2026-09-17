@@ -1,6 +1,6 @@
 import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
-import { AnimationFrameQueue, mockRect } from "./test-helpers";
+import { AnimationFrameQueue, mockRect, mockScrolledRect } from "./test-helpers";
 import { SurveyModel, DefaultTheme } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel, QuestionRowModel } from "../src/panel";
@@ -15432,6 +15432,113 @@ describe("Survey", () => {
       expect(focusSpy).toHaveBeenCalledWith({ focusVisible: true, preventScroll: true });
       expect(document.activeElement).toBe(input);
       survey.dispose();
+    });
+  });
+
+  describe("autoCenterFocusedQuestion animation cancellation", () => {
+    let frames: AnimationFrameQueue;
+    let roots: Array<HTMLElement>;
+    const animationEnabled = settings.animationEnabled;
+    beforeEach(() => {
+      settings.animationEnabled = true;
+      frames = new AnimationFrameQueue(250);
+      frames.install();
+      roots = [];
+    });
+    afterEach(() => {
+      frames.uninstall();
+      settings.animationEnabled = animationEnabled;
+      roots.forEach(root => root.remove());
+    });
+    // A 200px survey scroller at viewport top 0 holding a question with content top 300 and height 40.
+    // Centering from scrollTop 0 targets 220; the 500ms animation reaches 110 halfway through.
+    function renderSurvey(): { survey: SurveyModel, root: HTMLElement, scroller: HTMLElement, input: HTMLInputElement } {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      survey.autoCenterFocusedQuestion = true;
+      const root = document.createElement("div");
+      const scroller = document.createElement("div");
+      scroller.className = "sv-scroll__scroller";
+      const question = document.createElement("div");
+      question.setAttribute("data-name", "q1");
+      const input = document.createElement("input");
+      question.appendChild(input);
+      scroller.appendChild(question);
+      root.appendChild(scroller);
+      document.body.appendChild(root);
+      mockRect(scroller, 0, 200);
+      mockScrolledRect(question, scroller, 300, 40);
+      mockScrolledRect(input, scroller, 310, 20);
+      scroller.scrollTop = 0;
+      roots.push(root);
+      return { survey, root, scroller, input };
+    }
+    function focusIn(el: HTMLElement): void {
+      el.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    }
+    function renderAndScrollHalfway(): { survey: SurveyModel, root: HTMLElement, scroller: HTMLElement, input: HTMLInputElement } {
+      const res = renderSurvey();
+      res.survey.afterRenderSurvey(res.root);
+      frames.runFrame();
+      focusIn(res.input);
+      frames.runFrames(2);
+      expect(res.scroller.scrollTop).toBe(110);
+      return res;
+    }
+
+    test("disabling the property stops the running animation, and enabling it again scrolls", () => {
+      const { survey, scroller, input } = renderAndScrollHalfway();
+      survey.autoCenterFocusedQuestion = false;
+      frames.runFrames(4);
+      expect(scroller.scrollTop).toBe(110);
+      expect(frames.pendingCount).toBe(0);
+
+      survey.autoCenterFocusedQuestion = true;
+      frames.runFrame();
+      focusIn(input);
+      frames.runFrames(4);
+      expect(scroller.scrollTop).toBe(220);
+      survey.dispose();
+    });
+
+    test("render teardown stops the running animation and ignores later focus", () => {
+      const { survey, scroller, input } = renderAndScrollHalfway();
+      survey.beforeDestroySurveyElement();
+      frames.runFrames(4);
+      expect(scroller.scrollTop).toBe(110);
+      focusIn(input);
+      expect(frames.pendingCount).toBe(0);
+      frames.runFrames(4);
+      expect(scroller.scrollTop).toBe(110);
+      survey.dispose();
+    });
+
+    test("disposal stops the running animation and ignores later focus", () => {
+      const { survey, scroller, input } = renderAndScrollHalfway();
+      survey.dispose();
+      survey.dispose();
+      frames.runFrames(4);
+      expect(scroller.scrollTop).toBe(110);
+      focusIn(input);
+      expect(frames.pendingCount).toBe(0);
+      expect(scroller.scrollTop).toBe(110);
+    });
+
+    test("teardown or disposal before the deferred setup frame does not attach a listener", () => {
+      const destroyed = renderSurvey();
+      destroyed.survey.afterRenderSurvey(destroyed.root);
+      destroyed.survey.beforeDestroySurveyElement();
+      const disposed = renderSurvey();
+      disposed.survey.afterRenderSurvey(disposed.root);
+      disposed.survey.dispose();
+      frames.runFrame();
+      expect(frames.pendingCount).toBe(0);
+      focusIn(destroyed.input);
+      focusIn(disposed.input);
+      expect(frames.pendingCount).toBe(0);
+      frames.runFrames(4);
+      expect(destroyed.scroller.scrollTop).toBe(0);
+      expect(disposed.scroller.scrollTop).toBe(0);
+      destroyed.survey.dispose();
     });
   });
 

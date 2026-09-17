@@ -1,6 +1,6 @@
 import { settings } from "./settings";
 import { DomWindowHelper } from "./global_variables_utils";
-import { getScrollContainerForElement, getScrollerViewport, scrollElementIntoScroller } from "./utils/scroll-utils";
+import { cancelScrollAnimation, getScrollContainerForElement, getScrollerViewport, scrollElementIntoScroller } from "./utils/scroll-utils";
 
 export interface IFocusedQuestionScrollHost {
   autoCenterFocusedQuestion: boolean;
@@ -14,6 +14,8 @@ export class FocusedQuestionScrollController {
   private focusInHandler = (e: FocusEvent) => this.onFocusIn(e);
   private attachedRoot: HTMLElement;
   private setupGeneration = 0;
+  // Scrollers this controller started smooth scrolls on; teardown cancels only its own animations there.
+  private animatedScrollers: Array<HTMLElement> = [];
 
   constructor(private host: IFocusedQuestionScrollHost) {}
 
@@ -35,6 +37,9 @@ export class FocusedQuestionScrollController {
       this.attachedRoot.removeEventListener("focusin", this.focusInHandler);
       this.attachedRoot = undefined;
     }
+    const scrollers = this.animatedScrollers;
+    this.animatedScrollers = [];
+    scrollers.forEach(scroller => cancelScrollAnimation(scroller, this));
   }
   public scrollIntoView(target: HTMLElement): void {
     if (!this.host.autoCenterFocusedQuestion) return;
@@ -48,10 +53,11 @@ export class FocusedQuestionScrollController {
     // A question that fits the container is centered. A taller one would clip the
     // focused control if we centered the question box, so keep that control in view.
     const el = questionEl && questionRect.height <= visibleHeight ? questionEl : target;
-    scrollElementIntoScroller(el, scroller, {
-      block: "center",
-      behavior: settings.animationEnabled ? "smooth" : "auto"
-    });
+    const behavior: ScrollBehavior = settings.animationEnabled ? "smooth" : "auto";
+    if (behavior !== "auto" && this.animatedScrollers.indexOf(scroller) < 0) {
+      this.animatedScrollers.push(scroller);
+    }
+    scrollElementIntoScroller(el, scroller, { block: "center", behavior: behavior, owner: this });
   }
   public static getQuestionElement(el: HTMLElement): HTMLElement {
     if (!el || typeof el.closest !== "function") return el;

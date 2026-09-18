@@ -35,9 +35,15 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
   constructor(props: any) {
     super(props);
   }
+  protected get question(): QuestionCheckboxModel {
+    return this.props.question;
+  }
   protected doOnItemChange(event: any): void {
     this.question.clickItemHandler(this.item, event.target.checked);
   }
+  handleOnKeyDown = (event: any) => {
+    this.question.onChoiceKeyDown(event);
+  };
   protected renderElementContent(): React.JSX.Element {
     const isChecked = this.question.isItemSelected(this.item);
     return this.renderCheckbox(isChecked);
@@ -67,6 +73,8 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
             onChange={this.handleOnChange}
             required={this.question.hasRequiredError()}
             aria-label={this.ariaLabel}
+            aria-keyshortcuts={this.question.getChoiceKeyboardShortcut(this.item)}
+            onKeyDown={this.handleOnKeyDown}
           />
           {
             this.cssClasses.materialDecorator ?
@@ -79,6 +87,7 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
                   </svg> :
                   null
                 }
+                {this.renderChoiceShortcut()}
               </span> :
               null
           }

@@ -58,3 +58,44 @@
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {
   color: $font-questiontitle-color;
 }
+
+.sd-item__shortcut {
+  @include sjs2--typography--small-strong;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--sjs2-color-component-label-default-text);
+  user-select: none;
+  pointer-events: none;
+}
+
+.sd-item--shortcut {
+  .sd-item__svg {
+    display: none;
+  }
+
+  .sd-item__shortcut {
+    display: flex;
+  }
+
+  .sd-item__decorator {
+    width: var(--sjs2-size-x400);
+    height: var(--sjs2-size-x400);
+    border-radius: var(--sjs2-radius-component-checkbox);
+    margin-top: calc(calc(1lh - var(--sjs2-size-x400)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
+  }
+}
+
+.sd-radio--checked .sd-item__shortcut {
+  color: var(--sjs2-color-component-radio-true-default-icon);
+}
+
+.sd-checkbox--checked .sd-item__shortcut {
+  color: var(--sjs2-color-component-checkbox-true-default-icon);
+}
+
+.sd-item--disabled .sd-item__shortcut {
+  color: var(--sjs2-color-component-label-disabled-text);
+}

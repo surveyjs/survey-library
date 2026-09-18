@@ -551,5 +551,23 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1.row1.col1).toEqual(["a", "b"]);
     });
+
+    test("toggle choices with A-D keys, #9272", async ({ page }) => {
+      await initSurvey(page, framework, {
+        choiceKeyboardSelectionEnabled: true,
+        elements: [
+          { type: "checkbox", name: "q1", choices: ["Red", "Blue", "Green"] }
+        ]
+      });
+      const checks = page.locator("input[type='checkbox']");
+      await checks.first().focus();
+      await expect(page.locator(".sd-item__shortcut")).toHaveText(["A", "B", "C"]);
+      await page.keyboard.press("a");
+      expect(await getQuestionValue(page)).toEqual(["Red"]);
+      await page.keyboard.press("b");
+      expect(await getQuestionValue(page)).toEqual(["Red", "Blue"]);
+      await page.keyboard.press("a");
+      expect(await getQuestionValue(page)).toEqual(["Blue"]);
+    });
   });
 });

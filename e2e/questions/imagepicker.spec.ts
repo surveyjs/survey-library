@@ -131,6 +131,31 @@ frameworks.forEach((framework) => {
       });
       expect(value).toBe("lion");
     });
+
+    test("select an image with A-D keys, #9272", async ({ page }) => {
+      await initSurvey(page, framework, {
+        choiceKeyboardSelectionEnabled: true,
+        elements: [
+          {
+            type: "imagepicker",
+            name: "q1",
+            showLabel: true,
+            choices: [
+              { value: "lion", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg" },
+              { value: "giraffe", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg" },
+              { value: "panda", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg" },
+              { value: "camel", imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg" }
+            ]
+          }
+        ]
+      });
+      await page.locator("input[type='radio']").first().focus();
+      await expect(page.locator(".sd-imagepicker__shortcut")).toHaveText(["A", "B", "C", "D"]);
+      await page.keyboard.press("b");
+      expect(await getQuestionValue(page)).toEqual("giraffe");
+      await page.keyboard.press("d");
+      expect(await getQuestionValue(page)).toEqual("camel");
+    });
   });
 });
 

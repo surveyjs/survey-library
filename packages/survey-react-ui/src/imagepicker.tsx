@@ -96,6 +96,12 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     return this.props.question;
   }
 
+  private renderChoiceShortcut(): React.JSX.Element | null {
+    const shortcut = this.question.getChoiceKeyboardShortcut(this.item);
+    if (!shortcut) return null;
+    return <span className={this.cssClasses.itemShortcut} aria-hidden="true">{shortcut}</span>;
+  }
+
   handleOnChange(event: any) {
     if (this.question.isReadOnlyAttr) return;
     if (this.question.multiSelect) {
@@ -200,6 +206,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}
             aria-errormessage={this.question.ariaErrormessage}
+            aria-keyshortcuts={this.question.getChoiceKeyboardShortcut(item)}
+            onKeyDown={(event: any) => this.question.onChoiceKeyDown(event)}
           />
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>
@@ -207,6 +215,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
                 <span className={this.question.cssClasses.checkedItemDecorator} aria-hidden="true">
                   {!!this.question.cssClasses.checkedItemSvgIconId ? <SvgIcon size={"auto"} className={this.question.cssClasses.checkedItemSvgIcon} iconName={this.question.cssClasses.checkedItemSvgIconId}></SvgIcon> : null}
                 </span> : null}
+              {this.renderChoiceShortcut()}
               {control}
             </div>
             {text}

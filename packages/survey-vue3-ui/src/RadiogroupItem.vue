@@ -18,6 +18,7 @@
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
         :aria-label="ariaLabel"
+        :aria-keyshortcuts="question.getChoiceKeyboardShortcut(item)"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"
@@ -27,7 +28,13 @@
           :class="question.cssClasses.itemDecorator"
         >
           <use :xlink:href="question.itemSvgIcon"></use>
-        </svg> </span
+        </svg>
+        <span
+          v-if="question.getChoiceKeyboardShortcut(item)"
+          :class="question.cssClasses.itemShortcut"
+          aria-hidden="true"
+        >{{ question.getChoiceKeyboardShortcut(item) }}</span>
+      </span
       ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
         <SvComponent :is="'survey-string'" :locString="item.locText" />
       </span>

@@ -6,6 +6,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { QuestionRankingModel } from "../src/question_ranking";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultCss } from "../src/defaultCss/defaultCss";
@@ -13,6 +14,7 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 
@@ -5003,5 +5005,274 @@ describe("baseselect", () => {
     q1.choices.splice(0, 1);
     expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
     expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
+  });
+
+  function createChoiceKeyEvent(key: string, extra: any = {}): any {
+    return {
+      key,
+      preventDefault: extra.preventDefault || (() => {}),
+      stopPropagation: extra.stopPropagation || (() => {}),
+      target: extra.target || { tagName: "INPUT", type: extra.type || "radio" },
+      ...extra
+    };
+  }
+
+  test("choiceKeyboardSelectionEnabled is off by default and inherits from survey, #9272", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue", "Green", "Yellow"] },
+        { type: "checkbox", name: "q2", choices: ["Red", "Blue"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(survey.choiceKeyboardSelectionEnabled, "survey default").toBe(false);
+    expect(q1.isChoiceKeyboardSelectionEnabled, "radiogroup inherits false").toBe(false);
+    expect(q2.isChoiceKeyboardSelectionEnabled, "checkbox inherits false").toBe(false);
+    expect(q1.getChoiceKeyboardShortcut(q1.visibleChoices[0]), "no shortcut when off").toBeUndefined();
+    q1.onKeyDown(createChoiceKeyEvent("a"));
+    expect(q1.isEmpty(), "A does nothing when the flag is off").toBe(true);
+
+    survey.choiceKeyboardSelectionEnabled = true;
+    expect(q1.isChoiceKeyboardSelectionEnabled, "radiogroup inherits true").toBe(true);
+    expect(q2.isChoiceKeyboardSelectionEnabled, "checkbox inherits true").toBe(true);
+    expect(q1.getItemClass(q1.visibleChoices[0]).indexOf("sd-item--shortcut") > -1, "shortcut class is applied").toBe(true);
+    expect(q1.getChoiceKeyboardShortcut(q1.visibleChoices[0])).toBe("A");
+    expect(q1.getChoiceKeyboardShortcut(q1.visibleChoices[1])).toBe("B");
+    expect(q1.getChoiceKeyboardShortcut(q1.visibleChoices[2])).toBe("C");
+    expect(q1.getChoiceKeyboardShortcut(q1.visibleChoices[3])).toBe("D");
+
+    q2.choiceKeyboardSelectionEnabled = false;
+    expect(q2.isChoiceKeyboardSelectionEnabled, "question override false").toBe(false);
+    expect(q1.isChoiceKeyboardSelectionEnabled, "sibling still inherits survey").toBe(true);
+
+    const survey2 = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choiceKeyboardSelectionEnabled: true, choices: ["Red", "Blue"] }
+      ]
+    });
+    const q3 = <QuestionRadiogroupModel>survey2.getQuestionByName("q1");
+    expect(survey2.choiceKeyboardSelectionEnabled, "survey still default false").toBe(false);
+    expect(q3.isChoiceKeyboardSelectionEnabled, "question override true").toBe(true);
+  });
+
+  test("choiceKeyboardSelectionEnabled is not serialized when inherited, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue"] },
+        { type: "checkbox", name: "q2", choiceKeyboardSelectionEnabled: false, choices: ["Red"] }
+      ]
+    });
+    const json = survey.toJSON();
+    expect(json.choiceKeyboardSelectionEnabled, "survey flag is stored").toBe(true);
+    expect(json.pages[0].elements[0].choiceKeyboardSelectionEnabled, "inherited value is not stored").toBeUndefined();
+    expect(json.pages[0].elements[1].choiceKeyboardSelectionEnabled, "explicit false is stored").toBe(false);
+  });
+
+  test("radiogroup A-Z select by enabled visible index, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue", "Green"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.onKeyDown(createChoiceKeyEvent("a"));
+    expect(q1.value, "A selects first").toBe("Red");
+    q1.onKeyDown(createChoiceKeyEvent("B"));
+    expect(q1.value, "B selects second").toBe("Blue");
+    q1.onKeyDown(createChoiceKeyEvent("c"));
+    expect(q1.value, "C selects third").toBe("Green");
+    q1.onKeyDown(createChoiceKeyEvent("d"));
+    expect(q1.value, "D is a no-op when there is no 4th choice").toBe("Green");
+    q1.onKeyDown(createChoiceKeyEvent("e"));
+    q1.onKeyDown(createChoiceKeyEvent("1"));
+    expect(q1.value, "missing letters and digits never select").toBe("Green");
+
+    const many = [];
+    for (let i = 0; i < 27; i++) {
+      many.push("item" + i);
+    }
+    const qMany = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [{ type: "radiogroup", name: "q1", choices: many }]
+    }).getQuestionByName("q1") as QuestionRadiogroupModel;
+    expect(qMany.getChoiceKeyboardShortcut(qMany.visibleChoices[4])).toBe("E");
+    expect(qMany.getChoiceKeyboardShortcut(qMany.visibleChoices[25])).toBe("Z");
+    expect(qMany.getChoiceKeyboardShortcut(qMany.visibleChoices[26]), "no letter past Z").toBeUndefined();
+    qMany.onChoiceKeyDown(createChoiceKeyEvent("e"));
+    expect(qMany.value).toBe("item4");
+    qMany.onChoiceKeyDown(createChoiceKeyEvent("z"));
+    expect(qMany.value).toBe("item25");
+  });
+
+  test("radiogroup shortcuts skip disabled items and include special choices, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue", "Green", "Yellow"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.choices[1].setIsEnabled(false);
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[0])).toBe("A");
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[1]), "disabled item has no letter").toBeUndefined();
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[2])).toBe("B");
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[3])).toBe("C");
+    q1.onKeyDown(createChoiceKeyEvent("b"));
+    expect(q1.value, "B skips the disabled item").toBe("Green");
+
+    const surveyNone = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue"], showNoneItem: true }
+      ]
+    });
+    const qNone = <QuestionRadiogroupModel>surveyNone.getQuestionByName("q1");
+    expect(qNone.getChoiceKeyboardShortcut(qNone.choices[0])).toBe("A");
+    expect(qNone.getChoiceKeyboardShortcut(qNone.choices[1])).toBe("B");
+    expect(qNone.getChoiceKeyboardShortcut(qNone.noneItem), "None continues the letter sequence").toBe("C");
+    qNone.onKeyDown(createChoiceKeyEvent("c"));
+    expect(qNone.value, "C selects None").toBe(qNone.noneItem.value);
+  });
+
+  test("checkbox A-D toggle choices, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["Red", "Blue", "Green", "Yellow"] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    q1.onChoiceKeyDown(createChoiceKeyEvent("a", { type: "checkbox" }));
+    expect(q1.value, "A toggles first on").toEqual(["Red"]);
+    q1.onChoiceKeyDown(createChoiceKeyEvent("b", { type: "checkbox" }));
+    expect(q1.value, "B toggles second on").toEqual(["Red", "Blue"]);
+    q1.onChoiceKeyDown(createChoiceKeyEvent("a", { type: "checkbox" }));
+    expect(q1.value, "A toggles first off").toEqual(["Blue"]);
+  });
+
+  test("choice keyboard selection ignores modifiers, IME, repeat, text fields, readOnly and design mode, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["Red", "Blue"], showOtherItem: true }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q1.onKeyDown(createChoiceKeyEvent("a", { ctrlKey: true }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { metaKey: true }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { altKey: true }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { repeat: true }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { keyCode: 229 }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { isComposing: true }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { target: { tagName: "TEXTAREA", value: "" } }));
+    q1.onKeyDown(createChoiceKeyEvent("a", { target: { tagName: "INPUT", type: "text", value: "" } }));
+    expect(q1.isEmpty(), "blocked events do not change the value").toBe(true);
+
+    q1.readOnly = true;
+    q1.onKeyDown(createChoiceKeyEvent("a"));
+    expect(q1.isEmpty(), "readOnly does not change the value").toBe(true);
+    q1.readOnly = false;
+
+    survey.setDesignMode(true);
+    q1.onKeyDown(createChoiceKeyEvent("a"));
+    expect(q1.isEmpty(), "design mode does not change the value").toBe(true);
+  });
+
+  test("choice keyboard selection is not applied to ranking or matrix cells, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "ranking", name: "q2", choices: ["a", "b"] },
+        { type: "matrixdropdown", name: "q3", columns: [{ name: "col1", cellType: "radiogroup", choices: ["x", "y"] }], rows: ["row1"] }
+      ]
+    });
+    const ranking = survey.getQuestionByName("q2") as QuestionRankingModel;
+    const matrix = survey.getQuestionByName("q3") as QuestionMatrixDropdownModel;
+    const cell = matrix.visibleRows[0].cells[0].question as QuestionRadiogroupModel;
+    expect(ranking.isChoiceKeyboardSelectionEnabled).toBe(false);
+    expect(cell.inMatrixMode).toBe(true);
+    expect(cell.isChoiceKeyboardSelectionEnabled).toBe(false);
+  });
+
+  test("imagepicker A-D select and multiSelect toggle, #9272", () => {
+    const choices = [
+      { value: "lion", imageLink: "lion.jpg" },
+      { value: "giraffe", imageLink: "giraffe.jpg" },
+      { value: "panda", imageLink: "panda.jpg" },
+      { value: "camel", imageLink: "camel.jpg" }
+    ];
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        { type: "imagepicker", name: "q1", choices },
+        { type: "imagepicker", name: "q2", multiSelect: true, choices }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1") as QuestionImagePickerModel;
+    const q2 = survey.getQuestionByName("q2") as QuestionImagePickerModel;
+    expect(q1.isChoiceKeyboardSelectionEnabled).toBe(true);
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[0])).toBe("A");
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[3])).toBe("D");
+    q1.onChoiceKeyDown(createChoiceKeyEvent("b"));
+    expect(q1.value, "single select B").toBe("giraffe");
+    q1.onChoiceKeyDown(createChoiceKeyEvent("d"));
+    expect(q1.value, "single select D").toBe("camel");
+
+    q2.onChoiceKeyDown(createChoiceKeyEvent("a", { type: "checkbox" }));
+    expect(q2.value, "multiSelect A on").toEqual(["lion"]);
+    q2.onChoiceKeyDown(createChoiceKeyEvent("c", { type: "checkbox" }));
+    expect(q2.value, "multiSelect C on").toEqual(["lion", "panda"]);
+    q2.onChoiceKeyDown(createChoiceKeyEvent("a", { type: "checkbox" }));
+    expect(q2.value, "multiSelect A off").toEqual(["panda"]);
+  });
+
+  test("imagepicker shortcuts skip items without an image, #9272", () => {
+    const survey = new SurveyModel({
+      choiceKeyboardSelectionEnabled: true,
+      elements: [
+        {
+          type: "imagepicker",
+          name: "q1",
+          choices: [
+            { value: "lion", imageLink: "lion.jpg" },
+            { value: "missing" },
+            { value: "panda", imageLink: "panda.jpg" }
+          ]
+        }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1") as QuestionImagePickerModel;
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[0])).toBe("A");
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[1]), "no image means no letter").toBeUndefined();
+    expect(q1.getChoiceKeyboardShortcut(q1.choices[2])).toBe("B");
+    q1.onChoiceKeyDown(createChoiceKeyEvent("b"));
+    expect(q1.value).toBe("panda");
+  });
+
+  test("radiogroup Enter still auto-advances and arrows are not intercepted, #9272", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        choiceKeyboardSelectionEnabled: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "radiogroup", name: "q1", choices: ["Red", "Blue"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+      q1.value = "Red";
+      q1.onKeyDown(createChoiceKeyEvent("ArrowRight"));
+      expect(q1.value, "arrow does not change value in the model handler").toBe("Red");
+      expect(survey.currentPage.name, "arrow does not auto-advance").toBe(survey.pages[0].name);
+      q1.onKeyDown(createChoiceKeyEvent("Enter"));
+      expect(survey.currentPage.name, "Enter still auto-advances").toBe(survey.pages[1].name);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
   });
 });

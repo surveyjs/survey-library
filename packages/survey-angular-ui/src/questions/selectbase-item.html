@@ -15,6 +15,7 @@
         <svg *ngIf="question.itemSvgIcon" [class]="question.cssClasses.itemDecorator">
           <use [attr.xlink:href]="question.itemSvgIcon"></use>
         </svg>
+        <span *ngIf="question.getChoiceKeyboardShortcut(model)" [class]="question.cssClasses.itemShortcut" aria-hidden="true">{{ question.getChoiceKeyboardShortcut(model) }}</span>
       </span>
       <span [class]="question.getControlLabelClass(model)" *ngIf="!model.hideCaption">
         <sv-ng-string [model]="model.locText"></sv-ng-string>

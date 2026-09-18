@@ -85,8 +85,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
+  private isApplyingChoiceKeyboardSelection: boolean;
   supportAutoAdvance(): boolean {
-    return !this.multiSelect;
+    return !this.multiSelect && !this.isApplyingChoiceKeyboardSelection;
   }
   public get hasSingleInput(): boolean {
     return false;
@@ -133,6 +134,34 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const imageItemValue = item as ImageItemValue;
     if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
+  }
+  protected canSelectChoiceByKeyboard(item: ItemValue): boolean {
+    if (!super.canSelectChoiceByKeyboard(item)) return false;
+    const imageItemValue = item as ImageItemValue;
+    return !!imageItemValue.imageLink && !imageItemValue.contentNotLoaded;
+  }
+  public clickItemHandler(item: ItemValue, checked?: boolean): void {
+    if (this.isReadOnlyAttr || !item) return;
+    if (this.multiSelect) {
+      const newValue: Array<any> = [].concat(this.value || []);
+      const index = newValue.indexOf(item.value);
+      const isChecked = checked === undefined ? index < 0 : checked;
+      if (isChecked) {
+        if (index < 0) {
+          newValue.push(item.value);
+        }
+      } else if (index > -1) {
+        newValue.splice(index, 1);
+      }
+      this.value = newValue;
+    } else {
+      this.selectItem(item);
+    }
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.isApplyingChoiceKeyboardSelection = true;
+    this.clickItemHandler(item, this.multiSelect ? !this.isItemSelected(item) : undefined);
+    this.isApplyingChoiceKeyboardSelection = false;
   }
   public clearIncorrectValues() {
     if (this.multiSelect) {

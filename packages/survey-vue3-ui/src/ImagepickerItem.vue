@@ -15,6 +15,8 @@
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
         :class="question.cssClasses.itemControl"
+        :aria-keyshortcuts="question.getChoiceKeyboardShortcut(item)"
+        @keydown="question.onChoiceKeyDown($event)"
       />
       <input
         v-else
@@ -30,6 +32,8 @@
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
         :class="question.cssClasses.itemControl"
+        :aria-keyshortcuts="question.getChoiceKeyboardShortcut(item)"
+        @keydown="question.onChoiceKeyDown($event)"
       />
       <div :class="question.cssClasses.itemDecorator">
         <div :class="question.cssClasses.imageContainer">
@@ -46,6 +50,11 @@
               :iconName="question.cssClasses.checkedItemSvgIconId"
             ></SvComponent>
           </span>
+          <span
+            v-if="question.getChoiceKeyboardShortcut(item)"
+            :class="question.cssClasses.itemShortcut"
+            aria-hidden="true"
+          >{{ question.getChoiceKeyboardShortcut(item) }}</span>
           <img
             v-if="
               imageLink &&

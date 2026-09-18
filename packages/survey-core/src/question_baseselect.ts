@@ -2753,8 +2753,11 @@ export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
+const CHOICE_KEYBOARD_SHORTCUTS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
 export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
+  @property() choiceKeyboardSelectionEnabled: boolean | undefined;
   /**
    * Gets or sets the number of columns used to arrange choice items.
    *
@@ -2783,6 +2786,95 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
+  }
+  public get isChoiceKeyboardSelectionEnabled(): boolean {
+    if (!this.supportChoiceKeyboardSelection()) return false;
+    const val = this.choiceKeyboardSelectionEnabled;
+    if (val === true || val === false) return val;
+    return !!(this.survey as SurveyModel)?.choiceKeyboardSelectionEnabled;
+  }
+  protected supportChoiceKeyboardSelection(): boolean {
+    if (this.inMatrixMode) return false;
+    const type = this.getType();
+    return type === "radiogroup" || type === "checkbox" || type === "imagepicker";
+  }
+  public getChoiceKeyboardShortcut(item: ItemValue): string | undefined {
+    if (!this.isChoiceKeyboardSelectionEnabled || !item) return undefined;
+    const items = this.getChoiceKeyboardSelectionItems();
+    const index = items.indexOf(item);
+    if (index < 0 || index >= CHOICE_KEYBOARD_SHORTCUTS.length) return undefined;
+    return CHOICE_KEYBOARD_SHORTCUTS[index];
+  }
+  public onChoiceKeyDown(event: any): void {
+    this.handleChoiceKeyboardSelection(event);
+  }
+  protected getItemClassCore(item: any, options: any): string {
+    return new CssClassBuilder()
+      .append(super.getItemClassCore(item, options))
+      .append(this.cssClasses.itemHasShortcut, !!this.getChoiceKeyboardShortcut(item))
+      .toString();
+  }
+  protected canSelectChoiceByKeyboard(item: ItemValue): boolean {
+    return !!item && item.isEnabled;
+  }
+  private getChoiceKeyboardSelectionItems(): Array<ItemValue> {
+    const res = new Array<ItemValue>();
+    const items = this.visibleChoices;
+    for (let i = 0; i < items.length; i++) {
+      if (this.canSelectChoiceByKeyboard(items[i])) {
+        res.push(items[i]);
+      }
+    }
+    return res;
+  }
+  private handleChoiceKeyboardSelection(event: any): void {
+    if (!this.canHandleChoiceKeyboardSelection(event)) return;
+    const letter = this.getChoiceKeyboardLetter(event);
+    if (!letter) return;
+    const index = CHOICE_KEYBOARD_SHORTCUTS.indexOf(letter);
+    if (index < 0) return;
+    const items = this.getChoiceKeyboardSelectionItems();
+    const item = items[index];
+    if (!item) return;
+    if (event.preventDefault) event.preventDefault();
+    if (event.stopPropagation) event.stopPropagation();
+    this.applyChoiceKeyboardSelection(item);
+    this.focusChoiceItem(item);
+  }
+  private getChoiceKeyboardLetter(event: any): string {
+    if (!event || event.ctrlKey || event.metaKey || event.altKey || event.repeat) return undefined;
+    if (event.keyCode === 229 || event.isComposing) return undefined;
+    const key = event.key;
+    if (typeof key !== "string" || key.length !== 1) return undefined;
+    const letter = key.toUpperCase();
+    if (letter < "A" || letter > "Z") return undefined;
+    return letter;
+  }
+  private canHandleChoiceKeyboardSelection(event: any): boolean {
+    if (!this.isChoiceKeyboardSelectionEnabled) return false;
+    if (this.isInputReadOnly) return false;
+    if (this.isChoiceKeyboardTargetBlocked(event?.target)) return false;
+    return true;
+  }
+  private isChoiceKeyboardTargetBlocked(target: any): boolean {
+    if (!target) return false;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag === "textarea" || tag === "select") return true;
+    if (tag === "input") {
+      const type = (target.type || "text").toString().toLowerCase();
+      if (type === "radio" || type === "checkbox" || type === "button" || type === "submit" || type === "reset" || type === "hidden") {
+        return false;
+      }
+      return true;
+    }
+    if (target.isContentEditable) return true;
+    return false;
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.selectItem(item);
+  }
+  private focusChoiceItem(item: ItemValue): void {
+    SurveyElement.FocusElement(this.getItemId(item), false, this.survey?.rootElement, this.shouldHandleFocusScroll);
   }
 }
 
@@ -2949,6 +3041,14 @@ Serializer.addClass(
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
       layout: "row",
+    },
+    {
+      name: "choiceKeyboardSelectionEnabled:boolean",
+      defaultFunc: () => undefined,
+      visibleIf: (obj: any) => {
+        const type = obj.getType();
+        return type === "radiogroup" || type === "checkbox" || type === "imagepicker";
+      }
     }
   ],
   null,

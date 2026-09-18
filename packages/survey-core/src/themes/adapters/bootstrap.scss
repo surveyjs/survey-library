@@ -505,6 +505,10 @@
   display: none;
 }
 
+.sd-item--shortcut.sd-item--checked .sd-item__decorator::before {
+  background-image: none;
+}
+
 /* check focus and pressed state */
 .sd-item:not(.sd-item--checked) {
   --sjs2-border-effect-component-checkbox-a11y:

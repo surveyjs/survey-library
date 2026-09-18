@@ -2057,6 +2057,7 @@ export class SurveyModel extends SurveyElementCore
    * @see allowResizeComment
    */
   @property() commentAreaRows: number;
+  @property() choiceKeyboardSelectionEnabled: boolean;
   /**
    * Specifies when to update the question value in questions with a text input field.
    *
@@ -9153,6 +9154,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "choiceKeyboardSelectionEnabled:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
   { name: "commentAreaRows:number", minValue: 1 },
   {

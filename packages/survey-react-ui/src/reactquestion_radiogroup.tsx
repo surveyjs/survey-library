@@ -87,6 +87,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             onChange={this.handleOnChange}
             onKeyDown={this.handleOnKeyDown}
             aria-label={this.ariaLabel}
+            aria-keyshortcuts={this.question.getChoiceKeyboardShortcut(this.item)}
           />
           {
             this.cssClasses.materialDecorator ?
@@ -99,6 +100,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
                   </svg> :
                   null
                 }
+                {this.renderChoiceShortcut()}
               </span> :
               null
           }

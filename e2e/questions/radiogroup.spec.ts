@@ -625,5 +625,36 @@ frameworks.forEach((framework) => {
       const data = await page.evaluate(() => (window as any).survey.data);
       expect(data).toEqual({ q1: "item2", nested1: "abc" });
     });
+
+    test("select a choice with A-D keys, #9272", async ({ page }) => {
+      await initSurvey(page, framework, {
+        choiceKeyboardSelectionEnabled: true,
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["Red", "Blue", "Green", "Yellow", "Purple"] }
+        ]
+      });
+      const radios = page.locator("input[type='radio']");
+      await radios.first().focus();
+      await expect(page.locator(".sd-item__shortcut")).toHaveText(["A", "B", "C", "D", "E"]);
+      await page.keyboard.press("b");
+      expect(await getQuestionValue(page)).toEqual("Blue");
+      await expect(radios.nth(1)).toBeFocused();
+      await page.keyboard.press("e");
+      expect(await getQuestionValue(page)).toEqual("Purple");
+      await page.keyboard.press("1");
+      expect(await getQuestionValue(page)).toEqual("Purple");
+    });
+
+    test("A-D do nothing when choiceKeyboardSelectionEnabled is off, #9272", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["Red", "Blue", "Green"] }
+        ]
+      });
+      await page.locator("input[type='radio']").first().focus();
+      await expect(page.locator(".sd-item__shortcut")).toHaveCount(0);
+      await page.keyboard.press("a");
+      expect(await getQuestionValue(page)).toEqual(undefined);
+    });
   });
 });

@@ -196,6 +196,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
     this.selectItem(item, checked);
   }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.clickItemHandler(item, !this.isItemSelected(item));
+  }
   public selectItem(item: ItemValue, checked?: boolean): void {
     if (this.isReadOnlyAttr || !item) return;
     if (item === this.selectAllItem) {

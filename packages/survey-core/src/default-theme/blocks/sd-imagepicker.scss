@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-imagepicker {
   padding: 0;
@@ -61,6 +62,36 @@
 
 .sd-imagepicker__image-container {
   position: relative;
+}
+
+.sd-imagepicker__shortcut {
+  @include sjs2--typography--small-strong;
+  position: absolute;
+  top: var(--sjs2-spacing-x100);
+  left: var(--sjs2-spacing-x100);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sjs2-size-x400);
+  height: var(--sjs2-size-x400);
+  box-sizing: border-box;
+  border-radius: var(--sjs2-radius-component-checkbox);
+  background-color: var(--sjs2-color-component-checkbox-false-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-false-default);
+  color: var(--sjs2-color-component-label-default-text);
+  user-select: none;
+  pointer-events: none;
+}
+
+.sd-imagepicker__item--checked .sd-imagepicker__shortcut {
+  background: var(--sjs2-color-component-checkbox-true-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-checkbox-true-default);
+  color: var(--sjs2-color-component-checkbox-true-default-icon);
+}
+
+.sd-imagepicker__item--disabled .sd-imagepicker__shortcut {
+  color: var(--sjs2-color-component-label-disabled-text);
 }
 
 .sd-imagepicker__check-decorator {

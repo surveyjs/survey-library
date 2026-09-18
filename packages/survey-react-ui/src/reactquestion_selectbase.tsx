@@ -5,7 +5,7 @@ import {
 } from "./reactquestion_element";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { Base, ItemValue, SurveyModel, QuestionSelectBase } from "survey-core";
+import { Base, ItemValue, SurveyModel, QuestionSelectBase, QuestionCheckboxBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyPanel } from "./panel";
 
@@ -135,6 +135,12 @@ export class SurveyQuestionSelectBaseItem extends ReactSurveyElement {
   }
   protected get question(): QuestionSelectBase {
     return this.props.question;
+  }
+  protected renderChoiceShortcut(): React.JSX.Element | null {
+    const question = this.question as QuestionCheckboxBase;
+    const shortcut = question.getChoiceKeyboardShortcut?.(this.item);
+    if (!shortcut) return null;
+    return <span className={this.cssClasses.itemShortcut} aria-hidden="true">{shortcut}</span>;
   }
   protected get item(): ItemValue {
     return this.props.item;

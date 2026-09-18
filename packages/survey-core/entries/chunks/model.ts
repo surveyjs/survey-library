@@ -233,14 +233,15 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question } from "../../src/question";
+export { Question, QuestionValueType } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {
   QuestionCheckboxBase,
   QuestionSelectBase,
-  ChoiceItem
+  ChoiceItem,
+  ISelectQuestion
 } from "../../src/question_baseselect";
 export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";

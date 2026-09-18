@@ -169,6 +169,16 @@ export class QuestionImageMapModel extends Question {
     this.clearIncorrectValues();
   }
 
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val) || Array.isArray(val) !== this.isMultiSelect) return false;
+    const values = Array.isArray(val) ? val : [val];
+    return values.every((v: any) => !!this.areas.find(i => i.value === v));
+  }
+  protected clearIncorrectValuesCore(): void {
+    if (Array.isArray(this.value) !== this.isMultiSelect) {
+      this.clearValue(true);
+    }
+  }
   public clearIncorrectValues(): void {
     super.clearIncorrectValues();
     if (!this.value) return;

@@ -620,8 +620,29 @@ export class QuestionMultipleTextModel extends Question
   public getChildErrorLocation(child: Question): string {
     return this.getQuestionErrorLocation();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    return Object.keys(val).every(key => this.isValueKeyKnown(key));
+  }
+  protected hasValueKey(key: string): boolean {
+    return !!this.getItemByName(key);
+  }
+  protected clearIncorrectValuesCore(): void {
+    const val = this.value;
+    const newValue: any = {};
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) {
+        newValue[key] = val[key];
+      }
+    });
+    this.value = newValue;
+  }
+  public clearIncorrectValues(): void {
+    super.clearIncorrectValues();
+    this.items.forEach(item => item.editor.clearIncorrectValues());
   }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {

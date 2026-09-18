@@ -518,7 +518,7 @@ describe("Survey_QuestionMatrix", () => {
       ]
     });
     const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-    question.value = { row1: "val1", row2: "val1" };
+    question.value = { row1: { col1: "val1" }, row2: { col1: "val1" } };
     expect(question.visibleRows.length, "There is one visible row").toBe(1);
     expect(question.validate(), "There is no errors").toBe(true);
   });

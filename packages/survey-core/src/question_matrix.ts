@@ -687,8 +687,23 @@ export class QuestionMatrixModel
     this.onRowsChanged();
     this.onColumnsChanged();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    for (const key in val) {
+      if (!this.isValueKeyKnown(key)) return false;
+      // A row of another matrix that shares the value is checked by that matrix.
+      if (!this.hasValueKey(key)) continue;
+      const cell = val[key];
+      const cellValues = this.isMultiSelect && Array.isArray(cell) ? cell : [cell];
+      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return false;
+    }
+    return true;
+  }
+  protected hasValueKey(key: string): boolean {
+    return this.rows.some(row => row.value + "" === key);
   }
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
@@ -950,6 +965,12 @@ export class QuestionMatrixModel
       }
     }
     if (inCorrectRows) {
+      // Keep the rows of the matrices that share the value with this one.
+      for (const key in updatedData) {
+        if (!this.hasValueKey(key) && this.isValueKeyKnown(key)) {
+          newData[key] = updatedData[key];
+        }
+      }
       updatedData = newData;
     }
     if (this.isTwoValueEquals(updatedData, this.value)) return;

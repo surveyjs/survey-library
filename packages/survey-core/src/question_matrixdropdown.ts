@@ -248,8 +248,20 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    // A row of another question that shares the value is checked by that question.
+    return Object.keys(val).every(key => this.hasValueKey(key) ? this.isRowValueCorrect(val[key]) : this.isValueKeyKnown(key));
+  }
+  protected hasValueKey(key: string): boolean {
+    return this.rows.some(row => row.value + "" === key);
+  }
+  // Every row is a plain object.
+  private isRowValueCorrect(rowValue: any): boolean {
+    return Helpers.isValueEmpty(rowValue) || Helpers.isValueObject(rowValue, true);
   }
   public clearIncorrectValues(): void {
     if (!this.isEmpty()) {
@@ -258,7 +270,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       const val = this.value;
       for (let key in val) {
         const row = this.getRowByKey(key);
-        if (!!row && row.isVisible) {
+        const isSharedRow = !this.hasValueKey(key) && this.isValueKeyKnown(key);
+        if (isSharedRow || (!!row && row.isVisible && this.isRowValueCorrect(val[key]))) {
           newVal[key] = val[key];
         }
       }

@@ -842,11 +842,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-  public clearIncorrectValues(): void {
-    if (this.isEmpty() || this.survey?.keepIncorrectValues) return;
-    if (!ItemValue.getItemByValue(this.visibleRateValues, this.value)) {
-      this.clearValue(true);
-    }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    return !!this.survey?.keepIncorrectValues || !!ItemValue.getItemByValue(this.visibleRateValues, val);
   }
   public setValueFromClick(value: any) {
     this.resetDigitShortcut();

@@ -216,6 +216,11 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   public getValueFalse(): any {
     return this.valueFalse !== undefined ? this.valueFalse : false;
   }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    if (val instanceof Object) return false;
+    return val == this.getValueTrue() || val == this.getValueFalse();
+  }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);
     if (this.isDefaultValueSet("false", this.valueFalse))this.setBooleanValue(false);

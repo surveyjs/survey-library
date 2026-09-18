@@ -256,6 +256,11 @@ export class QuestionTextModel extends QuestionTextBase {
     // What is left of the inputTypes that carry min/max are the date and time ones.
     return isMinMaxType(this) ? "date" : "string";
   }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    if (!!this.customWidget || ["date", "datetime-local", "month"].indexOf(this.inputType) < 0) return true;
+    return !isNaN(this.createDate(val).getTime());
+  }
   public getSupportedValidators(): Array<string> {
     const supportedHash: HashTable<Array<string>> = {};
     const textTypes = ["text", "email", "tel", "password", "url"];

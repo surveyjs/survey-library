@@ -9442,3 +9442,208 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question.toJSON().panelCountExpression, "The expression is serialized").toBe("{n}");
   });
 });
+
+describe("DynamicDataList integration", () => {
+  const createQuestion = (panelCount: number = 0): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: panelCount,
+          templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }
+      ]
+    });
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  };
+  test("the list and question.value are one storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    expect(list.count, "Nothing yet").toBe(0);
+    question.value = [{ q1: "a" }, { q1: "b" }];
+    expect(list.count, "The list sees the assignment at once").toBe(2);
+    expect(list.getRecord(0), "The record is the stored object, not a copy").toBe(question.value[0]);
+    expect(list.getRecord(5), "Out of range").toBe(undefined);
+  });
+  test("addPanel at an index moves the record with the panel", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "c" }];
+    const list = question.getDataList();
+    question.addPanel(1);
+    expect(list.count, "One more record").toBe(3);
+    expect(question.value, "The new record is at index 1").toEqual([{ q1: "a" }, {}, { q1: "c" }]);
+    question.panels[1].getQuestionByName("q1").value = "b";
+    expect(question.value).toEqual([{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(list.getRecord(1).q1, "The list reads the same record").toBe("b");
+  });
+  test("removePanel removes the record", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }];
+    const list = question.getDataList();
+    question.removePanel(1);
+    expect(list.count).toBe(2);
+    expect(question.value).toEqual([{ q1: "a" }, { q1: "c" }]);
+    expect(question.panelCount, "The panels follow").toBe(2);
+  });
+  test("panelCount grows and shrinks the storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.panelCount = 3;
+    expect(list.count, "Grown").toBe(3);
+    expect(question.value.length).toBe(3);
+    question.panels[2].getQuestionByName("q1").value = "c";
+    question.panelCount = 1;
+    expect(list.count, "Shrunk from the end").toBe(1);
+    expect(question.value).toEqual([{}]);
+  });
+  test("a write to a panel whose record does not exist yet pads the storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.value = [{ q1: "a" }];
+    expect(list.count, "One record, one panel").toBe(1);
+    question.panelCount = 3;
+    question.getDataList();
+    question.panels[2].getQuestionByName("q1").value = "c";
+    expect(question.value, "The storage was padded up to the panel count").toEqual([{ q1: "a" }, {}, { q1: "c" }]);
+    expect(list.count).toBe(3);
+  });
+  test("batched panel creation reaches the list as one final array", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }];
+    const list = question.getDataList();
+    let counter = 0;
+    let lastCountInHandler = -1;
+    question.survey.onValueChanged.add((sender, options) => {
+      counter++;
+      lastCountInHandler = list.count;
+    });
+    question.panelCount = 4;
+    expect(counter, "One assignment for the whole growth").toBe(1);
+    expect(lastCountInHandler, "The list sees the final array once").toBe(4);
+    expect(question.value.length).toBe(4);
+  });
+  test("a record write replaces the record instead of mutating it", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "b" }];
+    const prevRecord = question.value[1];
+    const untouchedRecord = question.value[0];
+    question.panels[1].getQuestionByName("q1").value = "bb";
+    expect(prevRecord.q1, "The record is replaced, not mutated").toBe("b");
+    expect(question.value[1].q1).toBe("bb");
+    expect(question.value[0], "An untouched record keeps its identity").toBe(untouchedRecord);
+  });
+  test("oldValue of a value change is the previous array - copy on write", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "paneldynamic", name: "inner", panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("inner");
+    inner.panels[0].getQuestionByName("q1").value = "a";
+    const oldValues = new Array<any>();
+    const newValues = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((sender, options) => {
+      oldValues.push(options.oldValue);
+      newValues.push(options.value);
+    });
+    inner.addPanel();
+    expect(newValues.length, "One value change for the added panel").toBe(1);
+    expect(oldValues[0], "oldValue is the array before the panel was added").toEqual([{ q1: "a" }]);
+    expect(newValues[0]).toEqual([{ q1: "a" }, {}]);
+  });
+  test("visibleCount follows visiblePanelCount", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 3,
+          templateVisibleIf: "{panel.q1} = 'a'",
+          templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const list = question.getDataList();
+    question.value = [{ q1: "a" }, { q1: "b" }, { q1: "a" }];
+    expect(question.visiblePanelCount, "One panel is hidden").toBe(2);
+    expect(list.visibleCount, "The list agrees").toBe(question.visiblePanelCount);
+    expect(list.isRecordVisible(1)).toBe(false);
+    expect(list.count, "A hidden panel keeps its record and its panel object").toBe(3);
+    expect(question.panelCount).toBe(3);
+    question.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+    expect(question.visiblePanelCount).toBe(3);
+    expect(list.visibleCount, "The list agrees again").toBe(3);
+  });
+  test("survey.data assignment is seen by the list", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.survey.data = { panel: [{ q1: "a" }, { q1: "b" }] };
+    expect(list.count).toBe(2);
+    expect(list.getRecord(1).q1).toBe("b");
+    question.survey.clear(true, false);
+    expect(list.count, "The list follows survey.clear").toBe(0);
+  });
+  test("a dynamic panel inside a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "paneldynamic", name: "inner", panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("inner");
+    inner.panels[0].getQuestionByName("q1").value = "a";
+    expect(survey.data).toEqual({ outer: [{ inner: [{ q1: "a" }] }] });
+    expect(outer.getDataList().count).toBe(1);
+    expect(inner.getDataList().count, "The inner list reads the outer record").toBe(1);
+    inner.addPanel();
+    inner.panels[1].getQuestionByName("q1").value = "b";
+    expect(survey.data).toEqual({ outer: [{ inner: [{ q1: "a" }, { q1: "b" }] }] });
+    expect(inner.getDataList().count).toBe(2);
+  });
+  test("a matrix dynamic inside a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "matrixdynamic", name: "matrix", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    matrix.visibleRows[0].getQuestionByName("col1").value = "a";
+    expect(survey.data).toEqual({ outer: [{ matrix: [{ col1: "a" }] }] });
+    expect(outer.getDataList().getRecord(0).matrix).toEqual([{ col1: "a" }]);
+    matrix.addRow();
+    matrix.visibleRows[1].getQuestionByName("col1").value = "b";
+    expect(survey.data).toEqual({ outer: [{ matrix: [{ col1: "a" }, { col1: "b" }] }] });
+  });
+  test("getFields maps the template questions and their comments", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "age", inputType: "number" },
+            { type: "text", name: "born", inputType: "date" },
+            { type: "boolean", name: "agree" },
+            { type: "rating", name: "mark" },
+            { type: "dropdown", name: "note", choices: [1, 2], showCommentArea: true }
+          ] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.getFields()).toEqual([
+      { name: "q1", dataType: "any" },
+      { name: "age", dataType: "number" },
+      { name: "born", dataType: "date" },
+      { name: "agree", dataType: "boolean" },
+      { name: "mark", dataType: "number" },
+      { name: "note", dataType: "any" },
+      { name: "note-Comment", dataType: "string" }
+    ]);
+  });
+});

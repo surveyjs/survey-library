@@ -951,3 +951,87 @@ describe("DynamicDataList: change notifications, source and dispose", () => {
     expect(changes).toEqual([]);
   });
 });
+
+describe("DynamicDataList: read-through over an array source", () => {
+  const createList = (): { list: DynamicDataList, get: () => Array<any>, writes: Array<Array<any>> } => {
+    let stored: Array<any> = [{ a: 1 }, { a: 2 }];
+    const writes = new Array<Array<any>>();
+    const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => {
+      stored = arr;
+      writes.push(arr);
+    });
+    const list = new DynamicDataList(source);
+    list.isReadThrough = true;
+    list.load();
+    return { list: list, get: (): Array<any> => stored, writes: writes };
+  };
+  test("reads the owner array on demand, without a load", () => {
+    let stored: Array<any> = [{ a: 1 }];
+    const list = new DynamicDataList(new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
+    list.isReadThrough = true;
+    expect(list.count, "No load() was called").toBe(1);
+    stored = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    expect(list.count, "An assignment made behind the back of the list is seen at once").toBe(3);
+    expect(list.getRecord(2).a).toBe(3);
+  });
+  test("every write replaces the owner array", () => {
+    const rec = createList();
+    const before = rec.get();
+    rec.list.setValue(0, "a", 11);
+    expect(rec.get(), "A new array").not.toBe(before);
+    expect(before[0].a, "The old record was not mutated").toBe(1);
+    expect(rec.get()[0].a).toBe(11);
+    expect(rec.get()[1], "An untouched record keeps its identity").toBe(before[1]);
+  });
+  test("add, remove and move go straight to the owner array", () => {
+    const rec = createList();
+    rec.list.add({ a: 3 }, 0);
+    expect(rec.get()).toEqual([{ a: 3 }, { a: 1 }, { a: 2 }]);
+    expect(rec.list.count).toBe(3);
+    rec.list.move(0, 2);
+    expect(rec.get()).toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    rec.list.remove(1);
+    expect(rec.get()).toEqual([{ a: 1 }, { a: 3 }]);
+    expect(rec.list.count).toBe(2);
+  });
+  test("the owner is notified after the write, not before", () => {
+    const rec = createList();
+    const seen = new Array<number>();
+    rec.list.onChanged = (): void => { seen.push(rec.get().length); };
+    rec.list.add({ a: 3 });
+    rec.list.remove(0);
+    expect(seen, "Every notification sees the array the change produced").toEqual([3, 2]);
+  });
+  test("a source batch replaces the owner array once", () => {
+    const rec = createList();
+    const source = <ArrayDynamicDataSource>rec.list.source;
+    source.batch((): void => {
+      rec.list.ensureCount(4);
+      rec.list.setValue(3, "a", 4);
+      expect(rec.list.count, "The list reads the array being built").toBe(4);
+      expect(rec.list.getRecord(3).a).toBe(4);
+      expect(rec.writes.length, "Nothing reached the owner yet").toBe(0);
+    });
+    expect(rec.writes.length, "One assignment for the whole batch").toBe(1);
+    expect(rec.get()).toEqual([{ a: 1 }, { a: 2 }, {}, { a: 4 }]);
+  });
+  test("a batch that changes nothing does not assign", () => {
+    const rec = createList();
+    const source = <ArrayDynamicDataSource>rec.list.source;
+    source.batch((): void => {
+      rec.list.setValue(0, "a", 1);
+      rec.list.move(1, 1);
+    });
+    expect(rec.writes.length).toBe(0);
+  });
+  test("read-through is ignored for a source that is not an array source", () => {
+    const source: IDynamicDataSource = { read: (): Array<any> => [{ a: 1 }, { a: 2 }] };
+    const list = new DynamicDataList(source);
+    list.isReadThrough = true;
+    expect(list.count, "Nothing is loaded yet").toBe(0);
+    list.load();
+    expect(list.count).toBe(2);
+    list.setValue(0, "a", 11);
+    expect(list.getRecord(0).a, "A source without update keeps the change in the window").toBe(11);
+  });
+});

@@ -38,6 +38,10 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
+import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
@@ -211,7 +215,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData {
+export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -327,6 +331,39 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   getFilteredData(): any {
     return this.value;
+  }
+  private dataListValue: DynamicDataList;
+  // Every record-level read and write of this question goes through this list. Its source is a
+  // getter/setter pair over question.value - never a captured array - so that the batched creation
+  // overrides (getValueCore/setValueCore) are honoured and every write replaces the array instead of
+  // mutating the one the question currently holds.
+  private get dataList(): DynamicDataList {
+    if (!this.dataListValue) {
+      const source = new ArrayDynamicDataSource(
+        (): Array<any> => this.value,
+        (arr: Array<any>): void => { this.value = arr; });
+      this.dataListValue = new DynamicDataList(source, this);
+      this.dataListValue.isReadThrough = true;
+      this.dataListValue.load();
+    }
+    return this.dataListValue;
+  }
+  // internal, for tests and renderers
+  public getDataList(): DynamicDataList {
+    return this.dataList;
+  }
+  getFields(): Array<IDynamicDataField> {
+    return getDynamicDataFieldsForQuestions(this.template.questions);
+  }
+  onDataListChanged(change: IDynamicDataListChange): void {
+    // Nothing subscribes to the list yet: the panels are still synchronized from the value by
+    // setPanelCountBasedOnValue and runPanelsCondition. Step 04 (paging and sorting) fills this in.
+  }
+  // A record operation of the list writes through question.value at once, so an operation that was
+  // one array mutation plus one assignment would become several assignments - and with them several
+  // onValueChanged notifications. The source collects the steps and replaces the value once.
+  private batchValueChanges(func: () => void): void {
+    (<ArrayDynamicDataSource>this.dataList.source).batch(func);
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -1090,19 +1127,17 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   private setValueBasedOnPanelCount() {
-    var value = this.value;
-    if (!value || !Array.isArray(value)) value = [];
-    if (value.length == this.panelCount) return;
-    for (var i = value.length; i < this.panelCount; i++) {
-      const panelValue = this.panels[i].getValue();
-      const val = !Helpers.isValueEmpty(panelValue) ? panelValue : {};
-      value.push(val);
-    }
-    if (value.length > this.panelCount) {
-      value.splice(this.panelCount, value.length - this.panelCount);
-    }
+    const list = this.dataList;
+    const panelCount = this.panelCount;
+    if (list.count === panelCount) return;
     this.isValueChangingInternally = true;
-    this.value = value;
+    this.batchValueChanges((): void => {
+      list.ensureCount(panelCount, (i: number): any => {
+        const panelValue = this.panels[i].getValue();
+        return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+      });
+      list.truncate(panelCount);
+    });
     this.isValueChangingInternally = false;
   }
   /**
@@ -1549,10 +1584,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
-    var val = this.value;
-    if (!val || !Array.isArray(val)) return true;
-    for (var i = 0; i < val.length; i++) {
-      if (!this.isRowEmpty(val[i])) return false;
+    const list = this.dataList;
+    for (let i = 0; i < list.count; i++) {
+      if (!this.isRowEmpty(list.getRecord(i))) return false;
     }
     return true;
   }
@@ -1650,29 +1684,32 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
+    // The panel object exists before its record is moved into place: onPanelAdded must see the same
+    // state it sees today.
     this.panelCount++;
-    let newValue = this.value;
-    if (!Array.isArray(newValue) || newValue.length !== this.panelCount) return;
-    let hasModified = false;
+    const list = this.dataList;
+    if (list.count !== this.panelCount) return;
     const lastIndex = this.panelCount - 1;
-    if (index < lastIndex) {
-      hasModified = true;
-      const rec = newValue[lastIndex];
-      newValue.splice(lastIndex, 1);
-      newValue.splice(index, 0, rec);
-    }
-    if (!this.isValueEmpty(this.defaultPanelValue)) {
-      hasModified = true;
-      this.copyValue(newValue[index], this.defaultPanelValue);
-    }
-    if (this.copyDefaultValueFromLastEntry && newValue.length > 1) {
-      const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
-      hasModified = true;
-      this.copyValue(newValue[index], newValue[fromIndex]);
-    }
-    if (hasModified) {
-      this.value = newValue;
-    }
+    this.batchValueChanges((): void => {
+      // panelCount++ appended the new record at the end; it belongs at index.
+      if (index < lastIndex) {
+        list.move(lastIndex, index);
+      }
+      const record = Object.assign({}, list.getRecord(index));
+      let hasModified = false;
+      if (!this.isValueEmpty(this.defaultPanelValue)) {
+        hasModified = true;
+        this.copyValue(record, this.defaultPanelValue);
+      }
+      if (this.copyDefaultValueFromLastEntry && list.count > 1) {
+        const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
+        hasModified = true;
+        this.copyValue(record, list.getRecord(fromIndex));
+      }
+      if (hasModified) {
+        list.setRecord(index, record);
+      }
+    });
   }
   private canLeaveCurrentPanel(): boolean {
     return this.displayMode === "list" || !this.currentPanel || this.currentPanel.validate(true, true);
@@ -1759,13 +1796,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.panelsCore.splice(index, 1);
     this.setPropertyValue("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
-    var value = this.value;
-    if (!value || !Array.isArray(value) || index >= value.length) {
+    const list = this.dataList;
+    if (index >= list.count) {
       this.updateFooterActions();
     } else {
       this.isValueChangingInternally = true;
-      value.splice(index, 1);
-      this.value = value;
+      list.remove(index);
       this.updateFooterActions();
       this.fireCallback(this.panelCountChangedCallback);
       this.notifyOnPanelAddedRemoved(false, index, panel);
@@ -1845,9 +1881,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private clearIncorrectValuesInPanel(index: number) {
     var panel = this.panelsCore[index];
     panel.clearIncorrectValues();
-    var val = this.value;
-    var values = !!val && index < val.length ? val[index] : null;
-    if (!values) return;
+    const record = this.dataList.getRecord(index);
+    if (!record) return;
+    // A copy: the stored record is never mutated, the list replaces it.
+    const values = Object.assign({}, record);
     var isChanged = false;
     for (var key in values) {
       if (this.getSharedQuestionFromArray(key, index)) continue;
@@ -1866,8 +1903,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       isChanged = true;
     }
     if (isChanged) {
-      val[index] = values;
-      this.value = val;
+      this.dataList.setRecord(index, values);
     }
   }
   private iscorrectValueWithPostPrefix(
@@ -2061,6 +2097,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
       panel.runCondition(newProps);
+      // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
+      // "visible" property-changed handler, this only keeps the list flags in step with it.
+      this.setPanelRecordVisible(panel);
       if (panel.isVisible) {
         visibleIndex++;
       }
@@ -2329,9 +2368,17 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     panel.registerPropertyChangedHandlers(["visible"], () => {
       if (panel.visible)this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);
+      this.setPanelRecordVisible(panel);
       this.updateFooterActions();
     });
     return panel;
+  }
+  // The list flag follows panel.visible - the same flag visiblePanels is built from - so that
+  // dataList.visibleCount and visiblePanelCount can never disagree.
+  private setPanelRecordVisible(panel: PanelModel): void {
+    const index = this.panelsCore.indexOf(panel);
+    if (index < 0) return;
+    this.dataList.setRecordVisible(index, panel.visible);
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -2357,8 +2404,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
     if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
-    var val = this.value;
-    var newPanelCount = val && Array.isArray(val) ? val.length : 0;
+    var newPanelCount = this.dataList.count;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
     }
@@ -2467,14 +2513,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return <DynamicItemModelBase>panel?.data;
   }
   private getPanelItemDataByIndex(index: number): any {
-    const items = this.items;
-    var qValue = this.value;
-    if (index < 0 && Array.isArray(qValue) && qValue.length > items.length) {
+    // The index correction is about items, not about the data: a question in a panel that is being
+    // created writes its default value before the panel reaches panelsCore.
+    if (index < 0) {
+      const items = this.items;
+      if (this.dataList.count <= items.length) return {};
       index = items.length;
     }
-    if (index < 0) return {};
-    if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
-    return qValue[index];
+    const record = this.dataList.getRecord(index);
+    return record !== undefined ? record : {};
   }
   private isSetPanelItemData: HashTable<number> = {};
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
@@ -2488,20 +2535,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
-    var qValue = this.getUnbindValue(this.value);
-    if (!qValue || !Array.isArray(qValue)) {
-      qValue = [];
-    }
-    const lValue = Math.max(index + 1, items.length);
-    for (var i = qValue.length; i < lValue; i++) {
-      qValue.push({});
-    }
-    if (!qValue[index]) qValue[index] = {};
-    if (!this.isValueEmpty(val)) {
-      qValue[index][name] = val;
-    } else {
-      delete qValue[index][name];
-    }
     if (index >= 0 && index < this.panelsCore.length) {
       if (!Array.isArray(this.changingValueQuestions)) {
         this.changingValueQuestions = [];
@@ -2516,7 +2549,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         this.changingValueQuestions.push(q);
       }
     }
-    this.value = qValue;
+    // The list deletes the key for an empty value; the emptiness rule (a whitespace-only string is
+    // empty) is the question rule, so it is applied here.
+    const newValue = this.isValueEmpty(val) ? undefined : val;
+    this.batchValueChanges((): void => {
+      // The padding is a question rule as well: a write to a panel whose record does not exist yet
+      // grows the value up to the panel count.
+      this.dataList.ensureCount(Math.max(index + 1, items.length));
+      this.dataList.setValue(index, name, newValue);
+    });
     this.changingValueQuestions = null;
     this.isSetPanelItemData[name]--;
     if (this.isSetPanelItemData[name] - 1) {

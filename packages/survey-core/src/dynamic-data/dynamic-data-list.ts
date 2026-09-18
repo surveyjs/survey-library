@@ -44,7 +44,7 @@ function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
 
 export class DynamicDataList {
   private _source: IDynamicDataSource;
-  private records: Array<any> = [];
+  private windowRecords: Array<any> = [];
   private hiddenFlags: Array<boolean> = [];
   private hiddenCount: number = 0;
   private _windowOffset: number = 0;
@@ -79,6 +79,25 @@ export class DynamicDataList {
     return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
   }
 
+  // An owner whose source reads and writes its storage directly - the questions, whose
+  // ArrayDynamicDataSource is a getter/setter pair over question.value - sets this flag and the list
+  // keeps no window: read() IS the storage and every write is synchronous and visible to the next
+  // read. A window would be a second source of truth that goes stale on every assignment made
+  // outside the list (survey.data = ..., a trigger, clearValue, a default value) and would hand out
+  // record objects the owner no longer holds. It stays off by default: a paged or asynchronous
+  // source cannot be read on demand.
+  public isReadThrough: boolean = false;
+  private get useReadThrough(): boolean {
+    return this.isReadThrough && !this.hasReadRange && this._source instanceof ArrayDynamicDataSource;
+  }
+  private get records(): Array<any> {
+    if (!this.useReadThrough) return this.windowRecords;
+    const res = (<ArrayDynamicDataSource>this._source).read();
+    return Array.isArray(res) ? res : [];
+  }
+  private set records(val: Array<any>) {
+    this.windowRecords = val;
+  }
   public get source(): IDynamicDataSource {
     return this._source;
   }
@@ -159,9 +178,11 @@ export class DynamicDataList {
     }
     const sourceIndex = this._windowOffset + index;
     this.replaceRecord(index, newRecord);
-    this.raiseChanged({ type: "recordChanged", index: index, field: field });
+    // The push comes before the notification: with a read-through source the push IS the local write,
+    // so the owner must not be notified of a change it cannot read yet.
     this.pushToSource("update", !!this._source.update,
       (): any => this._source.update(sourceIndex, newRecord, [field]));
+    this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
   }
   public setRecord(index: number, record: any): boolean {
@@ -171,9 +192,9 @@ export class DynamicDataList {
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
     this.replaceRecord(index, record);
-    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     this.pushToSource("update", !!this._source.update,
       (): any => this._source.update(sourceIndex, record, changedFields));
+    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
   public add(record?: any, index?: number): number {
@@ -181,42 +202,48 @@ export class DynamicDataList {
     const at = index === undefined || index === null
       ? this.records.length
       : Math.max(0, Math.min(index, this.records.length));
-    const newRecords = this.records.slice();
-    newRecords.splice(at, 0, newRecord);
     this.alignHiddenFlags();
-    this.records = newRecords;
+    if (!this.useReadThrough) {
+      const newRecords = this.windowRecords.slice();
+      newRecords.splice(at, 0, newRecord);
+      this.windowRecords = newRecords;
+    }
     this.hiddenFlags.splice(at, 0, false);
     if (this._total !== undefined)this._total++;
     this.resetViews();
     const sourceIndex = this._windowOffset + at;
-    this.raiseChanged({ type: "recordAdded", index: at });
     this.pushToSource("insert", !!this._source.insert, (): any => this._source.insert(sourceIndex, newRecord));
+    this.raiseChanged({ type: "recordAdded", index: at });
     return at;
   }
   public remove(index: number): void {
     if (index < 0 || index >= this.records.length) return;
-    const newRecords = this.records.slice();
-    newRecords.splice(index, 1);
     this.alignHiddenFlags();
-    this.records = newRecords;
+    if (!this.useReadThrough) {
+      const newRecords = this.windowRecords.slice();
+      newRecords.splice(index, 1);
+      this.windowRecords = newRecords;
+    }
     if (this.hiddenFlags[index])this.hiddenCount--;
     this.hiddenFlags.splice(index, 1);
     if (this._total !== undefined)this._total--;
     this.resetViews();
     const sourceIndex = this._windowOffset + index;
-    this.raiseChanged({ type: "recordRemoved", index: index });
     this.pushToSource("remove", !!this._source.remove, (): any => this._source.remove(sourceIndex));
+    this.raiseChanged({ type: "recordRemoved", index: index });
   }
   public move(fromIndex: number, toIndex: number): void {
     const length = this.records.length;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
-    const newRecords = this.records.slice();
-    const record = newRecords[fromIndex];
-    newRecords.splice(fromIndex, 1);
-    newRecords.splice(toIndex, 0, record);
     this.alignHiddenFlags();
-    this.records = newRecords;
+    if (!this.useReadThrough) {
+      const newRecords = this.windowRecords.slice();
+      const record = newRecords[fromIndex];
+      newRecords.splice(fromIndex, 1);
+      newRecords.splice(toIndex, 0, record);
+      this.windowRecords = newRecords;
+    }
     // A visibility flag belongs to a record, not to a slot: it travels with it.
     const flag = this.hiddenFlags[fromIndex];
     this.hiddenFlags.splice(fromIndex, 1);
@@ -224,8 +251,8 @@ export class DynamicDataList {
     this.resetViews();
     const fromSourceIndex = this._windowOffset + fromIndex;
     const toSourceIndex = this._windowOffset + toIndex;
-    this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
     this.pushToSource("move", !!this._source.move, (): any => this._source.move(fromSourceIndex, toSourceIndex));
+    this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
   public setRecordVisible(index: number, visible: boolean): void {
@@ -382,9 +409,12 @@ export class DynamicDataList {
   }
   private replaceRecord(index: number, record: any): void {
     // The window array is never mutated: the source may hand out the very array the owner holds.
-    const newRecords = this.records.slice();
-    newRecords[index] = record;
-    this.records = newRecords;
+    // With a read-through source there is no window - the push that follows is the write.
+    if (!this.useReadThrough) {
+      const newRecords = this.windowRecords.slice();
+      newRecords[index] = record;
+      this.windowRecords = newRecords;
+    }
     // A value change can only reorder or re-filter the view when a local filter/sort is active;
     // keeping the cached identity array otherwise is what lets the questions compare by instance.
     if (this.hasLocalViews) {
@@ -579,7 +609,7 @@ export class DynamicDataList {
     }
   }
   private syncWindowAfterSyncPush(): void {
-    if (this.isDisposed || this.hasReadRange) return;
+    if (this.isDisposed || this.hasReadRange || this.useReadThrough) return;
     // For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
     // rebuilt from it so that the list never holds an array the owner does not.
     if (!(this._source instanceof ArrayDynamicDataSource)) return;

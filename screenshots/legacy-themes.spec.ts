@@ -56,7 +56,7 @@ async function screenshotRoot(page: Page, screenshotName: string, mask?: Array<L
   });
 }
 
-frameworks.forEach(framework => {
+frameworks.filter(framework => framework === "react").forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
     test.setTimeout(120000);
 

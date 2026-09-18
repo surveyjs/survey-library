@@ -9630,7 +9630,10 @@ describe("DynamicDataList integration", () => {
             { type: "text", name: "age", inputType: "number" },
             { type: "text", name: "born", inputType: "date" },
             { type: "boolean", name: "agree" },
+            { type: "boolean", name: "agreeText", valueTrue: "yes", valueFalse: "no" },
             { type: "rating", name: "mark" },
+            { type: "rating", name: "grade", rateValues: ["a", "b"] },
+            { type: "checkbox", name: "tags", choices: [1, 2] },
             { type: "dropdown", name: "note", choices: [1, 2], showCommentArea: true }
           ] }
       ]
@@ -9641,8 +9644,11 @@ describe("DynamicDataList integration", () => {
       { name: "age", dataType: "number" },
       { name: "born", dataType: "date" },
       { name: "agree", dataType: "boolean" },
+      { name: "agreeText", dataType: "any" },
       { name: "mark", dataType: "number" },
-      { name: "note", dataType: "any" },
+      { name: "grade", dataType: "any" },
+      { name: "tags", dataType: "any" },
+      { name: "note", dataType: "number" },
       { name: "note-Comment", dataType: "string" }
     ]);
   });

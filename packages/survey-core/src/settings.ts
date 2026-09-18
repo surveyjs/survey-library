@@ -466,6 +466,12 @@ export var settings = {
    */
   ratingMaximumRateValueCount: 20,
   /**
+   * Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
+   *
+   * Default value: 400
+   */
+  keyboardInputTimeout: 400,
+  /**
    * Specifies whether to close the drop-down menu of a [Multi-Select Dropdown (Tag Box)](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) question after a user selects a value.
    *
    * This setting applies to all Multi-Select Dropdown questions on a web page. You can use the [`closeOnSelect`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual Multi-Select Dropdown question.

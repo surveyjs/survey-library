@@ -84,6 +84,50 @@ export class RatingItem extends ItemValue {
   }
 }
 
+function isRatingItemEnabled(item: ItemValue): boolean {
+  return !!item && item.isEnabled !== false;
+}
+
+function parseRatingShortcutNumber(val: any): number {
+  const num = parseFloat(val);
+  return isNaN(num) ? NaN : num;
+}
+
+export function ratingDigitShortcutHasPrefix(items: Array<ItemValue>, digit: string): boolean {
+  if (!digit || digit === "0" || !Array.isArray(items)) return false;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!isRatingItemEnabled(item)) continue;
+    const num = parseRatingShortcutNumber(item.value);
+    if (isNaN(num)) continue;
+    const str = String(num);
+    if (str.length > 1 && str.indexOf(digit) === 0) return true;
+  }
+  return false;
+}
+
+export function getRatingItemByDigitShortcut(items: Array<ItemValue>, digits: string): ItemValue {
+  if (!digits || !Array.isArray(items) || items.length === 0) return undefined;
+  const num = parseRatingShortcutNumber(digits);
+  if (!isNaN(num)) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemNum = parseRatingShortcutNumber(item.value);
+      if (!isNaN(itemNum) && itemNum === num) {
+        return isRatingItemEnabled(item) ? item : undefined;
+      }
+    }
+  }
+  if (digits.length === 1 && digits !== "0") {
+    const index = parseInt(digits, 10) - 1;
+    if (index >= 0 && index < items.length) {
+      const item = items[index];
+      return isRatingItemEnabled(item) ? item : undefined;
+    }
+  }
+  return undefined;
+}
+
 /**
  * A class that describes the Rating Scale question type.
  *
@@ -474,23 +518,137 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     return this.inputId + "_" + index;
   }
   private isEnterKey: boolean;
+  private digitShortcutBuffer: string = "";
+  private digitShortcutTimer: any;
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.isDropdown || this.isEnterKey === true;
   }
   public onKeyDown(event: any): void {
+    const digit = this.getDigitFromEvent(event);
+    if (digit !== undefined) {
+      this.handleDigitShortcut(digit, event);
+      return;
+    }
+    this.resetDigitShortcut();
     if (event.key !== "Enter" && event.keyCode !== 13) return;
     if (this.isReadOnlyAttr || this.isDesignMode) return;
     const raw = event.target?.value;
     if (raw === undefined || raw === null || raw === "") return;
     event.preventDefault();
+    this.commitRatingValue(raw);
+  }
+  private getDigitFromEvent(event: any): string {
+    if (!event || event.ctrlKey || event.metaKey || event.altKey || event.repeat) return undefined;
+    if (event.keyCode === 229 || event.isComposing) return undefined;
+    const key = event.key;
+    if (typeof key === "string" && key.length === 1 && key >= "0" && key <= "9") return key;
+    return undefined;
+  }
+  private isDigitShortcutTargetBlocked(target: any): boolean {
+    if (!target) return false;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag === "textarea" || tag === "select") return true;
+    if (tag === "input") {
+      const type = (target.type || "text").toString().toLowerCase();
+      if (type === "radio" || type === "checkbox" || type === "button" || type === "submit" || type === "reset" || type === "hidden") {
+        return false;
+      }
+      return true;
+    }
+    if (target.isContentEditable) return true;
+    return false;
+  }
+  private canHandleDigitShortcut(event: any): boolean {
+    if (this.isReadOnlyAttr || this.isDesignMode || this.isDropdown) return false;
+    if (this.dropdownListModelValue?.popupModel?.isVisible) return false;
+    if (this.visibleChoices.length === 0) return false;
+    if (this.isDigitShortcutTargetBlocked(event?.target)) return false;
+    const target = event?.target;
+    if (this.rootElement && target && target.nodeType && typeof this.rootElement.contains === "function" && !this.rootElement.contains(target)) {
+      return false;
+    }
+    return true;
+  }
+  private handleDigitShortcut(digit: string, event: any): void {
+    if (!this.canHandleDigitShortcut(event)) {
+      this.resetDigitShortcut();
+      return;
+    }
+    const items = this.visibleChoices;
+    if (this.digitShortcutBuffer) {
+      const digits = this.digitShortcutBuffer + digit;
+      this.resetDigitShortcut();
+      const twoDigitItem = getRatingItemByDigitShortcut(items, digits);
+      if (twoDigitItem) {
+        this.applyDigitShortcut(twoDigitItem, event);
+        return;
+      }
+      const firstItem = getRatingItemByDigitShortcut(items, digits.charAt(0));
+      if (firstItem) {
+        this.applyDigitShortcut(firstItem, event);
+      }
+      return;
+    }
+    if (ratingDigitShortcutHasPrefix(items, digit)) {
+      this.digitShortcutBuffer = digit;
+      this.digitShortcutTimer = setTimeout(() => {
+        this.digitShortcutTimer = undefined;
+        const pending = this.digitShortcutBuffer;
+        this.digitShortcutBuffer = "";
+        if (this.isDisposed || !pending) return;
+        const item = getRatingItemByDigitShortcut(this.visibleChoices, pending);
+        if (item) {
+          this.applyDigitShortcut(item);
+        }
+      }, settings.keyboardInputTimeout);
+      return;
+    }
+    const item = getRatingItemByDigitShortcut(items, digit);
+    if (!item) return;
+    this.applyDigitShortcut(item, event);
+  }
+  private applyDigitShortcut(item: ItemValue, event?: any): void {
+    if (event) {
+      if (event.preventDefault) event.preventDefault();
+      if (event.stopPropagation) event.stopPropagation();
+    }
+    this.commitRatingValue(item.value);
+    this.focusRateItem(item);
+  }
+  private commitRatingValue(val: any): void {
     this.isEnterKey = true;
     const prevValue = this.value;
-    this.value = raw;
+    this.value = val;
     if (prevValue === this.value && !this.isEmpty()) {
       const survey = this.survey as SurveyModel;
       survey?.tryGoNextPageAutomatic(this.getValueName());
     }
     this.isEnterKey = false;
+  }
+  private focusRateItem(item: ItemValue): void {
+    const index = this.visibleChoices.indexOf(item as RatingItem);
+    if (index < 0) return;
+    const id = this.getInputId(index);
+    const selector = "#" + (typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id);
+    const roots = [this.rootElement, this.getWrapperElement(), (this.survey as SurveyModel)?.rootElement];
+    let el: HTMLElement = undefined;
+    for (let i = 0; i < roots.length; i++) {
+      const root = roots[i];
+      if (root && typeof root.querySelector === "function") {
+        el = root.querySelector(selector);
+        if (el) break;
+      }
+    }
+    if (el && typeof el.focus === "function") {
+      el.focus({ preventScroll: true });
+    }
+  }
+  private resetDigitShortcut(): void {
+    if (this.digitShortcutTimer !== undefined && this.digitShortcutTimer !== null) {
+      clearTimeout(this.digitShortcutTimer);
+      this.digitShortcutTimer = undefined;
+    }
+    this.digitShortcutBuffer = "";
   }
   public supportOther(): boolean {
     return false;
@@ -670,6 +828,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     }
   }
   public setValueFromClick(value: any) {
+    this.resetDigitShortcut();
     if (this.isReadOnlyAttr || this.isEnterKey) return;
     if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
       this.clearValue(true);
@@ -974,6 +1133,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     this.updateRenderAsBasedOnDisplayMode();
   }
   public dispose(): void {
+    this.resetDigitShortcut();
     super.dispose();
     if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();

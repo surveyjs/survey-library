@@ -4034,4 +4034,142 @@ describe("custom questions", () => {
     });
     ComponentCollection.Instance.clear();
   });
+<<<<<<< HEAD
+||||||| parent of ea4b3aa91 ([backport:V2] onDynamicPanelValueChanged is not raised when a composite or custom question inside a Dynamic Panel changes through its inner question #11870 (#11872))
+  test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
+    ComponentCollection.Instance.add({
+      name: "imageupload",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    matrixDropdownColumnTypes["imageupload"] = {};
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "imageupload" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    const props = Serializer.getDynamicPropertiesByObj(column);
+    const propNames = props.map(prop => prop.name);
+    expect(propNames.indexOf("allowMultiple") > -1, "allowMultiple property is in the column dynamic properties").toBeTruthy();
+    expect(propNames.indexOf("maxSize") > -1, "maxSize property is in the column dynamic properties").toBeTruthy();
+
+    column["allowMultiple"] = true;
+    column["maxSize"] = 1000;
+    expect(column.templateQuestion["allowMultiple"], "templateQuestion.allowMultiple").toBe(true);
+    expect(column.templateQuestion["maxSize"], "templateQuestion.maxSize").toBe(1000);
+    expect(column.toJSON(), "column.toJSON()").toEqual({ name: "col1", cellType: "imageupload", allowMultiple: true, maxSize: 1000 });
+
+    const cellQuestion = <QuestionCustomModel>matrix.visibleRows[0].cells[0].question;
+    expect(cellQuestion.getType(), "cell question type").toBe("imageupload");
+    const contentQuestion = <QuestionFileModel>cellQuestion.contentQuestion;
+    expect(contentQuestion.allowMultiple, "contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion.maxSize, "contentQuestion.maxSize").toBe(1000);
+
+    const survey2 = new SurveyModel(survey.toJSON());
+    const matrix2 = <QuestionMatrixDynamicModel>survey2.getQuestionByName("matrix");
+    const column2 = matrix2.columns[0];
+    expect(column2["allowMultiple"], "load from json, column.allowMultiple").toBe(true);
+    expect(column2["maxSize"], "load from json, column.maxSize").toBe(1000);
+    const contentQuestion2 = <QuestionFileModel>(<QuestionCustomModel>matrix2.visibleRows[0].cells[0].question).contentQuestion;
+    expect(contentQuestion2.allowMultiple, "load from json, contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion2.maxSize, "load from json, contentQuestion.maxSize").toBe(1000);
+
+    delete matrixDropdownColumnTypes["imageupload"];
+    ComponentCollection.Instance.clear();
+  });
+=======
+  test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
+    ComponentCollection.Instance.add({
+      name: "imageupload",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    matrixDropdownColumnTypes["imageupload"] = {};
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "imageupload" }]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const column = matrix.columns[0];
+    const props = Serializer.getDynamicPropertiesByObj(column);
+    const propNames = props.map(prop => prop.name);
+    expect(propNames.indexOf("allowMultiple") > -1, "allowMultiple property is in the column dynamic properties").toBeTruthy();
+    expect(propNames.indexOf("maxSize") > -1, "maxSize property is in the column dynamic properties").toBeTruthy();
+
+    column["allowMultiple"] = true;
+    column["maxSize"] = 1000;
+    expect(column.templateQuestion["allowMultiple"], "templateQuestion.allowMultiple").toBe(true);
+    expect(column.templateQuestion["maxSize"], "templateQuestion.maxSize").toBe(1000);
+    expect(column.toJSON(), "column.toJSON()").toEqual({ name: "col1", cellType: "imageupload", allowMultiple: true, maxSize: 1000 });
+
+    const cellQuestion = <QuestionCustomModel>matrix.visibleRows[0].cells[0].question;
+    expect(cellQuestion.getType(), "cell question type").toBe("imageupload");
+    const contentQuestion = <QuestionFileModel>cellQuestion.contentQuestion;
+    expect(contentQuestion.allowMultiple, "contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion.maxSize, "contentQuestion.maxSize").toBe(1000);
+
+    const survey2 = new SurveyModel(survey.toJSON());
+    const matrix2 = <QuestionMatrixDynamicModel>survey2.getQuestionByName("matrix");
+    const column2 = matrix2.columns[0];
+    expect(column2["allowMultiple"], "load from json, column.allowMultiple").toBe(true);
+    expect(column2["maxSize"], "load from json, column.maxSize").toBe(1000);
+    const contentQuestion2 = <QuestionFileModel>(<QuestionCustomModel>matrix2.visibleRows[0].cells[0].question).contentQuestion;
+    expect(contentQuestion2.allowMultiple, "load from json, contentQuestion.allowMultiple").toBe(true);
+    expect(contentQuestion2.maxSize, "load from json, contentQuestion.maxSize").toBe(1000);
+
+    delete matrixDropdownColumnTypes["imageupload"];
+    ComponentCollection.Instance.clear();
+  });
+  test("Raise onDynamicPanelValueChanged on changing a custom/composite question value via its inner question", () => {
+    ComponentCollection.Instance.add({
+      name: "test_composite",
+      elementsJSON: [{ type: "rating", name: "answer" }, { type: "text", name: "comment" }]
+    });
+    ComponentCollection.Instance.add({
+      name: "test_custom",
+      questionJSON: { type: "dropdown", choices: [1, 2, 3] }
+    });
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 1,
+        templateElements: [{ type: "test_composite", name: "q1" }, { type: "test_custom", name: "q2" }] }]
+    });
+    const logs = new Array<string>();
+    survey.onDynamicPanelValueChanged.add((_, options) => {
+      logs.push(options.name + ":" + JSON.stringify(options.value) + ":" + JSON.stringify(options.oldValue) + ":" + options.panelIndex);
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels[0];
+    const q1 = <QuestionCompositeModel>panel.getQuestionByName("q1");
+    const q2 = <QuestionCustomModel>panel.getQuestionByName("q2");
+
+    q1.contentPanel.getQuestionByName("answer").value = 3;
+    expect(logs, "composite, set the first inner question").toEqual(["q1:{\"answer\":3}:undefined:0"]);
+    q1.contentPanel.getQuestionByName("comment").value = "abc";
+    expect(logs[1], "composite, set the second inner question").toBe("q1:{\"answer\":3,\"comment\":\"abc\"}:{\"answer\":3}:0");
+    q1.value = { answer: 4 };
+    expect(logs[2], "composite, set the value directly").toBe("q1:{\"answer\":4}:{\"answer\":3,\"comment\":\"abc\"}:0");
+    expect(logs, "composite, the event is raised once per change").toHaveLength(3);
+
+    q2.contentQuestion.value = 2;
+    expect(logs[3], "custom, set the inner question").toBe("q2:2:undefined:0");
+    q2.value = 3;
+    expect(logs[4], "custom, set the value directly").toBe("q2:3:2:0");
+    expect(logs, "custom, the event is raised once per change").toHaveLength(5);
+    expect(survey.data, "survey.data").toEqual({ panel: [{ q1: { answer: 4 }, q2: 3 }] });
+
+    ComponentCollection.Instance.clear();
+  });
+>>>>>>> ea4b3aa91 ([backport:V2] onDynamicPanelValueChanged is not raised when a composite or custom question inside a Dynamic Panel changes through its inner question #11870 (#11872))
 });

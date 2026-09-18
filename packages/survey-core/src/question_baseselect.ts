@@ -495,7 +495,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
+    // A respondent cannot fix a value that refers to a choice that is gone, so it is removed when errors are shown.
+    // A silent check, validate(false), reports such a value as incorrect and leaves the data as it is.
+    if (context.fireCallback && context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
       this.clearIncorrectValues();
     }
     let res = true;
@@ -2323,7 +2325,20 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private get hasChoicesUrl(): boolean {
     return !!this.choicesByUrlValue?.url;
   }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val) || !this.isValueShapeCorrect(val)) return false;
+    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return true;
+    return !this.canClearValueAnUnknown(val);
+  }
+  // A single-select question does not store an array and a multi-select question stores nothing else.
+  private isValueShapeCorrect(val: any): boolean {
+    return Array.isArray(val) === (this.getValueType() === "array");
+  }
   public clearIncorrectValues(): void {
+    if (!this.isEmpty() && !this.isValueShapeCorrect(this.value)) {
+      this.clearValue(true);
+      return;
+    }
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();

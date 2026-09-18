@@ -577,6 +577,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getValueType(): QuestionValueType {
     return "array";
   }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    // A value is a file entry or an array of them.
+    const files = Array.isArray(val) ? val : [val];
+    return files.every(file => Helpers.isValueObject(file, true));
+  }
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);

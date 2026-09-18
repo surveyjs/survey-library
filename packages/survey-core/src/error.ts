@@ -116,6 +116,17 @@ export class OtherEmptyError extends SurveyError {
     return this.getLocalizationString("otherRequiredError");
   }
 }
+export class IncorrectValueError extends SurveyError {
+  constructor(public text: string = null, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "incorrectvalue";
+  }
+  protected getDefaultText(): string {
+    return this.getLocalizationString("incorrectValueError");
+  }
+}
 export class UploadingFileError extends SurveyError {
   constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
     super(text, errorOwner);

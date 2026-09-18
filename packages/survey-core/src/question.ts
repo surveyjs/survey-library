@@ -5,7 +5,7 @@ import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITit
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
-import { AnswerRequiredError, CustomError } from "./error";
+import { AnswerRequiredError, CustomError, IncorrectValueError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -2704,6 +2704,9 @@ export class Question extends SurveyElement<Question>
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
     }
+    if (!isOnValueChanged && !this.isValueCorrect()) {
+      errors.push(new IncorrectValueError(null, this));
+    }
     if (!this.isEmpty() && this.customWidget) {
       const text = this.customWidget.validate(this);
       if (!!text) {
@@ -2774,14 +2777,56 @@ export class Question extends SurveyElement<Question>
   }
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
-    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
+    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isDataValueCorrect(val);
     if (!res) {
       ConsoleWarnings.inCorrectQuestionValue(this.name, val);
     }
     return res;
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return true;
+  }
+  // Tells whether the question can hold the value it has: the value has the JSON shape the question
+  // stores and refers to existing choices, rows or items only. It never modifies the value or the survey data.
+  // validate() reports an incorrect value as an error and clearIncorrectValues() removes it.
+  public isValueCorrect(): boolean {
+    if (this.hasIncorrectValueInData()) return false;
+    return this.isEmpty() || this.isValueCorrectCore(this.value);
+  }
+  protected isValueCorrectCore(val: any): boolean {
+    return this.isDataValueCorrect(val);
+  }
+  // A value that fails isDataValueCorrect() is not taken by the question, but it stays in the survey data.
+  private hasIncorrectValueInData(): boolean {
+    if (!this.data) return false;
+    const val = this.valueFromDataCore(this.data.getValue(this.getValueName()));
+    return !this.isValueEmpty(val, !this.allowSpaceAsAnswer) && !this.isDataValueCorrect(val);
+  }
+  // Tells whether a key of an object value belongs to this question: it is its row or its item.
+  protected hasValueKey(key: string): boolean {
+    return false;
+  }
+  // Several questions may share the same valueName and keep their rows or items in one object.
+  // A key that belongs to any of them is a known key for all of them.
+  protected isValueKeyKnown(key: string): boolean {
+    if (this.hasValueKey(key)) return true;
+    if (!this.survey) return false;
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    if (!Array.isArray(questions)) return false;
+    return questions.some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
+  }
+  // Tells whether a value has the JSON shape getValueType() reports.
+  protected isValueOfValueType(val: any): boolean {
+    const type = this.getValueType();
+    if (type === "array") return Array.isArray(val);
+    const isObject = Helpers.isValueObject(val, true) && !(val instanceof Date);
+    if (type === "object") return isObject;
+    if (Array.isArray(val) || isObject) return false;
+    return type !== "number" || Helpers.isNumber(val);
+  }
+  protected clearIncorrectValueInData(): void {
+    if (!this.hasIncorrectValueInData()) return;
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
@@ -2978,7 +3023,17 @@ export class Question extends SurveyElement<Question>
    *
    * @see validate
    */
-  public clearIncorrectValues(): void { }
+  public clearIncorrectValues(): void {
+    if (this.isValueCorrect()) return;
+    this.clearIncorrectValueInData();
+    if (!this.isEmpty()) {
+      this.clearIncorrectValuesCore();
+    }
+  }
+  // A question that can drop the incorrect part of its value only, an unknown choice or row, overrides this function.
+  protected clearIncorrectValuesCore(): void {
+    this.clearValue(true);
+  }
   public clearOnDeletingContainer(): void { }
   /**
    * Empties the `errors` array.

@@ -207,7 +207,8 @@ describe("SurveyVariablePresets (issue #11814)", () => {
     expect(res.errors).toHaveLength(1);
     expect(res.errors[0].variable).toEqual("sites");
     expect(res.errors[0].question).toEqual("sites");
-    expect(res.errors[0].errors).toEqual(["Response required."]);
+    // "country" is not a question of the panel, so the dynamic panel reports its own value as incorrect.
+    expect(res.errors[0].errors).toEqual(["The value is incorrect.", "Response required."]);
     presets.dispose();
   });
   test("validateVariables: known keys are canonicalized to the definition's spelling", () => {

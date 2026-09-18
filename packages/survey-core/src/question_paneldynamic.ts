@@ -1830,7 +1830,23 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       panels[i].randomSeedChanged();
     }
   }
+  protected isValueCorrectCore(val: any): boolean {
+    if (!super.isValueCorrectCore(val)) return false;
+    const panels = this.panelsCore;
+    for (let i = 0; i < panels.length && i < val.length; i++) {
+      for (const key in val[i]) {
+        if (this.isUnknownValueKey(panels[i], key, i)) return false;
+      }
+    }
+    return true;
+  }
+  private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
+    if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;
+    return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&
+      !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+  }
   public clearIncorrectValues() {
+    this.clearIncorrectValueInData();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
     }
@@ -1853,18 +1869,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (this.getSharedQuestionFromArray(key, index)) continue;
-      var q = panel.getQuestionByValueName(key);
-      if (!!q) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(
-          panel,
-          key,
-          settings.matrix.totalsSuffix
-        )
-      )
-        continue;
+      if (!this.isUnknownValueKey(panel, key, index)) continue;
       delete values[key];
       isChanged = true;
     }
@@ -2435,8 +2440,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.rebuildPanels();
     }
   }
-  protected isNewValueCorrect(val: any): boolean {
-    return Array.isArray(val);
+  protected isDataValueCorrect(val: any): boolean {
+    // Every row is a plain object; an empty one may be null.
+    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;

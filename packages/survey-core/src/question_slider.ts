@@ -307,6 +307,9 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public getValueType(): QuestionValueType {
     return this.sliderType === "range" ? "array" : "number";
   }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),

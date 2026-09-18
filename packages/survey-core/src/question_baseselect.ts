@@ -2335,7 +2335,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
     if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
-    if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
+    // Only validate against successfully loaded choices. An empty list is valid,
+    // but missing URL parameters, pending requests, and errors are not results.
+    if (this.hasChoicesUrl && (!this.choicesFromUrl || this.isRunningChoicesValue ||
+      !this.choicesByUrlValue.canUseResult)) return false;
     return true;
   }
   protected canAddCustomChoices(): boolean {
@@ -2704,7 +2707,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   private focusOtherComment(item: ItemValue) {
     if (!this.autoOtherMode) {
-      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
+      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement, this.shouldHandleFocusScroll);
     }
   }
   protected getDefaultItemComponent(): string {

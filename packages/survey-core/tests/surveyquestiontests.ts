@@ -633,6 +633,69 @@ describe("Survey_Questions", () => {
     expect(survey.currentPageNo, "Still stay on the first page").toBe(0);
   });
 
+  test("Radiogroup Question: autoAdvanceEnabled waits for Enter on keyboard, #3723", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const createKeyEvent = (key: string, keyCode: number) => {
+      let prevented = false;
+      return {
+        key,
+        keyCode,
+        preventDefault: () => { prevented = true; },
+        get defaultPrevented() { return prevented; }
+      };
+    };
+
+    question.value = 1;
+    expect(survey.currentPageNo, "Arrow/value change does not auto-advance").toBe(0);
+
+    const arrowEvent = createKeyEvent("ArrowDown", 40);
+    question.onKeyDown(arrowEvent);
+    expect(survey.currentPageNo, "ArrowDown key does not auto-advance").toBe(0);
+    expect(arrowEvent.defaultPrevented, "ArrowDown is not prevented").toBe(false);
+
+    const enterEvent = createKeyEvent("Enter", 13);
+    question.onKeyDown(enterEvent);
+    expect(enterEvent.defaultPrevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Radiogroup Question: Enter does not auto-advance when autoAdvanceEnabled is false", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "radiogroup", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+  });
+
+  test("Radiogroup Question: Enter does not auto-advance if other questions are empty", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+          { type: "text", name: "q2" }
+        ] },
+        { elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay until all questions on the page are answered").toBe(0);
+  });
+
   test("Validators for text question + getAllErrors", () => {
     var mText = new QuestionTextModel("");
     expect(mText.validate(), "There is no error by default").toBe(true);

@@ -10,6 +10,8 @@ source: https://surveyjs.io/form-library/documentation/api-reference/inputmaskda
 
 A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
 
+The mask inherits its format from the survey's [`regionalFormat`](/form-library/documentation/api-reference/survey-data-model#regionalFormat) settings and format locale. Set [`pattern`](#pattern) to specify a custom format.
+
 The following code shows how to specify the properties of this class within a survey JSON schema:
 
 ```js
@@ -25,7 +27,7 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+[Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
 ## Inheritance
 

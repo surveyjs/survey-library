@@ -671,8 +671,11 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onSetQuestionValue(this, newValue);
     }
   }
+  private isSettingNewValue: boolean;
   protected setNewValue(newValue: any) {
+    this.isSettingNewValue = true;
     super.setNewValue(newValue);
+    this.isSettingNewValue = false;
     this.updateElementCss();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
@@ -713,6 +716,17 @@ export abstract class QuestionCustomModelBase extends Question
     );
     this.updateIsAnswered();
     this.updateElementCss();
+  }
+  // A value set through an inner question bypasses Question.setNewValue, so the survey is not notified
+  // about the custom question's own value change (e.g. onDynamicPanelValueChanged is not raised).
+  // The old value is taken from data: the question value may already be updated by the inner question.
+  protected getValueFromData(): any {
+    return !!this.data ? this.getUnbindValue(this.data.getValue(this.getValueName())) : undefined;
+  }
+  protected notifySurveyOnValueChanged(oldValue: any): void {
+    if (!this.isSettingNewValue && !!this.survey && !this.isTwoValueEquals(oldValue, this.value)) {
+      this.survey.questionValueChanged(this, oldValue);
+    }
   }
   protected getQuestionByName(name: string): IQuestion {
     return undefined;
@@ -884,7 +898,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean): any {
     if (this.isValueChanging(name, newValue)) return;
+    const oldValue = this.getValueFromData();
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    this.notifySurveyOnValueChanged(oldValue);
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);
@@ -1368,6 +1384,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       return;
     }
     if (this.isValueChanging(name, newValue)) return;
+    const oldValue = this.getValueFromData();
     this.settingNewValue = true;
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
       let index = 0;
@@ -1377,6 +1394,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+    this.notifySurveyOnValueChanged(oldValue);
     this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
     if (this.isEditingSurveyElement) {
       this.runCondition(this.getFilteredProperties());

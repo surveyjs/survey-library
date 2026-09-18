@@ -1,6 +1,7 @@
 <template>
   <div :class="question.ratingRootCss" ref="root">
     <fieldset
+      @keydown="question.onKeyDown($event)"
       :role="question.a11y_input_ariaRole"
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="question.a11y_input_ariaLabel"

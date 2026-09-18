@@ -7,7 +7,8 @@ import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
-  MatrixSingleInputLocOwner
+  MatrixSingleInputLocOwner,
+  IMatrixDuplicationEntry
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
@@ -15,7 +16,7 @@ import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
-import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
+import { IShortcutText, ISurveyImpl, IProgressInfo, ISurveyData } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
@@ -134,11 +135,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* Every record-level read and write of this question goes through this list. Its source is a
      getter/setter pair over question.value - never a captured array - so that every write replaces
      the array instead of mutating the one the question currently holds.
-     The invariant: record index == index in generatedVisibleRows == index in the value array. The
-     three are parallel by construction: the list keeps at least rowCount records (a shorter value is
-     padded on read, exactly as createNewValue() pads it), sorting (step 04) reorders a view and
-     never the records, and moveRowByIndex is the one operation that reorders records - it reorders
-     the rows in lockstep. */
+     The invariant: generatedVisibleRows[i] holds the record dataList.getCreatedIndexes()[i] - the
+     records that pass the list filter, in its sort order, owner-hidden ones included. With neither
+     set the created indexes are 0 ... rowCount-1 and the rows, the records and question.value are
+     parallel again, which is the state of every matrix until a filter or a sort is assigned.
+     question.value always holds every record in record order: a filter never removes from it and a
+     sort never reorders it. rowCount is the record count; it stops being the row count while a
+     filter is active. */
   private get dataList(): DynamicDataList {
     if (!this.dataListValue) {
       this.dataListValue = createReadThroughDataList(this,
@@ -170,21 +173,78 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
     return res;
   }
+  /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
+     called. Which records have a row changes with it, so the rows are rebuilt.
+     hasMaterializedView remembers that the rows were last built for a view: clearing the filter
+     leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
+     raises while it is being constructed - before dataListValue is assigned - out of here. */
+  private hasMaterializedView: boolean = false;
   onDataListChanged(change: IDynamicDataListChange): void {
-    // Nothing subscribes to the list yet: the rows are still synchronized from the value by
-    // onBeforeValueChanged and by the rowCount setter. Step 04 (paging and sorting) fills this in.
+    if (change.type !== "reset" || !this.dataListValue) return;
+    const hasView = this.dataListValue.hasView;
+    if (!hasView && !this.hasMaterializedView) return;
+    this.hasMaterializedView = hasView;
+    this.rebuildRowsFromDataList();
+  }
+  private get hasDataListView(): boolean {
+    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView);
   }
   /* Every value assignment of this question passes through setQuestionValue, and rowCount changes
      the padded records the list reads. The list sees the records themselves at once - it reads them
      through the value - but the views it cached over them it cannot: they are dropped here. The list
-     is not created just to be invalidated. */
+     is not created just to be invalidated.
+     An assignment made outside the list - survey.data, a trigger, clearValue, a default value - also
+     re-decides the membership, and when it changes which records have a row the rows are rebuilt;
+     when it does not, the base refreshes their values by position, as it always has. An assignment
+     the list itself is making is not a change from outside: invalidateViews ignores it and the
+     snapshot is not taken. */
   protected setQuestionValue(newValue: any): void {
+    const created = this.getCreatedIndexesSnapshot();
     super.setQuestionValue(newValue);
     this.invalidateDataListViews();
+    this.rebuildRowsIfViewChanged(created);
+  }
+  private getCreatedIndexesSnapshot(): Array<number> {
+    const list = this.dataListValue;
+    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
+  }
+  private rebuildRowsIfViewChanged(created: Array<number>): void {
+    if (!created || !this.dataListValue) return;
+    if (Helpers.isTwoValueEquals(created, this.dataListValue.getCreatedIndexes())) return;
+    this.rebuildRowsFromDataList();
+  }
+  /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
+     per-row state - open detail panels, row errors, cell question state, row ids - and fires the
+     row-creation callbacks again. It is the same path a remote page change takes, so there is one. */
+  private rebuildRowsFromDataList(): void {
+    if (this.isEditingObjectValue) return;
+    const hasRows = !!this.generatedVisibleRows;
+    if (hasRows) {
+      this.clearGeneratedRows();
+      this.resetRenderedTable();
+      this.getVisibleRows();
+      this.onRowsChanged();
+    }
+    /* The totals are the totals of the rows that exist, so a view change recalculates them - and a
+       total needs the rows even when nothing has asked for them yet. */
+    if (this.hasTotal) {
+      if (!hasRows) {
+        this.getVisibleRows();
+      }
+      this.runTotalsCondition(this.getDataFilteredProperties());
+    }
   }
   private invalidateDataListViews(): void {
     if (!!this.dataListValue) {
       this.dataListValue.invalidateViews();
+    }
+  }
+  /* rowCount, not a write, decides how many records the list reads: the window is question.value
+     padded up to it. The records that appear join the view - an added record always does - and the
+     ones that disappear leave it; the membership of the rest is not re-decided. */
+  private syncDataListRecordCount(): void {
+    if (!!this.dataListValue) {
+      this.dataListValue.syncMembershipWithRecordCount();
     }
   }
   /* The records the list works with: question.value padded up to rowCount, exactly as
@@ -229,7 +289,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     const list = this.dataList;
     if (list.count < this.rowCount) return;
-    list.batch((): void => { list.setRecord(this.rowCount - 1, record, force && this.isPaddingPending); });
+    const index = this.getLastRowRecordIndex();
+    if (index < 0) return;
+    list.batch((): void => { list.setRecord(index, record, force && this.isPaddingPending); });
+  }
+  // The record of the last row: the last created one under a view, the last record otherwise (the
+  // window can be longer than rowCount while a value that outgrew it has not been normalized yet).
+  private getLastRowRecordIndex(): number {
+    if (!this.hasDataListView) return this.rowCount - 1;
+    const created = this.dataList.getCreatedIndexes();
+    return created.length > 0 ? created[created.length - 1] : -1;
   }
   /* question.value is shorter than rowCount: the padded records the list reads have not reached the
      storage yet. A write that used to compare whole values (it assigned the padded array and the
@@ -239,8 +308,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     return !Array.isArray(val) || val.length < this.rowCount;
   }
+  // Takes a created position - what every public index argument of the reordering methods is - and
+  // returns the record it addresses.
   private getRecordIndex(index: number): number {
-    return Math.max(0, Math.min(index, this.dataList.count - 1));
+    const list = this.dataList;
+    if (!this.hasDataListView) return Math.max(0, Math.min(index, list.count - 1));
+    const created = list.getCreatedIndexes();
+    if (created.length === 0) return -1;
+    return created[Math.max(0, Math.min(index, created.length - 1))];
   }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -383,12 +458,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     // rowCount++ creates the row object and, with it, the record at the end; the record then moves
-    // into place and takes rowData, so that the value is written once.
+    // into place and takes rowData, so that the value is written once. The move takes the new record
+    // to the record of the row that stood at toIndex, and the new row with it.
     this.rowCount++;
     const list = this.dataList;
     const index = this.getRecordIndex(toIndex);
+    if (index < 0) return;
     list.batch((): void => {
-      list.move(this.rowCount - 1, index);
+      list.move(list.count - 1, index);
       list.setRecord(index, rowData);
     });
   }
@@ -402,12 +479,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     const list = this.dataList;
     if (fromIndex < 0 || fromIndex >= list.count) return;
+    const index = this.getRecordIndex(fromIndex);
+    if (index < 0) return;
     /* The record moves to the end and rowCount-- removes it there: the row objects are spliced
        instead of being re-created, exactly as they are when a row is removed by the UI. Both steps
        are one write of question.value - the value used to be assigned twice here, the intermediate
        assignment carrying a row the caller never asked to remove. */
     list.batch((): void => {
-      list.move(fromIndex, list.count - 1);
+      list.move(index, list.count - 1);
       this.rowCount--;
     });
   }
@@ -440,6 +519,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
+    /* Before the truncation, not after it: rowCount decides how many records the window holds, so
+       the ones the padding just created or dropped have to reach the view first - the removals that
+       follow are made against the record count the new rowCount produced. */
+    this.syncDataListRecordCount();
     if (this.value && this.value.length > val) {
       if (this.isEditingObjectValue) {
         var qVal = this.value;
@@ -449,9 +532,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.dataList.batch((): void => { this.dataList.truncate(val); });
       }
     }
-    // The records the list reads are padded up to rowCount: a rowCount that grows adds records
-    // without any value assignment.
-    this.invalidateDataListViews();
     if (this.isUpdateLocked) {
       this.initialRowCount = val;
       return;
@@ -461,15 +541,35 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.clearGeneratedRows();
         this.generatedVisibleRows = [];
       }
-      this.generatedVisibleRows.splice(val);
-      for (var i = prevValue; i < val; i++) {
-        var newRow = this.createMatrixRow(this.getValueForNewRow());
-        this.generatedVisibleRows.push(newRow);
-        this.onMatrixRowCreated(newRow);
+      if (this.hasDataListView) {
+        this.updateRowsForCreatedIndexes();
+      } else {
+        this.generatedVisibleRows.splice(val);
+        for (var i = prevValue; i < val; i++) {
+          var newRow = this.createMatrixRow(this.getValueForNewRow());
+          this.generatedVisibleRows.push(newRow);
+          this.onMatrixRowCreated(newRow);
+        }
       }
       this.runCondition(this.getDataFilteredProperties());
     }
     this.onRowsChanged();
+  }
+  /* rowCount no longer says how many rows there are while a filter is active: the created indexes
+     do. A record that appeared gets a row appended (it is always in the view); records that
+     disappeared can be anywhere in the view, so their rows are rebuilt rather than sliced off. */
+  private updateRowsForCreatedIndexes(): void {
+    const created = this.dataList.getCreatedIndexes();
+    const rows = this.generatedVisibleRows;
+    if (created.length < rows.length) {
+      this.rebuildRowsFromDataList();
+      return;
+    }
+    for (let i = rows.length; i < created.length; i++) {
+      const newRow = this.createMatrixRow(this.getValueForNewRow());
+      rows.push(newRow);
+      this.onMatrixRowCreated(newRow);
+    }
   }
   /**
    * An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
@@ -553,7 +653,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !(this.survey as any)?.onMatrixRowDragOver?.isEmpty;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.allowRowReorder && !this.isReadOnly;
+    // Under a sort the row order is the sort's: dragging a row would say nothing about where the
+    // record goes.
+    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0;
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
 
@@ -668,9 +770,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
-    const index = (<MatrixDynamicRowModel>row).rowIndex - 1;
-    if (this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
-    return this.matrixCallbacks.matrixAllowRemoveRow(this, index, row);
+    // lockedRowCount counts records: the first N records are locked wherever they are shown. The
+    // event keeps getting the created position it has always got.
+    const recordIndex = (<MatrixDynamicRowModel>row).rowIndex - 1;
+    if (this.lockedRowCount > 0 && recordIndex < this.lockedRowCount) return false;
+    return this.matrixCallbacks.matrixAllowRemoveRow(this, this.getItemIndex(row), row);
   }
   public addRowUI(): void {
     this.addRow(true);
@@ -870,6 +974,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       : null;
     index = this.generatedVisibleRows.indexOf(row);
     if (index < 0) return;
+    // index is a created position from here on; the record it holds is what leaves the storage.
+    const recordIndex = this.dataList.createdIndexToIndex(index);
     if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }
@@ -881,8 +987,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         const val = this.createValueCopy();
         val.splice(index, 1);
         this.value = val;
-      } else {
-        this.dataList.batch((): void => { this.dataList.remove(index); });
+      } else if (recordIndex > -1) {
+        this.dataList.batch((): void => { this.dataList.remove(recordIndex); });
       }
       this.isRowChanging = false;
     }
@@ -1041,13 +1147,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var result = new Array<MatrixDynamicRowModel>();
     if (this.rowCount === 0) return result;
     var val = this.createNewValue();
-    for (var i = 0; i < this.rowCount; i++) {
-      result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
+    const indexes = this.getRecordIndexesForRows();
+    for (var i = 0; i < indexes.length; i++) {
+      result.push(this.createMatrixRow(this.getRowValueByIndex(val, indexes[i])));
     }
     if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
       this.value = val;
     }
     return result;
+  }
+  /* One row per record in the view. Without a filter and a sort that is one row per record, in
+     record order, which is what createNewValue() composed the value for. The live-object value
+     (Creator's property grid) is never filtered: its rows follow the edited array. */
+  private getRecordIndexesForRows(): Array<number> {
+    if (this.isEditingObjectValue || !this.hasDataListView) {
+      const res = new Array<number>(this.rowCount);
+      for (let i = 0; i < this.rowCount; i++) {
+        res[i] = i;
+      }
+      return res;
+    }
+    return this.dataList.getCreatedIndexes();
   }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
@@ -1129,6 +1249,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setRowCountValueFromData = false;
   }
+  /* The data the survey and the expressions see: the rows that exist and are visible. A record the
+     list filter excluded has no row and is not part of it - the same answer a source that filters on
+     its own side gives, and what makes a total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
     const res: any = [];
     this.generatedVisibleRows.forEach(row => {
@@ -1136,6 +1259,42 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         res.push(row.filteredValue);
       }
     });
+    return res;
+  }
+  /* Clearing the values of invisible rows may only touch the records that HAVE a row: a record the
+     list filter excluded is not invisible, it is unrepresented, and dropping it here would delete
+     it from question.value. */
+  protected getDataWithoutInvisibleRows(): any {
+    if (!this.hasDataListView) return super.getDataWithoutInvisibleRows();
+    const list = this.dataList;
+    const rows = this.generatedVisibleRows || [];
+    const res: any = [];
+    for (let i = 0; i < list.count; i++) {
+      const position = list.indexToCreatedIndex(i);
+      const row = position > -1 && position < rows.length ? rows[position] : undefined;
+      if (!row) {
+        res.push(list.getRecord(i));
+      } else if (row.isVisible && !row.isEmpty) {
+        res.push(row.filteredValue);
+      }
+    }
+    return res;
+  }
+  protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
+    if (!this.hasDataListView) return super.getDuplicationEntries(columnName);
+    const list = this.dataList;
+    const rows = this.generatedVisibleRows || [];
+    const res = new Array<IMatrixDuplicationEntry>();
+    for (let i = 0; i < list.count; i++) {
+      const position = list.indexToCreatedIndex(i);
+      const row = position > -1 && position < rows.length ? rows[position] : undefined;
+      if (!!row) {
+        res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
+      } else {
+        const record = list.getRecord(i);
+        res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
+      }
+    }
     return res;
   }
   protected onBeforeValueChanged(val: any): void {
@@ -1197,21 +1356,34 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     create: boolean = false
   ): any {
     if (!this.generatedVisibleRows) return {};
-    var res = this.getRowValueByIndex(
-      questionValue,
-      this.generatedVisibleRows.indexOf(row)
-    );
+    var res = this.getRowValueByIndex(questionValue, this.getRecordIndexOf(row));
     if (!res && create) res = {};
     return res;
   }
+  // index is a created position; the record it addresses is what the list holds.
   protected getRowValueByIndexCore(index: number): any {
-    const res = this.dataList.getRecord(index);
+    const res = this.dataList.getRecord(this.dataList.createdIndexToIndex(index));
     return res !== undefined ? res : null;
+  }
+  /* The one seam between an object and its record. getItemIndex stays the row position - it is
+     IMatrixDropdownData API and the rendered table addresses rows by position - and this is the
+     record the row at that position holds. */
+  private getRecordIndexOf(item: ISurveyData): number {
+    const position = this.getItemIndex(item);
+    if (position < 0) return -1;
+    return this.dataList.createdIndexToIndex(position);
+  }
+  getItemRecordIndex(item: ISurveyData): number {
+    return this.getRecordIndexOf(item);
+  }
+  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+    const position = this.dataList.indexToCreatedIndex(recordIndex);
+    return position < 0 ? undefined : this.getItem(position);
   }
   protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
     newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
     if (this.isEditingObjectValue) return super.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
-    const index = this.getItemIndex(row);
+    const index = this.getRecordIndexOf(row);
     if (index < 0) return null;
     const list = this.dataList;
     const oldRecord = list.getRecord(index);
@@ -1227,7 +1399,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     super.onRowVisibilityChanged(row);
-    const index = this.getItemIndex(row);
+    const index = this.getRecordIndexOf(row);
     if (index > -1) {
       this.dataList.setRecordVisible(index, row.isVisible);
     }
@@ -1244,7 +1416,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!Array.isArray(rows)) return;
     const list = this.dataList;
     for (let i = 0; i < rows.length; i++) {
-      list.setRecordVisible(i, rows[i].isVisible);
+      const index = list.createdIndexToIndex(i);
+      if (index > -1) {
+        list.setRecordVisible(index, rows[i].isVisible);
+      }
     }
   }
   public getRootCss(): string {

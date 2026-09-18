@@ -66,9 +66,19 @@ export class DynamicDataList {
   // running against a replaced source cannot report back into the list.
   private sourceEpoch: number = 0;
   // Cached views; undefined means "recompute on the next read".
-  private filteredIndexes: Array<number> = undefined;
+  private createdIndexes: Array<number> = undefined;
   private visibleIndexes: Array<number> = undefined;
   private pageIndexes: Array<number> = undefined;
+  /* The frozen membership (isViewFrozenOnEdit): which records are in the view, and in what order, is
+     decided when filter/sort is assigned and maintained by the list's own writes until the next
+     assignment or refreshView(). frozenRecordCount is the record count it describes: a record count
+     that changed without the list doing it means the membership no longer fits. */
+  private frozenCreatedIndexes: Array<number> = undefined;
+  private frozenRecordCount: number = -1;
+  /* > 0 while the list applies a write of its own. A write-through source assigns the owner's
+     storage, and the owner reports that assignment back through invalidateViews(); the membership
+     must not be re-evaluated by the very write that maintains it. */
+  private writeDepth: number = 0;
   // The record count the cached views were built for: the records can change outside the list
   // (survey.data = ..., a trigger, clearValue, a default value, a rowCount that grows the padding),
   // and a read-through list sees that at once while its views would not.
@@ -94,6 +104,13 @@ export class DynamicDataList {
   // record objects the owner no longer holds. It stays off by default: a paged or asynchronous
   // source cannot be read on demand.
   public isReadThrough: boolean = false;
+  /* Owners that materialize an object per record - the two questions - set this flag: the view of a
+     bare list re-evaluates itself on every write, which for them would dispose a row from inside its
+     own cell's value-changed event and re-sort the table under the cursor on every keystroke. With
+     the flag on, membership is decided when filter/sort is assigned and on refreshView(); between
+     those points an edited record keeps its place, an added record is always in the view, a removed
+     record leaves it, and only a change made outside the list re-evaluates it. */
+  public isViewFrozenOnEdit: boolean = false;
   private get useReadThrough(): boolean {
     return this.isReadThrough && !this.hasReadRange && this._source instanceof ArrayDynamicDataSource;
   }
@@ -137,11 +154,24 @@ export class DynamicDataList {
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
     const source: any = this._source;
-    if (!!source && typeof source.batch === "function") {
-      source.batch(func);
-    } else {
-      func();
+    this.writeDepth++;
+    try {
+      if (!!source && typeof source.batch === "function") {
+        source.batch(func);
+      } else {
+        func();
+      }
+    } finally {
+      this.endWrite();
     }
+  }
+  // True while the list applies a write of its own: the owner uses it to tell an assignment it
+  // caused itself from one made outside (survey.data, a trigger, clearValue).
+  public get isWriting(): boolean {
+    return this.writeDepth > 0;
+  }
+  private endWrite(): void {
+    if (this.writeDepth > 0)this.writeDepth--;
   }
   public load(): void | Promise<void> {
     return this.startRead(false);
@@ -164,8 +194,7 @@ export class DynamicDataList {
   }
   public get filteredCount(): number {
     if (this.isSourceFiltering || !this._filter) return this.count;
-    this.ensureViews();
-    return this.filteredIndexes.length;
+    return this.getCreatedIndexes().length;
   }
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
@@ -175,15 +204,19 @@ export class DynamicDataList {
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
     this.checkWindowIsWholeStorage("ensureCount");
+    this.writeDepth++;
     for (let i = this.loadedCount; i < n; i++) {
       this.add(!!createRecord ? createRecord(i) : {});
     }
+    this.endWrite();
   }
   public truncate(n: number): void {
     this.checkWindowIsWholeStorage("truncate");
+    this.writeDepth++;
     for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
       this.remove(i);
     }
+    this.endWrite();
   }
 
   public getRecord(index: number): any {
@@ -206,11 +239,13 @@ export class DynamicDataList {
       newRecord[field] = value;
     }
     const sourceIndex = this._windowOffset + index;
+    this.writeDepth++;
     this.replaceRecord(index, newRecord);
     // The push comes before the notification: with a read-through source the push IS the local write,
     // so the owner must not be notified of a change it cannot read yet.
     this.pushToSource("update",
       (source: IDynamicDataSource): any => source.update(sourceIndex, newRecord, [field]));
+    this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
   }
@@ -223,18 +258,28 @@ export class DynamicDataList {
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
+    this.writeDepth++;
     this.replaceRecord(index, record);
     this.pushToSource("update",
       (source: IDynamicDataSource): any => source.update(sourceIndex, record, changedFields));
+    this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
-  public add(record?: any, index?: number): number {
+  /* createdPosition (internal) is the position the new object takes among the created ones. It is
+     omitted for an ordinary add: the record pushed aside keeps its place and the new one takes the
+     position in front of it, which for an append is the end. */
+  public add(record?: any, index?: number, createdPosition?: number): number {
     const newRecord = record === undefined ? {} : record;
+    // The count the write produces. It is taken before the write: with a read-through source the
+    // records only change when the push assigns the owner storage, and the membership has to carry
+    // the count it will have then, not the one it still has.
+    const countAfter = this.records.length + 1;
     const at = index === undefined || index === null
       ? this.records.length
       : Math.max(0, Math.min(index, this.records.length));
     this.alignHiddenFlags();
+    this.writeDepth++;
     if (!this.useReadThrough) {
       const newRecords = this.windowRecords.slice();
       newRecords.splice(at, 0, newRecord);
@@ -242,15 +287,29 @@ export class DynamicDataList {
     }
     this.hiddenFlags.splice(at, 0, false);
     if (this._total !== undefined)this._total++;
+    this.insertIntoMembership(at, createdPosition, countAfter);
     this.resetViews();
     const sourceIndex = this._windowOffset + at;
     this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(sourceIndex, newRecord));
+    this.endWrite();
     this.raiseChanged({ type: "recordAdded", index: at });
     return at;
   }
+  /* Adds a record so that its object takes exactly the given position among the created ones; the
+     record itself goes where the object that occupied that position holds its own (at the end when
+     the new object is the last one), so that the two arrays cannot disagree. Returns the record
+     index. */
+  public addAtCreatedIndex(record: any, createdIndex: number): number {
+    const created = this.getCreatedIndexes();
+    const position = Math.max(0, Math.min(createdIndex, created.length));
+    const at = position < created.length ? created[position] : this.records.length;
+    return this.add(record, at, position);
+  }
   public remove(index: number): void {
     if (index < 0 || index >= this.records.length) return;
+    const countAfter = this.records.length - 1;
     this.alignHiddenFlags();
+    this.writeDepth++;
     if (!this.useReadThrough) {
       const newRecords = this.windowRecords.slice();
       newRecords.splice(index, 1);
@@ -259,9 +318,11 @@ export class DynamicDataList {
     if (this.hiddenFlags[index])this.hiddenCount--;
     this.hiddenFlags.splice(index, 1);
     if (this._total !== undefined)this._total--;
+    this.removeFromMembership(index, countAfter);
     this.resetViews();
     const sourceIndex = this._windowOffset + index;
     this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(sourceIndex));
+    this.endWrite();
     this.raiseChanged({ type: "recordRemoved", index: index });
     this.clampPageIndexAfterChange();
   }
@@ -270,6 +331,7 @@ export class DynamicDataList {
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
     this.alignHiddenFlags();
+    this.writeDepth++;
     if (!this.useReadThrough) {
       const newRecords = this.windowRecords.slice();
       const record = newRecords[fromIndex];
@@ -281,10 +343,12 @@ export class DynamicDataList {
     const flag = this.hiddenFlags[fromIndex];
     this.hiddenFlags.splice(fromIndex, 1);
     this.hiddenFlags.splice(toIndex, 0, flag);
+    this.moveInMembership(fromIndex, toIndex);
     this.resetViews();
     const fromSourceIndex = this._windowOffset + fromIndex;
     const toSourceIndex = this._windowOffset + toIndex;
     this.pushToSource("move", (source: IDynamicDataSource): any => source.move(fromSourceIndex, toSourceIndex));
+    this.endWrite();
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
@@ -307,8 +371,73 @@ export class DynamicDataList {
      and with a local filter or sort active that change reorders or re-filters the view. The owner
      calls this from the one point every value assignment passes through. */
   public invalidateViews(): void {
+    // A write of the list's own maintains the membership record by record; re-evaluating it here
+    // would undo that from inside the very assignment that made it.
+    if (this.writeDepth > 0) return;
+    this.resetMembership();
+    this.resetViews();
+    this.refreezeMembership();
+    this.clampPageIndexAfterChange();
+  }
+  /* The owner changed how many records its storage holds without writing through the list - the
+     matrix composes its window by padding question.value up to rowCount. The records that are new
+     join the view (an added record is always in it) and the ones that are gone leave it; the
+     membership of the rest is not re-evaluated. */
+  public syncMembershipWithRecordCount(): void {
     this.resetViews();
     this.clampPageIndexAfterChange();
+    if (!this.frozenCreatedIndexes) {
+      this.refreezeMembership();
+      return;
+    }
+    const count = this.records.length;
+    if (count === this.frozenRecordCount) return;
+    let created = this.frozenCreatedIndexes;
+    if (count < this.frozenRecordCount) {
+      created = created.filter((index: number): boolean => index < count);
+    } else {
+      created = created.slice();
+      for (let i = this.frozenRecordCount; i < count; i++) {
+        created.push(i);
+      }
+    }
+    this.frozenCreatedIndexes = created;
+    this.frozenRecordCount = count;
+  }
+  /* Re-evaluates the filter and the sort over the records as they are now and announces the new
+     view. With isViewFrozenOnEdit off this is what every write does anyway, so it is only the reset
+     notification. */
+  public refreshView(): void {
+    this.resetMembership();
+    this.resetViews();
+    this.refreezeMembership();
+    this.clampPageIndexAfterChange();
+    this.raiseChanged({ type: "reset" });
+  }
+  // The records that have an object: the ones that pass the filter, in sort order, owner-hidden ones
+  // included. With no filter and no sort this is 0 ... count-1.
+  public getCreatedIndexes(): Array<number> {
+    this.ensureViews();
+    return this.createdIndexes;
+  }
+  public createdIndexToIndex(createdIndex: number): number {
+    if (!this.hasView) {
+      return createdIndex >= 0 && createdIndex < this.records.length ? createdIndex : -1;
+    }
+    const indexes = this.getCreatedIndexes();
+    if (createdIndex < 0 || createdIndex >= indexes.length) return -1;
+    return indexes[createdIndex];
+  }
+  public indexToCreatedIndex(index: number): number {
+    if (!this.hasView) {
+      return index >= 0 && index < this.records.length ? index : -1;
+    }
+    return this.getCreatedIndexes().indexOf(index);
+  }
+  // A filter or a sort is set: without one the created indexes are the record indexes and the owner
+  // keeps one object per record, which is the path every question takes until step 04.
+  public get hasView(): boolean {
+    return !!this._filter || this._sort.length > 0;
   }
   public getVisibleIndexes(): Array<number> {
     this.ensureViews();
@@ -395,6 +524,7 @@ export class DynamicDataList {
     this._filter = !!v ? v : "";
     this._pageIndex = 0;
     this.filterRunner = undefined;
+    this.resetMembership();
     if (this.isSourceFiltering) {
       this.runSourceView("filter", (): any => this._source.filter(this._filter));
     } else {
@@ -408,6 +538,7 @@ export class DynamicDataList {
         this.raiseError(e, "filter");
       }
       this.resetViews();
+      this.refreezeMembership();
       this.raiseChanged({ type: "reset" });
     }
   }
@@ -416,10 +547,12 @@ export class DynamicDataList {
   }
   public set sort(v: Array<IDynamicDataSort>) {
     this._sort = Array.isArray(v) ? v : [];
+    this.resetMembership();
     if (this.isSourceSorting) {
       this.runSourceView("sort", (): any => this._source.sort(this._sort));
     } else {
       this.resetViews();
+      this.refreezeMembership();
       this.raiseChanged({ type: "reset" });
     }
   }
@@ -435,6 +568,7 @@ export class DynamicDataList {
     this.hiddenFlags = [];
     this.hiddenCount = 0;
     this.filterRunner = undefined;
+    this.resetMembership();
     this.resetViews();
   }
 
@@ -461,8 +595,10 @@ export class DynamicDataList {
       newRecords[index] = record;
       this.windowRecords = newRecords;
     }
-    // A value change can only reorder or re-filter the view when a local filter/sort is active;
-    // keeping the cached identity array otherwise is what lets the questions compare by instance.
+    /* A value change can only reorder or re-filter the view when a local filter/sort is active;
+       keeping the cached identity array otherwise is what lets the questions compare by instance.
+       With a frozen membership the edited record keeps its place, so the recomputation that follows
+       reads the membership back unchanged. */
     if (this.hasLocalViews) {
       this.resetViews();
       // The edited record may have left the filter: the visible count can shrink.
@@ -498,25 +634,100 @@ export class DynamicDataList {
       this.pageIndexes = undefined;
     }
     this.alignHiddenFlags();
-    const needFilter = !!this.filterRunner && !this.isSourceFiltering;
-    const needSort = this._sort.length > 0 && !this.isSourceSorting;
-    const filtered = needFilter ? applyFilter(this.records, this.filterRunner) : createIndexes(recordCount);
-    let visible = filtered;
+    let created = this.getFrozenCreatedIndexes(recordCount);
+    if (!created) {
+      const needFilter = !!this.filterRunner && !this.isSourceFiltering;
+      const needSort = this._sort.length > 0 && !this.isSourceSorting;
+      created = needFilter ? applyFilter(this.records, this.filterRunner) : createIndexes(recordCount);
+      if (needSort) {
+        created = applySort(this.records, this._sort, this.getFields(), created);
+      }
+      this.freezeCreatedIndexes(created, recordCount);
+    }
+    // The owner-hidden records keep the order the filter and the sort gave them; dropping them from
+    // the created indexes is the only difference between the two views.
+    let visible = created;
     if (this.hiddenCount > 0) {
-      visible = filtered.filter((index: number): boolean => !this.hiddenFlags[index]);
+      visible = created.filter((index: number): boolean => !this.hiddenFlags[index]);
     }
-    if (needSort) {
-      visible = applySort(this.records, this._sort, this.getFields(), visible);
-    }
-    this.filteredIndexes = filtered;
+    this.createdIndexes = created;
     this.visibleIndexes = visible;
     this.viewsRecordCount = recordCount;
   }
   private resetViews(): void {
-    this.filteredIndexes = undefined;
+    this.createdIndexes = undefined;
     this.visibleIndexes = undefined;
     this.pageIndexes = undefined;
     this.viewsRecordCount = -1;
+  }
+  private get isMembershipFrozen(): boolean {
+    return this.isViewFrozenOnEdit && this.hasLocalViews;
+  }
+  private getFrozenCreatedIndexes(recordCount: number): Array<number> {
+    if (!this.isMembershipFrozen || !this.frozenCreatedIndexes) return undefined;
+    return this.frozenRecordCount === recordCount ? this.frozenCreatedIndexes : undefined;
+  }
+  private freezeCreatedIndexes(created: Array<number>, recordCount: number): void {
+    if (!this.isMembershipFrozen) {
+      this.resetMembership();
+      return;
+    }
+    this.frozenCreatedIndexes = created;
+    this.frozenRecordCount = recordCount;
+  }
+  private resetMembership(): void {
+    this.frozenCreatedIndexes = undefined;
+    this.frozenRecordCount = -1;
+  }
+  /* The membership is decided when it is reset, not when it is first read: a write made before the
+     first read would otherwise be the one that decides it, and an edit may not decide the view. */
+  private refreezeMembership(): void {
+    if (this.isMembershipFrozen) {
+      this.ensureViews();
+    }
+  }
+  private insertIntoMembership(at: number, createdPosition: number, newRecordCount: number): void {
+    if (!this.frozenCreatedIndexes) return;
+    const created = this.frozenCreatedIndexes.map((index: number): number => index >= at ? index + 1 : index);
+    let position = createdPosition;
+    if (position === undefined) {
+      // The record that was pushed aside keeps its place; the new object takes the position in
+      // front of it, which for an append is the end.
+      position = created.indexOf(at + 1);
+      if (position < 0) position = created.length;
+    }
+    created.splice(Math.max(0, Math.min(position, created.length)), 0, at);
+    this.frozenCreatedIndexes = created;
+    this.frozenRecordCount = newRecordCount;
+  }
+  private removeFromMembership(index: number, newRecordCount: number): void {
+    if (!this.frozenCreatedIndexes) return;
+    const created: Array<number> = [];
+    this.frozenCreatedIndexes.forEach((i: number): void => {
+      if (i === index) return;
+      created.push(i > index ? i - 1 : i);
+    });
+    this.frozenCreatedIndexes = created;
+    this.frozenRecordCount = newRecordCount;
+  }
+  private moveInMembership(fromIndex: number, toIndex: number): void {
+    if (!this.frozenCreatedIndexes) return;
+    const fromPosition = this.frozenCreatedIndexes.indexOf(fromIndex);
+    const toPosition = this.frozenCreatedIndexes.indexOf(toIndex);
+    // The records renumber; the objects keep their own order except for the one that moved.
+    const created = this.frozenCreatedIndexes.map((index: number): number => {
+      if (index === fromIndex) return toIndex;
+      if (fromIndex < index && index <= toIndex) return index - 1;
+      if (toIndex <= index && index < fromIndex) return index + 1;
+      return index;
+    });
+    if (fromPosition > -1 && toPosition > -1) {
+      const moved = created[fromPosition];
+      created.splice(fromPosition, 1);
+      created.splice(toPosition, 0, moved);
+    }
+    this.frozenCreatedIndexes = created;
+    this.frozenRecordCount = this.records.length;
   }
   private resetWindow(): void {
     this.records = [];
@@ -525,6 +736,7 @@ export class DynamicDataList {
     this._total = undefined;
     this._windowOffset = 0;
     this.isLoaded = false;
+    this.resetMembership();
     this.resetViews();
   }
   private getClampedPageIndex(v: number): number {
@@ -629,7 +841,9 @@ export class DynamicDataList {
     this.isLoaded = true;
     this.hiddenFlags = [];
     this.hiddenCount = 0;
+    this.resetMembership();
     this.resetViews();
+    this.refreezeMembership();
     this.clampPageIndex();
     this.raiseChanged({ type: "reset" });
   }
@@ -715,6 +929,9 @@ export function createReadThroughDataList(owner: IDynamicDataOwner, getArray: ()
   setArray: (arr: Array<any>) => void): DynamicDataList {
   const list = new DynamicDataList(new ArrayDynamicDataSource(getArray, setArray), owner);
   list.isReadThrough = true;
+  // The owner materializes one object per record in the view: its membership may not change under
+  // an edit that is being made through one of those objects.
+  list.isViewFrozenOnEdit = true;
   list.load();
   return list;
 }

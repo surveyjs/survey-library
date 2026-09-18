@@ -106,6 +106,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
     name: string,
     index: number
   ): IQuestion;
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
+  ): IQuestion;
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   //#endregion
 

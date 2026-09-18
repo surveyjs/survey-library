@@ -25,6 +25,11 @@ import { ValidationContext } from "./question";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
+export interface IMatrixDuplicationEntry {
+  row: MatrixDropdownRowModelBase;
+  value: any;
+}
+
 export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData, ILocalizableOwner {
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -861,6 +866,8 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
   }
+  // 1-based RECORD index: it names the record, not the row slot, so that a stored {rowIndex}
+  // expression keeps meaning the same row when a filter or a sort changes which rows exist.
   public get rowIndex(): number {
     return this.getItemIndex();
   }
@@ -868,7 +875,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     return this.getItemIndex() - 1;
   }
   protected getItemIndex(): number {
-    return !!this.data ? this.data.getItemIndex(this) + 1 : -1;
+    return !!this.data ? this.data.getItemRecordIndex(this) + 1 : -1;
   }
   public get editingObj(): Base {
     return this.editingObjValue;
@@ -1987,6 +1994,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @param rowIndex A zero-based row index.
    * @see setRowValue
    */
+  // rowIndex is a CREATED position: the position in allRows/generatedVisibleRows.
   public getRowValue(rowIndex: number): any {
     if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
     var rows = this.generatedVisibleRows;
@@ -2017,6 +2025,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @param rowValue An object with the following structure: `{ "column_name": columnValue, ... }`
    * @see getRowValue
    */
+  // rowIndex is a VISIBLE position: the position in visibleRows.
   public setRowValue(rowIndex: number, rowValue: any): any {
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
@@ -2386,19 +2395,30 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.removeDuplicatedErrorsInRows(rows, columnName);
     return rows;
   }
-  private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
-    const keyValues: HashTable<Array<MatrixDropdownRowModelBase>> = {};
-    const res: Array<MatrixDropdownRowModelBase> = [];
+  /* One entry per RECORD, with the row that holds it when the record has one: a duplicate of a
+     record that has no row still makes the row that repeats it a duplicate, and the error is shown
+     on the row that exists. A pair that is entirely outside the view reports nothing - it cannot
+     be shown. */
+  protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
+    const res = new Array<IMatrixDuplicationEntry>();
     const rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      let val = undefined;
-      const question = rows[i].getQuestionByName(columnName);
-      if (!!question) {
-        val = question.value;
-      } else {
-        const rowVal = this.getRowValue(i);
-        val = !!rowVal ? rowVal[columnName] : undefined;
-      }
+    for (let i = 0; i < rows.length; i++) {
+      res.push({ row: rows[i], value: this.getDuplicationValue(rows[i], i, columnName) });
+    }
+    return res;
+  }
+  protected getDuplicationValue(row: MatrixDropdownRowModelBase, createdIndex: number, columnName: string): any {
+    const question = !!row ? row.getQuestionByName(columnName) : undefined;
+    if (!!question) return question.value;
+    const rowVal = this.getRowValue(createdIndex);
+    return !!rowVal ? rowVal[columnName] : undefined;
+  }
+  private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
+    const keyValues: HashTable<Array<IMatrixDuplicationEntry>> = {};
+    const res: Array<MatrixDropdownRowModelBase> = [];
+    const entries = this.getDuplicationEntries(columnName);
+    for (var i = 0; i < entries.length; i++) {
+      let val = entries[i].value;
       if (!this.isValueEmpty(val)) {
         if (!this.useCaseSensitiveComparison && typeof val === "string") {
           val = val.toLocaleLowerCase();
@@ -2406,12 +2426,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         if (!keyValues[val]) {
           keyValues[val] = [];
         }
-        keyValues[val].push(rows[i]);
+        keyValues[val].push(entries[i]);
       }
     }
     for (let key in keyValues) {
       if (keyValues[key].length > 1) {
-        keyValues[key].forEach(row => res.push(row));
+        keyValues[key].forEach(entry => { if (!!entry.row) res.push(entry.row); });
       }
     }
     return res;
@@ -2607,8 +2627,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return options.value;
   }
-  getSharedQuestionFromArray(name: string, rowIndex: number): Question {
-    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromArray(this.valueName, name, rowIndex)) : null;
+  // recordIndex, not a row position: the other question may hold its rows for another set of
+  // records or in another order.
+  getSharedQuestionFromArray(name: string, recordIndex: number): Question {
+    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
   }
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
@@ -2689,6 +2711,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(<any>item);
   }
+  // Matrix dropdown creates a row for every record, so the two indexes are the same one; matrix
+  // dynamic maps them through its list.
+  getItemRecordIndex(item: ISurveyData): number {
+    return this.getItemIndex(item);
+  }
+  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+    return this.getItem(recordIndex);
+  }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     let elements: Array<IElement>;
     if (this.detailPanelMode == "none") {
@@ -2733,7 +2763,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
-      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
+      // A created position, as the event has always passed: rowIndex is record-based now.
+      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getItemIndex(row), row, val);
     }
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
@@ -2757,10 +2788,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     row: MatrixDropdownRowModelBase
   ): Question {
     if (!this.survey || !this.valueName) return null;
-    var index = this.getItemIndex(row);
+    var index = this.getItemRecordIndex(row);
     if (index < 0) return null;
     return <Question>(
-      this.survey.getQuestionByValueNameFromArray(
+      this.survey.getQuestionByValueNameFromRecord(
         this.valueName,
         columnName,
         index
@@ -2771,6 +2802,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!this.survey || !this.valueName) return [];
     return this.survey.getQuestionsByValueName(this.valueName);
   }
+  // index is a CREATED position.
   getItem(index: number): DynamicItemModelBase {
     if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
     return this.generatedVisibleRows[index];
@@ -2803,15 +2835,31 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (this.isEmpty() || !this.isRowsFiltered()) return;
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
     if (sharedQuestions.length < 2) {
-      this.value = this.getFilteredData();
+      this.value = this.getDataWithoutInvisibleRows();
     }
   }
+  /* What stays in the value when the owner-hidden rows are cleared. It is not getFilteredData():
+     that one answers for the view - the rows that exist - and a record the list filter excluded has
+     no row at all, so taking it from there would erase it. */
+  protected getDataWithoutInvisibleRows(): any {
+    return this.getFilteredData();
+  }
+  /* An identity test: getVisibleFromGenerated returns the very array it was given when no row is
+     owner-hidden. A list filter alone therefore reads as "not filtered", which is what it has to be
+     - the rows that exist are all visible and there is nothing to clear. */
   protected isRowsFiltered(): boolean {
     return this.visibleRows !== this.generatedVisibleRows;
   }
+  // index is a VISIBLE position - what it has always been for this method.
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;
     return this.visibleRows[index].getQuestionByName(name);
+  }
+  // The record-index counterpart of getQuestionFromArray: the object the record has, whatever
+  // position it took.
+  public getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(recordIndex);
+    return !!row ? row.getQuestionByName(name) : null;
   }
   private isMatrixValueEmpty(val: any) {
     if (!val) return;

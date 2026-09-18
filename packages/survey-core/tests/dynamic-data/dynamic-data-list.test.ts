@@ -1251,3 +1251,203 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     expect(list.pageIndex, "#2: the commit clamps it").toBe(1);
   });
 });
+
+describe("DynamicDataList: created indexes", () => {
+  test("with no filter and no sort the created indexes are the record indexes", () => {
+    const list = createList(createRecords(3));
+    expect(list.hasView, "#1: no view").toBe(false);
+    expect(list.getCreatedIndexes(), "#2").toEqual([0, 1, 2]);
+    expect(list.createdIndexToIndex(2), "#3").toBe(2);
+    expect(list.indexToCreatedIndex(2), "#4").toBe(2);
+    expect(list.createdIndexToIndex(3), "#5: out of range").toBe(-1);
+    expect(list.indexToCreatedIndex(3), "#6: out of range").toBe(-1);
+  });
+  test("a filter drops the records it excludes from the created indexes", () => {
+    const list = createList([{ a: 1 }, { a: 2 }, { a: 1 }]);
+    list.filter = "{a} = 1";
+    expect(list.hasView, "#1").toBe(true);
+    expect(list.getCreatedIndexes(), "#2").toEqual([0, 2]);
+    expect(list.createdIndexToIndex(1), "#3").toBe(2);
+    expect(list.indexToCreatedIndex(2), "#4").toBe(1);
+    expect(list.indexToCreatedIndex(1), "#5: the record has no object").toBe(-1);
+    expect(list.count, "#6: the storage count does not change").toBe(3);
+  });
+  test("a sort reorders the created indexes and never the records", () => {
+    const records = [{ a: 3 }, { a: 1 }, { a: 2 }];
+    const list = createList(records);
+    list.sort = [{ field: "a", direction: "asc" }];
+    expect(list.getCreatedIndexes(), "#1").toEqual([1, 2, 0]);
+    expect(list.createdIndexToIndex(0), "#2").toBe(1);
+    expect(list.indexToCreatedIndex(0), "#3").toBe(2);
+    expect(records.map(r => r.a), "#4: the records kept their order").toEqual([3, 1, 2]);
+  });
+  test("the created indexes keep the owner-hidden records, the visible indexes do not", () => {
+    const list = createList([{ a: 1 }, { a: 2 }, { a: 1 }]);
+    list.filter = "{a} = 1";
+    list.setRecordVisible(0, false);
+    expect(list.getCreatedIndexes(), "#1: the hidden record still has an object").toEqual([0, 2]);
+    expect(list.getVisibleIndexes(), "#2").toEqual([2]);
+    expect(list.visibleCount, "#3").toBe(1);
+    expect(list.filteredCount, "#4").toBe(2);
+  });
+  test("the owner-hidden records do not change the sorted order of the rest", () => {
+    const list = createList([{ a: 3 }, { a: 1 }, { a: 2 }]);
+    list.sort = [{ field: "a", direction: "asc" }];
+    list.setRecordVisible(1, false);
+    expect(list.getCreatedIndexes(), "#1").toEqual([1, 2, 0]);
+    expect(list.getVisibleIndexes(), "#2").toEqual([2, 0]);
+  });
+  test("addAtCreatedIndex puts the object where it is asked for and the record with it", () => {
+    const list = createList([{ a: 1 }, { a: 2 }, { a: 1 }]);
+    list.isViewFrozenOnEdit = true;
+    list.filter = "{a} = 1";
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 2]);
+    const index = list.addAtCreatedIndex({ a: 9 }, 1);
+    expect(index, "#2: the record took the place of the object it pushed aside").toBe(2);
+    expect(list.getCreatedIndexes(), "#3: the new object is at created position 1").toEqual([0, 2, 3]);
+    expect(list.getRecord(2), "#4").toEqual({ a: 9 });
+    expect(list.count, "#5").toBe(4);
+  });
+  test("addAtCreatedIndex at the end appends the record", () => {
+    const list = createList([{ a: 1 }, { a: 2 }]);
+    list.isViewFrozenOnEdit = true;
+    list.filter = "{a} = 1";
+    const index = list.addAtCreatedIndex({ a: 7 }, 5);
+    expect(index, "#1").toBe(2);
+    expect(list.getCreatedIndexes(), "#2").toEqual([0, 2]);
+  });
+});
+
+describe("DynamicDataList: frozen membership", () => {
+  const createFrozen = (records: Array<any>, filter?: string, sort?: Array<any>): DynamicDataList => {
+    const list = createList(records);
+    list.isViewFrozenOnEdit = true;
+    if (!!filter) list.filter = filter;
+    if (!!sort) list.sort = <any>sort;
+    return list;
+  };
+  test("an edit that makes a record fail the filter keeps its place", () => {
+    const list = createFrozen([{ a: 1 }, { a: 1 }], "{a} = 1");
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1]);
+    list.setValue(1, "a", 2);
+    expect(list.getCreatedIndexes(), "#2: the record keeps its object").toEqual([0, 1]);
+    expect(list.visibleCount, "#3").toBe(2);
+  });
+  test("an edit does not re-sort the records under the cursor", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }], undefined, [{ field: "a", direction: "asc" }]);
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1]);
+    list.setValue(0, "a", 9);
+    expect(list.getCreatedIndexes(), "#2: nothing moved").toEqual([0, 1]);
+  });
+  test("refreshView re-evaluates the membership and raises a reset", () => {
+    const list = createFrozen([{ a: 1 }, { a: 1 }], "{a} = 1");
+    const changes: Array<string> = [];
+    list.onChanged = (change) => changes.push(change.type);
+    list.setValue(1, "a", 2);
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1]);
+    list.refreshView();
+    expect(list.getCreatedIndexes(), "#2: the record left the view").toEqual([0]);
+    expect(changes.indexOf("reset") > -1, "#3: a reset was raised").toBe(true);
+  });
+  test("refreshView re-sorts", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }], undefined, [{ field: "a", direction: "asc" }]);
+    list.setValue(0, "a", 9);
+    list.refreshView();
+    expect(list.getCreatedIndexes(), "#1").toEqual([1, 0]);
+  });
+  test("an added record is always in the view, even when it fails the filter", () => {
+    const list = createFrozen([{ a: 1 }], "{a} = 1");
+    list.add({ a: 5 });
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1]);
+    list.refreshView();
+    expect(list.getCreatedIndexes(), "#2: the next refresh filters it out").toEqual([0]);
+  });
+  test("an added record is appended to the view under a sort", () => {
+    const list = createFrozen([{ a: 2 }, { a: 4 }], undefined, [{ field: "a", direction: "asc" }]);
+    list.add({ a: 1 });
+    expect(list.getCreatedIndexes(), "#1: the new object is last").toEqual([0, 1, 2]);
+    list.refreshView();
+    expect(list.getCreatedIndexes(), "#2").toEqual([2, 0, 1]);
+  });
+  test("a removed record leaves the view and the rest shift", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }, { a: 1 }, { a: 1 }], "{a} = 1");
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 2, 3]);
+    list.remove(0);
+    expect(list.getCreatedIndexes(), "#2").toEqual([1, 2]);
+    expect(list.count, "#3").toBe(3);
+  });
+  test("removing a record that has no object only shifts the rest", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }, { a: 1 }], "{a} = 1");
+    list.remove(1);
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1]);
+  });
+  test("a move reorders the objects and renumbers the records", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }, { a: 1 }, { a: 2 }, { a: 1 }], "{a} = 1");
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 2, 4]);
+    // The first object moves behind the last one: record 0 goes to record index 4.
+    list.move(0, 4);
+    expect(list.getCreatedIndexes(), "#2").toEqual([1, 3, 4]);
+    expect(list.getRecord(4), "#3: the moved record is the one that was first").toEqual({ a: 1 });
+  });
+  test("an external change re-evaluates the membership", () => {
+    const records = [{ a: 1 }, { a: 1 }];
+    const list = createFrozen(records, "{a} = 1");
+    list.setValue(1, "a", 2);
+    expect(list.getCreatedIndexes(), "#1: the edit kept it").toEqual([0, 1]);
+    list.invalidateViews();
+    expect(list.getCreatedIndexes(), "#2: the assignment re-evaluated it").toEqual([0]);
+  });
+  test("invalidateViews reported by the storage the write assigns is ignored", () => {
+    let records: Array<any> = [{ a: 1 }, { a: 1 }];
+    let writing = false;
+    const list = new DynamicDataList(new ArrayDynamicDataSource(
+      () => records,
+      (arr: Array<any>) => {
+        records = arr;
+        // The owner reports every assignment of its storage, this one included.
+        writing = list.isWriting;
+        list.invalidateViews();
+      }));
+    list.isReadThrough = true;
+    list.isViewFrozenOnEdit = true;
+    list.load();
+    list.filter = "{a} = 1";
+    list.setValue(1, "a", 2);
+    expect(writing, "#1: the assignment came from the list itself").toBe(true);
+    expect(list.getCreatedIndexes(), "#2: the membership survived the edit").toEqual([0, 1]);
+    list.invalidateViews();
+    expect(list.getCreatedIndexes(), "#3: an assignment from outside re-evaluates it").toEqual([0]);
+  });
+  test("syncMembershipWithRecordCount appends what appeared and drops what is gone", () => {
+    const records = [{ a: 1 }, { a: 2 }, { a: 1 }];
+    const list = createFrozen(records, "{a} = 1");
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 2]);
+    records.push({ a: 5 });
+    list.syncMembershipWithRecordCount();
+    expect(list.getCreatedIndexes(), "#2: the new record is in the view").toEqual([0, 2, 3]);
+    records.splice(2, 2);
+    list.syncMembershipWithRecordCount();
+    expect(list.getCreatedIndexes(), "#3: what is gone left it").toEqual([0]);
+  });
+  test("a bare list re-evaluates on every write, as it always has", () => {
+    const list = createList([{ a: 1 }, { a: 1 }]);
+    list.filter = "{a} = 1";
+    list.setValue(1, "a", 2);
+    expect(list.getCreatedIndexes(), "#1").toEqual([0]);
+    expect(list.isViewFrozenOnEdit, "#2: off by default").toBe(false);
+  });
+  test("the membership is not frozen while neither a filter nor a sort is set", () => {
+    const list = createFrozen(createRecords(3));
+    list.add({ id: 9 });
+    expect(list.getCreatedIndexes(), "#1").toEqual([0, 1, 2, 3]);
+    list.remove(1);
+    expect(list.getCreatedIndexes(), "#2").toEqual([0, 1, 2]);
+  });
+  test("clearing the filter re-evaluates the membership", () => {
+    const list = createFrozen([{ a: 1 }, { a: 2 }], "{a} = 1");
+    expect(list.getCreatedIndexes(), "#1").toEqual([0]);
+    list.filter = "";
+    expect(list.getCreatedIndexes(), "#2").toEqual([0, 1]);
+    expect(list.hasView, "#3").toBe(false);
+  });
+});

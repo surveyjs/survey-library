@@ -10,7 +10,13 @@ export interface IDynamicItemModelData {
     getSurvey(): ISurvey;
     getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
+    // The position of the item among the objects the owner created.
     getItemIndex(item: ISurveyData): number;
+    /* The index of the item record in the owner storage. It is the only index two questions bound
+       to one value share: they may create objects for a different set of records (a filtered list)
+       or in a different order (a sorted one). */
+    getItemRecordIndex(item: ISurveyData): number;
+    getItemByRecordIndex(recordIndex: number): DynamicItemModelBase;
     getValueGetterContext(): IValueGetterContext;
     getFilteredData(): any;
     getBindedQuestions(): IQuestion[];
@@ -214,17 +220,21 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
       }
       q.runTriggers(triggerName, newValue);
     }
-    var index = this.data.getItemIndex(this);
+    /* The record index, not the position of this item: a question bound to the same value may have
+       created its objects for a different set of records or in a different order. A custom bound
+       question that has no record lookup keeps the old positional call. */
+    const index = this.data.getItemRecordIndex(this);
     if (index < 0) return;
     const bindedQuestions = this.data.getBindedQuestions();
     bindedQuestions.forEach((q: any) => {
       if (q === this.data) return;
-      if (typeof q.getItem === "function") {
-        const item = q.getItem(index);
-        if (item && item instanceof DynamicItemModelBase) {
-          const triggerName = item.getVariableName() + "." + name;
-          item.runTriggers(triggerName, newValue);
-        }
+      const getItem = typeof q.getItemByRecordIndex === "function" ? q.getItemByRecordIndex :
+        (typeof q.getItem === "function" ? q.getItem : undefined);
+      if (!getItem) return;
+      const item = getItem.call(q, index);
+      if (item && item instanceof DynamicItemModelBase) {
+        const triggerName = item.getVariableName() + "." + name;
+        item.runTriggers(triggerName, newValue);
       }
     });
   }

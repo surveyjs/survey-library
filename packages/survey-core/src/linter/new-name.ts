@@ -13,10 +13,11 @@ function normalizeNameKind(kind: string): string {
 // The English spelling, and the smallest number that is free: the same name a Creator would
 // build, minus the word it would translate.
 function defaultName(nameKind: string, taken: Array<string>): string {
-  const used: { [name: string]: boolean } = {};
-  taken.forEach(name => { used[name] = true; });
+  // a Set, never an object literal keyed by a name out of the document: "constructor" and its
+  // kin are names an author may write, which is what name/reserved is about
+  const used = new Set<string>(taken);
   let index = 1;
-  while(used[nameKind + index]) index++;
+  while(used.has(nameKind + index)) index++;
   return nameKind + index;
 }
 
@@ -34,13 +35,15 @@ function takenNames(index: SurveyIndex): Array<string> {
 // names already handed out join the taken ones, so two duplicates never get one name.
 export function createNameFactory(index: SurveyIndex,
   options: ISurveyLintOptions): (kind: string) => string {
-  const handedOut: Array<string> = [];
+  // the document is walked once; every name handed out joins the list it is checked against
+  const taken = takenNames(index);
   return (kind: string): string => {
-    const taken = takenNames(index).concat(handedOut);
     const nameKind = normalizeNameKind(kind);
     const custom = options.newElementName;
-    const res = typeof custom === "function" ? custom(nameKind, taken) : defaultName(nameKind, taken);
-    handedOut.push(res);
+    // the host gets a copy: what it does with the list is its own business
+    const res = typeof custom === "function"
+      ? custom(nameKind, taken.slice()) : defaultName(nameKind, taken);
+    taken.push(res);
     return res;
   };
 }

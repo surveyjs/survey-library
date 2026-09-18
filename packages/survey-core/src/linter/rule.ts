@@ -121,7 +121,6 @@ export class LintContext {
   public forEachIifCondition(cb: (site: ExpressionSite) => void): void {
     this.forEachSite("parsed", site => getIifConditionSubSites(site).forEach(cb));
   }
-  // The property-level view of the JSON, shared by the property/* rules.
   // The name a fix gives a new element. One factory per run, shared by every rule: two fixes
   // that both invent a name must not invent the same one.
   public newElementName(kind: string): string {
@@ -130,6 +129,7 @@ export class LintContext {
     }
     return this.nameFactory(kind);
   }
+  // The property-level view of the JSON, shared by the property/* rules.
   public getPropertyWalk(): PropertyWalkResult {
     if (!this.propertyWalk) {
       this.propertyWalk = walkProperties(this.index.json, this.metadata, this.options, this.index.settings);

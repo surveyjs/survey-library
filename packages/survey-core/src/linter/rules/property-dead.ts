@@ -1,28 +1,20 @@
 import { ILintRule, LintContext } from "../rule";
 import { ElementRecord, getEffectiveType } from "../symbols";
+import { ownerText } from "../message-utils";
 import { getInputType, isMinMaxInputType } from "../value-types";
 import { AliasPairSite, PropertySite } from "../property-walk";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
-import { ILintFix } from "../types";
+import { removeFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["property/dead"];
-const fixReasons = SurveyLintFixReasons["property/dead"];
-
 // The key is written for nothing, whichever way it is dead, so dropping it changes no behaviour
 // and says what the runtime already does. An inert bound has a second honest repair - change the
 // inputType - and a finding carries one fix, so the harmless one is the one offered.
-function removeKeyFix(path: string): ILintFix {
-  return { reason: fixReasons.removeKey, edits: [{ op: "remove", path: path }] };
-}
+const fixReasons = SurveyLintFixReasons["property/dead"];
 
 // min/max/step are registered on every text question, but the runtime applies them only to the
 // inputTypes whose editor has bounds (isMinMaxType, question_text.ts).
 const BOUND_PROPS = ["min", "max", "step"];
-
-function ownerText(name?: string, className?: string): string {
-  if (!!name) return "\"" + name + "\"";
-  return className === "survey" ? "the survey" : "the " + className;
-}
 
 // A property the deserializer applies and the serializer then leaves out: it works until the
 // JSON is saved again, and disappears from every copy made after that.
@@ -37,7 +29,7 @@ function checkNotSerializable(ctx: LintContext, site: PropertySite): void {
     messageData: { key: site.key, className: site.className, name: site.owner.name },
     elementName: site.owner.name,
     elementType: site.owner.type,
-    fix: removeKeyFix(site.path),
+    fix: removeFix(fixReasons.removeKey, site.path),
   });
 }
 
@@ -59,7 +51,7 @@ function checkAliasPair(ctx: LintContext, pair: AliasPairSite): void {
     elementName: pair.owner.name,
     elementType: pair.owner.type,
     related: [{ path: pair.path }, { path: pair.aliasPath }],
-    fix: removeKeyFix(pair.path),
+    fix: removeFix(fixReasons.removeKey, pair.path),
   });
 }
 
@@ -78,7 +70,7 @@ function checkInertBounds(ctx: LintContext, record: ElementRecord): void {
       messageData: { key: key, inputType: inputType, name: record.name },
       elementName: record.name,
       elementType: record.type,
-      fix: removeKeyFix(record.path + "." + key),
+      fix: removeFix(fixReasons.removeKey, record.path + "." + key),
     });
   });
 }

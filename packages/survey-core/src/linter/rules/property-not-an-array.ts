@@ -1,13 +1,10 @@
 import { ILintRule, LintContext } from "../rule";
+import { ownerText } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { wrapFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["property/not-an-array"];
 const fixReasons = SurveyLintFixReasons["property/not-an-array"];
-
-function ownerText(name?: string, className?: string): string {
-  if (!!name) return "\"" + name + "\"";
-  return className === "survey" ? "the survey" : "the " + className;
-}
 
 export const propertyNotAnArrayRule: ILintRule = {
   id: "property/not-an-array",
@@ -27,7 +24,7 @@ export const propertyNotAnArrayRule: ILintRule = {
         elementName: site.owner.name,
         elementType: site.owner.type,
         // the deserializer's own repair, written down: the value becomes the one item of the array
-        fix: { reason: fixReasons.wrapInArray, edits: [{ op: "wrap", path: site.path }] },
+        fix: wrapFix(fixReasons.wrapInArray, site.path),
       });
     });
   },

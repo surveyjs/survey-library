@@ -5,6 +5,8 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { lintSurvey } from "../../src/linter/index";
+import { OBJECT_PROTOTYPE_MEMBERS } from "../../src/linter/catalog";
+import { LintFixture, NOT_AN_ARRAY_FIXTURES, REQUIRED_FIXTURES } from "./lint-fixtures";
 import { getBuiltInVariableNames } from "../../src/survey";
 
 // A finding at "error" severity claims the survey cannot work. These tests build a
@@ -447,26 +449,8 @@ describe("linter vs runtime: a non-array written for an array property", () => {
       .map(f => f.messageData.key + "@" + f.messageData.className)
       .sort();
   }
-  const CASES: Array<{ title: string, json: any }> = [
-    { title: "one element object under elements", json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] } },
-    { title: "one element object under the questions alias", json: { pages: [{ name: "p1", questions: { type: "text", name: "q1" } }] } },
-    { title: "one page object under pages", json: { pages: { name: "p1", elements: [{ type: "text", name: "q1" }] } } },
-    { title: "a string under choices", json: { elements: [{ type: "checkbox", name: "q1", choices: "a" }] } },
-    { title: "one column object and one item object", json: {
-      elements: [
-        { type: "matrixdynamic", name: "m1", columns: { name: "c1" } },
-        { type: "multipletext", name: "mt1", items: { name: "i1" } },
-      ],
-    } },
-    { title: "one trigger object and one validator object", json: {
-      elements: [{ type: "text", name: "q1", validators: { type: "numeric" } }],
-      triggers: { type: "complete", expression: "{q1} = 1" },
-    } },
-    { title: "a survey the serializer accepts whole", json: {
-      pages: [{ name: "p1", elements: [{ type: "checkbox", name: "q1", choices: ["a"], validators: [] }] }],
-      triggers: [],
-    } },
-  ];
+  const CASES: Array<LintFixture> = Object.keys(NOT_AN_ARRAY_FIXTURES)
+    .map(key => NOT_AN_ARRAY_FIXTURES[key]);
   CASES.forEach(entry => {
     test(entry.title + ": the linter reports what the deserializer wraps", () => {
       expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
@@ -490,36 +474,8 @@ describe("linter vs runtime: required properties", () => {
       .map(f => f.messageData.key + "@" + f.messageData.className)
       .sort();
   }
-  const CASES: Array<{ title: string, json: any }> = [
-    { title: "a question without a name", json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] } },
-    { title: "a question with an empty name", json: { elements: [{ type: "text", name: "" }] } },
-    { title: "a column and an item without a name", json: {
-      elements: [
-        { type: "matrixdynamic", name: "m1", columns: [{ cellType: "text" }] },
-        { type: "multipletext", name: "mt1", items: [{ title: "t" }] },
-      ],
-    } },
-    { title: "a multiple text without items", json: { elements: [{ type: "multipletext", name: "mt1" }] } },
-    { title: "a calculated value without a name", json: { elements: [{ type: "text", name: "q1" }], calculatedValues: [{ expression: "1" }] } },
-    { title: "triggers without their targets", json: {
-      elements: [{ type: "text", name: "q1" }],
-      triggers: [
-        { type: "setvalue", expression: "{q1} = 1", setValue: 2 },
-        { type: "copyvalue", expression: "{q1} = 1", setToName: "q1" },
-        { type: "skip", expression: "{q1} = 1" },
-      ],
-    } },
-    { title: "a choice without a value is left alone", json: { elements: [{ type: "checkbox", name: "q1", choices: [{ text: "a" }] }] } },
-    { title: "a survey with every required property", json: {
-      pages: [{ name: "p1", elements: [
-        { type: "text", name: "q1" },
-        { type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }] },
-        { type: "multipletext", name: "mt1", items: [{ name: "i1" }] },
-      ] }],
-      calculatedValues: [{ name: "cv", expression: "1" }],
-      triggers: [{ type: "setvalue", expression: "{q1} = 1", setToName: "q1" }],
-    } },
-  ];
+  const CASES: Array<LintFixture> = Object.keys(REQUIRED_FIXTURES)
+    .map(key => REQUIRED_FIXTURES[key]);
   CASES.forEach(entry => {
     test(entry.title + ": the linter reports what the deserializer requires", () => {
       expect(lintKeys(entry.json)).toEqual(runtimeKeys(entry.json));
@@ -627,11 +583,7 @@ describe("linter vs runtime: values outside the allowed set", () => {
 });
 
 describe("linter vs runtime: reserved names", () => {
-  const RESERVED = [
-    "constructor", "__proto__", "toString", "valueOf", "hasOwnProperty", "isPrototypeOf",
-    "propertyIsEnumerable", "toLocaleString", "__defineGetter__", "__defineSetter__",
-    "__lookupGetter__", "__lookupSetter__",
-  ];
+  const RESERVED = Array.from(OBJECT_PROTOTYPE_MEMBERS);
   // The survey keeps its answers in a plain object: under such a key it reads the prototype
   // member instead of the answer, and the write throws on the way or is silently lost.
   function keepsAnswer(name: string): boolean {

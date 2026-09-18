@@ -2,16 +2,12 @@ import { ILintRule, LintContext } from "../rule";
 import { ILintFix } from "../types";
 import { PropertySite } from "../property-walk";
 import { closestMatch } from "../levenshtein";
-import { didYouMean, quoteValues } from "../message-utils";
+import { didYouMean, ownerText, quoteValues } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { removeFix, setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["property/invalid-value"];
 const fixReasons = SurveyLintFixReasons["property/invalid-value"];
-
-function ownerText(name?: string, className?: string): string {
-  if (!!name) return "\"" + name + "\"";
-  return className === "survey" ? "the survey" : "the " + className;
-}
 
 function isScalar(value: any): boolean {
   const type = typeof value;
@@ -91,13 +87,11 @@ function checkChoices(ctx: LintContext, site: PropertySite): void {
 
 function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix {
   const value = allowedValue(allowed, suggestion);
-  if (value !== undefined) {
-    return { reason: fixReasons.useAllowedValue, edits: [{ op: "set", path: site.path, value: value }] };
-  }
+  if (value !== undefined) return setFix(fixReasons.useAllowedValue, site.path, value);
   // nothing says which of the allowed values was meant, and picking one would be a guess dressed
   // up as a repair. Dropping the key is what the value already amounts to: the runtime cannot
   // hold it, so the property falls back to its default either way.
-  return { reason: fixReasons.removeKey, edits: [{ op: "remove", path: site.path }] };
+  return removeFix(fixReasons.removeKey, site.path);
 }
 
 function toNumber(site: PropertySite): number | undefined {
@@ -135,7 +129,7 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
     },
     elementName: site.owner.name,
     elementType: site.owner.type,
-    fix: { reason: fixReasons.clampToRange, edits: [{ op: "set", path: site.path, value: bound }] },
+    fix: setFix(fixReasons.clampToRange, site.path, bound),
   });
 }
 

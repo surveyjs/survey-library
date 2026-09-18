@@ -3,13 +3,7 @@ import { equalsCI, stripCommentSuffix } from "./expression-utils";
 import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
-import { POSITION_KEY } from "./property-walk";
-
-// The keys an author wrote: a host may hand the linter a JSON its parser annotated with a position
-// marker on every object literal (see POSITION_KEY), and that marker is no data key.
-function userKeys(value: any): Array<string> {
-  return Object.keys(value).filter(key => key !== POSITION_KEY);
-}
+import { userKeys } from "./property-walk";
 
 // One defect found inside a composite value: either a key naming nothing the question holds,
 // or a cell value the addressed sub-element can never hold.

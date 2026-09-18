@@ -1,8 +1,124 @@
 import { describe, test, expect } from "vitest";
 import { applyFix, ILintFinding, ILintFix, lintSurvey, SurveyLintFixReasons } from "../../src/linter/index";
+import { expectFixSettles } from "./lint-test-helpers";
 
 function findingOf(json: any, ruleId: string): ILintFinding {
   return lintSurvey(json).findings.filter(f => f.ruleId === ruleId)[0];
+}
+
+// One survey per (ruleId, fix reason) the table declares. The describe blocks below read their
+// fixture from here and the registry test at the bottom pins the list against the table itself,
+// so a reason is demonstrated and pinned on one and the same survey.
+const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
+  {
+    ruleId: "choices/dead-source", fixReason: "setName",
+    json: {
+      elements: [
+        { type: "dropdown", name: "q1", choices: ["a", "b"] },
+        { type: "dropdown", name: "q2", choicesFromQuestion: "q11" },
+      ],
+    },
+  },
+  {
+    ruleId: "choices/duplicate", fixReason: "removeItem",
+    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b", "a"] }] },
+  },
+  {
+    ruleId: "element/unknown-type", fixReason: "setType",
+    json: { elements: [{ type: "textt", name: "q1" }] },
+  },
+  {
+    ruleId: "expression/unknown-function", fixReason: "renameFunction",
+    json: {
+      elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
+        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'col1')" },
+      ],
+    },
+  },
+  {
+    ruleId: "mask/mismatch", fixReason: "setMaskType",
+    json: { elements: [{ type: "text", name: "q1", maskType: "currencyy" }] },
+  },
+  {
+    ruleId: "name/duplicate", fixReason: "renameElement",
+    json: { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "name/reserved", fixReason: "renameElement",
+    json: { elements: [{ type: "text", name: "toString" }] },
+  },
+  {
+    ruleId: "property/dead", fixReason: "removeKey",
+    json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "clampToRange",
+    json: { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "removeKey",
+    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] },
+  },
+  {
+    ruleId: "property/invalid-value", fixReason: "useAllowedValue",
+    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] },
+  },
+  {
+    ruleId: "property/not-an-array", fixReason: "wrapInArray",
+    json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] },
+  },
+  {
+    ruleId: "property/required", fixReason: "setName",
+    json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] },
+  },
+  {
+    ruleId: "property/unknown", fixReason: "renameKey",
+    json: { elements: [{ type: "text", name: "q1", titlee: "T", description: "d" }] },
+  },
+  {
+    ruleId: "property/unknown", fixReason: "removeKey",
+    json: { elements: [{ type: "text", name: "q1", zzzzzzzzzz: 1 }] },
+  },
+  {
+    ruleId: "reference/unknown", fixReason: "renameReference",
+    json: {
+      elements: [
+        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
+        { type: "text", name: "q2", visibleIf: "{frut} = 'a'" },
+      ],
+    },
+  },
+  {
+    ruleId: "reference/unknown", fixReason: "setKeyName",
+    json: {
+      elements: [{ type: "matrixdynamic", name: "m1", keyName: "col9", columns: [{ name: "col1" }] }],
+    },
+  },
+  {
+    ruleId: "trigger/unknown-target", fixReason: "setName",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvalue", setToName: "q22", setValue: 1 }],
+    },
+  },
+  {
+    ruleId: "trigger/unknown-type", fixReason: "setType",
+    json: {
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      triggers: [{ type: "setvaluee", setToName: "q2", setValue: 1 }],
+    },
+  },
+  {
+    ruleId: "validator/unknown-type", fixReason: "setType",
+    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "numericc", minValue: 1 }] }] },
+  },
+];
+
+function fixtureOf(ruleId: string, fixReason: string): any {
+  const found = FIX_FIXTURES.filter(e => e.ruleId === ruleId && e.fixReason === fixReason)[0];
+  if (!found) throw new Error("no fixture for " + ruleId + "/" + fixReason);
+  return found.json;
 }
 
 describe("applyFix", () => {
@@ -50,15 +166,14 @@ describe("applyFix", () => {
 
 describe("property/not-an-array fix", () => {
   test("a single object written for an array is wrapped", () => {
-    const json = { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] };
+    const json = fixtureOf("property/not-an-array", "wrapInArray");
     const finding = findingOf(json, "property/not-an-array");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/not-an-array"].wrapInArray,
       edits: [{ op: "wrap", path: "pages[0].elements" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.pages[0].elements).toEqual([{ type: "text", name: "q1" }]);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/not-an-array")).toHaveLength(0);
   });
   test("a scalar written for an array is wrapped too", () => {
     const json = { elements: [{ type: "checkbox", name: "q1", choices: "a" }] };
@@ -70,15 +185,14 @@ describe("property/not-an-array fix", () => {
 
 describe("property/invalid-value fix", () => {
   test("the allowed value the author meant replaces the one that was written", () => {
-    const json = { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] };
+    const json = fixtureOf("property/invalid-value", "useAllowedValue");
     const finding = findingOf(json, "property/invalid-value");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/invalid-value"].useAllowedValue,
       edits: [{ op: "set", path: "elements[0].clearIfInvisible", value: "onComplete" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0].clearIfInvisible).toBe("onComplete");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/invalid-value")).toHaveLength(0);
   });
   test("the fix carries the allowed value itself, not the spelling of it", () => {
     const json = { elements: [{ type: "checkbox", name: "q1", choices: ["a"], colCount: 7 }] };
@@ -88,16 +202,15 @@ describe("property/invalid-value fix", () => {
     expect(typeof finding.fix.edits[0].value).toBe("number");
   });
   test("a value nothing is close to is dropped, and the default takes over", () => {
-    const json = { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] };
+    const json = fixtureOf("property/invalid-value", "removeKey");
     const finding = findingOf(json, "property/invalid-value");
     expect(finding.suggestion).toBeUndefined();
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/invalid-value"].removeKey,
       edits: [{ op: "remove", path: "elements[0].clearIfInvisible" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0]).toEqual({ type: "text", name: "q1" });
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/invalid-value")).toHaveLength(0);
   });
   test("a dotted valueName gets no fix - the flat key it meant is unknowable", () => {
     const json = { elements: [{ type: "text", name: "q1", valueName: "a.b" }] };
@@ -107,7 +220,7 @@ describe("property/invalid-value fix", () => {
 });
 
 describe("name/duplicate fix", () => {
-  const twice = { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] };
+  const twice = fixtureOf("name/duplicate", "renameElement");
 
   test("the later element gets a free name of its own kind", () => {
     const finding = findingOf(twice, "name/duplicate");
@@ -115,9 +228,8 @@ describe("name/duplicate fix", () => {
       reason: SurveyLintFixReasons["name/duplicate"].renameElement,
       edits: [{ op: "set", path: "elements[1].name", value: "question1" }],
     });
-    const fixed = applyFix(twice, finding.fix);
+    const fixed = expectFixSettles(twice, finding);
     expect(fixed.elements.map((el: any) => el.name)).toEqual(["q1", "question1"]);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "name/duplicate")).toHaveLength(0);
   });
   test("a page is named after a page and a panel after a panel", () => {
     const pages = {
@@ -174,15 +286,14 @@ describe("name/duplicate fix", () => {
 
 describe("name/reserved fix", () => {
   test("a reserved question name is replaced with a free one", () => {
-    const json = { elements: [{ type: "text", name: "toString" }] };
+    const json = fixtureOf("name/reserved", "renameElement");
     const finding = findingOf(json, "name/reserved");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["name/reserved"].renameElement,
       edits: [{ op: "set", path: "elements[0].name", value: "question1" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0].name).toBe("question1");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "name/reserved")).toHaveLength(0);
   });
   test("a column, an item and a calculated value are named the way a question is", () => {
     const json = {
@@ -214,15 +325,14 @@ describe("name/reserved fix", () => {
 
 describe("property/required fix", () => {
   test("an element with no name gets one", () => {
-    const json = { pages: [{ name: "p1", elements: [{ type: "text" }] }] };
+    const json = fixtureOf("property/required", "setName");
     const finding = findingOf(json, "property/required");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/required"].setName,
       edits: [{ op: "set", path: "pages[0].elements[0].name", value: "question1" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.pages[0].elements[0]).toEqual({ type: "text", name: "question1" });
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/required")).toHaveLength(0);
   });
   test("a matrix column is named the way a question is", () => {
     const json = { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ cellType: "text" }] }] };
@@ -249,16 +359,15 @@ describe("property/required fix", () => {
 
 describe("element/unknown-type fix", () => {
   test("the registered type the author meant replaces the unknown one", () => {
-    const json = { elements: [{ type: "textt", name: "q1" }] };
+    const json = fixtureOf("element/unknown-type", "setType");
     const finding = findingOf(json, "element/unknown-type");
     expect(finding.suggestion).toBe("text");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["element/unknown-type"].setType,
       edits: [{ op: "set", path: "elements[0].type", value: "text" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0]).toEqual({ type: "text", name: "q1" });
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "element/unknown-type")).toHaveLength(0);
   });
   test("a type nothing is close to gets no fix", () => {
     const json = { elements: [{ type: "zzzzzzzzzz", name: "q1" }] };
@@ -275,19 +384,15 @@ describe("element/unknown-type fix", () => {
 
 describe("trigger/unknown-type fix", () => {
   test("the registered trigger type the author meant replaces the unknown one", () => {
-    const json = {
-      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
-      triggers: [{ type: "setvaluee", setToName: "q2", setValue: 1 }],
-    };
+    const json = fixtureOf("trigger/unknown-type", "setType");
     const finding = findingOf(json, "trigger/unknown-type");
     expect(finding.suggestion).toBe("setvalue");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["trigger/unknown-type"].setType,
       edits: [{ op: "set", path: "triggers[0].type", value: "setvalue" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.triggers[0].type).toBe("setvalue");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "trigger/unknown-type")).toHaveLength(0);
   });
   test("a trigger with no type gets no fix", () => {
     const json = { elements: [{ type: "text", name: "q1" }], triggers: [{ setToName: "q1" }] };
@@ -298,18 +403,15 @@ describe("trigger/unknown-type fix", () => {
 
 describe("validator/unknown-type fix", () => {
   test("the registered validator type the author meant replaces the unknown one", () => {
-    const json = {
-      elements: [{ type: "text", name: "q1", validators: [{ type: "numericc", minValue: 1 }] }],
-    };
+    const json = fixtureOf("validator/unknown-type", "setType");
     const finding = findingOf(json, "validator/unknown-type");
     expect(finding.suggestion).toBe("numeric");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["validator/unknown-type"].setType,
       edits: [{ op: "set", path: "elements[0].validators[0].type", value: "numeric" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0].validators[0]).toEqual({ type: "numeric", minValue: 1 });
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "validator/unknown-type")).toHaveLength(0);
   });
   test("a validator with no type gets no fix", () => {
     const json = { elements: [{ type: "text", name: "q1", validators: [{ minValue: 1 }] }] };
@@ -321,16 +423,15 @@ describe("validator/unknown-type fix", () => {
 
 describe("mask/mismatch fix", () => {
   test("the known mask the author meant replaces the unknown one", () => {
-    const json = { elements: [{ type: "text", name: "q1", maskType: "currencyy" }] };
+    const json = fixtureOf("mask/mismatch", "setMaskType");
     const finding = findingOf(json, "mask/mismatch");
     expect(finding.suggestion).toBe("currency");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["mask/mismatch"].setMaskType,
       edits: [{ op: "set", path: "elements[0].maskType", value: "currency" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0].maskType).toBe("currency");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "mask/mismatch")).toHaveLength(0);
   });
   test("a mask defect that is not a misspelled type gets no fix", () => {
     const json = { elements: [{ type: "text", name: "q1", maskSettings: { pattern: "99" } }] };
@@ -342,20 +443,19 @@ describe("mask/mismatch fix", () => {
 
 describe("property/unknown fix", () => {
   test("a misspelled key is renamed where it stands", () => {
-    const json = { elements: [{ type: "text", name: "q1", titlee: "T", description: "d" }] };
+    const json = fixtureOf("property/unknown", "renameKey");
     const finding = findingOf(json, "property/unknown");
     expect(finding.suggestion).toBe("title");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/unknown"].renameKey,
       edits: [{ op: "rename", path: "elements[0].titlee", key: "title" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(Object.keys(fixed.elements[0])).toEqual(["type", "name", "title", "description"]);
     expect(fixed.elements[0].title).toBe("T");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/unknown")).toHaveLength(0);
   });
   test("a key nothing is close to is dropped - the deserializer drops it anyway", () => {
-    const json = { elements: [{ type: "text", name: "q1", zzzzzzzzzz: 1 }] };
+    const json = fixtureOf("property/unknown", "removeKey");
     const finding = findingOf(json, "property/unknown");
     expect(finding.suggestion).toBeUndefined();
     expect(finding.fix).toEqual({
@@ -375,18 +475,14 @@ describe("property/unknown fix", () => {
 
 describe("trigger/unknown-target fix", () => {
   test("the question the author meant replaces the missing target", () => {
-    const json = {
-      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
-      triggers: [{ type: "setvalue", setToName: "q22", setValue: 1 }],
-    };
+    const json = fixtureOf("trigger/unknown-target", "setName");
     const finding = findingOf(json, "trigger/unknown-target");
     expect(finding.suggestion).toBe("q2");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["trigger/unknown-target"].setName,
       edits: [{ op: "set", path: "triggers[0].setToName", value: "q2" }],
     });
-    const fixed = applyFix(json, finding.fix);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "trigger/unknown-target")).toHaveLength(0);
+    const fixed = expectFixSettles(json, finding);
   });
   test("the page the author meant replaces the missing one", () => {
     const json = {
@@ -429,12 +525,7 @@ describe("trigger/unknown-target fix", () => {
 
 describe("choices/dead-source fix", () => {
   test("the question the author meant replaces the missing source", () => {
-    const json = {
-      elements: [
-        { type: "dropdown", name: "q1", choices: ["a", "b"] },
-        { type: "dropdown", name: "q2", choicesFromQuestion: "q11" },
-      ],
-    };
+    const json = fixtureOf("choices/dead-source", "setName");
     const finding = findingOf(json, "choices/dead-source");
     expect(finding.reason).toBe("missing");
     expect(finding.suggestion).toBe("q1");
@@ -442,8 +533,7 @@ describe("choices/dead-source fix", () => {
       reason: SurveyLintFixReasons["choices/dead-source"].setName,
       edits: [{ op: "set", path: "elements[1].choicesFromQuestion", value: "q1" }],
     });
-    const fixed = applyFix(json, finding.fix);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "choices/dead-source")).toHaveLength(0);
+    const fixed = expectFixSettles(json, finding);
   });
   test("the column the author meant replaces the missing field", () => {
     const json = {
@@ -482,18 +572,15 @@ describe("choices/dead-source fix", () => {
 
 describe("reference/unknown keyName fix", () => {
   test("the column the author meant replaces the keyName that names nothing", () => {
-    const json = {
-      elements: [{ type: "matrixdynamic", name: "m1", keyName: "col9", columns: [{ name: "col1" }] }],
-    };
+    const json = fixtureOf("reference/unknown", "setKeyName");
     const finding = lintSurvey(json).findings.filter(f => f.reason === "keyNameNotFound")[0];
     expect(finding.suggestion).toBe("col1");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["reference/unknown"].setKeyName,
       edits: [{ op: "set", path: "elements[0].keyName", value: "col1" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding, f => f.reason === "keyNameNotFound");
     expect(fixed.elements[0].keyName).toBe("col1");
-    expect(lintSurvey(fixed).findings.filter(f => f.reason === "keyNameNotFound")).toHaveLength(0);
   });
   test("a keyName nothing is close to gets no fix", () => {
     const json = {
@@ -512,21 +599,15 @@ function refFinding(json: any, path: string): ILintFinding {
 
 describe("reference/unknown reference fix", () => {
   test("the name the author meant replaces the reference inside the expression", () => {
-    const json = {
-      elements: [
-        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
-        { type: "text", name: "q2", visibleIf: "{frut} = 'a'" },
-      ],
-    };
+    const json = fixtureOf("reference/unknown", "renameReference");
     const finding = refFinding(json, "elements[1].visibleIf");
     expect(finding.suggestion).toBe("fruit");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["reference/unknown"].renameReference,
       edits: [{ op: "set", path: "elements[1].visibleIf", value: "{fruit} = 'a'" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[1].visibleIf).toBe("{fruit} = 'a'");
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "reference/unknown")).toHaveLength(0);
   });
   test("a reference that is a prefix of another one is left alone", () => {
     const json = {
@@ -597,20 +678,14 @@ describe("reference/unknown reference fix", () => {
 
 describe("expression/unknown-function fix", () => {
   test("the registered function the author meant replaces the unknown one", () => {
-    const json = {
-      elements: [
-        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
-        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'col1')" },
-      ],
-    };
+    const json = fixtureOf("expression/unknown-function", "renameFunction");
     const finding = findingOf(json, "expression/unknown-function");
     expect(finding.suggestion).toBe("sumInArray");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["expression/unknown-function"].renameFunction,
       edits: [{ op: "set", path: "elements[1].expression", value: "sumInArray({m1}, 'col1')" }],
     });
-    const fixed = applyFix(json, finding.fix);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "expression/unknown-function")).toHaveLength(0);
+    const fixed = expectFixSettles(json, finding);
   });
   test("only the call is renamed, not the same word written as an argument", () => {
     const json = {
@@ -632,16 +707,15 @@ describe("expression/unknown-function fix", () => {
 
 describe("choices/duplicate fix", () => {
   test("the repeated item is dropped", () => {
-    const json = { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b", "a"] }] };
+    const json = fixtureOf("choices/duplicate", "removeItem");
     const finding = findingOf(json, "choices/duplicate");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["choices/duplicate"].removeItem,
       edits: [{ op: "remove", path: "elements[0].choices[2]" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.elements[0].choices).toEqual(["a", "b"]);
     expect(json.elements[0].choices).toHaveLength(3);
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "choices/duplicate")).toHaveLength(0);
   });
   test("an item that collides with a built-in one gets no fix - the toggle is a repair too", () => {
     const json = {
@@ -655,16 +729,15 @@ describe("choices/duplicate fix", () => {
 
 describe("property/dead fix", () => {
   test("a property the serializer drops is dropped from the JSON too", () => {
-    const json = { mode: "display", elements: [{ type: "text", name: "q1" }] };
+    const json = fixtureOf("property/dead", "removeKey");
     const finding = findingOf(json, "property/dead");
     expect(finding.reason).toBe("notSerializable");
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/dead"].removeKey,
       edits: [{ op: "remove", path: "mode" }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding);
     expect(fixed.mode).toBeUndefined();
-    expect(lintSurvey(fixed).findings.filter(f => f.ruleId === "property/dead")).toHaveLength(0);
   });
   test("the losing half of an alias pair is the one dropped", () => {
     const json = {
@@ -690,17 +763,14 @@ describe("property/dead fix", () => {
 
 describe("property/invalid-value out-of-range fix", () => {
   test("a value below the minimum is pulled up to it", () => {
-    const json = {
-      elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }],
-    };
+    const json = fixtureOf("property/invalid-value", "clampToRange");
     const finding = lintSurvey(json).findings.filter(f => f.reason === "outOfRange")[0];
     expect(finding.fix).toEqual({
       reason: SurveyLintFixReasons["property/invalid-value"].clampToRange,
       edits: [{ op: "set", path: "elements[0].rowCount", value: 0 }],
     });
-    const fixed = applyFix(json, finding.fix);
+    const fixed = expectFixSettles(json, finding, f => f.reason === "outOfRange");
     expect(fixed.elements[0].rowCount).toBe(0);
-    expect(lintSurvey(fixed).findings.filter(f => f.reason === "outOfRange")).toHaveLength(0);
   });
   test("a value above the maximum is pulled down to it", () => {
     const json = { backgroundOpacity: 5, elements: [{ type: "text", name: "q1" }] };
@@ -711,114 +781,8 @@ describe("property/invalid-value out-of-range fix", () => {
   });
 });
 
-// One fixture per (ruleId, fix reason) the table declares. A new fix reason without a fixture
-// fails the last test of this block, the way linter-reasons pins the message reasons.
-const FIX_FIXTURES: Array<{ ruleId: string, fixReason: string, json: any }> = [
-  {
-    ruleId: "choices/dead-source", fixReason: "setName",
-    json: {
-      elements: [
-        { type: "dropdown", name: "q1", choices: ["a", "b"] },
-        { type: "dropdown", name: "q2", choicesFromQuestion: "q11" },
-      ],
-    },
-  },
-  {
-    ruleId: "choices/duplicate", fixReason: "removeItem",
-    json: { elements: [{ type: "dropdown", name: "q1", choices: ["a", "b", "a"] }] },
-  },
-  {
-    ruleId: "element/unknown-type", fixReason: "setType",
-    json: { elements: [{ type: "textt", name: "q1" }] },
-  },
-  {
-    ruleId: "expression/unknown-function", fixReason: "renameFunction",
-    json: {
-      elements: [
-        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
-        { type: "expression", name: "e1", expression: "sumInArrey({m1}, 'col1')" },
-      ],
-    },
-  },
-  {
-    ruleId: "mask/mismatch", fixReason: "setMaskType",
-    json: { elements: [{ type: "text", name: "q1", maskType: "currencyy" }] },
-  },
-  {
-    ruleId: "name/duplicate", fixReason: "renameElement",
-    json: { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q1" }] },
-  },
-  {
-    ruleId: "name/reserved", fixReason: "renameElement",
-    json: { elements: [{ type: "text", name: "toString" }] },
-  },
-  {
-    ruleId: "property/dead", fixReason: "removeKey",
-    json: { mode: "display", elements: [{ type: "text", name: "q1" }] },
-  },
-  {
-    ruleId: "property/invalid-value", fixReason: "clampToRange",
-    json: { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "c1" }], rowCount: -1 }] },
-  },
-  {
-    ruleId: "property/invalid-value", fixReason: "removeKey",
-    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "zzzzzzzzzz" }] },
-  },
-  {
-    ruleId: "property/invalid-value", fixReason: "useAllowedValue",
-    json: { elements: [{ type: "text", name: "q1", clearIfInvisible: "cOmPlEtE" }] },
-  },
-  {
-    ruleId: "property/not-an-array", fixReason: "wrapInArray",
-    json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] },
-  },
-  {
-    ruleId: "property/required", fixReason: "setName",
-    json: { pages: [{ name: "p1", elements: [{ type: "text" }] }] },
-  },
-  {
-    ruleId: "property/unknown", fixReason: "renameKey",
-    json: { elements: [{ type: "text", name: "q1", titlee: "T" }] },
-  },
-  {
-    ruleId: "property/unknown", fixReason: "removeKey",
-    json: { elements: [{ type: "text", name: "q1", zzzzzzzzzz: 1 }] },
-  },
-  {
-    ruleId: "reference/unknown", fixReason: "renameReference",
-    json: {
-      elements: [
-        { type: "dropdown", name: "fruit", choices: ["a", "b"] },
-        { type: "text", name: "q2", visibleIf: "{frut} = 'a'" },
-      ],
-    },
-  },
-  {
-    ruleId: "reference/unknown", fixReason: "setKeyName",
-    json: {
-      elements: [{ type: "matrixdynamic", name: "m1", keyName: "col9", columns: [{ name: "col1" }] }],
-    },
-  },
-  {
-    ruleId: "trigger/unknown-target", fixReason: "setName",
-    json: {
-      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
-      triggers: [{ type: "setvalue", setToName: "q22", setValue: 1 }],
-    },
-  },
-  {
-    ruleId: "trigger/unknown-type", fixReason: "setType",
-    json: {
-      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
-      triggers: [{ type: "setvaluee", setToName: "q2", setValue: 1 }],
-    },
-  },
-  {
-    ruleId: "validator/unknown-type", fixReason: "setType",
-    json: { elements: [{ type: "text", name: "q1", validators: [{ type: "numericc", minValue: 1 }] }] },
-  },
-];
-
+// A new fix reason without a fixture fails the last test of this block, the way linter-reasons
+// pins the message reasons.
 describe("the fix reason table", () => {
   FIX_FIXTURES.forEach(entry => {
     test(entry.ruleId + " reaches " + entry.fixReason, () => {

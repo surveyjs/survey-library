@@ -30,6 +30,20 @@ describe("linter over position-annotated JSON", () => {
     }).findings;
     expect(findings.map(f => f.ruleId + " " + f.message)).toEqual([]);
   });
+  test("a pos marker is neither a name nor a matrix row", () => {
+    const findings = lintSurvey({
+      pos: pos,
+      elements: [
+        {
+          type: "matrixdropdown", name: "m", pos: pos,
+          rows: [{ value: "toString", text: "T", pos: pos }], columns: [{ name: "c1", pos: pos }],
+        },
+        { type: "multipletext", name: "mt", pos: pos, items: [{ name: "a", pos: pos }] },
+      ],
+    }).findings.filter(f => f.ruleId === "name/reserved");
+    // the row really is reserved; nothing else in the JSON is a name at all
+    expect(findings.map(f => f.path)).toEqual(["elements[0].rows[0].value"]);
+  });
   test("a pos marker is not a binding and not a locale", () => {
     const findings = lintSurvey({
       pos: pos,

@@ -2,6 +2,7 @@ import { ILintRule, LintContext } from "../rule";
 import { CalculatedValueRecord } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["name/duplicate"];
 const fixReasons = SurveyLintFixReasons["name/duplicate"];
@@ -31,10 +32,7 @@ export const nameDuplicateRule: ILintRule = {
             // only the later twin is renamed: the first keeps the name every reference to it
             // already spells. A duplicate calculated value gets none - nothing says which of the
             // two a reference meant.
-            fix: {
-              reason: fixReasons.renameElement,
-              edits: [{ op: "set", path: rec.path + ".name", value: ctx.newElementName(rec.kind) }],
-            },
+            fix: setFix(fixReasons.renameElement, rec.path + ".name", ctx.newElementName(rec.kind)),
           });
         }
       });

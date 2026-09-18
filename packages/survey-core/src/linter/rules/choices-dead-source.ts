@@ -4,16 +4,10 @@ import { ILintRule, LintContext } from "../rule";
 import { nameCandidates, resolveCarryForwardSource } from "../expression-utils";
 import { CIMultiMap, ElementRecord, getEffectiveType } from "../symbols";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
-import { ILintFix } from "../types";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["choices/dead-source"];
 const fixReasons = SurveyLintFixReasons["choices/dead-source"];
-
-// Both properties hold a plain name, so the whole value is respelled.
-function setNameFix(path: string, suggestion: string): ILintFix | undefined {
-  if (!suggestion) return undefined;
-  return { reason: fixReasons.setName, edits: [{ op: "set", path: path, value: suggestion }] };
-}
 
 // carry-forward sources that provide an array of objects to pick fields from
 const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
@@ -46,7 +40,7 @@ export const choicesDeadSourceRule: ILintRule = {
           elementName: record.name,
           elementType: record.type,
           suggestion: sourceSuggestion,
-          fix: setNameFix(path, sourceSuggestion),
+          fix: setFix(fixReasons.setName, path, sourceSuggestion),
         });
         return;
       }
@@ -99,7 +93,7 @@ export const choicesDeadSourceRule: ILintRule = {
             elementName: record.name,
             elementType: record.type,
             suggestion: fieldSuggestion,
-            fix: setNameFix(fieldPath, fieldSuggestion),
+            fix: setFix(fixReasons.setName, fieldPath, fieldSuggestion),
             related: [{ path: source.path, elementName: source.name }],
           });
         };

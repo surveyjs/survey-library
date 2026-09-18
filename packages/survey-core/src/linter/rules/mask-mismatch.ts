@@ -3,8 +3,9 @@ import { ElementRecord, getEffectiveType } from "../symbols";
 import { getInputType } from "../value-types";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
-import { POSITION_KEY } from "../property-walk";
+import { userKeys } from "../property-walk";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 import { ILintFix } from "../types";
 
 const reasons = SurveyLintReasons["mask/mismatch"];
@@ -50,8 +51,8 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
   maskClass: string, settings: any): void {
   const known = ctx.metadata.getKnownKeys(maskClass);
   if (!known) return;
-  Object.keys(settings).forEach(key => {
-    if (key === POSITION_KEY || known.byKey.has(key)) return;
+  userKeys(settings).forEach(key => {
+    if (known.byKey.has(key)) return;
     report(ctx, record,
       "The maskSettings of \"" + record.name + "\" set \"" + key + "\", which is not a property of the \"" +
       maskType + "\" mask - the runtime drops it silently." +
@@ -65,7 +66,7 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
 
 // Without a maskType the settings resolve to the bare base class, which carries one property.
 function checkSettingsWithoutMask(ctx: LintContext, record: ElementRecord, settings: any): void {
-  const keys = Object.keys(settings).filter(key => key !== BASE_MASK_KEY && key !== POSITION_KEY);
+  const keys = userKeys(settings).filter(key => key !== BASE_MASK_KEY);
   if (keys.length === 0) return;
   report(ctx, record,
     "The maskSettings of \"" + record.name + "\" are set without a maskType - the runtime keeps " +
@@ -115,10 +116,7 @@ function checkRecord(ctx: LintContext, record: ElementRecord): void {
       record.path + ".maskType",
       { maskType: maskType, known: known },
       suggestion,
-      !suggestion ? undefined : {
-        reason: fixReasons.setMaskType,
-        edits: [{ op: "set", path: record.path + ".maskType", value: suggestion }],
-      });
+      setFix(fixReasons.setMaskType, record.path + ".maskType", suggestion));
     return;
   }
   const hasMask = maskClass !== BASE_MASK_CLASS;

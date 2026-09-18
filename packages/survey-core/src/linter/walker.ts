@@ -8,8 +8,8 @@ import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./e
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow,
-  ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
+  ExpressionSiteKind, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 
@@ -23,10 +23,6 @@ interface WalkState {
   depth: number;
   // one component definition is walked once, however many questions instantiate it
   componentFields: Map<IComponentDef, CIMap<boolean>>;
-}
-
-function joinPath(base: string, key: string): string {
-  return base ? base + "." + key : key;
 }
 
 function isNonEmptyString(value: any): boolean {

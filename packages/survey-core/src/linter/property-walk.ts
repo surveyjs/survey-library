@@ -95,6 +95,11 @@ const TYPE_KEY = "type";
 export const POSITION_KEY = "pos";
 const MAX_DEPTH = 30;
 
+// The keys an author wrote: the position marker is not one of them.
+export function userKeys(value: any): Array<string> {
+  return Object.keys(value).filter(key => key !== POSITION_KEY);
+}
+
 function isPlainObject(value: any): boolean {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }

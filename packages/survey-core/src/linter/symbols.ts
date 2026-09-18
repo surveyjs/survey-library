@@ -139,6 +139,12 @@ export interface ElementRecord {
   scopeValueRecords?: CIMap<ElementRecord>;
 }
 
+// A path into the linted JSON, the way every finding addresses it. The survey itself has the
+// empty path, so a key of it stands on its own.
+export function joinPath(base: string, key: string): string {
+  return base ? base + "." + key : key;
+}
+
 // The type to dispatch question-kind logic on: a matrix column answers as its cell type,
 // every other record as its own type.
 export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
@@ -200,6 +206,13 @@ export interface ExpressionSite {
   // was carved out of. Sub-sites live only here, never in index.expressionSites.
   subOf?: ExpressionSite;
   subSites?: Array<ExpressionSite>;
+}
+
+// A string the analysis carved out of another one: an inArray filter, and a condition
+// synthesized from a legacy trigger's name/operator/value. The document holds the string it was
+// carved from and no property of its own for it, so a fix has nowhere to write.
+export function isCarvedOutSite(site: ExpressionSite): boolean {
+  return !!site.inArrayOf || !!site.synthesized;
 }
 
 export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";

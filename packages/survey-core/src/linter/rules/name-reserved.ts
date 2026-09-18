@@ -4,6 +4,7 @@ import { ElementRecord } from "../symbols";
 import { getItemValueRaw } from "../value-types";
 import { ILintFix } from "../types";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["name/reserved"];
 const fixReasons = SurveyLintFixReasons["name/reserved"];
@@ -27,11 +28,8 @@ function isReserved(name: any): boolean {
 // The one repair a name key has is another name. Which one is the author's call, so the fix
 // hands out a free placeholder the way name/duplicate does; a reference to the old name never
 // worked and surfaces as reference/unknown once the element is renamed.
-function renameFix(ctx: LintContext, path: string, kind: string): ILintFix {
-  return {
-    reason: fixReasons.renameElement,
-    edits: [{ op: "set", path: path, value: ctx.newElementName(kind) }],
-  };
+function renameFix(ctx: LintContext, path: string, kind: string): ILintFix | undefined {
+  return setFix(fixReasons.renameElement, path, ctx.newElementName(kind));
 }
 
 function checkQuestion(ctx: LintContext, record: ElementRecord): void {

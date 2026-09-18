@@ -70,6 +70,8 @@ function applyOp(node: any, key: string | number, edit: ILintFixEdit): any {
     if (Array.isArray(node) || !edit.key) return undefined;
     return renameKey(node, <string>key, edit.key);
   }
+  // an op outside the four the linter produces: a host wrote the fix itself, and nothing here
+  // knows what it meant
   return undefined;
 }
 

@@ -1,11 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { applyFix, ILintFinding, ISurveyLintOptions, lintSurvey } from "../../src/linter/index";
+import { ILintFinding, ISurveyLintOptions, lintSurvey } from "../../src/linter/index";
+import { OBJECT_PROTOTYPE_MEMBERS } from "../../src/linter/catalog";
 
-const RESERVED = [
-  "constructor", "__proto__", "toString", "valueOf", "hasOwnProperty", "isPrototypeOf",
-  "propertyIsEnumerable", "toLocaleString", "__defineGetter__", "__defineSetter__",
-  "__lookupGetter__", "__lookupSetter__",
-];
+// the list the rule reads, which linter-catalog-drift pins to Object.prototype itself
+const RESERVED = Array.from(OBJECT_PROTOTYPE_MEMBERS);
 
 function byRule(json: any, options?: ISurveyLintOptions): Array<ILintFinding> {
   return lintSurvey(json, options).findings.filter(f => f.ruleId === "name/reserved");
@@ -182,7 +180,7 @@ describe("name/reserved - calculated values", () => {
   });
 });
 
-describe("name/reserved - configuration and repair", () => {
+describe("name/reserved - configuration", () => {
   test("the rule can be switched off", () => {
     expect(byRule({ elements: [{ type: "text", name: "toString" }] }, { rules: { "name/reserved": "off" } }))
       .toHaveLength(0);
@@ -193,28 +191,6 @@ describe("name/reserved - configuration and repair", () => {
     expect(result.findings.filter(f => f.ruleId === "name/reserved")).toHaveLength(0);
     expect(result.suppressedCount).toBe(1);
   });
-  test("the host spells the new name, and the repaired JSON lints clean", () => {
-    const json = { elements: [{ type: "text", name: "toString" }] };
-    const finding = byRule(json, { newElementName: () => "frage1" })[0];
-    expect(finding.fix.edits[0].value).toBe("frage1");
-    const fixed = applyFix(json, finding.fix);
-    expect(fixed.elements[0].name).toBe("frage1");
-    expect(byRule(fixed)).toHaveLength(0);
-    // the input is never touched
-    expect(json.elements[0].name).toBe("toString");
-  });
-  test("the position marker of an annotated JSON is neither a name nor a row", () => {
-    const pos = { start: 0, end: 1 };
-    const findings = byRule({
-      pos: pos,
-      elements: [
-        {
-          type: "matrixdropdown", name: "m", pos: pos,
-          rows: [{ value: "toString", text: "T", pos: pos }], columns: [{ name: "c1", pos: pos }],
-        },
-        { type: "multipletext", name: "mt", pos: pos, items: [{ name: "a", pos: pos }] },
-      ],
-    });
-    expect(findings.map(f => f.path)).toEqual(["elements[0].rows[0].value"]);
-  });
+  // the repair itself is read in linter-fixes.tests.ts, and the position marker of an annotated
+  // JSON in linter-annotated-json.tests.ts
 });

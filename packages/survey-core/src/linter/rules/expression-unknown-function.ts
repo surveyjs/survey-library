@@ -1,10 +1,11 @@
 import { FunctionFactory } from "survey-core";
 import { ILintRule, LintContext } from "../rule";
 import { getFunctionOperands } from "../expression-utils";
-import { ExpressionSite } from "../symbols";
+import { ExpressionSite, isCarvedOutSite } from "../symbols";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 import { ILintFix } from "../types";
 
 const fixReasons = SurveyLintFixReasons["expression/unknown-function"];
@@ -40,12 +41,8 @@ function rewriteCall(text: string, name: string, suggestion: string): string | u
 }
 
 function buildFix(site: ExpressionSite, name: string, suggestion: string): ILintFix | undefined {
-  // an inArray filter and a condition synthesized from a legacy trigger are strings the analysis
-  // carved out of another one, and the document has no property holding them
-  if (!!site.inArrayOf || !!site.synthesized) return undefined;
-  const value = rewriteCall(site.text, name, suggestion);
-  if (value === undefined) return undefined;
-  return { reason: fixReasons.renameFunction, edits: [{ op: "set", path: site.path, value: value }] };
+  if (isCarvedOutSite(site)) return undefined;
+  return setFix(fixReasons.renameFunction, site.path, rewriteCall(site.text, name, suggestion));
 }
 
 export const expressionUnknownFunctionRule: ILintRule = {

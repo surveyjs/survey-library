@@ -3,6 +3,7 @@ import { forEachValidator } from "../validator-utils";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["validator/unknown-type"];
 const fixReasons = SurveyLintFixReasons["validator/unknown-type"];
@@ -27,10 +28,7 @@ export const validatorUnknownTypeRule: ILintRule = {
         elementName: entry.owner.name,
         elementType: entry.owner.type,
         suggestion: suggestion,
-        fix: !suggestion ? undefined : {
-          reason: fixReasons.setType,
-          edits: [{ op: "set", path: entry.path + ".type", value: suggestion }],
-        },
+        fix: setFix(fixReasons.setType, entry.path + ".type", suggestion),
       });
     });
   },

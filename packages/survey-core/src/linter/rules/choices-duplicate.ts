@@ -4,6 +4,7 @@ import { isDescendantOf, isMatrixDropdown } from "../metadata";
 import { getItemValueRaw, getSpecialChoiceDefs, getSpecialItemText, getSpecialItemToggleProp } from "../value-types";
 import { runtimeEquals } from "../value-domain";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { removeFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["choices/duplicate"];
 const fixReasons = SurveyLintFixReasons["choices/duplicate"];
@@ -55,7 +56,7 @@ function reportDuplicates(ctx: LintContext, record: ElementRecord, prop: string,
       elementType: record.type,
       related: [{ path: first.path, elementName: record.name }],
       // the later item goes: the first one is the one every reference to the value already means
-      fix: { reason: fixReasons.removeItem, edits: [{ op: "remove", path: path }] },
+      fix: removeFix(fixReasons.removeItem, path),
     });
   });
 }

@@ -165,9 +165,9 @@ for (;;) {
 
 A fix is an object with a `reason` and a list of `edits`. `reason` is one of the values in the frozen `SurveyLintFixReasons` table and says what the repair does, so that you can label the command that offers it. Each edit has an `op` (`set`, `remove`, `rename`, or `wrap`) and a `path` into the survey JSON, plus a `value` for `set` and a `key` for `rename`.
 
-The following rules offer a fix: `name/duplicate`, `property/required`, `property/unknown`, `property/not-an-array`, `property/invalid-value`, `property/dead`, `element/unknown-type`, `trigger/unknown-type`, `trigger/unknown-target`, `validator/unknown-type`, `mask/mismatch`, `choices/dead-source`, `choices/duplicate`, `reference/unknown`, and `expression/unknown-function`. Defects with no unique repair, such as a cycle, a contradiction, or an empty page, carry no `fix`.
+The following rules offer a fix: `name/duplicate`, `name/reserved`, `property/required`, `property/unknown`, `property/not-an-array`, `property/invalid-value`, `property/dead`, `element/unknown-type`, `trigger/unknown-type`, `trigger/unknown-target`, `validator/unknown-type`, `mask/mismatch`, `choices/dead-source`, `choices/duplicate`, `reference/unknown`, and `expression/unknown-function`. Defects with no unique repair, such as a cycle, a contradiction, or an empty page, carry no `fix`.
 
-Two fixes have to invent an element name. They spell it in English: `question1`, `page1`, `panel1`. If your application shows its users another language, pass a `newElementName` function in the linter options:
+Three fixes have to invent an element name. They spell it in English: `question1`, `page1`, `panel1`. If your application shows its users another language, pass a `newElementName` function in the linter options:
 
 ```js
 lintSurvey(surveyJson, {

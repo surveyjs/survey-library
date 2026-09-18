@@ -1,12 +1,13 @@
 import { ILintRule, LintContext } from "../rule";
 import {
-  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, suggestForRef,
+  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, respellSegment, suggestForRef,
 } from "../expression-utils";
 import { ParsedRef, TriggerRecord } from "../symbols";
-import { ILintFix, ILintReproduction } from "../types";
+import { ILintReproduction } from "../types";
 import {
   SurveyLintFixReasons, SurveyLintReasons, SurveyLintReproductionReasons,
 } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["trigger/unknown-target"];
 const fixReasons = SurveyLintFixReasons["trigger/unknown-target"];
@@ -58,19 +59,6 @@ function isAcceptedTarget(ref: ParsedRef, kind: TargetKind): boolean {
   return ref.resolvedKind === "element" && !!record && record.kind === "question";
 }
 
-// The property holds the name as the author wrote it, and a dotted one names a container and
-// something inside it - so only the segment that did not resolve is respelled and the rest stays.
-function setNameFix(path: string, name: string, index: number,
-  suggestion: string): ILintFix | undefined {
-  if (!suggestion || !name) return undefined;
-  const parts = name.split(".");
-  if (index < 0 || index >= parts.length) return undefined;
-  parts[index] = suggestion;
-  const value = parts.join(".");
-  if (value === name) return undefined;
-  return { reason: fixReasons.setName, edits: [{ op: "set", path: path, value: value }] };
-}
-
 export const triggerUnknownTargetRule: ILintRule = {
   id: "trigger/unknown-target",
   defaultSeverity: "error",
@@ -93,7 +81,10 @@ export const triggerUnknownTargetRule: ILintRule = {
             reason: reasons.pageNotFound,
             messageData: messageData,
             suggestion: pageSuggestion,
-            fix: setNameFix(target.path, target.name, 0, pageSuggestion),
+            // the property holds the name as the author wrote it, so a dotted one keeps every
+            // segment that did resolve
+            fix: setFix(fixReasons.setName, target.path,
+              respellSegment(target.name, 0, pageSuggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
@@ -113,7 +104,8 @@ export const triggerUnknownTargetRule: ILintRule = {
             reason: reasons.segmentNotFound,
             messageData: messageData,
             suggestion: ref.suggestion,
-            fix: setNameFix(target.path, target.name, ref.unknownSegmentIndex, ref.suggestion),
+            fix: setFix(fixReasons.setName, target.path,
+              respellSegment(target.name, ref.unknownSegmentIndex, ref.suggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
@@ -131,7 +123,8 @@ export const triggerUnknownTargetRule: ILintRule = {
           reason: reasons.rootNotFound,
           messageData: messageData,
           suggestion: rootSuggestionValue,
-          fix: setNameFix(target.path, target.name, 0, rootSuggestionValue),
+          fix: setFix(fixReasons.setName, target.path,
+            respellSegment(target.name, 0, rootSuggestionValue)),
           reproduction: buildReproduction(trigger, target.name),
         });
       });

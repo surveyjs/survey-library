@@ -508,6 +508,7 @@ WARN  expression/unknown-choice
 | `graph.ts`, `levenshtein.ts` | Cycle detection and typo suggestions. |
 | `cycle-report.ts`, `message-utils.ts` | The shared halves of the cycle rules and of the sentences rules build. |
 | `fix-apply.ts` | `applyFix` — one fix onto a copy of the JSON. |
+| `fix-utils.ts` | The four edit shapes a rule's repair takes. |
 | `new-name.ts` | The name a fix gives a new element, asked of the host first. |
 | `rule.ts` | `ILintRule`, `LintContext` (site iteration, memoized verdicts and domains, `report`), severity resolution and suppression matching. |
 | `reasons.ts` | The frozen `(ruleId, reason)` tables a host localizes on. |

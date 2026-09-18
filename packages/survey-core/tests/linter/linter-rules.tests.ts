@@ -114,43 +114,9 @@ describe("name/duplicate", () => {
       ],
     }, "name/duplicate")).toHaveLength(1);
   });
-  test("same template name in two different dynamic panels is flagged - a template is no namespace", () => {
-    const findings = byRule({
-      elements: [
-        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "inner" }] },
-        { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "inner" }] },
-      ],
-    }, "name/duplicate");
-    expect(findings).toHaveLength(1);
-    expect(findings[0].path).toBe("elements[1].templateElements[0]");
-    expect(findings[0].messageData.scope).toBeFalsy();
-  });
-  test("duplicate names inside ONE template are flagged", () => {
-    expect(byRule({
-      elements: [{
-        type: "paneldynamic", name: "p1",
-        templateElements: [
-          { type: "text", name: "inner" },
-          { type: "text", name: "inner" },
-        ],
-      }],
-    }, "name/duplicate")).toHaveLength(1);
-  });
-  test("duplicate column names in one matrix are flagged, across matrices clean", () => {
-    expect(byRule({
-      elements: [{
-        type: "matrixdynamic", name: "m1",
-        columns: [{ name: "col1" }, { name: "col1" }],
-      }],
-    }, "name/duplicate")).toHaveLength(1);
-    expect(byRule({
-      elements: [
-        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1" }] },
-        { type: "matrixdynamic", name: "m2", columns: [{ name: "col1" }] },
-      ],
-    }, "name/duplicate")).toHaveLength(0);
-  });
-  test("duplicate item names in one multipletext are flagged, across questions clean", () => {
+  // which names share a namespace is pinned in linter-name-duplicate-parity.tests.ts, against
+  // the walk the Creator's JSON tab always did; here it is the message that is read
+  test("the message of a duplicate item names the multiple text as its scope", () => {
     const findings = byRule({
       elements: [{
         type: "multipletext", name: "q1",
@@ -160,12 +126,6 @@ describe("name/duplicate", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].path).toBe("elements[0].items[1]");
     expect(findings[0].messageData.scope).toBe("multiple text \"q1\"");
-    expect(byRule({
-      elements: [
-        { type: "multipletext", name: "q1", items: [{ name: "item1" }] },
-        { type: "multipletext", name: "q2", items: [{ name: "item1" }] },
-      ],
-    }, "name/duplicate")).toHaveLength(0);
   });
   test("duplicate valueNames are NOT flagged (legal feature)", () => {
     expect(byRule({

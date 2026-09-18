@@ -1,0 +1,11 @@
+// The stylesheet of "survey-core/collaboration", built as its own artifact so a form
+// that does not collaborate downloads none of it.
+//
+// base-theme.scss is deliberately NOT used here: it emits the whole --sjs2-* custom
+// property block, which survey-core.css already delivers to the same page. Only the
+// sass-level aliases are needed.
+@use "variables.scss" as *;
+@use "mixins.scss" as mixins;
+
+@use "blocks/collab-presence.scss";
+@use "blocks/collab-bar.scss";

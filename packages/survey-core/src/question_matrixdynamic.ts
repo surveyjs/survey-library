@@ -522,9 +522,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public addRowUI(): void {
     this.addRow(true);
   }
-  private getQuestionToFocusOnAddingRow(): Question {
-    if (this.visibleRows.length === 0) return null;
-    var row = this.visibleRows[this.visibleRows.length - 1];
+  private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
+    if (!row.isVisible) return null;
     for (var i = 0; i < row.cells.length; i++) {
       var q = row.cells[i].question;
       if (!!q && q.isVisible && !q.isReadOnly) {
@@ -551,11 +550,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.addRowCore();
     this.onEndRowAdding();
     this.singleInputOnAddItem(false);
-    if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
-      this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
+    // The new row is the last one in allRows; visibleRows may end with an existing row when rowsVisibleIf hides the new row
+    const rows = this.allRows;
+    const newRow = oldRowCount !== this.rowCount && rows.length > 0 ? rows[rows.length - 1] : null;
+    if (!newRow) return;
+    if (this.detailPanelShowOnAdding) {
+      newRow.showDetailPanel();
     }
-    if (setFocus && oldRowCount !== this.rowCount) {
-      const q = this.getQuestionToFocusOnAddingRow();
+    if (setFocus) {
+      const q = this.getQuestionToFocusOnAddingRow(newRow);
       if (!!q) {
         q.focus();
       }
@@ -611,7 +614,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     if (this.survey) {
-      const rows = this.visibleRows;
+      const rows = this.allRows;
       if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
         const row = rows[rows.length - 1];
         this.matrixCallbacks.matrixRowAdded(this, row);

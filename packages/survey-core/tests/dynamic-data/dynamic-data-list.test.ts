@@ -1035,3 +1035,219 @@ describe("DynamicDataList: read-through over an array source", () => {
     expect(list.getRecord(0).a, "A source without update keeps the change in the window").toBe(11);
   });
 });
+
+// A source that names itself in every write, so that a push can be attributed to the source it was
+// enqueued against.
+class FakeNamedAsyncWriteSource implements IDynamicDataSource {
+  public ops: Array<string> = [];
+  public pendingWrites: Array<Deferred> = [];
+  constructor(public name: string, public records: Array<any>) { }
+  public read(): Array<any> {
+    return this.records;
+  }
+  public update(sourceIndex: number, record: any): Promise<void> {
+    this.ops.push(this.name + ":" + sourceIndex + ":" + JSON.stringify(record));
+    const deferred = new Deferred();
+    this.pendingWrites.push(deferred);
+    return deferred.promise.then((): void => { this.records[sourceIndex] = record; });
+  }
+}
+// A source whose read() never settles until it is switched to a synchronous or a throwing one.
+class FakeSwitchableSource implements IDynamicDataSource {
+  public pendingReads: Array<Deferred> = [];
+  public isSync: boolean = false;
+  public throwOnRead: boolean = false;
+  public records: Array<any> = [];
+  public read(): any {
+    if (this.throwOnRead) throw new Error("boom");
+    if (this.isSync) return this.records;
+    const deferred = new Deferred();
+    this.pendingReads.push(deferred);
+    return deferred.promise;
+  }
+}
+function createReadThrough(records: Array<any>): { list: DynamicDataList, set: (arr: Array<any>) => void } {
+  let stored: Array<any> = records;
+  const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; });
+  const list = new DynamicDataList(source);
+  list.isReadThrough = true;
+  list.load();
+  return { list: list, set: (arr: Array<any>): void => { stored = arr; } };
+}
+
+describe("DynamicDataList: a replaced source", () => {
+  test("a queued write is pushed to the source it was enqueued against", async () => {
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
+    const newSource = new FakeNamedAsyncWriteSource("new", [{ a: 1 }]);
+    const list = new DynamicDataList(oldSource);
+    list.load();
+    list.setValue(0, "a", 2);
+    list.setValue(0, "a", 3);
+    expect(oldSource.ops, "#1: the second push is queued").toEqual(["old:0:{\"a\":2}"]);
+    list.source = newSource;
+    oldSource.pendingWrites[0].resolve();
+    await flush();
+    expect(oldSource.ops, "#2: both edits belong to the old source")
+      .toEqual(["old:0:{\"a\":2}", "old:0:{\"a\":3}"]);
+    expect(newSource.ops, "#3: the new source got nothing").toEqual([]);
+    expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ a: 1 }]);
+  });
+  test("the new source is read at once: the detached pushes are not waited for", async () => {
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
+    const list = new DynamicDataList(oldSource);
+    list.load();
+    list.setValue(0, "a", 2);
+    expect(list.hasPendingWrites, "#1").toBe(true);
+    list.source = new FakeNamedAsyncWriteSource("new", createRecords(3));
+    expect(list.count, "#2: the new source was read, the push chain was not waited for").toBe(3);
+    expect(list.hasPendingWrites, "#3: a replaced source is no longer the storage of the list").toBe(false);
+    oldSource.pendingWrites[0].resolve();
+    await flush();
+    expect(list.count, "#4: the settled push does not touch the list").toBe(3);
+    expect(list.hasPendingWrites, "#5").toBe(false);
+  });
+  test("a new source clears an isLoading left by a read that never settles", () => {
+    const list = new DynamicDataList(new FakeSwitchableSource());
+    list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    const changes = recordChanges(list);
+    list.source = ArrayDynamicDataSource.fromArray(createRecords(2));
+    expect(list.isLoading, "#2").toBe(false);
+    expect(changes, "#3: exactly one loading notification").toEqual(["loading:false", "reset"]);
+    list.load();
+    expect(list.count, "#4").toBe(2);
+    expect(list.isLoading, "#5").toBe(false);
+  });
+});
+
+describe("DynamicDataList: isLoading always settles", () => {
+  test("a synchronous read clears the isLoading of the asynchronous read it supersedes", () => {
+    const source = new FakeSwitchableSource();
+    const list = new DynamicDataList(source);
+    list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    source.isSync = true;
+    source.records = createRecords(2);
+    list.load();
+    expect(list.isLoading, "#2: the synchronous read committed").toBe(false);
+    expect(list.count, "#3").toBe(2);
+  });
+  test("a read that throws synchronously clears isLoading", () => {
+    const source = new FakeSwitchableSource();
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    source.throwOnRead = true;
+    list.load();
+    expect(errors, "#2").toEqual(["read"]);
+    expect(list.isLoading, "#3").toBe(false);
+  });
+  test("dispose leaves isLoading false", () => {
+    const list = new DynamicDataList(new FakeSwitchableSource());
+    list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    list.dispose();
+    expect(list.isLoading, "#2").toBe(false);
+  });
+});
+
+describe("DynamicDataList: records changed outside the list", () => {
+  test("the cached views follow an array replaced outside the list", () => {
+    const rec = createReadThrough([{ a: 1 }, { a: 2 }]);
+    const list = rec.list;
+    list.setRecordVisible(1, false);
+    expect(list.visibleCount, "#1").toBe(1);
+    rec.set([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    expect(list.count, "#2: count").toBe(3);
+    expect(list.visibleCount, "#2: the hidden record stays hidden").toBe(2);
+    expect(list.getVisibleIndexes(), "#2: indexes").toEqual([0, 2]);
+    rec.set([{ a: 1 }]);
+    expect(list.visibleCount, "#3: the hidden record is gone").toBe(1);
+    rec.set([{ a: 1 }, { a: 9 }, { a: 8 }]);
+    expect(list.visibleCount, "#4: the trimmed hidden flag did not come back").toBe(3);
+  });
+  test("the cached page indexes follow an array replaced outside the list", () => {
+    const rec = createReadThrough(createRecords(4));
+    const list = rec.list;
+    list.pageSize = 2;
+    expect(list.getPageIndexes(), "#1").toEqual([0, 1]);
+    rec.set(createRecords(1));
+    expect(list.pageRecordCount, "#2").toBe(1);
+    expect(list.getPageIndexes(), "#2: indexes").toEqual([0]);
+  });
+  test("invalidateViews recomputes a local filter after a same-length content change", () => {
+    const rec = createReadThrough([{ a: 1 }, { a: 2 }]);
+    const list = rec.list;
+    list.filter = "{a} = 3";
+    expect(list.visibleCount, "#1").toBe(0);
+    rec.set([{ a: 3 }, { a: 2 }]);
+    expect(list.visibleCount, "#2: a same-length content change cannot be detected").toBe(0);
+    list.invalidateViews();
+    expect(list.visibleCount, "#3").toBe(1);
+    expect(list.getVisibleIndexes(), "#3: indexes").toEqual([0]);
+  });
+});
+
+describe("DynamicDataList: pageIndex is clamped when the visible count shrinks", () => {
+  test("remove clamps the page index and reports the change after recordRemoved", () => {
+    const list = createList(createRecords(2));
+    list.pageSize = 1;
+    list.pageIndex = 1;
+    const changes = recordChanges(list);
+    list.remove(1);
+    expect(list.pageIndex, "#1").toBe(0);
+    expect(list.pageCount, "#2").toBe(1);
+    expect(list.pageRecordCount, "#3").toBe(1);
+    expect(changes, "#4: recordRemoved first, pageChanged second").toEqual(["recordRemoved:1", "pageChanged"]);
+  });
+  test("truncate clamps the page index", () => {
+    const list = createList(createRecords(4));
+    list.pageSize = 2;
+    list.pageIndex = 1;
+    list.truncate(2);
+    expect(list.pageIndex, "#1").toBe(0);
+    expect(list.pageRecordCount, "#2").toBe(2);
+  });
+  test("setRecordVisible clamps the page index", () => {
+    const list = createList(createRecords(3));
+    list.pageSize = 1;
+    list.pageIndex = 2;
+    list.setRecordVisible(2, false);
+    expect(list.pageIndex, "#1").toBe(1);
+    expect(list.pageRecordCount, "#2").toBe(1);
+  });
+  test("an edit that makes a record fail the local filter clamps the page index", () => {
+    const list = createList([{ a: 1 }, { a: 1 }]);
+    list.filter = "{a} = 1";
+    list.pageSize = 1;
+    list.pageIndex = 1;
+    list.setValue(1, "a", 2);
+    expect(list.visibleCount, "#1").toBe(1);
+    expect(list.pageIndex, "#2").toBe(0);
+    expect(list.pageRecordCount, "#3").toBe(1);
+  });
+  test("a clamped page index reloads the page of a readRange source", () => {
+    const source = new FakeRangeSource(createRecords(3));
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.pageIndex = 1;
+    expect(list.loadedCount, "#1: the last page holds one record").toBe(1);
+    list.remove(0);
+    expect(list.pageIndex, "#2").toBe(0);
+    expect(source.rangeCalls[source.rangeCalls.length - 1], "#3: the previous page was fetched")
+      .toEqual({ skip: 0, take: 2 });
+    expect(list.loadedCount, "#4").toBe(2);
+  });
+  test("the page index is not clamped before the first read", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(createRecords(4)));
+    list.pageSize = 2;
+    list.pageIndex = 3;
+    list.invalidateViews();
+    expect(list.pageIndex, "#1: the pageIndex setter rules until something is loaded").toBe(3);
+    list.load();
+    expect(list.pageIndex, "#2: the commit clamps it").toBe(1);
+  });
+});

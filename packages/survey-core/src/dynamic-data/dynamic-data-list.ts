@@ -1,6 +1,6 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
-import { applyFilter, applySort, createFilterRunner } from "./dynamic-data-filter";
+import { applyFilter, applySort, createFilterRunner, createIndexes } from "./dynamic-data-filter";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange,
   IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource
@@ -62,10 +62,17 @@ export class DynamicDataList {
   // always fulfills - a rejected push is reported through onError and the chain continues.
   private pushChain: Promise<void> = undefined;
   private pendingPushes: number = 0;
+  // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
+  // running against a replaced source cannot report back into the list.
+  private sourceEpoch: number = 0;
   // Cached views; undefined means "recompute on the next read".
   private filteredIndexes: Array<number> = undefined;
   private visibleIndexes: Array<number> = undefined;
   private pageIndexes: Array<number> = undefined;
+  // The record count the cached views were built for: the records can change outside the list
+  // (survey.data = ..., a trigger, clearValue, a default value, a rowCount that grows the padding),
+  // and a read-through list sees that at once while its views would not.
+  private viewsRecordCount: number = -1;
 
   public onChanged: (change: IDynamicDataListChange) => void;
   public onError: (error: any, operation: DynamicDataOperation) => void;
@@ -105,13 +112,35 @@ export class DynamicDataList {
     if (this._source === v) return;
     const wasLoaded = this.isLoaded;
     this._source = v;
+    this.sourceEpoch++;
+    /* The push chain is detached, not drained: the queued edits belong to the old source and keep
+       running against it (they still report their failures through onError), but they must not
+       report back into the list - and the new source must not wait for them before its first read.
+       The pushes of a replaced source are therefore invisible to hasPendingWrites: a source that is
+       no longer the storage of this list no longer gates its reads. */
+    this.pushChain = undefined;
+    this.pendingPushes = 0;
     // Discards the result of a read that is still in flight against the old source.
     this.readRequestId++;
+    // The old read is abandoned, whatever happens next starts from "not loading".
+    this.setIsLoading(false);
     this.resetWindow();
     if (wasLoaded) {
       this.load();
     } else {
       this.raiseChanged({ type: "reset" });
+    }
+  }
+  /* One record operation of the owner is often several list operations, and with a source that
+     writes through its owner's storage every one of them is an assignment of its own - and with it
+     a change notification the owner never asked for. A source that can collect its writes (the
+     array source) does so; every other source just runs the function. */
+  public batch(func: () => void): void {
+    const source: any = this._source;
+    if (!!source && typeof source.batch === "function") {
+      source.batch(func);
+    } else {
+      func();
     }
   }
   public load(): void | Promise<void> {
@@ -180,8 +209,8 @@ export class DynamicDataList {
     this.replaceRecord(index, newRecord);
     // The push comes before the notification: with a read-through source the push IS the local write,
     // so the owner must not be notified of a change it cannot read yet.
-    this.pushToSource("update", !!this._source.update,
-      (): any => this._source.update(sourceIndex, newRecord, [field]));
+    this.pushToSource("update",
+      (source: IDynamicDataSource): any => source.update(sourceIndex, newRecord, [field]));
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
   }
@@ -195,8 +224,8 @@ export class DynamicDataList {
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
     this.replaceRecord(index, record);
-    this.pushToSource("update", !!this._source.update,
-      (): any => this._source.update(sourceIndex, record, changedFields));
+    this.pushToSource("update",
+      (source: IDynamicDataSource): any => source.update(sourceIndex, record, changedFields));
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
@@ -215,7 +244,7 @@ export class DynamicDataList {
     if (this._total !== undefined)this._total++;
     this.resetViews();
     const sourceIndex = this._windowOffset + at;
-    this.pushToSource("insert", !!this._source.insert, (): any => this._source.insert(sourceIndex, newRecord));
+    this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(sourceIndex, newRecord));
     this.raiseChanged({ type: "recordAdded", index: at });
     return at;
   }
@@ -232,8 +261,9 @@ export class DynamicDataList {
     if (this._total !== undefined)this._total--;
     this.resetViews();
     const sourceIndex = this._windowOffset + index;
-    this.pushToSource("remove", !!this._source.remove, (): any => this._source.remove(sourceIndex));
+    this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(sourceIndex));
     this.raiseChanged({ type: "recordRemoved", index: index });
+    this.clampPageIndexAfterChange();
   }
   public move(fromIndex: number, toIndex: number): void {
     const length = this.records.length;
@@ -254,7 +284,7 @@ export class DynamicDataList {
     this.resetViews();
     const fromSourceIndex = this._windowOffset + fromIndex;
     const toSourceIndex = this._windowOffset + toIndex;
-    this.pushToSource("move", !!this._source.move, (): any => this._source.move(fromSourceIndex, toSourceIndex));
+    this.pushToSource("move", (source: IDynamicDataSource): any => source.move(fromSourceIndex, toSourceIndex));
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
@@ -266,10 +296,19 @@ export class DynamicDataList {
     this.hiddenFlags[index] = isHidden;
     this.hiddenCount += isHidden ? 1 : -1;
     this.resetViews();
+    this.clampPageIndexAfterChange();
   }
   public isRecordVisible(index: number): boolean {
     if (index < 0 || index >= this.records.length) return false;
     return !this.hiddenFlags[index];
+  }
+  /* Drops the cached views. The list detects a record array that changed outside it by its length;
+     a content change of the same length - a cell written through survey.setValue - it cannot see,
+     and with a local filter or sort active that change reorders or re-filters the view. The owner
+     calls this from the one point every value assignment passes through. */
+  public invalidateViews(): void {
+    this.resetViews();
+    this.clampPageIndexAfterChange();
   }
   public getVisibleIndexes(): Array<number> {
     this.ensureViews();
@@ -324,8 +363,10 @@ export class DynamicDataList {
     return this.getPageIndexes().length;
   }
   public getPageIndexes(): Array<number> {
+    // The visible indexes come first: they drop a page cache that an external record change made
+    // stale.
+    const visible = this.getVisibleIndexes();
     if (!this.pageIndexes) {
-      const visible = this.getVisibleIndexes();
       // A readRange source returns one storage page: the loaded window IS the page.
       if (this._pageSize <= 0 || this.hasReadRange) {
         this.pageIndexes = visible;
@@ -385,6 +426,8 @@ export class DynamicDataList {
   public dispose(): void {
     this.isDisposed = true;
     this.readRequestId++;
+    // No notification: a disposed list raises nothing, and a read in flight will never clear it.
+    this._isLoading = false;
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
@@ -422,6 +465,8 @@ export class DynamicDataList {
     // keeping the cached identity array otherwise is what lets the questions compare by instance.
     if (this.hasLocalViews) {
       this.resetViews();
+      // The edited record may have left the filter: the visible count can shrink.
+      this.clampPageIndexAfterChange();
     }
   }
   private get hasLocalViews(): boolean {
@@ -430,23 +475,32 @@ export class DynamicDataList {
   // The flags are spliced in step with the records, so they must stay a dense array of the same
   // length: a shorter one would shift the wrong entries.
   private alignHiddenFlags(): void {
-    while(this.hiddenFlags.length < this.records.length) {
+    const length = this.records.length;
+    if (this.hiddenFlags.length === length) return;
+    while(this.hiddenFlags.length < length) {
       this.hiddenFlags.push(false);
     }
-    this.hiddenFlags.length = this.records.length;
-  }
-  private createIdentityIndexes(): Array<number> {
-    const res = new Array<number>(this.records.length);
-    for (let i = 0; i < this.records.length; i++) {
-      res[i] = i;
+    this.hiddenFlags.length = length;
+    // The counter follows the flags: records that disappear take their flags with them, and a
+    // counter left inflated by a trimmed flag would outlive the record it belonged to.
+    this.hiddenCount = 0;
+    for (let i = 0; i < this.hiddenFlags.length; i++) {
+      if (this.hiddenFlags[i])this.hiddenCount++;
     }
-    return res;
   }
   private ensureViews(): void {
-    if (!!this.visibleIndexes) return;
+    const recordCount = this.records.length;
+    if (!!this.visibleIndexes) {
+      if (this.viewsRecordCount === recordCount) return;
+      // The records changed outside the list: the cached views describe a window that is gone. A
+      // content change of the same length cannot be seen here - the owner reports it through
+      // invalidateViews().
+      this.pageIndexes = undefined;
+    }
+    this.alignHiddenFlags();
     const needFilter = !!this.filterRunner && !this.isSourceFiltering;
     const needSort = this._sort.length > 0 && !this.isSourceSorting;
-    const filtered = needFilter ? applyFilter(this.records, this.filterRunner) : this.createIdentityIndexes();
+    const filtered = needFilter ? applyFilter(this.records, this.filterRunner) : createIndexes(recordCount);
     let visible = filtered;
     if (this.hiddenCount > 0) {
       visible = filtered.filter((index: number): boolean => !this.hiddenFlags[index]);
@@ -456,11 +510,13 @@ export class DynamicDataList {
     }
     this.filteredIndexes = filtered;
     this.visibleIndexes = visible;
+    this.viewsRecordCount = recordCount;
   }
   private resetViews(): void {
     this.filteredIndexes = undefined;
     this.visibleIndexes = undefined;
     this.pageIndexes = undefined;
+    this.viewsRecordCount = -1;
   }
   private resetWindow(): void {
     this.records = [];
@@ -479,6 +535,21 @@ export class DynamicDataList {
     if (newValue !== this._pageIndex) {
       this._pageIndex = newValue;
       this.pageIndexes = undefined;
+    }
+  }
+  /* Every change that can shrink the visible count ends here: a page index left past the last page
+     would show an empty page. Not before the first successful read - there is no count to clamp
+     against yet and the pageIndex setter rules. */
+  private clampPageIndexAfterChange(): void {
+    if (!this.isLoaded) return;
+    const newValue = this.getClampedPageIndex(this._pageIndex);
+    if (newValue === this._pageIndex) return;
+    this._pageIndex = newValue;
+    this.pageIndexes = undefined;
+    this.raiseChanged({ type: "pageChanged" });
+    if (this.hasReadRange) {
+      // The records of the previous page are not in the window: they have to be fetched.
+      this.load();
     }
   }
   private checkWindowIsWholeStorage(operation: string): void {
@@ -518,6 +589,8 @@ export class DynamicDataList {
     try {
       res = useReadRange ? this._source.readRange(skip, this._pageSize) : this._source.read();
     } catch(e) {
+      // This read superseded whatever was in flight, so it also owns the loading state it inherited.
+      this.setIsLoading(false);
       this.raiseError(e, "read");
       return;
     }
@@ -536,6 +609,9 @@ export class DynamicDataList {
       });
     }
     this.commitRead(res, skip, useReadRange);
+    // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
+    // read of the same source; the flag that read set is this one's to clear.
+    this.setIsLoading(false);
   }
   // The window, its offset and the total are committed together: while a read is pending or after it
   // was rejected, the previous window and its own offset stay in force.
@@ -572,22 +648,29 @@ export class DynamicDataList {
     }
   }
 
-  private pushToSource(operation: DynamicDataOperation, hasMethod: boolean, action: () => any): void {
-    if (!hasMethod || this.isDisposed) return;
+  /* The source is captured here, when the write is enqueued, and never read again from the field:
+     a deferred push belongs to the source the edit was made against, not to whatever the list holds
+     when the push finally runs. The capability check follows the same rule - the operation names are
+     the source method names. */
+  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource) => any): void {
+    const source = this._source;
+    if (this.isDisposed || !source || !(<any>source)[operation]) return;
+    const epoch = this.sourceEpoch;
+    const action = (): any => method(source);
     if (!this.pushChain) {
       const res = this.runPush(operation, action);
       if (!res) {
-        this.syncWindowAfterSyncPush();
+        this.syncWindowAfterSyncPush(epoch);
         return;
       }
       this.pendingPushes = 1;
-      this.pushChain = res.then((): void => this.onPushSettled(false));
+      this.pushChain = res.then((): void => this.onPushSettled(epoch, false));
       return;
     }
     this.pendingPushes++;
     this.pushChain = this.pushChain.then((): any => {
       const res = this.runPush(operation, action);
-      return !!res ? res.then((): void => this.onPushSettled(false)) : this.onPushSettled(true);
+      return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
     });
   }
   // Returns a promise that always fulfills, or undefined when the push stayed synchronous.
@@ -603,20 +686,35 @@ export class DynamicDataList {
     // A rejected push keeps the local change and reports the error; the chain continues.
     return res.then((): void => { }, (error: any): void => { this.raiseError(error, operation); });
   }
-  private onPushSettled(wasSync: boolean): void {
+  private onPushSettled(epoch: number, wasSync: boolean): void {
+    // A chain detached by a source change runs to its end against its own source, but the counters
+    // and the window it would touch belong to the source that replaced it.
+    if (epoch !== this.sourceEpoch) return;
     this.pendingPushes--;
     if (this.pendingPushes <= 0) {
       this.pendingPushes = 0;
       this.pushChain = undefined;
-      if (wasSync)this.syncWindowAfterSyncPush();
+      if (wasSync)this.syncWindowAfterSyncPush(epoch);
     }
   }
-  private syncWindowAfterSyncPush(): void {
-    if (this.isDisposed || this.hasReadRange || this.useReadThrough) return;
+  private syncWindowAfterSyncPush(epoch: number): void {
+    if (this.isDisposed || epoch !== this.sourceEpoch || this.hasReadRange || this.useReadThrough) return;
     // For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
     // rebuilt from it so that the list never holds an array the owner does not.
     if (!(this._source instanceof ArrayDynamicDataSource)) return;
     const res = this._source.read();
     this.records = Array.isArray(res) ? res : [];
   }
+}
+
+/* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
+   getter/setter pair, never a captured array, so that every write replaces the array instead of
+   mutating the one the owner currently holds - read through on demand, so that a value assigned
+   outside the list is seen at once. */
+export function createReadThroughDataList(owner: IDynamicDataOwner, getArray: () => Array<any>,
+  setArray: (arr: Array<any>) => void): DynamicDataList {
+  const list = new DynamicDataList(new ArrayDynamicDataSource(getArray, setArray), owner);
+  list.isReadThrough = true;
+  list.load();
+  return list;
 }

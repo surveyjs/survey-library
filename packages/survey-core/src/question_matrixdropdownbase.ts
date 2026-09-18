@@ -2654,9 +2654,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.isRowChanging = false;
     return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
   }
-  private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
-    columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {
-    const rowValue = this.getRowValueCore(row, newValue, true);
+  /* The per-row half of a cell change: which keys of a record belong to the row's questions is
+     question knowledge. It mutates the record it is given - the base passes the row object inside
+     its own value copy, matrix dynamic passes a copy of the record its list holds. */
+  protected mergeRowValue(rowValue: any, row: MatrixDropdownRowModelBase, columnName: string,
+    newRowValue: any, isDeletingValue: boolean): void {
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
@@ -2671,6 +2673,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         }
       }
     }
+  }
+  private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
+    columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {
+    const rowValue = this.getRowValueCore(row, newValue, true);
+    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
     if (this.isObject(rowValue) && Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }

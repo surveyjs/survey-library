@@ -9647,3 +9647,34 @@ describe("DynamicDataList integration", () => {
     ]);
   });
 });
+
+describe("Question Panel Dynamic: DynamicDataList review fixes", () => {
+  const createQuestion = (json: any, data?: any): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "panel" }, json)] });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  };
+  const template = [{ type: "text", name: "q1" }];
+  test("The cached views follow a value assigned outside the question", () => {
+    const question = createQuestion({ panelCount: 1, templateElements: template });
+    const survey = <SurveyModel>question.survey;
+    const list = question.getDataList();
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    survey.setValue("panel", [{ q1: "a" }, { q1: "b" }]);
+    expect(list.count, "#2: count").toBe(2);
+    expect(list.visibleCount, "#2: visibleCount").toBe(2);
+    expect(question.panelCount, "#2: panelCount").toBe(2);
+  });
+  test("A value change of the same length invalidates the cached views", () => {
+    const question = createQuestion({ panelCount: 2, templateElements: template }, [{ q1: "a" }, { q1: "b" }]);
+    const survey = <SurveyModel>question.survey;
+    const list = question.getDataList();
+    list.filter = "{q1} = 'x'";
+    expect(list.visibleCount, "#1: nothing passes the filter").toBe(0);
+    survey.setValue("panel", [{ q1: "x" }, { q1: "b" }]);
+    expect(list.visibleCount, "#2: the filter was re-run").toBe(1);
+    expect(list.getVisibleIndexes(), "#2: indexes").toEqual([0]);
+  });
+});

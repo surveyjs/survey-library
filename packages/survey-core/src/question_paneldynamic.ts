@@ -38,8 +38,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 
@@ -339,12 +338,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // mutating the one the question currently holds.
   private get dataList(): DynamicDataList {
     if (!this.dataListValue) {
-      const source = new ArrayDynamicDataSource(
+      this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.value,
         (arr: Array<any>): void => { this.value = arr; });
-      this.dataListValue = new DynamicDataList(source, this);
-      this.dataListValue.isReadThrough = true;
-      this.dataListValue.load();
     }
     return this.dataListValue;
   }
@@ -359,11 +355,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     // Nothing subscribes to the list yet: the panels are still synchronized from the value by
     // setPanelCountBasedOnValue and runPanelsCondition. Step 04 (paging and sorting) fills this in.
   }
-  // A record operation of the list writes through question.value at once, so an operation that was
-  // one array mutation plus one assignment would become several assignments - and with them several
-  // onValueChanged notifications. The source collects the steps and replaces the value once.
-  private batchValueChanges(func: () => void): void {
-    (<ArrayDynamicDataSource>this.dataList.source).batch(func);
+  /* Every value assignment of this question passes through setQuestionValue - a value set by the
+     survey, a trigger, a default value or a panel. The list reads the records through the value, so
+     it sees them at once, but the views it cached over them it cannot: they are dropped here. The
+     list is not created just to be invalidated. */
+  private invalidateDataListViews(): void {
+    if (!!this.dataListValue) {
+      this.dataListValue.invalidateViews();
+    }
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -1131,7 +1130,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const panelCount = this.panelCount;
     if (list.count === panelCount) return;
     this.isValueChangingInternally = true;
-    this.batchValueChanges((): void => {
+    list.batch((): void => {
       list.ensureCount(panelCount, (i: number): any => {
         const panelValue = this.panels[i].getValue();
         return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
@@ -1690,7 +1689,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const list = this.dataList;
     if (list.count !== this.panelCount) return;
     const lastIndex = this.panelCount - 1;
-    this.batchValueChanges((): void => {
+    list.batch((): void => {
       // panelCount++ appended the new record at the end; it belongs at index.
       if (index < lastIndex) {
         list.move(lastIndex, index);
@@ -2415,6 +2414,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
+    this.invalidateDataListViews();
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
     // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
@@ -2552,7 +2552,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     // The list deletes the key for an empty value; the emptiness rule (a whitespace-only string is
     // empty) is the question rule, so it is applied here.
     const newValue = this.isValueEmpty(val) ? undefined : val;
-    this.batchValueChanges((): void => {
+    this.dataList.batch((): void => {
       // The padding is a question rule as well: a write to a panel whose record does not exist yet
       // grows the value up to the panel count.
       this.dataList.ensureCount(Math.max(index + 1, items.length));

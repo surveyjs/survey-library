@@ -34,6 +34,9 @@ export interface IDynamicDataSource {
   update?(sourceIndex: number, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(sourceIndex: number): void | Promise<void>;
   move?(fromSourceIndex: number, toSourceIndex: number): void | Promise<void>;
+  // Present -> the source collects the writes of func and applies them as one; absent -> the list
+  // just runs func. See DynamicDataList.batch.
+  batch?(func: () => void): void;
 }
 export interface IDynamicDataField {
   name: string;

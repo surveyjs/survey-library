@@ -29,8 +29,7 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase } from "./dynamicItemModelBase";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 
@@ -142,12 +141,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      the rows in lockstep. */
   private get dataList(): DynamicDataList {
     if (!this.dataListValue) {
-      const source = new ArrayDynamicDataSource(
+      this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.getListRecords(),
         (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
-      this.dataListValue = new DynamicDataList(source, this);
-      this.dataListValue.isReadThrough = true;
-      this.dataListValue.load();
     }
     return this.dataListValue;
   }
@@ -178,11 +174,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Nothing subscribes to the list yet: the rows are still synchronized from the value by
     // onBeforeValueChanged and by the rowCount setter. Step 04 (paging and sorting) fills this in.
   }
-  /* A record operation of the list writes through question.value at once, so an operation that is
-     several record steps would become several assignments - and with them several onValueChanged
-     notifications. The source collects the steps and replaces the value once. */
-  private batchValueChanges(func: () => void): void {
-    (<ArrayDynamicDataSource>this.dataList.source).batch(func);
+  /* Every value assignment of this question passes through setQuestionValue, and rowCount changes
+     the padded records the list reads. The list sees the records themselves at once - it reads them
+     through the value - but the views it cached over them it cannot: they are dropped here. The list
+     is not created just to be invalidated. */
+  protected setQuestionValue(newValue: any): void {
+    super.setQuestionValue(newValue);
+    this.invalidateDataListViews();
+  }
+  private invalidateDataListViews(): void {
+    if (!!this.dataListValue) {
+      this.dataListValue.invalidateViews();
+    }
   }
   /* The records the list works with: question.value padded up to rowCount, exactly as
      createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
@@ -190,14 +193,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      beyond the new rowCount in order to remove them through the list. */
   private getListRecords(): Array<any> {
     const val = this.value;
-    const rowCount = this.rowCount;
-    if (Array.isArray(val) && val.length >= rowCount) return val;
-    const res = Array.isArray(val) ? val.slice() : [];
+    if (Array.isArray(val) && val.length >= this.rowCount) return val;
+    return this.padRecords(Array.isArray(val) ? val.slice() : []);
+  }
+  // Appends default row values until the array holds rowCount records; the array is modified.
+  private padRecords(records: Array<any>): Array<any> {
     const rowValue = this.getDefaultRowValue(false) || {};
-    for (let i = res.length; i < rowCount; i++) {
-      res.push(this.getUnbindValue(rowValue));
+    for (let i = records.length; i < this.rowCount; i++) {
+      records.push(this.getUnbindValue(rowValue));
     }
-    return res;
+    return records;
   }
   /* The value shape rules that used to be spread over createNewValue (truncate to rowCount),
      deleteRowValue (null when every record is empty) and correctValueForMinMaxRows. */
@@ -224,7 +229,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     const list = this.dataList;
     if (list.count < this.rowCount) return;
-    this.batchValueChanges((): void => { list.setRecord(this.rowCount - 1, record, force && this.isPaddingPending); });
+    list.batch((): void => { list.setRecord(this.rowCount - 1, record, force && this.isPaddingPending); });
   }
   /* question.value is shorter than rowCount: the padded records the list reads have not reached the
      storage yet. A write that used to compare whole values (it assigned the padded array and the
@@ -365,7 +370,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const list = this.dataList;
       const from = this.getRecordIndex(fromIndex);
       const to = this.getRecordIndex(toIndex);
-      this.batchValueChanges((): void => { list.move(from, to); });
+      list.batch((): void => { list.move(from, to); });
     }
     this.draggedRow = null;
   }
@@ -382,7 +387,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.rowCount++;
     const list = this.dataList;
     const index = this.getRecordIndex(toIndex);
-    this.batchValueChanges((): void => {
+    list.batch((): void => {
       list.move(this.rowCount - 1, index);
       list.setRecord(index, rowData);
     });
@@ -401,7 +406,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        instead of being re-created, exactly as they are when a row is removed by the UI. Both steps
        are one write of question.value - the value used to be assigned twice here, the intermediate
        assignment carrying a row the caller never asked to remove. */
-    this.batchValueChanges((): void => {
+    list.batch((): void => {
       list.move(fromIndex, list.count - 1);
       this.rowCount--;
     });
@@ -441,9 +446,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         qVal.splice(val);
         this.value = qVal;
       } else {
-        this.batchValueChanges((): void => { this.dataList.truncate(val); });
+        this.dataList.batch((): void => { this.dataList.truncate(val); });
       }
     }
+    // The records the list reads are padded up to rowCount: a rowCount that grows adds records
+    // without any value assignment.
+    this.invalidateDataListViews();
     if (this.isUpdateLocked) {
       this.initialRowCount = val;
       return;
@@ -874,7 +882,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         val.splice(index, 1);
         this.value = val;
       } else {
-        this.batchValueChanges((): void => { this.dataList.remove(index); });
+        this.dataList.batch((): void => { this.dataList.remove(index); });
       }
       this.isRowChanging = false;
     }
@@ -1154,16 +1162,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setRowCountValueFromData = false;
   }
+  // A deep copy of the value, truncated to rowCount and padded up to it.
   protected createNewValue(): any {
     var result = this.createValueCopy();
     if (!result || !Array.isArray(result)) result = [];
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    var rowValue = this.getDefaultRowValue(false);
-    rowValue = rowValue || {};
-    for (var i = result.length; i < this.rowCount; i++) {
-      result.push(this.getUnbindValue(rowValue));
-    }
-    return result;
+    return this.padRecords(result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;
@@ -1212,33 +1216,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const list = this.dataList;
     const oldRecord = list.getRecord(index);
     const oldCellValue = oldRecord?.[columnName];
-    const rowValue = this.getMergedRowValue(row, columnName, newRowValue, isDeletingValue, oldRecord);
+    // The merge is the base's; the record it works on is a copy of the one the list holds.
+    const rowValue = Object.assign({}, oldRecord);
+    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
     let isChanged = false;
     this.isRowChanging = true;
-    this.batchValueChanges((): void => { isChanged = list.setRecord(index, rowValue); });
+    list.batch((): void => { isChanged = list.setRecord(index, rowValue); });
     this.isRowChanging = false;
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
-  }
-  /* Which keys of a record belong to the row's questions is question knowledge, so the merge stays
-     here; it is the per-row half of getNewValueOnRowChanged. The list is handed the result. */
-  private getMergedRowValue(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean, oldRecord: any): any {
-    const rowValue = Object.assign({}, oldRecord);
-    if (isDeletingValue) {
-      delete rowValue[columnName];
-    }
-    row.questions.forEach(q => {
-      delete rowValue[q.getValueName()];
-    });
-    if (newRowValue) {
-      newRowValue = JSON.parse(JSON.stringify(newRowValue));
-      for (var key in newRowValue) {
-        if (!this.isValueEmpty(newRowValue[key])) {
-          rowValue[key] = newRowValue[key];
-        }
-      }
-    }
-    return rowValue;
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     super.onRowVisibilityChanged(row);

@@ -26,7 +26,7 @@ function findField(fields: Array<IDynamicDataField>, name: string): IDynamicData
   }
   return undefined;
 }
-function createIndexes(count: number): Array<number> {
+export function createIndexes(count: number): Array<number> {
   const res = new Array<number>(count);
   for (let i = 0; i < count; i++) {
     res[i] = i;

@@ -1,5 +1,6 @@
 import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { Helpers } from "./helpers";
 import { Question, QuestionItemValueGetterContext } from "./question";
 import { settings } from "./settings";
@@ -244,7 +245,7 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
   protected isValueChanged(name: string, newValue: any): boolean {
     const oldItemData = this.data.getItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
+    return DynamicDataList.isValueChanged(newValue, oldValue);
   }
 
   protected getSharedQuestionByName(columnName: string): Question {

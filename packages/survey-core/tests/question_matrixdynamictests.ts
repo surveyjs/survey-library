@@ -10401,3 +10401,42 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     expect((<any>matrix).getDataList, "#4: matrix dropdown has no data list").toBeUndefined();
   });
 });
+
+describe("Survey_QuestionMatrixDynamic: DynamicDataList review fixes", () => {
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix" }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  };
+  test("The cached views follow a rowCount change", () => {
+    const matrix = createMatrix({ rowCount: 1, columns: textColumns });
+    const list = matrix.getDataList();
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    matrix.rowCount = 3;
+    expect(list.count, "#2: count").toBe(3);
+    expect(list.visibleCount, "#2: visibleCount").toBe(3);
+    expect(matrix.visibleRows.length, "#2: one row per visible record").toBe(3);
+  });
+  test("The cached views follow a value assigned outside the question", () => {
+    const matrix = createMatrix({ rowCount: 1, columns: textColumns });
+    const survey = <SurveyModel>matrix.survey;
+    const list = matrix.getDataList();
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    survey.setValue("matrix", [{ c1: "a" }, { c1: "b" }]);
+    expect(list.count, "#2: count").toBe(2);
+    expect(list.visibleCount, "#2: visibleCount").toBe(2);
+  });
+  test("A value change of the same length invalidates the cached views", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const survey = <SurveyModel>matrix.survey;
+    const list = matrix.getDataList();
+    list.filter = "{c1} = 'x'";
+    expect(list.visibleCount, "#1: nothing passes the filter").toBe(0);
+    survey.setValue("matrix", [{ c1: "x" }, { c1: "b" }]);
+    expect(list.visibleCount, "#2: the filter was re-run").toBe(1);
+    expect(list.getVisibleIndexes(), "#2: indexes").toEqual([0]);
+  });
+});

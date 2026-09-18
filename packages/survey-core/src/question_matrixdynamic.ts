@@ -29,6 +29,10 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase } from "./dynamicItemModelBase";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
+import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -96,7 +100,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData {
+  implements IMatrixDropdownData, IDynamicDataOwner {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -126,6 +130,112 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (name === "allowRemoveRows" && !this.isUpdateLocked) {
       this.resetRenderedTable();
     }
+  }
+  private dataListValue: DynamicDataList;
+  /* Every record-level read and write of this question goes through this list. Its source is a
+     getter/setter pair over question.value - never a captured array - so that every write replaces
+     the array instead of mutating the one the question currently holds.
+     The invariant: record index == index in generatedVisibleRows == index in the value array. The
+     three are parallel by construction: the list keeps at least rowCount records (a shorter value is
+     padded on read, exactly as createNewValue() pads it), sorting (step 04) reorders a view and
+     never the records, and moveRowByIndex is the one operation that reorders records - it reorders
+     the rows in lockstep. */
+  private get dataList(): DynamicDataList {
+    if (!this.dataListValue) {
+      const source = new ArrayDynamicDataSource(
+        (): Array<any> => this.getListRecords(),
+        (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+      this.dataListValue = new DynamicDataList(source, this);
+      this.dataListValue.isReadThrough = true;
+      this.dataListValue.load();
+    }
+    return this.dataListValue;
+  }
+  // internal, for tests and renderers
+  public getDataList(): DynamicDataList {
+    return this.dataList;
+  }
+  getFields(): Array<IDynamicDataField> {
+    const questions = new Array<Question>();
+    this.columns.forEach(column => {
+      if (!!column.templateQuestion) {
+        questions.push(column.templateQuestion);
+      }
+    });
+    const res = getDynamicDataFieldsForQuestions(questions);
+    questions.forEach(q => {
+      // storeOthersAsComment writes the "other" text into the comment key of the same record.
+      if (!q.hasComment && (<any>q).hasOther === true) {
+        const name = q.getValueName() + settings.commentSuffix;
+        if (!res.some(f => f.name === name)) {
+          res.push({ name: name, dataType: "string" });
+        }
+      }
+    });
+    return res;
+  }
+  onDataListChanged(change: IDynamicDataListChange): void {
+    // Nothing subscribes to the list yet: the rows are still synchronized from the value by
+    // onBeforeValueChanged and by the rowCount setter. Step 04 (paging and sorting) fills this in.
+  }
+  /* A record operation of the list writes through question.value at once, so an operation that is
+     several record steps would become several assignments - and with them several onValueChanged
+     notifications. The source collects the steps and replaces the value once. */
+  private batchValueChanges(func: () => void): void {
+    (<ArrayDynamicDataSource>this.dataList.source).batch(func);
+  }
+  /* The records the list works with: question.value padded up to rowCount, exactly as
+     createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
+     materializes it - and the array is never truncated here: the rowCount setter needs the records
+     beyond the new rowCount in order to remove them through the list. */
+  private getListRecords(): Array<any> {
+    const val = this.value;
+    const rowCount = this.rowCount;
+    if (Array.isArray(val) && val.length >= rowCount) return val;
+    const res = Array.isArray(val) ? val.slice() : [];
+    const rowValue = this.getDefaultRowValue(false) || {};
+    for (let i = res.length; i < rowCount; i++) {
+      res.push(this.getUnbindValue(rowValue));
+    }
+    return res;
+  }
+  /* The value shape rules that used to be spread over createNewValue (truncate to rowCount),
+     deleteRowValue (null when every record is empty) and correctValueForMinMaxRows. */
+  private normalizeRecords(records: Array<any>): any {
+    let res = Array.isArray(records) ? records : [];
+    if (res.length > this.rowCount) {
+      res = res.slice(0, this.rowCount);
+    }
+    return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
+  }
+  // The value is an array of Base objects edited in place (Creator's property grid): it is never
+  // routed through the list, see the comments on the operations that branch on it.
+  private get isEditingObjectValue(): boolean {
+    return this.isValueSurveyElement(this.value);
+  }
+  private setLastRowRecord(record: any, force: boolean = false): void {
+    if (this.isEditingObjectValue) {
+      const newValue = this.createNewValue();
+      if (newValue.length == this.rowCount) {
+        newValue[newValue.length - 1] = record;
+        this.value = newValue;
+      }
+      return;
+    }
+    const list = this.dataList;
+    if (list.count < this.rowCount) return;
+    this.batchValueChanges((): void => { list.setRecord(this.rowCount - 1, record, force && this.isPaddingPending); });
+  }
+  /* question.value is shorter than rowCount: the padded records the list reads have not reached the
+     storage yet. A write that used to compare whole values (it assigned the padded array and the
+     comparison saw the new records) has to reach question.value even when its own record did not
+     change; a write that compared one row (a cell edit) must not. */
+  private get isPaddingPending(): boolean {
+    const val = this.value;
+    return !Array.isArray(val) || val.length < this.rowCount;
+  }
+  private getRecordIndex(index: number): number {
+    return Math.max(0, Math.min(index, this.dataList.count - 1));
   }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -229,13 +339,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
-    const value = this.createNewValue();
     const maxIndex = Math.max(fromIndex, toIndex);
-    if (!Array.isArray(value) && maxIndex >= value.length) return;
-    const movableRow = value[fromIndex];
-    value.splice(fromIndex, 1);
-    value.splice(toIndex, 0, movableRow);
     const rows = this.generatedVisibleRows;
+    // The row objects stay where they are and get the reordered records; the detail panel state is
+    // the one thing that belongs to the row and has to be swapped with it - before the write.
     if (Array.isArray(rows) && maxIndex < rows.length) {
       const rowTo = rows[toIndex];
       const rowFrom = rows[fromIndex];
@@ -245,22 +352,59 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.setIsDetailPanelShowing(rowFrom, isRowToShowing);
       }
     }
-    this.value = value;
+    if (this.isEditingObjectValue) {
+      /* A live-object value is reordered in place: the array is a property of the edited object and
+         it is its own splices - not a new array - that re-create the rows through
+         isEditingObjectValueChanged. */
+      const value = this.createNewValue();
+      const movableRow = value[fromIndex];
+      value.splice(fromIndex, 1);
+      value.splice(toIndex, 0, movableRow);
+      this.value = value;
+    } else {
+      const list = this.dataList;
+      const from = this.getRecordIndex(fromIndex);
+      const to = this.getRecordIndex(toIndex);
+      this.batchValueChanges((): void => { list.move(from, to); });
+    }
     this.draggedRow = null;
   }
   public addRowByIndex(rowData: any, toIndex: number):void {
-    const value = this.createNewValue();
-    if (!Array.isArray(value) && toIndex >= value.length) return;
-    value.splice(toIndex, 0, rowData);
+    if (this.isEditingObjectValue) {
+      const value = this.createNewValue();
+      value.splice(toIndex, 0, rowData);
+      this.rowCount++;
+      this.value = value;
+      return;
+    }
+    // rowCount++ creates the row object and, with it, the record at the end; the record then moves
+    // into place and takes rowData, so that the value is written once.
     this.rowCount++;
-    this.value = value;
+    const list = this.dataList;
+    const index = this.getRecordIndex(toIndex);
+    this.batchValueChanges((): void => {
+      list.move(this.rowCount - 1, index);
+      list.setRecord(index, rowData);
+    });
   }
   public removeRowByIndex(fromIndex: number):void {
-    const value = this.createNewValue();
-    if (!Array.isArray(value) && fromIndex >= value.length) return;
-    value.splice(fromIndex, 1);
-    this.rowCount--;
-    this.value = value;
+    if (this.isEditingObjectValue) {
+      const value = this.createNewValue();
+      value.splice(fromIndex, 1);
+      this.rowCount--;
+      this.value = value;
+      return;
+    }
+    const list = this.dataList;
+    if (fromIndex < 0 || fromIndex >= list.count) return;
+    /* The record moves to the end and rowCount-- removes it there: the row objects are spliced
+       instead of being re-created, exactly as they are when a row is removed by the UI. Both steps
+       are one write of question.value - the value used to be assigned twice here, the intermediate
+       assignment carrying a row the caller never asked to remove. */
+    this.batchValueChanges((): void => {
+      list.move(fromIndex, list.count - 1);
+      this.rowCount--;
+    });
   }
   public clearOnDrop(): void {
     if (!this.isEditingSurveyElement) {
@@ -292,9 +436,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
     if (this.value && this.value.length > val) {
-      var qVal = this.value;
-      qVal.splice(val);
-      this.value = qVal;
+      if (this.isEditingObjectValue) {
+        var qVal = this.value;
+        qVal.splice(val);
+        this.value = qVal;
+      } else {
+        this.batchValueChanges((): void => { this.dataList.truncate(val); });
+      }
     }
     if (this.isUpdateLocked) {
       this.initialRowCount = val;
@@ -580,30 +728,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
-    var newValue = null;
     if (!this.isValueEmpty(defaultValue)) {
-      newValue = this.createNewValue();
-      if (newValue.length == this.rowCount) {
-        newValue[newValue.length - 1] = defaultValue;
-        this.value = newValue;
-      }
+      this.setLastRowRecord(defaultValue, true);
     }
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
       const rows = this.generatedVisibleRows;
       if (this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];
-        if (!this.isValueEmpty(row.value)) {
-          if (!newValue) {
-            newValue = this.createNewValue();
-          }
-          if (
-            !this.isValueSurveyElement(newValue) &&
-            !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
-          ) {
-            newValue[newValue.length - 1] = row.value;
-            this.value = newValue;
-          }
+        // A live-object value is never written back from the row here, as before.
+        if (!this.isValueEmpty(row.value) && !this.isEditingObjectValue) {
+          this.setLastRowRecord(row.value);
         }
       }
     }
@@ -732,16 +867,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.rowCountValue--;
     if (this.value) {
-      var val = [];
-      if (Array.isArray(this.value) && index < this.value.length) {
-        val = this.createValueCopy();
-      } else {
-        val = this.createNewValue();
-      }
       this.isRowChanging = true;
-      val.splice(index, 1);
-      val = this.deleteRowValue(val, null);
-      this.value = val;
+      if (this.isEditingObjectValue) {
+        // The live array is spliced in place: that is what removes the row from the edited object.
+        const val = this.createValueCopy();
+        val.splice(index, 1);
+        this.value = val;
+      } else {
+        this.batchValueChanges((): void => { this.dataList.remove(index); });
+      }
       this.isRowChanging = false;
     }
     this.onRowsChanged();
@@ -1050,6 +1184,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       ? questionValue[index]
       : null;
   }
+  /* Still reached with an explicit value: onSetQuestionValue, updateValueOnRowsGeneration,
+     onRowChanging, runTriggersOnNewRows and getRowObj all compose a value of their own and ask for
+     one row of it. The record storage of the question is the list; this is a lookup in a value. */
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,
     questionValue: any,
@@ -1062,6 +1199,68 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
     if (!res && create) res = {};
     return res;
+  }
+  protected getRowValueByIndexCore(index: number): any {
+    const res = this.dataList.getRecord(index);
+    return res !== undefined ? res : null;
+  }
+  protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
+    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
+    if (this.isEditingObjectValue) return super.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
+    const index = this.getItemIndex(row);
+    if (index < 0) return null;
+    const list = this.dataList;
+    const oldRecord = list.getRecord(index);
+    const oldCellValue = oldRecord?.[columnName];
+    const rowValue = this.getMergedRowValue(row, columnName, newRowValue, isDeletingValue, oldRecord);
+    let isChanged = false;
+    this.isRowChanging = true;
+    this.batchValueChanges((): void => { isChanged = list.setRecord(index, rowValue); });
+    this.isRowChanging = false;
+    return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+  }
+  /* Which keys of a record belong to the row's questions is question knowledge, so the merge stays
+     here; it is the per-row half of getNewValueOnRowChanged. The list is handed the result. */
+  private getMergedRowValue(row: MatrixDropdownRowModelBase, columnName: string,
+    newRowValue: any, isDeletingValue: boolean, oldRecord: any): any {
+    const rowValue = Object.assign({}, oldRecord);
+    if (isDeletingValue) {
+      delete rowValue[columnName];
+    }
+    row.questions.forEach(q => {
+      delete rowValue[q.getValueName()];
+    });
+    if (newRowValue) {
+      newRowValue = JSON.parse(JSON.stringify(newRowValue));
+      for (var key in newRowValue) {
+        if (!this.isValueEmpty(newRowValue[key])) {
+          rowValue[key] = newRowValue[key];
+        }
+      }
+    }
+    return rowValue;
+  }
+  onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
+    super.onRowVisibilityChanged(row);
+    const index = this.getItemIndex(row);
+    if (index > -1) {
+      this.dataList.setRecordVisible(index, row.isVisible);
+    }
+  }
+  protected runCellsCondition(properties: HashTable<any>): boolean {
+    const res = super.runCellsCondition(properties);
+    this.updateRecordsVisibility();
+    return res;
+  }
+  /* The owner-visibility layer of the list: a record follows row.isVisible - the same flag
+     visibleRows is built from - so that dataList.visibleCount and visibleRows.length agree. */
+  private updateRecordsVisibility(): void {
+    const rows = this.generatedVisibleRows;
+    if (!Array.isArray(rows)) return;
+    const list = this.dataList;
+    for (let i = 0; i < rows.length; i++) {
+      list.setRecordVisible(i, rows[i].isVisible);
+    }
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();

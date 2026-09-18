@@ -9,6 +9,7 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   constructor(private getArray: () => Array<any> | undefined, private setArray: (arr: Array<any>) => void) { }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
+  private batchHasWrites: boolean = false;
   // One record operation of the list is often several source writes: pad the array, then set a
   // field; move a record, then update it. The owner's array has to be replaced once, not once per
   // step, or every intermediate state would reach the owner as a value change of its own. Reads
@@ -20,15 +21,22 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
     }
     this.batchDepth = 1;
     this.batchArray = this.readCore();
+    this.batchHasWrites = false;
     let newArray: Array<any>;
+    let hasWrites: boolean;
     try {
       func();
     } finally {
       this.batchDepth = 0;
       newArray = this.batchArray;
+      hasWrites = this.batchHasWrites;
       this.batchArray = undefined;
+      this.batchHasWrites = false;
     }
-    if (newArray !== this.readCore()) {
+    // The writes are counted instead of comparing the result with a fresh read: a getter that
+    // composes the array on the fly (the matrix pads its value up to rowCount) returns a different
+    // instance every time and an empty batch would write the composed array back into the owner.
+    if (hasWrites) {
       this.setArray(newArray);
     }
   }
@@ -50,6 +58,7 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   private write(arr: Array<any>): void {
     if (this.batchDepth > 0) {
       this.batchArray = arr;
+      this.batchHasWrites = true;
     } else {
       this.setArray(arr);
     }

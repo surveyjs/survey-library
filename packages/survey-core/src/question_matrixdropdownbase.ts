@@ -1991,10 +1991,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
     var rows = this.generatedVisibleRows;
     if (rowIndex >= rows.length) return null;
-    const val = this.value;
-    const rowVal = this.getRowValueCore(rows[rowIndex], val);
-    if (this.isValueSurveyElement(val)) return rowVal;
+    const rowVal = this.getRowValueByIndexCore(rowIndex);
+    if (this.isValueSurveyElement(this.value)) return rowVal;
     return Helpers.getUnbindValue(rowVal);
+  }
+  /* The seam for the record storage: matrix dynamic reads the record from its DynamicDataList,
+     matrix dropdown keeps reading the object keyed by rowName. The unbinding and the range checks
+     stay in getRowValue, so both paths keep its public contract. */
+  protected getRowValueByIndexCore(index: number): any {
+    return this.getRowValueCore(this.generatedVisibleRows[index], this.value);
   }
   public getItemData(item: ISurveyData): any {
     return this.getRowValue(this.getItemIndex(item));
@@ -2618,27 +2623,36 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.isRowChanging = false;
       this.onCellValueChanged(row, columnName, rowObj, oldCellValue);
     } else {
-      var oldValue = this.createNewValue(true);
-      var oldRowValue = this.getRowValueCore(row, oldValue, true);
-      var oldCellValue = oldRowValue?.[columnName];
-      var combine = this.getNewValueOnRowChanged(
-        row,
-        columnName,
-        newRowValue,
-        isDeletingValue,
-        this.createNewValue()
-      );
-      if (this.isTwoValueEquals(oldValue, combine.value)) return;
-      this.isRowChanging = true;
-      this.setNewValue(combine.value);
-      this.isRowChanging = false;
+      const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
+      // Nothing changed: the unique-column check is skipped as well, exactly as before.
+      if (!res) return;
       if (columnName) {
-        this.onCellValueChanged(row, columnName, combine.rowValue, oldCellValue);
+        this.onCellValueChanged(row, columnName, res.rowValue, res.oldCellValue);
       }
     }
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
+  }
+  /* The seam for the record storage: matrix dynamic writes the record into its DynamicDataList,
+     matrix dropdown composes the object keyed by rowName here. Returns null when nothing changed. */
+  protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
+    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
+    const oldValue = this.createNewValue(true);
+    const oldRowValue = this.getRowValueCore(row, oldValue, true);
+    const oldCellValue = oldRowValue?.[columnName];
+    const combine = this.getNewValueOnRowChanged(
+      row,
+      columnName,
+      newRowValue,
+      isDeletingValue,
+      this.createNewValue()
+    );
+    if (this.isTwoValueEquals(oldValue, combine.value)) return null;
+    this.isRowChanging = true;
+    this.setNewValue(combine.value);
+    this.isRowChanging = false;
+    return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
   }
   private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
     columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {

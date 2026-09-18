@@ -10202,3 +10202,202 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(column.getDynamicType(), "A column without a matrix").toBe("question");
   });
 });
+
+describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
+  const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix" }, json)] });
+    if (!!data) {
+      survey.data = { matrix: data };
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  };
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const setCell = (matrix: QuestionMatrixDynamicModel, rowIndex: number, cellIndex: number, val: any): void => {
+    matrix.visibleRows[rowIndex].cells[cellIndex].question.value = val;
+  };
+  const checkLockstep = (matrix: QuestionMatrixDynamicModel, name: string): void => {
+    const list = matrix.getDataList();
+    expect(list.count, name + ": count is rowCount").toBe(matrix.rowCount);
+    expect(matrix.allRows.length, name + ": one row per record").toBe(list.count);
+    const val = matrix.value || [];
+    for (let i = 0; i < val.length; i++) {
+      expect(list.getRecord(i), name + ": record #" + i).toEqual(val[i]);
+      expect(matrix.getRowValue(i), name + ": row value #" + i).toEqual(val[i]);
+    }
+  };
+
+  test("A record, a row and a value element per index, a row added at the end", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns });
+    setCell(matrix, 0, 0, "a");
+    setCell(matrix, 1, 0, "b");
+    checkLockstep(matrix, "#1");
+    matrix.addRow();
+    expect(matrix.rowCount, "#2: rowCount").toBe(3);
+    expect(matrix.getDataList().count, "#2: count").toBe(3);
+    setCell(matrix, 2, 0, "c");
+    expect(matrix.value, "#2: value").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    checkLockstep(matrix, "#2");
+    matrix.getDataList().setValue(1, "c2", "b2");
+    expect(matrix.value[1], "#3: the list writes through the value").toEqual({ c1: "b", c2: "b2" });
+    checkLockstep(matrix, "#3");
+  });
+  test("addRowByIndex inserts the record at the index", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const rowIds = matrix.visibleRows.map(row => row.id);
+    matrix.addRowByIndex({ c1: "x" }, 0);
+    expect(matrix.rowCount, "rowCount").toBe(3);
+    expect(matrix.value, "value").toEqual([{ c1: "x" }, { c1: "a" }, { c1: "b" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["x", "a", "b"]);
+    expect(matrix.visibleRows.slice(0, 2).map(row => row.id), "the rows are not re-created").toEqual(rowIds);
+    checkLockstep(matrix, "#1");
+  });
+  test("removeRowByIndex removes the record at the index", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.removeRowByIndex(0);
+    expect(matrix.rowCount, "rowCount").toBe(2);
+    expect(matrix.value, "value").toEqual([{ c1: "b" }, { c1: "c" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["b", "c"]);
+    checkLockstep(matrix, "#1");
+  });
+  test("removeRow removes the record and the row", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.removeRow(1);
+    expect(matrix.rowCount, "rowCount").toBe(2);
+    expect(matrix.value, "value").toEqual([{ c1: "a" }, { c1: "c" }]);
+    checkLockstep(matrix, "#1");
+    matrix.removeRow(0);
+    matrix.removeRow(0);
+    expect(matrix.rowCount, "#2: rowCount").toBe(0);
+    expect(matrix.getDataList().count, "#2: count").toBe(0);
+    expect(matrix.isEmpty(), "#2: the matrix is empty").toBeTruthy();
+  });
+  test("moveRowByIndex reorders the records and the detail panel state follows", () => {
+    const matrix = createMatrix({
+      rowCount: 3, columns: textColumns, detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d1" }]
+    }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    matrix.visibleRows[0].showDetailPanel();
+    matrix.moveRowByIndex(0, 2);
+    expect(matrix.value, "value").toEqual([{ c1: "b" }, { c1: "c" }, { c1: "a" }]);
+    expect(matrix.visibleRows.map(row => row.cells[0].question.value), "cells").toEqual(["b", "c", "a"]);
+    expect(matrix.visibleRows[0].isDetailPanelShowing, "the first row detail panel is hidden").toBeFalsy();
+    expect(matrix.visibleRows[2].isDetailPanelShowing, "the detail panel moved with the record").toBeTruthy();
+    checkLockstep(matrix, "#1");
+  });
+  test("rowCount grows and shrinks", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const list = matrix.getDataList();
+    matrix.rowCount = 4;
+    expect(list.count, "#1: count follows rowCount").toBe(4);
+    expect(matrix.value.length, "#1: the value is not padded until it is written").toBe(2);
+    expect(list.getRecord(3), "#1: an empty record for a row without a value").toEqual({});
+    checkLockstep(matrix, "#1");
+    setCell(matrix, 3, 0, "d");
+    expect(matrix.value, "#2: the padding is written with the cell").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
+    matrix.rowCount = 2;
+    expect(list.count, "#3: count").toBe(2);
+    expect(matrix.value, "#3: the records beyond rowCount are removed").toEqual([{ c1: "a" }, { c1: "b" }]);
+    checkLockstep(matrix, "#3");
+  });
+  test("count is rowCount when the value is empty, OPEN 6", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns });
+    const list = matrix.getDataList();
+    expect(matrix.value, "#1: no value").toBeFalsy();
+    expect(list.count, "#1: count is rowCount").toBe(2);
+    expect(list.getRecord(1), "#1: an empty record").toEqual({});
+    expect(matrix.getRowValue(1), "#1: getRowValue returns an empty object").toEqual({});
+    setCell(matrix, 0, 0, "a");
+    setCell(matrix, 0, 0, undefined);
+    expect(matrix.isEmpty(), "#2: the matrix is empty again").toBeTruthy();
+    expect(list.count, "#2: count is still rowCount").toBe(2);
+  });
+  test("visibleCount follows the visible rows", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: textColumns, rowsVisibleIf: "{row.c1} != 'hide'" },
+      [{ c1: "a" }, { c1: "hide" }, { c1: "c" }]);
+    const list = matrix.getDataList();
+    expect(matrix.visibleRows.length, "#1: visible rows").toBe(2);
+    expect(list.visibleCount, "#1: visibleCount").toBe(matrix.visibleRows.length);
+    expect(list.count, "#1: count is not touched by the visibility").toBe(3);
+    setCell(matrix, 0, 0, "hide");
+    expect(matrix.visibleRows.length, "#2: visible rows").toBe(1);
+    expect(list.visibleCount, "#2: visibleCount").toBe(matrix.visibleRows.length);
+    const emptyMatrix = createMatrix({ rowCount: 3, columns: textColumns });
+    expect(emptyMatrix.getDataList().visibleCount, "#3: every row of an untouched matrix is visible")
+      .toBe(emptyMatrix.visibleRows.length);
+  });
+  test("A matrix in a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "panel", panelCount: 2,
+        templateElements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: textColumns }]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDynamicModel>panel.panels[1].getQuestionByName("matrix");
+    setCell(matrix, 1, 0, "a");
+    expect(survey.data, "the record reaches the panel item").toEqual({ panel: [{}, { matrix: [{}, { c1: "a" }] }] });
+    checkLockstep(matrix, "#1");
+    matrix.removeRow(0);
+    expect(survey.data, "the row is removed inside the panel item").toEqual({ panel: [{}, { matrix: [{ c1: "a" }] }] });
+  });
+  test("A dynamic panel in a matrix detail panel", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 2, columns: textColumns,
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] }]
+      }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows[1].showDetailPanel();
+    const panel = <QuestionPanelDynamicModel>matrix.visibleRows[1].detailPanel.getQuestionByName("panel");
+    // A dynamic panel in a detail panel starts empty: its panelCount is not restored from the template.
+    panel.addPanel();
+    panel.panels[0].getQuestionByName("q1").value = "a";
+    expect(survey.data, "the panel value is stored in the matrix record").toEqual({ matrix: [{}, { panel: [{ q1: "a" }] }] });
+    checkLockstep(matrix, "#1");
+  });
+  test("A live-object value is edited in place and never routed through the list", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2");
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "columns", columns: [{ cellType: "text", name: "name" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+    survey.editingObj = question;
+    const value = matrix.value;
+    expect(value.length, "#1: one record per column").toBe(2);
+    expect(matrix.getDataList().getRecord(0), "#1: the record is the column itself").toBe(question.columns[0]);
+    setCell(matrix, 0, 0, "newName");
+    expect(question.columns[0].name, "#2: the property is written").toBe("newName");
+    expect(matrix.value, "#2: the array is the same instance").toBe(value);
+    matrix.moveRowByIndex(0, 1);
+    expect(question.columns.map(col => col.name), "#3: the columns are reordered").toEqual(["col2", "newName"]);
+  });
+  test("onValueChanging.oldValue is the previous array", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: textColumns }, [{ c1: "a" }, { c1: "b" }]);
+    const survey = <SurveyModel>matrix.survey;
+    const oldValues: Array<any> = [];
+    survey.onValueChanging.add((_, options) => { oldValues.push(options.oldValue); });
+    setCell(matrix, 0, 0, "a2");
+    expect(oldValues, "one value change").toHaveLength(1);
+    expect(oldValues[0], "the old array is not the new one").toEqual([{ c1: "a" }, { c1: "b" }]);
+    expect(matrix.value, "the new array").toEqual([{ c1: "a2" }, { c1: "b" }]);
+  });
+  test("Matrix dropdown keeps the base path: an object keyed by rowName", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: ["r1", "r2"], columns: textColumns }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows[0].cells[0].question.value = "a";
+    matrix.visibleRows[1].cells[1].question.value = "b";
+    expect(matrix.value, "#1: keyed by rowName").toEqual({ r1: { c1: "a" }, r2: { c2: "b" } });
+    expect(matrix.getRowValue(0), "#1: getRowValue").toEqual({ c1: "a" });
+    matrix.visibleRows[0].cells[0].question.value = undefined;
+    expect(matrix.value, "#2: the emptied row is deleted").toEqual({ r2: { c2: "b" } });
+    matrix.visibleRows[1].cells[1].question.value = undefined;
+    expect(matrix.isEmpty(), "#3: the matrix is empty").toBeTruthy();
+    expect((<any>matrix).getDataList, "#4: matrix dropdown has no data list").toBeUndefined();
+  });
+});

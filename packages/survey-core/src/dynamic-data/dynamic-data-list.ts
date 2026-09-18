@@ -185,10 +185,13 @@ export class DynamicDataList {
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
   }
-  public setRecord(index: number, record: any): boolean {
+  // force: push the record even when it did not change. An owner that composes its window on the
+  // fly - the matrix pads question.value up to rowCount on read - uses it when the composed records
+  // themselves have to reach the storage: the stored value changes although the record does not.
+  public setRecord(index: number, record: any, force: boolean = false): boolean {
     const oldRecord = this.getRecord(index);
     if (index < 0 || index >= this.records.length) return false;
-    if (!DynamicDataList.isValueChanged(record, oldRecord)) return false;
+    if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
     this.replaceRecord(index, record);

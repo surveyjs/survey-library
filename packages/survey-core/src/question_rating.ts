@@ -84,8 +84,6 @@ export class RatingItem extends ItemValue {
   }
 }
 
-export const ratingDigitShortcutDelay = 400;
-
 function isRatingItemEnabled(item: ItemValue): boolean {
   return !!item && item.isEnabled !== false;
 }
@@ -602,7 +600,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
         if (item) {
           this.applyDigitShortcut(item);
         }
-      }, ratingDigitShortcutDelay);
+      }, settings.keyboardInputTimeout);
       return;
     }
     const item = getRatingItemByDigitShortcut(items, digit);

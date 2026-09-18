@@ -1,4 +1,4 @@
-import { QuestionRatingModel, RatingItem, getRatingItemByDigitShortcut, ratingDigitShortcutDelay, ratingDigitShortcutHasPrefix } from "../src/question_rating";
+import { QuestionRatingModel, RatingItem, getRatingItemByDigitShortcut, ratingDigitShortcutHasPrefix } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./test-helpers";
@@ -2207,7 +2207,7 @@ test("rating number keys select by value and wait for two-digit values", () => {
     q010.onKeyDown(createRatingKeyEvent("1", { preventDefault: () => { prevented = true; } }));
     expect(q010.value, "1 waits because 10 exists").toBeUndefined();
     expect(prevented, "do not preventDefault while waiting").toBe(false);
-    vi.advanceTimersByTime(ratingDigitShortcutDelay - 1);
+    vi.advanceTimersByTime(settings.keyboardInputTimeout - 1);
     expect(q010.value, "still waiting before timeout").toBeUndefined();
     vi.advanceTimersByTime(1);
     expect(q010.value, "lone 1 after timeout").toBe(1);

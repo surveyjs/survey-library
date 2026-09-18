@@ -1,19 +1,21 @@
 import { test, expect } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
-import { readFileSync } from "fs";
-import { resolve } from "path";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import * as hotelBookingForm from "./custom-theme-demos/hotel-booking-form-template-free";
+import * as orderForm from "./custom-theme-demos/order-form-template-free";
+import * as onlineCheckInForm from "./custom-theme-demos/online-check-in-form-template-free";
+import * as patientRegistrationForm from "./custom-theme-demos/patient-registration-form-template-free";
+import * as petHotelReservationForm from "./custom-theme-demos/pet-hotel-reservation-form-template-free";
+import * as carRentalForm from "./custom-theme-demos/car-rental-form-template-free";
+import * as issueReport from "./custom-theme-demos/issue-report-template-free";
+import * as salesContractForm from "./custom-theme-demos/sales-contract-form-template-free";
+import * as conferenceRegistrationForm from "./custom-theme-demos/conference-registration-form-template-free";
+import * as feedbackForm from "./custom-theme-demos/feedback-form-template-free";
 
 const title = "Legacy themes Screenshot";
 const surveyRoot = ".sd-root-modern";
 
-function loadTemplateJson(templateName: string, fileName: "survey" | "theme"): any {
-  return JSON.parse(readFileSync(resolve(__dirname, "..", "resources", templateName, `${fileName}.json`), "utf-8"));
-}
-
-async function initThemedSurvey(page: Page, framework: string, templateName: string, afterInit?: () => Promise<void>) {
-  const json = loadTemplateJson(templateName, "survey");
-  const theme = loadTemplateJson(templateName, "theme");
+async function initThemedSurvey(page: Page, framework: string, json: any, theme: any, afterInit?: () => Promise<void>) {
   await initSurvey(page, framework, json, false, { autoFocusFirstQuestion: false }, async () => {
     await page.evaluate((themeJson) => {
       (window as any).survey.applyTheme(themeJson);
@@ -65,8 +67,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Hotel Booking Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initThemedSurvey(page, framework, "hotel-booking-form-template-free");
+      await page.setViewportSize({ width: 1558, height: 1250 });
+      await initThemedSurvey(page, framework, hotelBookingForm.survey, hotelBookingForm.theme);
 
       const nextBtn = page.locator(".sd-navigation__next-btn").first();
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
@@ -84,8 +86,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Order Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 1500 });
-      await initThemedSurvey(page, framework, "order-form-template-free");
+      await page.setViewportSize({ width: 1021, height: 1443 });
+      await initThemedSurvey(page, framework, orderForm.survey, orderForm.theme);
 
       const nextBtn = page.locator(".sd-navigation__next-btn").first();
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
@@ -104,8 +106,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Online Check-In Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 2200 });
-      await initThemedSurvey(page, framework, "online-check-in-form-template-free");
+      await page.setViewportSize({ width: 1021, height: 2143 });
+      await initThemedSurvey(page, framework, onlineCheckInForm.survey, onlineCheckInForm.theme);
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
 
@@ -116,8 +118,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Patient Registration Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 2700 });
-      await initThemedSurvey(page, framework, "patient-registration-form-template-free", async () => {
+      await page.setViewportSize({ width: 1558, height: 2870 });
+      await initThemedSurvey(page, framework, patientRegistrationForm.survey, patientRegistrationForm.theme, async () => {
         await page.evaluate(() => {
           (window as any).survey.getQuestionByName("photo").setPropertyValue("currentMode", "file");
         });
@@ -132,8 +134,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Pet Hotel Reservation Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 1100 });
-      await initThemedSurvey(page, framework, "pet-hotel-reservation-form-template-free");
+      await page.setViewportSize({ width: 1558, height: 1270 });
+      await initThemedSurvey(page, framework, petHotelReservationForm.survey, petHotelReservationForm.theme);
 
       const nextBtn = page.locator(".sd-navigation__next-btn").first();
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
@@ -151,15 +153,15 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Car Rental Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 3200 });
-      await initThemedSurvey(page, framework, "car-rental-form-template-free");
+      await page.setViewportSize({ width: 1558, height: 3370 });
+      await initThemedSurvey(page, framework, carRentalForm.survey, carRentalForm.theme);
 
       await screenshotRoot(page, "themes-car-rental-form-1.png");
     });
 
     test("Issue Report", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 1700 });
-      await initThemedSurvey(page, framework, "issue-report-template-free");
+      await page.setViewportSize({ width: 1558, height: 1870 });
+      await initThemedSurvey(page, framework, issueReport.survey, issueReport.theme);
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
 
@@ -170,8 +172,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Sales Contract Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1500, height: 1100 });
-      await initThemedSurvey(page, framework, "sales-contract-form-template-free");
+      await page.setViewportSize({ width: 1500, height: 1270 });
+      await initThemedSurvey(page, framework, salesContractForm.survey, salesContractForm.theme);
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
       const date = page.getByPlaceholder("date");
@@ -179,7 +181,7 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
 
       await screenshotRoot(page, "themes-sales-contract-form-1.png", dateMask);
 
-      await page.setViewportSize({ width: 1920, height: 2500 });
+      await page.setViewportSize({ width: 1542, height: 2670 });
       await screenshotRoot(page, "themes-sales-contract-form-2.png", dateMask);
 
       await completeBtn.click();
@@ -187,8 +189,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Conference Registration Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 2500 });
-      await initThemedSurvey(page, framework, "conference-registration-form-template-free");
+      await page.setViewportSize({ width: 1558, height: 2670 });
+      await initThemedSurvey(page, framework, conferenceRegistrationForm.survey, conferenceRegistrationForm.theme);
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
 
@@ -199,8 +201,8 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     });
 
     test("Feedback Form", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 2200 });
-      await initThemedSurvey(page, framework, "feedback-form-template-free");
+      await page.setViewportSize({ width: 1558, height: 2370 });
+      await initThemedSurvey(page, framework, feedbackForm.survey, feedbackForm.theme);
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
 

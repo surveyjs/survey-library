@@ -1,4 +1,4 @@
-{
+export const survey = {
   "title": "A Taste of Italy at Home",
   "description": "2972 Westheimer Rd. Santa Ana, Illinois 85486 +1 (209) 555-0104",
   "logo": "https://api.surveyjs.io/private/Surveys/files?name=76db69ce-63ed-416f-a88f-f72fc0da8017",
@@ -74,7 +74,13 @@
                 }
               ],
               "transposeData": true,
-              "choices": [ 1, 2, 3, 4, 5 ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
               "rows": [
                 {
                   "value": "food-quality",
@@ -105,7 +111,13 @@
                 }
               ],
               "transposeData": true,
-              "choices": [ 1, 2, 3, 4, 5 ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
               "rows": [
                 {
                   "value": "service",
@@ -160,4 +172,80 @@
   "completeText": "Submit",
   "widthMode": "static",
   "width": "768"
-}
+};
+
+export const theme = {
+  "themeName": "custom",
+  "colorPalette": "light",
+  "isPanelless": true,
+  "backgroundImage": "",
+  "backgroundOpacity": 1,
+  "backgroundImageAttachment": "scroll",
+  "backgroundImageFit": "cover",
+  "cssVariables": {
+    "--sjs-questionpanel-hovercolor": "rgba(224, 224, 224, 1)",
+    "--sjs-corner-radius": "0px",
+    "--sjs-base-unit": "8px",
+    "--sjs-font-pagetitle-weight": "600",
+    "--sjs-font-pagetitle-size": "32px",
+    "--sjs-font-pagetitle-color": "rgba(221, 51, 51, 1)",
+    "--sjs-font-pagedescription-color": "rgba(0, 0, 0, 0.5)",
+    "--sjs-shadow-small": "inset 0px 0px 0px 1px rgba(0, 0, 0, 0.25)",
+    "--sjs2-border-effect-component-panel-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.25)",
+    "--sjs-font-questiontitle-weight": "400",
+    "--sjs-font-questiontitle-color": "rgba(0, 0, 0, 0.5)",
+    "--sjs-font-questiondescription-color": "rgba(0, 0, 0, 0.5)",
+    "--sjs-shadow-inner": "0px 1px 0px 0px rgba(0, 0, 0, 0.25)",
+    "--sjs-font-editorfont-weight": "600",
+    "--sjs-font-editorfont-color": "rgba(221, 51, 51, 1)",
+    "--sjs-font-editorfont-placeholdercolor": "rgba(0, 0, 0, 0.5)",
+    "--sjs-border-default": "rgba(0, 0, 0, 0.25)",
+    "--sjs-border-light": "rgba(0, 0, 0, 0.25)",
+    "--sjs-general-backcolor": "rgba(255, 255, 255, 1)",
+    "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)",
+    "--sjs-general-backcolor-dim-light": "rgba(255, 255, 255, 0)",
+    "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)",
+    "--sjs-general-forecolor": "rgba(0, 0, 0, 0.91)",
+    "--sjs-general-forecolor-light": "rgba(0, 0, 0, 0.45)",
+    "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.1)",
+    "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
+    "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",
+    "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-green": "rgba(25, 179, 148, 1)",
+    "--sjs-special-green-light": "rgba(25, 179, 148, 0.1)",
+    "--sjs-special-green-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-blue": "rgba(67, 127, 217, 1)",
+    "--sjs-special-blue-light": "rgba(67, 127, 217, 0.1)",
+    "--sjs-special-blue-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-yellow": "rgba(255, 152, 20, 1)",
+    "--sjs-special-yellow-light": "rgba(255, 152, 20, 0.1)",
+    "--sjs-special-yellow-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-general-backcolor-dim": "rgba(255, 255, 255, 1)",
+    "--sjs-primary-backcolor": "#DD3333",
+    "--sjs-primary-backcolor-dark": "rgba(188, 26, 26, 1)",
+    "--sjs-primary-backcolor-light": "rgba(221, 51, 51, 0.1)",
+    "--sjs-primary-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)",
+    "--sjs-special-red": "rgba(229, 10, 62, 1)",
+    "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
+    "--sjs-font-surveytitle-size": "24px",
+    "--sjs-font-headertitle-size": "24px",
+    "--sjs-font-headertitle-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-headerdescription-weight": "600",
+    "--sjs-font-headerdescription-size": "16px",
+    "--sjs-font-headerdescription-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-headertitle-weight": "700"
+  },
+  "header": {
+    "height": 440,
+    "inheritWidthFrom": "container",
+    "textAreaWidth": 360,
+    "backgroundImage": "https://api.surveyjs.io/private/Surveys/files?name=e8421d0e-d2db-4c99-8a62-364b168320f6",
+    "backgroundImageOpacity": 0.9,
+    "logoPositionX": "center",
+    "logoPositionY": "middle",
+    "titlePositionX": "center",
+    "descriptionPositionX": "center"
+  },
+  "headerView": "advanced"
+};

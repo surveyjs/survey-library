@@ -97,7 +97,10 @@ export class MatrixDropdownCell {
   ): Question {
     const res = data.createQuestion(this.row, this.column);
     res.onFirstRendering();
-    res.readOnlyCallback = (): boolean => !this.row.isRowEnabled();
+    // isMatrixReadOnly() is the one hook the matrix has for "nothing in this table may be edited":
+    // the matrix answers its own isReadOnly there, and a dynamic matrix over a data source that
+    // cannot update also answers true.
+    res.readOnlyCallback = (): boolean => !this.row.isRowEnabled() || data.isMatrixReadOnly();
     res.validateValueCallback = function () {
       return data.validateCell(row, column.name, row.value);
     };
@@ -2790,7 +2793,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
-    panel.readOnly = this.isReadOnly || !row.isRowEnabled();
+    panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
     panel.setSurveyImpl(row);
     var json = this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);

@@ -31,9 +31,11 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase } from "./dynamicItemModelBase";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -101,7 +103,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataOwner {
+  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -148,6 +150,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.getListRecords(),
         (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+      this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
+        this.onDataSourceError(error, operation);
+      };
       // The list is created on demand, so a rowsPerPage that came from JSON has to be pushed here
       // and not only from its setter.
       this.paging.updatePageSize();
@@ -157,6 +162,93 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // internal, for tests and renderers
   public getDataList(): DynamicDataList {
     return this.dataList;
+  }
+  private remoteValue: DynamicDataRemoteController;
+  private get remote(): DynamicDataRemoteController {
+    if (!this.remoteValue) {
+      this.remoteValue = new DynamicDataRemoteController(this);
+    }
+    return this.remoteValue;
+  }
+  /**
+   * A data source that supplies the matrix records. Assign an object that implements `IDynamicDataSource` to read the rows from a server: the matrix then shows one loaded page at a time and pushes every cell edit, row insertion and row deletion to the source.
+   *
+   * This property is not serialized - a data source is code, not survey JSON. Set it to `undefined` to go back to the records stored in `question.value`.
+   * @since 3.1.0
+   */
+  public get dataSource(): IDynamicDataSource {
+    return this.remote.dataSource;
+  }
+  public set dataSource(val: IDynamicDataSource) {
+    this.remote.dataSource = val;
+    // The capabilities of the new source decide whether the cells are editable and whether the
+    // add/remove buttons are shown: the cells read isMatrixReadOnly() through their readOnlyCallback
+    // and need the reactive refresh that an ordinary read-only change would give them.
+    (this.generatedVisibleRows || []).forEach(row => row.onQuestionReadOnlyChanged());
+    this.resetRenderedTable();
+  }
+  // True while the data source is reading a page. The UI shows a loading state from it, and
+  // question.isReady is false for exactly as long.
+  @property({ defaultValue: false, onSet: (val: boolean, q: QuestionMatrixDynamicModel): void => { q.updateIsReady(); } }) isDataLoading: boolean;
+  // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
+  // source has not acknowledged is an asynchronous operation the survey has started.
+  public get isDynamicDataRunning(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRunning;
+  }
+  /* "the records are owned by a data source", the one condition every remote branch of this class
+     asks. It is deliberately not "the list pages itself": a source that returns everything in one
+     read is still a source, and its records are still not the question's to grow or truncate. */
+  private get isRemoteData(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRemote;
+  }
+  createValueDataSource(): IDynamicDataSource {
+    return new ArrayDynamicDataSource((): Array<any> => this.getListRecords(),
+      (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+  }
+  clearValueInSurveyData(): void {
+    if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
+    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
+  }
+  restoreValueFromSurveyData(): void {
+    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
+  }
+  onDataLoadingChanged(isLoading: boolean): void {
+    this.isDataLoading = isLoading;
+  }
+  onDataSourceError(error: any, operation: DynamicDataOperation): void {
+    const survey: any = this.survey;
+    if (!!survey && !!survey.dynamicDataError) {
+      survey.dynamicDataError(this, operation, error);
+    }
+  }
+  protected getIsQuestionReady(): boolean {
+    return !this.isDataLoading && super.getIsQuestionReady();
+  }
+  /* A remote-backed question is excluded from the survey data: a page load never writes into the
+     survey hash - it is not an answer - so an edit that did would leave the hash holding one page of
+     a table nobody submitted. The records go to the source instead.
+     Known limitation: expressions elsewhere in the survey that name this question ({matrix[0].col}
+     or {matrix.length}) do not update on a remote edit. The {row.x} context inside the rows and the
+     question's own validation are unaffected - they read question.value, which is the window. */
+  protected canSetValueToSurvey(): boolean {
+    return !this.isRemoteData;
+  }
+  /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
+     survey hash is not written and no trigger, condition or navigation runs - and then the rows are
+     rebuilt for the records the window holds. Nothing else may assign the value on a load. */
+  private setLoadedRecords(): void {
+    this.storeLoadedRecords();
+    this.rebuildRowsFromDataList();
+  }
+  /* The storage half alone: used after every write the list pushed to the source. The row the
+     respondent is typing in already holds the new value, and a rebuild would dispose it under the
+     edit (the frozen-membership rule).
+     rowCount follows the loaded total here and not through its setter: the setter clamps to
+     settings.matrix.maxRowCount, truncates the storage and creates one row object per counted
+     record - none of which applies to a window of a larger table. */
+  private storeLoadedRecords(): void {
+    this.storeQuestionValue(this.remote.getWindow());
+    this.rowCountValue = this.dataList.count;
   }
   getFields(): Array<IDynamicDataField> {
     const questions = new Array<Question>();
@@ -185,21 +277,62 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private hasMaterializedView: boolean = false;
   onDataListChanged(change: IDynamicDataListChange): void {
     if (!this.dataListValue) return;
+    if (change.type === "loading") {
+      this.onDataLoadingChanged(change.isLoading);
+      return;
+    }
     if (change.type === "pageChanged") {
       // The rendered table is the page: nothing else changed, the rows themselves are untouched.
       this.syncPagingState();
       this.resetRenderedTable();
       return;
     }
+    /* A write the list pushed to a data source: with the array source over question.value the push
+       IS the value write, a remote source has no such setter, so the question follows the window
+       itself. The rows are not rebuilt - the one that was edited, added or removed is handled by the
+       path that made the change. */
+    if (this.isRemoteData && change.type !== "reset") {
+      this.storeLoadedRecords();
+      this.reRunConditionsOnRemoteWrite();
+      return;
+    }
     if (change.type !== "reset") return;
     this.syncPagingState();
-    const hasView = this.dataListValue.hasView;
+    const isRemote = this.isRemoteData;
+    const hasView = this.dataListValue.hasView || isRemote;
     if (!hasView && !this.hasMaterializedView) return;
     this.hasMaterializedView = hasView;
-    this.rebuildRowsFromDataList();
+    if (isRemote) {
+      // The window the read committed is the new value; setLoadedRecords rebuilds the rows.
+      this.setLoadedRecords();
+    } else {
+      this.rebuildRowsFromDataList();
+    }
   }
+  private isReRunningRemoteConditions: boolean;
+  /* With the array source over question.value a record write reaches the survey, and the survey then
+     re-runs the conditions of every question - which is what recalculates an expression cell, a
+     {row.x} reference and the totals. A remote write never reaches the survey
+     (canSetValueToSurvey), so the question runs its own. Re-entrancy is guarded and not forbidden
+     for a reason: an expression cell writes its result back as a record field, and the nested run
+     would only recompute what the outer one has just settled. */
+  private reRunConditionsOnRemoteWrite(): void {
+    if (this.isReRunningRemoteConditions || !this.data || !this.generatedVisibleRows) return;
+    this.isReRunningRemoteConditions = true;
+    try {
+      const properties = this.getDataFilteredProperties();
+      this.runCellsCondition(properties);
+      if (this.hasTotal) {
+        this.runTotalsCondition(properties);
+      }
+    } finally {
+      this.isReRunningRemoteConditions = false;
+    }
+  }
+  /* A remote window is a view of its own: the rows are built for the records the list holds, not for
+     0 ... rowCount-1, because rowCount is the server total. */
   private get hasDataListView(): boolean {
-    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView);
+    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView || this.isRemoteData);
   }
   /* Every value assignment of this question passes through setQuestionValue, and rowCount changes
      the padded records the list reads. The list sees the records themselves at once - it reads them
@@ -274,10 +407,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      without rowsPerPage can tell the difference. */
   public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
     const visRows = this.visibleRows;
-    if (!this.isPagingActive || !Array.isArray(visRows)) return visRows;
+    if (!this.isPagingActive || !Array.isArray(visRows) || this.isWindowThePage) return visRows;
     const list = this.dataListValue;
     const start = list.pageIndex * list.pageSize;
     return visRows.slice(start, start + list.pageSize);
+  }
+  /* The data source pages itself, so the rows that exist ARE the page: slicing them by pageIndex a
+     second time would leave every page but the first empty, and "show the row that was just added"
+     would navigate away from the window it was added to. */
+  private get isWindowThePage(): boolean {
+    return !!this.dataListValue && this.dataListValue.isPagedBySource;
   }
   protected get isPagingActive(): boolean {
     if (this.isDesignMode) return false;
@@ -555,6 +694,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.draggedRow = null;
   }
   public addRowByIndex(rowData: any, toIndex: number):void {
+    if (this.isRemoteData) {
+      // One source.insert at the position the caller named; no count setter and no move.
+      this.addRecordRemote(rowData, toIndex);
+      this.onRowsChanged();
+      return;
+    }
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(toIndex, 0, rowData);
@@ -575,6 +720,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   public removeRowByIndex(fromIndex: number):void {
+    if (this.isRemoteData) {
+      const list = this.dataList;
+      const index = this.getRecordIndex(fromIndex);
+      if (index < 0) return;
+      const position = list.indexToCreatedIndex(index);
+      const rows = this.generatedVisibleRows;
+      if (position > -1 && Array.isArray(rows) && position < rows.length) {
+        rows.splice(position, 1);
+      }
+      // One source.remove; question.value and rowCount follow through the recordRemoved notification.
+      list.remove(index);
+      this.onRowsChanged();
+      return;
+    }
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(fromIndex, 1);
@@ -594,6 +753,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       list.move(index, list.count - 1);
       this.rowCount--;
     });
+  }
+  public dispose(): void {
+    super.dispose();
+    /* The list goes with the question: it drops its pending-request counter, so a page or a push that
+       is still in flight cannot write into a question that is gone. */
+    if (!!this.dataListValue) {
+      this.dataListValue.dispose();
+    }
   }
   public clearOnDrop(): void {
     if (!this.isEditingSurveyElement) {
@@ -620,6 +787,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set rowCount(val: number) {
     val = Helpers.getNumber(val);
+    /* The data source owns the count: the question never grows or truncates its storage, and the
+       count reaches it the other way round - through setLoadedRecords, from a read that committed.
+       An incoming total above settings.matrix.maxRowCount is accepted there; the clamp below stays
+       what it has always been, a limit on what a caller may ask for. */
+    if (this.isRemoteData) return;
     if (val < 0 || val > settings.matrix.maxRowCount || val === this.rowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
@@ -687,8 +859,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @since 3.0.4
    */
   @property() rowCountExpression: string;
+  /* A data source owns the number of records, so rowCountExpression is ignored while one is attached
+     - including the add/remove gating it otherwise imposes. No error: a question may carry both and
+     only the source decides. */
   private get hasRowCountExpression(): boolean {
-    return !!this.rowCountExpression;
+    return !!this.rowCountExpression && !this.isRemoteData;
   }
   private setRowCountByExpression(val: any): void {
     const maxCount = Math.min(this.maxRowCount, settings.matrix.maxRowCount);
@@ -725,7 +900,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;
     if (!Array.isArray(val)) val = [];
-    for (var i = 0; i < this.rowCount; i ++) {
+    // The rows of a remote page: the records the matrix has not read say nothing about how far the
+    // respondent has got with the ones in front of them.
+    const count = this.isRemoteData ? val.length : this.rowCount;
+    for (var i = 0; i < count; i ++) {
       const rowValue = i < val.length ? val[i] : {};
       this.updateProgressInfoByRow(res, rowValue);
     }
@@ -759,8 +937,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public get isRowsDragAndDrop(): boolean {
     // Under a sort the row order is the sort's: dragging a row would say nothing about where the
-    // record goes.
-    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0;
+    // record goes. A data source without a move method cannot be told about a reorder either.
+    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.canMoveRecord;
+  }
+  /* The capabilities of a data source are declared by the presence of its optional methods: a source
+     without insert gets no add button, one without remove no delete button, one without move no drag
+     handles, and one without update makes every cell read-only - a silently unsaved edit is worse
+     than a disabled field, and an application that wants local-only edits over remote reads
+     implements a no-op update. A matrix without a data source has every capability. */
+  private get canInsertRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("insert");
+  }
+  private get canRemoveRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("remove");
+  }
+  private get canUpdateRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("update");
+  }
+  private get canMoveRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("move");
+  }
+  // One hook for the whole matrix, not one per cell: the cell questions read it through
+  // data.isMatrixReadOnly() (parentIsReadOnly).
+  public isMatrixReadOnly(): boolean {
+    return super.isMatrixReadOnly() || !this.canUpdateRecord;
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
   /* Enables the header-click sort the UI series will add; a column opts out with
@@ -851,7 +1051,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get canAddRow(): boolean {
     return (
       this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
-      this.rowCount < this.maxRowCount
+      this.canInsertRecord && this.rowCount < this.maxRowCount
     );
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
@@ -874,6 +1074,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.allowRemoveRows &&
       !this.isReadOnly &&
       !this.hasRowCountExpression &&
+      this.canRemoveRecord &&
       this.rowCount > this.minRowCount;
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
@@ -919,7 +1120,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.singleInputOnAddItem(false);
     /* A record that is added is always in the view and it is appended: the new row is the last one
        and it lands on the last page. Someone who clicks "add" must see the row they added. */
-    if (this.isPagingActive && oldRowCount !== this.rowCount) {
+    if (this.isPagingActive && !this.isWindowThePage && oldRowCount !== this.rowCount) {
       this.paging.goToLastPage();
     }
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
@@ -950,7 +1151,49 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected isValueSurveyElement(val: any): boolean {
     return this.isEditingSurveyElement || super.isValueSurveyElement(val);
   }
+  /* The remote counterpart of addRowCore. The local path grows rowCount first and writes the
+     defaults afterwards, which over a data source is a throwing count setter followed by up to three
+     server calls for one gesture. Here the complete record is built first - the column defaults, the
+     defaultRowValue and then the copy from the last entry IN THE WINDOW - and handed to the list
+     once: one source.insert, no move, no follow-up update. question.value and rowCount follow the
+     window through the recordAdded notification. */
+  private addRowCoreRemote(): void {
+    const defaultValue = this.getDefaultRowValue(true);
+    const createdCount = this.dataList.getCreatedIndexes().length;
+    this.addRecordRemote(this.isValueEmpty(defaultValue) ? {} : defaultValue, createdCount);
+    if (this.data) {
+      this.runCellsCondition(this.getDataFilteredProperties());
+    }
+    const rows = this.generatedVisibleRows;
+    if (this.survey && Array.isArray(rows) && rows.length > 0) {
+      this.matrixCallbacks.matrixRowAdded(this, rows[rows.length - 1]);
+    }
+    this.onRowsChanged();
+  }
+  /* One record into the loaded window at a created position. A record appended to the window gets a
+     row of its own and the rows that exist keep their state; a record inserted in front of them
+     moves every row after it onto another record, so those are rebuilt - the same rebuild a page
+     change runs. */
+  private addRecordRemote(record: any, position: number): void {
+    const list = this.dataList;
+    const createdCount = list.getCreatedIndexes().length;
+    const at = Math.max(0, Math.min(position, createdCount));
+    list.addAtCreatedIndex(record, at);
+    if (at < createdCount) {
+      this.rebuildRowsFromDataList();
+      return;
+    }
+    const rows = this.generatedVisibleRows;
+    if (!Array.isArray(rows)) return;
+    const newRow = this.createMatrixRow(list.getRecord(list.createdIndexToIndex(at)));
+    rows.push(newRow);
+    this.onMatrixRowCreated(newRow);
+  }
   private addRowCore() {
+    if (this.isRemoteData) {
+      this.addRowCoreRemote();
+      return;
+    }
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
@@ -993,16 +1236,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     if (isRowAdded && this.copyDefaultValueFromLastEntry) {
-      var val = this.value;
-      if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
-        var rowValue = val[this.rowCount - 2];
-        for (var key in rowValue) {
-          res = res || {};
-          (<any>res)[key] = rowValue[key];
-        }
+      var rowValue = this.getLastEntryRecord();
+      for (var key in rowValue) {
+        res = res || {};
+        (<any>res)[key] = rowValue[key];
       }
     }
     return res;
+  }
+  /* The record copyDefaultValueFromLastEntry copies from. The local path runs after rowCount was
+     already grown, so the last entry is the record before the new one; the remote path builds the
+     record before the insert, so it is the last record of the loaded window - the record beyond it
+     is on the server. */
+  private getLastEntryRecord(): any {
+    if (this.isRemoteData) {
+      const list = this.dataList;
+      const created = list.getCreatedIndexes();
+      return created.length > 0 ? list.getRecord(created[created.length - 1]) : undefined;
+    }
+    const val = this.value;
+    if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) return val[this.rowCount - 2];
+    return undefined;
   }
   public focusAddBUtton(): void {
     this.toolbar.getActionById("sv-md-add-btn")?.getInputElement()?.focus();
@@ -1333,7 +1587,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return true;
   }
+  /* The incoming direction of the canSetValueToSurvey rule: while a data source is attached,
+     survey.data = ..., survey.setValue, mergeData and a setvalue trigger do not reach the question.
+     The survey hash may then hold a value the question does not show; that is the caller's doing. */
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    if (this.isRemoteData) return;
     const isInProcess = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
     let refreshRows = false;
@@ -1383,7 +1641,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
     const res: any = [];
-    for (let i = 0; i < list.count; i++) {
+    // loadedCount, not count: with a data source that pages, count is the server total and only the
+    // records of the loaded window can be looked at. Equal for every local source.
+    for (let i = 0; i < list.loadedCount; i++) {
       const position = list.indexToCreatedIndex(i);
       const row = position > -1 && position < rows.length ? rows[position] : undefined;
       if (!row) {
@@ -1399,7 +1659,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
     const res = new Array<IMatrixDuplicationEntry>();
-    for (let i = 0; i < list.count; i++) {
+    // The records that are loaded: a duplicate on a page the matrix has not read is the server's
+    // business, and a key constraint over a whole remote table cannot be checked here.
+    for (let i = 0; i < list.loadedCount; i++) {
       const position = list.indexToCreatedIndex(i);
       const row = position > -1 && position < rows.length ? rows[position] : undefined;
       if (!!row) {
@@ -1412,6 +1674,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   protected onBeforeValueChanged(val: any): void {
+    // The record count of a remote-backed matrix comes from the read, never from the length of the
+    // window: the window is one page of a larger table.
+    if (this.isRemoteData) return;
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
@@ -1439,6 +1704,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createNewValue(): any {
     var result = this.createValueCopy();
     if (!result || !Array.isArray(result)) result = [];
+    /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
+       total and the records beyond the window are on the server, not missing from the value. */
+    if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
     return this.padRecords(result);
   }

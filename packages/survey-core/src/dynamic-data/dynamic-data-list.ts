@@ -127,7 +127,10 @@ export class DynamicDataList {
   }
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
-    const wasLoaded = this.isLoaded;
+    /* A read that is still in flight counts as loaded: the list was asked to fill itself and the
+       answer is merely late, so the source that replaces the one being read has to be read too.
+       Without the isLoading half a source swapped during the first read would never be read at all. */
+    const wasLoaded = this.isLoaded || this._isLoading;
     this._source = v;
     this.sourceEpoch++;
     /* The push chain is detached, not drained: the queued edits belong to the old source and keep
@@ -142,11 +145,58 @@ export class DynamicDataList {
     // The old read is abandoned, whatever happens next starts from "not loading".
     this.setIsLoading(false);
     this.resetWindow();
+    /* The filter and the sort belong to the list, not to the source it happened to have. Which side
+       runs them is a capability of the source, so a swap re-decides it: a filter the old source ran
+       on its own side has no local runner yet, and one the list ran locally has to be handed to a new
+       source that owns it - otherwise the view the owner is showing disappears with the swap. */
+    this.updateFilterRunner();
     if (wasLoaded) {
-      this.load();
+      this.applyViewToSourceAndRead();
     } else {
       this.raiseChanged({ type: "reset" });
     }
+  }
+  /* Tells the new source about the filter and the sort it owns and then reads once. Sequential and
+     not two runSourceView() calls: each of those reads on its own, and a swap must cost one read,
+     with the filter and the sort already in force when it runs. */
+  private applyViewToSourceAndRead(): void {
+    const operations: Array<DynamicDataOperation> = [];
+    if (!!this._filter && this.isSourceFiltering) operations.push("filter");
+    if (this._sort.length > 0 && this.isSourceSorting) operations.push("sort");
+    if (operations.length === 0) {
+      this.load();
+      return;
+    }
+    const epoch = this.sourceEpoch;
+    const source = this._source;
+    // The owner is waiting for records from the moment the swap was made, not from the read that
+    // follows these calls.
+    this.setIsLoading(true);
+    const runNext = (index: number): void => {
+      // A source replaced again while its own view was being applied: the chain belongs to the
+      // source that is gone and the one that replaced it has started its own.
+      if (this.isDisposed || epoch !== this.sourceEpoch) return;
+      if (index >= operations.length) {
+        this.load();
+        return;
+      }
+      const operation = operations[index];
+      let res: any;
+      try {
+        res = operation === "filter" ? source.filter(this._filter) : source.sort(this._sort);
+      } catch(e) {
+        this.raiseError(e, operation);
+        runNext(index + 1);
+        return;
+      }
+      if (isPromiseLike(res)) {
+        res.then((): void => { runNext(index + 1); },
+          (error: any): void => { this.raiseError(error, operation); runNext(index + 1); });
+      } else {
+        runNext(index + 1);
+      }
+    };
+    runNext(0);
   }
   /* One record operation of the owner is often several list operations, and with a source that
      writes through its owner's storage every one of them is an assignment of its own - and with it
@@ -528,18 +578,25 @@ export class DynamicDataList {
     if (this.isSourceFiltering) {
       this.runSourceView("filter", (): any => this._source.filter(this._filter));
     } else {
-      // Parse it now: a filter that cannot be run locally has to be reported when it is set, not on
-      // the first read of a view.
-      try {
-        this.filterRunner = createFilterRunner(this._filter);
-      } catch(e) {
-        // The list stays unfiltered: showing every record beats showing none.
-        this._filter = "";
-        this.raiseError(e, "filter");
-      }
+      this.updateFilterRunner();
       this.resetViews();
       this.refreezeMembership();
       this.raiseChanged({ type: "reset" });
+    }
+  }
+  /* The runner exists only while the list itself is the one filtering: a source that filters on its
+     own side gets the expression text and the list keeps none. Parsed as soon as the filter - or the
+     source - is set, so that a filter which cannot be run locally is reported then and not on the
+     first read of a view. */
+  private updateFilterRunner(): void {
+    this.filterRunner = undefined;
+    if (!this._filter || this.isSourceFiltering) return;
+    try {
+      this.filterRunner = createFilterRunner(this._filter);
+    } catch(e) {
+      // The list stays unfiltered: showing every record beats showing none.
+      this._filter = "";
+      this.raiseError(e, "filter");
     }
   }
   public get sort(): Array<IDynamicDataSort> {
@@ -572,6 +629,12 @@ export class DynamicDataList {
     this.resetViews();
   }
 
+  /* The source pages itself: the loaded window IS the current page. An owner that materializes one
+     object per window record must not slice those objects by pageIndex again - they are the page -
+     and "bring this object onto its page" is always already satisfied. */
+  public get isPagedBySource(): boolean {
+    return this.hasReadRange;
+  }
   private get hasReadRange(): boolean {
     return !!this._source && !!this._source.readRange;
   }

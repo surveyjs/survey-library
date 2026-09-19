@@ -81,10 +81,13 @@ export class DynamicDataPagingController {
   }
   /* Brings the object at a position in visibleRows / visiblePanels onto the current page - the same
      arithmetic the page slice itself uses. An object that is owner-hidden has no visible index and
-     therefore no page, and -1 does nothing. */
+     therefore no page, and -1 does nothing.
+     With a source that pages itself the objects exist for the loaded page only, so a visible index
+     is page-local: every object there is already on the page, and the arithmetic would read it as a
+     position in the whole table and navigate away from the object it was asked to reveal. */
   public goToPageOfVisibleIndex(visibleIndex: number): void {
     const pageSize = this.list.pageSize;
-    if (pageSize <= 0 || visibleIndex < 0) return;
+    if (pageSize <= 0 || visibleIndex < 0 || this.list.isPagedBySource) return;
     this.pageIndex = Math.floor(visibleIndex / pageSize);
   }
   /* The list does not announce every change of the visible count: setRecordVisible and
@@ -145,8 +148,17 @@ export class DynamicDataPagingController {
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
   }
+  /* Re-decides which records are shown. A source that filters or sorts on its own side has decided
+     that already - the window IS the answer - so re-running a local filter the list never ran would
+     say nothing; the window is read again instead. Every in-memory source takes the local path. */
   public refreshView(): void {
-    this.list.refreshView();
+    const list = this.list;
+    const source: any = list.source;
+    if (!!source && (typeof source.filter === "function" || typeof source.sort === "function")) {
+      list.refresh();
+    } else {
+      list.refreshView();
+    }
     this.syncState();
   }
   // The pager the UI series renders: it computes nothing of its own.

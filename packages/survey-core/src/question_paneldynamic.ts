@@ -39,9 +39,11 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
@@ -217,7 +219,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner {
+export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -290,6 +292,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public dispose(): void {
     super.dispose();
+    /* The list goes with the question: it drops its pending-request counter, so a page or a push that
+       is still in flight cannot write into a question that is gone. */
+    if (!!this.dataListValue) {
+      this.dataListValue.dispose();
+    }
     this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
@@ -354,6 +361,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.value,
         (arr: Array<any>): void => { this.value = arr; });
+      this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
+        this.onDataSourceError(error, operation);
+      };
       // The list is created on demand, so a panelsPerPage that came from JSON has to be pushed here
       // and not only from its setter.
       this.paging.updatePageSize();
@@ -363,6 +373,110 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // internal, for tests and renderers
   public getDataList(): DynamicDataList {
     return this.dataList;
+  }
+  private remoteValue: DynamicDataRemoteController;
+  private get remote(): DynamicDataRemoteController {
+    if (!this.remoteValue) {
+      this.remoteValue = new DynamicDataRemoteController(this);
+    }
+    return this.remoteValue;
+  }
+  /**
+   * A data source that supplies the panel records. Assign an object that implements `IDynamicDataSource` to read the records from a server: the question then shows one loaded page at a time and pushes every edit, insertion and deletion to the source.
+   *
+   * This property is not serialized - a data source is code, not survey JSON. Set it to `undefined` to go back to the records stored in `question.value`.
+   * @since 3.1.0
+   */
+  public get dataSource(): IDynamicDataSource {
+    return this.remote.dataSource;
+  }
+  public set dataSource(val: IDynamicDataSource) {
+    this.remote.dataSource = val;
+    // The capabilities of the new source decide whether the panels are editable and whether the
+    // add/remove buttons are shown.
+    this.updatePanelsReadOnly();
+    this.updateFooterActions();
+  }
+  // True while the data source is reading a page. The UI shows a loading state from it, and
+  // question.isReady is false for exactly as long.
+  @property({ defaultValue: false, onSet: (val: boolean, q: QuestionPanelDynamicModel): void => { q.updateIsReady(); } }) isDataLoading: boolean;
+  // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
+  // source has not acknowledged is an asynchronous operation the survey has started.
+  public get isDynamicDataRunning(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRunning;
+  }
+  // "the records are owned by a data source", the one condition every remote branch of this class
+  // asks. It is deliberately not "the list pages itself": a source that returns everything in one
+  // read is still a source, and its records are still not the question's to grow or truncate.
+  private get isRemoteData(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRemote;
+  }
+  createValueDataSource(): IDynamicDataSource {
+    return new ArrayDynamicDataSource((): Array<any> => this.value, (arr: Array<any>): void => { this.value = arr; });
+  }
+  clearValueInSurveyData(): void {
+    if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
+    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
+  }
+  restoreValueFromSurveyData(): void {
+    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
+  }
+  onDataLoadingChanged(isLoading: boolean): void {
+    this.isDataLoading = isLoading;
+  }
+  onDataSourceError(error: any, operation: DynamicDataOperation): void {
+    const survey: any = this.survey;
+    if (!!survey && !!survey.dynamicDataError) {
+      survey.dynamicDataError(this, operation, error);
+    }
+  }
+  protected getIsQuestionReady(): boolean {
+    return !this.isDataLoading && super.getIsQuestionReady();
+  }
+  /* A remote-backed question is excluded from the survey data: a page load never writes into the
+     survey hash - it is not an answer - so an edit that did would leave the hash holding one page of
+     a table nobody submitted. The records go to the source instead.
+     Known limitation: expressions elsewhere in the survey that name this question ({panel[0].q} or
+     {panel.length}) do not update on a remote edit. The {panel.x} context inside the panels and the
+     question's own validation are unaffected - they read question.value, which is the window. */
+  protected canSetValueToSurvey(): boolean {
+    return !this.isRemoteData;
+  }
+  /* The incoming direction of the same rule: while a source is attached, survey.data = ...,
+     survey.setValue, mergeData and a setvalue trigger do not reach the question. The survey hash may
+     then hold a value the question does not show; that is the caller's doing. */
+  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    if (this.isRemoteData) return;
+    super.updateValueFromSurvey(newValue, clearData);
+  }
+  /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
+     survey hash is not written and no trigger, condition or navigation runs - and then the panels
+     are rebuilt for the records the window holds. Nothing else may assign the value on a load. */
+  private setLoadedRecords(): void {
+    this.storeLoadedRecords();
+    this.rebuildPanelsFromDataList();
+  }
+  // The storage half alone: used after every write the list pushed to the source. The panel the
+  // respondent is typing in already holds the new value, and a rebuild would dispose it under the
+  // edit (the frozen-membership rule).
+  private storeLoadedRecords(): void {
+    this.storeQuestionValue(this.remote.getWindow());
+  }
+  private isReRunningRemoteConditions: boolean;
+  /* With the array source over question.value a record write reaches the survey, and the survey then
+     re-runs the conditions of every question - which is what recalculates an expression question and
+     a {panel.x} reference. A remote write never reaches the survey (canSetValueToSurvey), so the
+     question runs its own. Re-entrancy is guarded and not forbidden for a reason: an expression
+     question writes its result back as a record field, and the nested run would only recompute what
+     the outer one has just settled. */
+  private reRunConditionsOnRemoteWrite(): void {
+    if (this.isReRunningRemoteConditions || !this.data) return;
+    this.isReRunningRemoteConditions = true;
+    try {
+      this.reRunCondition();
+    } finally {
+      this.isReRunningRemoteConditions = false;
+    }
   }
   getFields(): Array<IDynamicDataField> {
     return getDynamicDataFieldsForQuestions(this.template.questions);
@@ -375,21 +489,42 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private hasMaterializedView: boolean = false;
   onDataListChanged(change: IDynamicDataListChange): void {
     if (!this.dataListValue) return;
+    if (change.type === "loading") {
+      this.onDataLoadingChanged(change.isLoading);
+      return;
+    }
     if (change.type === "pageChanged") {
       // The panels themselves are untouched: only which of them are rendered changes.
       this.syncPagingState();
       this.updateRenderedPanels();
       return;
     }
+    /* A write the list pushed to a data source: with the array source over question.value the push
+       IS the value write, a remote source has no such setter, so the question follows the window
+       itself. The panels are not rebuilt - the one that was edited, added or removed is handled by
+       the path that made the change. */
+    if (this.isRemoteData && change.type !== "reset") {
+      this.storeLoadedRecords();
+      this.reRunConditionsOnRemoteWrite();
+      return;
+    }
     if (change.type !== "reset") return;
     this.syncPagingState();
-    const hasView = this.dataListValue.hasView;
+    const isRemote = this.isRemoteData;
+    const hasView = this.dataListValue.hasView || isRemote;
     if (!hasView && !this.hasMaterializedView) return;
     this.hasMaterializedView = hasView;
-    this.rebuildPanelsFromDataList();
+    if (isRemote) {
+      // The window the read committed is the new value; setLoadedRecords rebuilds the panels.
+      this.setLoadedRecords();
+    } else {
+      this.rebuildPanelsFromDataList();
+    }
   }
+  /* A remote window is a view of its own: the panels are built for the records the list holds, not
+     for 0 ... panelCount-1, because panelCount is the server total. */
   private get hasDataListView(): boolean {
-    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView);
+    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView || this.isRemoteData);
   }
   /* Takes a created position - the position in panelsCore - and returns the record it holds. A
      position past the last created one is a panel that is being built: its record is the next one,
@@ -439,10 +574,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      [currentPanel]. */
   public get panelsOnPage(): Array<PanelModel> {
     const visPanels = this.visiblePanels;
-    if (!this.isPagingActive || !Array.isArray(visPanels)) return visPanels;
+    if (!this.isPagingActive || !Array.isArray(visPanels) || this.isWindowThePage) return visPanels;
     const list = this.dataListValue;
     const start = list.pageIndex * list.pageSize;
     return visPanels.slice(start, start + list.pageSize);
+  }
+  /* The data source pages itself, so the panels that exist ARE the page: slicing them by pageIndex a
+     second time would leave every page but the first empty, and "show the panel that was just added"
+     would navigate away from the window it was added to. */
+  private get isWindowThePage(): boolean {
+    return !!this.dataListValue && this.dataListValue.isPagedBySource;
   }
   private get isPagingActive(): boolean {
     if (this.isDesignMode) return false;
@@ -532,8 +673,19 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   /* The record of the current panel, remembered when the panel is chosen: by the time the view has
      been re-decided the old mapping is gone, so it cannot be looked up then. */
   private currentPanelRecordIndex: number = -1;
+  /* A record index is window-relative, so it only names the same record while the window does not
+     move: index 1 of page 3 is another record than index 1 of page 2. The offset the index was taken
+     against is remembered with it, and a reset that committed another one starts from the first
+     visible panel. There is no stable record identity (a key) in this step, so a remote re-sort is
+     the same case as a page change. */
+  private currentPanelWindowOffset: number = 0;
   private getCurrentPanelRecordIndex(): number {
-    return !this.getPropertyValue("currentPanel", null) ? -1 : this.currentPanelRecordIndex;
+    if (!this.getPropertyValue("currentPanel", null)) return -1;
+    // The offset is compared here and not when the panel is restored: by then the panels have been
+    // spliced away, and losing one takes the current panel - and with it the offset it was
+    // remembered against - with it.
+    if (this.isRemoteData && this.currentPanelWindowOffset !== this.dataList.windowOffset) return -1;
+    return this.currentPanelRecordIndex;
   }
   // The current panel follows its record; when that record left the view the first visible panel
   // takes over.
@@ -860,6 +1012,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     this.setPropertyValue("currentPanel", val);
     this.currentPanelRecordIndex = !val ? -1 : this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(val));
+    this.currentPanelWindowOffset = !!this.dataListValue ? this.dataListValue.windowOffset : 0;
     this.updateRenderedPanels();
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
@@ -1211,6 +1364,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.updateFooterActions();
       return;
     }
+    /* The data source owns the count: the question never grows or truncates its storage, and the
+       getter reads the loaded total, so there is nothing to store either. The count reaches the
+       question the other way round - through setLoadedRecords, from a read that committed. */
+    if (this.isRemoteData) return;
     if (this.hasDataListView) {
       this.setPanelCountInView(val);
       return;
@@ -1332,6 +1489,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   private setValueBasedOnPanelCount() {
+    // The storage of a remote-backed question is the source's, and its window is one page: growing
+    // it up to the count would pad the page with records the server does not have.
+    if (this.isRemoteData) return;
     const list = this.dataList;
     const panelCount = this.panelCount;
     if (list.count === panelCount) return;
@@ -1356,8 +1516,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @since 3.0.4
    */
   @property() panelCountExpression: string;
+  /* A data source owns the number of records, so panelCountExpression is ignored while one is
+     attached - including the add/remove gating it otherwise imposes. No error: a question may carry
+     both and only the source decides. */
   private get hasPanelCountExpression(): boolean {
-    return !!this.panelCountExpression;
+    return !!this.panelCountExpression && !this.isRemoteData;
   }
   private setPanelCountByExpression(val: any): void {
     this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.maxPanelCount);
@@ -1702,7 +1865,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.canInsertRecord) return false;
     if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
@@ -1728,7 +1891,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.canRemoveRecord) return false;
     return (
       this.allowRemovePanel &&
       !this.isReadOnly &&
@@ -1790,7 +1953,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
     const list = this.dataList;
-    for (let i = 0; i < list.count; i++) {
+    // loadedCount, not count: with a data source that pages, count is the server total and only the
+    // records of the loaded window can be looked at. Equal for every local source.
+    for (let i = 0; i < list.loadedCount; i++) {
       if (!this.isRowEmpty(list.getRecord(i))) return false;
     }
     return true;
@@ -1873,18 +2038,63 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private addPanelCore(index: number): PanelModel {
     const curIndex = this.currentIndex;
+    /* Every index here is a created position - a position in panelsCore. With a data source that
+       pages, the panels exist for the loaded window only, so the positions end with it and not with
+       the server total that panelCount reports. */
+    const maxIndex = this.isRemoteData ? this.dataList.getCreatedIndexes().length : this.panelCount;
     if (index === undefined) {
-      index = curIndex < 0 ? this.panelCount : curIndex + 1;
+      index = curIndex < 0 ? maxIndex : curIndex + 1;
     }
-    if (index < 0 || index > this.panelCount) {
-      index = this.panelCount;
+    if (index < 0 || index > maxIndex) {
+      index = maxIndex;
     }
-    this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
+    if (this.isRemoteData) {
+      this.addPanelRemote(curIndex < 0 ? maxIndex - 1 : curIndex, index);
+    } else {
+      this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
+    }
     if (!this.isRenderModeList) {
       this.currentIndex = index;
     }
     this.notifyOnPanelAddedRemoved(true, index);
     return this.panelsCore[index];
+  }
+  /* The remote add path. The local one grows the count first and writes the defaults afterwards,
+     which over a data source is a throwing count setter followed by up to three server calls for one
+     gesture. Here the complete record is built first - the default panel value, then the copy from
+     the last entry IN THE WINDOW - and handed to the list once: one source.insert, no move, no
+     follow-up update. question.value follows the window through the recordAdded notification. */
+  private addPanelRemote(prevPosition: number, position: number): void {
+    const list = this.dataList;
+    const createdCount = list.getCreatedIndexes().length;
+    const at = Math.max(0, Math.min(position, createdCount));
+    const record: any = {};
+    if (!this.isValueEmpty(this.defaultPanelValue)) {
+      this.copyValue(record, this.defaultPanelValue);
+    }
+    if (this.copyDefaultValueFromLastEntry && createdCount > 0) {
+      const fromPosition = prevPosition > -1 && prevPosition < createdCount ? prevPosition : createdCount - 1;
+      const fromIndex = list.createdIndexToIndex(fromPosition);
+      if (fromIndex > -1) {
+        this.copyValue(record, list.getRecord(fromIndex));
+      }
+    }
+    list.addAtCreatedIndex(record, at);
+    if (at < createdCount) {
+      // Inserted inside the window: every panel after it holds another record now, so the panels are
+      // rebuilt - the same rebuild a page change runs.
+      this.rebuildPanelsFromDataList();
+      return;
+    }
+    // Appended: one panel is created and the panels that exist keep their state.
+    this.prepareValueForPanelCreating();
+    this.panelsCore.push(this.createNewPanel());
+    this.setValueAfterPanelsCreating();
+    this.setPanelsState();
+    this.reRunCondition();
+    this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(this.panelsCore.length - 1);
+    this.fireCallback(this.panelCountChangedCallback);
   }
   private focusNewPanelCallback: () => void;
   private focusNewPanel() {
@@ -2207,12 +2417,33 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!question) return null;
     return question.getConditionJson(operator, path);
   }
-  protected onReadOnlyChanged(): void {
-    var readOnly = this.isReadOnly;
+  /* The capabilities of a data source are declared by the presence of its optional methods: a source
+     without insert gets no add button, one without remove no delete button, and one without update
+     makes every panel read-only - a silently unsaved edit is worse than a disabled field, and an
+     application that wants local-only edits over remote reads implements a no-op update. A question
+     without a data source has every capability. */
+  private get canInsertRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("insert");
+  }
+  private get canRemoveRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("remove");
+  }
+  private get canUpdateRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("update");
+  }
+  // One hook for the whole question, not one per nested question.
+  private get arePanelsReadOnly(): boolean {
+    return this.isReadOnly || !this.canUpdateRecord;
+  }
+  private updatePanelsReadOnly(): void {
+    const readOnly = this.arePanelsReadOnly;
     this.template.readOnly = readOnly;
-    for (var i = 0; i < this.panelsCore.length; i++) {
+    for (let i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].readOnly = readOnly;
     }
+  }
+  protected onReadOnlyChanged(): void {
+    this.updatePanelsReadOnly();
     this.updateNoEntriesTextDefaultLoc();
     this.updateFooterActions();
     super.onReadOnlyChanged();
@@ -2226,7 +2457,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return !this.showAddPanelButton ? "noEntriesReadonlyText" : "noEntriesText";
   }
   public onSurveyLoad(): void {
-    this.template.readOnly = this.isReadOnly;
+    this.template.readOnly = this.arePanelsReadOnly;
     this.template.onSurveyLoad();
     const newPanelCount = this.adjustPanelCount();
     if (newPanelCount > -1) {
@@ -2252,7 +2483,13 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.blockAnimations();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
-    if (this.getPropertyValue("panelCount") > 0) {
+    if (this.isRemoteData) {
+      /* The records come from a data source: the panels are built for the loaded window and the
+         stored panelCount says nothing about them - the panelCount setter is a no-op while a source
+         is attached. Without this branch a question that gets its source before its first rendering
+         would never build a panel. */
+      this.rebuildPanelsFromDataList();
+    } else if (this.getPropertyValue("panelCount") > 0) {
       this.panelCount = this.getPropertyValue("panelCount");
     }
     if (this.useTemplatePanel) {
@@ -2285,7 +2522,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       settings.expressionVariables.panel
     );
   }
-  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression; }
+  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression && this.canInsertRecord; }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;
   }
@@ -2525,7 +2762,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const res: Array<any> = [];
     if (!this.keyName || !this.hasDataListView) return res;
     const list = this.dataList;
-    for (let i = 0; i < list.count; i++) {
+    // The records that are loaded: a duplicate on a page the question has not read is the server's
+    // business, and a key constraint over a whole remote table cannot be checked here.
+    for (let i = 0; i < list.loadedCount; i++) {
       if (list.indexToCreatedIndex(i) > -1) continue;
       const val = list.getValue(i, this.keyName);
       if (!this.isValueEmpty(val)) {
@@ -2657,6 +2896,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
     if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
+    // The count of a remote-backed question comes from the read, never from the length of the window.
+    if (this.isRemoteData) return;
     var newPanelCount = this.dataList.count;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
@@ -2832,8 +3073,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const newValue = this.isValueEmpty(val) ? undefined : val;
     this.dataList.batch((): void => {
       // The padding is a question rule as well: a write to a panel whose record does not exist yet
-      // grows the value up to the panel count.
-      this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
+      // grows the value up to the panel count. A remote window is never padded - the records it does
+      // not hold are on the server, and ensureCount would insert them there.
+      if (!this.isRemoteData) {
+        this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
+      }
       this.dataList.setValue(recordIndex, name, newValue);
     });
     this.changingValueQuestions = null;

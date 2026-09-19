@@ -1,6 +1,42 @@
 // The data-source contract for DynamicDataList. Capabilities are declared by the presence of the
 // optional methods: a source that has "filter" filters itself, a source that has "readRange" pages
 // itself, and so on. The list falls back to a local implementation for every absent capability.
+//
+// How to write a source (the short version, for the documentation that follows this series):
+//
+//   const source = {
+//     // Required. Every record, in source order. The list calls it only when readRange is absent.
+//     read: () => fetch("/api/orders").then(r => r.json()),
+//     // Optional. Present -> the question shows one page at a time and never holds more than it.
+//     // "take" is the question's rowsPerPage / panelsPerPage; 0 means "everything".
+//     readRange: (skip, take) =>
+//       fetch(`/api/orders?skip=${skip}&take=${take}`)
+//         .then(r => r.json())
+//         .then(r => ({ records: r.items, total: r.total })),
+//     // Optional. The expression text of question.filter, in the survey expression language, e.g.
+//     // "{country} = 'de' and {age} > 18". The list never parses it. Translate it with the
+//     // library's own parser and re-render the tree in your dialect:
+//     //   const operand = new ConditionsParser().parseExpression(expression);
+//     //   const where = operand.toString(op => op.getType() === "variable" ? op.variable : undefined);
+//     // The callback answers for the nodes you know and returns undefined for the rest.
+//     filter: (expression) => { state.where = translate(expression); },
+//     // Optional. { field, direction } descriptors, applied in array order.
+//     sort: (sort) => { state.orderBy = sort; },
+//     // Optional, one capability each. sourceIndex is the position in the WHOLE source, not in the
+//     // loaded page: the list has already added the offset of the page the edit was made on.
+//     // Missing insert -> no add button; missing remove -> no delete button; missing move -> no
+//     // drag reorder; missing update -> the question is read-only.
+//     insert: (sourceIndex, record) => post("/api/orders", { at: sourceIndex, record }),
+//     update: (sourceIndex, record, changedFields) => put(`/api/orders/${sourceIndex}`, record),
+//     remove: (sourceIndex) => del(`/api/orders/${sourceIndex}`),
+//     move: (from, to) => post("/api/orders/move", { from, to })
+//   };
+//   matrixQuestion.dataSource = source;   // or panelQuestion.dataSource = source
+//
+// Every method may return a value or a Promise. A rejected promise is reported through
+// survey.onDynamicDataError with the operation name; the records the question shows are kept as
+// they are. While a source is attached the question is excluded from survey.data - the records are
+// the source's, not an answer - and question.isReady is false while a page is being read.
 
 export type DynamicDataSortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";

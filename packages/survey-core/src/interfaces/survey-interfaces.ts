@@ -16,6 +16,7 @@ import type {
   ISurveyFileCallbacks,
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
+  ISurveyDynamicDataCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -70,7 +71,7 @@ export interface ISurveySingleInput {
 }
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
-  ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
 

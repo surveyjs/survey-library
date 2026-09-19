@@ -4034,8 +4034,6 @@ describe("custom questions", () => {
     });
     ComponentCollection.Instance.clear();
   });
-<<<<<<< HEAD
-||||||| parent of ea4b3aa91 ([backport:V2] onDynamicPanelValueChanged is not raised when a composite or custom question inside a Dynamic Panel changes through its inner question #11870 (#11872))
   test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
     ComponentCollection.Instance.add({
       name: "imageupload",
@@ -4084,7 +4082,6 @@ describe("custom questions", () => {
     delete matrixDropdownColumnTypes["imageupload"];
     ComponentCollection.Instance.clear();
   });
-=======
   test("Specialized question type properties do not appear on matrix columns, inheritBaseProps: true, Bug#11806", () => {
     ComponentCollection.Instance.add({
       name: "imageupload",
@@ -4171,5 +4168,4 @@ describe("custom questions", () => {
 
     ComponentCollection.Instance.clear();
   });
->>>>>>> ea4b3aa91 ([backport:V2] onDynamicPanelValueChanged is not raised when a composite or custom question inside a Dynamic Panel changes through its inner question #11870 (#11872))
 });

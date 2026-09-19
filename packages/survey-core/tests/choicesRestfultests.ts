@@ -14,6 +14,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyError } from "../src/survey-error";
+import { WebRequestError } from "../src/error";
 import {
   QuestionCustomModel,
   QuestionCompositeModel,
@@ -2011,4 +2012,156 @@ test("Clear choices on changing variables", () => {
     </XmlDataSource>
   </NSurveyDataSource>`;
   }
+});
+
+// The transport itself -- sendXmlHttpRequest/sendFetchRequest -- is not reachable through
+// ChoicesRestfulTester above: that class overrides sendRequest() wholesale. These tests drive the real
+// transport by replacing the global XMLHttpRequest with a fake that records what was sent and lets the
+// test decide how the request ends.
+describe("choicesRestful transport", () => {
+  const testUrl = "http://surveyjs.io/api/countries";
+  class FakeXhr {
+    public static sent: Array<FakeXhr> = [];
+    public status: number = 200;
+    public statusText: string = "OK";
+    public response: any = "";
+    public responseText: string = "";
+    public onload: () => void;
+    public onerror: () => void;
+    public ontimeout: () => void;
+    public method: string;
+    public url: string;
+    public headers: { [index: string]: string } = {};
+    public open(method: string, url: string): void {
+      this.method = method;
+      this.url = url;
+    }
+    public setRequestHeader(name: string, value: string): void {
+      this.headers[name] = value;
+    }
+    public send(): void {
+      FakeXhr.sent.push(this);
+    }
+  }
+  // The static itemsResult/sendingSameRequests caches survive between tests, so clear them on both ends.
+  function runWithFakeXhr(action: (sent: Array<FakeXhr>) => void): void {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    FakeXhr.sent = [];
+    globalAny.XMLHttpRequest = FakeXhr;
+    ChoicesRestful.clearCache();
+    try {
+      action(FakeXhr.sent);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+      FakeXhr.sent = [];
+      ChoicesRestful.clearCache();
+    }
+  }
+  function createDropdown(url: string = testUrl): QuestionDropdownModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "dropdown", name: "q1", choicesByUrl: { url: url } }],
+    });
+    return <QuestionDropdownModel>survey.getQuestionByName("q1");
+  }
+  test("XHR transport: sends GET and loads choices", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      expect(sent.length, "one request is sent").toBe(1);
+      expect(sent[0].method, "method").toBe("GET");
+      expect(sent[0].url, "url").toBe(testUrl);
+      expect(sent[0].headers["Content-Type"], "content type header").toBe(
+        "application/x-www-form-urlencoded"
+      );
+      expect(question.choicesByUrl.isRunning, "is running while waiting").toBe(true);
+      sent[0].response = JSON.stringify(["Item 1", "Item 2"]);
+      sent[0].onload();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "no error").toBeFalsy();
+      expect(question.visibleChoices.length, "choices are loaded").toBe(2);
+    });
+  });
+  test("XHR transport: a non-200 status reports WebRequestError", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].status = 500;
+      sent[0].statusText = "Internal Server Error";
+      sent[0].responseText = "failure";
+      sent[0].onload();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.visibleChoices.length, "no choices").toBe(0);
+    });
+  });
+  test("XHR transport: settings.web.onBeforeRequestChoices receives the url and the request", () => {
+    const savedHook = settings.web.onBeforeRequestChoices;
+    const replacement = { sentCount: 0, send: function (): void { this.sentCount++; } };
+    let hookUrl = "";
+    let hookRequest: any = undefined;
+    settings.web.onBeforeRequestChoices = (_sender, options): void => {
+      hookUrl = options.url;
+      hookRequest = options.request;
+      options.request = <any>replacement;
+    };
+    try {
+      runWithFakeXhr((sent) => {
+        createDropdown();
+        expect(hookUrl, "the hook gets the processed url").toBe(testUrl);
+        expect(hookRequest, "the hook gets the request").toBeTruthy();
+        expect(replacement.sentCount, "the replaced request is the one sent").toBe(1);
+        expect(sent.length, "the original request is not sent").toBe(0);
+      });
+    } finally {
+      settings.web.onBeforeRequestChoices = savedHook;
+    }
+  });
+  test("XHR transport: a network error reports an error and stops running", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].statusText = "";
+      sent[0].onerror();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.isReady, "the question is ready again").toBe(true);
+      expect(question.visibleChoices.length, "no choices").toBe(0);
+    });
+  });
+  test("XHR transport: a timeout reports an error and stops running", () => {
+    runWithFakeXhr((sent) => {
+      const question = createDropdown();
+      sent[0].ontimeout();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+      expect(question.isReady, "the question is ready again").toBe(true);
+    });
+  });
+  test("XHR transport: the same url can be requested again after a network error", () => {
+    runWithFakeXhr((sent) => {
+      createDropdown();
+      expect(sent.length, "the first request is sent").toBe(1);
+      sent[0].onerror();
+      createDropdown();
+      expect(sent.length, "the same url is requested again after the failure").toBe(2);
+    });
+  });
+  test("Fetch transport: a network error reports an error and stops running", async () => {
+    const globalAny: any = globalThis;
+    const savedXhr = globalAny.XMLHttpRequest;
+    const savedFetch = globalAny.fetch;
+    globalAny.XMLHttpRequest = undefined;
+    globalAny.fetch = (): Promise<any> => Promise.reject(new Error("Network error"));
+    ChoicesRestful.clearCache();
+    try {
+      const question = createDropdown();
+      expect(question.choicesByUrl.isRunning, "is running while waiting").toBe(true);
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(question.choicesByUrl.isRunning, "is not running anymore").toBe(false);
+      expect(question.choicesByUrl.error, "error is reported").toBeInstanceOf(WebRequestError);
+    } finally {
+      globalAny.XMLHttpRequest = savedXhr;
+      globalAny.fetch = savedFetch;
+      ChoicesRestful.clearCache();
+    }
+  });
 });

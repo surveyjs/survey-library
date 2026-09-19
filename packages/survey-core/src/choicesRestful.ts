@@ -318,6 +318,15 @@ export class ChoicesRestful extends Base {
         self.onError(xhr.statusText, xhr.responseText);
       }
     };
+    // A transport failure - connection refused, DNS, timeout, CORS - has to reach the question the same
+    // way an error status does. Without this the request stays running forever: the question never becomes
+    // ready again and its url stays registered in sendingSameRequests, so it can never be requested again.
+    const onRequestFailed = function () {
+      self.beforeLoadRequest();
+      self.onError(xhr.statusText, xhr.responseText);
+    };
+    xhr.onerror = onRequestFailed;
+    xhr.ontimeout = onRequestFailed;
     var options = { url: this.processedUrl, request: xhr };
     if (!!settings.web.onBeforeRequestChoices) {
       settings.web.onBeforeRequestChoices(this, options);
@@ -358,6 +367,7 @@ export class ChoicesRestful extends Base {
         }
       })
       .catch(error => {
+        self.beforeLoadRequest();
         self.onError(error.message, "");
       });
   }

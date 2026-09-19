@@ -14,6 +14,10 @@ import { getBuiltInVariableNames } from "../../src/survey";
 // behavior rather than against our reading of the code. Every case in the first
 // describe used to be reported as an error while the runtime accepted it.
 //
+// One rule is deliberately wider than the runtime: name/reserved reports every member of
+// Object.prototype in every slot that keys a value, although the core now survives most of
+// them. Its describe keeps the two halves apart and says why.
+//
 // The linter itself must stay model-free (issue #11693, pinned by
 // linter-imports.tests.ts); only this test file constructs a survey.
 function errors(json: any): Array<string> {
@@ -583,9 +587,9 @@ describe("linter vs runtime: values outside the allowed set", () => {
 });
 
 describe("linter vs runtime: reserved names", () => {
-  const RESERVED = Array.from(OBJECT_PROTOTYPE_MEMBERS);
-  // The survey keeps its answers in a plain object: under such a key it reads the prototype
-  // member instead of the answer, and the write throws on the way or is silently lost.
+  // "__proto__" is the one member the runtime singles out - it is never stored under that key -
+  // while the other eleven are ordinary keys to it. The two halves below follow that split.
+  const MEMBERS = Array.from(OBJECT_PROTOTYPE_MEMBERS).filter(name => name !== "__proto__");
   function keepsAnswer(name: string): boolean {
     try {
       const survey = new SurveyModel({ elements: [{ type: "text", name: name }] });
@@ -595,47 +599,61 @@ describe("linter vs runtime: reserved names", () => {
       return false;
     }
   }
-  RESERVED.forEach(name => {
-    test("a question named \"" + name + "\" cannot keep its answer, and the rule reports it", () => {
-      expect(keepsAnswer(name)).toBe(false);
-      expect(errors({ elements: [{ type: "text", name: name }] })).toEqual(["name/reserved @ elements[0].name"]);
+
+  // --- what the runtime still cannot take ---
+  // The survey keys its own hashes by Object.create(null) and skips "__proto__" on the way in
+  // (Bug#11856, Bug#11858), so a top-level data key spelled like a prototype member is safe
+  // today. The value objects nested inside an answer were left plain: a matrix row value and a
+  // multiple text value are still {}, so reading such a key back off one of them hands out the
+  // prototype member - a function, which the value cloner turns into a SyntaxError.
+  test("a column named after a member throws on the first write", () => {
+    MEMBERS.forEach(name => {
+      const json = {
+        elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a" }, { name: name }] }],
+      };
+      const survey = new SurveyModel(json);
+      expect(() => { cellQuestion(survey, "m", 0, 1).value = "x"; }, name).toThrow();
+      expect(errors(json), name).toEqual(["name/reserved @ elements[0].columns[1].name"]);
     });
   });
-  // Policy rather than parity: the runtime lower-cases its variable names and its question lookup
-  // hashes, so a spelling that survives in one slot collides in another ("Constructor" as a
-  // question, "__Proto__" as a calculated value). One list, any case, any context is the rule an
-  // author can remember.
-  test("another spelling of a member is reserved by policy", () => {
-    ["ToString", "tostring", "Constructor", "__Proto__"].forEach(name => {
-      expect(errors({ elements: [{ type: "text", name: name }] }), name)
-        .toEqual(["name/reserved @ elements[0].name"]);
+  test("a multiple text item named after a member throws on the first write", () => {
+    MEMBERS.forEach(name => {
+      const json = { elements: [{ type: "multipletext", name: "mt", items: [{ name: "a" }, { name: name }] }] };
+      const survey = new SurveyModel(json);
+      const question = <any>survey.getQuestionByName("mt");
+      expect(() => { question.items[0].value = "x"; question.items[1].value = "y"; }, name).toThrow();
+      expect(errors(json), name).toEqual(["name/reserved @ elements[0].items[1].name"]);
     });
   });
-  test("a name padded with spaces is trimmed by the runtime, so it is reserved too", () => {
-    expect(keepsAnswer(" toString ")).toBe(false);
-    expect(errors({ elements: [{ type: "text", name: " toString " }] })).toEqual(["name/reserved @ elements[0].name"]);
-  });
-  test("a column named toString throws once a row is built", () => {
-    const json = {
-      elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a" }, { name: "toString" }] }],
+  // "__proto__" writes nowhere rather than throwing: the assignment would replace the prototype
+  // of the plain object that carries the value, so every slot drops it on the floor instead
+  test("a column or an item named __proto__ swallows the value instead of throwing", () => {
+    const matrixJson = {
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a" }, { name: "__proto__" }] }],
     };
-    const survey = new SurveyModel(json);
-    expect(() => { cellQuestion(survey, "m", 0, 1).value = "x"; }).toThrow();
-    expect(errors(json)).toEqual(["name/reserved @ elements[0].columns[1].name"]);
+    const matrixSurvey = new SurveyModel(matrixJson);
+    cellQuestion(matrixSurvey, "m", 0, 1).value = "x";
+    expect(matrixSurvey.data).toEqual({});
+    expect(errors(matrixJson)).toEqual(["name/reserved @ elements[0].columns[1].name"]);
+
+    const textJson = { elements: [{ type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "__proto__" }] }] };
+    const textSurvey = new SurveyModel(textJson);
+    const question = <any>textSurvey.getQuestionByName("mt");
+    question.items[0].value = "x";
+    question.items[1].value = "y";
+    expect(textSurvey.data).toEqual({ mt: { a: "x" } });
+    expect(errors(textJson)).toEqual(["name/reserved @ elements[0].items[1].name"]);
   });
-  test("a multiple text item named toString throws on write", () => {
-    const json = { elements: [{ type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "toString" }] }] };
+  test("a question named __proto__ answers itself and never reaches the data", () => {
+    const json = { elements: [{ type: "text", name: "__proto__" }] };
     const survey = new SurveyModel(json);
-    const question = <any>survey.getQuestionByName("mt");
-    expect(() => { question.items[0].value = "x"; question.items[1].value = "y"; }).toThrow();
-    expect(errors(json)).toEqual(["name/reserved @ elements[0].items[1].name"]);
-  });
-  test("a matrix row named toString throws on write", () => {
-    const json = { elements: [{ type: "matrix", name: "m", rows: ["r1", "toString"], columns: ["c1", "c2"] }] };
-    const survey = new SurveyModel(json);
-    const matrix = <any>survey.getQuestionByName("m");
-    expect(() => { matrix.visibleRows[1].value = "c1"; }).toThrow();
-    expect(errors(json)).toEqual(["name/reserved @ elements[0].rows[1]"]);
+    const question = <any>survey.getQuestionByName("__proto__");
+    question.value = 1;
+    // the respondent sees the answer in the question and the survey is submitted without it
+    expect(question.value).toBe(1);
+    expect(Object.keys(survey.data)).toEqual([]);
+    expect(keepsAnswer("__proto__")).toBe(false);
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].name"]);
   });
   test("a calculated value named __proto__ never reaches the result", () => {
     const json = {
@@ -644,9 +662,49 @@ describe("linter vs runtime: reserved names", () => {
     };
     const survey = new SurveyModel(json);
     survey.setValue("q1", 1);
-    // the survey data is a plain object, so the key is silently dropped
     expect(Object.keys(survey.data)).toEqual(["q1"]);
     expect(errors(json)).toEqual(["name/reserved @ calculatedValues[0].name"]);
+  });
+
+  // --- policy rather than parity: the slots the runtime takes today ---
+  // The rule reports the whole list in every slot that keys a value, the ones the core fix made
+  // safe included. One list, any case, any context is the rule an author can remember - and a
+  // name that works as a question and throws as a column of that same question is the confusing
+  // part. The findings below are the linter's own claim rather than the runtime's.
+  test("a question named after a member keeps its answer today - and is reported all the same", () => {
+    MEMBERS.forEach(name => {
+      expect(keepsAnswer(name), name).toBe(true);
+      expect(errors({ elements: [{ type: "text", name: name }] }), name)
+        .toEqual(["name/reserved @ elements[0].name"]);
+    });
+  });
+  test("a matrix row named toString carries its value the way any other row does", () => {
+    const json = { elements: [{ type: "matrix", name: "m", rows: ["r1", "toString"], columns: ["c1", "c2"] }] };
+    const survey = new SurveyModel(json);
+    const matrix = <any>survey.getQuestionByName("m");
+    matrix.visibleRows[0].value = "c2";
+    matrix.visibleRows[1].value = "c1";
+    expect(survey.data).toEqual({ m: { r1: "c2", toString: "c1" } });
+    expect(matrix.isAnswered).toBe(true);
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].rows[1]"]);
+  });
+  // the runtime lower-cases its variable names and its question lookup hashes, so a spelling that
+  // survives in one slot collides in another ("Constructor" as a question, "__Proto__" as a
+  // calculated value); the comparison ignores case for that reason
+  test("another spelling of a member is reserved by policy", () => {
+    ["ToString", "tostring", "Constructor", "__Proto__"].forEach(name => {
+      expect(errors({ elements: [{ type: "text", name: name }] }), name)
+        .toEqual(["name/reserved @ elements[0].name"]);
+    });
+  });
+  test("a name padded with spaces is trimmed by the runtime, so it lands in the reserved slot", () => {
+    const json = { elements: [{ type: "text", name: " toString " }] };
+    const survey = new SurveyModel(json);
+    const question = <any>survey.getAllQuestions()[0];
+    expect(question.name).toBe("toString");
+    question.value = 1;
+    expect(survey.data).toEqual({ toString: 1 });
+    expect(errors(json)).toEqual(["name/reserved @ elements[0].name"]);
   });
   test("a page and a panel may carry the name - neither keys a plain object", () => {
     const json = {

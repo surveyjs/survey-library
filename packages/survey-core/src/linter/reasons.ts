@@ -37,7 +37,8 @@ export const SurveyLintReasons = Object.freeze({
     totalKeyCollision: "totalKeyCollision",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
-  // a name the runtime cannot key its plain data objects by: a member of Object.prototype
+  // a member of Object.prototype used as a name: the value objects it keys are plain, so the
+  // name reads the prototype member back instead of the value
   "name/reserved": Object.freeze({
     questionName: "questionName",
     valueName: "valueName",

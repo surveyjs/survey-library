@@ -10,7 +10,8 @@ const reasons = SurveyLintReasons["name/reserved"];
 const fixReasons = SurveyLintFixReasons["name/reserved"];
 
 // The one clause every message ends with: what the name collides with is the whole story, the
-// consequence - the runtime keeps its data in plain objects - is told once, in the README.
+// consequence - the value objects the name keys are plain, and which of them the runtime has
+// since been taught to guard - is told once, in the README.
 const TAIL = " is reserved - a member of Object.prototype.";
 
 // The list is spelled the way Object.prototype spells it; the comparison trims and ignores case.

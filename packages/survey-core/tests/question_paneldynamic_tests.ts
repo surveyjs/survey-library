@@ -22,6 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 import { describe, test, expect, vi } from "vitest";
@@ -10093,7 +10094,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   test("a filter, a sort and a page combined", () => {
     const question = createQuestion({ panelCount: 6, panelsPerPage: 2 },
       [{ q1: "a", q2: "6" }, { q1: "b", q2: "5" }, { q1: "a", q2: "4" }, { q1: "a", q2: "3" }, { q1: "b", q2: "2" }, { q1: "a", q2: "1" }]);
-    question.filter = "{q1} = 'a'";
+    question.filterExpression = "{q1} = 'a'";
     question.sortOrder = [{ field: "q2", direction: "asc" }];
     expect(question.panels.length, "#1: four records pass the filter").toBe(4);
     expect(question.pageCount, "#2").toBe(2);
@@ -10102,17 +10103,17 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(pageValues(question, "q2"), "#4").toEqual(["4", "6"]);
     expect(question.value.length, "#5: the records are untouched").toBe(6);
   });
-  test("sortOrder, sortBy and clearSort reach the list and read back from it", () => {
+  test("sortOrder, toggleSort and clearSort reach the list and read back from it", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
     const list = question.getDataList();
     expect(question.sortOrder, "#1: none").toEqual([]);
-    question.sortBy("q1");
+    question.toggleSort("q1");
     expect(question.sortOrder, "#2: a header click sorts ascending").toEqual([{ field: "q1", direction: "asc" }]);
     expect(list.sort, "#3: the list has it").toEqual([{ field: "q1", direction: "asc" }]);
     expect(question.panels.map(p => p.getQuestionByName("q1").value), "#4").toEqual(["a", "b", "c"]);
-    question.sortBy("q1");
+    question.toggleSort("q1");
     expect(question.sortOrder, "#5: the second click is descending").toEqual([{ field: "q1", direction: "desc" }]);
-    question.sortBy("q1");
+    question.toggleSort("q1");
     expect(question.sortOrder, "#6: the third clears it").toEqual([]);
     expect(question.panels.map(p => p.getQuestionByName("q1").value), "#7: the record order is back").toEqual(["c", "a", "b"]);
     question.sortOrder = [{ field: "q1", direction: "desc" }];
@@ -10123,25 +10124,25 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   });
   test("the filter reaches the list, reads back from it and keeps every record", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
-    expect(question.filter, "#1").toBe("");
-    question.filter = "{q1} = 'a'";
-    expect(question.filter, "#2").toBe("{q1} = 'a'");
+    expect(question.filterExpression, "#1").toBe("");
+    question.filterExpression = "{q1} = 'a'";
+    expect(question.filterExpression, "#2").toBe("{q1} = 'a'");
     expect(question.getDataList().filter, "#3: the list has it").toBe("{q1} = 'a'");
     expect(question.panels.length, "#4: only the records that pass it have a panel").toBe(2);
     expect(question.panelCount, "#5: the records are untouched").toBe(3);
     expect(question.value.length, "#6").toBe(3);
-    question.filter = "";
+    question.filterExpression = "";
     expect(question.panels.length, "#7").toBe(3);
   });
   test("a filter the list cannot run locally is refused and reads back as empty", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
-    question.filter = "{q1} = ";
-    expect(question.filter, "#1: the list reset it to none").toBe("");
+    question.filterExpression = "{q1} = ";
+    expect(question.filterExpression, "#1: the list reset it to none").toBe("");
     expect(question.panels.length, "#2: showing every panel beats showing none").toBe(3);
   });
   test("refreshView re-decides the membership and nothing else does", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
-    question.filter = "{q1} = 'a'";
+    question.filterExpression = "{q1} = 'a'";
     expect(question.panels.length, "#1").toBe(2);
     question.panels[0].getQuestionByName("q1").value = "z";
     expect(question.panels.length, "#2: the edited record keeps its panel").toBe(2);
@@ -10151,16 +10152,16 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   test("assigning the same sort or the same filter rebuilds nothing", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
     question.sortOrder = [{ field: "q1", direction: "asc" }];
-    question.filter = "{q1} != 'z'";
+    question.filterExpression = "{q1} != 'z'";
     const panels = question.panels.slice();
     question.sortOrder = [{ field: "q1", direction: "asc" }];
     expect(question.panels.every((panel, i) => panel === panels[i]), "#1: the same panel instances").toBe(true);
-    question.filter = "{q1} != 'z'";
+    question.filterExpression = "{q1} != 'z'";
     expect(question.panels.every((panel, i) => panel === panels[i]), "#2: the same panel instances").toBe(true);
     question.sortOrder = [{ field: "q1", direction: "desc" }];
     expect(question.panels[0] === panels[0], "#3: a different sort does rebuild them").toBe(false);
   });
-  test("pageIndex, pageCount, sortOrder and filter notify the reactivity bridge", () => {
+  test("pageIndex, pageCount, sortOrder and filterExpression notify the reactivity bridge", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
     const changed: Array<string> = [];
     question.onPropertyChanged.add((sender, options) => { changed.push(options.name); });
@@ -10173,8 +10174,8 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     question.sortOrder = [{ field: "q1", direction: "asc" }];
     expect(changed.indexOf("sortOrder") > -1, "#3").toBe(true);
     changed.splice(0, changed.length);
-    question.filter = "{q1} != 'z'";
-    expect(changed.indexOf("filter") > -1, "#4").toBe(true);
+    question.filterExpression = "{q1} != 'z'";
+    expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
@@ -10215,11 +10216,20 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     expect(question.panelsPerPage, "#1: the authored value is kept for serialization").toBe(2);
     expect(question.pageCount, "#2").toBe(1);
-    question.filter = "{q1} = 'a'";
-    expect(question.filter, "#3: a filter is not applied either").toBe("");
+    /* Design mode is a "do not push to the list" rule and nothing more: the authored sort and
+       filter are stored, read back and serialized - the Creator has to be able to edit them - and
+       only the list is left alone, so nothing is sorted or filtered. */
+    question.filterExpression = "{q1} = 'a'";
+    expect(question.filterExpression, "#3: it is kept").toBe("{q1} = 'a'");
+    expect(question.getDataList().filter, "#4: and not applied").toBe("");
     question.sortOrder = [{ field: "q1", direction: "asc" }];
-    expect(question.sortOrder, "#4").toEqual([]);
-    expect(question.toJSON().panelsPerPage, "#5").toBe(2);
+    expect(question.sortOrder, "#5").toEqual([{ field: "q1", direction: "asc" }]);
+    expect(question.sortBy, "#6").toBe("q1");
+    expect(question.getDataList().sort, "#7: and not applied").toEqual([]);
+    const json = question.toJSON();
+    expect(json.panelsPerPage, "#8").toBe(2);
+    expect(json.sortBy, "#9").toBe("q1");
+    expect(json.filterExpression, "#10").toBe("{q1} = 'a'");
   });
   test("the page of an asynchronous validation error is brought into view", () => {
     const returnResults = new Array<any>();
@@ -10256,5 +10266,177 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const byDefault = createQuestion({ panelCount: 2 });
     expect(byDefault.toJSON().panelsPerPage, "#4: the default is not serialized").toBe(undefined);
     expect(byDefault.panelsPerPage, "#5").toBe(0);
+  });
+});
+
+describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
+  const template = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+  const createSurvey = (json: any, data?: any, designMode?: boolean): SurveyModel => {
+    const survey = new SurveyModel();
+    if (designMode) survey.setDesignMode(true);
+    survey.fromJSON({ elements: [Object.assign({ type: "paneldynamic", name: "panel", templateElements: template }, json)] });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return survey;
+  };
+  const createQuestion = (json: any, data?: any, designMode?: boolean): QuestionPanelDynamicModel => {
+    return <QuestionPanelDynamicModel>createSurvey(json, data, designMode).getQuestionByName("panel");
+  };
+  const values = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
+    return question.visiblePanels.map(panel => panel.getQuestionByName(name).value);
+  };
+  const cba = [{ q1: "c" }, { q1: "a" }, { q1: "b" }];
+  // Counts the assignments to DynamicDataList.sort while func runs: "the list receives the authored
+  // sort once per load" is about the reset every assignment costs, not about the value it ends with.
+  const countSortAssignments = (func: () => void): number => {
+    const proto: any = DynamicDataList.prototype;
+    const original = Object.getOwnPropertyDescriptor(proto, "sort");
+    let count = 0;
+    Object.defineProperty(proto, "sort", {
+      configurable: true,
+      get: original.get,
+      set: function(val: any): void { count++; original.set.call(this, val); }
+    });
+    try {
+      func();
+    } finally {
+      Object.defineProperty(proto, "sort", original);
+    }
+    return count;
+  };
+
+  test("sortBy and filterExpression load from JSON, apply and round-trip", () => {
+    const question = createQuestion({ panelCount: 4, sortBy: "q1-", filterExpression: "{q1} <> 'z'" },
+      [{ q1: "c" }, { q1: "z" }, { q1: "a" }, { q1: "b" }]);
+    expect(question.sortBy, "#1").toBe("q1-");
+    expect(question.sortOrder, "#2: the two faces of one storage").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(question.filterExpression, "#3").toBe("{q1} <> 'z'");
+    expect(values(question), "#4: sorted, and the filtered record has no panel").toEqual(["c", "b", "a"]);
+    expect(question.value.length, "#5: the records are untouched").toBe(4);
+    const json = question.toJSON();
+    expect(json.sortBy, "#6: the canonical text").toBe("q1-");
+    expect(json.filterExpression, "#7").toBe("{q1} <> 'z'");
+    expect(json.sortOrder, "#8: the descriptors are not serialized").toBe(undefined);
+  });
+  test("a multi-field sortBy loads and is written back canonically", () => {
+    const question = createQuestion({ panelCount: 4, sortBy: " q1 ; q2 - " },
+      [{ q1: "a", q2: "1" }, { q1: "b", q2: "2" }, { q1: "a", q2: "3" }, { q1: "b", q2: "1" }]);
+    expect(question.sortOrder, "#1").toEqual([{ field: "q1", direction: "asc" }, { field: "q2", direction: "desc" }]);
+    expect(values(question, "q2"), "#2").toEqual(["3", "1", "2", "1"]);
+    expect(question.toJSON().sortBy, "#3: normalized").toBe("q1;q2-");
+  });
+  test("the defaults are not serialized and the properties stay out of the property grid", () => {
+    const question = createQuestion({ panelCount: 2 }, cba);
+    const json = question.toJSON();
+    expect(json.sortBy, "#1").toBe(undefined);
+    expect(json.filterExpression, "#2").toBe(undefined);
+    expect(question.sortBy, "#3").toBe("");
+    expect(question.filterExpression, "#4").toBe("");
+    expect(Serializer.findProperty("paneldynamic", "sortBy").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "filterExpression").visible, "#6").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "sortBy").isExpression, "#7: a plain string, not a condition").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "filterExpression").isExpression, "#8").toBe(false);
+  });
+  test("sortBy assigned at runtime equals the parsed sortOrder", () => {
+    const byText = createQuestion({ panelCount: 3 }, cba);
+    byText.sortBy = "q1-";
+    const byOrder = createQuestion({ panelCount: 3 }, cba);
+    byOrder.sortOrder = [{ field: "q1", direction: "desc" }];
+    expect(byText.sortOrder, "#1").toEqual(byOrder.sortOrder);
+    expect(values(byText), "#2").toEqual(values(byOrder));
+    expect(byText.toJSON().sortBy, "#3").toBe(byOrder.toJSON().sortBy);
+  });
+  test("the sort toggleSort makes is what toJSON emits", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#1").toBe("q1");
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#2").toBe("q1-");
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#3: the third call clears it").toBe(undefined);
+  });
+  test("onPropertyChanged fires for sortBy once per real change", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    const changed: Array<any> = [];
+    question.onPropertyChanged.add((sender, options) => {
+      if (options.name === "sortBy") changed.push(options.oldValue + " -> " + options.newValue);
+    });
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(changed, "#1: sortOrder is assigned").toEqual([" -> q1"]);
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(changed, "#2: the same sort says nothing").toEqual([" -> q1"]);
+    question.toggleSort("q1");
+    expect(changed, "#3: the toggle").toEqual([" -> q1", "q1 -> q1-"]);
+    question.getDataList().sort = [];
+    expect(changed, "#4: the list changed it on its own").toEqual([" -> q1", "q1 -> q1-", "q1- -> "]);
+  });
+  test("the JSON key order does not decide the sort (invariant 3)", () => {
+    const before = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
+    expect(before.sortBy, "#1: sortBy before panelsPerPage").toBe("q1-");
+    expect(values(before), "#2").toEqual(["c", "b", "a"]);
+    const after = createQuestion({ panelsPerPage: 2, sortBy: "q1-", panelCount: 3 }, cba);
+    expect(after.sortBy, "#3: and after it").toBe("q1-");
+    expect(values(after), "#4").toEqual(["c", "b", "a"]);
+    expect(after.panelsOnPage.length, "#5: the page size survived it too").toBe(2);
+  });
+  test("the list receives the authored sort once per load", () => {
+    let question: QuestionPanelDynamicModel;
+    const count = countSortAssignments(() => {
+      question = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
+      question.visiblePanels;
+    });
+    expect(count, "#1: no intermediate reset").toBe(1);
+    expect(values(question), "#2").toEqual(["c", "b", "a"]);
+  });
+  test("fromJSON into an attached question that already runs a different sort", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.sortBy = "q1";
+    expect(values(question), "#1").toEqual(["a", "b", "c"]);
+    question.fromJSON({ type: "paneldynamic", name: "panel", templateElements: template, panelCount: 3,
+      sortBy: "q1-", filterExpression: "{q1} <> 'a'" });
+    expect(question.sortBy, "#2: the new sort, not the one that was mirrored").toBe("q1-");
+    expect(question.getDataList().sort, "#3: and the list has it").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(values(question), "#4").toEqual(["c", "b"]);
+  });
+  test("a reload whose JSON has no sortBy key leaves the current sort alone", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.sortBy = "q1-";
+    question.fromJSON({ type: "paneldynamic", name: "panel", templateElements: template, panelCount: 3 });
+    expect(question.sortBy, "#1").toBe("q1-");
+    expect(values(question), "#2").toEqual(["c", "b", "a"]);
+  });
+  test("design mode set before the load, the Creator's order (invariants 1 and 4)", () => {
+    const question = createQuestion({ panelCount: 3, sortBy: "q1-", filterExpression: "{q1} = 'a'" }, undefined, true);
+    expect(question.sortBy, "#1: authored and read back").toBe("q1-");
+    expect(question.filterExpression, "#2").toBe("{q1} = 'a'");
+    expect(question.getDataList().sort, "#3: the list has nothing").toEqual([]);
+    expect(question.getDataList().filter, "#4").toBe("");
+    const json = question.toJSON();
+    expect(json.sortBy, "#5: and both are serialized").toBe("q1-");
+    expect(json.filterExpression, "#6").toBe("{q1} = 'a'");
+  });
+  test("a design-mode switch after the load takes effect at the next sync (the section 3.4 limit)", () => {
+    const survey = createSurvey({ panelCount: 3, sortBy: "q1-" }, cba);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(values(question), "#1").toEqual(["c", "b", "a"]);
+    survey.setDesignMode(true);
+    expect(question.sortBy, "#2: the hash is right at once").toBe("q1-");
+    expect(question.toJSON().sortBy, "#3: and so is the JSON").toBe("q1-");
+    expect(question.getDataList().sort, "#4: nothing told the list yet").toEqual([{ field: "q1", direction: "desc" }]);
+    question.refreshView();
+    expect(question.getDataList().sort, "#5: the next sync clears it").toEqual([]);
+    expect(question.sortBy, "#6: and keeps what was authored").toBe("q1-");
+    survey.setDesignMode(false);
+    question.refreshView();
+    expect(question.getDataList().sort, "#7: the way back").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(values(question), "#8").toEqual(["c", "b", "a"]);
+  });
+  test("a filter the list cannot run is not handed back after a load (invariant 5)", () => {
+    const question = createQuestion({ panelCount: 3, filterExpression: "{q1} = " }, cba);
+    expect(question.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
+    expect(values(question), "#2: showing every panel beats showing none").toEqual(["c", "a", "b"]);
+    question.refreshView();
+    expect(question.filterExpression, "#3: and it is not re-pushed").toBe("");
   });
 });

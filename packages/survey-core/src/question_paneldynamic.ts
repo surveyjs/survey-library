@@ -39,7 +39,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
@@ -617,13 +617,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      an empty array = no sort. It never reorders the question value. */
   public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
   public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
-  public sortBy(field: string, direction?: DynamicDataSortDirection): void { this.paging.sortBy(field, direction); }
+  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
+     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
+     so a sort made at runtime changes what toJSON() emits. */
+  public get sortBy(): string { return this.paging.sortBy; }
+  public set sortBy(val: string) { this.paging.sortBy = val; }
+  // The header-click cycle for one field: ascending, then descending, then not sorted.
+  public toggleSort(field: string): void { this.paging.toggleSort(field); }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the panel values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it gets no panel; the question value
      keeps every record. An empty string = no filter. */
-  public get filter(): string { return this.paging.filter; }
-  public set filter(val: string) { this.paging.filter = val; }
+  public get filterExpression(): string { return this.paging.filterExpression; }
+  public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  public raiseSortByChanged(oldValue: string, newValue: string): void {
+    this.propertyValueChanged("sortBy", oldValue, newValue);
+  }
   public refreshView(): void { this.paging.refreshView(); }
   /* Every panel is validated, on-page or not - a required question on page 2 blocks the survey
      exactly as it does without paging - and the page then follows the question that is about to be
@@ -783,7 +792,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.template.elements;
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    return name !== "templateElements" && super.isPropertyStoredInHash(name);
+    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
+    // accessor instead of looking for a hash entry that will never be there.
+    return name !== "templateElements" && name !== "sortBy" && super.isPropertyStoredInHash(name);
   }
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
@@ -2464,6 +2475,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.setPropertyValue("panelCount", newPanelCount);
     }
     super.onSurveyLoad();
+    // The one hook every load ends with: the sort and the filter the JSON authored reach the list
+    // here, once, whatever order their keys came in.
+    this.paging.flushAuthoredView();
   }
   private adjustPanelCount(): number {
     const pnlCount = this.getPropertyValue("panelCount");
@@ -3591,6 +3605,8 @@ Serializer.addClass(
     /* Invisible in the property grid until the UI series ships a pager: the property loads from and
        saves to JSON, but a switch that renders nothing is a support ticket. */
     { name: "panelsPerPage:number", default: 0, minValue: 0, visible: false },
+    { name: "sortBy", visible: false },
+    { name: "filterExpression", visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

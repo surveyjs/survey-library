@@ -31,7 +31,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase } from "./dynamicItemModelBase";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
@@ -450,15 +450,35 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      an empty array = no sort. It never reorders the question value. */
   public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
   public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
-  public sortBy(field: string, direction?: DynamicDataSortDirection): void { this.paging.sortBy(field, direction); }
+  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
+     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
+     so a header click changes what toJSON() emits. */
+  public get sortBy(): string { return this.paging.sortBy; }
+  public set sortBy(val: string) { this.paging.sortBy = val; }
+  // What a click on a sortable header does: ascending, then descending, then not sorted.
+  public toggleSort(field: string): void { this.paging.toggleSort(field); }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the row values - the same language as visibleIf, with the record
      fields as its variables. A row that does not satisfy it is not created; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf: that one is a
      per-row expression with a row context and stays the owner-visibility layer. */
-  public get filter(): string { return this.paging.filter; }
-  public set filter(val: string) { this.paging.filter = val; }
+  public get filterExpression(): string { return this.paging.filterExpression; }
+  public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  public raiseSortByChanged(oldValue: string, newValue: string): void {
+    this.propertyValueChanged("sortBy", oldValue, newValue);
+  }
   public refreshView(): void { this.paging.refreshView(); }
+  protected isPropertyStoredInHash(name: string): boolean {
+    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
+    // accessor instead of looking for a hash entry that will never be there.
+    return name !== "sortBy" && super.isPropertyStoredInHash(name);
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    // The one hook every load ends with: the sort and the filter the JSON authored reach the list
+    // here, once, whatever order their keys came in.
+    this.paging.flushAuthoredView();
+  }
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
@@ -1986,6 +2006,12 @@ Serializer.addClass(
        ticket. */
     { name: "rowsPerPage:number", default: 0, minValue: 0, visible: false },
     { name: "allowSortRows:boolean", default: false, visible: false },
+    /* The sort and the filter of the rows. Plain strings and not ":condition"/":expression": both
+       of those make JsonObjectProperty.isExpression true, and everything that discovers expressions
+       by type - Base.validateExpressions(), the linter - would then read them with the survey as
+       the variable context, while their variables are record fields. */
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

@@ -1,0 +1,325 @@
+import { describe, test, expect } from "vitest";
+import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
+import { DynamicDataPagingController, IDynamicDataPagingOwner } from "../../src/dynamic-data/dynamic-data-paging";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import {
+  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource
+} from "../../src/dynamic-data/dynamic-data-interfaces";
+
+/* The controller against a fake owner: a property hash, the two mode flags a question would answer
+   from the survey, and a recorder for the sortBy notification. The list under it is a real one over
+   a real in-memory source, and it is created lazily exactly as a question creates it - "the setter
+   does not create the list" is one of the invariants. */
+class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
+  public paging: DynamicDataPagingController;
+  public hash: { [index: string]: any } = {};
+  public isDesignMode: boolean = false;
+  public isLoadingFromJson: boolean = false;
+  public sortByChanges: Array<string> = [];
+  public resetCount: number = 0;
+  private listValue: DynamicDataList;
+  private source: IDynamicDataSource;
+  constructor(records: Array<any>) {
+    this.source = ArrayDynamicDataSource.fromArray(records);
+    this.paging = new DynamicDataPagingController(this);
+  }
+  public get hasList(): boolean { return !!this.listValue; }
+  public getDataList(): DynamicDataList {
+    if (!this.listValue) {
+      this.listValue = new DynamicDataList(this.source, this);
+      this.listValue.load();
+      // The question pushes the authored page size from here too: the list is created on demand.
+      this.paging.updatePageSize();
+    }
+    return this.listValue;
+  }
+  public setSource(source: IDynamicDataSource): void {
+    this.source = source;
+    if (!!this.listValue) {
+      this.listValue.source = source;
+    }
+  }
+  public getPropertyValue(name: string): any { return this.hash[name]; }
+  public setPropertyValue(name: string, val: any): void { this.hash[name] = val; }
+  public get pageSize(): number { return this.hash["pageSize"] || 0; }
+  public set pageSize(val: number) {
+    this.hash["pageSize"] = val;
+    this.paging.updatePageSize();
+  }
+  public get pageIndex(): number { return this.paging.pageIndex; }
+  public set pageIndex(val: number) { this.paging.pageIndex = val; }
+  public get pageCount(): number { return this.paging.pageCount; }
+  public raiseSortByChanged(oldValue: string, newValue: string): void {
+    this.sortByChanges.push(oldValue + " -> " + newValue);
+  }
+  public getFields(): Array<IDynamicDataField> { return []; }
+  public onDataListChanged(change: IDynamicDataListChange): void {
+    if (change.type === "reset") {
+      this.resetCount++;
+    }
+    if (change.type === "reset" || change.type === "pageChanged") {
+      this.paging.syncState();
+    }
+  }
+  // What the owner shows: the records that have an object, in the list's view order.
+  public get view(): Array<any> {
+    const list = this.getDataList();
+    return list.getCreatedIndexes().map((index: number): any => list.getRecord(index).c1);
+  }
+}
+const abc = (): Array<any> => [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
+const asc: Array<IDynamicDataSort> = [{ field: "c1", direction: "asc" }];
+const desc: Array<IDynamicDataSort> = [{ field: "c1", direction: "desc" }];
+
+describe("DynamicDataPagingController: runtime (invariant 2)", () => {
+  test("the list holds the sort and the filter, the hash mirrors it, the accessors read the hash", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    owner.paging.filterExpression = "{c1} != 'z'";
+    expect(owner.getDataList().sort, "#1: the list has the sort").toEqual(asc);
+    expect(owner.getDataList().filter, "#2: and the filter").toBe("{c1} != 'z'");
+    expect(owner.hash["sortOrder"], "#3: the hash mirrors it").toEqual(asc);
+    expect(owner.hash["filterExpression"], "#4").toBe("{c1} != 'z'");
+    expect(owner.paging.sortBy, "#5: the text face of the same storage").toBe("c1");
+    expect(owner.view, "#6").toEqual(["a", "b", "c"]);
+  });
+  test("sortBy assigns the parsed sortOrder and resets the view once", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.resetCount = 0;
+    owner.paging.sortBy = "c1-";
+    expect(owner.paging.sortOrder, "#1").toEqual(desc);
+    expect(owner.getDataList().sort, "#2").toEqual(desc);
+    expect(owner.view, "#3").toEqual(["c", "b", "a"]);
+    expect(owner.resetCount, "#4: one reset").toBe(1);
+    owner.paging.sortBy = "c1-";
+    expect(owner.resetCount, "#5: the same sort again rebuilds nothing").toBe(1);
+  });
+  test("a change the list makes on its own reaches the hash", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    owner.getDataList().sort = desc;
+    expect(owner.paging.sortOrder, "#1").toEqual(desc);
+    expect(owner.paging.sortBy, "#2").toBe("c1-");
+  });
+});
+
+describe("DynamicDataPagingController: design mode (invariants 1 and 4)", () => {
+  test("the authored sort and filter are stored, read back and not applied", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.sortOrder = asc;
+    owner.paging.filterExpression = "{c1} = 'a'";
+    expect(owner.hasList, "#1: the setter did not create the list").toBe(false);
+    expect(owner.paging.sortOrder, "#2: it reads back as authored").toEqual(asc);
+    expect(owner.paging.sortBy, "#3").toBe("c1");
+    expect(owner.paging.filterExpression, "#4").toBe("{c1} = 'a'");
+    expect(owner.getDataList().sort, "#5: the list has nothing").toEqual([]);
+    expect(owner.getDataList().filter, "#6").toBe("");
+    expect(owner.view, "#7: every record, in storage order").toEqual(["c", "a", "b"]);
+  });
+  test("a sync in design mode does not wipe the hash", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.sortBy = "c1";
+    owner.paging.filterExpression = "{c1} = 'a'";
+    owner.paging.syncState();
+    owner.paging.syncState();
+    expect(owner.paging.sortBy, "#1").toBe("c1");
+    expect(owner.paging.filterExpression, "#2").toBe("{c1} = 'a'");
+    expect(owner.getDataList().sort, "#3").toEqual([]);
+  });
+  test("a switch into design mode takes effect at the next sync, not at the next read", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    expect(owner.view, "#1").toEqual(["a", "b", "c"]);
+    owner.isDesignMode = true;
+    expect(owner.paging.sortOrder, "#2: the hash is right at once").toEqual(asc);
+    expect(owner.getDataList().sort, "#3: the list still sorts - nothing told it").toEqual(asc);
+    owner.paging.syncState();
+    expect(owner.getDataList().sort, "#4: the sync clears the list").toEqual([]);
+    expect(owner.paging.sortOrder, "#5: and keeps the authored value").toEqual(asc);
+    expect(owner.view, "#6").toEqual(["c", "a", "b"]);
+  });
+  test("a switch out of design mode pushes the authored sort at the next sync", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.sortOrder = desc;
+    expect(owner.view, "#1").toEqual(["c", "a", "b"]);
+    owner.isDesignMode = false;
+    expect(owner.paging.sortOrder, "#2").toEqual(desc);
+    owner.paging.syncState();
+    expect(owner.getDataList().sort, "#3").toEqual(desc);
+    expect(owner.view, "#4").toEqual(["c", "b", "a"]);
+  });
+  test("the filter is never parsed in design mode, so one that does not run is kept", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.filterExpression = "{c1} = ";
+    owner.paging.syncState();
+    expect(owner.paging.filterExpression, "#1: the Creator keeps what was typed").toBe("{c1} = ");
+    expect(owner.getDataList().filter, "#2: and the list never saw it").toBe("");
+  });
+});
+
+describe("DynamicDataPagingController: loading (invariant 3)", () => {
+  test("a setter stores into the hash only and creates no list", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    owner.paging.filterExpression = "{c1} != 'z'";
+    expect(owner.hasList, "#1").toBe(false);
+    expect(owner.paging.sortBy, "#2").toBe("c1-");
+    expect(owner.paging.filterExpression, "#3").toBe("{c1} != 'z'");
+  });
+  test("a sync during the load does not mirror the list over the authored value", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    // What the rowsPerPage/panelsPerPage setter does: it creates the list and syncs, in the middle
+    // of the load and with the authored sort not pushed yet.
+    owner.pageSize = 2;
+    expect(owner.paging.sortBy, "#1: the authored sort survived it").toBe("c1-");
+    expect(owner.getDataList().sort, "#2: and has not been pushed yet").toEqual([]);
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.getDataList().sort, "#3: the flush pushes it").toEqual(desc);
+    expect(owner.view, "#4").toEqual(["c", "b", "a"]);
+  });
+  test("the list receives the authored sort once per load", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    owner.paging.filterExpression = "{c1} != 'z'";
+    owner.pageSize = 2;
+    owner.paging.syncState();
+    owner.resetCount = 0;
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.getDataList().sort, "#1").toEqual(desc);
+    expect(owner.getDataList().filter, "#2").toBe("{c1} != 'z'");
+    expect(owner.resetCount, "#3: one reset for the filter and one for the sort, no third").toBe(2);
+    owner.paging.flushAuthoredView();
+    expect(owner.resetCount, "#4: nothing is pending any more").toBe(2);
+  });
+  test("a flush while the owner is still loading does nothing", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    owner.paging.flushAuthoredView();
+    expect(owner.hasList, "#1: not even the list").toBe(false);
+  });
+  test("a flush with nothing pending creates no list", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.flushAuthoredView();
+    expect(owner.hasList, "#1").toBe(false);
+  });
+  test("a reload that assigns the same sort does not push it a second time", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortBy = "c1-";
+    owner.resetCount = 0;
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.resetCount, "#1").toBe(0);
+    expect(owner.getDataList().sort, "#2").toEqual(desc);
+  });
+  test("a reload into a question that already runs a different sort replaces it", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortBy = "c1";
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    expect(owner.getDataList().sort, "#1: not while it loads").toEqual(asc);
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.getDataList().sort, "#2").toEqual(desc);
+    expect(owner.paging.sortBy, "#3: and the old sort was not mirrored back").toBe("c1-");
+  });
+});
+
+describe("DynamicDataPagingController: the rejected filter (invariant 5)", () => {
+  test("a filter the list cannot run is not handed back on the next sync", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} = ";
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.paging.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
+    expect(owner.getDataList().filter, "#2").toBe("");
+    expect(owner.view, "#3: showing every record beats showing none").toEqual(["c", "a", "b"]);
+    owner.paging.syncState();
+    expect(owner.paging.filterExpression, "#4: and it is not re-pushed").toBe("");
+  });
+});
+
+describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
+  class SortingSource implements IDynamicDataSource {
+    public sorts: Array<Array<IDynamicDataSort>> = [];
+    public filters: Array<string> = [];
+    constructor(private records: Array<any>) { }
+    public read(): Array<any> { return this.records; }
+    public sort(sort: Array<IDynamicDataSort>): void { this.sorts.push(sort); }
+    public filter(expression: string): void { this.filters.push(expression); }
+  }
+  test("a source attached after the load receives the parsed descriptors", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.sortBy = "c1-";
+    owner.paging.filterExpression = "{c1} != 'z'";
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    const source = new SortingSource(abc());
+    owner.setSource(source);
+    expect(source.sorts[0], "#1: the descriptors, not the text").toEqual(desc);
+    expect(source.filters[0], "#2: and the expression, untouched").toBe("{c1} != 'z'");
+    expect(owner.paging.sortBy, "#3: the question still reports them").toBe("c1-");
+    expect(owner.paging.filterExpression, "#4").toBe("{c1} != 'z'");
+  });
+});
+
+describe("DynamicDataPagingController: the sortBy notification (section 4)", () => {
+  test("it fires once per real change when sortOrder is assigned", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.sortByChanges = [];
+    owner.paging.sortOrder = asc;
+    expect(owner.sortByChanges, "#1").toEqual([" -> c1"]);
+    owner.paging.sortOrder = asc;
+    expect(owner.sortByChanges, "#2: the same sort again says nothing").toEqual([" -> c1"]);
+    owner.paging.sortOrder = desc;
+    expect(owner.sortByChanges, "#3").toEqual([" -> c1", "c1 -> c1-"]);
+  });
+  test("it fires when toggleSort runs", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.sortByChanges = [];
+    owner.paging.toggleSort("c1");
+    owner.paging.toggleSort("c1");
+    owner.paging.toggleSort("c1");
+    expect(owner.sortByChanges, "#1: ascending, descending, none")
+      .toEqual([" -> c1", "c1 -> c1-", "c1- -> "]);
+  });
+  test("it fires when the list changes the sort on its own", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList().sort = desc;
+    expect(owner.sortByChanges, "#1").toEqual([" -> c1-"]);
+  });
+  test("it fires for a sort authored in design mode and for one that loads", () => {
+    const design = new FakePagingOwner(abc());
+    design.isDesignMode = true;
+    design.paging.sortBy = "c1";
+    expect(design.sortByChanges, "#1").toEqual([" -> c1"]);
+    const loading = new FakePagingOwner(abc());
+    loading.isLoadingFromJson = true;
+    loading.paging.sortOrder = desc;
+    expect(loading.sortByChanges, "#2").toEqual([" -> c1-"]);
+  });
+  test("toggleSort ignores an empty field", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.toggleSort("");
+    expect(owner.sortByChanges, "#1").toEqual([]);
+    expect(owner.hasList, "#2").toBe(false);
+  });
+});

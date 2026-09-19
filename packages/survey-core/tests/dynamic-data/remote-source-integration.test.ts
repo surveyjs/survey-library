@@ -621,7 +621,7 @@ describe("Remote data source: sorting and filtering", () => {
     question.goToPage(1);
     await flush();
     source.reset();
-    question.sortBy("col2", "desc");
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
     await flush();
     expect(source.argsOf("sort")[0][0], "#1: the descriptors reach the source").toEqual([{ field: "col2", direction: "desc" }]);
     expect(question.pageIndex, "#2: a sort keeps the page").toBe(1);
@@ -634,7 +634,7 @@ describe("Remote data source: sorting and filtering", () => {
     question.goToPage(2);
     await flush();
     source.reset();
-    question.filter = "{col1} = 'v7'";
+    question.filterExpression = "{col1} = 'v7'";
     await flush();
     expect(source.argsOf("filter")[0][0], "#1: the text, untouched").toBe("{col1} = 'v7'");
     expect(question.pageIndex, "#2: back to the first page").toBe(0);
@@ -651,7 +651,7 @@ describe("Remote data source: sorting and filtering", () => {
   test("the list does not filter the window when the source filters", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source);
-    question.filter = "{col1} = 'v3'";
+    question.filterExpression = "{col1} = 'v3'";
     await flush();
     const list = question.getDataList();
     expect(list.loadedCount, "#1: the window is what the server returned").toBe(1);
@@ -661,7 +661,7 @@ describe("Remote data source: sorting and filtering", () => {
     const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     source.reset();
-    question.sortBy("col2", "desc");
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
     await flush();
     expect(source.callsOf("sort").length, "#1: the source has no sort").toBe(0);
     expect(source.callsOf("readRange").length, "#2: nothing was re-read").toBe(0);
@@ -1064,7 +1064,7 @@ describe("Remote data source: replacing a source", () => {
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    question.filter = "{col1} = 'v3'";
+    question.filterExpression = "{col1} = 'v3'";
     const source = new FakeServerSource(serverRecords(12));
     question.dataSource = source;
     await flush();
@@ -1078,7 +1078,7 @@ describe("Remote data source: replacing a source", () => {
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }, { name: "col2" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    question.sortBy("col2", "desc");
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
     const source = new FakeServerSource(serverRecords(4));
     question.dataSource = source;
     await flush();
@@ -1092,13 +1092,13 @@ describe("Remote data source: replacing a source", () => {
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.dataSource = new FakeServerSource(serverRecords(12));
     await flush();
-    question.filter = "{col1} = 'v3'";
+    question.filterExpression = "{col1} = 'v3'";
     await flush();
     expect(question.rowCount, "#1: the server filtered").toBe(1);
     question.dataSource = undefined;
     await flush();
     survey.setValue("matrix", [{ col1: "v3" }, { col1: "v9" }]);
-    expect(question.filter, "#2: the filter survived the detach").toBe("{col1} = 'v3'");
+    expect(question.filterExpression, "#2: the filter survived the detach").toBe("{col1} = 'v3'");
     expect(question.visibleRows.length, "#3: and the list runs it locally again").toBe(1);
     expect(rowValues(question), "#4").toEqual(["v3"]);
   });

@@ -513,7 +513,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown-detail-no-header-expanded.png");
 
       await page.click(".sd-table__cell--detail-button >> nth=1");
-      await page.click(".sd-row", { position: { x: 1, y: 1 } });
+      await page.click(".sd-row .sd-element", { position: { x: 1, y: 1 } });
       await compareScreenshot(page, questionRoot, "question-matrix-dropdown-detail-no-header.png");
     });
 

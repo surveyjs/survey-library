@@ -2791,7 +2791,13 @@ export class Question extends SurveyElement<Question>
   // validate() reports an incorrect value as an error and clearIncorrectValues() removes it.
   public isValueCorrect(): boolean {
     if (this.hasIncorrectValueInData()) return false;
-    return this.isEmpty() || this.isValueCorrectCore(this.value);
+    if (this.isEmpty() || this.isNonDataValue(this.value)) return true;
+    return this.isValueCorrectCore(this.value);
+  }
+  // A value that is an instance of a class, a model object or a File for example, is not survey data.
+  // A question may hold it on purpose, the property editors in Survey Creator do, so it is not checked.
+  private isNonDataValue(val: any): boolean {
+    return Helpers.isValueObject(val, true) && val.constructor !== Object && !(val instanceof Date);
   }
   protected isValueCorrectCore(val: any): boolean {
     return this.isDataValueCorrect(val);

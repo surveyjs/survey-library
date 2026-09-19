@@ -29,6 +29,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
+import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
+import { focusElement } from "./utils/focus-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
@@ -194,60 +196,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  private static IsNeedScrollIntoView(el: Element, checkLeft: boolean, scrollIfVisible?: boolean) {
-    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elTop < 0;
-    let elLeft: number = -1;
-    if (!needScroll && checkLeft) {
-      elLeft = el.getBoundingClientRect().left;
-      needScroll = elLeft < 0;
-    }
-    if (!needScroll && DomWindowHelper.isAvailable()) {
-      const height = DomWindowHelper.getInnerHeight();
-      needScroll = height > 0 && height < elTop;
-      if (!needScroll && checkLeft) {
-        const width = DomWindowHelper.getInnerWidth();
-        needScroll = width > 0 && width < elLeft;
-      }
-    }
-    return needScroll;
-  }
   public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    el.scrollIntoView(scrollIntoViewOptions);
-    if (typeof doneCallback === "function") {
-      let lastPos: number = null;
-      let same: number = 0;
-      const checkPos = () => {
-        const newPos = el.getBoundingClientRect().top;
-        if (newPos === lastPos) {
-          if (same++ > 2) {
-            doneCallback();
-            return;
-          }
-        } else {
-          lastPos = newPos;
-          same = 0;
-        }
-        requestAnimationFrame(checkPos);
-      };
-      DomWindowHelper.requestAnimationFrame(checkPos);
-    }
+    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) {
-      doneCallback && doneCallback();
-      return false;
-    }
-    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
-    if (needScroll) {
-      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
-    } else {
-      doneCallback && doneCallback();
-    }
-    return needScroll;
+    return scrollElementToViewCore(el, checkLeft, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
@@ -263,33 +219,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return null;
   }
-  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement): boolean {
-    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl) : false;
-    if (!res) {
-      setTimeout(() => {
-        SurveyElement.focusElementCore(elementId, containerEl);
-      }, isTimeOut ? 100 : 10);
-    }
-    return res;
-  }
-  private static focusElementCore(element: string | (() => HTMLElement), containerEl?: HTMLElement): boolean {
-    const { root } = settings.environment;
-    if (!root && !containerEl) return false;
-
-    let el: HTMLElement;
-    if (typeof element == "string") {
-      el = containerEl ? containerEl.querySelector(`#${CSS.escape(element)}`) : root.getElementById(element);
-    } else {
-      el = element();
-    }
-    // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-    if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
-      SurveyElement.ScrollElementToViewCore(el, true, false);
-      el.focus({ focusVisible: false } as any);
-      return true;
-    }
-    return false;
+  public static FocusElement(elementId: string | (() => HTMLElement), isTimeOut?: boolean, containerEl?: HTMLElement, scrollIntoScroller?: boolean): boolean {
+    return focusElement(elementId, isTimeOut, {
+      containerEl: containerEl,
+      scrollIntoScroller: scrollIntoScroller,
+      scrollIntoView: (el: HTMLElement) => { SurveyElement.ScrollElementToViewCore(el, true, false); }
+    });
   }
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
@@ -588,6 +523,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     return super.canSkipExpressionByKeys(runner, keys, vars);
+  }
+  protected get shouldHandleFocusScroll(): boolean {
+    return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();

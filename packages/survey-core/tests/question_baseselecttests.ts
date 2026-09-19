@@ -17,6 +17,7 @@ import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 
 import { describe, test, expect } from "vitest";
+import { PanelModel } from "../src/panel";
 describe("baseselect", () => {
   function getValuesInColumns(question: QuestionSelectBase) {
     return question.columns.map((column) => column.map((choice) => choice.id));
@@ -4446,6 +4447,75 @@ describe("baseselect", () => {
     expect(counter, "onExpandPanelAtDesign should be called once").toBe(1);
     choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
     expect(counter, "onExpandPanelAtDesign should be called twice").toBe(2);
+  });
+  test("choice item elements & parentQuestion, Bug#11824", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [
+          { type: "text", name: "nested1" },
+          { type: "panel", name: "panel1", elements: [{ type: "text", name: "nested2" }] }
+        ] }] },
+        { type: "checkbox", name: "q2", choices: [{ value: "item1", elements: [{ type: "text", name: "nested3" }] }] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const nested1 = survey.getQuestionByName("nested1");
+    expect(nested1.parentQuestion, "radiogroup: nested1").toBe(q1);
+    expect(survey.getQuestionByName("nested2").parentQuestion, "radiogroup: nested2 inside a nested panel").toBe(q1);
+    expect(survey.getQuestionByName("nested3").parentQuestion, "checkbox: nested3").toBe(q2);
+
+    const nested4 = q1.choices[0].panel.addNewQuestion("text", "nested4");
+    expect(nested4.parentQuestion, "a question added to a choice panel later").toBe(q1);
+    const panel1 = <PanelModel>q1.choices[1].panel.getElementByName("panel1");
+    const nested5 = panel1.addNewQuestion("text", "nested5");
+    expect(nested5.parentQuestion, "a question added to a nested panel later").toBe(q1);
+    const panel2 = new PanelModel("panel2");
+    panel2.addNewQuestion("text", "nested6");
+    q1.choices[0].panel.addElement(panel2);
+    expect(survey.getQuestionByName("nested6").parentQuestion, "a panel with a question added later").toBe(q1);
+    panel1.removeElement(nested5);
+    expect(nested5.parentQuestion, "a removed question is unlinked").toBeFalsy();
+
+    q1.value = "item2";
+    nested1.value = "x";
+    expect(survey.data, "nested values stay top-level").toEqual({ q1: "item2", nested1: "x" });
+    expect(nested1.isReadOnly, "isReadOnly, #1").toBe(false);
+    q1.readOnly = true;
+    expect(nested1.isReadOnly, "isReadOnly follows the owner, #2").toBe(true);
+  });
+  test("choice item elements & renderedIsPanelShowing in inputPerPage, Bug#11824", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] },
+        { type: "dropdown", name: "q2", choices: ["item1"] }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+    const item2 = q1.choices[1];
+    q1.value = "item2";
+    expect(q1.showChoicePanelsInline, "standard: inline").toBe(true);
+    expect(item2.renderedIsPanelShowing, "standard: rendered").toBe(true);
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.currentSingleQuestion.name, "inputPerPage: q1 is current").toBe("q1");
+    expect(q1.showChoicePanelsInline, "inputPerPage: not inline").toBe(false);
+    expect(item2.isPanelShowing, "inputPerPage: isPanelShowing is kept").toBe(true);
+    expect(item2.renderedIsPanelShowing, "inputPerPage: not rendered").toBe(false);
+    expect(q2.showChoicePanelsInline, "dropdown: inline").toBe(true);
+    survey.performNext();
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "inputPerPage: q2 is current").toBe("q2");
+    expect(q1.showChoicePanelsInline, "inputPerPage: not the active single input").toBe(true);
+    survey.questionsOnPageMode = "standard";
+    expect(item2.renderedIsPanelShowing, "standard again: rendered").toBe(true);
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON({ questionsOnPageMode: "inputPerPage", elements: [
+      { type: "radiogroup", name: "q1", choices: [{ value: "item1", elements: [{ type: "text", name: "nested1" }] }] }
+    ] });
+    expect((<QuestionRadiogroupModel>designSurvey.getQuestionByName("q1")).showChoicePanelsInline, "design mode: inline").toBe(true);
   });
   test("Checkbox question, defaultValue, skip trigger, Bug#10728", () => {
     const survey = new SurveyModel({

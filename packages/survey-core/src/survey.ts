@@ -54,10 +54,12 @@ import {
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
+import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -105,6 +107,11 @@ import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 
 export var DefaultTheme = DefaultLightTheme;
+
+// A hash keyed by names an author chooses (question names, value names, variable names)
+function createHash(): HashTable<any> {
+  return Object.create(null);
+}
 
 // The variables a survey answers by itself. They are declared nowhere in the survey
 // JSON and resolve before any question, calculated value or variable of the same name.
@@ -274,8 +281,11 @@ export class SurveyModel extends SurveyElementCore
     this.commentSuffix = val;
   }
 
-  private valuesHash: HashTable<any> = {};
-  private variablesHash: HashTable<any> = {};
+  // Both hashes are created by createHash() - null-prototype objects: the keys are question value
+  // names and variable names, and a name like "constructor" or "valueOf" must not read an
+  // Object.prototype member back (Bug#11858)
+  private valuesHash: HashTable<any> = createHash();
+  private variablesHash: HashTable<any> = createHash();
   private editingObjValue: Base;
 
   //#region Event declarations
@@ -1282,11 +1292,6 @@ export class SurveyModel extends SurveyElementCore
     if (name === "locale") {
       this.onSurveyLocaleChanged();
     }
-    if (name === "regionLocale") {
-      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
-      // displayed strings the way a locale change does
-      this.localeChanged();
-    }
     if (name === "randomSeed") {
       this.randomSeedChanged();
     }
@@ -1691,6 +1696,9 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   @property() autoFocusFirstError: boolean;
+  @property({ defaultValue: false, onSet: (_newValue, target: SurveyModel) => {
+    target.focusedQuestionScroll.setup();
+  } }) autoCenterFocusedQuestion: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
    * @hidden
@@ -2109,7 +2117,7 @@ export class SurveyModel extends SurveyElementCore
     if (hasChanges) {
       /* bypass the data setter: this only filters incorrect keys out of the current state
       and should not mark pages as shown the way an external data assignment does */
-      this.valuesHash = {};
+      this.valuesHash = createHash();
       this.setDataCore(data);
     }
   }
@@ -2138,6 +2146,7 @@ export class SurveyModel extends SurveyElementCore
    * [Localization & Globalization help topic](https://surveyjs.io/form-library/documentation/survey-localization (linkStyle))
    *
    * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
+   * @see regionalFormat
    */
   public get locale(): string {
     return this.getPropertyValueWithoutDefault("locale") || surveyLocalization.currentLocale;
@@ -2148,17 +2157,122 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("locale", value);
   }
-  // The respondent's regional locale. It drives formats only (e.g. the date order and
-  // separators of a locale-preset datetime mask); displayed strings keep following `locale`.
-  // Typically assigned at runtime by the host application.
-  public get regionLocale(): string {
-    return this.getPropertyValue("regionLocale", "");
-  }
-  public set regionLocale(value: string) {
-    this.setPropertyValue("regionLocale", value);
-  }
+  // The locale that drives formats: regionalFormat.locale when set, the survey locale otherwise.
+  // Reads the stored object so that a mask lookup never creates one.
   public getFormatLocale(): string {
-    return this.regionLocale || this.locale;
+    const options = this.regionalFormatValue;
+    return (!!options ? options.locale : undefined) || this.locale;
+  }
+  /**
+   * Configures date, time, number, and currency formats for [input masks](/form-library/examples/masked-input-fields/) throughout the survey.
+   *
+   * Formats follow the survey's [`locale`](#locale) by default. To configure formats independently of the survey's display language, set the `regionalFormat` object's [`locale`](/form-library/documentation/api-reference/regionalformat#locale) property to a locale code with a region, such as `"en-US"`.
+   *
+   * In addition, you can override regional date and time patterns, numeric separators, the currency symbol, and the currency pattern. See the [`RegionalFormat`](/form-library/documentation/api-reference/regionalformat) API reference for details.
+   *
+   * Those survey-wide settings can in turn be overridden by settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object. The inheritance order is:
+   *
+   * `SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
+   * @since 3.1.0
+   */
+  public get regionalFormat(): RegionalFormat {
+    return this.getPropertyValue("regionalFormat", undefined, () => this.createRegionalFormat());
+  }
+  public set regionalFormat(val: RegionalFormat) {
+    if (!val) return;
+    this.replaceRegionalFormat(val.toJSON());
+  }
+  // The stored object, or undefined when the property has never been read or set.
+  private get regionalFormatValue(): RegionalFormat {
+    return this.getPropertyValueWithoutDefault("regionalFormat");
+  }
+  public getRegionalFormatValue(field: string): string {
+    const options = this.regionalFormatValue;
+    return !!options ? options.getExplicitPropertyValue(field) : undefined;
+  }
+  // The json is applied before the notifications are wired: a whole-object replacement reports
+  // itself once in replaceRegionalFormat(), not a second time through the child's load callback.
+  private createRegionalFormat(json?: any): RegionalFormat {
+    const res = new RegionalFormat();
+    res.owner = this;
+    res.loadingOwner = this;
+    if (json !== undefined) {
+      res.fromJSON(json);
+    }
+    res.loadingCompletedCallback = (changedNames: Array<string>): void => {
+      // A JSON loaded into this object directly (survey.regionalFormat.fromJSON(...)) fires no
+      // property events of its own, so the refresh and the notifications happen here, once the
+      // whole JSON is applied. A survey load is refreshed by refreshRegionalFormatAfterLoad().
+      if (this.isLoadingFromJson) return;
+      this.localeChanged();
+      changedNames.forEach(name => {
+        this.onNestedPropertyChanged.fire(this, { name: "regionalFormat", newValue: (<any>res)[name], nestedName: name });
+      });
+    };
+    res.onPropertyChanged.add((_, options) => {
+      // Deserialization must not rebuild the masks once per field. The object fires nothing while
+      // the survey loads (loadingOwner), and refreshRegionalFormatAfterLoad() does one refresh at
+      // the end of the load if the options changed.
+      if (this.isLoadingFromJson) return;
+      // formats-only: rebuild locale-dependent masks and rerender inputs, but do not touch
+      // displayed strings the way a locale change does
+      this.localeChanged();
+      this.onNestedPropertyChanged.fire(this, { name: "regionalFormat", newValue: options.newValue, nestedName: options.name });
+    });
+    return res;
+  }
+  // The single replacement path of the setter and of the serializer's onSetValue. A fresh object
+  // is loaded rather than the existing one: JsonObject.toObjectCore() visits only the supplied
+  // keys, so loading into the existing object would leave omitted fields behind. Loading fires no
+  // child events, so the refresh and the survey notification are explicit and happen once, after
+  // the object is fully populated; during survey deserialization both are deferred to
+  // refreshRegionalFormatAfterLoad().
+  private replaceRegionalFormat(json: any): void {
+    const oldValue = this.regionalFormatValue;
+    if (!!oldValue) {
+      oldValue.dispose();
+    }
+    const newValue = this.createRegionalFormat(json || {});
+    this.setPropertyValueDirectly("regionalFormat", newValue);
+    if (this.isLoadingFromJson) return;
+    this.localeChanged();
+    this.propertyValueChanged("regionalFormat", oldValue, newValue);
+  }
+  // The serializer's entry point. During a survey load startLoadingFromJson() has already applied
+  // the key - before the elements, whose masks and masked default values resolve formats while
+  // they load - so reaching the key here must not replace the object underneath them. The
+  // serializer then loads the same JSON into the existing object (JsonObject.valueToObj does that
+  // for a property with a className), which is the same value and changes nothing.
+  private setRegionalFormatFromJson(json: any): void {
+    if (this.isLoadingFromJson) return;
+    this.replaceRegionalFormat(json);
+  }
+  private resetRegionalFormat(): void {
+    const oldValue = this.regionalFormatValue;
+    if (!oldValue) return;
+    oldValue.dispose();
+    this.setPropertyValueDirectly("regionalFormat", undefined);
+  }
+  private regionalFormatBeforeLoad: { json: any, hadPages: boolean };
+  private getRegionalFormatJSON(): any {
+    const options = this.regionalFormatValue;
+    return !!options && !options.isEmpty ? options.toJSON() : undefined;
+  }
+  // Loading fires no property events, so a mask that already holds a resolved format keeps it
+  // unless something rebuilds it, and fromJSON() retains the existing questions when the JSON
+  // supplies no pages or elements. One comparison after the load replaces the per-field rebuild:
+  // those questions are refreshed once when the options changed, a removal by
+  // startLoadingFromJson() included, and not at all when they did not. Questions that the load
+  // itself created need nothing - startLoadingFromJson() put the options in place before them -
+  // so a survey that had no pages when the load began is never refreshed here.
+  // onLocaleChangedEvent belongs to locale changes and is never fired here.
+  private refreshRegionalFormatAfterLoad(): void {
+    const before = this.regionalFormatBeforeLoad;
+    this.regionalFormatBeforeLoad = undefined;
+    if (!before || !before.hadPages) return;
+    if (!Helpers.isTwoValueEquals(before.json, this.getRegionalFormatJSON())) {
+      this.localeChanged();
+    }
   }
   private onSurveyLocaleChanged(): void {
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
@@ -3250,7 +3364,7 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   public set data(data: any) {
-    this.valuesHash = {};
+    this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
   }
@@ -3370,7 +3484,7 @@ export class SurveyModel extends SurveyElementCore
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
-      this.valuesHash = {};
+      this.valuesHash = createHash();
     }
     if (data) {
       for (var key in data) {
@@ -3638,6 +3752,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getDataFromValueHash(valuesHash, key);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
+    // "__proto__" is never stored (Bug#11858): the data getter copies values into a plain object,
+    // where this key would replace the prototype of the returned data instead of adding a key
+    if (isProtoKey(key)) return;
     if (!!this.editingObj) {
       Serializer.setObjPropertyValue(this.editingObj, key, value);
     } else {
@@ -5670,6 +5787,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
+    this.focusedQuestionScroll.setup();
   }
   forceProcessResponsiveness(): void {
     if (!!this._processingResponsivenessFunc) {
@@ -5679,6 +5797,7 @@ export class SurveyModel extends SurveyElementCore
   beforeDestroySurveyElement() {
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
@@ -6119,13 +6238,21 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
+            this.suspendLazyRendering();
+            this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
-          });
+          } else {
+            this.suspendLazyRendering();
+            SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+              this.releaseLazyRendering();
+              activateLazyRenderingChecks(htmlElement);
+              optOnScolledCallback && optOnScolledCallback();
+            });
+          }
         }
       }
     }
@@ -7051,6 +7178,20 @@ export class SurveyModel extends SurveyElementCore
     if (json && json.locale) {
       this.locale = json.locale;
     }
+    // only a survey that already has questions can hold a mask with a resolved format
+    this.regionalFormatBeforeLoad = { json: this.getRegionalFormatJSON(), hadPages: this.pages.length > 0 };
+    if (!!json) {
+      // Applied here, before the property loop reaches the elements, exactly like `locale` above.
+      // Masks and masked default values resolve their formats while the elements load, so the
+      // position of the regionalFormat key in the JSON must not decide what a masked default
+      // parses as. A JSON without the key means "no overrides" and drops the previous object -
+      // the serializer never calls onSetValue for a key that is not there.
+      if (!!json.regionalFormat) {
+        this.replaceRegionalFormat(json.regionalFormat);
+      } else {
+        this.resetRegionalFormat();
+      }
+    }
   }
   public setJsonObject(jsonObj: any): void {
     this.fromJSON(jsonObj);
@@ -7072,6 +7213,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.setCalculatedWidthModeUpdater();
+    this.refreshRegionalFormatAfterLoad();
     this.onEndLoadingFromJson.fire(this, {});
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
@@ -7160,7 +7302,8 @@ export class SurveyModel extends SurveyElementCore
    * @see setVariables
    */
   public setVariable(name: string, newValue: any): void {
-    if (!name) return;
+    // "__proto__" is ignored: the plain "changed" object below would get its prototype replaced (Bug#11858)
+    if (!name || isProtoKey(name.toLowerCase())) return;
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(name);
@@ -7186,7 +7329,7 @@ export class SurveyModel extends SurveyElementCore
   }
   // The only place that writes the variables hash. A variable shadows a data key with the same
   // name, so the data key is deleted under the name exactly as it was passed in, before the
-  // variable name itself is lower-cased.
+  // variable name itself is lower-cased. Callers skip "__proto__" before calling it (Bug#11858).
   private setVariableCore(name: string, newValue: any): string {
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
@@ -7215,7 +7358,9 @@ export class SurveyModel extends SurveyElementCore
     const newValues: HashTable<any> = {};
     if (hasNewValues) {
       for (const key in variables) {
-        if (!key) continue;
+        // "__proto__" is skipped here and in the write loop below: assigning it to the plain
+        // newValues/changed objects would replace their prototype (Bug#11858)
+        if (!key || isProtoKey(key.toLowerCase())) continue;
         newValues[key.toLowerCase()] = variables[key];
       }
     }
@@ -7235,11 +7380,11 @@ export class SurveyModel extends SurveyElementCore
           changed[name] = { newValue: undefined, oldValue: oldValue };
         }
       }
-      this.variablesHash = {};
+      this.variablesHash = createHash();
     }
     if (hasNewValues) {
       for (const key in variables) {
-        if (!key) continue;
+        if (!key || isProtoKey(key.toLowerCase())) continue;
         this.setVariableCore(key, variables[key]);
       }
     }
@@ -7430,7 +7575,7 @@ export class SurveyModel extends SurveyElementCore
   public getNewGeneratedName(elements: Array<any>, baseName: string): string {
     return this.generateNewName(elements, baseName);
   }
-  protected tryGoNextPageAutomatic(name: string): void {
+  public tryGoNextPageAutomatic(name: string): void {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return;
@@ -7653,17 +7798,19 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashesRemoved(<Question>question, oldName, oldValueName);
     this.questionHashesAdded(<Question>question);
   }
+  // Null-prototype hashes: the keys are question names, and "constructor", "toString" or "valueOf"
+  // must not resolve to an Object.prototype member (Bug#11858)
   private questionHashes = {
-    names: {},
-    namesInsensitive: {},
-    valueNames: {},
-    valueNamesInsensitive: {},
+    names: createHash(),
+    namesInsensitive: createHash(),
+    valueNames: createHash(),
+    valueNamesInsensitive: createHash(),
   };
   private questionHashesClear() {
-    this.questionHashes.names = {};
-    this.questionHashes.namesInsensitive = {};
-    this.questionHashes.valueNames = {};
-    this.questionHashes.valueNamesInsensitive = {};
+    this.questionHashes.names = createHash();
+    this.questionHashes.namesInsensitive = createHash();
+    this.questionHashes.valueNames = createHash();
+    this.questionHashes.valueNamesInsensitive = createHash();
   }
   private questionHashesPanelAdded(panel: PanelModelBase) {
     if (this.isLoadingFromJson) return;
@@ -8667,6 +8814,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose(): void {
     this.unConnectEditingObj();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
@@ -8678,6 +8826,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.layoutElements.splice(0, this.layoutElements.length);
     }
+    this.resetRegionalFormat();
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
@@ -8711,6 +8860,14 @@ export class SurveyModel extends SurveyElementCore
   }
   public get formScrollDisabled() {
     return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+  }
+
+  private focusedQuestionScrollValue: FocusedQuestionScrollController;
+  private get focusedQuestionScroll(): FocusedQuestionScrollController {
+    if (!this.focusedQuestionScrollValue) {
+      this.focusedQuestionScrollValue = new FocusedQuestionScrollController(this);
+    }
+    return this.focusedQuestionScrollValue;
   }
 
   public onScroll(): void {
@@ -8774,9 +8931,18 @@ Serializer.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     },
   },
-  // formats-only regional locale; kept out of the property grid until the survey-creator
-  // side is designed
-  { name: "regionLocale", visible: false },
+  // Survey-wide format overrides and the region locale. Written only when a field is stored:
+  // reading the property creates an empty object, and an empty object must not add a
+  // "regionalFormat": {} key to every survey that ever read it. onSerializeValue bypasses the
+  // serializer's default check, which treats an object whose every value is "" as empty and
+  // would drop { thousandsSeparator: "" }.
+  {
+    name: "regionalFormat:regionalformat",
+    className: "regionalformat",
+    onGetValue: (obj: any): any => obj.getRegionalFormatJSON(),
+    onSerializeValue: (obj: any): any => obj.getRegionalFormatJSON(),
+    onSetValue: (obj: any, value: any): void => { obj.setRegionalFormatFromJson(value); },
+  },
   { name: "title", serializationProperty: "locTitle", dependsOn: "locale" },
   {
     name: "description:text",

@@ -6,7 +6,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Question } from "./question";
+import { Question, QuestionValueType } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
@@ -304,6 +304,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public getType(): string {
     return "slider";
   }
+  public getValueType(): QuestionValueType {
+    return this.sliderType === "range" ? "array" : "number";
+  }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -571,6 +577,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public refreshInputRange = (inputRef?: HTMLElement):void => {
     const { allowDragRange, renderedValue, getPercent } = this;
     if (!allowDragRange) return;
+    if (!inputRef && !this.questionRootElement) return;
     //if (!this.rangeInputRef.current) return;
     const input:HTMLElement = inputRef || this.questionRootElement.querySelector("#" + this.id + "-sjs-slider-input-range-input"); //TODO
 
@@ -657,11 +664,16 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
     if (!this.isAllowToChange()) return;
-    if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
     const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
 
     let newValue: number = +inputNode.value;
+    if (this.oldValue === null) {
+      // No pointer or keyboard gesture is in progress (assistive technology, a script, or a test),
+      // so there is no PointerUp/KeyUp that commits the value later
+      this.commitValueWithoutGesture(newValue, inputNumber);
+      return;
+    }
 
     if (renderedValue.length > 1) {
       newValue = ensureMaxRangeBorders(newValue, inputNumber);
@@ -673,6 +685,26 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     renderedValue.splice(inputNumber, 1, newValue);
   };
 
+  private commitValueWithoutGesture(newValue: number, inputNumber: number): void {
+    const { step, renderedValue } = this;
+    if (isNaN(newValue) || inputNumber < 0 || inputNumber >= renderedValue.length) return;
+    if (step) {
+      newValue = this.getClosestToStepValue(newValue);
+    }
+    if (renderedValue.length > 1) {
+      newValue = this.ensureMaxRangeBorders(newValue, inputNumber);
+      newValue = this.ensureMinRangeBorders(newValue, inputNumber);
+    }
+    // Firefox raises one more change after PointerUp; once rounded to the step and checked against the range borders
+    // it matches the value PointerUp committed (or reverted)
+    if (newValue === renderedValue[inputNumber]) return;
+    const value = renderedValue.slice();
+    value[inputNumber] = newValue;
+    value.sort((a, b) => a - b);
+    this.setSliderValue(value);
+    this.refreshInputRange();
+  }
+
   public handlePointerDown = (e: PointerEvent)=> {
     const { step, renderedValue } = this;
     if (step) {
@@ -683,13 +715,15 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     }
     this.isAllowFocusThumb = false;
     this.focusedThumb = null;
-    this.oldValue = this.renderedValue;
+    // a copy: handleOnChange changes renderedValue in place during the gesture
+    this.oldValue = this.renderedValue.slice();
     this.animatedThumb = false;
   };
 
   public handlePointerUp = (event:PointerEvent) => {
     event.stopPropagation();
-    const { step, focusedThumb, renderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
+    const { step, focusedThumb, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
+    let renderedValue = this.renderedValue;
     const focusedThumbValue = renderedValue[focusedThumb];
     const inputNode = <HTMLInputElement>event.target;
 
@@ -706,8 +740,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
     if (allowSwap) {
       for (let i = 0; i < renderedValue.length - 1; i++) {
-        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
-          this.setPropertyValue("renderedValue", <number[]>this.oldValue);
+        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength && Array.isArray(this.oldValue)) {
+          renderedValue = this.oldValue;
           break;
         }
       }
@@ -723,7 +757,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       this.isAllowFocusThumb = true;
       this.focusedThumb = inputNumber;
     }
-    this.oldValue = this.renderedValue;
+    this.oldValue = this.renderedValue.slice();
     this.animatedThumb = true;
   };
 

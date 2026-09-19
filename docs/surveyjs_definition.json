@@ -6,8 +6,8 @@
     "locale": {
       "type": "string"
     },
-    "regionLocale": {
-      "type": "string"
+    "regionalFormat": {
+      "$ref": "#/definitions/regionalformat"
     },
     "title": {
       "oneOf": [
@@ -619,6 +619,33 @@
           "type": "string"
         },
         "en": {
+          "type": "string"
+        }
+      }
+    },
+    "regionalformat": {
+      "type": "object",
+      "$id": "regionalformat",
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "datePattern": {
+          "type": "string"
+        },
+        "timePattern": {
+          "type": "string"
+        },
+        "decimalSeparator": {
+          "type": "string"
+        },
+        "thousandsSeparator": {
+          "type": "string"
+        },
+        "currencySymbol": {
+          "type": "string"
+        },
+        "currencyPattern": {
           "type": "string"
         }
       }
@@ -3302,10 +3329,10 @@
         },
         {
           "properties": {
-            "prefix": {
+            "currencySymbol": {
               "type": "string"
             },
-            "suffix": {
+            "currencyPattern": {
               "type": "string"
             }
           }

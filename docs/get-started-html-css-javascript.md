@@ -48,7 +48,7 @@ If you wish to apply a predefined theme other than Default or create your own cu
 
 ### Add Fonts
 
-Starting with SurveyJS v3.1.0, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
+Starting with SurveyJS v3.0.4, fonts are no longer included in SurveyJS packages. Load Open Sans separately to preserve the default appearance, unless your application already does so. If you use a custom font, load it instead. Otherwise, the browser uses a fallback font, which may affect spacing and layout.
 
 To load Open Sans from Google Fonts, add the following links to the page's `<head>`. You can also host the font files yourself.
 

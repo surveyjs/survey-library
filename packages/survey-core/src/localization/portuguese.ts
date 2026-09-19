@@ -263,9 +263,9 @@ export var portugueseSurveyStrings = {
   maskPlaceholderMinute: "M",
   // "s" - a second placeholder symbol in a datetime input mask
   maskPlaceholderSecond: "s",
-  // "t" - a lower case AM/PM marker placeholder symbol in a datetime input mask
+  // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "t",
-  // "T" - an upper case AM/PM marker placeholder symbol in a datetime input mask
+  // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerUpper: "T"
 };
 

@@ -186,12 +186,12 @@ export class Helpers {
     }
 
     for (var p in x) {
-      if (!x.hasOwnProperty(p)) continue;
-      if (!y.hasOwnProperty(p)) return false;
+      if (!Object.prototype.hasOwnProperty.call(x, p)) continue;
+      if (!Object.prototype.hasOwnProperty.call(y, p)) return false;
       if (!this.checkIfValuesEqual(x[p], y[p], params)) return false;
     }
     for (p in y) {
-      if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+      if (Object.prototype.hasOwnProperty.call(y, p) && !Object.prototype.hasOwnProperty.call(x, p)) return false;
     }
     return true;
   }
@@ -273,12 +273,14 @@ export class Helpers {
     return res;
   }
   public static isConvertibleToNumber(value: any): boolean {
-    return (
-      value !== undefined &&
-      value !== null &&
-      !Array.isArray(value) &&
-      !isNaN(value)
-    );
+    if (value === undefined || value === null || Array.isArray(value)) return false;
+    // isNaN converts an object to a primitive, which throws for an object whose own "toString" or
+    // "valueOf" key is not a function - e.g. a values object keyed by a question named "toString"
+    try {
+      return !isNaN(value);
+    } catch(e) {
+      return false;
+    }
   }
   public static isValueObject(val: any, excludeArray?: boolean): boolean {
     return val instanceof Object && (!excludeArray || !Array.isArray(val));

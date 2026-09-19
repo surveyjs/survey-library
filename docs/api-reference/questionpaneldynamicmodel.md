@@ -283,7 +283,7 @@ While this property is set, users cannot add or remove panels manually. The expr
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-Available since: v3.1.0
+Available since: v3.0.4
 
 ### `panels`
 

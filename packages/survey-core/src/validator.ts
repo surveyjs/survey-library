@@ -74,6 +74,8 @@ export class SurveyValidator extends Base {
    * Errors block survey progress until resolved. Warnings indicate potential issues but don't block respondents from continuing the survey. Informational notes provide guidance without restrictions.
    *
    * > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
+   *
+   * [Demo: Validator Notification Types](/form-library/examples/validator-notification-types/)
    */
   @property() notificationType: string;
   /**

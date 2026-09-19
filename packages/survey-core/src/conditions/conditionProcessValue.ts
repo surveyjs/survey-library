@@ -50,6 +50,11 @@ export interface IReturnValue {
   propName?: string;
   strictCompare?: boolean;
 }
+// The changed-keys objects are keyed by value names, so a question named "hasOwnProperty" shadows
+// the method: always check own keys through Object.prototype (Bug#11858)
+function hasOwnKey(obj: any, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
 export class ValueGetter {
   public constructor() {
   }
@@ -104,8 +109,8 @@ export class ValueGetter {
       // An element property reference ({$q1.isVisible}) can change without any value key change
       if (!!propPrefix && name[0] === propPrefix) return true;
       const lowerName = name.toLowerCase();
-      if (keys.hasOwnProperty(name)) return true;
-      if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
+      if (hasOwnKey(keys, name)) return true;
+      if (name !== lowerName && hasOwnKey(keys, lowerName)) return true;
       if (this.isUnwrappedNameChanged(keys, name)) return true;
       const firstName = this.getFirstNameByKeys(keys, name);
       if (!firstName) continue;
@@ -113,8 +118,8 @@ export class ValueGetter {
       const keyValue = keys[firstName];
       if (keyValue == undefined) continue;
       if (
-        !keyValue.hasOwnProperty("oldValue") ||
-        !keyValue.hasOwnProperty("newValue")
+        !hasOwnKey(keyValue, "oldValue") ||
+        !hasOwnKey(keyValue, "newValue")
       )
         return true;
       const v: any = {};
@@ -132,16 +137,16 @@ export class ValueGetter {
     const first = this.getPath(name)[0].name;
     if (!first.endsWith(postfix)) return false;
     const baseName = first.substring(0, first.length - postfix.length);
-    return keys.hasOwnProperty(baseName) || keys.hasOwnProperty(baseName.toLowerCase());
+    return hasOwnKey(keys, baseName) || hasOwnKey(keys, baseName.toLowerCase());
   }
   private getFirstNameByKeys(keys: any, name: string): string {
     const path = this.getPath(name);
     let res = "";
     for (let i = 0; i < path.length; i++) {
       res += (i > 0 ? "." : "") + path[i].name;
-      if (keys.hasOwnProperty(res)) return res;
+      if (hasOwnKey(keys, res)) return res;
       const lowerRes = res.toLowerCase();
-      if (lowerRes !== res && keys.hasOwnProperty(lowerRes)) return lowerRes;
+      if (lowerRes !== res && hasOwnKey(keys, lowerRes)) return lowerRes;
     }
     return "";
   }

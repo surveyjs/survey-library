@@ -126,7 +126,7 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
     let container: any = this.item.data;
     while(!!container) {
       const valueName = typeof container.getValueName === "function" ? container.getValueName() : container.name;
-      if (!!valueName && keys.hasOwnProperty(valueName)) return true;
+      if (!!valueName && Object.prototype.hasOwnProperty.call(keys, valueName)) return true;
       let itemData = container.data;
       if (itemData instanceof DynamicItemModelBase) {
         itemData = itemData.data;

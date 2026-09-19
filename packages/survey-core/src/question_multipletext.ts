@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -462,6 +462,9 @@ export class QuestionMultipleTextModel extends Question
   }
   public getType(): string {
     return "multipletext";
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
   }
   protected getAllChildren(): Base[] {
     return [
@@ -951,6 +954,12 @@ Serializer.addClass(
       },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();
+      },
+      // An object whose every value is empty is dropped as a default, which would lose an
+      // authored "" separator or symbol. Anything getData() writes was written on purpose.
+      onSerializeValue: function (obj: any) {
+        const data = obj.maskSettings.getData();
+        return Object.keys(data).length > 0 ? data : undefined;
       },
       onSetValue: function (obj: any, value: any) {
         obj.maskSettings.setData(value);

@@ -14,6 +14,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { PropertyNameArray } from "./propertyNameArray";
+import { QuestionValueType } from "./question";
 
 export class CheckboxItem extends ChoiceItem {
   @property() isExclusive: boolean;
@@ -61,9 +62,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.onCreating();
     this.createNewArray("renderedValue");
     this.createNewArray("value");
-  }
-  protected getFirstInputElementId(): string {
-    return this.inputId + "_0";
   }
   /**
    * Specifies a property name used to store selected values.
@@ -551,6 +549,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public isBuiltInChoice(item: ItemValue): boolean {
     return item === this.selectAllItem || super.isBuiltInChoice(item);
+  }
+  public isSelectAllItem(item: ItemValue): boolean {
+    return !!this.selectAllItemValue && item === this.selectAllItemValue;
+  }
+  public getValueType(): QuestionValueType {
+    return "array";
   }
 
   public isItemInList(item: ItemValue): boolean {

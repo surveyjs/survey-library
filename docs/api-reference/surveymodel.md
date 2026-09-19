@@ -523,6 +523,8 @@ Default value: `""` (a default locale is used)
 
 [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
 
+**Related APIs:** [`regionalFormat`](#regionalFormat)
+
 ### `logo`
 
 **Type**: `string`
@@ -956,6 +958,20 @@ Enables the read-only mode. If you set this property to `true`, users cannot tak
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+
+### `regionalFormat`
+
+**Type**: `RegionalFormat`
+
+Configures date, time, number, and currency formats for [input masks](/form-library/examples/masked-input-fields/) throughout the survey.
+
+Formats follow the survey's [`locale`](#locale) by default. To configure formats independently of the survey's display language, set the `regionalFormat` object's [`locale`](/form-library/documentation/api-reference/regionalformat#locale) property to a locale code with a region, such as `"en-US"`.
+
+In addition, you can override regional date and time patterns, numeric separators, the currency symbol, and the currency pattern. See the [`RegionalFormat`](/form-library/documentation/api-reference/regionalformat) API reference for details.
+
+Those survey-wide settings can in turn be overridden by settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object. The inheritance order is:
+
+`SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
 
 ### `requiredMark`
 
@@ -2129,6 +2145,8 @@ Sets multiple variables at once.
 Unlike multiple [`setVariable(name, value)`](#setVariable) calls, this method updates all variables before recalculating expressions and running triggers. Pass `true` as the `clearPrevious` parameter to remove variables that are not included in the `variables` object.
 
 [Variables](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+
+Available since: v3.0.4
 
 **Parameters:**
 

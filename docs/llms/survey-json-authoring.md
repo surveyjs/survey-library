@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.0.4 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.1.1 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.0.4/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.1.1/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -71,6 +71,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `completedHtmlOnCondition` | `array` of `htmlconditionitem` |  | An array of objects that allows you to specify different HTML content for the complete page. |
 | `navigateToUrlOnCondition` | `array` of `urlconditionitem` |  | An array of objects that allows you to navigate respondents to different URLs after survey completion. |
 | `pages` | `array` of `page` |  | Returns an array of all pages in the survey. |
+| `regionalFormat` | `regionalformat` |  | Configures date, time, number, and currency formats for input masks throughout the survey. |
 | `triggers` | `array` of `surveytrigger` |  | A list of triggers in the survey. |
 | `checkErrorsMode` | `onNextPage, onValueChanged, onComplete` | `"onNextPage"` | Specifies when the survey validates answers. |
 | `clearInvisibleValues` | `none, onComplete, onHidden, onHiddenContainer` | `"onComplete"` | Specifies when to remove values of invisible questions from survey results. |
@@ -1496,7 +1497,7 @@ Required: `value`.
 
 ### `masksettings`
 
-A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
+A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern` Date-time, numeric, and currency masks inherit format settings from the survey's `regionalFormat` object.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md)
 
@@ -1582,6 +1583,22 @@ A class that describes an item in a Multiple Textboxes question. Required: `name
 ### `ratingitem`
 
 Inherits the properties of `itemvalue`.
+
+### `regionalformat`
+
+Configures date, time, number, and currency formats for input masks throughout a survey.
+
+[API](https://surveyjs.io/form-library/documentation/api-reference/regionalformat.md)
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `locale` | `ar, bg, ca, cs, cy, da, de, el, en, en-AU, en-CA, en-GB, en-IE, en-IN, en-NZ, en-ZA, es, et, eu, fa, fi, fil, fr, fr-CA, fr-CH, he, hi, hr, ht, hu, id, is, it, ja, ka, kk, ko, lt, lv, mk, mm, ms, nl, nl-BE, no, pl, pt, pt-BR, ro, ru, sk, sl, sr, sv, sw, tel, tg, th, tr, uk, ur, vi, zh, zh-CN, zh-TW` |  | The locale used to resolve default date, time, number, and currency formats for input masks. |
+| `currencyPattern` | `string` |  | A pattern that specifies the position of the number, currency symbol, and minus sign in currency input masks. |
+| `currencySymbol` | `string` |  | A currency symbol or code displayed by currency input masks, for example, `"$"` or `"USD"`. |
+| `datePattern` | `string` |  | A date pattern for date-time input masks. |
+| `decimalSeparator` | `string` |  | A symbol that separates the integer and fractional parts of a displayed number in numeric and currency input masks. |
+| `thousandsSeparator` | `string` |  | A symbol that separates the digits of a large number into groups of three in numeric and currency input masks. |
+| `timePattern` | `string` |  | A time pattern for date-time input masks. |
 
 ### `sliderlabel`
 

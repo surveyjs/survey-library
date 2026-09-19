@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { Question, QuestionValueGetterContext } from "./question";
+import { Question, QuestionValueGetterContext, QuestionValueType } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -157,6 +157,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   public getType(): string {
     return "matrixdynamic";
+  }
+  public getValueType(): QuestionValueType {
+    return "array";
   }
   protected getAllChildren(): Base[] {
     return [

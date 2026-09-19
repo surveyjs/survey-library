@@ -233,14 +233,15 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question } from "../../src/question";
+export { Question, QuestionValueType } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {
   QuestionCheckboxBase,
   QuestionSelectBase,
-  ChoiceItem
+  ChoiceItem,
+  ISelectQuestion
 } from "../../src/question_baseselect";
 export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
@@ -338,11 +339,12 @@ export * from "../../src/utils/animation-dom";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { IMaskLocaleChange } from "../../src/mask/mask_utils";
 export { IDateTimeInputFragments } from "../../src/mask/mask_datetime";
-export { ILocaleData, localeData, getLocaleDataValue } from "../../src/locale-data";
+export { ILocaleData, localeData, getLocaleDataValue, getLocaleDataLocales, findLocaleDataKey, canonicalizeLocale } from "../../src/locale-data";
+export { RegionalFormat, regionalFormatCategory } from "../../src/regional-format";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
-export { InputMaskNumeric } from "../../src/mask/mask_numeric";
+export { InputMaskNumeric, isValidDecimalSeparator, isValidThousandsSeparator } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";
-export { InputMaskCurrency } from "../../src/mask/mask_currency";
+export { InputMaskCurrency, isValidCurrencyPattern, isValidCurrencySymbol } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";

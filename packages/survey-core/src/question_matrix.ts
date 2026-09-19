@@ -17,7 +17,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType } from "./question";
-import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
+import { ISurveyData, ISurvey, ITextProcessor, IQuestion, IValueChecks } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
@@ -690,16 +690,21 @@ export class QuestionMatrixModel
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    const unknownKeys: Array<string> = [];
     for (const key in val) {
-      if (!this.isValueKeyKnown(key)) return false;
+      if (!this.isValueKeyKnown(key)) {
+        unknownKeys.push(key);
+        continue;
+      }
       // A row of another matrix that shares the value is checked by that matrix.
-      if (!this.hasValueKey(key)) continue;
+      if (!this.hasValueKey(key) || !checks.choices) continue;
       const cell = val[key];
       const cellValues = this.isMultiSelect && Array.isArray(cell) ? cell : [cell];
-      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return false;
+      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return this.setIncorrectValue("choices");
     }
+    if (checks.unknownKeys && unknownKeys.length > 0) return this.setIncorrectValue("unknownKeys", unknownKeys);
     return true;
   }
   protected hasValueKey(key: string): boolean {

@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks, IValueChecks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -700,7 +700,9 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     // The keys of the detail panel questions are known once the panel is created.
     this.ensureDetailPanel();
     for (var key in val) {
-      var question = this.getQuestionByName(key);
+      // A key is resolved by valueName, the way isUnknownValueKey() does it, so that clearing
+      // removes exactly what getUnknownValueKeys() reports.
+      var question = this.getQuestionsByValueName(key)[0];
       if (question) {
         var qVal = question.value;
         question.clearIncorrectValues();
@@ -709,20 +711,33 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
         }
       } else {
         if (this.isUnknownValueKey(key)) {
-          this.setValue(key, null);
+          this.deleteUnknownValueKey(key);
         }
       }
     }
   }
-  // Tells whether a row value has a key that no cell question stores. It does not modify the value.
-  public hasUnknownValueKeys(val: any): boolean {
+  // Lists the keys of a row value that no cell question stores. It does not modify the value.
+  public getUnknownValueKeys(val: any): Array<string> {
     // A row edits an object, not a JSON value, when the survey is used as an object editor.
-    if (!!val && typeof val.getType === "function") return false;
+    if (!!val && typeof val.getType === "function") return [];
+    // A row value of another shape is a valueType finding of the question, not an unknown key one.
+    if (!Helpers.isValueObject(val, true)) return [];
     this.ensureDetailPanel();
+    const res: Array<string> = [];
     for (var key in val) {
-      if (this.isUnknownValueKey(key)) return true;
+      if (this.isUnknownValueKey(key)) res.push(key);
     }
-    return false;
+    return res;
+  }
+  private deleteUnknownValueKey(key: string): void {
+    // setValue() resolves a key by the question name and keeps a key that a question of the row is
+    // named after, even when that question stores its value under another valueName. Such a key has
+    // to be removed from the row value directly, so that clearing removes what getUnknownValueKeys() reports.
+    if (!this.getQuestionByName(key)) {
+      this.setValue(key, null);
+    } else {
+      this.data.updateItemValue(this, key, this.value, true);
+    }
   }
   private isUnknownValueKey(key: string): boolean {
     const suffix = settings.commentSuffix;
@@ -1579,14 +1594,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return !!question ? question.getConditionJson(operator) : null;
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    if (!checks.unknownKeys) return true;
     if (!Array.isArray(this.visibleRows)) return true;
     const rows = this.generatedVisibleRows;
+    const unknownKeys: Array<string> = [];
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].hasUnknownValueKeys(this.getRowValue(i))) return false;
+      const keys = rows[i].getUnknownValueKeys(this.getRowValue(i));
+      keys.forEach(key => unknownKeys.push(this.getRowKeyName(rows[i], i) + "." + key));
     }
+    if (unknownKeys.length > 0) return this.setIncorrectValue("unknownKeys", unknownKeys);
     return true;
+  }
+  // The name of a row in an unknown key path: the row index here, the key of the row in the value
+  // for a matrixdropdown, which keeps its rows in an object.
+  protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
+    return index + "";
   }
   public clearIncorrectValues(): void {
     this.clearIncorrectValueInData();

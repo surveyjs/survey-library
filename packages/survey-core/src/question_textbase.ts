@@ -1,4 +1,5 @@
 import { Question } from "./question";
+import { IValueChecks } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Helpers } from "./helpers";
@@ -34,12 +35,13 @@ export class QuestionTextBase extends Question {
   protected isTextValue(): boolean {
     return true;
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
     // A custom widget and a question derived from this one, a JSON editor built on a comment question
     // for example, may keep a value of any shape, so only a numeric input reports the value shape.
-    if (!!this.customWidget) return true;
-    return this.getValueType() !== "number" || this.isValueOfValueType(val);
+    if (!checks.valueType || !!this.customWidget) return true;
+    if (this.getValueType() !== "number" || this.isValueOfValueType(val)) return true;
+    return this.setIncorrectValue("valueType");
   }
   /**
    * The maximum text length measured in characters. Assign 0 if the length should be unlimited.

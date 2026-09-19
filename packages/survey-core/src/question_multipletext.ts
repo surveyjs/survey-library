@@ -7,7 +7,8 @@ import {
   IElement,
   IQuestion,
   ITextProcessor,
-  IProgressInfo
+  IProgressInfo,
+  IValueChecks
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
@@ -623,15 +624,23 @@ export class QuestionMultipleTextModel extends Question
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
-    return Object.keys(val).every(key => this.isValueKeyKnown(key));
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    if (!checks.unknownKeys) return true;
+    const unknownKeys = Object.keys(val).filter(key => !this.isValueKeyKnown(key));
+    if (unknownKeys.length === 0) return true;
+    return this.setIncorrectValue("unknownKeys", unknownKeys);
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);
   }
   protected clearIncorrectValuesCore(): void {
     const val = this.value;
+    // A value of another shape, a string for example, has no items to keep: drop it as a whole.
+    if (!Helpers.isValueObject(val, true)) {
+      super.clearIncorrectValuesCore();
+      return;
+    }
     const newValue: any = {};
     Object.keys(val).forEach(key => {
       if (this.isValueKeyKnown(key)) {

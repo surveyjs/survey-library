@@ -141,7 +141,11 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  ValueCheckName,
+  IValueChecks,
+  IValidateOptions,
+  ISurveyValidateOptions
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";

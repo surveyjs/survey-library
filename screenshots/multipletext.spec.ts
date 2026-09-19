@@ -18,8 +18,8 @@ frameworks.forEach(framework => {
           {
             type: "multipletext",
             name: "q1",
-            minWidth: "768px",
-            maxWidth: "768px",
+            minWidth: "792px",
+            maxWidth: "792px",
             width: "792px",
             title: "Personal Information",
             items: [
@@ -46,8 +46,8 @@ frameworks.forEach(framework => {
           {
             type: "multipletext",
             name: "q1",
-            minWidth: "1000px",
-            maxWidth: "1000px",
+            minWidth: "1024px",
+            maxWidth: "1024px",
             width: "1024px",
             colCount: 2,
             title: "Personal Information",

@@ -11,6 +11,7 @@
   flex-wrap: wrap;
 
   & > div {
+    box-sizing: border-box;
     --animation-padding-left: #{var(--sjs2-layout-component-page-content-area-gap-horizontal)};
     padding-left: var(--sjs2-layout-component-page-content-area-gap-horizontal);
     display: flex;

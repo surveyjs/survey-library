@@ -19,8 +19,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             elements: [
               {
@@ -52,8 +52,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Contact",
-            minWidth: "780px",
-            maxWidth: "780px",
+            minWidth: "804px",
+            maxWidth: "804px",
             width: "804px",
             elements: [
               {
@@ -92,8 +92,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             state: "collapsed",
             elements: [
@@ -134,8 +134,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "details",
             title: "Please answer",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             state: "collapsed",
             elements: [{ type: "text", name: "question", }] },
@@ -166,8 +166,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             visible: false,
             elements: [
@@ -463,8 +463,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             elements: [
               {
@@ -500,8 +500,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             elements: [
               {
@@ -540,8 +540,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             elements: [
               {
@@ -577,8 +577,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
-            minWidth: "708px",
-            maxWidth: "708px",
+            minWidth: "732px",
+            maxWidth: "732px",
             width: "732px",
             showNumber: true,
             elements: [

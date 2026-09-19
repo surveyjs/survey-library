@@ -38,6 +38,12 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
+import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
@@ -90,8 +96,10 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
     }
     return undefined;
   }
+  // The RECORD index, so that a stored {panelIndex} expression keeps meaning the same panel when a
+  // filter or a sort changes which panels exist.
   private get panelIndex(): number {
-    return this.getPanels(false).indexOf(this.item.panel);
+    return this.item.getIndex();
   }
   protected get visibleIndex(): number {
     return this.getPanels(true).indexOf(this.item.panel);
@@ -170,7 +178,7 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
     return this.panel.getQuestionByName(name);
   }
   public getIndex(): number {
-    return this.data.getItemIndex(this);
+    return this.data.getItemRecordIndex(this);
   }
 
   public get questions(): Array<Question> {
@@ -211,7 +219,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData {
+export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -284,6 +292,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public dispose(): void {
     super.dispose();
+    /* The list goes with the question: it drops its pending-request counter, so a page or a push that
+       is still in flight cannot write into a question that is gone. */
+    if (!!this.dataListValue) {
+      this.dataListValue.dispose();
+    }
     this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
@@ -324,9 +337,373 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
+    // isDesignMode is known only once the survey is attached, and the list may have been created
+    // before that: paging is off in the Creator, whatever panelsPerPage says.
+    if (!!this.dataListValue) {
+      this.paging.updatePageSize();
+    }
   }
+  /* The data the survey and the expressions see: the records that have a panel. A record the list
+     filter excluded has no panel and is not part of it - the same answer a source that filters on
+     its own side gives. */
   getFilteredData(): any {
-    return this.value;
+    if (!this.hasDataListView) return this.value;
+    const list = this.dataList;
+    return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
+  }
+  private dataListValue: DynamicDataList;
+  // Every record-level read and write of this question goes through this list. Its source is a
+  // getter/setter pair over question.value - never a captured array - so that the batched creation
+  // overrides (getValueCore/setValueCore) are honoured and every write replaces the array instead of
+  // mutating the one the question currently holds.
+  private get dataList(): DynamicDataList {
+    if (!this.dataListValue) {
+      this.dataListValue = createReadThroughDataList(this,
+        (): Array<any> => this.value,
+        (arr: Array<any>): void => { this.value = arr; });
+      this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
+        this.onDataSourceError(error, operation);
+      };
+      // The list is created on demand, so a panelsPerPage that came from JSON has to be pushed here
+      // and not only from its setter.
+      this.paging.updatePageSize();
+    }
+    return this.dataListValue;
+  }
+  // internal, for tests and renderers
+  public getDataList(): DynamicDataList {
+    return this.dataList;
+  }
+  private remoteValue: DynamicDataRemoteController;
+  private get remote(): DynamicDataRemoteController {
+    if (!this.remoteValue) {
+      this.remoteValue = new DynamicDataRemoteController(this);
+    }
+    return this.remoteValue;
+  }
+  /**
+   * A data source that supplies the panel records. Assign an object that implements `IDynamicDataSource` to read the records from a server: the question then shows one loaded page at a time and pushes every edit, insertion and deletion to the source.
+   *
+   * This property is not serialized - a data source is code, not survey JSON. Set it to `undefined` to go back to the records stored in `question.value`.
+   * @since 3.1.0
+   */
+  public get dataSource(): IDynamicDataSource {
+    return this.remote.dataSource;
+  }
+  public set dataSource(val: IDynamicDataSource) {
+    this.remote.dataSource = val;
+    // The capabilities of the new source decide whether the panels are editable and whether the
+    // add/remove buttons are shown.
+    this.updatePanelsReadOnly();
+    this.updateFooterActions();
+  }
+  // True while the data source is reading a page. The UI shows a loading state from it, and
+  // question.isReady is false for exactly as long.
+  @property({ defaultValue: false, onSet: (val: boolean, q: QuestionPanelDynamicModel): void => { q.updateIsReady(); } }) isDataLoading: boolean;
+  // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
+  // source has not acknowledged is an asynchronous operation the survey has started.
+  public get isDynamicDataRunning(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRunning;
+  }
+  // "the records are owned by a data source", the one condition every remote branch of this class
+  // asks. It is deliberately not "the list pages itself": a source that returns everything in one
+  // read is still a source, and its records are still not the question's to grow or truncate.
+  private get isRemoteData(): boolean {
+    return !!this.remoteValue && this.remoteValue.isRemote;
+  }
+  createValueDataSource(): IDynamicDataSource {
+    return new ArrayDynamicDataSource((): Array<any> => this.value, (arr: Array<any>): void => { this.value = arr; });
+  }
+  clearValueInSurveyData(): void {
+    if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
+    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
+  }
+  restoreValueFromSurveyData(): void {
+    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
+  }
+  onDataLoadingChanged(isLoading: boolean): void {
+    this.isDataLoading = isLoading;
+  }
+  onDataSourceError(error: any, operation: DynamicDataOperation): void {
+    const survey: any = this.survey;
+    if (!!survey && !!survey.dynamicDataError) {
+      survey.dynamicDataError(this, operation, error);
+    }
+  }
+  protected getIsQuestionReady(): boolean {
+    return !this.isDataLoading && super.getIsQuestionReady();
+  }
+  /* A remote-backed question is excluded from the survey data: a page load never writes into the
+     survey hash - it is not an answer - so an edit that did would leave the hash holding one page of
+     a table nobody submitted. The records go to the source instead.
+     Known limitation: expressions elsewhere in the survey that name this question ({panel[0].q} or
+     {panel.length}) do not update on a remote edit. The {panel.x} context inside the panels and the
+     question's own validation are unaffected - they read question.value, which is the window. */
+  protected canSetValueToSurvey(): boolean {
+    return !this.isRemoteData;
+  }
+  /* The incoming direction of the same rule: while a source is attached, survey.data = ...,
+     survey.setValue, mergeData and a setvalue trigger do not reach the question. The survey hash may
+     then hold a value the question does not show; that is the caller's doing. */
+  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    if (this.isRemoteData) return;
+    super.updateValueFromSurvey(newValue, clearData);
+  }
+  /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
+     survey hash is not written and no trigger, condition or navigation runs - and then the panels
+     are rebuilt for the records the window holds. Nothing else may assign the value on a load. */
+  private setLoadedRecords(): void {
+    this.storeLoadedRecords();
+    this.rebuildPanelsFromDataList();
+  }
+  // The storage half alone: used after every write the list pushed to the source. The panel the
+  // respondent is typing in already holds the new value, and a rebuild would dispose it under the
+  // edit (the frozen-membership rule).
+  private storeLoadedRecords(): void {
+    this.storeQuestionValue(this.remote.getWindow());
+  }
+  private isReRunningRemoteConditions: boolean;
+  /* With the array source over question.value a record write reaches the survey, and the survey then
+     re-runs the conditions of every question - which is what recalculates an expression question and
+     a {panel.x} reference. A remote write never reaches the survey (canSetValueToSurvey), so the
+     question runs its own. Re-entrancy is guarded and not forbidden for a reason: an expression
+     question writes its result back as a record field, and the nested run would only recompute what
+     the outer one has just settled. */
+  private reRunConditionsOnRemoteWrite(): void {
+    if (this.isReRunningRemoteConditions || !this.data) return;
+    this.isReRunningRemoteConditions = true;
+    try {
+      this.reRunCondition();
+    } finally {
+      this.isReRunningRemoteConditions = false;
+    }
+  }
+  getFields(): Array<IDynamicDataField> {
+    return getDynamicDataFieldsForQuestions(this.template.questions);
+  }
+  /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
+     called. Which records have a panel changes with it, so the panels are rebuilt.
+     hasMaterializedView remembers that the panels were last built for a view: clearing the filter
+     leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
+     raises while it is being constructed - before dataListValue is assigned - out of here. */
+  private hasMaterializedView: boolean = false;
+  onDataListChanged(change: IDynamicDataListChange): void {
+    if (!this.dataListValue) return;
+    if (change.type === "loading") {
+      this.onDataLoadingChanged(change.isLoading);
+      return;
+    }
+    if (change.type === "pageChanged") {
+      // The panels themselves are untouched: only which of them are rendered changes.
+      this.syncPagingState();
+      this.updateRenderedPanels();
+      return;
+    }
+    /* A write the list pushed to a data source: with the array source over question.value the push
+       IS the value write, a remote source has no such setter, so the question follows the window
+       itself. The panels are not rebuilt - the one that was edited, added or removed is handled by
+       the path that made the change. */
+    if (this.isRemoteData && change.type !== "reset") {
+      this.storeLoadedRecords();
+      this.reRunConditionsOnRemoteWrite();
+      return;
+    }
+    if (change.type !== "reset") return;
+    this.syncPagingState();
+    const isRemote = this.isRemoteData;
+    const hasView = this.dataListValue.hasView || isRemote;
+    if (!hasView && !this.hasMaterializedView) return;
+    this.hasMaterializedView = hasView;
+    if (isRemote) {
+      // The window the read committed is the new value; setLoadedRecords rebuilds the panels.
+      this.setLoadedRecords();
+    } else {
+      this.rebuildPanelsFromDataList();
+    }
+  }
+  /* A remote window is a view of its own: the panels are built for the records the list holds, not
+     for 0 ... panelCount-1, because panelCount is the server total. */
+  private get hasDataListView(): boolean {
+    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView || this.isRemoteData);
+  }
+  /* Takes a created position - the position in panelsCore - and returns the record it holds. A
+     position past the last created one is a panel that is being built: its record is the next one,
+     which is what the positional code meant by items.length. */
+  private getRecordIndexByPanelIndex(index: number): number {
+    if (!this.hasDataListView) return index;
+    const res = this.dataList.createdIndexToIndex(index);
+    return res >= 0 ? res : this.dataList.count;
+  }
+  /* Every value assignment of this question passes through setQuestionValue - a value set by the
+     survey, a trigger, a default value or a panel. The list reads the records through the value, so
+     it sees them at once, but the views it cached over them it cannot: they are dropped here. The
+     list is not created just to be invalidated. */
+  private invalidateDataListViews(): void {
+    if (!!this.dataListValue) {
+      this.dataListValue.invalidateViews();
+      this.syncPagingState();
+    }
+  }
+  private pagingValue: DynamicDataPagingController;
+  private get paging(): DynamicDataPagingController {
+    if (!this.pagingValue) {
+      this.pagingValue = new DynamicDataPagingController(this);
+    }
+    return this.pagingValue;
+  }
+  // The list announces a page index it had to clamp, but not a page count that changed because a
+  // panel became hidden or because the records were replaced: those points call this.
+  private syncPagingState(): void {
+    if (!this.dataListValue) return;
+    this.paging.syncState();
+    /* renderedPanels is a stored array and not a computed one: panels that appeared, disappeared or
+       became hidden change which of them are on the page, and the panels are created before the
+       value that holds their records is - the update they made then saw no records at all. */
+    if (this.isPagingActive && !this.isUpdatingRenderedPanels) {
+      this.updateRenderedPanels();
+    }
+  }
+  /* Paging is the only view that is a slice of the panels that exist - which panels exist and in
+     what order is decided by the list filter and the list sort, and that work is done by the time
+     visiblePanels is read. The page is therefore the plain [pageIndex * pageSize, + pageSize)
+     window of visiblePanels and not a second record-to-panel mapping: the panels are already in the
+     list's visible order, and they outrun the records while the question is being built - the
+     panels are created before the value that holds their records is.
+     With paging off this IS visiblePanels, the same instance. In carousel and tab mode one panel is
+     shown at a time, so panelsPerPage is ignored there, not hidden: renderedPanels stays
+     [currentPanel]. */
+  public get panelsOnPage(): Array<PanelModel> {
+    const visPanels = this.visiblePanels;
+    if (!this.isPagingActive || !Array.isArray(visPanels) || this.isWindowThePage) return visPanels;
+    const list = this.dataListValue;
+    const start = list.pageIndex * list.pageSize;
+    return visPanels.slice(start, start + list.pageSize);
+  }
+  /* The data source pages itself, so the panels that exist ARE the page: slicing them by pageIndex a
+     second time would leave every page but the first empty, and "show the panel that was just added"
+     would navigate away from the window it was added to. */
+  private get isWindowThePage(): boolean {
+    return !!this.dataListValue && this.dataListValue.isPagedBySource;
+  }
+  private get isPagingActive(): boolean {
+    if (this.isDesignMode) return false;
+    return !!this.dataListValue && this.dataListValue.pageSize > 0;
+  }
+  // The number of panels on one page, 0 = no paging. Applies to displayMode: "list" only.
+  public get panelsPerPage(): number {
+    return this.getPropertyValue("panelsPerPage");
+  }
+  public set panelsPerPage(val: number) {
+    const num = Helpers.getNumber(val);
+    // The clamp is in the setter and not in an onSettingValue hook: the hook is skipped while the
+    // question is loading from JSON.
+    this.setPropertyValue("panelsPerPage", num > 0 ? num : 0);
+    this.paging.updatePageSize();
+    this.updateRenderedPanels();
+  }
+  public get pageSize(): number { return this.panelsPerPage; }
+  public set pageSize(val: number) { this.panelsPerPage = val; }
+  // A zero-based page index; always 0 while paging is off.
+  public get pageIndex(): number { return this.isPagingActive ? this.paging.pageIndex : 0; }
+  public set pageIndex(val: number) { this.paging.pageIndex = val; }
+  // The number of pages; 1 for an empty question and for one that does not page.
+  public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
+  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
+  public goToPage(index: number): void { this.paging.goToPage(index); }
+  public nextPage(): void { this.paging.nextPage(); }
+  public prevPage(): void { this.paging.prevPage(); }
+  /* The sort the panels are displayed in: { field, direction } descriptors applied in array order,
+     an empty array = no sort. It never reorders the question value. */
+  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
+  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
+  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
+     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
+     so a sort made at runtime changes what toJSON() emits. */
+  public get sortBy(): string { return this.paging.sortBy; }
+  public set sortBy(val: string) { this.paging.sortBy = val; }
+  // The header-click cycle for one field: ascending, then descending, then not sorted.
+  public toggleSort(field: string): void { this.paging.toggleSort(field); }
+  public clearSort(): void { this.paging.clearSort(); }
+  /* A survey expression over the panel values - the same language as visibleIf, with the record
+     fields as its variables. A record that does not satisfy it gets no panel; the question value
+     keeps every record. An empty string = no filter. */
+  public get filterExpression(): string { return this.paging.filterExpression; }
+  public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  public raiseSortByChanged(oldValue: string, newValue: string): void {
+    this.propertyValueChanged("sortBy", oldValue, newValue);
+  }
+  public refreshView(): void { this.paging.refreshView(); }
+  /* Every panel is validated, on-page or not - a required question on page 2 blocks the survey
+     exactly as it does without paging - and the page then follows the question that is about to be
+     focused, which is how the first error reaches the respondent. In carousel and tab mode the
+     panel to show is chosen by validateInPanels, as it always has been. */
+  protected revealNestedQuestion(question: Question): void {
+    if (!this.isPagingActive || !this.isRenderModeList || !question) return;
+    this.paging.goToPageOfVisibleIndex(this.getVisualPanelIndex(question.data));
+  }
+  private pagerActionsValue: ActionContainer;
+  public get pagerActions(): ActionContainer {
+    if (!this.pagerActionsValue) {
+      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
+    }
+    return this.pagerActionsValue;
+  }
+  private getCreatedIndexesSnapshot(): Array<number> {
+    const list = this.dataListValue;
+    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
+  }
+  private rebuildPanelsIfViewChanged(created: Array<number>): void {
+    if (!created || !this.dataListValue) return;
+    if (Helpers.isTwoValueEquals(created, this.dataListValue.getCreatedIndexes())) return;
+    this.rebuildPanelsFromDataList();
+  }
+  /* A full rebuild: the panels are re-created for the records the view now holds. It costs the
+     per-panel state - collapsed/expanded state, panel errors, question state - and fires the
+     panel-added callbacks again. It is the same path a remote page change takes, so there is one. */
+  private rebuildPanelsFromDataList(): void {
+    if (this.isLoadingFromJson || this.useTemplatePanel || !this.hasPanelBuildFirstTime) return;
+    const count = this.dataList.getCreatedIndexes().length;
+    const currentRecord = this.getCurrentPanelRecordIndex();
+    this.prepareValueForPanelCreating();
+    this.panelsCore.splice(0, this.panelsCore.length);
+    for (let i = 0; i < count; i++) {
+      this.panelsCore.push(this.createNewPanel());
+    }
+    this.setValueAfterPanelsCreating();
+    this.setPanelsState();
+    this.reRunCondition();
+    this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(0);
+    this.restoreCurrentPanelByRecord(currentRecord);
+    this.fireCallback(this.panelCountChangedCallback);
+    this.updateTabToolbar();
+  }
+  /* The record of the current panel, remembered when the panel is chosen: by the time the view has
+     been re-decided the old mapping is gone, so it cannot be looked up then. */
+  private currentPanelRecordIndex: number = -1;
+  /* A record index is window-relative, so it only names the same record while the window does not
+     move: index 1 of page 3 is another record than index 1 of page 2. The offset the index was taken
+     against is remembered with it, and a reset that committed another one starts from the first
+     visible panel. There is no stable record identity (a key) in this step, so a remote re-sort is
+     the same case as a page change. */
+  private currentPanelWindowOffset: number = 0;
+  private getCurrentPanelRecordIndex(): number {
+    if (!this.getPropertyValue("currentPanel", null)) return -1;
+    // The offset is compared here and not when the panel is restored: by then the panels have been
+    // spliced away, and losing one takes the current panel - and with it the offset it was
+    // remembered against - with it.
+    if (this.isRemoteData && this.currentPanelWindowOffset !== this.dataList.windowOffset) return -1;
+    return this.currentPanelRecordIndex;
+  }
+  // The current panel follows its record; when that record left the view the first visible panel
+  // takes over.
+  private restoreCurrentPanelByRecord(recordIndex: number): void {
+    if (this.isRenderModeList || this.useTemplatePanel) return;
+    const position = recordIndex < 0 ? -1 : this.dataList.indexToCreatedIndex(recordIndex);
+    const panel = position > -1 ? this.panelsCore[position] : undefined;
+    this.setPropertyValue("currentPanel", null);
+    this.currentPanel = !!panel && panel.visible ? panel : this.visiblePanelsCore[0];
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -415,7 +792,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.template.elements;
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    return name !== "templateElements" && super.isPropertyStoredInHash(name);
+    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
+    // accessor instead of looking for a hash entry that will never be there.
+    return name !== "templateElements" && name !== "sortBy" && super.isPropertyStoredInHash(name);
   }
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
@@ -643,6 +1022,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       val.onFirstRendering();
     }
     this.setPropertyValue("currentPanel", val);
+    this.currentPanelRecordIndex = !val ? -1 : this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(val));
+    this.currentPanelWindowOffset = !!this.dataListValue ? this.dataListValue.windowOffset : 0;
     this.updateRenderedPanels();
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
@@ -673,15 +1054,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
 
   @propertyArray({}) private _renderedPanels: Array<PanelModel> = [];
 
+  private isUpdatingRenderedPanels: boolean;
   private updateRenderedPanels() {
     let panels: Array<PanelModel> = [];
+    this.isUpdatingRenderedPanels = true;
     if (this.isRenderModeList) {
-      panels = [].concat(this.visiblePanels);
+      panels = [].concat(this.panelsOnPage);
     } else if (this.currentPanel) {
       panels = [this.currentPanel];
     }
     panels.forEach(panel => this.panelOnFirstRendering(panel));
     this.renderedPanels = panels;
+    this.isUpdatingRenderedPanels = false;
   }
   private panelOnFirstRendering(panel: PanelModel) {
     if (panel) {
@@ -969,10 +1353,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see maxPanelCount
    * @see panelCountExpression
    */
+  // The RECORD count. It stops being the panel count while a filter is active.
   public get panelCount(): number {
-    return !this.canBuildPanels || this.wasNotRenderedInSurvey
-      ? this.getPropertyValue("panelCount")
-      : this.panelsCore.length;
+    if (!this.canBuildPanels || this.wasNotRenderedInSurvey) return this.getPropertyValue("panelCount");
+    return this.hasDataListView ? this.dataList.count : this.panelsCore.length;
   }
   public set panelCount(val: number) {
     if (val < 0) return;
@@ -989,6 +1373,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
       this.updateFooterActions();
+      return;
+    }
+    /* The data source owns the count: the question never grows or truncates its storage, and the
+       getter reads the loaded total, so there is nothing to store either. The count reaches the
+       question the other way round - through setLoadedRecords, from a read that committed. */
+    if (this.isRemoteData) return;
+    if (this.hasDataListView) {
+      this.setPanelCountInView(val);
       return;
     }
     if (val == this.panelsCore.length || this.useTemplatePanel) return;
@@ -1023,6 +1415,21 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.updateNewPanelsVisibleIndex(firstAddedIndex);
     this.fireCallback(this.panelCountChangedCallback);
     this.enablePanelsAnimations();
+  }
+  /* panelCount counts records while a filter is active, so it grows and shrinks the storage and the
+     panels follow the view afterwards. The records that appear are always in the view, which keeps
+     "the new panel is the last one" true for addPanel. */
+  private setPanelCountInView(val: number): void {
+    const list = this.dataList;
+    if (val === list.count || this.useTemplatePanel) return;
+    this.updateBindings("panelCount", val);
+    this.isValueChangingInternally = true;
+    list.batch((): void => {
+      list.ensureCount(val);
+      list.truncate(val);
+    });
+    this.isValueChangingInternally = false;
+    this.rebuildPanelsFromDataList();
   }
   private updateNewPanelsVisibleIndex(firstAddedIndex: number): void {
     if (!this.survey) return;
@@ -1093,19 +1500,20 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   private setValueBasedOnPanelCount() {
-    var value = this.value;
-    if (!value || !Array.isArray(value)) value = [];
-    if (value.length == this.panelCount) return;
-    for (var i = value.length; i < this.panelCount; i++) {
-      const panelValue = this.panels[i].getValue();
-      const val = !Helpers.isValueEmpty(panelValue) ? panelValue : {};
-      value.push(val);
-    }
-    if (value.length > this.panelCount) {
-      value.splice(this.panelCount, value.length - this.panelCount);
-    }
+    // The storage of a remote-backed question is the source's, and its window is one page: growing
+    // it up to the count would pad the page with records the server does not have.
+    if (this.isRemoteData) return;
+    const list = this.dataList;
+    const panelCount = this.panelCount;
+    if (list.count === panelCount) return;
     this.isValueChangingInternally = true;
-    this.value = value;
+    list.batch((): void => {
+      list.ensureCount(panelCount, (i: number): any => {
+        const panelValue = this.panels[i].getValue();
+        return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+      });
+      list.truncate(panelCount);
+    });
     this.isValueChangingInternally = false;
   }
   /**
@@ -1119,8 +1527,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @since 3.0.4
    */
   @property() panelCountExpression: string;
+  /* A data source owns the number of records, so panelCountExpression is ignored while one is
+     attached - including the add/remove gating it otherwise imposes. No error: a question may carry
+     both and only the source decides. */
   private get hasPanelCountExpression(): boolean {
-    return !!this.panelCountExpression;
+    return !!this.panelCountExpression && !this.isRemoteData;
   }
   private setPanelCountByExpression(val: any): void {
     this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.maxPanelCount);
@@ -1465,7 +1876,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.canInsertRecord) return false;
     if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
@@ -1491,7 +1902,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.canRemoveRecord) return false;
     return (
       this.allowRemovePanel &&
       !this.isReadOnly &&
@@ -1552,10 +1963,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
-    var val = this.value;
-    if (!val || !Array.isArray(val)) return true;
-    for (var i = 0; i < val.length; i++) {
-      if (!this.isRowEmpty(val[i])) return false;
+    const list = this.dataList;
+    // loadedCount, not count: with a data source that pages, count is the server total and only the
+    // records of the loaded window can be looked at. Equal for every local source.
+    for (let i = 0; i < list.loadedCount; i++) {
+      if (!this.isRowEmpty(list.getRecord(i))) return false;
     }
     return true;
   }
@@ -1616,6 +2028,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       if (!this.canLeaveCurrentPanel()) return null;
     }
     const newPanel = this.addPanelCore(index);
+    /* A record that is added is always in the view and it is appended: the new panel is the last
+       one and it lands on the last page. Someone who clicks "add" must see the panel they added. */
+    if (this.isPagingActive && this.isRenderModeList) {
+      this.paging.goToPageOfVisibleIndex(this.visiblePanelsCore.indexOf(newPanel));
+    }
     this.panelOnFirstRendering(newPanel);
     if (isUI) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
@@ -1632,18 +2049,63 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private addPanelCore(index: number): PanelModel {
     const curIndex = this.currentIndex;
+    /* Every index here is a created position - a position in panelsCore. With a data source that
+       pages, the panels exist for the loaded window only, so the positions end with it and not with
+       the server total that panelCount reports. */
+    const maxIndex = this.isRemoteData ? this.dataList.getCreatedIndexes().length : this.panelCount;
     if (index === undefined) {
-      index = curIndex < 0 ? this.panelCount : curIndex + 1;
+      index = curIndex < 0 ? maxIndex : curIndex + 1;
     }
-    if (index < 0 || index > this.panelCount) {
-      index = this.panelCount;
+    if (index < 0 || index > maxIndex) {
+      index = maxIndex;
     }
-    this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
+    if (this.isRemoteData) {
+      this.addPanelRemote(curIndex < 0 ? maxIndex - 1 : curIndex, index);
+    } else {
+      this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
+    }
     if (!this.isRenderModeList) {
       this.currentIndex = index;
     }
     this.notifyOnPanelAddedRemoved(true, index);
     return this.panelsCore[index];
+  }
+  /* The remote add path. The local one grows the count first and writes the defaults afterwards,
+     which over a data source is a throwing count setter followed by up to three server calls for one
+     gesture. Here the complete record is built first - the default panel value, then the copy from
+     the last entry IN THE WINDOW - and handed to the list once: one source.insert, no move, no
+     follow-up update. question.value follows the window through the recordAdded notification. */
+  private addPanelRemote(prevPosition: number, position: number): void {
+    const list = this.dataList;
+    const createdCount = list.getCreatedIndexes().length;
+    const at = Math.max(0, Math.min(position, createdCount));
+    const record: any = {};
+    if (!this.isValueEmpty(this.defaultPanelValue)) {
+      this.copyValue(record, this.defaultPanelValue);
+    }
+    if (this.copyDefaultValueFromLastEntry && createdCount > 0) {
+      const fromPosition = prevPosition > -1 && prevPosition < createdCount ? prevPosition : createdCount - 1;
+      const fromIndex = list.createdIndexToIndex(fromPosition);
+      if (fromIndex > -1) {
+        this.copyValue(record, list.getRecord(fromIndex));
+      }
+    }
+    list.addAtCreatedIndex(record, at);
+    if (at < createdCount) {
+      // Inserted inside the window: every panel after it holds another record now, so the panels are
+      // rebuilt - the same rebuild a page change runs.
+      this.rebuildPanelsFromDataList();
+      return;
+    }
+    // Appended: one panel is created and the panels that exist keep their state.
+    this.prepareValueForPanelCreating();
+    this.panelsCore.push(this.createNewPanel());
+    this.setValueAfterPanelsCreating();
+    this.setPanelsState();
+    this.reRunCondition();
+    this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(this.panelsCore.length - 1);
+    this.fireCallback(this.panelCountChangedCallback);
   }
   private focusNewPanelCallback: () => void;
   private focusNewPanel() {
@@ -1653,29 +2115,38 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
+    // The panel object exists before its record is moved into place: onPanelAdded must see the same
+    // state it sees today.
     this.panelCount++;
-    let newValue = this.value;
-    if (!Array.isArray(newValue) || newValue.length !== this.panelCount) return;
-    let hasModified = false;
+    const list = this.dataList;
+    if (list.count !== this.panelCount) return;
     const lastIndex = this.panelCount - 1;
-    if (index < lastIndex) {
-      hasModified = true;
-      const rec = newValue[lastIndex];
-      newValue.splice(lastIndex, 1);
-      newValue.splice(index, 0, rec);
-    }
-    if (!this.isValueEmpty(this.defaultPanelValue)) {
-      hasModified = true;
-      this.copyValue(newValue[index], this.defaultPanelValue);
-    }
-    if (this.copyDefaultValueFromLastEntry && newValue.length > 1) {
-      const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
-      hasModified = true;
-      this.copyValue(newValue[index], newValue[fromIndex]);
-    }
-    if (hasModified) {
-      this.value = newValue;
-    }
+    // index and prevIndex are created positions; the records they name are what the list moves.
+    const recordIndex = index < lastIndex ? this.getRecordIndexByPanelIndex(index) : lastIndex;
+    if (recordIndex < 0) return;
+    list.batch((): void => {
+      // panelCount++ appended the new record at the end; it belongs at index.
+      if (recordIndex !== lastIndex) {
+        list.move(lastIndex, recordIndex);
+      }
+      const record = Object.assign({}, list.getRecord(recordIndex));
+      let hasModified = false;
+      if (!this.isValueEmpty(this.defaultPanelValue)) {
+        hasModified = true;
+        this.copyValue(record, this.defaultPanelValue);
+      }
+      if (this.copyDefaultValueFromLastEntry && list.count > 1) {
+        const fromPosition = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
+        const fromIndex = this.getRecordIndexByPanelIndex(fromPosition);
+        if (fromIndex > -1) {
+          hasModified = true;
+          this.copyValue(record, list.getRecord(fromIndex));
+        }
+      }
+      if (hasModified) {
+        list.setRecord(recordIndex, record);
+      }
+    });
   }
   private canLeaveCurrentPanel(): boolean {
     return this.displayMode === "list" || !this.currentPanel || this.currentPanel.validate(true, true);
@@ -1758,17 +2229,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const panel = this.visiblePanelsCore[visIndex];
     const index = this.panelsCore.indexOf(panel);
     if (index < 0) return;
+    // index is a created position; the record it holds is what leaves the storage.
+    const recordIndex = this.getRecordIndexByPanelIndex(index);
     if (this.survey && !this.dynamicPanelCallbacks.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.setPropertyValue("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
-    var value = this.value;
-    if (!value || !Array.isArray(value) || index >= value.length) {
+    const list = this.dataList;
+    if (recordIndex < 0 || recordIndex >= list.count) {
       this.updateFooterActions();
     } else {
       this.isValueChangingInternally = true;
-      value.splice(index, 1);
-      this.value = value;
+      list.remove(recordIndex);
       this.updateFooterActions();
       this.fireCallback(this.panelCountChangedCallback);
       this.notifyOnPanelAddedRemoved(false, index, panel);
@@ -1841,16 +2313,25 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.panelsCore[i].clearErrors();
     }
   }
+  // index is a CREATED position - what it has always been for this method.
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index < 0 || index >= this.panelsCore.length) return null;
     return this.panelsCore[index].getQuestionByName(name);
   }
-  private clearIncorrectValuesInPanel(index: number) {
-    var panel = this.panelsCore[index];
+  // The record-index counterpart of getQuestionFromArray: the panel the record has, whatever
+  // position it took.
+  public getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    const item = <QuestionPanelDynamicItem>this.getItemByRecordIndex(recordIndex);
+    return !!item ? item.panel.getQuestionByName(name) : null;
+  }
+  private clearIncorrectValuesInPanel(position: number) {
+    var panel = this.panelsCore[position];
     panel.clearIncorrectValues();
-    var val = this.value;
-    var values = !!val && index < val.length ? val[index] : null;
-    if (!values) return;
+    const index = this.getRecordIndexByPanelIndex(position);
+    const record = index < 0 ? undefined : this.dataList.getRecord(index);
+    if (!record) return;
+    // A copy: the stored record is never mutated, the list replaces it.
+    const values = Object.assign({}, record);
     var isChanged = false;
     for (var key in values) {
       if (this.getSharedQuestionFromArray(key, index)) continue;
@@ -1869,8 +2350,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       isChanged = true;
     }
     if (isChanged) {
-      val[index] = values;
-      this.value = val;
+      this.dataList.setRecord(index, values);
     }
   }
   private iscorrectValueWithPostPrefix(
@@ -1882,8 +2362,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       return false;
     return !!panel.getQuestionByName(key.substring(0, key.indexOf(postPrefix)));
   }
-  public getSharedQuestionFromArray(name: string, panelIndex: number): Question {
-    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromArray(this.valueName, name, panelIndex)) : null;
+  // recordIndex, not a panel position: the other question may hold its panels for another set of
+  // records or in another order.
+  public getSharedQuestionFromArray(name: string, recordIndex: number): Question {
+    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;
@@ -1946,12 +2428,33 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!question) return null;
     return question.getConditionJson(operator, path);
   }
-  protected onReadOnlyChanged(): void {
-    var readOnly = this.isReadOnly;
+  /* The capabilities of a data source are declared by the presence of its optional methods: a source
+     without insert gets no add button, one without remove no delete button, and one without update
+     makes every panel read-only - a silently unsaved edit is worse than a disabled field, and an
+     application that wants local-only edits over remote reads implements a no-op update. A question
+     without a data source has every capability. */
+  private get canInsertRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("insert");
+  }
+  private get canRemoveRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("remove");
+  }
+  private get canUpdateRecord(): boolean {
+    return !this.isRemoteData || this.remote.hasCapability("update");
+  }
+  // One hook for the whole question, not one per nested question.
+  private get arePanelsReadOnly(): boolean {
+    return this.isReadOnly || !this.canUpdateRecord;
+  }
+  private updatePanelsReadOnly(): void {
+    const readOnly = this.arePanelsReadOnly;
     this.template.readOnly = readOnly;
-    for (var i = 0; i < this.panelsCore.length; i++) {
+    for (let i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].readOnly = readOnly;
     }
+  }
+  protected onReadOnlyChanged(): void {
+    this.updatePanelsReadOnly();
     this.updateNoEntriesTextDefaultLoc();
     this.updateFooterActions();
     super.onReadOnlyChanged();
@@ -1965,13 +2468,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return !this.showAddPanelButton ? "noEntriesReadonlyText" : "noEntriesText";
   }
   public onSurveyLoad(): void {
-    this.template.readOnly = this.isReadOnly;
+    this.template.readOnly = this.arePanelsReadOnly;
     this.template.onSurveyLoad();
     const newPanelCount = this.adjustPanelCount();
     if (newPanelCount > -1) {
       this.setPropertyValue("panelCount", newPanelCount);
     }
     super.onSurveyLoad();
+    // The one hook every load ends with: the sort and the filter the JSON authored reach the list
+    // here, once, whatever order their keys came in.
+    this.paging.flushAuthoredView();
   }
   private adjustPanelCount(): number {
     const pnlCount = this.getPropertyValue("panelCount");
@@ -1991,7 +2497,13 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.blockAnimations();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
-    if (this.getPropertyValue("panelCount") > 0) {
+    if (this.isRemoteData) {
+      /* The records come from a data source: the panels are built for the loaded window and the
+         stored panelCount says nothing about them - the panelCount setter is a no-op while a source
+         is attached. Without this branch a question that gets its source before its first rendering
+         would never build a panel. */
+      this.rebuildPanelsFromDataList();
+    } else if (this.getPropertyValue("panelCount") > 0) {
       this.panelCount = this.getPropertyValue("panelCount");
     }
     if (this.useTemplatePanel) {
@@ -2024,7 +2536,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       settings.expressionVariables.panel
     );
   }
-  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression; }
+  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression && this.canInsertRecord; }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;
   }
@@ -2064,6 +2576,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
       panel.runCondition(newProps);
+      // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
+      // "visible" property-changed handler, this only keeps the list flags in step with it.
+      this.setPanelRecordVisible(panel);
       if (panel.isVisible) {
         visibleIndex++;
       }
@@ -2203,16 +2718,20 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.getUnbindValue(value);
     if (!values || !Array.isArray(values)) return values;
-    for (var i = 0; i < this.panelsCore.length && i < values.length; i++) {
+    // i is a record index: values is the stored value, in record order.
+    for (var i = 0; i < values.length; i++) {
       var val = values[i];
       if (!val) continue;
-      values[i] = this.getPanelDisplayValue(i, val, keysAsText);
+      const position = this.hasDataListView ? this.dataList.indexToCreatedIndex(i) : i;
+      if (position < 0 || position >= this.panelsCore.length) continue;
+      values[i] = this.getPanelDisplayValue(position, i, val, keysAsText);
     }
     return values;
   }
 
   private getPanelDisplayValue(
     panelIndex: number,
+    recordIndex: number,
     val: any,
     keysAsText: boolean
   ): any {
@@ -2223,7 +2742,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       var key = keys[i];
       var question = panel.getQuestionByValueName(key);
       if (!question) {
-        question = this.getSharedQuestionFromArray(key, panelIndex);
+        question = this.getSharedQuestionFromArray(key, recordIndex);
       }
       if (!!question) {
         var qValue = question.getDisplayValue(keysAsText, val[key]);
@@ -2239,7 +2758,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private validateInPanels(context: ValidationContext): boolean {
     let res = true;
     const panels = this.visiblePanels;
-    const keyValues: Array<any> = [];
+    // The keyName duplicates are looked for among the RECORDS: a panel that repeats the key of a
+    // record with no panel is still a duplicate. A pair that is entirely outside the view reports
+    // nothing - it cannot be shown.
+    const keyValues: Array<any> = this.getKeyValuesWithoutPanels();
     for (let i = 0; i < panels.length; i++) {
       let isPnlValid = panels[i].validateElement(context);
       isPnlValid = !this.isValueDuplicated(panels[i], keyValues, context) && isPnlValid;
@@ -2247,6 +2769,21 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         this.currentIndex = i;
       }
       res = isPnlValid && res;
+    }
+    return res;
+  }
+  private getKeyValuesWithoutPanels(): Array<any> {
+    const res: Array<any> = [];
+    if (!this.keyName || !this.hasDataListView) return res;
+    const list = this.dataList;
+    // The records that are loaded: a duplicate on a page the question has not read is the server's
+    // business, and a key constraint over a whole remote table cannot be checked here.
+    for (let i = 0; i < list.loadedCount; i++) {
+      if (list.indexToCreatedIndex(i) > -1) continue;
+      const val = list.getValue(i, this.keyName);
+      if (!this.isValueEmpty(val)) {
+        res.push(val);
+      }
     }
     return res;
   }
@@ -2332,9 +2869,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     panel.registerPropertyChangedHandlers(["visible"], () => {
       if (panel.visible)this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);
+      this.setPanelRecordVisible(panel);
       this.updateFooterActions();
     });
     return panel;
+  }
+  // The list flag follows panel.visible - the same flag visiblePanels is built from - so that
+  // dataList.visibleCount and visiblePanelCount can never disagree.
+  private setPanelRecordVisible(panel: PanelModel): void {
+    const position = this.panelsCore.indexOf(panel);
+    if (position < 0) return;
+    const index = this.getRecordIndexByPanelIndex(position);
+    if (index < 0) return;
+    this.dataList.setRecordVisible(index, panel.visible);
+    // A hidden panel takes no page slot: the page count follows panel visibility, and the list does
+    // not announce it.
+    this.syncPagingState();
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -2360,8 +2910,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
     if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
-    var val = this.value;
-    var newPanelCount = val && Array.isArray(val) ? val.length : 0;
+    // The count of a remote-backed question comes from the read, never from the length of the window.
+    if (this.isRemoteData) return;
+    var newPanelCount = this.dataList.count;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
     }
@@ -2371,7 +2922,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
+    const created = this.getCreatedIndexesSnapshot();
     super.setQuestionValue(newValue, false);
+    this.invalidateDataListViews();
+    this.rebuildPanelsIfViewChanged(created);
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
     // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
@@ -2458,6 +3012,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
   }
+  getItemRecordIndex(item: ISurveyData): number {
+    const position = this.items.indexOf(item);
+    if (position < 0) return this.dataList.count;
+    return this.getRecordIndexByPanelIndex(position);
+  }
+  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+    const position = this.hasDataListView ? this.dataList.indexToCreatedIndex(recordIndex) : recordIndex;
+    if (position < 0 || position >= this.panelsCore.length) return undefined;
+    return <DynamicItemModelBase>this.panelsCore[position].data;
+  }
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
@@ -2465,19 +3029,28 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.survey || !this.valueName) return [];
     return this.survey.getQuestionsByValueName(this.valueName);
   }
+  /* index is a CREATED position, the counterpart of getItemIndex. It used to index visiblePanels,
+     which disagreed with getItemIndex whenever a panel was hidden by templateVisibleIf - the pair is
+     what a bound question was addressed through. */
   getItem(index: number): DynamicItemModelBase {
-    const panel = this.visiblePanels[index] || undefined;
+    const panel = this.panelsCore[index] || undefined;
     return <DynamicItemModelBase>panel?.data;
   }
+  // index is a created position: the position in panelsCore.
   private getPanelItemDataByIndex(index: number): any {
-    const items = this.items;
-    var qValue = this.value;
-    if (index < 0 && Array.isArray(qValue) && qValue.length > items.length) {
+    /* The index correction is about items, not about the data: a question in a panel that is being
+       created writes its default value, and reads its own, before the panel reaches panelsCore. The
+       position it is about to take is the one at the end. */
+    if (index < 0) {
+      const items = this.items;
+      const created = this.hasDataListView ? this.dataList.getCreatedIndexes().length : this.dataList.count;
+      if (created <= items.length) return {};
       index = items.length;
     }
-    if (index < 0) return {};
-    if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
-    return qValue[index];
+    const recordIndex = this.getRecordIndexByPanelIndex(index);
+    if (recordIndex < 0) return {};
+    const record = this.dataList.getRecord(recordIndex);
+    return record !== undefined ? record : {};
   }
   private isSetPanelItemData: HashTable<number> = {};
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
@@ -2491,20 +3064,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
-    var qValue = this.getUnbindValue(this.value);
-    if (!qValue || !Array.isArray(qValue)) {
-      qValue = [];
-    }
-    const lValue = Math.max(index + 1, items.length);
-    for (var i = qValue.length; i < lValue; i++) {
-      qValue.push({});
-    }
-    if (!qValue[index]) qValue[index] = {};
-    if (!this.isValueEmpty(val)) {
-      qValue[index][name] = val;
-    } else {
-      delete qValue[index][name];
-    }
+    // index is a created position; the record it writes is the one that panel holds, or the next
+    // record for a panel that does not exist yet.
+    const recordIndex = this.getRecordIndexByPanelIndex(index);
+    if (recordIndex < 0) return;
     if (index >= 0 && index < this.panelsCore.length) {
       if (!Array.isArray(this.changingValueQuestions)) {
         this.changingValueQuestions = [];
@@ -2519,7 +3082,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         this.changingValueQuestions.push(q);
       }
     }
-    this.value = qValue;
+    // The list deletes the key for an empty value; the emptiness rule (a whitespace-only string is
+    // empty) is the question rule, so it is applied here.
+    const newValue = this.isValueEmpty(val) ? undefined : val;
+    this.dataList.batch((): void => {
+      // The padding is a question rule as well: a write to a panel whose record does not exist yet
+      // grows the value up to the panel count. A remote window is never padded - the records it does
+      // not hold are on the server, and ensureCount would insert them there.
+      if (!this.isRemoteData) {
+        this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
+      }
+      this.dataList.setValue(recordIndex, name, newValue);
+    });
     this.changingValueQuestions = null;
     this.isSetPanelItemData[name]--;
     if (this.isSetPanelItemData[name] - 1) {
@@ -3028,6 +3602,11 @@ Serializer.addClass(
       return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
+    /* Invisible in the property grid until the UI series ships a pager: the property loads from and
+       saves to JSON, but a switch that renders nothing is a support ticket. */
+    { name: "panelsPerPage:number", default: 0, minValue: 0, visible: false },
+    { name: "sortBy", visible: false },
+    { name: "filterExpression", visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

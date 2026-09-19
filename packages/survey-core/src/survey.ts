@@ -84,7 +84,8 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent
+  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
+  DynamicDataErrorEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -216,9 +217,10 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
 // "navigationHandler" - a handler of onCompleting or onCurrentPageChanging holds its callback;
 // "validators" - the asynchronous validators of the owner question have not finished;
 // "expressions" - an asynchronous expression of the owner has not finished;
-// "webChoices" - a choicesByUrl request of the owner question has not answered.
+// "webChoices" - a choicesByUrl request of the owner question has not answered;
+// "dynamicData" - the data source of the owner question is reading a page or has an unpushed edit.
 export type SurveyAsyncOperationType =
-  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices" | "dynamicData";
 export interface IRunningAsyncOperation {
   type: SurveyAsyncOperationType;
   // The object that runs the operation: the survey itself for a server validation and a held
@@ -1053,6 +1055,14 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
+
+  /**
+   * An event that is raised when a data source attached to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) or a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) through its `dataSource` property reports an error: a page that could not be read, or an edit the server rejected.
+   *
+   * The survey does nothing on its own when a source fails - the records the question shows are kept as they are. Handle this event to show the error to the user or to retry the operation.
+   * @since 3.1.0
+   */
+  public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -3732,6 +3742,12 @@ export class SurveyModel extends SurveyElementCore
       const choicesByUrl: any = (<any>question).choicesByUrl;
       if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
     });
+    // A dynamic matrix or panel over a caller-provided data source: a page it is reading, or an edit
+    // the source has not acknowledged. Duck-typed like choicesByUrl above - the flag belongs to the
+    // two dynamic questions and the survey does not import them for it.
+    questions.forEach(question => {
+      if ((<any>question).isDynamicDataRunning === true) res.push({ type: "dynamicData", owner: question });
+    });
     return res;
   }
   getFilteredProperties(): any {
@@ -5973,6 +5989,25 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
+  /* The record index is the only index two questions over one value share: each of them may create
+     its rows/panels for another set of records (a filtered list) or in another order (a sorted
+     one). A question that does not know about records answers positionally, as before. */
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
+  ): IQuestion {
+    const questions = this.getQuestionsByValueName(valueName);
+    if (!questions) return;
+    for (let i = 0; i < questions.length; i++) {
+      const question: any = questions[i];
+      const res = typeof question.getQuestionFromRecord === "function"
+        ? question.getQuestionFromRecord(name, recordIndex)
+        : question.getQuestionFromArray(name, recordIndex);
+      if (!!res) return res;
+    }
+    return null;
+  }
   matrixRowRemoved(question: QuestionMatrixDynamicModel, rowIndex: number, row: any) {
     this.onMatrixRowRemoved.fire(this, {
       question: question,
@@ -6077,6 +6112,12 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
+  }
+  // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
+  // console for an error an application is expected to handle, the way onServerValidateQuestions
+  // failures are the application's business too.
+  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+    this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);

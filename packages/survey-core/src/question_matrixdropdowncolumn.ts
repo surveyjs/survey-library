@@ -525,6 +525,13 @@ export class MatrixDropdownColumn extends Base
    * Default value: `false`
    */
   @property() isUnique: boolean;
+  /* Opts this column out of the header-click sort. Every cell type has a comparer, so no type is
+     unsortable by construction: the opt-out is the author's. */
+  @property({ defaultValue: true }) allowSort: boolean;
+  public get isSortable(): boolean {
+    const matrix: any = this.colOwner;
+    return !!matrix && matrix.allowSortRows === true && this.allowSort;
+  }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
    *
@@ -986,6 +993,8 @@ Serializer.addClass(
     { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
+    // Invisible until the UI series renders sortable headers, see matrixdynamic.allowSortRows.
+    { name: "allowSort:boolean", default: true, visible: false },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

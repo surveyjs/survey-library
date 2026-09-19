@@ -100,7 +100,12 @@ export class MatrixDropdownCell {
     // isMatrixReadOnly() is the one hook the matrix has for "nothing in this table may be edited":
     // the matrix answers its own isReadOnly there, and a dynamic matrix over a data source that
     // cannot update also answers true.
-    res.readOnlyCallback = (): boolean => !this.row.isRowEnabled() || data.isMatrixReadOnly();
+    // The cell inherits the matrix's own isReadOnly through parentQuestion, so the callback carries
+    // only the part it cannot inherit. A callback that returns true also renders the disabled
+    // attribute (Question.isDisabledAttr), and a plain read-only matrix renders readonly cells.
+    const matrixQuestion = <Question><any>data;
+    res.readOnlyCallback = (): boolean => !this.row.isRowEnabled() ||
+      (data.isMatrixReadOnly() && !matrixQuestion.isReadOnly);
     res.validateValueCallback = function () {
       return data.validateCell(row, column.name, row.value);
     };

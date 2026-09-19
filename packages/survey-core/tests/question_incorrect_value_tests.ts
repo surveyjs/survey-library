@@ -25,17 +25,16 @@ const dynamicPanel = { type: "paneldynamic", templateElements: [{ type: "text", 
 describe("Question.isValueCorrect", () => {
   test("An incorrect value is reported by validate() and the data is not modified", () => {
     const cases: Array<[string, any, any]> = [
-      ["text <- object", { type: "text" }, { x: 1 }],
-      ["number text <- 'abc'", { type: "text", inputType: "number" }, "abc"],
+      ["number text <- \"abc\"", { type: "text", inputType: "number" }, "abc"],
+      ["number text <- object", { type: "text", inputType: "number" }, { x: 1 }],
       ["date text <- garbage", { type: "text", inputType: "date" }, "not-a-date"],
-      ["comment <- object", { type: "comment" }, { x: 1 }],
       ["boolean <- 'maybe'", { type: "boolean" }, "maybe"],
       ["radiogroup <- array", { type: "radiogroup", choices: ["a", "b"] }, ["a"]],
       ["radiogroup <- unknown", { type: "radiogroup", choices: ["a", "b"] }, "z"],
       ["dropdown <- object", { type: "dropdown", choices: ["a", "b"] }, { x: 1 }],
       ["checkbox <- unknown", { type: "checkbox", choices: ["a", "b"] }, ["a", "z"]],
       ["rating <- out of range", { type: "rating", rateMax: 5 }, 99],
-      ["file <- string", { type: "file" }, "oops"],
+      ["file <- number", { type: "file" }, 5],
       ["matrixdynamic <- string", dynamicMatrix, "oops"],
       ["matrixdynamic <- object", dynamicMatrix, { a: 1 }],
       ["matrixdynamic <- scalar rows", dynamicMatrix, ["x", 5]],
@@ -62,7 +61,7 @@ describe("Question.isValueCorrect", () => {
     const cases: Array<[string, any, any]> = [
       ["matrixdynamic bad cell", { type: "matrixdynamic", columns: [{ name: "c", cellType: "dropdown", choices: ["a"] }] }, [{ c: "z" }]],
       ["paneldynamic bad nested", { type: "paneldynamic", templateElements: [{ type: "dropdown", name: "t", choices: ["a"] }] }, [{ t: "z" }]],
-      ["multipletext bad item", { type: "multipletext", items: [{ name: "i1" }] }, { i1: { x: 1 } }],
+      ["multipletext bad item", { type: "multipletext", items: [{ name: "i1", inputType: "number" }] }, { i1: "abc" }],
     ];
     cases.forEach(([label, question, value]) => {
       const res = checkValue(question, value);
@@ -87,6 +86,7 @@ describe("Question.isValueCorrect", () => {
       ["ranking", { type: "ranking", choices: ["a", "b"] }, ["b", "a"]],
       ["rating", { type: "rating", rateMax: 5 }, 3],
       ["file", { type: "file" }, [{ name: "f.txt", type: "text/plain", content: "data:text/plain;base64,YQ==" }]],
+      ["file as url string", { type: "file" }, "https://surveyjs.io/files/a.png"],
       ["matrixdynamic", dynamicMatrix, [{ c: "x" }, {}]],
       ["paneldynamic", dynamicPanel, [{ t: "x" }]],
       ["matrix", { type: "matrix", rows: ["r1", 2], columns: ["c1", 5] }, { r1: "c1", 2: 5 }],
@@ -106,11 +106,9 @@ describe("Question.isValueCorrect", () => {
   });
   test("clearIncorrectValues() removes an incorrect value and never throws", () => {
     const cases: Array<[string, any, any, any]> = [
-      ["text <- object", { type: "text" }, { x: 1 }, {}],
-      ["comment <- object", { type: "comment" }, { x: 1 }, {}],
       ["boolean <- 'maybe'", { type: "boolean" }, "maybe", {}],
       ["radiogroup <- array", { type: "radiogroup", choices: ["a", "b"] }, ["a"], {}],
-      ["file <- string", { type: "file" }, "oops", {}],
+      ["file <- number", { type: "file" }, 5, {}],
       ["matrixdynamic <- string", dynamicMatrix, "oops", {}],
       ["matrixdynamic <- scalar rows", dynamicMatrix, ["x", 5], {}],
       ["paneldynamic <- string", dynamicPanel, "oops", {}],
@@ -175,6 +173,31 @@ describe("Question.isValueCorrect", () => {
     expect(survey.data, "clearIncorrectValues keeps the detail values").toEqual({ q: value });
     survey.data = { q: [{ c: "x", detail: "y" }] };
     expect(q.isValueCorrect(), "the question name is not the key when valueName is set").toBe(false);
+  });
+  test("A text or comment question keeps a value of another shape, a question derived from it may store it", () => {
+    const cases: Array<[string, any, any]> = [
+      ["text <- object", { type: "text" }, { x: 1 }],
+      ["comment <- object", { type: "comment" }, { type: "text", name: "q1" }],
+      ["comment <- array", { type: "comment" }, [1, 2]],
+    ];
+    cases.forEach(([label, question, value]) => {
+      const res = checkValue(question, value);
+      expect(res.isCorrect, label + ": isValueCorrect").toBe(true);
+      expect(res.isValid, label + ": validate").toBe(true);
+      expect(res.dataAfterClear, label + ": clearIncorrectValues keeps the value").toEqual({ q: value });
+    });
+  });
+  test("A value that is not survey data, an instance of a class, is not reported", () => {
+    class CustomValue {
+      constructor(public id: number) { }
+    }
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
+    const q = survey.getQuestionByName("q");
+    q.value = new CustomValue(1);
+    expect(q.isValueCorrect(), "isValueCorrect").toBe(true);
+    expect(survey.validate(false, false), "validate").toBe(true);
+    survey.clearIncorrectValues(true);
+    expect(q.value instanceof CustomValue, "clearIncorrectValues keeps the value").toBe(true);
   });
   test("The incorrect value warning has a space before the value", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => { });

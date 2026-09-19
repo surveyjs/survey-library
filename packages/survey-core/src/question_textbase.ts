@@ -36,8 +36,10 @@ export class QuestionTextBase extends Question {
   }
   protected isValueCorrectCore(val: any): boolean {
     if (!super.isValueCorrectCore(val)) return false;
-    // A custom widget may keep a value of any shape in a text question.
-    return !!this.customWidget || this.isValueOfValueType(val);
+    // A custom widget and a question derived from this one, a JSON editor built on a comment question
+    // for example, may keep a value of any shape, so only a numeric input reports the value shape.
+    if (!!this.customWidget) return true;
+    return this.getValueType() !== "number" || this.isValueOfValueType(val);
   }
   /**
    * The maximum text length measured in characters. Assign 0 if the length should be unlimited.

@@ -579,9 +579,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected isValueCorrectCore(val: any): boolean {
     if (!super.isValueCorrectCore(val)) return false;
-    // A value is a file entry or an array of them.
+    // A value is a file entry or an array of them. An entry is either a file object or a string:
+    // a file url or the file content, the shape loadPreview() and the file editors in Survey Creator use.
     const files = Array.isArray(val) ? val : [val];
-    return files.every(file => Helpers.isValueObject(file, true));
+    return files.every(file => Helpers.isValueObject(file, true) || typeof file === "string");
   }
 
   protected onChangeQuestionValue(newValue: any): void {

@@ -267,18 +267,20 @@ describe("SurveyElement", () => {
       ]
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.getWrapperCss(), "q1 gets its minWidth from the root style")
+    expect(q1.getWrapperCss(), "q1 gets its minWidth from the element style")
       .toBe("sd-element-wrapper");
-    expect(q1.rootStyle.minWidth, "q1 root style").toBe("min(100%, 200px)");
+    expect(q1.getRootStyle().minWidth, "q1 root style").toBe("min(100%, 200px)");
+    expect(q1.rootStyle.minWidth, "wrapper style has no minWidth").toBeUndefined();
 
     const q2 = survey.getQuestionByName("q2");
     expect(q2.getWrapperCss(), "q2 shrinks to its content").toBe("sd-element-wrapper");
-    expect(q2.rootStyle.minWidth, "q2 root style").toBeUndefined();
+    expect(q2.getRootStyle().minWidth, "q2 root style").toBeUndefined();
+    expect(q2.rootStyle.minWidth, "q2 wrapper style").toBeUndefined();
 
     q2.minWidth = "";
     expect(q2.getWrapperCss(), "an empty minWidth falls back to the theme")
       .toBe("sd-element-wrapper sd-element-wrapper--min-width");
-    expect(q2.rootStyle.minWidth, "q2 root style is empty again").toBeUndefined();
+    expect(q2.getRootStyle().minWidth, "q2 root style is empty again").toBeUndefined();
   });
   test("minWidth & maxWidth override the default element widths", () => {
     const survey = new SurveyModel({
@@ -296,12 +298,15 @@ describe("SurveyElement", () => {
       "flexGrow": 1,
       "flexShrink": 1
     });
+    expect(q1.getRootStyle(), "q1 has no min/max width").toEqual({});
 
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.rootStyle, "q2 overrides the theme widths").toEqual({
+    expect(q2.rootStyle, "q2 wrapper is sized by flex").toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
+      "flexShrink": 1
+    });
+    expect(q2.getRootStyle(), "q2 min/max width are on the element").toEqual({
       "minWidth": "min(100%, 200px)",
       "maxWidth": "400px"
     });
@@ -310,12 +315,14 @@ describe("SurveyElement", () => {
     expect(panel.rootStyle, "the panel keeps shrinking to its content").toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
+      "flexShrink": 1
+    });
+    expect(panel.getRootStyle(), "the panel maxWidth is on the element").toEqual({
       "maxWidth": "500px"
     });
 
     q2.maxWidth = "";
-    expect(q2.rootStyle.maxWidth, "an empty maxWidth falls back to the theme").toBeUndefined();
+    expect(q2.getRootStyle().maxWidth, "an empty maxWidth falls back to the theme").toBeUndefined();
   });
   test("minWidth & maxWidth do not fail on a number, Bug#: composite question", () => {
     const survey = new SurveyModel({
@@ -323,15 +330,15 @@ describe("SurveyElement", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     // A unitless value produces an invalid CSS width that the browser ignores, as it did before.
-    expect(q1.rootStyle["minWidth"]).toBe("min(100%, 100)");
-    expect(q1.rootStyle["maxWidth"]).toBe(300);
+    expect(q1.getRootStyle()["minWidth"]).toBe("min(100%, 100)");
+    expect(q1.getRootStyle()["maxWidth"]).toBe(300);
   });
   test("minWidth is scaled the same way as the theme default", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1", minWidth: "300px" }]
     });
     survey.widthScale = 200;
-    expect(survey.getQuestionByName("q1").rootStyle["minWidth"]).toBe("min(100%, 600px)");
+    expect(survey.getQuestionByName("q1").getRootStyle()["minWidth"]).toBe("min(100%, 600px)");
   });
   test("Do not create rootStyle by default", () => {
     const survey = new SurveyModel({
@@ -345,7 +352,7 @@ describe("SurveyElement", () => {
     expect(survey.pages[0].rootStyle, "page rootStyle directly").toBeTruthy();
     expect(survey.getQuestionByName("q1").rootStyle, "q1 rootStyle directly").toBeTruthy();
   });
-  test("rootStyle on mobile", () => {
+  test("rootStyle flexGrow depends on width and mobile", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "text",
@@ -358,9 +365,15 @@ describe("SurveyElement", () => {
       "flexGrow": 1,
       "flexShrink": 1
     });
+    q1.width = "300px";
+    expect(q1.rootStyle).toEqual({
+      "flexBasis": "300px",
+      "flexGrow": 0,
+      "flexShrink": 1
+    });
     survey.setIsMobile(true);
     expect(q1.rootStyle).toEqual({
-      "flexBasis": "100%",
+      "flexBasis": "300px",
       "flexGrow": 1,
       "flexShrink": 1
     });

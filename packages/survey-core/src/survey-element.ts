@@ -245,7 +245,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
+    const updateRootStyleProps = ["minWidth", "maxWidth", "width", "renderWidth", "allowRootStyle", "parent"];
     if (updateRootStyleProps.indexOf(name) > -1) {
       this.updateRootStyle();
     }
@@ -1037,6 +1037,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const style: any = {};
     if (!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
     if (!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
+    const minWidth = this.calcMinWidth();
+    if (!!minWidth) {
+      style["minWidth"] = minWidth;
+    }
+    if (!!this.maxWidth) {
+      style["maxWidth"] = this.maxWidth;
+    }
     return style;
   }
   get paddingLeft(): string {
@@ -1132,18 +1139,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       style["flexShrink"] = 0;
       style["flexBasis"] = gridWidth + "%";
     } else if (this.allowRootStyle && this.renderWidth) {
-      style["flexGrow"] = 1;
+      const isMobile = !!(this.survey as SurveyModel)?.isMobile;
+      style["flexGrow"] = isMobile || !this.width ? 1 : 0;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;
-    }
-    if (Object.keys(style).length > 0) {
-      const minWidth = this.calcMinWidth();
-      if (!!minWidth) {
-        style["minWidth"] = minWidth;
-      }
-      if (!!this.maxWidth) {
-        style["maxWidth"] = this.maxWidth;
-      }
     }
     return style;
   }

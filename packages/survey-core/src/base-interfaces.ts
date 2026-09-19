@@ -31,6 +31,11 @@ export type {
   ISurveyErrorOwner,
   ISurveyValidatorOwner,
   ISurveyValidation,
+  ValueCheckName,
+  IIncorrectValueInfo,
+  IValueChecks,
+  IValidateOptions,
+  ISurveyValidateOptions,
 } from "./interfaces/validation-interfaces";
 
 // UI / layout / environment interfaces.

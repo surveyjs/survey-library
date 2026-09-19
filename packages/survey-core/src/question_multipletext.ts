@@ -7,7 +7,9 @@ import {
   IElement,
   IQuestion,
   ITextProcessor,
-  IProgressInfo
+  IProgressInfo,
+  IValueChecks,
+  IIncorrectValueInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
@@ -620,8 +622,36 @@ export class QuestionMultipleTextModel extends Question
   public getChildErrorLocation(child: Question): string {
     return this.getQuestionErrorLocation();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.unknownKeys) return res;
+    const unknownKeys = Object.keys(val).filter(key => !this.isValueKeyKnown(key));
+    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+  }
+  protected hasValueKey(key: string): boolean {
+    return !!this.getItemByName(key);
+  }
+  protected clearIncorrectValuesCore(): void {
+    const val = this.value;
+    // A value of another shape, a string for example, has no items to keep: drop it as a whole.
+    if (!Helpers.isValueObject(val, true)) {
+      super.clearIncorrectValuesCore();
+      return;
+    }
+    const newValue: any = {};
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) {
+        newValue[key] = val[key];
+      }
+    });
+    this.value = newValue;
+  }
+  public clearIncorrectValues(): void {
+    super.clearIncorrectValues();
+    this.items.forEach(item => item.editor.clearIncorrectValues());
   }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {

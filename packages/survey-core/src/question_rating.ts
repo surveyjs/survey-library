@@ -11,7 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
-import { ISurveyImpl } from "./base-interfaces";
+import { ISurveyImpl, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
@@ -842,11 +842,11 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-  public clearIncorrectValues(): void {
-    if (this.isEmpty() || this.survey?.keepIncorrectValues) return;
-    if (!ItemValue.getItemByValue(this.visibleRateValues, this.value)) {
-      this.clearValue(true);
-    }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
+    if (!checks.choices || !!this.survey?.keepIncorrectValues) return undefined;
+    return !!ItemValue.getItemByValue(this.visibleRateValues, val) ? undefined : { check: "choices" };
   }
   public setValueFromClick(value: any) {
     this.resetDigitShortcut();

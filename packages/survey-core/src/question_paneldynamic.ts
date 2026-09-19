@@ -9,7 +9,9 @@ import {
   ITextProcessor,
   IProgressInfo,
   IPlainDataOptions, IElementUIState,
-  ISurveyDynamicPanelCallbacks
+  ISurveyDynamicPanelCallbacks,
+  IValueChecks,
+  IIncorrectValueInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -1830,7 +1832,26 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       panels[i].randomSeedChanged();
     }
   }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.unknownKeys || !Array.isArray(val)) return res;
+    const panels = this.panelsCore;
+    const unknownKeys: Array<string> = [];
+    for (let i = 0; i < panels.length && i < val.length; i++) {
+      if (!Helpers.isValueObject(val[i], true)) continue;
+      for (const key in val[i]) {
+        if (this.isUnknownValueKey(panels[i], key, i)) unknownKeys.push(i + "." + key);
+      }
+    }
+    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+  }
+  private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
+    if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;
+    return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&
+      !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+  }
   public clearIncorrectValues() {
+    this.clearIncorrectValueInData();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
     }
@@ -1853,18 +1874,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (this.getSharedQuestionFromArray(key, index)) continue;
-      var q = panel.getQuestionByValueName(key);
-      if (!!q) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(
-          panel,
-          key,
-          settings.matrix.totalsSuffix
-        )
-      )
-        continue;
+      if (!this.isUnknownValueKey(panel, key, index)) continue;
       delete values[key];
       isChanged = true;
     }
@@ -2435,8 +2445,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.rebuildPanels();
     }
   }
-  protected isNewValueCorrect(val: any): boolean {
-    return Array.isArray(val);
+  protected isDataValueCorrect(val: any): boolean {
+    // Every row is a plain object; an empty one may be null.
+    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;

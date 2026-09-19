@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -697,8 +697,12 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     return res;
   }
   public clearIncorrectValues(val: any): void {
+    // The keys of the detail panel questions are known once the panel is created.
+    this.ensureDetailPanel();
     for (var key in val) {
-      var question = this.getQuestionByName(key);
+      // A key is resolved by valueName, the way isUnknownValueKey() does it, so that clearing
+      // removes exactly what getUnknownValueKeys() reports.
+      var question = this.getQuestionsByValueName(key)[0];
       if (question) {
         var qVal = question.value;
         question.clearIncorrectValues();
@@ -706,14 +710,42 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
           this.setValue(key, question.value);
         }
       } else {
-        if (
-          !this.getSharedQuestionByName(key) &&
-          key.indexOf(settings.matrix.totalsSuffix) < 0
-        ) {
-          this.setValue(key, null);
+        if (this.isUnknownValueKey(key)) {
+          this.deleteUnknownValueKey(key);
         }
       }
     }
+  }
+  // Lists the keys of a row value that no cell question stores. It does not modify the value.
+  public getUnknownValueKeys(val: any): Array<string> {
+    // A row edits an object, not a JSON value, when the survey is used as an object editor.
+    if (!!val && typeof val.getType === "function") return [];
+    // A row value of another shape is a valueType finding of the question, not an unknown key one.
+    if (!Helpers.isValueObject(val, true)) return [];
+    this.ensureDetailPanel();
+    const res: Array<string> = [];
+    for (var key in val) {
+      if (this.isUnknownValueKey(key)) res.push(key);
+    }
+    return res;
+  }
+  private deleteUnknownValueKey(key: string): void {
+    // setValue() resolves a key by the question name and keeps a key that a question of the row is
+    // named after, even when that question stores its value under another valueName. Such a key has
+    // to be removed from the row value directly, so that clearing removes what getUnknownValueKeys() reports.
+    if (!this.getQuestionByName(key)) {
+      this.setValue(key, null);
+    } else {
+      this.data.updateItemValue(this, key, this.value, true);
+    }
+  }
+  private isUnknownValueKey(key: string): boolean {
+    const suffix = settings.commentSuffix;
+    const index = key.lastIndexOf(suffix);
+    const valueName = index > 0 && index === key.length - suffix.length ? key.substring(0, index) : key;
+    // A detail panel question may store its value under a valueName.
+    if (this.getQuestionsByValueName(valueName).length > 0) return false;
+    return !this.getSharedQuestionByName(key) && key.indexOf(settings.matrix.totalsSuffix) < 0;
   }
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
@@ -1562,7 +1594,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return !!question ? question.getConditionJson(operator) : null;
   }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.unknownKeys) return res;
+    if (!Array.isArray(this.visibleRows)) return undefined;
+    const rows = this.generatedVisibleRows;
+    const unknownKeys: Array<string> = [];
+    for (let i = 0; i < rows.length; i++) {
+      const keys = rows[i].getUnknownValueKeys(this.getRowValue(i));
+      keys.forEach(key => unknownKeys.push(this.getRowKeyName(rows[i], i) + "." + key));
+    }
+    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+  }
+  // The name of a row in an unknown key path: the row index here, the key of the row in the value
+  // for a matrixdropdown, which keeps its rows in an object.
+  protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
+    return index + "";
+  }
   public clearIncorrectValues(): void {
+    this.clearIncorrectValueInData();
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;
     for (let i = 0; i < rows.length; i++) {
@@ -2386,6 +2436,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const res: Array<MatrixDropdownRowModelBase> = [];
     const rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].isVisible) continue;
       let val = undefined;
       const question = rows[i].getQuestionByName(columnName);
       if (!!question) {

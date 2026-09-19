@@ -2,6 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType, getScalarValueType } from "./question";
+import { IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -215,6 +216,12 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   }
   public getValueFalse(): any {
     return this.valueFalse !== undefined ? this.valueFalse : false;
+  }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.valueType) return res;
+    if (!(val instanceof Object) && (val == this.getValueTrue() || val == this.getValueFalse())) return undefined;
+    return { check: "valueType" };
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);

@@ -9,7 +9,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionValueType } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { IProgressInfo } from "./base-interfaces";
+import { IProgressInfo, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -248,8 +248,33 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
+    const unknownKeys: Array<string> = [];
+    // A row of another question that shares the value is checked by that question.
+    for (const key of Object.keys(val)) {
+      if (this.hasValueKey(key)) {
+        if (checks.valueType && !this.isRowValueCorrect(val[key])) return { check: "valueType" };
+      } else {
+        if (!this.isValueKeyKnown(key)) unknownKeys.push(key);
+      }
+    }
+    if (checks.unknownKeys && unknownKeys.length > 0) return { check: "unknownKeys", keys: unknownKeys };
+    return undefined;
+  }
+  protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
+    return row.rowName + "";
+  }
+  protected hasValueKey(key: string): boolean {
+    return this.rows.some(row => row.value + "" === key);
+  }
+  // Every row is a plain object.
+  private isRowValueCorrect(rowValue: any): boolean {
+    return Helpers.isValueEmpty(rowValue) || Helpers.isValueObject(rowValue, true);
   }
   public clearIncorrectValues(): void {
     if (!this.isEmpty()) {
@@ -258,7 +283,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       const val = this.value;
       for (let key in val) {
         const row = this.getRowByKey(key);
-        if (!!row && row.isVisible) {
+        const isSharedRow = !this.hasValueKey(key) && this.isValueKeyKnown(key);
+        if (isSharedRow || (!!row && row.isVisible && this.isRowValueCorrect(val[key]))) {
           newVal[key] = val[key];
         }
       }

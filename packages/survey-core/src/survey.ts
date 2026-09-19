@@ -28,7 +28,9 @@ import {
   ITextProcessorResult, ISurveyUIState,
   ISurveyWebProvider,
   ISaveToJSONOptions,
-  IScrollElementToTopOptions
+  IScrollElementToTopOptions,
+  IValueChecks,
+  ISurveyValidateOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -42,7 +44,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question, ValidationContext } from "./question";
+import { IQuestionPlainData, IValidationContextParams, Question, ValidationContext, isValidateOptions, resolveValueChecks } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -2138,6 +2140,10 @@ export class SurveyModel extends SurveyElementCore
    * @see clearIncorrectValues
    */
   @property() keepIncorrectValues: boolean;
+  // The default value checks of validate(), including the calls the survey makes itself, on the
+  // Complete and Next buttons. Per-call options are merged over it. It is an integration setting,
+  // not survey JSON, so it is a plain field and not a serializable property.
+  public validationValueChecks: IValueChecks = {};
   /**
    * Specifies the survey's locale.
    *
@@ -4669,7 +4675,12 @@ export class SurveyModel extends SurveyElementCore
    * @see validateCurrentPage
    * @see validatePage
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
+  // The first parameter may be an ISurveyValidateOptions object instead of fireCallback.
+  // In that form the other positional parameters are ignored.
+  public validate(fireCallback: boolean | ISurveyValidateOptions = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
+    if (isValidateOptions(fireCallback)) {
+      return this.validateElementsCore(this.visiblePages, fireCallback);
+    }
     return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
   }
   private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
@@ -4677,7 +4688,21 @@ export class SurveyModel extends SurveyElementCore
       fireCallback = true;
     }
     const callbackResult = !!onAsyncValidation ? (res: boolean) => { onAsyncValidation(!res); } : undefined;
-    const context = new ValidationContext({ fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage });
+    return this.runValidationContext(elements, { fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage, valueChecks: resolveValueChecks(this) });
+  }
+  private validateElementsCore(elements: Array<PanelModelBase| Question>, options: ISurveyValidateOptions): boolean {
+    // As in the positional form, an async callback needs the errors in the UI.
+    const fireCallback = !!options.onAsyncCompleted || options.fireCallback !== false;
+    return this.runValidationContext(elements, {
+      fireCallback: fireCallback,
+      focusOnFirstError: !!options.focusFirstError,
+      changeCurrentPage: !!options.changeCurrentPage,
+      valueChecks: resolveValueChecks(this, options.valueChecks),
+      onAsyncCompleted: options.onAsyncCompleted
+    });
+  }
+  private runValidationContext(elements: Array<PanelModelBase| Question>, params: IValidationContextParams): boolean {
+    const context = new ValidationContext(params);
     for (const element of elements) {
       element.validateElement(context);
     }

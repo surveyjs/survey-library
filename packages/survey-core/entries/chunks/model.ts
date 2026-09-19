@@ -141,7 +141,12 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  ValueCheckName,
+  IIncorrectValueInfo,
+  IValueChecks,
+  IValidateOptions,
+  ISurveyValidateOptions
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
@@ -152,7 +157,8 @@ export {
   OneAnswerRequiredError,
   RequreNumericError,
   ExceedSizeError,
-  ExceedFilesCountError
+  ExceedFilesCountError,
+  IncorrectValueError
 } from "../../src/error";
 export {
   ILocalizableOwner,

@@ -29,6 +29,8 @@ export var englishStrings = {
   buttongroupOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
+  incorrectValueError: "The value is incorrect.",
+  incorrectValueUnknownKeysError: "The value contains unknown keys: {0}.",
   requiredErrorInPanel: "Response required: answer at least one question.",
   requiredInAllRowsError: "Response required: answer questions in all rows.",
   eachRowUniqueError: "Each row must have a unique value.",

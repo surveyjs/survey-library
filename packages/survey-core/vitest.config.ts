@@ -8,6 +8,7 @@ export default defineConfig({
     include: ["tests/**/*.ts"],
     exclude: [
       "tests/vitest.setup.ts",
+      "tests/typings/**",
       "tests/test-helpers.ts",
       "tests/oldTheme.ts",
       "tests/legacy-theme-vars.ts",

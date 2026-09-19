@@ -31,8 +31,9 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase } from "./dynamicItemModelBase";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
+import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -147,6 +148,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.getListRecords(),
         (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+      // The list is created on demand, so a rowsPerPage that came from JSON has to be pushed here
+      // and not only from its setter.
+      this.paging.updatePageSize();
     }
     return this.dataListValue;
   }
@@ -180,7 +184,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      raises while it is being constructed - before dataListValue is assigned - out of here. */
   private hasMaterializedView: boolean = false;
   onDataListChanged(change: IDynamicDataListChange): void {
-    if (change.type !== "reset" || !this.dataListValue) return;
+    if (!this.dataListValue) return;
+    if (change.type === "pageChanged") {
+      // The rendered table is the page: nothing else changed, the rows themselves are untouched.
+      this.syncPagingState();
+      this.resetRenderedTable();
+      return;
+    }
+    if (change.type !== "reset") return;
+    this.syncPagingState();
     const hasView = this.dataListValue.hasView;
     if (!hasView && !this.hasMaterializedView) return;
     this.hasMaterializedView = hasView;
@@ -237,7 +249,91 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private invalidateDataListViews(): void {
     if (!!this.dataListValue) {
       this.dataListValue.invalidateViews();
+      this.syncPagingState();
     }
+  }
+  private pagingValue: DynamicDataPagingController;
+  private get paging(): DynamicDataPagingController {
+    if (!this.pagingValue) {
+      this.pagingValue = new DynamicDataPagingController(this);
+    }
+    return this.pagingValue;
+  }
+  // The list announces a page index it had to clamp, but not a page count that changed because a
+  // row became hidden or because the records were replaced: those points call this.
+  private syncPagingState(): void {
+    if (!this.dataListValue) return;
+    this.paging.syncState();
+  }
+  /* Paging is the only view that is a slice of the objects that exist - which rows exist and in
+     what order is decided by the list filter and the list sort, and that work is done by the time
+     visibleRows is read. The page is therefore the plain [pageIndex * pageSize, + pageSize) window
+     of visibleRows and not a second record-to-row mapping: the rows are already in the list's
+     visible order, and their count can outrun the records while a question is being built.
+     With paging off this IS visibleRows, the same instance, so nothing that renders a matrix
+     without rowsPerPage can tell the difference. */
+  public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
+    const visRows = this.visibleRows;
+    if (!this.isPagingActive || !Array.isArray(visRows)) return visRows;
+    const list = this.dataListValue;
+    const start = list.pageIndex * list.pageSize;
+    return visRows.slice(start, start + list.pageSize);
+  }
+  protected get isPagingActive(): boolean {
+    if (this.isDesignMode) return false;
+    return !!this.dataListValue && this.dataListValue.pageSize > 0;
+  }
+  // The number of rows on one page, 0 = no paging.
+  public get rowsPerPage(): number {
+    return this.getPropertyValue("rowsPerPage");
+  }
+  public set rowsPerPage(val: number) {
+    const num = Helpers.getNumber(val);
+    // The clamp is in the setter and not in an onSettingValue hook: the hook is skipped while the
+    // question is loading from JSON.
+    this.setPropertyValue("rowsPerPage", num > 0 ? num : 0);
+    this.paging.updatePageSize();
+    this.resetRenderedTable();
+  }
+  public get pageSize(): number { return this.rowsPerPage; }
+  public set pageSize(val: number) { this.rowsPerPage = val; }
+  // A zero-based page index; always 0 while paging is off.
+  public get pageIndex(): number { return this.isPagingActive ? this.paging.pageIndex : 0; }
+  public set pageIndex(val: number) { this.paging.pageIndex = val; }
+  // The number of pages; 1 for an empty question and for one that does not page.
+  public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
+  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
+  public goToPage(index: number): void { this.paging.goToPage(index); }
+  public nextPage(): void { this.paging.nextPage(); }
+  public prevPage(): void { this.paging.prevPage(); }
+  /* The sort the rows are displayed in: { field, direction } descriptors applied in array order,
+     an empty array = no sort. It never reorders the question value. */
+  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
+  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
+  public sortBy(field: string, direction?: DynamicDataSortDirection): void { this.paging.sortBy(field, direction); }
+  public clearSort(): void { this.paging.clearSort(); }
+  /* A survey expression over the row values - the same language as visibleIf, with the record
+     fields as its variables. A row that does not satisfy it is not created; the question value
+     keeps every record. An empty string = no filter. It is not rowsVisibleIf: that one is a
+     per-row expression with a row context and stays the owner-visibility layer. */
+  public get filter(): string { return this.paging.filter; }
+  public set filter(val: string) { this.paging.filter = val; }
+  public refreshView(): void { this.paging.refreshView(); }
+  private pagerActionsValue: ActionContainer;
+  public get pagerActions(): ActionContainer {
+    if (!this.pagerActionsValue) {
+      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
+    }
+    return this.pagerActionsValue;
+  }
+  /* Every row is validated, on-page or not - a required cell on page 2 blocks the survey exactly as
+     it does without paging - and the page then follows the cell that is about to be focused, which
+     is how the first error reaches the respondent. A cell of the detail panel names its row too. */
+  protected revealNestedQuestion(question: Question): void {
+    if (!this.isPagingActive || !question) return;
+    const row = this.getRowByQuestion(question);
+    this.paging.goToPageOfVisibleIndex(!!row ? this.visibleRows.indexOf(row) : -1);
   }
   /* rowCount, not a write, decides how many records the list reads: the window is question.value
      padded up to it. The records that appear join the view - an added record always does - and the
@@ -245,6 +341,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private syncDataListRecordCount(): void {
     if (!!this.dataListValue) {
       this.dataListValue.syncMembershipWithRecordCount();
+      this.syncPagingState();
     }
   }
   /* The records the list works with: question.value padded up to rowCount, exactly as
@@ -321,6 +418,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     this.dragDropMatrixRows = new DragDropMatrixRows(this.survey, null, true);
+    // isDesignMode is known only once the survey is attached, and the list may have been created
+    // before that: paging is off in the Creator, whatever rowsPerPage says.
+    if (!!this.dataListValue) {
+      this.paging.updatePageSize();
+    }
   }
 
   private draggedRow: MatrixDropdownRowModelBase;
@@ -661,6 +763,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0;
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
+  /* Enables the header-click sort the UI series will add; a column opts out with
+     column.allowSort = false. This step only stores and exposes it - the sort itself is assigned
+     through sortOrder/sortBy. */
+  @property({ defaultValue: false }) allowSortRows: boolean;
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -811,6 +917,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.addRowCore();
     this.onEndRowAdding();
     this.singleInputOnAddItem(false);
+    /* A record that is added is always in the view and it is appended: the new row is the last one
+       and it lands on the last page. Someone who clicks "add" must see the row they added. */
+    if (this.isPagingActive && oldRowCount !== this.rowCount) {
+      this.paging.goToLastPage();
+    }
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
@@ -1406,6 +1517,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (index > -1) {
       this.dataList.setRecordVisible(index, row.isVisible);
     }
+    // A hidden row takes no page slot: the page count follows row visibility, and the list does not
+    // announce it.
+    this.syncPagingState();
   }
   protected runCellsCondition(properties: HashTable<any>): boolean {
     const res = super.runCellsCondition(properties);
@@ -1424,6 +1538,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         list.setRecordVisible(index, rows[i].isVisible);
       }
     }
+    this.syncPagingState();
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
@@ -1598,6 +1713,11 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
+    /* Invisible in the property grid until the UI series ships a pager and sortable headers: the
+       properties load from and save to JSON, but a switch that renders nothing is a support
+       ticket. */
+    { name: "rowsPerPage:number", default: 0, minValue: 0, visible: false },
+    { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

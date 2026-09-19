@@ -39,8 +39,9 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
+import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
@@ -329,6 +330,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
+    // isDesignMode is known only once the survey is attached, and the list may have been created
+    // before that: paging is off in the Creator, whatever panelsPerPage says.
+    if (!!this.dataListValue) {
+      this.paging.updatePageSize();
+    }
   }
   /* The data the survey and the expressions see: the records that have a panel. A record the list
      filter excluded has no panel and is not part of it - the same answer a source that filters on
@@ -348,6 +354,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.value,
         (arr: Array<any>): void => { this.value = arr; });
+      // The list is created on demand, so a panelsPerPage that came from JSON has to be pushed here
+      // and not only from its setter.
+      this.paging.updatePageSize();
     }
     return this.dataListValue;
   }
@@ -365,7 +374,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      raises while it is being constructed - before dataListValue is assigned - out of here. */
   private hasMaterializedView: boolean = false;
   onDataListChanged(change: IDynamicDataListChange): void {
-    if (change.type !== "reset" || !this.dataListValue) return;
+    if (!this.dataListValue) return;
+    if (change.type === "pageChanged") {
+      // The panels themselves are untouched: only which of them are rendered changes.
+      this.syncPagingState();
+      this.updateRenderedPanels();
+      return;
+    }
+    if (change.type !== "reset") return;
+    this.syncPagingState();
     const hasView = this.dataListValue.hasView;
     if (!hasView && !this.hasMaterializedView) return;
     this.hasMaterializedView = hasView;
@@ -389,7 +406,98 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private invalidateDataListViews(): void {
     if (!!this.dataListValue) {
       this.dataListValue.invalidateViews();
+      this.syncPagingState();
     }
+  }
+  private pagingValue: DynamicDataPagingController;
+  private get paging(): DynamicDataPagingController {
+    if (!this.pagingValue) {
+      this.pagingValue = new DynamicDataPagingController(this);
+    }
+    return this.pagingValue;
+  }
+  // The list announces a page index it had to clamp, but not a page count that changed because a
+  // panel became hidden or because the records were replaced: those points call this.
+  private syncPagingState(): void {
+    if (!this.dataListValue) return;
+    this.paging.syncState();
+    /* renderedPanels is a stored array and not a computed one: panels that appeared, disappeared or
+       became hidden change which of them are on the page, and the panels are created before the
+       value that holds their records is - the update they made then saw no records at all. */
+    if (this.isPagingActive && !this.isUpdatingRenderedPanels) {
+      this.updateRenderedPanels();
+    }
+  }
+  /* Paging is the only view that is a slice of the panels that exist - which panels exist and in
+     what order is decided by the list filter and the list sort, and that work is done by the time
+     visiblePanels is read. The page is therefore the plain [pageIndex * pageSize, + pageSize)
+     window of visiblePanels and not a second record-to-panel mapping: the panels are already in the
+     list's visible order, and they outrun the records while the question is being built - the
+     panels are created before the value that holds their records is.
+     With paging off this IS visiblePanels, the same instance. In carousel and tab mode one panel is
+     shown at a time, so panelsPerPage is ignored there, not hidden: renderedPanels stays
+     [currentPanel]. */
+  public get panelsOnPage(): Array<PanelModel> {
+    const visPanels = this.visiblePanels;
+    if (!this.isPagingActive || !Array.isArray(visPanels)) return visPanels;
+    const list = this.dataListValue;
+    const start = list.pageIndex * list.pageSize;
+    return visPanels.slice(start, start + list.pageSize);
+  }
+  private get isPagingActive(): boolean {
+    if (this.isDesignMode) return false;
+    return !!this.dataListValue && this.dataListValue.pageSize > 0;
+  }
+  // The number of panels on one page, 0 = no paging. Applies to displayMode: "list" only.
+  public get panelsPerPage(): number {
+    return this.getPropertyValue("panelsPerPage");
+  }
+  public set panelsPerPage(val: number) {
+    const num = Helpers.getNumber(val);
+    // The clamp is in the setter and not in an onSettingValue hook: the hook is skipped while the
+    // question is loading from JSON.
+    this.setPropertyValue("panelsPerPage", num > 0 ? num : 0);
+    this.paging.updatePageSize();
+    this.updateRenderedPanels();
+  }
+  public get pageSize(): number { return this.panelsPerPage; }
+  public set pageSize(val: number) { this.panelsPerPage = val; }
+  // A zero-based page index; always 0 while paging is off.
+  public get pageIndex(): number { return this.isPagingActive ? this.paging.pageIndex : 0; }
+  public set pageIndex(val: number) { this.paging.pageIndex = val; }
+  // The number of pages; 1 for an empty question and for one that does not page.
+  public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
+  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
+  public goToPage(index: number): void { this.paging.goToPage(index); }
+  public nextPage(): void { this.paging.nextPage(); }
+  public prevPage(): void { this.paging.prevPage(); }
+  /* The sort the panels are displayed in: { field, direction } descriptors applied in array order,
+     an empty array = no sort. It never reorders the question value. */
+  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
+  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
+  public sortBy(field: string, direction?: DynamicDataSortDirection): void { this.paging.sortBy(field, direction); }
+  public clearSort(): void { this.paging.clearSort(); }
+  /* A survey expression over the panel values - the same language as visibleIf, with the record
+     fields as its variables. A record that does not satisfy it gets no panel; the question value
+     keeps every record. An empty string = no filter. */
+  public get filter(): string { return this.paging.filter; }
+  public set filter(val: string) { this.paging.filter = val; }
+  public refreshView(): void { this.paging.refreshView(); }
+  /* Every panel is validated, on-page or not - a required question on page 2 blocks the survey
+     exactly as it does without paging - and the page then follows the question that is about to be
+     focused, which is how the first error reaches the respondent. In carousel and tab mode the
+     panel to show is chosen by validateInPanels, as it always has been. */
+  protected revealNestedQuestion(question: Question): void {
+    if (!this.isPagingActive || !this.isRenderModeList || !question) return;
+    this.paging.goToPageOfVisibleIndex(this.getVisualPanelIndex(question.data));
+  }
+  private pagerActionsValue: ActionContainer;
+  public get pagerActions(): ActionContainer {
+    if (!this.pagerActionsValue) {
+      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
+    }
+    return this.pagerActionsValue;
   }
   private getCreatedIndexesSnapshot(): Array<number> {
     const list = this.dataListValue;
@@ -782,15 +890,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
 
   @propertyArray({}) private _renderedPanels: Array<PanelModel> = [];
 
+  private isUpdatingRenderedPanels: boolean;
   private updateRenderedPanels() {
     let panels: Array<PanelModel> = [];
+    this.isUpdatingRenderedPanels = true;
     if (this.isRenderModeList) {
-      panels = [].concat(this.visiblePanels);
+      panels = [].concat(this.panelsOnPage);
     } else if (this.currentPanel) {
       panels = [this.currentPanel];
     }
     panels.forEach(panel => this.panelOnFirstRendering(panel));
     this.renderedPanels = panels;
+    this.isUpdatingRenderedPanels = false;
   }
   private panelOnFirstRendering(panel: PanelModel) {
     if (panel) {
@@ -1741,6 +1852,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       if (!this.canLeaveCurrentPanel()) return null;
     }
     const newPanel = this.addPanelCore(index);
+    /* A record that is added is always in the view and it is appended: the new panel is the last
+       one and it lands on the last page. Someone who clicks "add" must see the panel they added. */
+    if (this.isPagingActive && this.isRenderModeList) {
+      this.paging.goToPageOfVisibleIndex(this.visiblePanelsCore.indexOf(newPanel));
+    }
     this.panelOnFirstRendering(newPanel);
     if (isUI) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
@@ -2513,6 +2629,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const index = this.getRecordIndexByPanelIndex(position);
     if (index < 0) return;
     this.dataList.setRecordVisible(index, panel.visible);
+    // A hidden panel takes no page slot: the page count follows panel visibility, and the list does
+    // not announce it.
+    this.syncPagingState();
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -3225,6 +3344,9 @@ Serializer.addClass(
       return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
+    /* Invisible in the property grid until the UI series ships a pager: the property loads from and
+       saves to JSON, but a switch that renders nothing is a support ticket. */
+    { name: "panelsPerPage:number", default: 0, minValue: 0, visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

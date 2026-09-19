@@ -1707,6 +1707,7 @@ export class Question extends SurveyElement<Question>
       if (isSingleInput) {
         this.singleInputBehavior.focusSingleInput(onError);
       } else {
+        this.revealInParentQuestions();
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
@@ -1743,6 +1744,18 @@ export class Question extends SurveyElement<Question>
   }
   protected onFocusCore(event: any): void {
     this.isFocusEmpty = this.isValidateVisitedEmptyFields;
+  }
+  /* A question that shows its items a page at a time - a paged matrix or dynamic panel - brings the
+     item that holds this one into view before the focus reaches it. It hangs on focus and not on
+     validation because an error found by an asynchronous validator arrives long after the
+     validation that started it returned, and the focus is what the error triggers in both cases. */
+  protected revealNestedQuestion(question: Question): void { }
+  private revealInParentQuestions(): void {
+    let question: Question = this;
+    while(!!question.parentQuestion) {
+      question.parentQuestion.revealNestedQuestion(question);
+      question = question.parentQuestion;
+    }
   }
   public expandAllParents(): void {
     this.expandAllParentsCore(this);

@@ -1291,16 +1291,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected onEndRowAdding() {
     this.lockResetRenderedTable = false;
     if (!this.renderedTable) return;
-    if (this.renderedTable.isRequireReset()) {
+    /* The incremental add appends the new row to the rendered table, which is right for a table
+       that shows every visible row and wrong for a page that may not hold the new one at all. With
+       paging on the table is reset instead - the question moves pageIndex to the page the new row
+       landed on, which resets it anyway. */
+    if (this.renderedTable.isRequireReset() || this.isPagingActive) {
       this.resetRenderedTable();
     } else {
-      const index = this.visibleRows.length - 1;
-      this.renderedTable.onAddedRow(this.visibleRows[index], index);
+      const index = this.rowsOnPage.length - 1;
+      this.renderedTable.onAddedRow(this.rowsOnPage[index], index);
     }
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
     this.lockResetRenderedTable = false;
-    if (this.renderedTable.isRequireReset()) {
+    /* Removing one row from the rendered table is right for a table that shows every visible row.
+       A page is a window: the row that took the vacated slot comes from the next page, and a
+       removal that emptied the last page moved pageIndex back while the reset it raised was locked
+       out by onStartRowAddingRemoving. Either way the whole page is re-rendered. */
+    if (this.renderedTable.isRequireReset() || this.isPagingActive) {
       this.resetRenderedTable();
     } else {
       if (!!row) {
@@ -1895,6 +1903,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (this.isGenereatingRows) return [];
     this.generateVisibleRowsIfNeeded();
     return this.generatedVisibleRows;
+  }
+  /* The rows the rendered table shows. Paging is the one view that is a slice of the objects that
+     exist: which rows exist is decided by the list filter and the list sort (they create the rows),
+     and this cuts the current page out of the visible ones. Everything else - validation, totals,
+     {prevRow}/{nextRow}, the value - works over the unpaged visibleRows.
+     Matrix dropdown (fixed rows) has no list and therefore no paging: its page is all of it. */
+  public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
+    return this.visibleRows;
+  }
+  // Paging is on: an incremental update of the rendered table would work in page-local terms.
+  protected get isPagingActive(): boolean {
+    return false;
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {

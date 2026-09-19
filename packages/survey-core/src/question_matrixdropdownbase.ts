@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks, IValueChecks } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -1594,18 +1594,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return !!question ? question.getConditionJson(operator) : null;
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
-    if (!checks.unknownKeys) return true;
-    if (!Array.isArray(this.visibleRows)) return true;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.unknownKeys) return res;
+    if (!Array.isArray(this.visibleRows)) return undefined;
     const rows = this.generatedVisibleRows;
     const unknownKeys: Array<string> = [];
     for (let i = 0; i < rows.length; i++) {
       const keys = rows[i].getUnknownValueKeys(this.getRowValue(i));
       keys.forEach(key => unknownKeys.push(this.getRowKeyName(rows[i], i) + "." + key));
     }
-    if (unknownKeys.length > 0) return this.setIncorrectValue("unknownKeys", unknownKeys);
-    return true;
+    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
   }
   // The name of a row in an unknown key path: the row index here, the key of the row in the value
   // for a matrixdropdown, which keeps its rows in an object.

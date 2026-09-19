@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IValidateOptions, ValueCheckName } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IValidateOptions, IIncorrectValueInfo } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
@@ -193,13 +193,6 @@ export interface IValidationContextParams {
   // Fired once, when the whole pass is completed. Unlike callbackResult, it never fires on a failure
   // while something is still pending. See ValidationContext.doComplete().
   onAsyncCompleted?: (isValid: boolean, firstErrorQuestion: Question) => void;
-}
-
-// What a failed value check reports: Question.getIncorrectValueInfo() returns it and the
-// IncorrectValueError built from it carries it to the caller.
-export interface IIncorrectValueInfo {
-  check: ValueCheckName;
-  keys: Array<string>;
 }
 
 // The value checks that run when neither the caller nor the survey asks for anything else.
@@ -2869,30 +2862,22 @@ export class Question extends SurveyElement<Question>
   public isValueCorrect(checks?: IValueChecks): boolean {
     return !this.getIncorrectValueInfo(resolveValueChecks(this.survey, checks));
   }
-  // The single boolean is not enough for the error: it has to name the check that failed and,
-  // for unknownKeys, the keys. checks is always a fully resolved object here.
+  // The single boolean of isValueCorrect() is not enough for the error: it has to name the check
+  // that failed and, for unknownKeys, the keys. checks is always a fully resolved object here.
   protected getIncorrectValueInfo(checks: IValueChecks): IIncorrectValueInfo {
-    this.incorrectValueInfoValue = undefined;
-    if (checks.valueType && this.hasIncorrectValueInData()) return { check: "valueType", keys: [] };
+    if (checks.valueType && this.hasIncorrectValueInData()) return { check: "valueType" };
     if (this.isEmpty() || this.isNonDataValue(this.value)) return undefined;
-    if (this.isValueCorrectCore(this.value, checks)) return undefined;
-    return this.incorrectValueInfoValue || { check: "valueType", keys: [] };
-  }
-  private incorrectValueInfoValue: IIncorrectValueInfo;
-  // An isValueCorrectCore() override calls it to tell which check failed and, for unknownKeys,
-  // which keys are unknown. It always returns false, so that an override can return its result.
-  protected setIncorrectValue(check: ValueCheckName, keys?: Array<string>): boolean {
-    this.incorrectValueInfoValue = { check: check, keys: keys || [] };
-    return false;
+    return this.isValueCorrectCore(this.value, checks);
   }
   // A value that is an instance of a class, a model object or a File for example, is not survey data.
   // A question may hold it on purpose, the property editors in Survey Creator do, so it is not checked.
   private isNonDataValue(val: any): boolean {
     return Helpers.isValueObject(val, true) && val.constructor !== Object && !(val instanceof Date);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (checks.valueType && !this.isDataValueCorrect(val)) return this.setIncorrectValue("valueType");
-    return true;
+  // Returns undefined when the value is correct and the failed check otherwise.
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    if (checks.valueType && !this.isDataValueCorrect(val)) return { check: "valueType" };
+    return undefined;
   }
   // A value that fails isDataValueCorrect() is not taken by the question, but it stays in the survey data.
   private hasIncorrectValueInData(): boolean {

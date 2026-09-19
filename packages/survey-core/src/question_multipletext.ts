@@ -8,7 +8,8 @@ import {
   IQuestion,
   ITextProcessor,
   IProgressInfo,
-  IValueChecks
+  IValueChecks,
+  IIncorrectValueInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
@@ -624,12 +625,11 @@ export class QuestionMultipleTextModel extends Question
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
-    if (!checks.unknownKeys) return true;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res || !checks.unknownKeys) return res;
     const unknownKeys = Object.keys(val).filter(key => !this.isValueKeyKnown(key));
-    if (unknownKeys.length === 0) return true;
-    return this.setIncorrectValue("unknownKeys", unknownKeys);
+    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);

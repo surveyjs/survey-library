@@ -17,7 +17,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType } from "./question";
-import { ISurveyData, ISurvey, ITextProcessor, IQuestion, IValueChecks } from "./base-interfaces";
+import { ISurveyData, ISurvey, ITextProcessor, IQuestion, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
@@ -690,8 +690,9 @@ export class QuestionMatrixModel
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
     const unknownKeys: Array<string> = [];
     for (const key in val) {
       if (!this.isValueKeyKnown(key)) {
@@ -702,10 +703,10 @@ export class QuestionMatrixModel
       if (!this.hasValueKey(key) || !checks.choices) continue;
       const cell = val[key];
       const cellValues = this.isMultiSelect && Array.isArray(cell) ? cell : [cell];
-      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return this.setIncorrectValue("choices");
+      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return { check: "choices" };
     }
-    if (checks.unknownKeys && unknownKeys.length > 0) return this.setIncorrectValue("unknownKeys", unknownKeys);
-    return true;
+    if (checks.unknownKeys && unknownKeys.length > 0) return { check: "unknownKeys", keys: unknownKeys };
+    return undefined;
   }
   protected hasValueKey(key: string): boolean {
     return this.rows.some(row => row.value + "" === key);

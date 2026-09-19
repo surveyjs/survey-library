@@ -560,8 +560,8 @@ frameworks.forEach(framework => {
             detailPanelMode: "underRow",
             columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
             detailElements: [{ type: "text", name: "q1" }],
-            minWidth: "824px",
-            maxWidth: "824px",
+            minWidth: "800px",
+            maxWidth: "800px",
             width: "824px"
           },
         ],
@@ -594,8 +594,8 @@ frameworks.forEach(framework => {
             detailPanelMode: "underRow",
             columns: [{ name: "col1" }],
             detailElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false }],
-            minWidth: "824px",
-            maxWidth: "824px",
+            minWidth: "800px",
+            maxWidth: "800px",
             width: "824px"
           },
         ],

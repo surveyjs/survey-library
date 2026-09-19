@@ -23,8 +23,8 @@ frameworks.forEach(framework => {
             noRowsText: "There is no records yet.\nClick the button below to add a new record.",
             addRowText: "Add New Record",
             rowCount: 0,
-            maxWidth: "792px",
-            minWidth: "792px",
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "792px"
           }
         ]
@@ -49,8 +49,8 @@ frameworks.forEach(framework => {
               { "name": "Column 3", "title": "What is main strength?" }],
             addRowText: "Add a New Record",
             rowCount: 3,
-            maxWidth: "792px",
-            minWidth: "792px",
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "792px"
           },
         ]
@@ -99,8 +99,8 @@ frameworks.forEach(framework => {
             cellType: "comment",
             addRowText: "Add Date +",
             removeRowText: "Remove",
-            maxWidth: "824px",
-            minWidth: "824px",
+            maxWidth: "800px",
+            minWidth: "800px",
             width: "824px"
           }
         ]
@@ -138,8 +138,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
-            maxWidth: "748px",
-            minWidth: "748px",
+            maxWidth: "724px",
+            minWidth: "724px",
             width: "748px"
           },
         ]
@@ -178,8 +178,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
-            maxWidth: "748px",
-            minWidth: "748px",
+            maxWidth: "724px",
+            minWidth: "724px",
             width: "748px"
           },
         ]

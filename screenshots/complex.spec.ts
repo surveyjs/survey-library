@@ -16,8 +16,8 @@ const json = {
       templateTitle: "{panel.itemName}",
       removePanelText: "Remove Item",
       panelCount: 5,
-      minWidth: "824px",
-      maxWidth: "824px",
+      minWidth: "800px",
+      maxWidth: "800px",
       width: "824px",
       templateElements: [
         {

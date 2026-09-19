@@ -34,8 +34,8 @@ var json = {
       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
       addPanelText: "Add application",
       removePanelText: "Remove application",
-      maxWidth: "792px",
-      minWidth: "792px",
+      maxWidth: "768px",
+      minWidth: "768px",
       width: "792px"
     },
   ]

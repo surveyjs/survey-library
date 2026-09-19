@@ -20,8 +20,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -48,8 +48,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px",
             defaultValue: 2,
             readOnly: true
@@ -71,8 +71,8 @@ frameworks.forEach(framework => {
             title: "Rating",
             displayMode: "buttons",
             rateMax: 30,
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -94,8 +94,8 @@ frameworks.forEach(framework => {
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
             renderAs: "dropdown",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -130,8 +130,8 @@ frameworks.forEach(framework => {
                 "text": "third item"
               }
             ],
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -253,8 +253,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -288,8 +288,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px",
             defaultValue: 2,
             readOnly: true
@@ -314,8 +314,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "720px",
-            maxWidth: "720px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "720px"
           }
         ]
@@ -342,8 +342,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -377,8 +377,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -412,8 +412,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -448,8 +448,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px"
           }
         ]
@@ -503,8 +503,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px",
             defaultValue: 2,
             readOnly: true
@@ -528,8 +528,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px",
             isRequired: true
           },
@@ -542,8 +542,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
-            minWidth: "732px",
-            maxWidth: "732px",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "732px",
             isRequired: true
           }

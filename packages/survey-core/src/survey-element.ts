@@ -1037,6 +1037,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const style: any = {};
     if (!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
     if (!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
+    const minWidth = this.calcMinWidth();
+    if (!!minWidth) {
+      style["minWidth"] = minWidth;
+    }
+    if (!!this.maxWidth) {
+      style["maxWidth"] = this.maxWidth;
+    }
     return style;
   }
   get paddingLeft(): string {
@@ -1136,15 +1143,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       style["flexGrow"] = isMobile || !this.width ? 1 : 0;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;
-    }
-    if (Object.keys(style).length > 0) {
-      const minWidth = this.calcMinWidth();
-      if (!!minWidth) {
-        style["minWidth"] = minWidth;
-      }
-      if (!!this.maxWidth) {
-        style["maxWidth"] = this.maxWidth;
-      }
     }
     return style;
   }

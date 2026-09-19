@@ -109,15 +109,15 @@ frameworks.forEach(framework => {
               {
                 "type": "ranking",
                 "name": "question1",
-                "maxWidth": "424px",
+                "maxWidth": "400px",
                 "choices": ["Item 1", "Item 2", "Item 3"],
                 "selectToRankEnabled": true
               },
               {
                 "type": "ranking",
                 "name": "question2",
-                "maxWidth": "274px",
-                "minWidth": "224px",
+                "maxWidth": "250px",
+                "minWidth": "200px",
                 "choices": ["Item 1", "Item 2", "Item 3"],
                 "selectToRankEnabled": true
               }

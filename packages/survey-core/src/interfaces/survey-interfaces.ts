@@ -21,7 +21,7 @@ import type {
   ISurveyAfterRenderCallbacks,
 } from "./survey-callbacks";
 import type { ISurveyData, ITextProcessor } from "./data-interfaces";
-import type { ISurveyErrorOwner, ISurveyValidation } from "./validation-interfaces";
+import type { ISurveyErrorOwner, ISurveyValidation, IValueChecks } from "./validation-interfaces";
 import type { IDropdownMenuOptions, IScrollElementToTopOptions } from "./ui-interfaces";
 import type { IElement, IPage, IPanel, IQuestion, ISurveyElement } from "./element-interfaces";
 
@@ -114,6 +114,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void;
   getQuestionClearIfInvisible(questionClearIf: string): string;
   keepIncorrectValues: boolean;
+  validationValueChecks: IValueChecks;
   questionOrder: string;
   //#endregion
 

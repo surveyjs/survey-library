@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
+import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks, IValueChecks } from "./base-interfaces";
 import { IQuestionPlainData, Question, QuestionValueType } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -577,12 +577,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getValueType(): QuestionValueType {
     return "array";
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    if (!checks.valueType) return true;
     // A value is a file entry or an array of them. An entry is either a file object or a string:
     // a file url or the file content, the shape loadPreview() and the file editors in Survey Creator use.
     const files = Array.isArray(val) ? val : [val];
-    return files.every(file => Helpers.isValueObject(file, true) || typeof file === "string");
+    if (files.every(file => Helpers.isValueObject(file, true) || typeof file === "string")) return true;
+    return this.setIncorrectValue("valueType");
   }
 
   protected onChangeQuestionValue(newValue: any): void {

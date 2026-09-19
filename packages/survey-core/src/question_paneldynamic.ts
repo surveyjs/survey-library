@@ -9,7 +9,8 @@ import {
   ITextProcessor,
   IProgressInfo,
   IPlainDataOptions, IElementUIState,
-  ISurveyDynamicPanelCallbacks
+  ISurveyDynamicPanelCallbacks,
+  IValueChecks
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -1830,15 +1831,19 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       panels[i].randomSeedChanged();
     }
   }
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    if (!checks.unknownKeys || !Array.isArray(val)) return true;
     const panels = this.panelsCore;
+    const unknownKeys: Array<string> = [];
     for (let i = 0; i < panels.length && i < val.length; i++) {
+      if (!Helpers.isValueObject(val[i], true)) continue;
       for (const key in val[i]) {
-        if (this.isUnknownValueKey(panels[i], key, i)) return false;
+        if (this.isUnknownValueKey(panels[i], key, i)) unknownKeys.push(i + "." + key);
       }
     }
-    return true;
+    if (unknownKeys.length === 0) return true;
+    return this.setIncorrectValue("unknownKeys", unknownKeys);
   }
   private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
     if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;

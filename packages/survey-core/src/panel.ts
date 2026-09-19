@@ -15,7 +15,8 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation
+  ISurveyValidation,
+  IValidateOptions
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
@@ -35,7 +36,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationContext } from "./question";
+import { ValidationContext, isValidateOptions, resolveValueChecks } from "./question";
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -977,11 +978,19 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    const context = new ValidationContext({
+  // The first parameter may be an IValidateOptions object instead of fireCallback.
+  // In that form the other positional parameters are ignored.
+  public validate(fireCallback: boolean | IValidateOptions = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+    const context = new ValidationContext(isValidateOptions(fireCallback) ? {
+      fireCallback: fireCallback.fireCallback !== false,
+      focusOnFirstError: !!fireCallback.focusFirstError,
+      valueChecks: resolveValueChecks(this.survey, fireCallback.valueChecks),
+      onAsyncCompleted: fireCallback.onAsyncCompleted
+    } : {
       fireCallback: fireCallback,
       focusOnFirstError: focusFirstError,
-      callbackResult: callbackResult
+      callbackResult: callbackResult,
+      valueChecks: resolveValueChecks(this.survey)
     });
     this.validateCore(context);
     context.finish();

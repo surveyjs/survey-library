@@ -3,6 +3,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType } from "./question";
+import { IValueChecks } from "./base-interfaces";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -169,10 +170,13 @@ export class QuestionImageMapModel extends Question {
     this.clearIncorrectValues();
   }
 
-  protected isValueCorrectCore(val: any): boolean {
-    if (!super.isValueCorrectCore(val) || Array.isArray(val) !== this.isMultiSelect) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
+    if (!super.isValueCorrectCore(val, checks)) return false;
+    if (checks.valueType && Array.isArray(val) !== this.isMultiSelect) return this.setIncorrectValue("valueType");
+    if (!checks.choices) return true;
     const values = Array.isArray(val) ? val : [val];
-    return values.every((v: any) => !!this.areas.find(i => i.value === v));
+    if (values.every((v: any) => !!this.areas.find(i => i.value === v))) return true;
+    return this.setIncorrectValue("choices");
   }
   protected clearIncorrectValuesCore(): void {
     if (Array.isArray(this.value) !== this.isMultiSelect) {

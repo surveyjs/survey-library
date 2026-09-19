@@ -143,6 +143,7 @@ export {
   HorizontalAlignment,
   VerticalAlignment,
   ValueCheckName,
+  IIncorrectValueInfo,
   IValueChecks,
   IValidateOptions,
   ISurveyValidateOptions

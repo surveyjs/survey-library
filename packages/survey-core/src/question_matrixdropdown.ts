@@ -9,7 +9,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionValueType } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { IProgressInfo, IValueChecks } from "./base-interfaces";
+import { IProgressInfo, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -251,19 +251,20 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
     const unknownKeys: Array<string> = [];
     // A row of another question that shares the value is checked by that question.
     for (const key of Object.keys(val)) {
       if (this.hasValueKey(key)) {
-        if (checks.valueType && !this.isRowValueCorrect(val[key])) return this.setIncorrectValue("valueType");
+        if (checks.valueType && !this.isRowValueCorrect(val[key])) return { check: "valueType" };
       } else {
         if (!this.isValueKeyKnown(key)) unknownKeys.push(key);
       }
     }
-    if (checks.unknownKeys && unknownKeys.length > 0) return this.setIncorrectValue("unknownKeys", unknownKeys);
-    return true;
+    if (checks.unknownKeys && unknownKeys.length > 0) return { check: "unknownKeys", keys: unknownKeys };
+    return undefined;
   }
   protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
     return row.rowName + "";

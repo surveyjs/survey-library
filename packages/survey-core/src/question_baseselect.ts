@@ -1,7 +1,7 @@
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks, IValueChecks } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -2325,13 +2325,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private get hasChoicesUrl(): boolean {
     return !!this.choicesByUrlValue?.url;
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
-    if (checks.valueType && !this.isValueShapeCorrect(val)) return this.setIncorrectValue("valueType");
-    if (!checks.choices) return true;
-    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return true;
-    if (!this.canClearValueAnUnknown(val)) return true;
-    return this.setIncorrectValue("choices");
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
+    if (checks.valueType && !this.isValueShapeCorrect(val)) return { check: "valueType" };
+    if (!checks.choices) return undefined;
+    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return undefined;
+    return this.canClearValueAnUnknown(val) ? { check: "choices" } : undefined;
   }
   // A single-select question does not store an array and a multi-select question stores nothing else.
   private isValueShapeCorrect(val: any): boolean {

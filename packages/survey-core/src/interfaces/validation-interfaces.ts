@@ -21,6 +21,13 @@ export interface ISurveyValidation {
 
 // Which of the value checks failed: IncorrectValueError.check reports it.
 export type ValueCheckName = "valueType" | "choices" | "unknownKeys";
+// What a failed value check reports: Question.isValueCorrectCore() returns it, undefined when the
+// value is correct, and the IncorrectValueError built from it carries it to the caller.
+export interface IIncorrectValueInfo {
+  check: ValueCheckName;
+  // The unknown keys, for the unknownKeys check only. A key of a nested row is reported as "<row>.<key>".
+  keys?: Array<string>;
+}
 // The value checks validate() runs on the question value. Every member is optional: the members that
 // are not set are taken from SurveyModel.validationValueChecks and then from the built-in defaults,
 // { valueType: true, choices: true, unknownKeys: false }.

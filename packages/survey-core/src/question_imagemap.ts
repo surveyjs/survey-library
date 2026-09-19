@@ -3,7 +3,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType } from "./question";
-import { IValueChecks } from "./base-interfaces";
+import { IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -170,13 +170,14 @@ export class QuestionImageMapModel extends Question {
     this.clearIncorrectValues();
   }
 
-  protected isValueCorrectCore(val: any, checks: IValueChecks): boolean {
-    if (!super.isValueCorrectCore(val, checks)) return false;
-    if (checks.valueType && Array.isArray(val) !== this.isMultiSelect) return this.setIncorrectValue("valueType");
-    if (!checks.choices) return true;
+  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
+    const res = super.isValueCorrectCore(val, checks);
+    if (!!res) return res;
+    if (checks.valueType && Array.isArray(val) !== this.isMultiSelect) return { check: "valueType" };
+    if (!checks.choices) return undefined;
     const values = Array.isArray(val) ? val : [val];
-    if (values.every((v: any) => !!this.areas.find(i => i.value === v))) return true;
-    return this.setIncorrectValue("choices");
+    if (values.every((v: any) => !!this.areas.find(i => i.value === v))) return undefined;
+    return { check: "choices" };
   }
   protected clearIncorrectValuesCore(): void {
     if (Array.isArray(this.value) !== this.isMultiSelect) {

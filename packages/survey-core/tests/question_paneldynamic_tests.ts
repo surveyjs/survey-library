@@ -1457,6 +1457,225 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panelCount, "panel: One panel was removed").toBe(1);
   });
 
+  /* Several dynamic questions bound to one valueName used to turn the first render of one of
+     them into a cascade: the sibling lookup after a cell write went through visiblePanels and
+     force-built every not-yet-rendered sibling. Panels are built lazily, per visited page, so
+     the invariants are per page: R panels on the first visited page (for that question only),
+     N * R after every page has been visited, and a single onValueChanged for the whole first
+     render. The tests below assert call counts, never wall-clock time. */
+  const sharedWriterNames = ["exp0", "exp1", "exp2", "exp3", "exp4"];
+  function sharedValueNameJson(nDynamic: number, writer: "expression" | "defaultValueExpression", withMatrix?: boolean): any {
+    const templateElements: Array<any> = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+    sharedWriterNames.forEach(name => {
+      templateElements.push(writer === "expression"
+        ? { type: "expression", name: name, expression: "'No'" }
+        : { type: "text", name: name, defaultValueExpression: "'No'" });
+    });
+    const pages: Array<any> = [{ name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] }];
+    for (let i = 0; i < nDynamic; i++) {
+      pages.push({
+        name: "p" + i,
+        elements: [{
+          type: "paneldynamic", name: "pd" + i, valueName: "rec",
+          panelCount: 1, minPanelCount: 1,
+          templateElements: JSON.parse(JSON.stringify(templateElements))
+        }]
+      });
+    }
+    if (withMatrix) {
+      pages.push({
+        name: "pm",
+        elements: [{
+          type: "matrixdynamic", name: "m", valueName: "rec",
+          columns: [{ name: "q1", cellType: "text" }, { name: "q2", cellType: "text" }]
+        }]
+      });
+    }
+    return { pages: pages };
+  }
+  function sharedValueNameRecords(count: number, withWriterValues?: boolean): Array<any> {
+    const res: Array<any> = [];
+    for (let i = 0; i < count; i++) {
+      const record: any = { q1: "a" + i, q2: "b" + i };
+      if (withWriterValues) sharedWriterNames.forEach(name => record[name] = "No");
+      res.push(record);
+    }
+    return res;
+  }
+  function sharedValueNameExpectedData(count: number): Array<any> {
+    return sharedValueNameRecords(count, true);
+  }
+  function trackSharedValueName(nDynamic: number, records: Array<any>,
+    options?: { writer?: "expression" | "defaultValueExpression", withMatrix?: boolean }) {
+    const writer = options?.writer || "expression";
+    const survey = new SurveyModel(sharedValueNameJson(nDynamic, writer, options?.withMatrix));
+    survey.data = { rec: records };
+    // createNewPanel is protected and panelUpdateValueFromSurvey is private.
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const createSpy = vi.spyOn(proto, "createNewPanel");
+    const refreshSpy = vi.spyOn(proto, "panelUpdateValueFromSurvey");
+    let valueChanged = 0;
+    survey.onValueChanged.add(() => { valueChanged++; });
+    return {
+      survey: survey,
+      question: (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index),
+      created: (): number => createSpy.mock.calls.length,
+      refreshed: (): number => refreshSpy.mock.calls.length,
+      changed: (): number => valueChanged,
+      restore: (): void => { createSpy.mockRestore(); refreshSpy.mockRestore(); }
+    };
+  }
+
+  test("One dynamic question builds one panel per record on the first render, the control case", () => {
+    const t = trackSharedValueName(1, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: one panel per record").toBe(3);
+    expect(t.changed(), "#2: the writers publish once").toBe(1);
+    expect(t.question(0).panels.length, "#3").toBe(3);
+    t.restore();
+  });
+  test("Two dynamic questions sharing valueName build lazily, one panel per record per visited page", () => {
+    const t = trackSharedValueName(2, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: pd0 only, the sibling is not built").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#3: pd1 adds its own three").toBe(6);
+    expect(t.changed(), "#4: nothing new to publish").toBe(1);
+    t.restore();
+  });
+  test("Three dynamic questions sharing valueName build lazily, one panel per record per visited page", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: pd0 only").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    expect(t.refreshed(), "#3: at most one refresh per built panel").toBeLessThanOrEqual(3);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#4").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#5").toBe(9);
+    expect(t.changed(), "#6").toBe(1);
+    expect(t.refreshed(), "#7").toBeLessThanOrEqual(3);
+    t.restore();
+  });
+  test("defaultValueExpression writers behave as expression questions on a shared valueName", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3), { writer: "defaultValueExpression" });
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#3").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#4").toBe(9);
+    expect(t.changed(), "#5").toBe(1);
+    t.restore();
+  });
+  test("A matrixdynamic on the same valueName does not change the panel build", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3), { withMatrix: true });
+    for (let page = 1; page <= 4; page++) t.survey.currentPageNo = page;
+    expect(t.created(), "#1").toBe(9);
+    expect(t.changed(), "#2").toBe(1);
+    const matrix = <QuestionMatrixDynamicModel>t.survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#3").toBe(3);
+    for (let i = 0; i < 3; i++) {
+      const cells = matrix.visibleRows[i].cells;
+      expect(cells[0].question.value, "#4: row " + i + " q1").toBe("a" + i);
+      expect(cells[1].question.value, "#5: row " + i + " q2").toBe("b" + i);
+    }
+    expect(matrix.value, "#6: the matrix keeps the writers' results").toEqual(sharedValueNameExpectedData(3));
+    t.restore();
+  });
+  test("A shared valueName keeps the data intact while the panels are built page by page", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.survey.data.rec, "#1: every record is complete before a sibling is built")
+      .toEqual(sharedValueNameExpectedData(3));
+    t.survey.currentPageNo = 2;
+    t.survey.currentPageNo = 3;
+    expect(t.survey.data.rec, "#2").toEqual(sharedValueNameExpectedData(3));
+    for (let i = 0; i < 3; i++) {
+      const question = t.question(i);
+      expect(question.panels.length, "#3: pd" + i).toBe(3);
+      for (let j = 0; j < 3; j++) {
+        const panel = question.panels[j];
+        expect(panel.getQuestionByName("q1").value, "#4: pd" + i + " panel " + j).toBe("a" + j);
+        expect(panel.getQuestionByName("q2").value, "#5: pd" + i + " panel " + j).toBe("b" + j);
+        expect(panel.getQuestionByName("exp0").value, "#6: pd" + i + " panel " + j).toBe("No");
+      }
+    }
+    t.restore();
+  });
+  test("addPanel/removePanel with every sibling of a shared valueName already built", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    for (let page = 1; page <= 3; page++) t.survey.currentPageNo = page;
+    expect(t.created(), "#1").toBe(9);
+    t.question(0).addPanel();
+    expect(t.created(), "#2: one new panel per dynamic question").toBe(12);
+    for (let i = 0; i < 3; i++) expect(t.question(i).panels.length, "#3: pd" + i).toBe(4);
+    expect(t.survey.data.rec.length, "#4").toBe(4);
+    sharedWriterNames.forEach(name => {
+      expect(t.survey.data.rec[3][name], "#5: " + name + " in the new record").toBe("No");
+    });
+    t.question(0).removePanel(3);
+    for (let i = 0; i < 3; i++) expect(t.question(i).panels.length, "#6: pd" + i).toBe(3);
+    expect(t.survey.data.rec.length, "#7").toBe(3);
+    t.restore();
+  });
+  test("addPanel before the siblings of a shared valueName are built", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    t.question(0).addPanel();
+    expect(t.created(), "#2: nothing is built for the unvisited siblings").toBe(4);
+    expect(t.survey.data.rec.length, "#3").toBe(4);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#4: pd1 builds its four panels now").toBe(8);
+    expect(t.question(1).panels.length, "#5").toBe(4);
+    t.restore();
+  });
+  test("Data that already holds the writers' results causes no value change on a shared valueName", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3, true));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#2").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#3").toBe(9);
+    expect(t.changed(), "#4: nothing is written").toBe(0);
+    expect(t.refreshed(), "#5: and nothing is refreshed").toBe(0);
+    t.restore();
+  });
+  test("A comment-only edit reaches the sibling bound to the same valueName", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p0", elements: [{ type: "paneldynamic", name: "pd0", valueName: "rec", panelCount: 1, minPanelCount: 1,
+          templateElements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3], showCommentArea: true }] }] },
+        { name: "p1", elements: [{ type: "paneldynamic", name: "pd1", valueName: "rec", panelCount: 1, minPanelCount: 1,
+          templateElements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3], showCommentArea: true }] }] }
+      ]
+    });
+    survey.data = { rec: [{ q1: 1, "q1-Comment": "before" }] };
+    survey.currentPageNo = 1;
+    survey.currentPageNo = 2;
+    const q0 = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd0")).panels[0].getQuestionByName("q1");
+    const q1 = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd1")).panels[0].getQuestionByName("q1");
+    expect(q1.comment, "#1").toBe("before");
+    q0.comment = "after";
+    expect(q1.comment, "#2: the sibling gets a comment-only update").toBe("after");
+    expect(q1.value, "#3: and keeps its value").toBe(1);
+    expect(survey.data.rec[0]["q1-Comment"], "#4").toBe("after");
+  });
+  test("The sibling lookup on a shared valueName creates no panel in a question that was never rendered", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    // panelsCore, not panels - the panels getter would build them here.
+    expect((<any>t.question(1)).panelsCore.length, "#2: pd1 has nothing built").toBe(0);
+    expect((<any>t.question(2)).panelsCore.length, "#3: pd2 has nothing built").toBe(0);
+    t.restore();
+  });
+
   test("PanelDynamic vs MatrixDynamic add/remove items, bug#T2130", () => {
     var json = {
       elements: [

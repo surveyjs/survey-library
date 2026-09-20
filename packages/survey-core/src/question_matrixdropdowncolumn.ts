@@ -532,6 +532,12 @@ export class MatrixDropdownColumn extends Base
     const matrix: any = this.colOwner;
     return !!matrix && matrix.allowSortRows === true && this.allowSort;
   }
+  /* The record key this column sorts by, which is the key the cell writes and not the column name:
+     a column with a valueName shares the key with the question it is bound to. It is the same name
+     QuestionMatrixDynamicModel.getFields() registers with the data list. */
+  public get sortField(): string {
+    return this.templateQuestion?.getValueName() || this.name;
+  }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
    *

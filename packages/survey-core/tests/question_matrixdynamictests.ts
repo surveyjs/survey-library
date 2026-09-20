@@ -11216,6 +11216,27 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.columns[1].allowSort = true;
     expect(matrix.columns[1].isSortable, "#4: no cell type is unsortable").toBe(true);
   });
+  test("a column sorts by its record key and not by its name", () => {
+    const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", valueName: "shared" }] });
+    expect(matrix.columns[0].sortField, "#1: without a valueName it is the name").toBe("c1");
+    expect(matrix.columns[1].sortField, "#2: with one it is the key the cell writes").toBe("shared");
+    expect(matrix.getFields().some(f => f.name === "shared"), "#3: and that is the field the list knows").toBe(true);
+  });
+  test("toggleSort adds a field to the sort instead of replacing it", () => {
+    const matrix = createMatrix({ rowCount: 3, allowSortRows: true },
+      [{ c1: "b", c2: "2" }, { c1: "a", c2: "1" }, { c1: "b", c2: "1" }]);
+    matrix.toggleSort("c1", true);
+    matrix.toggleSort("c2", true);
+    expect(matrix.sortBy, "#1: both fields, in click order").toBe("c1;c2");
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#2")
+      .toEqual(["a1", "b1", "b2"]);
+    matrix.toggleSort("c2", true);
+    expect(matrix.sortBy, "#3: the second field turns around, the first keeps its place").toBe("c1;c2-");
+    expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#4")
+      .toEqual(["a1", "b2", "b1"]);
+    matrix.toggleSort("c1");
+    expect(matrix.sortBy, "#5: a click without the modifier starts over").toBe("c1-");
+  });
   test("removing a row on an earlier page fills the vacated slot from the next one", () => {
     const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true }, abcde);
     expect(dataRows(matrix).map(row => row.cells[0].question.value), "#1").toEqual(["a", "b"]);

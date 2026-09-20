@@ -323,3 +323,77 @@ describe("DynamicDataPagingController: the sortBy notification (section 4)", () 
     expect(owner.hasList, "#2").toBe(false);
   });
 });
+
+/* Multi-field sorting: the same asc -> desc -> off cycle applied to one entry of the sort instead
+   of to the whole of it. It is what a modified header click does, and the renderer only passes the
+   modifier on. */
+describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
+  const pairs = (): Array<any> => [{ c1: "b", c2: 2 }, { c1: "a", c2: 1 }, { c1: "b", c2: 1 }];
+  const records = (owner: FakePagingOwner): Array<string> => {
+    const list = owner.getDataList();
+    return list.getCreatedIndexes().map((index: number): string => {
+      const rec = list.getRecord(index);
+      return rec.c1 + rec.c2;
+    });
+  };
+  test("a field joins the sort at the end and the fields before it keep their place", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.paging.toggleSort("c1", true);
+    expect(owner.paging.sortBy, "#1: the first field").toBe("c1");
+    owner.paging.toggleSort("c2", true);
+    expect(owner.paging.sortBy, "#2: the second one is the tie-breaker").toBe("c1;c2");
+    expect(records(owner), "#3: and the list sorts by both").toEqual(["a1", "b1", "b2"]);
+  });
+  test("an existing field cycles in place: ascending, then descending, then out of the sort", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.paging.sortOrder = [{ field: "c1", direction: "asc" }, { field: "c2", direction: "asc" }];
+    owner.paging.toggleSort("c1", true);
+    expect(owner.paging.sortBy, "#1: descending, still first").toBe("c1-;c2");
+    expect(records(owner), "#2").toEqual(["b1", "b2", "a1"]);
+    owner.paging.toggleSort("c1", true);
+    expect(owner.paging.sortBy, "#3: out, and c2 keeps its direction").toBe("c2");
+    expect(records(owner), "#4").toEqual(["a1", "b1", "b2"]);
+  });
+  test("the field that leaves the sort takes nothing with it", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.paging.sortOrder = [
+      { field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }, { field: "c3", direction: "asc" }
+    ];
+    owner.paging.toggleSort("c2", true);
+    expect(owner.paging.sortBy, "#1: c2 cycles from desc to nothing").toBe("c1;c3");
+  });
+  /* The unmodified click is untouched by the parameter: it replaces the whole sort and its cycle
+     reads the direction the field has now, whether or not other fields are sorted with it. */
+  test("a plain toggle over a multi-field sort keeps the single-field cycle", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.paging.sortOrder = [{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }];
+    owner.paging.toggleSort("c3");
+    expect(owner.paging.sortBy, "#1: an unsorted field starts over with itself").toBe("c3");
+    owner.paging.sortOrder = [{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }];
+    owner.paging.toggleSort("c1", false);
+    expect(owner.paging.sortBy, "#2: an explicit false is the same click").toBe("c1-");
+    owner.paging.sortOrder = [{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }];
+    owner.paging.toggleSort("c2");
+    expect(owner.paging.sortBy, "#3: the third click of the cycle clears the sort").toBe("");
+  });
+  test("every cycle reaches the list and raises the sortBy change", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.getDataList();
+    owner.sortByChanges = [];
+    owner.paging.toggleSort("c1", true);
+    owner.paging.toggleSort("c2", true);
+    owner.paging.toggleSort("c2", true);
+    owner.paging.toggleSort("c2", true);
+    expect(owner.sortByChanges, "#1").toEqual([" -> c1", "c1 -> c1;c2", "c1;c2 -> c1;c2-", "c1;c2- -> c1"]);
+    expect(owner.getDataList().sort, "#2: the list holds the descriptors")
+      .toEqual([{ field: "c1", direction: "asc" }]);
+  });
+  test("an empty field is ignored here too", () => {
+    const owner = new FakePagingOwner(pairs());
+    owner.paging.sortOrder = [{ field: "c1", direction: "asc" }];
+    owner.sortByChanges = [];
+    owner.paging.toggleSort("", true);
+    expect(owner.paging.sortBy, "#1: the sort is untouched").toBe("c1");
+    expect(owner.sortByChanges, "#2").toEqual([]);
+  });
+});

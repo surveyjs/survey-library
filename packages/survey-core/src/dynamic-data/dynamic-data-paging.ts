@@ -225,17 +225,35 @@ export class DynamicDataPagingController {
   }
   /* One field, the way a header click sorts: ascending, then descending, then not sorted. Sorting
      by a field in a given direction is sortOrder = [{...}] or sortBy = "price-" and does not need a
-     third spelling; what is unique here is the cycle, which every renderer needs in one place. */
-  public toggleSort(field: string): void {
+     third spelling; what is unique here is the cycle, which every renderer needs in one place.
+     addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
+     a modified header click does in a grid - and leaves the other fields where they are. */
+  public toggleSort(field: string, addToSort?: boolean): void {
     if (!field) return;
-    const current = this.sortOrder.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
+    const sort = this.sortOrder;
+    const current = sort.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
     let dir: DynamicDataSortDirection = undefined;
     if (!current) {
       dir = "asc";
     } else if (current.direction === "asc") {
       dir = "desc";
     }
-    this.sortOrder = !dir ? [] : [{ field: field, direction: dir }];
+    if (!addToSort) {
+      this.sortOrder = !dir ? [] : [{ field: field, direction: dir }];
+      return;
+    }
+    // Every branch below assigns a NEW array: the setter compares the incoming value with the sort
+    // the list already has, so an array changed in place would be a silent no-op.
+    if (!dir) {
+      // Cycled off: it leaves the sort and the fields around it keep their order.
+      this.sortOrder = sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
+    } else if (!current) {
+      // A field joins at the end: the last one clicked is the last tie-breaker.
+      this.sortOrder = sort.concat([{ field: field, direction: dir }]);
+    } else {
+      this.sortOrder = sort.map((s: IDynamicDataSort): IDynamicDataSort =>
+        s.field === field ? { field: field, direction: dir } : s);
+    }
   }
   public clearSort(): void {
     this.sortOrder = [];

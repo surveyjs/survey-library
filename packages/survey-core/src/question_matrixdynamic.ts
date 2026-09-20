@@ -455,8 +455,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      so a header click changes what toJSON() emits. */
   public get sortBy(): string { return this.paging.sortBy; }
   public set sortBy(val: string) { this.paging.sortBy = val; }
-  // What a click on a sortable header does: ascending, then descending, then not sorted.
-  public toggleSort(field: string): void { this.paging.toggleSort(field); }
+  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+     addToSort the field is cycled inside the current sort instead of replacing it, which is the
+     multi-field sort a modified header click makes. */
+  public toggleSort(field: string, addToSort?: boolean): void { this.paging.toggleSort(field, addToSort); }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the row values - the same language as visibleIf, with the record
      fields as its variables. A row that does not satisfy it is not created; the question value

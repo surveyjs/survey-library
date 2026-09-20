@@ -622,8 +622,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      so a sort made at runtime changes what toJSON() emits. */
   public get sortBy(): string { return this.paging.sortBy; }
   public set sortBy(val: string) { this.paging.sortBy = val; }
-  // The header-click cycle for one field: ascending, then descending, then not sorted.
-  public toggleSort(field: string): void { this.paging.toggleSort(field); }
+  /* The header-click cycle for one field: ascending, then descending, then not sorted. With
+     addToSort the field is cycled inside the current sort instead of replacing it. */
+  public toggleSort(field: string, addToSort?: boolean): void { this.paging.toggleSort(field, addToSort); }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the panel values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it gets no panel; the question value

@@ -27,6 +27,7 @@ export class DropdownListModel extends Base {
   private htmlCleanerElement: HTMLDivElement;
 
   private _markdownMode = false;
+  private skipListFilterUpdate = false;
   private _popupModel: PopupModel;
   private chevronButton: Action;
   private clearButton: Action;
@@ -241,6 +242,9 @@ export class DropdownListModel extends Base {
   private popupVisibilityChanged(isVisible: boolean) {
     if (isVisible) {
       this.listModel.renderElements = true;
+      if (!this.filterString) {
+        this.listModel.filterString = "";
+      }
     }
     if (isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
@@ -291,6 +295,7 @@ export class DropdownListModel extends Base {
 
   protected popupRecalculatePosition(isResetHeight: boolean): void {
     setTimeout(() => {
+      if (!this.popupModel.isVisible) return;
       this.popupModel.recalculatePosition(isResetHeight);
     }, 1);
   }
@@ -434,10 +439,14 @@ export class DropdownListModel extends Base {
     this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.getPopupCssClasses()).toString();
     this.listModel.cssClasses = listCssClasses;
   }
-  protected resetFilterString(): void {
+  protected resetFilterString(updateList = false): void {
     if (!!this.filterString) {
-      this.filterString = undefined;
-      this.listModel.filterString = "";
+      this.skipListFilterUpdate = !updateList;
+      try {
+        this.filterString = undefined;
+      } finally {
+        this.skipListFilterUpdate = false;
+      }
     }
     this.inputString = null;
     this.hintString = "";
@@ -448,6 +457,7 @@ export class DropdownListModel extends Base {
   }
   protected onSetFilterString(): void {
     this.filteredItems = undefined;
+    if (this.skipListFilterUpdate) return;
     if (!this.filterString && !this.popupModel.isVisible) return;
     const options = { question: this.question, choices: this.getAvailableItems(), filter: this.filterString, filteredChoices: undefined as Array<ItemValue> };
     (this.question.survey as SurveyModel).onChoicesSearch.fire(this.question.survey as SurveyModel, options);

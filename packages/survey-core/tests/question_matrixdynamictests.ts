@@ -10984,6 +10984,32 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.pageIndex, "#4: the list clamped it and the question re-read it").toBe(1);
     expect(pageValues(matrix), "#5").toEqual(["c", "d"]);
   });
+  test("removing the last row of the last page moves the page index back when the matrix has no value", () => {
+    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true });
+    matrix.goToPage(2);
+    expect(matrix.rowsOnPage.length, "#1").toBe(1);
+    matrix.removeRowUI(matrix.visibleRows[4]);
+    expect(matrix.isEmpty(), "#2: every record is still padding").toBe(true);
+    expect(matrix.rowCount, "#3").toBe(4);
+    expect(matrix.pageCount, "#4").toBe(2);
+    expect(matrix.pageIndex, "#5").toBe(1);
+    expect(matrix.rowsOnPage.length, "#6").toBe(2);
+    expect(dataRows(matrix).length, "#7: the rendered table shows the page it fell back to").toBe(2);
+  });
+  test("removing a row that was added and never filled moves the page index back", () => {
+    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, allowRemoveRows: true }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    matrix.addRowUI();
+    expect(matrix.pageCount, "#1").toBe(3);
+    expect(matrix.pageIndex, "#2").toBe(2);
+    expect(matrix.value.length, "#3: the new row is not in the value yet").toBe(4);
+    matrix.removeRowUI(matrix.rowsOnPage[0]);
+    expect(matrix.rowCount, "#4").toBe(4);
+    expect(matrix.pageCount, "#5").toBe(2);
+    expect(matrix.pageIndex, "#6").toBe(1);
+    expect(pageValues(matrix), "#7").toEqual(["c", "d"]);
+    expect(dataRows(matrix).length, "#8: the rendered table shows the page it fell back to").toBe(2);
+    expect(matrix.value, "#9: the value is untouched").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+  });
   test("a required cell on an off-page row blocks the survey and brings its page into view", () => {
     const survey = createSurvey({ rowCount: 5, rowsPerPage: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "" }, { c1: "e" }]);

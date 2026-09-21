@@ -1393,8 +1393,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }
+    /* A record beyond question.value is padding: a row that was added and never filled, or every row
+       of a matrix with no value. There is nothing to write, and the list cannot remove it either -
+       the padded window has just lost it together with rowCount. The list learns the new count
+       instead, or a page index left past the last page would show an empty page. */
+    const val = this.value;
+    const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
     this.rowCountValue--;
-    if (this.value) {
+    if (isPaddingRecord) {
+      this.syncDataListRecordCount();
+    } else if (this.value) {
       this.isRowChanging = true;
       if (this.isEditingObjectValue) {
         // The live array is spliced in place: that is what removes the row from the edited object.

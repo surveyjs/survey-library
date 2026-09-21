@@ -10256,6 +10256,30 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.pageIndex, "#4: the list clamped it and the question re-read it").toBe(1);
     expect(renderedValues(question), "#5").toEqual(["c", "d"]);
   });
+  test("removing a panel that was added and never filled moves the page index back", () => {
+    const abcd = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }];
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2 }, abcd);
+    question.addPanelUI();
+    expect(question.pageCount, "#1").toBe(3);
+    expect(question.pageIndex, "#2").toBe(2);
+    question.removePanelUI(question.panelsOnPage[0]);
+    expect(question.panelCount, "#3").toBe(4);
+    expect(question.pageCount, "#4").toBe(2);
+    expect(question.pageIndex, "#5").toBe(1);
+    expect(renderedValues(question), "#6").toEqual(["c", "d"]);
+    expect(question.value, "#7: the records that were there are untouched").toEqual(abcd);
+  });
+  test("removing the last panel of the last page moves the page index back when the question has no value", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 });
+    question.goToPage(2);
+    expect(question.panelsOnPage.length, "#1").toBe(1);
+    question.removePanelUI(question.panels[4]);
+    expect(question.panelCount, "#2").toBe(4);
+    expect(question.pageCount, "#3").toBe(2);
+    expect(question.pageIndex, "#4").toBe(1);
+    expect(question.panelsOnPage.length, "#5").toBe(2);
+    expect(question.renderedPanels.length, "#6: the rendered panels are the page it fell back to").toBe(2);
+  });
   test("carousel and tab show one panel and ignore panelsPerPage", () => {
     const carousel = createQuestion({ panelCount: 5, panelsPerPage: 2, displayMode: "carousel" }, abcde);
     expect(carousel.renderedPanels.length, "#1: the current panel only").toBe(1);

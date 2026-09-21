@@ -943,6 +943,304 @@ describe("Numeric mask", () => {
     expect(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number)).toBeTruthy();
   });
 
+  test("showTrailingZeros: get numeric masked value", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    expect(maskInstance.getMaskedValue(123), "an integer").toBe("123.00");
+    expect(maskInstance.getMaskedValue(123.4), "one entered fractional digit").toBe("123.40");
+    expect(maskInstance.getMaskedValue(123.45), "a complete fractional part").toBe("123.45");
+    expect(maskInstance.getMaskedValue(123.456), "the extra digits are still cut").toBe("123.45");
+    expect(maskInstance.getMaskedValue(123456), "grouping and padding together").toBe("123,456.00");
+    expect(maskInstance.getMaskedValue(0), "zero").toBe("0.00");
+    expect(maskInstance.getMaskedValue(0.5), "no integral digits").toBe("0.50");
+    expect(maskInstance.getMaskedValue(-12), "a negative integer").toBe("-12.00");
+    expect(maskInstance.getMaskedValue(-12.3), "a negative value").toBe("-12.30");
+    expect(maskInstance.getMaskedValue("123"), "a string value").toBe("123.00");
+    expect(maskInstance.getMaskedValue("123.4"), "a string with a fractional part").toBe("123.40");
+    expect(maskInstance.getMaskedValue(".4"), "a string without integral digits").toBe("0.40");
+    expect(maskInstance.getNumberMaskedValue("123.", true), "a dangling separator").toBe("123.00");
+    expect(maskInstance.getNumberMaskedValue("123."), "a dangling separator, an entry in progress").toBe("123.00");
+    expect(maskInstance.getNumberMaskedValue("123"), "an entry in progress is padded as well").toBe("123.00");
+    expect(maskInstance.getNumberMaskedValue("-0", true), "a negative zero keeps its sign dropped").toBe("0.00");
+  });
+
+  test("showTrailingZeros: an empty value is not padded", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    expect(maskInstance.getMaskedValue(""), "an empty string").toBe("");
+    expect(maskInstance.getMaskedValue(undefined), "no value").toBe("");
+    expect(maskInstance.getMaskedValue(null), "a null value").toBe("");
+    expect(maskInstance.getNumberMaskedValue("-", true), "a minus alone").toBe("");
+    expect(maskInstance.getNumberMaskedValue(".", true), "a separator alone").toBe("");
+    expect(maskInstance.getNumberMaskedValue("a", true), "no digits").toBe("");
+    expect(maskInstance.getNumberMaskedValue(".00"), "nothing but the generated zeros").toBe("");
+    expect(maskInstance.getNumberMaskedValue(".0"), "an incomplete padding alone").toBe("");
+    expect(maskInstance.getNumberMaskedValue("0.00"), "a typed zero is a value").toBe("0.00");
+    expect(maskInstance.getUnmaskedValue(maskInstance.getMaskedValue("")), "no value is stored").toBeUndefined();
+  });
+
+  test("showTrailingZeros is off by default", () => {
+    const maskInstance = new InputMaskNumeric();
+
+    expect(maskInstance.showTrailingZeros, "the default").toBeFalsy();
+    expect(maskInstance.getMaskedValue(123), "an integer").toBe("123");
+    expect(maskInstance.getMaskedValue(123.4), "one fractional digit").toBe("123.4");
+    expect(maskInstance.getMaskedValue("123.40"), "the zeros a respondent typed are kept").toBe("123.40");
+  });
+
+  test("showTrailingZeros: precision", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    maskInstance.precision = 3;
+    expect(maskInstance.getMaskedValue(1.5), "precision 3").toBe("1.500");
+    expect(maskInstance.getMaskedValue(1), "precision 3, an integer").toBe("1.000");
+
+    maskInstance.precision = 1;
+    expect(maskInstance.getMaskedValue(1), "precision 1").toBe("1.0");
+    expect(maskInstance.getMaskedValue(1.55), "precision 1 cuts what it does not pad").toBe("1.5");
+
+    maskInstance.precision = 0;
+    expect(maskInstance.getMaskedValue(1), "precision 0 has no fractional part to pad").toBe("1");
+    expect(maskInstance.getMaskedValue(1234), "precision 0, a grouped value").toBe("1,234");
+  });
+
+  test("showTrailingZeros: custom separators", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.setData({ decimalSeparator: ",", thousandsSeparator: " ", precision: 2, showTrailingZeros: true });
+
+    expect(maskInstance.getMaskedValue(1234.5), "a number").toBe("1 234,50");
+    expect(maskInstance.getMaskedValue(1234), "an integer").toBe("1 234,00");
+    expect(maskInstance.getMaskedValue("1234,5"), "a string in the custom format").toBe("1 234,50");
+
+    maskInstance.setData({ thousandsSeparator: "", precision: 2, showTrailingZeros: true });
+    expect(maskInstance.getMaskedValue(1234567), "no grouping").toBe("1234567.00");
+  });
+
+  test("showTrailingZeros: the padded text is unmasked back to the number", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    expect(maskInstance.getUnmaskedValue(maskInstance.getMaskedValue(123)), "a padded integer").toBe(123);
+    expect(maskInstance.getUnmaskedValue("123.00"), "only zeros in the fractional part").toBe(123);
+    expect(maskInstance.getUnmaskedValue("1,234.50"), "a grouped padded value").toBe(1234.5);
+    expect(maskInstance.getUnmaskedValue("0.00"), "zero").toBe(0);
+    expect(maskInstance.getUnmaskedValue("-12.30"), "a negative value").toBe(-12.3);
+  });
+
+  test("showTrailingZeros: min & max", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+    maskInstance.min = 10;
+    maskInstance.max = 100;
+
+    expect(maskInstance.getMaskedValue(50), "a value in the range").toBe("50.00");
+    expect(maskInstance.getMaskedValue(100), "the upper limit").toBe("100.00");
+    expect(maskInstance.getMaskedValue(101), "above the upper limit").toBeNull();
+    expect(maskInstance.getMaskedValue(5), "below the lower limit").toBeNull();
+  });
+
+  test("showTrailingZeros: the zeros appear while typing and the caret stays by the typed digits", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "the first digit").toBe("1.00");
+    expect(result.caretPosition, "the caret is after the typed digit").toBe(1);
+
+    result = maskInstance.processInput({ insertedChars: "2", selectionStart: 1, selectionEnd: 1, prevValue: "1.00", inputDirection: "forward" });
+    expect(result.value, "a second integral digit").toBe("12.00");
+    expect(result.caretPosition, "a second integral digit").toBe(2);
+
+    result = maskInstance.processInput({ insertedChars: ".", selectionStart: 2, selectionEnd: 2, prevValue: "12.00", inputDirection: "forward" });
+    expect(result.value, "the separator is already there").toBe("12.00");
+    expect(result.caretPosition, "the separator keystroke moves the caret over it").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 3, selectionEnd: 3, prevValue: "12.00", inputDirection: "forward" });
+    expect(result.value, "a fractional digit replaces the first zero").toBe("12.50");
+    expect(result.caretPosition, "a fractional digit replaces the first zero").toBe(4);
+
+    result = maskInstance.processInput({ insertedChars: "7", selectionStart: 4, selectionEnd: 4, prevValue: "12.50", inputDirection: "forward" });
+    expect(result.value, "the last fractional digit").toBe("12.57");
+    expect(result.caretPosition, "the last fractional digit").toBe(5);
+
+    result = maskInstance.processInput({ insertedChars: "9", selectionStart: 5, selectionEnd: 5, prevValue: "12.57", inputDirection: "forward" });
+    expect(result.value, "the precision is reached").toBe("12.57");
+    expect(result.caretPosition, "the precision is reached").toBe(5);
+
+    result = maskInstance.processInput({ insertedChars: "3", selectionStart: 2, selectionEnd: 2, prevValue: "12.00", inputDirection: "forward" });
+    expect(result.value, "an integral digit typed in the middle").toBe("123.00");
+    expect(result.caretPosition, "an integral digit typed in the middle").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: "1", selectionStart: 5, selectionEnd: 5, prevValue: "1,234.00", inputDirection: "forward" });
+    expect(result.value, "a grouped value").toBe("12,341.00");
+    expect(result.caretPosition, "a grouped value").toBe(6);
+  });
+
+  test("showTrailingZeros: a fractional entry without an integral part", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: ".", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "the separator alone is not a number yet").toBe(".");
+    expect(result.caretPosition, "the separator alone is not a number yet").toBe(1);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 1, prevValue: ".", inputDirection: "forward" });
+    expect(result.value, "the integral part is filled in").toBe("0.50");
+    expect(result.caretPosition, "the caret is after the typed digit").toBe(3);
+  });
+
+  test("showTrailingZeros: the generated zeros are not deleted, the caret steps over them", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    // "1.00": Backspace walks from the end of the padding to the digit the respondent typed
+    let result = maskInstance.processInput({ insertedChars: null, selectionStart: 3, selectionEnd: 4, prevValue: "1.00", inputDirection: "backward" });
+    expect(result.value, "the last zero").toBe("1.00");
+    expect(result.caretPosition, "the last zero").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 2, selectionEnd: 3, prevValue: "1.00", inputDirection: "backward" });
+    expect(result.value, "the first zero").toBe("1.00");
+    expect(result.caretPosition, "the first zero").toBe(2);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 1, selectionEnd: 2, prevValue: "1.00", inputDirection: "backward" });
+    expect(result.value, "the separator is kept as well").toBe("1.00");
+    expect(result.caretPosition, "the separator is kept as well").toBe(1);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 0, selectionEnd: 1, prevValue: "1.00", inputDirection: "backward" });
+    expect(result.value, "the last typed digit empties the input").toBe("");
+    expect(result.caretPosition, "the last typed digit empties the input").toBe(0);
+
+    // a typed fractional digit is deleted and the padding takes its place
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 2, selectionEnd: 3, prevValue: "1.50", inputDirection: "backward" });
+    expect(result.value, "a typed fractional digit").toBe("1.00");
+    expect(result.caretPosition, "a typed fractional digit").toBe(2);
+  });
+
+  test("showTrailingZeros: Delete steps over the separator and the zeros", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: null, selectionStart: 1, selectionEnd: 2, prevValue: "1.00", inputDirection: "forward" });
+    expect(result.value, "the separator").toBe("1.00");
+    expect(result.caretPosition, "the separator").toBe(2);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 2, selectionEnd: 3, prevValue: "1.00", inputDirection: "forward" });
+    expect(result.value, "a zero").toBe("1.00");
+    expect(result.caretPosition, "a zero").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 0, selectionEnd: 1, prevValue: "1.00", inputDirection: "forward" });
+    expect(result.value, "the typed digit").toBe("");
+    expect(result.caretPosition, "the typed digit").toBe(0);
+  });
+
+  test("showTrailingZeros: a selection that covers the separator", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: null, selectionStart: 1, selectionEnd: 4, prevValue: "12.34", inputDirection: "forward" });
+    expect(result.value, "the selected digits go, the separator stays").toBe("1.40");
+    expect(result.caretPosition, "the selected digits go, the separator stays").toBe(1);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 0, selectionEnd: 5, prevValue: "12.34", inputDirection: "forward" });
+    expect(result.value, "the whole text is selected").toBe("");
+    expect(result.caretPosition, "the whole text is selected").toBe(0);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 4, prevValue: "12.34", inputDirection: "forward" });
+    expect(result.value, "the selection is replaced by a digit").toBe("15.40");
+    expect(result.caretPosition, "the selection is replaced by a digit").toBe(2);
+  });
+
+  test("showTrailingZeros: min & max while an entry is in progress", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+    maskInstance.min = 200;
+
+    let result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "the first digit of a value the limit still admits").toBe("2.00");
+
+    result = maskInstance.processInput({ insertedChars: "0", selectionStart: 1, selectionEnd: 1, prevValue: "2.00", inputDirection: "forward" });
+    expect(result.value, "the generated zeros do not make it an exact value").toBe("20.00");
+    expect(result.caretPosition, "the generated zeros do not make it an exact value").toBe(2);
+
+    result = maskInstance.processInput({ insertedChars: "1", selectionStart: 2, selectionEnd: 2, prevValue: "20.00", inputDirection: "forward" });
+    expect(result.value, "the value reaches the limit").toBe("201.00");
+
+    maskInstance.min = 2.63;
+    maskInstance.max = 2.67;
+
+    result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+    expect(result.value, "a fractional range: the integral digit").toBe("2.00");
+
+    result = maskInstance.processInput({ insertedChars: "6", selectionStart: 2, selectionEnd: 2, prevValue: "2.00", inputDirection: "forward" });
+    expect(result.value, "a fractional range: the first fractional digit").toBe("2.60");
+    expect(result.caretPosition, "a fractional range: the first fractional digit").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 3, selectionEnd: 3, prevValue: "2.60", inputDirection: "forward" });
+    expect(result.value, "a fractional range: the value is complete").toBe("2.65");
+
+    result = maskInstance.processInput({ insertedChars: "9", selectionStart: 3, selectionEnd: 3, prevValue: "2.60", inputDirection: "forward" });
+    expect(result.value, "a fractional range: a digit outside the range").toBe("2.60");
+  });
+
+  test("showTrailingZeros: serialization", () => {
+    const jsonObject = new JsonObject();
+    const q = new QuestionTextModel("q1");
+    q.maskType = "numeric";
+    expect(jsonObject.toJsonObject(q), "the default is not serialized").toEqual({ name: "q1", maskType: "numeric" });
+
+    (<InputMaskNumeric>q.maskSettings).showTrailingZeros = true;
+    expect(jsonObject.toJsonObject(q), "the changed value is serialized").toEqual({
+      name: "q1",
+      maskType: "numeric",
+      maskSettings: { showTrailingZeros: true }
+    });
+
+    const q2 = new QuestionTextModel("q2");
+    jsonObject.toObject({ name: "q2", maskType: "numeric", maskSettings: { precision: 3, showTrailingZeros: true } }, q2);
+    expect((<InputMaskNumeric>q2.maskSettings).showTrailingZeros, "deserialized").toBe(true);
+    expect(q2.maskInstance.getMaskedValue(1.5), "the deserialized settings are applied").toBe("1.500");
+
+    const q3 = new QuestionTextModel("q3");
+    jsonObject.toObject({ name: "q3", maskType: "numeric" }, q3);
+    expect((<InputMaskNumeric>q3.maskSettings).showTrailingZeros, "the default after a load").toBe(false);
+  });
+
+  test("showTrailingZeros is visible while the precision leaves room for it", () => {
+    const maskInstance = new InputMaskNumeric();
+    const property = Serializer.findProperty("numericmask", "showTrailingZeros");
+
+    expect(property.isVisible("", maskInstance), "the default precision").toBe(true);
+    maskInstance.precision = 0;
+    expect(property.isVisible("", maskInstance), "precision 0").toBe(false);
+    maskInstance.precision = 2;
+    expect(property.isVisible("", maskInstance), "precision 2").toBe(true);
+  });
+
+  test("showTrailingZeros: question value & inputValue", () => {
+    const q = new QuestionTextModel("q1");
+    q.maskType = "numeric";
+    (<InputMaskNumeric>q.maskSettings).showTrailingZeros = true;
+
+    q.inputValue = "1,234.5";
+    expect(q.value, "the stored value keeps no padding").toBe(1234.5);
+    expect(q.inputValue, "the displayed value is padded").toBe("1,234.50");
+
+    q.inputValue = "1,234";
+    expect(q.value, "an integer is stored as it is").toBe(1234);
+    expect(q.inputValue, "an integer is displayed padded").toBe("1,234.00");
+
+    q.value = 12.5;
+    expect(q.inputValue, "a value set outside the input").toBe("12.50");
+
+    q.maskSettings.saveMaskedValue = true;
+    q.value = 54.3;
+    expect(q.value, "the padded text is stored").toBe("54.30");
+    expect(q.inputValue, "the padded text is displayed").toBe("54.30");
+  });
+
   test("empty thousandsSeparator disables grouping", () => {
     const maskInstance = new InputMaskNumeric();
     maskInstance.setData({

@@ -1,5 +1,6 @@
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
+import { isFocusInsideOrIdle } from "../utils/focus-utils";
 
 /* The question side of a caller-provided data source. Both dynamic questions expose the same
    members and neither of them descends from the other, so the source swap, the capability checks
@@ -71,12 +72,13 @@ export class DynamicDataRemoteController {
   public get isSourceDecidingView(): boolean {
     return this.hasCapability("filter") || this.hasCapability("sort");
   }
-  // Is the model still waiting for this source? A page that has not arrived and an edit that has not
-  // been acknowledged are both asynchronous operations the survey has started.
+  // Is the model still waiting for this source? A page that has not arrived, a page that is about to
+  // be read again once the pending edits are acknowledged, and an edit that has not been
+  // acknowledged are all asynchronous operations the survey has started.
   public get isRunning(): boolean {
     if (!this.isRemote) return false;
     const list = this.owner.getDataList();
-    return !!list && (list.isLoading || list.hasPendingWrites);
+    return !!list && (list.isLoading || list.hasPendingRead || list.hasPendingWrites);
   }
   /* The loaded window as a new array. It is what question.value becomes after every write the list
      makes: a new instance, so that the ordinary "did the value change" comparisons of the library
@@ -92,6 +94,29 @@ export class DynamicDataRemoteController {
   }
   public raiseError(error: any, operation: DynamicDataOperation): void {
     this.owner.onDataSourceError(error, operation);
+  }
+  /* A remove on a page the source reads again (the refill of a source that pages itself) is answered
+     by a rebuild of every item on the page, which disposes the one the question has just focused.
+     The question keeps the position here while that read is pending and takes it back from the
+     reset that commits the read, to focus the item that is at that position then. A second remove
+     overwrites the position; a page change and a rejected read drop it (the question calls
+     forgetFocusIndex: a rejected read leaves the short window and its focused item in place). */
+  private focusIndexAfterRead: number = undefined;
+  public keepFocusIndexForRead(index: number): void {
+    const list = this.owner.getDataList();
+    this.focusIndexAfterRead = this.isRemote && !!list && list.hasPendingRead && index > -1 ? index : undefined;
+  }
+  public forgetFocusIndex(): void {
+    this.focusIndexAfterRead = undefined;
+  }
+  // Returns the kept position, or -1 when there is none, the read is not committed yet, or the focus
+  // has moved out of the question by the time the answer arrives.
+  public takeFocusIndexAfterRead(elementId: string, element?: HTMLElement): number {
+    const index = this.focusIndexAfterRead;
+    const list = this.owner.getDataList();
+    if (index === undefined || !list || list.hasPendingRead) return -1;
+    this.focusIndexAfterRead = undefined;
+    return isFocusInsideOrIdle(elementId, element) ? index : -1;
   }
   public onLoadingChanged(isLoading: boolean): void {
     this.owner.onDataLoadingChanged(isLoading);

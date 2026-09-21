@@ -425,6 +425,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.isDataLoading = isLoading;
   }
   onDataSourceError(error: any, operation: DynamicDataOperation): void {
+    if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
     const survey: any = this.survey;
     if (!!survey && !!survey.dynamicDataError) {
       survey.dynamicDataError(this, operation, error);
@@ -494,6 +495,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       return;
     }
     if (change.type === "pageChanged") {
+      if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
       // The panels themselves are untouched: only which of them are rendered changes.
       this.syncPagingState();
       this.updateRenderedPanels();
@@ -517,6 +519,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (isRemote) {
       // The window the read committed is the new value; setLoadedRecords rebuilds the panels.
       this.setLoadedRecords();
+      this.focusAfterRead();
     } else {
       this.rebuildPanelsFromDataList();
     }
@@ -2202,12 +2205,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       if (!this.canRemovePanel) return;
       const removePanel = () => {
         this.removePanelCore(visIndex);
-        const pnlCount = this.visiblePanelCount;
-        const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-        const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
-        if (!!element) {
-          SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
-        }
+        this.focusAfterPanelRemoved(visIndex);
+        // A remote page that is read again after the removal rebuilds every panel when the read
+        // commits: the position is focused once more after that rebuild.
+        if (!!this.remoteValue)this.remoteValue.keepFocusIndexForRead(visIndex);
       };
       if (confirmDelete) {
         confirmActionAsync({
@@ -2222,6 +2223,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       }
     } else {
       this.removePanelCore(visIndex);
+    }
+  }
+  private focusAfterPanelRemoved(visIndex: number): void {
+    const pnlCount = this.visiblePanelCount;
+    const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
+    const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
+    if (!!element) {
+      SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
+    }
+  }
+  // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
+  private focusAfterRead(): void {
+    if (!this.remoteValue) return;
+    const index = this.remoteValue.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
+    if (index > -1) {
+      this.focusAfterPanelRemoved(index);
     }
   }
   private removedPanelIndex: number;

@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { DynamicDataRemoteController } from "../../src/dynamic-data/dynamic-data-remote";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadResult, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -1449,5 +1450,393 @@ describe("DynamicDataList: frozen membership", () => {
     list.filter = "";
     expect(list.getCreatedIndexes(), "#2").toEqual([0, 1]);
     expect(list.hasView, "#3").toBe(false);
+  });
+});
+
+interface ITableCall {
+  op: string;
+  args: Array<any>;
+  settle: () => void;
+  fail: (error: any) => void;
+  isSettled: boolean;
+}
+/* A table behind promises that pages itself. Every call is recorded and, unless auto is on, stays
+   pending until the test settles it. A read answers from the table as it was when the request
+   arrived; a write reaches the table when it is acknowledged, as it would on a server. The ids the
+   table removed are kept, so that a test can tell WHICH record went, not only how many. */
+class FakeTableSource implements IDynamicDataSource {
+  public calls: Array<ITableCall> = [];
+  public removedIds: Array<any> = [];
+  public auto: boolean = false;
+  constructor(public records: Array<any>) { }
+  public read(): Promise<Array<any>> {
+    const snapshot = this.records.slice();
+    return this.call("read", [], (): Array<any> => snapshot);
+  }
+  public readRange(skip: number, take: number): Promise<IDynamicDataReadResult> {
+    const size = take > 0 ? take : this.records.length;
+    const snapshot = { records: this.records.slice(skip, skip + size).map(this.copy), total: this.records.length };
+    return this.call("readRange", [skip, take], (): IDynamicDataReadResult => snapshot);
+  }
+  public update(sourceIndex: number, record: any): Promise<void> {
+    return this.call("update", [sourceIndex], (): void => { this.records[sourceIndex] = this.copy(record); });
+  }
+  public insert(sourceIndex: number, record: any): Promise<void> {
+    return this.call("insert", [sourceIndex], (): void => { this.records.splice(sourceIndex, 0, this.copy(record)); });
+  }
+  public remove(sourceIndex: number): Promise<void> {
+    return this.call("remove", [sourceIndex], (): void => {
+      this.removedIds.push(this.records[sourceIndex].id);
+      this.records.splice(sourceIndex, 1);
+    });
+  }
+  private copy = (record: any): any => Object.assign({}, record);
+  private call<T>(op: string, args: Array<any>, run: () => T): Promise<T> {
+    const deferred = new Deferred();
+    const entry: ITableCall = {
+      op: op, args: args, isSettled: false,
+      settle: (): void => {
+        if (entry.isSettled) return;
+        entry.isSettled = true;
+        deferred.resolve(run());
+      },
+      fail: (error: any): void => {
+        if (entry.isSettled) return;
+        entry.isSettled = true;
+        deferred.reject(error);
+      }
+    };
+    this.calls.push(entry);
+    if (this.auto) {
+      entry.settle();
+    }
+    return deferred.promise;
+  }
+  public argsOf(op: string): Array<Array<any>> {
+    return this.calls.filter((call: ITableCall): boolean => call.op === op).map((call: ITableCall): Array<any> => call.args);
+  }
+  public pendingOf(op?: string): Array<ITableCall> {
+    return this.calls.filter((call: ITableCall): boolean => !call.isSettled && (!op || call.op === op));
+  }
+  // Settles the oldest pending call (of the given operation) and reports whether there was one.
+  public settleFirst(op?: string): boolean {
+    const call = this.pendingOf(op)[0];
+    if (!call) return false;
+    call.settle();
+    return true;
+  }
+}
+// A chain of pushes needs many more microtask turns than a single read.
+const SETTLE_TURNS = 300;
+async function settleEverything(source: FakeTableSource): Promise<void> {
+  for (let i = 0; i < 100; i++) {
+    await flush(SETTLE_TURNS);
+    if (!source.settleFirst()) break;
+  }
+  await flush(SETTLE_TURNS);
+}
+function tableRecords(count: number): Array<any> {
+  const res: Array<any> = [];
+  for (let i = 0; i < count; i++) {
+    res.push({ id: i, name: "r" + i });
+  }
+  return res;
+}
+function windowIds(list: DynamicDataList): Array<any> {
+  const res: Array<any> = [];
+  for (let i = 0; i < list.loadedCount; i++) {
+    res.push(list.getRecord(i).id);
+  }
+  return res;
+}
+function idRange(from: number, to: number): Array<number> {
+  const res: Array<number> = [];
+  for (let i = from; i <= to; i++) res.push(i);
+  return res;
+}
+async function createTableList(source: FakeTableSource, pageSize: number = 10): Promise<DynamicDataList> {
+  const list = new DynamicDataList(source);
+  list.pageSize = pageSize;
+  const auto = source.auto;
+  source.auto = true;
+  list.load();
+  await flush(SETTLE_TURNS);
+  source.auto = auto;
+  return list;
+}
+/* Watches the list the way the owner does: every notification together with the state it was
+   raised in, so that a test can prove a window was never committed while a write was pending. */
+function watchList(list: DynamicDataList): { changes: Array<string>, resetsWhilePushPending: number } {
+  const res = { changes: new Array<string>(), resetsWhilePushPending: 0 };
+  list.onChanged = (change: IDynamicDataListChange): void => {
+    res.changes.push(changeToString(change));
+    if (change.type === "reset" && list.hasPendingWrites) res.resetsWhilePushPending++;
+  };
+  return res;
+}
+
+describe("DynamicDataList: a removed record refills the page of a source that pages itself", () => {
+  test("[R] a remove on the first page of three reads the page again", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    source.auto = true;
+    const list = await createTableList(source);
+    list.remove(0);
+    await flush(SETTLE_TURNS);
+    expect(source.argsOf("readRange"), "#1: one extra read of the same page").toEqual([[0, 10], [0, 10]]);
+    expect(list.loadedCount, "#2: the page is full again").toBe(10);
+    expect(list.count, "#3").toBe(29);
+    expect(windowIds(list), "#4: the first record of the old second page moved up").toEqual(idRange(1, 10));
+    expect(list.isLoading, "#5").toBe(false);
+  });
+  test("[R] removing every record of the first page one by one keeps it full", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    source.auto = true;
+    const list = await createTableList(source);
+    for (let i = 0; i < 10; i++) {
+      list.remove(0);
+      await flush(SETTLE_TURNS);
+      expect(list.loadedCount, "#1: full after remove " + i).toBe(10);
+      expect(list.count, "#2: count after remove " + i).toBe(29 - i);
+      expect(list.pageCount, "#3: pageCount after remove " + i).toBe(Math.ceil((29 - i) / 10));
+      expect(list.pageIndex, "#4: pageIndex after remove " + i).toBe(0);
+    }
+    expect(windowIds(list), "#5").toEqual(idRange(10, 19));
+    expect(source.records.length, "#6: the server did its part").toBe(20);
+  });
+  test("[R] ten removes without settling end in one committed window", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    const watch = watchList(list);
+    for (let i = 0; i < 10; i++) {
+      list.remove(0);
+    }
+    const changesAfterRemoves = watch.changes.length;
+    await settleEverything(source);
+    expect(windowIds(list), "#1").toEqual(idRange(10, 19));
+    expect(list.count, "#2").toBe(20);
+    expect(list.isLoading, "#3").toBe(false);
+    const resets = watch.changes.slice(changesAfterRemoves).filter((c: string): boolean => c === "reset");
+    expect(resets.length, "#4: exactly one reset after the removes").toBe(1);
+    expect(watch.resetsWhilePushPending, "#5: no reset while a push was pending").toBe(0);
+    expect(source.removedIds, "#6").toEqual(idRange(0, 9));
+  });
+  test("[P] a remove on the last page reads nothing", async () => {
+    const shortSource = new FakeTableSource(tableRecords(25));
+    shortSource.auto = true;
+    const shortList = await createTableList(shortSource);
+    shortList.pageIndex = 2;
+    await flush(SETTLE_TURNS);
+    const shortReads = shortSource.argsOf("readRange").length;
+    shortList.remove(0);
+    await flush(SETTLE_TURNS);
+    expect(shortSource.argsOf("readRange").length, "#1: short last page - no read").toBe(shortReads);
+    expect(windowIds(shortList), "#2").toEqual([21, 22, 23, 24]);
+
+    const fullSource = new FakeTableSource(tableRecords(30));
+    fullSource.auto = true;
+    const fullList = await createTableList(fullSource);
+    fullList.pageIndex = 2;
+    await flush(SETTLE_TURNS);
+    const fullReads = fullSource.argsOf("readRange").length;
+    fullList.remove(0);
+    await flush(SETTLE_TURNS);
+    expect(fullSource.argsOf("readRange").length, "#3: full last page - no read").toBe(fullReads);
+    expect(fullList.loadedCount, "#4: one shorter").toBe(9);
+    expect(fullList.count, "#5").toBe(29);
+  });
+  test("[P] removing the only record of the last page reads the previous page once", async () => {
+    const source = new FakeTableSource(tableRecords(21));
+    source.auto = true;
+    const list = await createTableList(source);
+    list.pageIndex = 2;
+    await flush(SETTLE_TURNS);
+    expect(windowIds(list), "#1").toEqual([20]);
+    const reads = source.argsOf("readRange").length;
+    const changes = recordChanges(list);
+    list.remove(0);
+    await flush(SETTLE_TURNS);
+    expect(source.argsOf("readRange").slice(reads), "#2: exactly one read, for the previous page").toEqual([[10, 10]]);
+    expect(changes, "#3").toEqual(["recordRemoved:0", "pageChanged", "loading:true", "reset", "loading:false"]);
+    expect(list.pageIndex, "#4").toBe(1);
+    expect(windowIds(list), "#5").toEqual(idRange(10, 19));
+  });
+  test("[P] pageSize 0 with readRange: no refill read", async () => {
+    const source = new FakeTableSource(tableRecords(5));
+    source.auto = true;
+    const list = await createTableList(source, 0);
+    expect(source.argsOf("readRange"), "#1").toEqual([[0, 0]]);
+    list.remove(0);
+    await flush(SETTLE_TURNS);
+    expect(source.argsOf("readRange").length, "#2").toBe(1);
+    expect(list.loadedCount, "#3").toBe(4);
+  });
+  test("[R] a rejected refill read keeps the short window", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    list.remove(0);
+    source.settleFirst("remove");
+    await flush(SETTLE_TURNS);
+    expect(source.pendingOf("readRange").length, "#1: the refill is in flight").toBe(1);
+    source.pendingOf("readRange")[0].fail(new Error("boom"));
+    await flush(SETTLE_TURNS);
+    expect(windowIds(list), "#2: the short window stays").toEqual(idRange(1, 9));
+    expect(errors, "#3").toEqual(["read"]);
+    expect(list.isLoading, "#4").toBe(false);
+    expect(list.hasPendingRead, "#5").toBe(false);
+  });
+  test("[R] a rejected remove: the refill brings the record back", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    list.remove(0);
+    expect(windowIds(list), "#1: the local change").toEqual(idRange(1, 9));
+    source.pendingOf("remove")[0].fail(new Error("denied"));
+    await settleEverything(source);
+    expect(errors, "#2: reported once").toEqual(["remove"]);
+    expect(windowIds(list), "#3: the server still has it, so it comes back").toEqual(idRange(0, 9));
+    expect(list.count, "#4").toBe(30);
+  });
+});
+
+describe("DynamicDataList: a read never commits over a pending write", () => {
+  test("[R] two deferred removes: the refill waits for both", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    const watch = watchList(list);
+    let maxCount = list.count;
+    const checkNoRemovedRecord = (step: string): void => {
+      expect(windowIds(list).indexOf(0), step + ": record 0 is not shown").toBe(-1);
+      expect(windowIds(list).indexOf(1), step + ": record 1 is not shown").toBe(-1);
+      expect(list.count <= maxCount, step + ": count does not go back up").toBe(true);
+      maxCount = list.count;
+    };
+    list.remove(0);
+    list.remove(0);
+    checkNoRemovedRecord("#1");
+    expect(windowIds(list), "#2").toEqual(idRange(2, 9));
+    source.settleFirst("remove");
+    await flush(SETTLE_TURNS);
+    checkNoRemovedRecord("#3");
+    expect(source.argsOf("readRange").length, "#4: no read while delete 2 is pending").toBe(1);
+    source.settleFirst("remove");
+    await flush(SETTLE_TURNS);
+    checkNoRemovedRecord("#5");
+    expect(source.argsOf("readRange").length, "#6: exactly one read after delete 2").toBe(2);
+    source.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    checkNoRemovedRecord("#7");
+    expect(windowIds(list), "#8").toEqual(idRange(2, 11));
+    expect(list.count, "#9").toBe(28);
+    expect(watch.resetsWhilePushPending, "#10: no reset while a push was pending").toBe(0);
+  });
+  test("[R] a remove made after a re-read deletes the record that was asked for", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    // refresh() by hand stands in for the refill, as in the probe; with the refill in place the two
+    // requests coalesce.
+    list.remove(0);
+    list.refresh();
+    list.remove(0);
+    list.refresh();
+    source.settleFirst("remove");
+    await flush(SETTLE_TURNS);
+    // Whatever read is in flight now answers while delete 2 may still be pending.
+    source.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    expect(windowIds(list).indexOf(1), "#1: the removed record is not back").toBe(-1);
+    const index = windowIds(list).indexOf(3);
+    expect(index > -1, "#2: record 3 is in the window").toBe(true);
+    list.remove(index);
+    await settleEverything(source);
+    expect(source.removedIds.slice().sort((a, b) => a - b), "#3: by identity").toEqual([0, 1, 3]);
+    expect(windowIds(list), "#4").toEqual([2].concat(idRange(4, 12)));
+  });
+  test("[R] an edit enqueued while a read is in flight: the stale answer is not committed", async () => {
+    const editSource = new FakeTableSource(tableRecords(30));
+    const editList = await createTableList(editSource);
+    const editWatch = watchList(editList);
+    // The in-flight read is a refresh of the page - what the refill itself is - and the edit lands
+    // on a record of that page.
+    editList.refresh();
+    editList.setValue(0, "name", "edited");
+    editSource.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    expect(editList.getValue(0, "name"), "#1: the stale answer did not paint over the edit").toBe("edited");
+    await settleEverything(editSource);
+    expect(editSource.argsOf("readRange").length, "#2: the page was read again after the push").toBe(3);
+    expect(editList.getValue(0, "name"), "#3").toBe("edited");
+    expect(editSource.records[0].name, "#4").toBe("edited");
+    expect(editWatch.resetsWhilePushPending, "#5").toBe(0);
+    expect(editList.isLoading, "#6").toBe(false);
+  });
+  test("[R] a remove enqueued while a page read is in flight: the stale page is not committed", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(source);
+    const watch = watchList(list);
+    list.pageIndex = 1;
+    // The page read was issued against a server that still has record 0.
+    list.remove(0);
+    source.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    await settleEverything(source);
+    expect(source.removedIds, "#1").toEqual([0]);
+    expect(windowIds(list), "#2: page 1 after the removal").toEqual(idRange(11, 20));
+    expect(list.count, "#3").toBe(29);
+    expect(list.windowOffset, "#4").toBe(10);
+    expect(list.isLoading, "#5").toBe(false);
+    expect(watch.resetsWhilePushPending, "#6").toBe(0);
+  });
+  test("[R] hasPendingRead spans the wait for the chain and the read itself", async () => {
+    const source = new FakeTableSource(tableRecords(30));
+    const list = new DynamicDataList(new FakeTableSource([]));
+    list.pageSize = 10;
+    const remote = new DynamicDataRemoteController({
+      getDataList: (): DynamicDataList => list,
+      createValueDataSource: (): IDynamicDataSource => undefined,
+      clearValueInSurveyData: (): void => { },
+      restoreValueFromSurveyData: (): void => { },
+      onDataLoadingChanged: (): void => { },
+      onDataSourceError: (): void => { }
+    });
+    remote.dataSource = source;
+    list.load();
+    source.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    expect(list.loadedCount, "#1: loaded").toBe(10);
+    expect(list.hasPendingRead, "#2: nothing pending").toBe(false);
+    expect(remote.isRunning, "#3").toBe(false);
+    list.remove(0);
+    expect(list.hasPendingRead, "#4: requested").toBe(true);
+    expect(list.isLoading, "#5: not started yet").toBe(false);
+    expect(remote.isRunning, "#6").toBe(true);
+    source.settleFirst("remove");
+    await flush(SETTLE_TURNS);
+    expect(list.hasPendingRead, "#7: in flight").toBe(true);
+    expect(list.isLoading, "#8").toBe(true);
+    expect(remote.isRunning, "#9").toBe(true);
+    source.settleFirst("readRange");
+    await flush(SETTLE_TURNS);
+    expect(list.hasPendingRead, "#10: committed").toBe(false);
+    expect(list.isLoading, "#11").toBe(false);
+    expect(remote.isRunning, "#12").toBe(false);
+  });
+  test("[P] a source change while a refill is queued: the queued read dies with the chain", async () => {
+    const oldSource = new FakeTableSource(tableRecords(30));
+    const list = await createTableList(oldSource);
+    list.remove(0);
+    const newSource = new FakeTableSource(tableRecords(5));
+    newSource.auto = true;
+    list.source = newSource;
+    await flush(SETTLE_TURNS);
+    expect(newSource.argsOf("readRange"), "#1: the new source is read once").toEqual([[0, 10]]);
+    await settleEverything(oldSource);
+    expect(oldSource.argsOf("readRange").length, "#2: the old source is not read again").toBe(1);
+    expect(newSource.argsOf("readRange").length, "#3: nor the new one").toBe(1);
+    expect(windowIds(list), "#4").toEqual(idRange(0, 4));
+    expect(list.isLoading, "#5").toBe(false);
+    expect(list.hasPendingRead, "#6").toBeFalsy();
   });
 });

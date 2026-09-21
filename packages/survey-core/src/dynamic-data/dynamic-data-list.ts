@@ -62,6 +62,16 @@ export class DynamicDataList {
   // always fulfills - a rejected push is reported through onError and the chain continues.
   private pushChain: Promise<void> = undefined;
   private pendingPushes: number = 0;
+  /* The asynchronous read in flight: the range it asked for, and whether a write enqueued since it
+     was issued made its answer stale (see startRead). */
+  private inFlightRead: { skip: number, take: number, useReadRange: boolean, isOvertaken: boolean } = undefined;
+  /* A read requested while writes are pending waits for the chain to drain (see startRead). The
+     requests coalesce into one: queuedReadUseOffset stays true only while every one of them was a
+     refresh of the window - a load() recomputes the offset from pageIndex, which is what a page
+     change asked for. */
+  private isReadQueued: boolean = false;
+  private queuedReadUseOffset: boolean = true;
+  private queuedReadWaiter: { promise: Promise<void>, resolve: (value?: any) => void } = undefined;
   // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
   // running against a replaced source cannot report back into the list.
   private sourceEpoch: number = 0;
@@ -140,8 +150,11 @@ export class DynamicDataList {
        no longer the storage of this list no longer gates its reads. */
     this.pushChain = undefined;
     this.pendingPushes = 0;
+    // A read queued behind the detached chain dies with it: the new source is read below.
+    this.dropQueuedRead();
     // Discards the result of a read that is still in flight against the old source.
     this.readRequestId++;
+    this.inFlightRead = undefined;
     // The old read is abandoned, whatever happens next starts from "not loading".
     this.setIsLoading(false);
     this.resetWindow();
@@ -235,6 +248,11 @@ export class DynamicDataList {
   public get hasPendingWrites(): boolean {
     return this.pendingPushes > 0;
   }
+  // True from the moment a read is requested until its window is committed or it is rejected,
+  // including the time it waits for pending writes - isLoading only covers the read in flight.
+  public get hasPendingRead(): boolean {
+    return this.isReadQueued || !!this.inFlightRead;
+  }
   public get windowOffset(): number {
     return this._windowOffset;
   }
@@ -294,7 +312,7 @@ export class DynamicDataList {
     // The push comes before the notification: with a read-through source the push IS the local write,
     // so the owner must not be notified of a change it cannot read yet.
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(sourceIndex, newRecord, [field]));
+      (source: IDynamicDataSource): any => source.update(sourceIndex, newRecord, [field]), sourceIndex);
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
@@ -311,7 +329,7 @@ export class DynamicDataList {
     this.writeDepth++;
     this.replaceRecord(index, record);
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(sourceIndex, record, changedFields));
+      (source: IDynamicDataSource): any => source.update(sourceIndex, record, changedFields), sourceIndex);
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
@@ -374,7 +392,24 @@ export class DynamicDataList {
     this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(sourceIndex));
     this.endWrite();
     this.raiseChanged({ type: "recordRemoved", index: index });
-    this.clampPageIndexAfterChange();
+    // Never two reads for one remove: a clamp to the previous page has already asked for its page.
+    if (!this.clampPageIndexAfterChange()) {
+      this.refillWindowAfterRemove();
+    }
+  }
+  /* With a source that pages itself the window IS the page, so a remove leaves it one record short
+     while the records behind it moved up on the server. The page is read again when it came up short
+     and the source still has records behind it; a remove on the last page just leaves it shorter.
+     The whole page and not only the one record that moved up (readRange(offset + length, 1)): that
+     read would keep the row objects, but it trusts that the server's order did not change between the
+     two reads and it leaves the total unverified. The full read is authoritative for both, and it is
+     one request either way. refresh() and not load(): the window stays at its own offset, load()
+     recomputes it from pageIndex and the two agree only by coincidence. */
+  private refillWindowAfterRemove(): void {
+    if (!this.hasReadRange || !this.isLoaded || this._pageSize <= 0) return;
+    const length = this.records.length;
+    if (length >= this._pageSize || this._windowOffset + length >= this.count) return;
+    this.refresh();
   }
   public move(fromIndex: number, toIndex: number): void {
     const length = this.records.length;
@@ -616,6 +651,8 @@ export class DynamicDataList {
   public dispose(): void {
     this.isDisposed = true;
     this.readRequestId++;
+    this.inFlightRead = undefined;
+    this.dropQueuedRead();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
     this.onChanged = undefined;
@@ -814,18 +851,18 @@ export class DynamicDataList {
   }
   /* Every change that can shrink the visible count ends here: a page index left past the last page
      would show an empty page. Not before the first successful read - there is no count to clamp
-     against yet and the pageIndex setter rules. */
-  private clampPageIndexAfterChange(): void {
-    if (!this.isLoaded) return;
+     against yet and the pageIndex setter rules. Returns whether it asked the source for a page. */
+  private clampPageIndexAfterChange(): boolean {
+    if (!this.isLoaded) return false;
     const newValue = this.getClampedPageIndex(this._pageIndex);
-    if (newValue === this._pageIndex) return;
+    if (newValue === this._pageIndex) return false;
     this._pageIndex = newValue;
     this.pageIndexes = undefined;
     this.raiseChanged({ type: "pageChanged" });
-    if (this.hasReadRange) {
-      // The records of the previous page are not in the window: they have to be fetched.
-      this.load();
-    }
+    if (!this.hasReadRange) return false;
+    // The records of the previous page are not in the window: they have to be fetched.
+    this.load();
+    return true;
   }
   private checkWindowIsWholeStorage(operation: string): void {
     if (this.hasReadRange && this.count > this.records.length) {
@@ -846,12 +883,44 @@ export class DynamicDataList {
     this.raiseChanged({ type: "loading", isLoading: val });
   }
 
+  /* The invariant of the read scheduling: a read is issued only when no write is pending, and its
+     result is committed only when no write that could change it was enqueued since it was issued -
+     every insert, remove and move, and an update of a record inside the range it asked for
+     (markInFlightReadOvertaken). A write addresses the source as windowOffset + index, so a window
+     read from a server that has not applied every write of the list shows records the respondent
+     has removed (or values they have overwritten), and the next write made against that window
+     lands on the wrong record. It is enforced in two places: here, a read requested while writes are
+     pending is not issued until the chain has drained (onPushSettled) - chaining it on the chain as
+     it is now would let a later write overtake it - and in doRead, where the answer to a read that a
+     write overtook while it was in flight is discarded and the read is issued again. */
   private startRead(useWindowOffset: boolean): void | Promise<void> {
-    if (this.hasPendingWrites) {
-      // A read must never overwrite an edit the source has not acknowledged yet.
-      return this.pushChain.then((): any => this.doRead(useWindowOffset));
-    }
+    if (this.hasPendingWrites) return this.queueRead(useWindowOffset);
     return this.doRead(useWindowOffset);
+  }
+  private queueRead(useWindowOffset: boolean): Promise<void> {
+    this.queuedReadUseOffset = this.isReadQueued ? this.queuedReadUseOffset && useWindowOffset : useWindowOffset;
+    this.isReadQueued = true;
+    if (!this.queuedReadWaiter) {
+      let resolve: (value?: any) => void;
+      const promise = new Promise<void>((res: (value?: any) => void): void => { resolve = res; });
+      this.queuedReadWaiter = { promise: promise, resolve: resolve };
+    }
+    return this.queuedReadWaiter.promise;
+  }
+  private startQueuedRead(): void {
+    if (!this.isReadQueued) return;
+    const useWindowOffset = this.queuedReadUseOffset;
+    const waiter = this.queuedReadWaiter;
+    this.isReadQueued = false;
+    this.queuedReadWaiter = undefined;
+    const res = this.doRead(useWindowOffset);
+    if (!!waiter) waiter.resolve(res);
+  }
+  private dropQueuedRead(): void {
+    const waiter = this.queuedReadWaiter;
+    this.isReadQueued = false;
+    this.queuedReadWaiter = undefined;
+    if (!!waiter) waiter.resolve();
   }
   private doRead(useWindowOffset: boolean): void | Promise<void> {
     if (this.isDisposed || !this._source) return;
@@ -865,24 +934,36 @@ export class DynamicDataList {
       res = useReadRange ? this._source.readRange(skip, this._pageSize) : this._source.read();
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
+      this.inFlightRead = undefined;
       this.setIsLoading(false);
       this.raiseError(e, "read");
       return;
     }
     if (isPromiseLike(res)) {
+      const inFlight = { skip: skip, take: this._pageSize, useReadRange: useReadRange, isOvertaken: false };
+      this.inFlightRead = inFlight;
       this.setIsLoading(true);
-      return res.then((data: any): void => {
+      return res.then((data: any): any => {
         // A later read supersedes this one: its result is discarded when it arrives.
         if (this.isDisposed || requestId !== this.readRequestId) return;
+        this.inFlightRead = undefined;
+        if (inFlight.isOvertaken) {
+          // A write overtook this read: the answer describes a server that did not have it yet. The
+          // read is issued again - behind the chain while writes are pending - and it inherits the
+          // loading state, as a superseding read does.
+          return this.startRead(useWindowOffset);
+        }
         this.commitRead(data, skip, useReadRange);
         this.setIsLoading(false);
       }, (error: any): void => {
         if (this.isDisposed || requestId !== this.readRequestId) return;
+        this.inFlightRead = undefined;
         this.setIsLoading(false);
         // The previous window stays in force.
         this.raiseError(error, "read");
       });
     }
+    this.inFlightRead = undefined;
     this.commitRead(res, skip, useReadRange);
     // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
     // read of the same source; the flag that read set is this one's to clear.
@@ -929,9 +1010,11 @@ export class DynamicDataList {
      a deferred push belongs to the source the edit was made against, not to whatever the list holds
      when the push finally runs. The capability check follows the same rule - the operation names are
      the source method names. */
-  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource) => any): void {
+  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource) => any,
+    updatedSourceIndex?: number): void {
     const source = this._source;
     if (this.isDisposed || !source || !(<any>source)[operation]) return;
+    this.markInFlightReadOvertaken(operation, updatedSourceIndex);
     const epoch = this.sourceEpoch;
     const action = (): any => method(source);
     if (!this.pushChain) {
@@ -949,6 +1032,18 @@ export class DynamicDataList {
       const res = this.runPush(operation, action);
       return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
     });
+  }
+  /* Does this write make the answer of the read in flight stale? An insert or a remove shifts the
+     records and changes the total, and a move shifts the records between its two ends, so each of
+     them does. An update changes one record in place: only a record inside the range that read asked
+     for - an edit on page 1 while page 2 is loading leaves the answer for page 2 as it is. */
+  private markInFlightReadOvertaken(operation: DynamicDataOperation, updatedSourceIndex: number): void {
+    const read = this.inFlightRead;
+    if (!read || read.isOvertaken) return;
+    if (operation === "update" && read.useReadRange && read.take > 0) {
+      if (updatedSourceIndex < read.skip || updatedSourceIndex >= read.skip + read.take) return;
+    }
+    read.isOvertaken = true;
   }
   // Returns a promise that always fulfills, or undefined when the push stayed synchronous.
   private runPush(operation: DynamicDataOperation, action: () => any): Promise<void> {
@@ -972,6 +1067,7 @@ export class DynamicDataList {
       this.pendingPushes = 0;
       this.pushChain = undefined;
       if (wasSync)this.syncWindowAfterSyncPush(epoch);
+      this.startQueuedRead();
     }
   }
   private syncWindowAfterSyncPush(epoch: number): void {

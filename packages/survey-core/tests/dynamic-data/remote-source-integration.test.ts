@@ -1,8 +1,10 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { Question } from "../../src/question";
+import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
+import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
@@ -1101,5 +1103,224 @@ describe("Remote data source: replacing a source", () => {
     expect(question.filterExpression, "#2: the filter survived the detach").toBe("{col1} = 'v3'");
     expect(question.visibleRows.length, "#3: and the list runs it locally again").toBe(1);
     expect(rowValues(question), "#4").toEqual(["v3"]);
+  });
+});
+
+// A source that pages itself and answers from memory: every read and every write completes inside
+// the call, so a refill happens inside the remove that caused it.
+class SyncPagingSource implements IDynamicDataSource {
+  public readRanges: Array<Array<number>> = [];
+  constructor(public records: Array<any>) { }
+  public read(): Array<any> {
+    return this.records.slice();
+  }
+  public readRange(skip: number, take: number): IDynamicDataReadResult {
+    this.readRanges.push([skip, take]);
+    const size = take > 0 ? take : this.records.length;
+    return { records: this.records.slice(skip, skip + size).map(r => Object.assign({}, r)), total: this.records.length };
+  }
+  public update(sourceIndex: number, record: any): void {
+    this.records[sourceIndex] = Object.assign({}, record);
+  }
+  public insert(sourceIndex: number, record: any): void {
+    this.records.splice(sourceIndex, 0, Object.assign({}, record));
+  }
+  public remove(sourceIndex: number): void {
+    this.records.splice(sourceIndex, 1);
+  }
+}
+const REFILL_TURNS = 300;
+// A row object is not a Base: it is disposed through the questions of its cells.
+function isRowDisposed(row: any): boolean {
+  return row.cells.some((cell: any): boolean => cell.question.isDisposed);
+}
+
+describe("Remote data source: a removed record refills the page", () => {
+  test("[R] matrix: removeRow on page one of three leaves ten rows and fires no value change", async () => {
+    const source = new FakeServerSource(serverRecords(30));
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 10 });
+    question.removeRow(0);
+    const changes: Array<string> = [];
+    survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
+    await flush(REFILL_TURNS);
+    expect(question.visibleRows.length, "#1").toBe(10);
+    expect(question.value.length, "#2").toBe(10);
+    expect(question.rowCount, "#3").toBe(29);
+    expect(rowValues(question)[9], "#4: the first record of the old second page").toBe("v10");
+    expect(changes, "#5: the refill is a page load, not an answer").toEqual([]);
+  });
+  test("[R] panel: removePanel on page one of three leaves ten panels and fires no value change", async () => {
+    const source = new FakeServerSource(serverRecords(30));
+    const { survey, question } = await createPanel(source, { panelsPerPage: 10 });
+    question.removePanel(0);
+    const changes: Array<string> = [];
+    survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
+    await flush(REFILL_TURNS);
+    expect(question.panels.length, "#1").toBe(10);
+    expect(question.value.length, "#2").toBe(10);
+    expect(question.panelCount, "#3").toBe(29);
+    expect(panelValues(question)[9], "#4").toBe("v10");
+    expect(changes, "#5").toEqual([]);
+  });
+});
+
+describe("Remote data source: the focus after a row is removed from a refilled page", () => {
+  let focusSpy: any;
+  let addButtonSpy: any;
+  beforeEach(() => {
+    vi.useFakeTimers();
+    focusSpy = vi.spyOn(QuestionMatrixDropdownRenderedTable.prototype, "focusActionCell").mockImplementation(() => { });
+    addButtonSpy = vi.spyOn(QuestionMatrixDynamicModel.prototype, "focusAddBUtton").mockImplementation(() => { });
+  });
+  afterEach(() => {
+    focusSpy.mockRestore();
+    addButtonSpy.mockRestore();
+    vi.useRealTimers();
+  });
+  const createPagedMatrix = async (source: IDynamicDataSource): Promise<QuestionMatrixDynamicModel> => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 10, columns: [{ name: "col1" }] }]
+    });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    question.dataSource = source;
+    await flush(REFILL_TURNS);
+    return question;
+  };
+  const focusedRow = (callIndex: number): any => focusSpy.mock.calls[callIndex][0];
+  const createDeferred = async (): Promise<{ question: QuestionMatrixDynamicModel, source: FakeServerSource }> => {
+    const source = new FakeServerSource(serverRecords(30));
+    const question = await createPagedMatrix(source);
+    source.auto = false;
+    return { question: question, source: source };
+  };
+  test("[P] a synchronous source: the row now at that position is focused", async () => {
+    const source = new SyncPagingSource(serverRecords(30));
+    const question = await createPagedMatrix(source);
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    expect(focusSpy.mock.calls.length, "#1").toBe(1);
+    const row = focusedRow(0);
+    expect(row === question.visibleRows[0], "#2: the row at that position").toBe(true);
+    expect(isRowDisposed(row), "#3").toBe(false);
+    expect(row.getQuestionByName("col1").value, "#4").toBe("v1");
+    vi.advanceTimersByTime(100);
+    expect(focusSpy.mock.calls.length, "#5: once").toBe(1);
+  });
+  test("[P] a deferred source: a row of the short window is focused while the refill is pending", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    expect(focusSpy.mock.calls.length, "#1").toBe(1);
+    const row = focusedRow(0);
+    expect(row === question.visibleRows[0], "#2").toBe(true);
+    expect(row.getQuestionByName("col1").value, "#3").toBe("v1");
+    expect(question.visibleRows.length, "#4: the short window").toBe(9);
+    source.settleAll();
+  });
+  test("[R] a deferred source: the rebuilt row at that position is focused after the refill", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    const shortRow = focusedRow(0);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.length, "#1: the refill is in flight").toBe(1);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(question.visibleRows.length, "#2: the page is full again").toBe(10);
+    expect(focusSpy.mock.calls.length, "#3: not before the rows are rendered").toBe(1);
+    vi.advanceTimersByTime(10);
+    expect(focusSpy.mock.calls.length, "#4: focused again").toBe(2);
+    const row = focusedRow(1);
+    expect(row === question.visibleRows[0], "#5: the rebuilt row").toBe(true);
+    expect(row !== shortRow, "#6: not the row of the short window").toBe(true);
+    expect(isRowDisposed(row), "#7: not a disposed row").toBe(false);
+    expect(row.getQuestionByName("col1").value, "#8").toBe("v1");
+  });
+  test("[R] the last row of a page: the clamped position after the refill", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[9]);
+    vi.advanceTimersByTime(10);
+    expect(focusedRow(0).getQuestionByName("col1").value, "#1: the new last row of the short window").toBe("v8");
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    vi.advanceTimersByTime(10);
+    expect(focusSpy.mock.calls.length, "#2").toBe(2);
+    expect(focusedRow(1).getQuestionByName("col1").value, "#3: position 9 is filled again").toBe("v10");
+  });
+  test("[R] the stored position is dropped when the refill is rejected", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.length, "#1: the refill is in flight").toBe(1);
+    source.pending[0].fail(new Error("boom"));
+    await flush(REFILL_TURNS);
+    vi.advanceTimersByTime(100);
+    expect(focusSpy.mock.calls.length, "#2: focused once").toBe(1);
+    expect(question.visibleRows.length, "#3: the short window stays").toBe(9);
+    // A later read of the same page is not a refill of that removal.
+    source.auto = true;
+    question.refreshView();
+    await flush(REFILL_TURNS);
+    vi.advanceTimersByTime(100);
+    expect(focusSpy.mock.calls.length, "#4").toBe(1);
+  });
+  test("[R] the stored position is dropped when the page changes in between", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.length, "#1: the refill is in flight").toBe(1);
+    question.nextPage();
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    vi.advanceTimersByTime(100);
+    expect(question.pageIndex, "#2").toBe(1);
+    expect(focusSpy.mock.calls.length, "#3: focused once").toBe(1);
+  });
+  test("[R] the stored position is dropped when the focus has left the question", async () => {
+    const { question, source } = await createDeferred();
+    question.removeRowUI(question.visibleRows[0]);
+    vi.advanceTimersByTime(10);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.length, "#1: the refill is in flight").toBe(1);
+    const outside = document.createElement("input");
+    document.body.appendChild(outside);
+    outside.focus();
+    expect(document.activeElement === outside, "#2").toBe(true);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    vi.advanceTimersByTime(100);
+    expect(focusSpy.mock.calls.length, "#3: focused once").toBe(1);
+    expect(document.activeElement === outside, "#4").toBe(true);
+    outside.remove();
+  });
+  test("[R] panel: the remove button at that position is focused again after the refill", async () => {
+    const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
+    try {
+      const source = new FakeServerSource(serverRecords(30));
+      const { question } = await createPanel(source, { panelsPerPage: 10 });
+      source.auto = false;
+      question.removePanelUI(question.panels[0]);
+      expect(focusElementSpy.mock.calls.length, "#1: focused at once, as before").toBe(1);
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(source.pending.length, "#2: the refill is in flight").toBe(1);
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(question.panels.length, "#3").toBe(10);
+      expect(focusElementSpy.mock.calls.length, "#4: focused again after the rebuild").toBe(2);
+      const target: any = focusElementSpy.mock.calls[1][0];
+      expect(typeof target, "#5: resolved when the focus runs").toBe("function");
+      expect(focusElementSpy.mock.calls[1][1], "#6: after the render timeout").toBe(true);
+    } finally {
+      focusElementSpy.mockRestore();
+    }
   });
 });

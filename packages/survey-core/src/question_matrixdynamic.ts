@@ -216,6 +216,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.isDataLoading = isLoading;
   }
   onDataSourceError(error: any, operation: DynamicDataOperation): void {
+    if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
     const survey: any = this.survey;
     if (!!survey && !!survey.dynamicDataError) {
       survey.dynamicDataError(this, operation, error);
@@ -282,6 +283,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     if (change.type === "pageChanged") {
+      if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
       // The rendered table is the page: nothing else changed, the rows themselves are untouched.
       this.syncPagingState();
       this.resetRenderedTable();
@@ -305,6 +307,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (isRemote) {
       // The window the read committed is the new value; setLoadedRecords rebuilds the rows.
       this.setLoadedRecords();
+      this.focusActionCellAfterRead();
     } else {
       this.rebuildRowsFromDataList();
     }
@@ -1301,13 +1304,34 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const nextRow = nextIndex > -1 ? this.visibleRows[nextIndex] : undefined;
       setTimeout(() => {
-        if (nextRow) {
-          this.renderedTable.focusActionCell(nextRow, this.getActionCellIndex(nextRow));
-        } else {
-          this.focusAddBUtton();
-        }
+        this.focusActionCellOrAddButton(nextRow);
       }, 10);
+      /* A remote page that is read again after the removal is rebuilt when the read commits, and the
+         row focused above goes with it: the position is focused once more after that rebuild. A
+         refill that completed inside the removal needs nothing - the rows above are already the
+         rebuilt ones. */
+      if (!!this.remoteValue)this.remoteValue.keepFocusIndexForRead(value);
     });
+  }
+  private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
+    if (row) {
+      this.renderedTable.focusActionCell(row, this.getActionCellIndex(row));
+    } else {
+      this.focusAddBUtton();
+    }
+  }
+  // After the rows were rebuilt from a committed read; through the same timeout as removeRowUI: the
+  // rows have to be rendered before they can be focused.
+  private focusActionCellAfterRead(): void {
+    if (!this.remoteValue) return;
+    const index = this.remoteValue.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
+    if (index < 0) return;
+    setTimeout(() => {
+      if (this.isDisposed) return;
+      const rows = this.visibleRows;
+      const rowIndex = Math.min(index, rows.length - 1);
+      this.focusActionCellOrAddButton(rowIndex > -1 ? rows[rowIndex] : undefined);
+    }, 10);
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;

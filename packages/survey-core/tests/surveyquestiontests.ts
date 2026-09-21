@@ -5765,6 +5765,23 @@ describe("Survey_Questions", () => {
     expect(maxJson.inputType).toBe("number");
     expect(maxJson.textUpdateMode).toBe("onBlur");
   });
+  test("QuestionTextModel placeholder property is visible for number inputType, Bug#11874", () => {
+    const prop = Serializer.findProperty("text", "placeholder");
+    const q1 = new QuestionTextModel("q1");
+    expect(prop.isVisible("", q1), "text").toBe(true);
+    q1.inputType = "number";
+    expect(prop.isVisible("", q1), "number").toBe(true);
+    q1.placeholder = "Enter a number";
+    expect(q1.renderedPlaceholder, "number rendered placeholder").toBe("Enter a number");
+    q1.inputType = "email";
+    expect(prop.isVisible("", q1), "email").toBe(true);
+    q1.inputType = "range";
+    expect(prop.isVisible("", q1), "range").toBe(false);
+    q1.inputType = "date";
+    expect(prop.isVisible("", q1), "date").toBe(false);
+    q1.inputType = "color";
+    expect(prop.isVisible("", q1), "color").toBe(false);
+  });
   test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", () => {
     const q1 = new QuestionTextModel("q1");
     expect(q1.inputStyle).toEqual({ width: "" });

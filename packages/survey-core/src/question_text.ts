@@ -1127,7 +1127,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.isTextInput;
+        return obj.isTextInput || obj.inputType === "number";
       },
     },
     {

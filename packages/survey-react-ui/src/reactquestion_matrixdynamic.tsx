@@ -4,6 +4,7 @@ import { SurveyQuestionMatrixDropdownBase } from "./reactquestion_matrixdropdown
 import { QuestionMatrixDynamicModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
+import { PageHeightLock } from "./components/dynamic-data/page-height-lock";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
@@ -15,6 +16,32 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
   handleOnRowAddClick(event: any) {
     this.matrix.addRowUI();
+  }
+  // Prototype (#11873): only the creation is gated on pageSize, an existing lock has to see
+  // pageSize going back to 0 to release itself.
+  private pageHeightLock: PageHeightLock | undefined;
+  private updatePageHeightLock(): void {
+    if (!this.pageHeightLock && this.matrix.pageSize > 0) {
+      this.pageHeightLock = new PageHeightLock(this.matrix);
+    }
+    if (this.pageHeightLock) {
+      this.pageHeightLock.update(this.control);
+    }
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.updatePageHeightLock();
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.updatePageHeightLock();
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if (this.pageHeightLock) {
+      this.pageHeightLock.dispose();
+    }
+    this.pageHeightLock = undefined;
   }
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;

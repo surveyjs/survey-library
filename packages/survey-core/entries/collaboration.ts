@@ -24,6 +24,15 @@ export {
   PRESENCE_FIRST_COLOR_SLOT,
 } from "../src/plugins/collaboration/presence/presence-envelope";
 
+export type { IHistoryEntry } from "../src/plugins/collaboration/history/history-entry";
+export {
+  describeValue,
+  historyAuthorLabel,
+  MAX_HISTORY_TEXT,
+} from "../src/plugins/collaboration/history/history-entry";
+export { HistoryController } from "../src/plugins/collaboration/history/history-controller";
+export type { IHistoryOptions } from "../src/plugins/collaboration/history/history-controller";
+
 import { checkLibraryVersion } from "survey-core";
 export let Version: string;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

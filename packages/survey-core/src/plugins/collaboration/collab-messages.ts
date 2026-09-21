@@ -17,6 +17,10 @@ export interface IValueMessage {
   type: "value";
   key: string;
   value: any;
+  // Who made the edit, stamped by the relay on its way out. It takes no part in
+  // convergence - last write wins per key, whoever wrote it - and is not part of
+  // the state either: the only thing that reads it is a client's session history.
+  from?: string;
 }
 
 // Bootstrap: the authoritative full state plus the full roster, in one frame.

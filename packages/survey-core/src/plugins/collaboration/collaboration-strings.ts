@@ -17,6 +17,12 @@ export const collaborationStrings: { [index: string]: string } = {
   collabValueTooLarge: "This answer is too large to share with the other participants.",
   collabInfoRow: "{0}: {1}",
   collabMoreParticipants: "+{0}",
+  collabHistory: "Changes",
+  collabHistoryTooltip: "What changed while you were here",
+  collabHistoryEmpty: "Nothing has changed yet",
+  collabHistoryYou: "You",
+  collabHistoryUnknown: "Someone",
+  collabHistoryCleared: "cleared",
 };
 
 // Replaces or extends the strings. Unknown keys are kept, so a host can add its own.

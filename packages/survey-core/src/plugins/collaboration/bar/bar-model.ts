@@ -13,6 +13,9 @@ export interface ICollabBarOptions {
   maxVisibleParticipants?: number;
   // A participant chip was clicked.
   onParticipantClick?: (clientId: string) => void;
+  // The Changes button was pressed. The bar owns the button, not the panel behind
+  // it, so it only reports the press and is told the new state through setHistoryOpen.
+  onHistoryToggle?: () => void;
 }
 
 // The layout element id, so the plugin can remove exactly what it added.
@@ -41,6 +44,7 @@ export class CollabBarModel {
   private spacerAction: Action;
   private inviteAction: Action;
   private overflowAction: Action;
+  private historyAction: Action;
   private participantActions: Array<Action> = [];
   private participants: Array<IPresencePeer> = [];
   private lastSignature = "";
@@ -76,6 +80,11 @@ export class CollabBarModel {
       title: "",
     });
     this.overflowAction = this.createOverflowAction();
+    this.historyAction = this.createHistoryAction();
+    // Stated explicitly for the same reason Invite states it below: an action's own
+    // appearance replaces the container's predefined one, so anything that should read
+    // as a button rather than as a flat label has to say so itself.
+    this.historyAction.appearance = { style: "brand", mode: "primary", size: "x-small" };
     this.inviteAction = new Action({
       id: "collab-invite",
       title: getCollabString("collabInvite"),
@@ -134,6 +143,14 @@ export class CollabBarModel {
     this.rebuild();
   }
 
+  // Whether the changes panel is open. The button is the only place that says so,
+  // so it carries the pressed state rather than the panel growing a header of its own
+  // that repeats it.
+  public setHistoryOpen(open: boolean): void {
+    this.historyAction.active = open;
+    this.historyAction.ariaExpanded = open;
+  }
+
   public dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -170,6 +187,8 @@ export class CollabBarModel {
     this.participantActions.forEach((action) => actions.push(action));
     actions.push(this.overflowAction);
     actions.push(this.inviteAction);
+    // Last, at the far right edge of the strip.
+    actions.push(this.historyAction);
     this.container.setItems(actions, false);
   }
 
@@ -215,6 +234,18 @@ export class CollabBarModel {
     }, {
       items: [],
       onSelectionChanged: (item: IAction) => item.action?.(),
+    });
+  }
+
+  // A plain button, not a dropdown: what it opens is a panel beside the form, and a
+  // library popup can only render one line of text per row.
+  private createHistoryAction(): Action {
+    return new Action({
+      id: "collab-history",
+      title: getCollabString("collabHistory"),
+      tooltip: getCollabString("collabHistoryTooltip"),
+      css: "sv-collab-bar__history",
+      action: () => this.options.onHistoryToggle?.(),
     });
   }
 

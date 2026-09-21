@@ -4,7 +4,7 @@ import { PresenceCapture } from "./presence-capture";
 import { PresenceOverlay } from "./presence-overlay";
 import { PresenceRoster } from "./presence-roster";
 import { SurveyPresenceScene } from "./survey-scene";
-import { goToParticipant } from "./presence-navigate";
+import { goToParticipant, scrollToQuestion } from "./presence-navigate";
 import { IPresenceState } from "./presence-state";
 
 export * from "./presence-envelope";
@@ -14,6 +14,7 @@ export { PresenceCapture } from "./presence-capture";
 export { PresenceOverlay } from "./presence-overlay";
 export { PresenceRoster } from "./presence-roster";
 export { SurveyPresenceScene } from "./survey-scene";
+export { goToParticipant, scrollToQuestion } from "./presence-navigate";
 
 // Tracks the local participant's presence and renders everyone else's.
 //
@@ -78,6 +79,10 @@ export class PresenceController {
 
   public goToParticipant(clientId: string): void {
     goToParticipant(this.survey, this.scene, this.roster.peers.get(clientId));
+  }
+
+  public goToQuestion(questionName: string): void {
+    scrollToQuestion(this.survey, this.scene, questionName);
   }
 
   public dispose(): void {

@@ -7,27 +7,23 @@ import { SurveyPresenceScene } from "./survey-scene";
 // question appears a frame or two later, so a single lookup would miss it.
 const SCROLL_POLL_MS = 600;
 
-// Jumps the local survey to where a peer is: the page of the question they are
-// focused on - or, lacking focus, the question their cursor is anchored to - and
-// scrolls it into view.
+// Brings a question into view: switches to its page if needed, forces it to render
+// under lazy rendering, and scrolls to it.
 //
 // It deliberately does NOT call survey.focusQuestion: that would steal the local
-// caret and, worse, broadcast OUR focus as if we had clicked there.
-export function goToParticipant(
+// caret and, worse, broadcast OUR focus as if we had clicked there. `fallbackPage`
+// is the page to show when the question itself cannot be resolved.
+export function scrollToQuestion(
   survey: SurveyModel,
   scene: SurveyPresenceScene,
-  peer: IPresencePeer | undefined
+  questionName: string | null,
+  fallbackPage?: string | null
 ): void {
-  if (!peer) return;
-  const state = peer.state as IPresenceState;
-  if (!state) return;
-
-  const targetName = state.focus || (!!state.cur ? state.cur.n : null);
-  const question = !!targetName ? survey.getQuestionByName(targetName) : null;
+  const question = !!questionName ? survey.getQuestionByName(questionName) : null;
 
   const page = !!question
     ? (question.page as PageModel)
-    : (state.page ? resolvePage(survey, state.page) : null);
+    : (fallbackPage ? resolvePage(survey, fallbackPage) : null);
   if (!!page && survey.currentPage !== page) survey.currentPage = page;
   if (!question) return;
 
@@ -40,7 +36,7 @@ export function goToParticipant(
 
   const started = Date.now();
   const tryScroll = () => {
-    const node = scene.findQuestionNode(targetName as string);
+    const node = scene.findQuestionNode(questionName as string);
     if (!!node) {
       node.scrollIntoView({ block: "center", behavior: "smooth" });
       return;
@@ -51,4 +47,17 @@ export function goToParticipant(
     else setTimeout(tryScroll, 16);
   };
   tryScroll();
+}
+
+// Jumps the local survey to where a peer is: the page of the question they are
+// focused on - or, lacking focus, the question their cursor is anchored to.
+export function goToParticipant(
+  survey: SurveyModel,
+  scene: SurveyPresenceScene,
+  peer: IPresencePeer | undefined
+): void {
+  if (!peer) return;
+  const state = peer.state as IPresenceState;
+  if (!state) return;
+  scrollToQuestion(survey, scene, state.focus || (!!state.cur ? state.cur.n : null), state.page);
 }

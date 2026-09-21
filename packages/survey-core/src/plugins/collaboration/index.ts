@@ -5,6 +5,8 @@ import { PresenceController } from "./presence/index";
 import { IPresencePeer, IPresencePeerEntry } from "./presence/presence-envelope";
 import { emptyPresenceState, IPresenceState } from "./presence/presence-state";
 import { CollabBarModel, ICollabBarOptions } from "./bar/bar-model";
+import { HistoryController, IHistoryOptions } from "./history/history-controller";
+import { HistoryPanel } from "./history/history-panel";
 
 export * from "./collab-messages";
 export * from "./presence/index";
@@ -15,10 +17,15 @@ export { commitFocusedEditor, QUESTION_ROOT_SELECTOR } from "./data/editor-commi
 export { CollabBarModel, COLLAB_BAR_ELEMENT_ID } from "./bar/bar-model";
 export type { ICollabBarOptions, CollabBarStatus } from "./bar/bar-model";
 export { getCollabString, setCollabStrings, collaborationStrings } from "./collaboration-strings";
+export { HistoryController, DEFAULT_HISTORY_LIMIT, DEFAULT_HISTORY_MERGE_MS } from "./history/history-controller";
+export type { IHistoryOptions } from "./history/history-controller";
+export { describeValue, historyAuthorLabel, MAX_HISTORY_TEXT } from "./history/history-entry";
+export { HistoryPanel } from "./history/history-panel";
+export type { IHistoryEntry } from "./history/history-entry";
 
 export type CollabStatus = "connecting" | "connected" | "closed";
 
-export interface ICollaborationOptions extends IValueSyncOptions, ICollabBarOptions {
+export interface ICollaborationOptions extends IValueSyncOptions, ICollabBarOptions, IHistoryOptions {
   // Outgoing presence is coalesced to at most one message per this many ms. The window
   // lives here rather than in the host because it is a property of how chatty presence
   // is, not of the transport - and because a host coalescing an event that already
@@ -26,6 +33,9 @@ export interface ICollaborationOptions extends IValueSyncOptions, ICollabBarOpti
   presenceCoalesceMs?: number;
   presence?: boolean;
   bar?: boolean;
+  // Who changed what, for the lifetime of this connection. Costs nothing on the wire:
+  // the attribution rides on `from`, which the relay already stamps.
+  history?: boolean;
 }
 
 const NO_PEERS: ReadonlyMap<string, IPresencePeer> = new Map<string, IPresencePeer>();
@@ -54,9 +64,14 @@ export class CollaborationPlugin {
   public data: ValueSyncController;
   public presence: PresenceController;
   public bar: CollabBarModel;
+  public history: HistoryController;
+  public historyPanel: HistoryPanel;
 
   private statusValue: CollabStatus = "connecting";
   private disposed = false;
+  // The author of the value currently being applied, so that the local changes it
+  // cascades into are recorded as theirs rather than as ours.
+  private applyingFrom: IPresencePeer | null = null;
   private inertPeersChanged: EventBase<any, { peers: ReadonlyMap<string, IPresencePeer> }>;
 
   // Presence coalescing: a window opens on the first change and the state is read when
@@ -67,8 +82,21 @@ export class CollaborationPlugin {
   private presencePendingRetain = false;
 
   constructor(public survey: SurveyModel, private options: ICollaborationOptions = {}) {
+    if (options.history !== false) {
+      this.history = new HistoryController(survey, options);
+      this.historyPanel = new HistoryPanel(survey, {
+        onEntryClick: (entry) => this.goToQuestion(entry.questionName),
+      });
+      this.history.onChanged.add((_sender, o) => this.historyPanel.setEntries(o.entries));
+    }
+
     this.data = new ValueSyncController(survey, options);
     this.data.onMessage.add((_sender, o) => {
+      // A local change raised WHILE a peer value is being applied is a cascade of that
+      // edit (clearInvisibleValues, a trigger), so the history credits its author. The
+      // message still goes out as ours: the peers have to hear the cascade.
+      this.history?.record(
+        this.data.isApplying ? this.applyingFrom : null, o.message.key, o.message.value);
       this.onEvent.fire(this, { message: o.message });
     });
 
@@ -84,6 +112,7 @@ export class CollaborationPlugin {
         // being looked up by name later - which is where the creator version could
         // silently end up with an empty strip when registration order changed.
         onParticipantClick: options.onParticipantClick ?? ((clientId) => this.goToParticipant(clientId)),
+        onHistoryToggle: options.onHistoryToggle ?? (() => this.toggleHistory()),
       });
       this.bar.setStatus(this.statusValue);
       if (!!this.presence) {
@@ -126,6 +155,23 @@ export class CollaborationPlugin {
     this.presence?.goToParticipant(clientId);
   }
 
+  // Opens or closes the changes panel and keeps the button showing which it is.
+  public toggleHistory(): void {
+    if (!this.historyPanel) return;
+    this.historyPanel.setEntries(this.history.entries);
+    // Toggled on its own line: inside `this.bar?.setHistoryOpen(...)` the optional
+    // call would swallow the argument too, and a host with the strip switched off
+    // would find that toggling the panel did nothing at all.
+    const open = this.historyPanel.toggle();
+    this.bar?.setHistoryOpen(open);
+  }
+
+  // Scrolls to a question without focusing it - focusing would steal the local caret
+  // and broadcast OUR focus, which is the same reason goToParticipant does not.
+  public goToQuestion(questionName: string): void {
+    this.presence?.goToQuestion(questionName);
+  }
+
   public apply(message: ICollabIn): void {
     if (!message || typeof message !== "object") return;
     switch(message.type) {
@@ -133,6 +179,9 @@ export class CollaborationPlugin {
         // Receiving init is proof of a live connection; no separate "connected" frame.
         this.setStatus("connected");
         this.data.applyState(message);
+        // init is authoritative and replaces the whole state, so anything recorded
+        // before it describes a state that no longer exists.
+        this.history?.clear();
         // A bootstrap replaces the roster wholesale: anyone missing from it has gone,
         // and a stale entry would leave a ring on a question nobody is in.
         this.presence?.setPeers(message.peers ?? []);
@@ -141,9 +190,21 @@ export class CollaborationPlugin {
         // to move - and we would be missing from every late joiner bootstrap.
         if (!!this.presence)this.schedulePresence(true);
         break;
-      case "value":
-        this.data.applyValue(message);
+      case "value": {
+        // Resolved before the apply, so a cascade recorded during it is credited to
+        // the peer that caused it.
+        const author = this.authorOf(message.from);
+        this.applyingFrom = author;
+        try {
+          this.data.applyValue(message);
+        } finally {
+          this.applyingFrom = null;
+        }
+        // After the apply, so the entry can describe the question by its NEW display
+        // value - and so the cause sits above its cascade in a newest-first list.
+        this.history?.record(author, message.key, message.value);
         break;
+      }
       case "peer":
         this.presence?.upsertPeer(message.peer as IPresencePeerEntry);
         break;
@@ -168,11 +229,22 @@ export class CollaborationPlugin {
     this.bar?.dispose();
     this.presence?.dispose();
     this.data.dispose();
+    this.history?.dispose();
+    this.historyPanel?.dispose();
   }
 
   private setStatus(status: CollabStatus): void {
     this.statusValue = status;
     this.bar?.setStatus(status);
+  }
+
+  // The peer an incoming edit belongs to. Never null, because null is reserved for
+  // our own edits: an author the roster cannot resolve - a relay that stamps no
+  // `from`, a peer with presence switched off - becomes a nameless one on slot 0,
+  // the theme's reserved "unknown user" grey.
+  private authorOf(clientId: string | undefined): IPresencePeer {
+    const peer = !!clientId ? this.presence?.peers.get(clientId) : undefined;
+    return peer ?? { clientId: clientId ?? "", name: "", colorIndex: 0, state: null };
   }
 
   private schedulePresence(retain: boolean): void {

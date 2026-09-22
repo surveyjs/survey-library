@@ -1,8 +1,8 @@
-import { EventBase, Question, SurveyModel } from "survey-core";
+import { EventBase, Question, QuestionMatrixDynamicModel, settings, SurveyModel } from "survey-core";
 import { IInitMessage, IValueMessage } from "../collab-messages";
-import { decodeValueKey, encodeValueKey, MAX_VALUE_CHARS } from "./value-record";
-import { normalizeOutgoingValue, syncMatrixRowCount } from "./value-normalize";
-import { commitFocusedEditor } from "./editor-commit";
+import { decodeValueKey, encodeValueKey, IDecodedKey, MAX_VALUE_CHARS } from "./value-record";
+import { normalizeOutgoingValue, syncMatrixRowCount, withNestedMatrixRows } from "./value-normalize";
+import { commitFocusedEditor, ICommittedEditor, writeEditorText } from "./editor-commit";
 
 export interface IValueSyncOptions {
   maxValueChars?: number;
@@ -34,9 +34,22 @@ export class ValueSyncController {
     // fire AFTER rowCount is updated, so the pad below yields an array of the new length.
     // A non-empty row also writes the value, producing a second identical emit; harmless
     // (last write wins, and the same-value setValue on peers is a no-op), so no dedup.
+    // The event carries the matrix itself, which inside a composite is NOT a key of
+    // survey.data: its rows live in the composite's object. Emitting its own value name
+    // would put a phantom top-level key on the wire and leave the row unshared, so the
+    // owner of the key is what gets emitted - and the new row is padded into its object,
+    // because an empty row writes no value to pad.
     const onRowsChanged = (_sender: SurveyModel, options: { question: Question }) => {
-      const name = options.question.getValueName();
-      this.emitName(name, this.survey.getValue(name));
+      const matrix = options.question;
+      const owner = matrix.rootParentQuestion;
+      const name = owner.getValueName();
+      // Silence rather than a phantom key: a container that does not reach survey.data
+      // under this name (a single-question custom type nests its content WITHOUT a
+      // parentQuestion, so the climb stops short) would otherwise put a key nobody can
+      // interpret into the room, and it would outlive the session in the stored state.
+      if (this.survey.getQuestionByValueName(name) !== owner) return;
+      const value = this.survey.getValue(name);
+      this.emitName(name, owner === matrix ? value : withNestedMatrixRows(value, matrix as QuestionMatrixDynamicModel));
     };
     survey.onValueChanged.add(onLocalChange);
     survey.onMatrixRowAdded.add(onRowsChanged);
@@ -64,7 +77,7 @@ export class ValueSyncController {
     if (!message || typeof message.key !== "string") return;
     const decoded = decodeValueKey(message.key);
     // Before the guard is armed, so the rescued text goes out as the local edit it is.
-    commitFocusedEditor(this.survey);
+    const rescued = commitFocusedEditor(this.survey);
     this.applyingName = decoded.name;
     try {
       if (decoded.isComment) {
@@ -76,6 +89,32 @@ export class ValueSyncController {
     } finally {
       this.applyingName = null;
     }
+    // A composite travels as ONE object under one key, so a peer editing any other field
+    // of it replaces the field being typed in as well - the rescue above would be undone
+    // and the text lost on the very client that authored it. Putting it back keeps the
+    // caret's own field with the typist and everything else with the peer.
+    //
+    // Outside the guard on purpose: the peers have just been told the composite has no
+    // such text, so this has to reach them as the local edit it is.
+    if (this.isSilentlyOverwritten(rescued, decoded, message.value)) {
+      writeEditorText(rescued as ICommittedEditor);
+    }
+  }
+
+  // Did applying the peer's value wipe the field under the caret WITHOUT the peer saying
+  // anything about it?
+  //
+  // Only a composite can do that: its whole object rides one key, so a peer answering any
+  // other field of it arrives carrying nothing for this one. A question whose own key was
+  // answered is a plain conflict, and there the peer still wins exactly as before - which
+  // is also what keeps two people typing in one field from bouncing a value between them
+  // for ever, each restoring their own text on every message.
+  private isSilentlyOverwritten(rescued: ICommittedEditor | null, decoded: IDecodedKey, value: any): boolean {
+    if (!rescued || rescued.topName !== decoded.name) return false;
+    if (rescued.question === rescued.top || rescued.question.isDisposed) return false;
+    if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+    const suffix = rescued.field === "comment" ? settings.commentSuffix : "";
+    return !(rescued.question.getValueName() + suffix in value);
   }
 
   // The authoritative full state. Emits NOTHING, and erases keys the state does not

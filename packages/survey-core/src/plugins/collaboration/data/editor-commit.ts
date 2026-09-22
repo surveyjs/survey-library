@@ -4,8 +4,14 @@ import { DomDocumentHelper, Question, SurveyModel } from "survey-core";
 // contract the collaboration feature relies on, so it lives in one place.
 export const QUESTION_ROOT_SELECTOR = "[data-name]";
 
-interface IFocusedEditor {
+export interface ICommittedEditor {
   question: Question;
+  // The TOP-LEVEL question this editor belongs to. For an editor inside a composite it
+  // is the composite, not the nested question; for a plain question it IS the question.
+  top: Question;
+  // The key that question's value travels under - its value name, not its `name`: the
+  // two differ as soon as a schema sets valueName, and the wire speaks value names.
+  topName: string;
   // The answer itself, or the question's comment / "Other" box.
   field: "value" | "comment";
   text: string;
@@ -26,7 +32,7 @@ interface IFocusedEditor {
 // walk for every composite type, so this still finds editors inside composite components,
 // matrix rows (the real visibleRows cells, not the column templates), dynamic panels and
 // multipletext items, without this module knowing anything about the schema.
-function findFocusedEditor(survey: SurveyModel): IFocusedEditor | null {
+function findFocusedEditor(survey: SurveyModel): ICommittedEditor | null {
   const doc = DomDocumentHelper.getDocument();
   if (!doc) return null;
   const el = doc.activeElement as HTMLInputElement | HTMLTextAreaElement;
@@ -48,10 +54,10 @@ function findFocusedEditor(survey: SurveyModel): IFocusedEditor | null {
   for (let i = 0; i < candidates.length; i++) {
     const question: any = candidates[i];
     if (question.inputId === el.id && question.isDescendantOf("textbase")) {
-      return { question: candidates[i], field: "value", text: el.value };
+      return { question: candidates[i], top: top, topName: top.getValueName(), field: "value", text: el.value };
     }
     if (question.commentId === el.id) {
-      return { question: candidates[i], field: "comment", text: el.value };
+      return { question: candidates[i], top: top, topName: top.getValueName(), field: "comment", text: el.value };
     }
   }
   return null;
@@ -79,15 +85,29 @@ function findFocusedEditor(survey: SurveyModel): IFocusedEditor | null {
 // inputValue rather than value where it exists: its setter unmasks masked input and
 // coerces the question's value type, so handing it raw DOM text is safe. Types without it
 // (comment) take the text as their value.
-export function commitFocusedEditor(survey: SurveyModel): void {
+// Returns what it committed, so the caller can tell whether the rescued text shares a
+// key with the message it is about to apply - see writeEditorText.
+export function commitFocusedEditor(survey: SurveyModel): ICommittedEditor | null {
   const focused = findFocusedEditor(survey);
-  if (!focused) return;
-  const editor: any = focused.question;
-  if (focused.field === "comment") {
-    if (editor.comment !== focused.text) editor.comment = focused.text;
+  if (!focused) return null;
+  writeEditorText(focused);
+  return focused;
+}
+
+// Writes a committed editor's text back into the model.
+//
+// Called twice for one remote message when the peer's value lands on the SAME key the
+// rescued text belongs to, which only happens inside a composite: its whole object
+// travels under one key, so applying the peer's object replaces the field being typed.
+// Re-writing the text afterwards is what keeps the caret's own field with the person
+// typing it, while every other field of the composite comes from the peer.
+export function writeEditorText(committed: ICommittedEditor): void {
+  const editor: any = committed.question;
+  if (committed.field === "comment") {
+    if (editor.comment !== committed.text) editor.comment = committed.text;
   } else if ("inputValue" in editor) {
-    if (editor.inputValue !== focused.text) editor.inputValue = focused.text;
-  } else if (editor.value !== focused.text) {
-    editor.value = focused.text;
+    if (editor.inputValue !== committed.text) editor.inputValue = committed.text;
+  } else if (editor.value !== committed.text) {
+    editor.value = committed.text;
   }
 }

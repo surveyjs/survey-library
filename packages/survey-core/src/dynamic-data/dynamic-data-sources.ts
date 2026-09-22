@@ -6,7 +6,9 @@ import { IDynamicDataSource } from "./dynamic-data-interfaces";
 // be replaced - never mutated - on every write, so that Question.setNewValue sees a different array
 // and onValueChanged.oldValue stays correct. Every write therefore builds a new array.
 export class ArrayDynamicDataSource implements IDynamicDataSource {
-  constructor(private getArray: () => Array<any> | undefined, private setArray: (arr: Array<any>) => void) { }
+  // getCount: the length getArray() would return, for a getter that composes the array on the fly.
+  constructor(private getArray: () => Array<any> | undefined, private setArray: (arr: Array<any>) => void,
+    private getCount?: () => number) { }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
   private batchHasWrites: boolean = false;
@@ -50,6 +52,11 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   }
   public read(): Array<any> {
     return this.batchDepth > 0 ? this.batchArray : this.readCore();
+  }
+  // Inside a batch the answer is the batch array: the batch is building the array the count describes.
+  public count(): number {
+    if (this.batchDepth > 0) return this.batchArray.length;
+    return !!this.getCount ? this.getCount() : this.readCore().length;
   }
   private readCore(): Array<any> {
     const res = this.getArray();

@@ -7,6 +7,8 @@
 //   const source = {
 //     // Required. Every record, in source order. The list calls it only when readRange is absent.
 //     read: () => fetch("/api/orders").then(r => r.json()),
+//     // Optional. The number of records read() would return; only for a read() that composes them.
+//     count: () => state.rows.length,
 //     // Optional. Present -> the question shows one page at a time and never holds more than it.
 //     // "take" is the question's rowsPerPage / panelsPerPage; 0 means "everything".
 //     readRange: (skip, take) =>
@@ -54,6 +56,9 @@ export interface IDynamicDataSource {
   // Always required: every record, in source order. Synchronous for in-memory sources, a Promise
   // for a remote one.
   read(): Array<any> | Promise<Array<any>>;
+  // Present -> the number of records read() would return, without composing them. Only a source
+  // whose read() builds the array on the fly needs it; the list reads .length otherwise.
+  count?(): number;
   // Present -> the source pages itself: the list reads windows and never calls read();
   // absent -> the list calls read() once and pages locally.
   readRange?(skip: number, take: number): IDynamicDataReadResult | Promise<IDynamicDataReadResult>;

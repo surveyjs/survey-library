@@ -1840,3 +1840,81 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.hasPendingRead, "#6").toBeFalsy();
   });
 });
+
+describe("DynamicDataList: the read-through count comes from the source", () => {
+  // Built the way createReadThroughDataList builds one, over a getter that counts its calls.
+  function createCountingList(recordCount: number, withCount: boolean = true): { list: DynamicDataList, source: ArrayDynamicDataSource, reads: () => number } {
+    let local: Array<any> = [];
+    for (let i = 0; i < recordCount; i++) local.push({ a: i });
+    let readCount = 0;
+    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
+      (arr: Array<any>): void => { local = arr; },
+      withCount ? (): number => local.length : undefined);
+    const list = new DynamicDataList(source);
+    list.isReadThrough = true;
+    list.isViewFrozenOnEdit = true;
+    list.load();
+    return { list: list, source: source, reads: (): number => readCount };
+  }
+  test("count, loadedCount, the identity conversions and visibleCount do not read the records", () => {
+    const { list, reads } = createCountingList(10);
+    list.getVisibleIndexes();
+    const start = reads();
+    expect(list.count, "#1").toBe(10);
+    expect(list.loadedCount, "#2").toBe(10);
+    expect(list.createdIndexToIndex(3), "#3").toBe(3);
+    expect(list.indexToCreatedIndex(3), "#4").toBe(3);
+    expect(list.visibleCount, "#5").toBe(10);
+    expect(reads() - start, "#6: no read").toBe(0);
+  });
+  test("getRecord and getValue read the records once, an out-of-range index not at all", () => {
+    const { list, reads } = createCountingList(10);
+    list.getVisibleIndexes();
+    let start = reads();
+    expect(list.getRecord(5), "#1").toEqual({ a: 5 });
+    expect(reads() - start, "#2: one read").toBe(1);
+    start = reads();
+    expect(list.getRecord(10), "#3").toBeUndefined();
+    expect(reads() - start, "#4: the guard is answered by count()").toBe(0);
+    start = reads();
+    expect(list.getValue(5, "a"), "#5").toBe(5);
+    expect(reads() - start, "#6: one read").toBe(1);
+  });
+  test("an array source without count(): the list falls back to the length of the records", () => {
+    // Unreachable in production: every ArrayDynamicDataSource implements count(), and the list reads
+    // through only an ArrayDynamicDataSource. The branch exists because the capability is optional.
+    let local: Array<any> = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    let readCount = 0;
+    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
+      (arr: Array<any>): void => { local = arr; });
+    (<any>source).count = undefined;
+    const list = new DynamicDataList(source);
+    list.isReadThrough = true;
+    list.load();
+    let start = readCount;
+    expect(list.count, "#1").toBe(3);
+    expect(readCount - start, "#2: one read per access").toBe(1);
+    start = readCount;
+    expect(list.count, "#3").toBe(3);
+    expect(readCount - start, "#4").toBe(1);
+  });
+  test("inside a batch count() follows the array being built", () => {
+    const { list } = createCountingList(2);
+    const counts: Array<number> = [];
+    list.batch((): void => {
+      list.add({ a: 10 });
+      counts.push(list.count);
+      list.add({ a: 11 });
+      counts.push(list.count);
+    });
+    expect(counts, "#1").toEqual([3, 4]);
+    expect(list.count, "#2").toBe(4);
+  });
+  test("setRecordVisible reports whether the flag changed", () => {
+    const list = createList([{ a: 1 }, { a: 2 }]);
+    expect(list.setRecordVisible(0, false), "#1: a change").toBe(true);
+    expect(list.setRecordVisible(0, false), "#2: a repeat").toBe(false);
+    expect(list.setRecordVisible(0, true), "#3: back").toBe(true);
+    expect(list.setRecordVisible(5, false), "#4: out of range").toBe(false);
+  });
+});

@@ -24,7 +24,8 @@ import { setOldTheme } from "./oldTheme";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+import { Helpers } from "../src/helpers";
 describe("Survey_QuestionMatrixDynamic", () => {
   test("Matrixdropdown cells tests", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -11495,4 +11496,71 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     matrix.refreshView();
     expect(matrix.filterExpression, "#3: and it is not re-pushed").toBe("");
   });
+});
+
+describe("matrixdynamic: the padded records are not composed for their count", () => {
+  /* Helpers.getUnbindValue and not getListRecords: the clone per padded record is the cost, and it
+     is also what a composition inside getRecord/getValue pays - a spy on getListRecords would count
+     calls, not the work each of them does. One composition of the padding is ROW_COUNT clones. */
+  const ROW_COUNT = 20;
+  function createSurvey(): SurveyModel {
+    return new SurveyModel({
+      elements: [
+        { type: "text", name: "unrelated" },
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: ROW_COUNT,
+          columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }, { name: "col3", cellType: "text" }]
+        }
+      ]
+    });
+  }
+  test("an unrelated value change, reading rowIndex and building the rendered table compose at most once", () => {
+    const survey = createSurvey();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    expect(rows.length, "#1").toBe(ROW_COUNT);
+    const spy = vi.spyOn(Helpers, "getUnbindValue");
+    try {
+      survey.setValue("unrelated", 1);
+      const onSetValue = spy.mock.calls.length;
+      expect(onSetValue, "#2: an unrelated setValue, was " + onSetValue).toBeLessThanOrEqual(ROW_COUNT);
+      spy.mockClear();
+      rows.forEach(row => row.rowIndex);
+      const onRowIndex = spy.mock.calls.length;
+      expect(onRowIndex, "#3: rowIndex of every row, was " + onRowIndex).toBe(0);
+      spy.mockClear();
+      matrix.resetRenderedTable();
+      const table = matrix.renderedTable;
+      expect(table.rows.length > 0, "#4").toBe(true);
+      const onTable = spy.mock.calls.length;
+      expect(onTable, "#5: the rendered table, was " + onTable).toBeLessThanOrEqual(ROW_COUNT);
+      spy.mockClear();
+      rows[0].getQuestionByColumnName("col1").value = "a";
+      spy.mockClear();
+      survey.setValue("unrelated", 2);
+      const afterEdit = spy.mock.calls.length;
+      expect(afterEdit, "#6: an unrelated setValue after a cell edit, was " + afterEdit).toBeLessThanOrEqual(ROW_COUNT);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
+  });
+});
+
+test("matrixdynamic: getRowValue inside a list batch sees the write that is being batched", () => {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "a", cellType: "text" }] }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ a: 1 }, { a: 2 }];
+  expect(matrix.visibleRows.length, "#1").toBe(2);
+  const list = matrix.getDataList();
+  let inside: any;
+  list.batch((): void => {
+    list.setRecord(0, { a: 3 });
+    inside = matrix.getRowValue(0);
+  });
+  expect(inside, "#2: read through the batch array").toEqual({ a: 3 });
+  expect(matrix.getRowValue(0), "#3: committed").toEqual({ a: 3 });
+  expect(matrix.value[0], "#4").toEqual({ a: 3 });
 });

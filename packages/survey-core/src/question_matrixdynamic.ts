@@ -149,7 +149,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.dataListValue) {
       this.dataListValue = createReadThroughDataList(this,
         (): Array<any> => this.getListRecords(),
-        (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+        (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); },
+        (): number => this.getListRecordCount());
       this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onDataSourceError(error, operation);
       };
@@ -203,7 +204,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   createValueDataSource(): IDynamicDataSource {
     return new ArrayDynamicDataSource((): Array<any> => this.getListRecords(),
-      (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); });
+      (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); },
+      (): number => this.getListRecordCount());
   }
   clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
@@ -516,6 +518,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     if (Array.isArray(val) && val.length >= this.rowCount) return val;
     return this.padRecords(Array.isArray(val) ? val.slice() : []);
+  }
+  // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
+  private getListRecordCount(): number {
+    const val = this.value;
+    const len = Array.isArray(val) ? val.length : 0;
+    return Math.max(len, this.rowCount);
+  }
+  /* One record of getListRecords() without composing the array: a padded record is the default row
+     value. For the loops over the records by index. A data source's window is the list's to answer,
+     and so is a write in progress: inside list.batch() the writes sit in the source's batch array and
+     question.value does not have them yet. */
+  private getListRecordAt(index: number, defaultRecord?: any): any {
+    if (this.isRemoteData || this.dataList.isWriting) return this.dataList.getRecord(index);
+    const val = this.value;
+    if (Array.isArray(val) && index < val.length) return index < 0 ? undefined : val[index];
+    if (index < 0 || index >= this.rowCount) return undefined;
+    return defaultRecord !== undefined ? defaultRecord : this.getUnbindValue(this.getDefaultRowValue(false) || {});
   }
   // Appends default row values until the array holds rowCount records; the array is modified.
   private padRecords(records: Array<any>): Array<any> {
@@ -1701,7 +1720,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const position = list.indexToCreatedIndex(i);
       const row = position > -1 && position < rows.length ? rows[position] : undefined;
       if (!row) {
-        res.push(list.getRecord(i));
+        res.push(this.getListRecordAt(i));
       } else if (row.isVisible && !row.isEmpty) {
         res.push(row.filteredValue);
       }
@@ -1713,6 +1732,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
     const res = new Array<IMatrixDuplicationEntry>();
+    // Only read, never stored: every padded record can share one default record.
+    const defaultRecord = this.getDefaultRowValue(false) || {};
     // The records that are loaded: a duplicate on a page the matrix has not read is the server's
     // business, and a key constraint over a whole remote table cannot be checked here.
     for (let i = 0; i < list.loadedCount; i++) {
@@ -1721,7 +1742,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (!!row) {
         res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
       } else {
-        const record = list.getRecord(i);
+        const record = this.getListRecordAt(i, defaultRecord);
         res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
       }
     }
@@ -1798,7 +1819,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // index is a created position; the record it addresses is what the list holds.
   protected getRowValueByIndexCore(index: number): any {
-    const res = this.dataList.getRecord(this.dataList.createdIndexToIndex(index));
+    const res = this.getListRecordAt(this.dataList.createdIndexToIndex(index));
     return res !== undefined ? res : null;
   }
   /* The one seam between an object and its record. getItemIndex stays the row position - it is
@@ -1854,13 +1875,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const rows = this.generatedVisibleRows;
     if (!Array.isArray(rows)) return;
     const list = this.dataList;
+    let isChanged = false;
     for (let i = 0; i < rows.length; i++) {
       const index = list.createdIndexToIndex(i);
-      if (index > -1) {
-        list.setRecordVisible(index, rows[i].isVisible);
+      if (index > -1 && list.setRecordVisible(index, rows[i].isVisible)) {
+        isChanged = true;
       }
     }
-    this.syncPagingState();
+    // A run that changed no flag changed no page count.
+    if (isChanged) {
+      this.syncPagingState();
+    }
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();

@@ -10683,3 +10683,44 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(question.filterExpression, "#3: and it is not re-pushed").toBe("");
   });
 });
+
+describe("paneldynamic: one paging sync per condition run", () => {
+  test("a condition run that changes no panel visibility renders the page zero times, one that does renders it once", () => {
+    const records: Array<any> = [];
+    for (let i = 1; i <= 30; i++) records.push({ id: i });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "outside" },
+        { type: "text", name: "unrelated" },
+        {
+          type: "paneldynamic", name: "panel", panelsPerPage: 10,
+          templateVisibleIf: "{outside} empty or {panel.id} > {outside}",
+          templateElements: [{ type: "text", name: "id" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.value = records;
+    expect(question.visiblePanelCount, "#1").toBe(30);
+    expect(question.pageCount, "#2").toBe(3);
+    const spy = vi.spyOn(<any>question, "updateRenderedPanels");
+    survey.setValue("unrelated", 1);
+    const onUnrelated = spy.mock.calls.length;
+    expect(onUnrelated, "#3: an unrelated change, was " + onUnrelated).toBe(0);
+    spy.mockClear();
+    survey.setValue("outside", 5);
+    const onFive = spy.mock.calls.length;
+    expect(onFive, "#4: panels 1-5 hidden, was " + onFive).toBe(1);
+    expect(question.visiblePanelCount, "#5").toBe(25);
+    expect(question.pageCount, "#6").toBe(3);
+    spy.mockClear();
+    survey.setValue("outside", 11);
+    const onEleven = spy.mock.calls.length;
+    expect(onEleven, "#7: six more hidden, was " + onEleven).toBe(1);
+    expect(question.visiblePanelCount, "#8").toBe(19);
+    expect(question.pageCount, "#9").toBe(2);
+    expect(question.renderedPanels.length, "#10").toBe(10);
+    expect(question.renderedPanels[0].getQuestionByName("id").value, "#11").toBe(12);
+    spy.mockRestore();
+  });
+});

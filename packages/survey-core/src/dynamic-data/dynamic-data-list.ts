@@ -132,6 +132,12 @@ export class DynamicDataList {
   private set records(val: Array<any>) {
     this.windowRecords = val;
   }
+  // The length of records without reading them: a read-through source may compose the array on every
+  // read (the matrix pads its value up to rowCount), and most readers want only the count.
+  private get recordCount(): number {
+    if (this.useReadThrough && typeof this._source.count === "function") return this._source.count();
+    return this.records.length;
+  }
   public get source(): IDynamicDataSource {
     return this._source;
   }
@@ -258,7 +264,7 @@ export class DynamicDataList {
   }
 
   public get count(): number {
-    return this._total !== undefined ? this._total : this.records.length;
+    return this._total !== undefined ? this._total : this.recordCount;
   }
   public get filteredCount(): number {
     if (this.isSourceFiltering || !this._filter) return this.count;
@@ -268,7 +274,7 @@ export class DynamicDataList {
     return this.getVisibleIndexes().length;
   }
   public get loadedCount(): number {
-    return this.records.length;
+    return this.recordCount;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
     this.checkWindowIsWholeStorage("ensureCount");
@@ -288,7 +294,8 @@ export class DynamicDataList {
   }
 
   public getRecord(index: number): any {
-    if (index < 0 || index >= this.records.length) return undefined;
+    // The guard is the count; the element needs the array, read once.
+    if (index < 0 || index >= this.recordCount) return undefined;
     return this.records[index];
   }
   public getValue(index: number, field: string): any {
@@ -322,7 +329,7 @@ export class DynamicDataList {
   // themselves have to reach the storage: the stored value changes although the record does not.
   public setRecord(index: number, record: any, force: boolean = false): boolean {
     const oldRecord = this.getRecord(index);
-    if (index < 0 || index >= this.records.length) return false;
+    if (index < 0 || index >= this.recordCount) return false;
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
@@ -342,10 +349,10 @@ export class DynamicDataList {
     // The count the write produces. It is taken before the write: with a read-through source the
     // records only change when the push assigns the owner storage, and the membership has to carry
     // the count it will have then, not the one it still has.
-    const countAfter = this.records.length + 1;
+    const countAfter = this.recordCount + 1;
     const at = index === undefined || index === null
-      ? this.records.length
-      : Math.max(0, Math.min(index, this.records.length));
+      ? this.recordCount
+      : Math.max(0, Math.min(index, this.recordCount));
     this.alignHiddenFlags();
     this.writeDepth++;
     if (!this.useReadThrough) {
@@ -370,12 +377,12 @@ export class DynamicDataList {
   public addAtCreatedIndex(record: any, createdIndex: number): number {
     const created = this.getCreatedIndexes();
     const position = Math.max(0, Math.min(createdIndex, created.length));
-    const at = position < created.length ? created[position] : this.records.length;
+    const at = position < created.length ? created[position] : this.recordCount;
     return this.add(record, at, position);
   }
   public remove(index: number): void {
-    if (index < 0 || index >= this.records.length) return;
-    const countAfter = this.records.length - 1;
+    if (index < 0 || index >= this.recordCount) return;
+    const countAfter = this.recordCount - 1;
     this.alignHiddenFlags();
     this.writeDepth++;
     if (!this.useReadThrough) {
@@ -407,12 +414,12 @@ export class DynamicDataList {
      recomputes it from pageIndex and the two agree only by coincidence. */
   private refillWindowAfterRemove(): void {
     if (!this.hasReadRange || !this.isLoaded || this._pageSize <= 0) return;
-    const length = this.records.length;
+    const length = this.recordCount;
     if (length >= this._pageSize || this._windowOffset + length >= this.count) return;
     this.refresh();
   }
   public move(fromIndex: number, toIndex: number): void {
-    const length = this.records.length;
+    const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
     this.alignHiddenFlags();
@@ -437,18 +444,20 @@ export class DynamicDataList {
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
-  public setRecordVisible(index: number, visible: boolean): void {
-    if (index < 0 || index >= this.records.length) return;
+  // Returns whether the flag changed: the owner syncs its page state only then.
+  public setRecordVisible(index: number, visible: boolean): boolean {
+    if (index < 0 || index >= this.recordCount) return false;
     const isHidden = !visible;
-    if (!!this.hiddenFlags[index] === isHidden) return;
+    if (!!this.hiddenFlags[index] === isHidden) return false;
     this.alignHiddenFlags();
     this.hiddenFlags[index] = isHidden;
     this.hiddenCount += isHidden ? 1 : -1;
     this.resetViews();
     this.clampPageIndexAfterChange();
+    return true;
   }
   public isRecordVisible(index: number): boolean {
-    if (index < 0 || index >= this.records.length) return false;
+    if (index < 0 || index >= this.recordCount) return false;
     return !this.hiddenFlags[index];
   }
   /* Drops the cached views. The list detects a record array that changed outside it by its length;
@@ -475,7 +484,7 @@ export class DynamicDataList {
       this.refreezeMembership();
       return;
     }
-    const count = this.records.length;
+    const count = this.recordCount;
     if (count === this.frozenRecordCount) return;
     let created = this.frozenCreatedIndexes;
     if (count < this.frozenRecordCount) {
@@ -507,7 +516,7 @@ export class DynamicDataList {
   }
   public createdIndexToIndex(createdIndex: number): number {
     if (!this.hasView) {
-      return createdIndex >= 0 && createdIndex < this.records.length ? createdIndex : -1;
+      return createdIndex >= 0 && createdIndex < this.recordCount ? createdIndex : -1;
     }
     const indexes = this.getCreatedIndexes();
     if (createdIndex < 0 || createdIndex >= indexes.length) return -1;
@@ -515,7 +524,7 @@ export class DynamicDataList {
   }
   public indexToCreatedIndex(index: number): number {
     if (!this.hasView) {
-      return index >= 0 && index < this.records.length ? index : -1;
+      return index >= 0 && index < this.recordCount ? index : -1;
     }
     return this.getCreatedIndexes().indexOf(index);
   }
@@ -711,7 +720,7 @@ export class DynamicDataList {
   // The flags are spliced in step with the records, so they must stay a dense array of the same
   // length: a shorter one would shift the wrong entries.
   private alignHiddenFlags(): void {
-    const length = this.records.length;
+    const length = this.recordCount;
     if (this.hiddenFlags.length === length) return;
     while(this.hiddenFlags.length < length) {
       this.hiddenFlags.push(false);
@@ -725,7 +734,7 @@ export class DynamicDataList {
     }
   }
   private ensureViews(): void {
-    const recordCount = this.records.length;
+    const recordCount = this.recordCount;
     if (!!this.visibleIndexes) {
       if (this.viewsRecordCount === recordCount) return;
       // The records changed outside the list: the cached views describe a window that is gone. A
@@ -738,9 +747,11 @@ export class DynamicDataList {
     if (!created) {
       const needFilter = !!this.filterRunner && !this.isSourceFiltering;
       const needSort = this._sort.length > 0 && !this.isSourceSorting;
-      created = needFilter ? applyFilter(this.records, this.filterRunner) : createIndexes(recordCount);
+      // Read once, and only when the filter or the sort has to look at the records.
+      const records = needFilter || needSort ? this.records : undefined;
+      created = needFilter ? applyFilter(records, this.filterRunner) : createIndexes(recordCount);
       if (needSort) {
-        created = applySort(this.records, this._sort, this.getFields(), created);
+        created = applySort(records, this._sort, this.getFields(), created);
       }
       this.freezeCreatedIndexes(created, recordCount);
     }
@@ -827,7 +838,7 @@ export class DynamicDataList {
       created.splice(toPosition, 0, moved);
     }
     this.frozenCreatedIndexes = created;
-    this.frozenRecordCount = this.records.length;
+    this.frozenRecordCount = this.recordCount;
   }
   private resetWindow(): void {
     this.records = [];
@@ -865,7 +876,7 @@ export class DynamicDataList {
     return true;
   }
   private checkWindowIsWholeStorage(operation: string): void {
-    if (this.hasReadRange && this.count > this.records.length) {
+    if (this.hasReadRange && this.count > this.recordCount) {
       throw new Error("DynamicDataList." + operation + " requires the whole storage to be loaded.");
     }
   }
@@ -1085,8 +1096,8 @@ export class DynamicDataList {
    mutating the one the owner currently holds - read through on demand, so that a value assigned
    outside the list is seen at once. */
 export function createReadThroughDataList(owner: IDynamicDataOwner, getArray: () => Array<any>,
-  setArray: (arr: Array<any>) => void): DynamicDataList {
-  const list = new DynamicDataList(new ArrayDynamicDataSource(getArray, setArray), owner);
+  setArray: (arr: Array<any>) => void, getCount?: () => number): DynamicDataList {
+  const list = new DynamicDataList(new ArrayDynamicDataSource(getArray, setArray, getCount), owner);
   list.isReadThrough = true;
   // The owner materializes one object per record in the view: its membership may not change under
   // an edit that is being made through one of those objects.

@@ -558,6 +558,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // panel became hidden or because the records were replaced: those points call this.
   private syncPagingState(): void {
     if (!this.dataListValue) return;
+    if (this.isPagingSyncSuspended) {
+      this.isPagingSyncPending = true;
+      return;
+    }
     this.paging.syncState();
     /* renderedPanels is a stored array and not a computed one: panels that appeared, disappeared or
        became hidden change which of them are on the page, and the panels are created before the
@@ -956,7 +960,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.currentPanel) {
       this.currentPanel = panel;
     }
-    this.updateRenderedPanels();
+    this.requestRenderedPanelsUpdate();
   }
   private onPanelRemoved(panel: PanelModel): void {
     let index = this.onPanelRemovedCore(panel);
@@ -965,7 +969,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       if (index >= visPanels.length) index = visPanels.length - 1;
       this.currentPanel = index >= 0 ? visPanels[index] : null;
     }
-    this.updateRenderedPanels();
+    this.requestRenderedPanelsUpdate();
   }
   private onPanelRemovedCore(panel: PanelModel): number {
     const visPanels = this.visiblePanelsCore;
@@ -2587,21 +2591,58 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
     const prevIsValueChangingInternally = this.isValueChangingInternally;
     this.isValueChangingInternally = true;
+    /* Every paging sync and page render requested during the run - by the "visible" handler, which
+       fires inside panel.runCondition(), by the call below, by anything a condition reaches - collapses
+       into one after the loop. A re-entrant run leaves it to the outer one. */
+    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
+    this.isPagingSyncSuspended = true;
+    const isPanelsCore = panels === this.panelsCore;
     let visibleIndex = 0;
-    for (var i = 0; i < panels.length; i++) {
-      const panel = panels[i];
-      const panelName = settings.expressionVariables.panel;
-      const newProps = Helpers.createCopy(properties);
-      newProps[panelName] = panel;
-      panel.runCondition(newProps);
-      // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
-      // "visible" property-changed handler, this only keeps the list flags in step with it.
-      this.setPanelRecordVisible(panel);
-      if (panel.isVisible) {
-        visibleIndex++;
+    try {
+      for (var i = 0; i < panels.length; i++) {
+        const panel = panels[i];
+        const panelName = settings.expressionVariables.panel;
+        const newProps = Helpers.createCopy(properties);
+        newProps[panelName] = panel;
+        panel.runCondition(newProps);
+        // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
+        // "visible" property-changed handler, this only keeps the list flags in step with it.
+        this.setPanelRecordVisible(panel, isPanelsCore ? i : undefined);
+        if (panel.isVisible) {
+          visibleIndex++;
+        }
       }
+    } finally {
+      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
     }
     this.isValueChangingInternally = prevIsValueChangingInternally;
+    if (!this.isPagingSyncSuspended) {
+      this.runDeferredPagingSync();
+    }
+  }
+  private isPagingSyncSuspended: boolean;
+  private isPagingSyncPending: boolean;
+  private isRenderedPanelsUpdatePending: boolean;
+  private runDeferredPagingSync(): void {
+    const syncPaging = this.isPagingSyncPending;
+    const render = this.isRenderedPanelsUpdatePending;
+    this.isPagingSyncPending = false;
+    this.isRenderedPanelsUpdatePending = false;
+    if (syncPaging && !!this.dataListValue) {
+      this.paging.syncState();
+    }
+    // One render for both requests: the paging sync renders the page only when paging is active.
+    if ((render || syncPaging && !!this.dataListValue && this.isPagingActive) && !this.isUpdatingRenderedPanels) {
+      this.updateRenderedPanels();
+    }
+  }
+  // The render a panel that appeared or disappeared asks for; deferred while conditions run.
+  private requestRenderedPanelsUpdate(): void {
+    if (this.isPagingSyncSuspended) {
+      this.isRenderedPanelsUpdatePending = true;
+      return;
+    }
+    this.updateRenderedPanels();
   }
   private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {
@@ -2894,12 +2935,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   // The list flag follows panel.visible - the same flag visiblePanels is built from - so that
   // dataList.visibleCount and visiblePanelCount can never disagree.
-  private setPanelRecordVisible(panel: PanelModel): void {
-    const position = this.panelsCore.indexOf(panel);
+  // position: the panel's position in panelsCore when the caller knows it.
+  private setPanelRecordVisible(panel: PanelModel, position?: number): void {
+    if (position === undefined) {
+      position = this.panelsCore.indexOf(panel);
+    }
     if (position < 0) return;
     const index = this.getRecordIndexByPanelIndex(position);
     if (index < 0) return;
-    this.dataList.setRecordVisible(index, panel.visible);
+    if (!this.dataList.setRecordVisible(index, panel.visible)) return;
     // A hidden panel takes no page slot: the page count follows panel visibility, and the list does
     // not announce it.
     this.syncPagingState();

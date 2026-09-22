@@ -10,6 +10,7 @@ import { LintMetadata } from "./metadata";
 export * from "./types";
 export * from "./reasons";
 export { renderFindings } from "./renderer";
+export { applyFix } from "./fix-apply";
 
 export function getRules(): Array<ILintRuleInfo> {
   return allRules.map(rule => ({ id: rule.id, defaultSeverity: rule.defaultSeverity }));

@@ -4,12 +4,15 @@ import { referenceUnknownRule } from "./reference-unknown";
 import { referenceSelfRule } from "./reference-self";
 import { nameDuplicateRule } from "./name-duplicate";
 import { nameShadowingRule } from "./name-shadowing";
+import { nameReservedRule } from "./name-reserved";
 import { variableCollisionRule } from "./variable-collision";
 import { variablePresetRule } from "./variable-preset";
 import { elementUnknownTypeRule } from "./element-unknown-type";
 import { propertyUnknownRule } from "./property-unknown";
 import { propertyDeadRule } from "./property-dead";
 import { propertyInvalidValueRule } from "./property-invalid-value";
+import { propertyNotAnArrayRule } from "./property-not-an-array";
+import { propertyRequiredRule } from "./property-required";
 import { expressionUnknownFunctionRule } from "./expression-unknown-function";
 import { cycleCalculatedValueRule } from "./cycle-calculated-value";
 import { cycleTriggerRule } from "./cycle-trigger";
@@ -40,12 +43,15 @@ export const allRules: Array<ILintRule> = [
   referenceSelfRule,
   nameDuplicateRule,
   nameShadowingRule,
+  nameReservedRule,
   variableCollisionRule,
   variablePresetRule,
   elementUnknownTypeRule,
   propertyUnknownRule,
   propertyDeadRule,
   propertyInvalidValueRule,
+  propertyNotAnArrayRule,
+  propertyRequiredRule,
   expressionUnknownFunctionRule,
   cycleCalculatedValueRule,
   cycleTriggerRule,

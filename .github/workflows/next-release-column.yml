@@ -2,7 +2,7 @@ name: Add release column to project board
 
 # ---------------------------------------------------------------------------
 # Automates the creation of a new "Status" column on the
-# "Current Sprint Progress" GitHub Project (v2) board whenever a new
+# "Current sprint progress" GitHub Project (v2) board whenever a new
 # release is published.
 #
 # The new column is named after the *next* patch version relative to
@@ -30,7 +30,7 @@ on:
         description: 'Title of the target GitHub Project'
         required: false
         type: string
-        default: 'Current Sprint Progress'
+        default: 'Current sprint progress'
       after_column:
         description: 'Name of the existing column to insert the new column after'
         required: false
@@ -58,7 +58,7 @@ jobs:
       RELEASED_TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
 
       # Project and anchor column names, with the requested defaults.
-      PROJECT_TITLE: ${{ inputs.project_title || 'Current Sprint Progress' }}
+      PROJECT_TITLE: ${{ inputs.project_title || 'Current sprint progress' }}
       AFTER_COLUMN: ${{ inputs.after_column || 'Waiting for...' }}
 
     steps:

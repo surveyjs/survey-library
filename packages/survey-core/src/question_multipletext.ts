@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -462,6 +462,9 @@ export class QuestionMultipleTextModel extends Question
   }
   public getType(): string {
     return "multipletext";
+  }
+  public getValueType(): QuestionValueType {
+    return "object";
   }
   protected getAllChildren(): Base[] {
     return [

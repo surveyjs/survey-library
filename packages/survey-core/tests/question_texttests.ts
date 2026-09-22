@@ -1064,4 +1064,175 @@ describe("question text tests", () => {
     // So we just test that the method exists and returns correctly
     expect(q["shouldPreventNumberInput"], "shouldPreventNumberInput method exists").toBeTruthy();
   });
+  describe("Clear min/max on changing inputType, Bug#11875", () => {
+    const createQuestion = (json: any): QuestionTextModel => {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: "text", name: "q1" }, json)] });
+      return <QuestionTextModel>survey.getQuestionByName("q1");
+    };
+    const expectMinMaxCleared = (q: QuestionTextModel, info: string) => {
+      expect(q.min, info + ": min").toBeUndefined();
+      expect(q.max, info + ": max").toBeUndefined();
+      expect(q.step, info + ": step").toBeUndefined();
+      expect(q.minValueExpression, info + ": minValueExpression").toBeFalsy();
+      expect(q.maxValueExpression, info + ": maxValueExpression").toBeFalsy();
+      // date types fall back to settings.minDate/maxDate
+      expect(q.renderedMin, info + ": renderedMin").toBe(q.isDateInputType && !!settings.minDate ? settings.minDate : undefined);
+      expect(q.renderedMax, info + ": renderedMax").toBe(q.isDateInputType ? settings.maxDate : undefined);
+      const json = q.toJSON();
+      expect(json.min, info + ": min in JSON").toBeUndefined();
+      expect(json.max, info + ": max in JSON").toBeUndefined();
+      expect(json.step, info + ": step in JSON").toBeUndefined();
+      expect(json.minValueExpression, info + ": minValueExpression in JSON").toBeUndefined();
+      expect(json.maxValueExpression, info + ": maxValueExpression in JSON").toBeUndefined();
+    };
+    test("number -> text/tel/email/password/url/color clears min/max/step and expressions", () => {
+      ["text", "tel", "email", "password", "url", "color"].forEach(inputType => {
+        const q = createQuestion({ inputType: "number", min: 1, max: 10, step: 2 });
+        expect(q.renderedMin, "renderedMin is set for number").toBe(1);
+        expect(q.renderedMax, "renderedMax is set for number").toBe(10);
+        q.inputType = inputType;
+        expectMinMaxCleared(q, "number -> " + inputType);
+        const q2 = createQuestion({ inputType: "number", minValueExpression: "1 + 1", maxValueExpression: "5 * 2" });
+        expect(q2.renderedMin, "renderedMin from expression").toBe(2);
+        expect(q2.renderedMax, "renderedMax from expression").toBe(10);
+        q2.inputType = inputType;
+        expectMinMaxCleared(q2, "number (expressions) -> " + inputType);
+      });
+    });
+    test("date -> text/tel clears min/max and expressions", () => {
+      ["text", "tel"].forEach(inputType => {
+        const q = createQuestion({ inputType: "date", min: "2020-01-01", max: "2020-12-31", minValueExpression: "today(-1)", maxValueExpression: "today(1)" });
+        expect(q.renderedMin, "renderedMin is set for date").toBeTruthy();
+        q.inputType = inputType;
+        expectMinMaxCleared(q, "date -> " + inputType);
+      });
+    });
+    test("date/time types <-> number/range clears min/max and expressions", () => {
+      const q = createQuestion({ inputType: "date", min: "2020-01-01", max: "2020-12-31", minValueExpression: "today(-1)", maxValueExpression: "today(1)" });
+      q.inputType = "number";
+      expectMinMaxCleared(q, "date -> number");
+      ["datetime-local", "month", "week", "time"].forEach(inputType => {
+        const q1 = createQuestion({ inputType: inputType, min: "2020-01-01", max: "2020-12-31", maxValueExpression: "today(1)" });
+        q1.inputType = "range";
+        expectMinMaxCleared(q1, inputType + " -> range");
+        const q2 = createQuestion({ inputType: "number", min: 1, max: 10, step: 2, minValueExpression: "1 + 1" });
+        q2.inputType = inputType;
+        expectMinMaxCleared(q2, "number -> " + inputType);
+      });
+    });
+    test("date/time types with different value formats clear min/max", () => {
+      const q = createQuestion({ inputType: "date", min: "2020-01-01", max: "2020-12-31", minValueExpression: "today(-1)" });
+      q.inputType = "datetime-local";
+      expectMinMaxCleared(q, "date -> datetime-local");
+      const q2 = createQuestion({ inputType: "month", min: "2020-01", max: "2020-12" });
+      q2.inputType = "week";
+      expectMinMaxCleared(q2, "month -> week");
+      const q3 = createQuestion({ inputType: "time", min: "10:00", max: "18:00" });
+      q3.inputType = "date";
+      expectMinMaxCleared(q3, "time -> date");
+    });
+    test("number <-> range keeps min/max/step and expressions", () => {
+      const q = createQuestion({ inputType: "number", min: 1, max: 10, step: 2 });
+      q.inputType = "range";
+      expect(q.min, "number -> range: min").toBe(1);
+      expect(q.max, "number -> range: max").toBe(10);
+      expect(q.step, "number -> range: step").toBe(2);
+      expect(q.renderedMin, "number -> range: renderedMin").toBe(1);
+      expect(q.renderedMax, "number -> range: renderedMax").toBe(10);
+      q.inputType = "number";
+      expect(q.min, "range -> number: min").toBe(1);
+      expect(q.max, "range -> number: max").toBe(10);
+      expect(q.step, "range -> number: step").toBe(2);
+      const q2 = createQuestion({ inputType: "range", minValueExpression: "1 + 1", maxValueExpression: "5 * 2" });
+      q2.inputType = "number";
+      expect(q2.minValueExpression, "range -> number: minValueExpression").toBe("1 + 1");
+      expect(q2.maxValueExpression, "range -> number: maxValueExpression").toBe("5 * 2");
+      expect(q2.renderedMin, "range -> number: renderedMin").toBe(2);
+      expect(q2.renderedMax, "range -> number: renderedMax").toBe(10);
+    });
+    test("Setting the same inputType keeps min/max", () => {
+      const q = createQuestion({ inputType: "date", min: "2020-01-01", max: "2020-12-31", maxValueExpression: "today(1)" });
+      q.inputType = "date";
+      expect(q.min, "min is kept").toBe("2020-01-01");
+      expect(q.max, "max is kept").toBe("2020-12-31");
+      expect(q.maxValueExpression, "maxValueExpression is kept").toBe("today(1)");
+    });
+    test("Load tel/text with min/max from JSON (copied from a number question)", () => {
+      ["tel", "text"].forEach(inputType => {
+        const q = createQuestion({ inputType: inputType, min: 1, max: 10, step: 2 });
+        expectMinMaxCleared(q, "load " + inputType);
+        const q2 = createQuestion({ min: 1, max: 10, step: 2, inputType: inputType });
+        expectMinMaxCleared(q2, "load " + inputType + ", inputType after min/max");
+      });
+      const q3 = createQuestion({ min: 1, max: 10 });
+      expectMinMaxCleared(q3, "load without inputType");
+    });
+    test("min/maxValueExpression are kept for the text inputType on loading and on changing inputType from text", () => {
+      const q = createQuestion({ minValueExpression: "1 + 1", maxValueExpression: "5 * 2" });
+      expect(q.minValueExpression, "text: minValueExpression is loaded").toBe("1 + 1");
+      expect(q.maxValueExpression, "text: maxValueExpression is loaded").toBe("5 * 2");
+      expect(q.renderedMin, "text: renderedMin").toBe(2);
+      expect(q.renderedMax, "text: renderedMax").toBe(10);
+      q.inputType = "number";
+      expect(q.minValueExpression, "text -> number: minValueExpression is kept").toBe("1 + 1");
+      expect(q.maxValueExpression, "text -> number: maxValueExpression is kept").toBe("5 * 2");
+      expect(q.renderedMin, "text -> number: renderedMin").toBe(2);
+      expect(q.renderedMax, "text -> number: renderedMax").toBe(10);
+    });
+    test("Load JSON converted between date/time and number inputTypes clears min/max in the wrong format", () => {
+      ["number", "range"].forEach(inputType => {
+        const q = createQuestion({ inputType: inputType, min: "2020-01-01", max: "2020-12-31" });
+        expect(q.min, inputType + ": date min is cleared").toBeUndefined();
+        expect(q.max, inputType + ": date max is cleared").toBeUndefined();
+        expect(q.renderedMin, inputType + ": renderedMin").toBeUndefined();
+        expect(q.renderedMax, inputType + ": renderedMax").toBeUndefined();
+        const q2 = createQuestion({ inputType: inputType, min: "10:00", max: "5" });
+        expect(q2.min, inputType + ": time min is cleared").toBeUndefined();
+        expect(q2.max, inputType + ": numeric string max is kept").toBe("5");
+      });
+      ["date", "datetime-local", "month", "week", "time"].forEach(inputType => {
+        const q = createQuestion({ inputType: inputType, min: 1, max: "10" });
+        expect(q.min, inputType + ": numeric min is cleared").toBeUndefined();
+        expect(q.max, inputType + ": numeric max is cleared").toBeUndefined();
+        expect(q.toJSON().min, inputType + ": min is not serialized").toBeUndefined();
+        expect(q.toJSON().max, inputType + ": max is not serialized").toBeUndefined();
+      });
+      const q3 = createQuestion({ inputType: "time", min: "10:00", max: "18:00" });
+      expect(q3.min, "time: min is kept").toBe("10:00");
+      expect(q3.max, "time: max is kept").toBe("18:00");
+      const q4 = createQuestion({ inputType: "week", min: "2020-W01", max: "2020-W10" });
+      expect(q4.min, "week: min is kept").toBe("2020-W01");
+      expect(q4.max, "week: max is kept").toBe("2020-W10");
+    });
+    test("Load unknown inputType from JSON keeps min/max", () => {
+      const q = createQuestion({ inputType: "numeric", min: 1, max: 10 });
+      expect(q.min, "min is kept").toBe(1);
+      expect(q.max, "max is kept").toBe(10);
+    });
+    test("Load min/max inputTypes from JSON keeps min/max", () => {
+      const q = createQuestion({ min: 1, max: 10, step: 2, inputType: "number" });
+      expect(q.min, "number: min").toBe(1);
+      expect(q.max, "number: max").toBe(10);
+      expect(q.step, "number: step").toBe(2);
+      const q2 = createQuestion({ inputType: "date", minValueExpression: "today(-1)", max: "2030-12-31" });
+      expect(q2.minValueExpression, "date: minValueExpression").toBe("today(-1)");
+      expect(q2.max, "date: max").toBe("2030-12-31");
+      expect(q2.renderedMin, "date: renderedMin").toBeTruthy();
+      expect(q2.renderedMax, "date: renderedMax").toBe("2030-12-31");
+    });
+    test("Copy a number question via JSON and change inputType to tel", () => {
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "number", min: 1, max: 10 }] });
+      const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+      const copy = new QuestionTextModel("q2");
+      copy.fromJSON(q1.toJSON());
+      copy.name = "q2";
+      survey.pages[0].addElement(copy);
+      expect(copy.min, "copy has min").toBe(1);
+      expect(copy.max, "copy has max").toBe(10);
+      copy.inputType = "tel";
+      expectMinMaxCleared(copy, "copy -> tel");
+      expect(q1.min, "original min is kept").toBe(1);
+      expect(q1.max, "original max is kept").toBe(10);
+    });
+  });
 });

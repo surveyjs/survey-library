@@ -2896,7 +2896,8 @@ describe("Dropdown question", () => {
 
     expect(question.value, "custom value selected on Tab").toBe(customValue);
     expect(question.selectedItem?.value, "selectedItem is custom").toBe(customValue);
-    expect(list.visibleItems.length).toBe(4);
+    expect(list.filterString).toBe(customValue);
+    expect(list.visibleItems.length).toBe(1);
     expect(list.visibleItems[0].id).toBe(customValue);
   });
 
@@ -2928,7 +2929,8 @@ describe("Dropdown question", () => {
 
     expect(question.value, "custom value selected on blur").toBe(customValue);
     expect(question.selectedItem?.value, "selectedItem is custom").toBe(customValue);
-    expect(list.visibleItems.length).toBe(4);
+    expect(list.filterString).toBe(customValue);
+    expect(list.visibleItems.length).toBe(1);
     expect(list.visibleItems[0].id).toBe(customValue);
 
     settings.dropdownSaveOnOutsideClick = false;

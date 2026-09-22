@@ -57,6 +57,7 @@ import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -1695,6 +1696,9 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   @property() autoFocusFirstError: boolean;
+  @property({ defaultValue: false, onSet: (_newValue, target: SurveyModel) => {
+    target.focusedQuestionScroll.setup();
+  } }) autoCenterFocusedQuestion: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
    * @hidden
@@ -5783,6 +5787,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
+    this.focusedQuestionScroll.setup();
   }
   forceProcessResponsiveness(): void {
     if (!!this._processingResponsivenessFunc) {
@@ -5792,6 +5797,7 @@ export class SurveyModel extends SurveyElementCore
   beforeDestroySurveyElement() {
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
@@ -6232,13 +6238,21 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
-          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
+          if (htmlElement && !element.isPage && this.autoCenterFocusedQuestion) {
+            this.suspendLazyRendering();
+            this.focusedQuestionScroll.scrollIntoView(htmlElement);
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
-          });
+          } else {
+            this.suspendLazyRendering();
+            SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
+              this.releaseLazyRendering();
+              activateLazyRenderingChecks(htmlElement);
+              optOnScolledCallback && optOnScolledCallback();
+            });
+          }
         }
       }
     }
@@ -8800,6 +8814,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose(): void {
     this.unConnectEditingObj();
+    this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
@@ -8845,6 +8860,14 @@ export class SurveyModel extends SurveyElementCore
   }
   public get formScrollDisabled() {
     return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+  }
+
+  private focusedQuestionScrollValue: FocusedQuestionScrollController;
+  private get focusedQuestionScroll(): FocusedQuestionScrollController {
+    if (!this.focusedQuestionScrollValue) {
+      this.focusedQuestionScrollValue = new FocusedQuestionScrollController(this);
+    }
+    return this.focusedQuestionScrollValue;
   }
 
   public onScroll(): void {
@@ -8899,6 +8922,8 @@ function isStrCiEqual(a: string, b: string) {
 Serializer.addClass("survey", [
   {
     name: "locale",
+    // the spelling the Creator and getLocalizationJSON use for the default locale
+    acceptedValues: [settings.localization.defaultLocaleName],
     choices: () => {
       return surveyLocalization.getLocales(true);
     },

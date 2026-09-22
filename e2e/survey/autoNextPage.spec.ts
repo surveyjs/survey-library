@@ -214,5 +214,25 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe(3);
     });
+
+    test("check auto next page with rating + number key", async ({ page }) => {
+      await initSurvey(page, framework, json3);
+      await page.waitForTimeout(500);
+      await page.keyboard.press("4");
+      await page.waitForTimeout(500);
+
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult.q1).toBe(4);
+    });
+
+    test("check rating arrow keys do not auto-advance", async ({ page }) => {
+      await initSurvey(page, framework, json3);
+      await page.waitForTimeout(500);
+      await page.keyboard.press("ArrowRight");
+      await page.waitForTimeout(500);
+
+      expect(await getSurveyResult(page)).toBeUndefined();
+      await expect(page.locator("fieldset").first()).toBeVisible();
+    });
   });
 });

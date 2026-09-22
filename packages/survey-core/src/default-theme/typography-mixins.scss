@@ -1,68 +1,69 @@
+@use "./variables.scss" as *;
 @mixin sjs2--typography--large {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-basic);
   font-size: var(--sjs2-typography-font-size-large);
   line-height: var(--sjs2-typography-line-height-large);
 }
 
 @mixin sjs2--typography--large-strong {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-strong);
   font-size: var(--sjs2-typography-font-size-large);
   line-height: var(--sjs2-typography-line-height-large);
 }
 
 @mixin sjs2--typography--medium {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-basic);
   font-size: var(--sjs2-typography-font-size-medium);
   line-height: var(--sjs2-typography-line-height-medium);
 }
 
 @mixin sjs2--typography--medium-strong {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-strong);
   font-size: var(--sjs2-typography-font-size-medium);
   line-height: var(--sjs2-typography-line-height-medium);
 }
 
 @mixin sjs2--typography--default {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-basic);
   font-size: var(--sjs2-typography-font-size-default);
   line-height: var(--sjs2-typography-line-height-default);
 }
 
 @mixin sjs2--typography--default-strong {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-strong);
   font-size: var(--sjs2-typography-font-size-default);
   line-height: var(--sjs2-typography-line-height-default);
 }
 
 @mixin sjs2--typography--default-code {
-  font-family: var(--sjs2-typography-font-family-code);
+  font-family: var(--sjs2-typography-font-family-code), $font-family-fallbacks;
   font-weight: var(--sjs2-typography-font-weight-basic);
   font-size: var(--sjs2-typography-font-size-default);
   line-height: var(--sjs2-typography-line-height-default);
 }
 
 @mixin sjs2--typography--small {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-basic);
   font-size: var(--sjs2-typography-font-size-small);
   line-height: var(--sjs2-typography-line-height-small);
 }
 
 @mixin sjs2--typography--small-strong {
-  font-family: var(--sjs2-typography-font-family-text);
+  font-family: $font-family;
   font-weight: var(--sjs2-typography-font-weight-strong);
   font-size: var(--sjs2-typography-font-size-small);
   line-height: var(--sjs2-typography-line-height-small);
 }
 
 @mixin sjs2--typography--component--input--content {
-  font-family: var(--sjs2-typography-font-family-component-input-content);
+  font-family: var(--sjs2-typography-font-family-component-input-content), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-input-content);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-input-content);
@@ -70,7 +71,7 @@
 }
 
 @mixin sjs2--typography--component--label--content {
-  font-family: var(--sjs2-typography-font-family-component-label-content);
+  font-family: var(--sjs2-typography-font-family-component-label-content), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-label-content);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-label-content);
@@ -78,7 +79,7 @@
 }
 
 @mixin sjs2--typography--component--question--title {
-  font-family: var(--sjs2-typography-font-family-component-question-title);
+  font-family: var(--sjs2-typography-font-family-component-question-title), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-question-title);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-question-title);
@@ -87,7 +88,7 @@
 }
 
 @mixin sjs2--typography--component--question--description {
-  font-family: var(--sjs2-typography-font-family-component-question-description);
+  font-family: var(--sjs2-typography-font-family-component-question-description), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-question-description);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-question-description);
@@ -96,7 +97,7 @@
 }
 
 @mixin sjs2--typography--component--panel--title {
-  font-family: var(--sjs2-typography-font-family-component-panel-title);
+  font-family: var(--sjs2-typography-font-family-component-panel-title), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-panel-title);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-panel-title);
@@ -105,7 +106,7 @@
 }
 
 @mixin sjs2--typography--component--panel--description {
-  font-family: var(--sjs2-typography-font-family-component-panel-description);
+  font-family: var(--sjs2-typography-font-family-component-panel-description), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-panel-description);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-panel-description);
@@ -114,7 +115,7 @@
 }
 
 @mixin sjs2--typography--component--page--title {
-  font-family: var(--sjs2-typography-font-family-component-page-title);
+  font-family: var(--sjs2-typography-font-family-component-page-title), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-page-title);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-page-title);
@@ -123,7 +124,7 @@
 }
 
 @mixin sjs2--typography--component--page--description {
-  font-family: var(--sjs2-typography-font-family-component-page-description);
+  font-family: var(--sjs2-typography-font-family-component-page-description), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-page-description);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-page-description);
@@ -132,7 +133,7 @@
 }
 
 @mixin sjs2--typography--component--header--title {
-  font-family: var(--sjs2-typography-font-family-component-survey-header-title);
+  font-family: var(--sjs2-typography-font-family-component-survey-header-title), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-survey-header-title);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-survey-header-title);
@@ -141,7 +142,7 @@
 }
 
 @mixin sjs2--typography--component--header--description {
-  font-family: var(--sjs2-typography-font-family-component-survey-header-description);
+  font-family: var(--sjs2-typography-font-family-component-survey-header-description), $font-family-fallbacks;
   font-size: var(--sjs2-typography-font-size-component-survey-header-description);
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-survey-header-description);

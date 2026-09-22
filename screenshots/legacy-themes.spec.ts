@@ -181,6 +181,9 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     test("Sales Contract Form", async ({ page }) => {
       await page.setViewportSize({ width: 1179, height: 873 });
       await initThemedSurvey(page, framework, salesContractForm.survey, salesContractForm.theme);
+      await page.addStyleTag({
+        content: "p { margin: 0; }"
+      });
 
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();
       const date = page.getByPlaceholder("date");

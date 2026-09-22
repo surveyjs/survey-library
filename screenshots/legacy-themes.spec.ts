@@ -141,6 +141,9 @@ frameworks.filter(framework => framework === "react").forEach(framework => {
     test("Pet Hotel Reservation Form", async ({ page }) => {
       await page.setViewportSize({ width: 1005, height: 873 });
       await initThemedSurvey(page, framework, petHotelReservationForm.survey, petHotelReservationForm.theme);
+      await page.addStyleTag({
+        content: ".sd-completedpage { padding-top: 48px; }"
+      });
 
       const nextBtn = page.locator(".sd-navigation__next-btn").first();
       const completeBtn = page.locator(".sd-navigation__complete-btn").first();

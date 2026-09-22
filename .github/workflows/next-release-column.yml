@@ -200,50 +200,40 @@ jobs:
           FIELD_ID='${{ steps.lookup.outputs.field_id }}'
           COLUMN_NAME='${{ steps.next.outputs.column_name }}'
 
-          # Idempotency guard: if a column with the target name already
-          # exists (e.g. the workflow was re-run for the same release),
-          # skip the mutation entirely.
+          # Idempotency guard.
           if jq -e --arg n "$COLUMN_NAME" 'any(.name == $n)' /tmp/options.json > /dev/null; then
             echo "Column '$COLUMN_NAME' already exists. Nothing to do."
             exit 0
           fi
 
-          # Build the new option list:
-          #   - locate the index of AFTER_COLUMN (or append at the end if
-          #     no such column exists),
-          #   - insert the new option immediately after that index,
-          #   - normalize each entry to the shape the mutation expects
-          #     (name / color / description).
+          # Build the new option list, PRESERVING existing option ids so
+          # items assigned to those columns keep their Status. Only the new
+          # column has no id (it will be created).
           NEW_OPTIONS=$(jq --arg after "$AFTER_COLUMN" --arg name "$COLUMN_NAME" '
-            . as $opts
-            | (map(.name) | index($after)) as $i
+            (map(.name) | index($after)) as $i
             | ($i // (length - 1)) as $pos
-            | (.[0:($pos + 1)]
-               + [{name: $name, color: "GREEN", description: "Release \($name)"}]
-               + .[($pos + 1):])
-            | map({name: .name, color: (.color // "GRAY"), description: (.description // "")})
+            | .[0:($pos + 1)]
+              + [{name: $name, color: "GREEN", description: "Release \($name)"}]
+              + .[($pos + 1):]
+            | map(
+                if .id then
+                  {id: .id, name: .name, color: (.color // "GRAY"), description: (.description // "")}
+                else
+                  {name: .name, color: (.color // "GRAY"), description: (.description // "")}
+                end
+              )
           ' /tmp/options.json)
 
           echo "New option order:"
           echo "$NEW_OPTIONS" | jq -r '.[].name' | nl
 
-          # Replace the entire Status option list with the reordered one.
-          # `-F options=...` sends the value as raw JSON (not a string),
-          # which is required for the [ProjectV2SingleSelectFieldOptionInput!]! type.
-          gh api graphql -f query='
-            mutation($fieldId: ID!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
-              updateProjectV2Field(input: {
-                fieldId: $fieldId,
-                singleSelectOptions: $options
-              }) {
-                projectV2Field {
-                  ... on ProjectV2SingleSelectField {
-                    options { name }
-                  }
-                }
-              }
-            }' \
-            -f fieldId="$FIELD_ID" \
-            -F options="$NEW_OPTIONS"
+          # Send the mutation with a hand-built JSON body so options is a
+          # real JSON array (gh api graphql's -F flag mangles complex types).
+          BODY=$(jq -n --arg fieldId "$FIELD_ID" --argjson options "$NEW_OPTIONS" '{
+            query: "mutation($fieldId: ID!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) { updateProjectV2Field(input: { fieldId: $fieldId, singleSelectOptions: $options }) { projectV2Field { ... on ProjectV2SingleSelectField { options { name } } } } }",
+            variables: { fieldId: $fieldId, options: $options }
+          }')
+
+          gh api graphql --input - <<< "$BODY"
 
           echo "::notice::Added column '$COLUMN_NAME' after '$AFTER_COLUMN' in project '$PROJECT_TITLE'."

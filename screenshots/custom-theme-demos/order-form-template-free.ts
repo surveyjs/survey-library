@@ -1,4 +1,6 @@
 /* eslint-disable surveyjs/eslint-plugin-i18n/only-english-or-code */
+import { countryChoices } from "./country-choices";
+
 export const survey = {
   "logo": "https://api.surveyjs.io/private/Surveys/files?name=09c9faa7-52b9-48d7-a155-e01f1dad7e2f",
   "logoWidth": "auto",
@@ -640,9 +642,7 @@ export const survey = {
               "startWithNewLine": false,
               "titleLocation": "hidden",
               "description": "Country",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample"
-              },
+              "choices": countryChoices,
               "placeholder": "",
               "allowClear": false
             },
@@ -715,9 +715,7 @@ export const survey = {
               "startWithNewLine": false,
               "titleLocation": "hidden",
               "description": "Country",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample"
-              },
+              "choices": countryChoices,
               "placeholder": "",
               "allowClear": false
             },

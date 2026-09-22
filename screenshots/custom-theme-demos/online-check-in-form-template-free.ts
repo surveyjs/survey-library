@@ -1,3 +1,5 @@
+import { countryChoices } from "./country-choices";
+
 export const survey = {
   "title": "Online Check-in",
   "description": "Check-in is available 2 to 24 hours prior to departure for all destinations. To complete the check-in process, please fill out the form below.",
@@ -88,10 +90,7 @@ export const survey = {
               "name": "passport-issue-country",
               "width": "35%",
               "minWidth": "208px",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample",
-                "valueName": "name"
-              },
+              "choices": countryChoices,
               "placeholder": "Country of issue",
               "allowClear": false
             },
@@ -216,10 +215,7 @@ export const survey = {
               "name": "person-to-notify-country",
               "width": "100%",
               "minWidth": "256px",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample",
-                "valueName": "name"
-              },
+              "choices": countryChoices,
               "placeholder": "Country",
               "allowClear": false
             }
@@ -292,9 +288,7 @@ export const survey = {
               "width": "65%",
               "minWidth": "256px",
               "title": "DEPARTING FROM",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample"
-              },
+              "choices": countryChoices,
               "placeholder": "Country",
               "allowClear": false
             },
@@ -314,9 +308,7 @@ export const survey = {
               "minWidth": "256px",
               "title": "DESTINATION",
               "titleLocation": "top",
-              "choicesByUrl": {
-                "url": "https://surveyjs.io/api/CountriesExample"
-              },
+              "choices": countryChoices,
               "placeholder": "Country",
               "allowClear": false
             },

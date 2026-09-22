@@ -1,3 +1,5 @@
+import { countryChoices } from "./country-choices";
+
 export const survey = {
   // eslint-disable-next-line surveyjs/eslint-plugin-i18n/only-english-or-code
   "title": "Conferences ➔ Jun 9–11 Online Hackathon ➔ Jun 5–11",
@@ -221,9 +223,7 @@ export const survey = {
           "width": "60%",
           "minWidth": "256px",
           "description": "Country",
-          "choicesByUrl": {
-            "url": "https://surveyjs.io/api/CountriesExample"
-          },
+          "choices": countryChoices,
           "placeholder": "",
           "allowClear": false
         },

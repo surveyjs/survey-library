@@ -1,3 +1,5 @@
+import { countryChoices } from "./country-choices";
+
 export const survey = {
   "title": "HOTEL BY THE SEA",
   "description": "1901 Thornridge Cir. Shiloh, Hawaii 81063 +1 (808) 555-0111",
@@ -324,9 +326,7 @@ export const survey = {
           "width": "36%",
           "minWidth": "256px",
           "titleLocation": "hidden",
-          "choicesByUrl": {
-            "url": "https://surveyjs.io/api/CountriesExample"
-          },
+          "choices": countryChoices,
           "placeholder": "Country",
           "allowClear": false
         },

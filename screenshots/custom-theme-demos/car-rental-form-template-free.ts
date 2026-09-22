@@ -1,3 +1,5 @@
+import { countryChoices } from "./country-choices";
+
 export const survey = {
   "description": "3891 Ranchview Dr. Richardson, California +1 (201) 555-01-24",
   "logo": "https://api.surveyjs.io/private/Surveys/files?name=223a3e72-bf86-4801-bda5-94f4002ac662",
@@ -300,9 +302,7 @@ export const survey = {
           "width": "40%",
           "minWidth": "256px",
           "startWithNewLine": false,
-          "choicesByUrl": {
-            "url": "https://surveyjs.io/api/CountriesExample"
-          },
+          "choices": countryChoices,
           "placeholder": "Issuing Country",
           "allowClear": false
         },

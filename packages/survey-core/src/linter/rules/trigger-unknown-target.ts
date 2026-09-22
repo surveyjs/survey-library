@@ -1,12 +1,16 @@
 import { ILintRule, LintContext } from "../rule";
 import {
-  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, suggestForRef,
+  buildTriggerSetStep, classifyTargetName, equalsCI, nameCandidates, respellSegment, suggestForRef,
 } from "../expression-utils";
 import { ParsedRef, TriggerRecord } from "../symbols";
 import { ILintReproduction } from "../types";
-import { SurveyLintReasons, SurveyLintReproductionReasons } from "../reasons";
+import {
+  SurveyLintFixReasons, SurveyLintReasons, SurveyLintReproductionReasons,
+} from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["trigger/unknown-target"];
+const fixReasons = SurveyLintFixReasons["trigger/unknown-target"];
 
 type TargetKind = "questionvalue" | "question" | "page";
 
@@ -70,12 +74,17 @@ export const triggerUnknownTargetRule: ILintRule = {
           trigger: trigger.type, prop: target.prop, name: target.name, kind: target.kind,
         };
         if (target.kind === "page") {
+          const pageSuggestion = rootSuggestion(ctx, ref, "page");
           ctx.report({
             message: "The " + trigger.type + " trigger targets page \"" + target.name + "\", which does not exist.",
             path: target.path,
             reason: reasons.pageNotFound,
             messageData: messageData,
-            suggestion: rootSuggestion(ctx, ref, "page"),
+            suggestion: pageSuggestion,
+            // the property holds the name as the author wrote it, so a dotted one keeps every
+            // segment that did resolve
+            fix: setFix(fixReasons.setName, target.path,
+              respellSegment(target.name, 0, pageSuggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
@@ -95,10 +104,13 @@ export const triggerUnknownTargetRule: ILintRule = {
             reason: reasons.segmentNotFound,
             messageData: messageData,
             suggestion: ref.suggestion,
+            fix: setFix(fixReasons.setName, target.path,
+              respellSegment(target.name, ref.unknownSegmentIndex, ref.suggestion)),
             reproduction: buildReproduction(trigger, target.name),
           });
           return;
         }
+        const rootSuggestionValue = rootSuggestion(ctx, ref, target.kind);
         const kindText = target.kind === "question" ? "question" : "question or variable";
         ctx.report({
           message: "The " + trigger.type + " trigger " +
@@ -110,7 +122,9 @@ export const triggerUnknownTargetRule: ILintRule = {
           path: target.path,
           reason: reasons.rootNotFound,
           messageData: messageData,
-          suggestion: rootSuggestion(ctx, ref, target.kind),
+          suggestion: rootSuggestionValue,
+          fix: setFix(fixReasons.setName, target.path,
+            respellSegment(target.name, 0, rootSuggestionValue)),
           reproduction: buildReproduction(trigger, target.name),
         });
       });

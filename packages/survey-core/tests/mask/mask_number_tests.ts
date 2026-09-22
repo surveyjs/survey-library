@@ -1092,6 +1092,62 @@ describe("Numeric mask", () => {
     expect(result.caretPosition, "the caret is after the typed digit").toBe(3);
   });
 
+  test("a negative zero keeps its sign while an entry is in progress", () => {
+    const maskInstance = new InputMaskNumeric();
+
+    // "-0.05" is typed in order
+    let result = maskInstance.processInput({ insertedChars: "0", selectionStart: 1, selectionEnd: 1, prevValue: "-", inputDirection: "forward" });
+    expect(result.value, "-0").toBe("-0");
+    expect(result.caretPosition, "-0").toBe(2);
+    result = maskInstance.processInput({ insertedChars: ".", selectionStart: 2, selectionEnd: 2, prevValue: "-0", inputDirection: "forward" });
+    expect(result.value, "-0.").toBe("-0.");
+    result = maskInstance.processInput({ insertedChars: "0", selectionStart: 3, selectionEnd: 3, prevValue: "-0.", inputDirection: "forward" });
+    expect(result.value, "-0.0").toBe("-0.0");
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 4, selectionEnd: 4, prevValue: "-0.0", inputDirection: "forward" });
+    expect(result.value, "-0.05").toBe("-0.05");
+    expect(result.caretPosition, "-0.05").toBe(5);
+
+    expect(maskInstance.getNumberMaskedValue("-0"), "an entry in progress").toBe("-0");
+    expect(maskInstance.getNumberMaskedValue("-0", true), "a completed zero").toBe("0");
+    expect(maskInstance.getNumberMaskedValue("-0.00", true), "a completed zero with a fractional part").toBe("0.00");
+  });
+
+  test("showTrailingZeros: a negative value below one is typed in order", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.showTrailingZeros = true;
+
+    // "-0.05"
+    let result = maskInstance.processInput({ insertedChars: "0", selectionStart: 1, selectionEnd: 1, prevValue: "-", inputDirection: "forward" });
+    expect(result.value, "the integral zero").toBe("-0.00");
+    expect(result.caretPosition, "the integral zero").toBe(2);
+    result = maskInstance.processInput({ insertedChars: ".", selectionStart: 2, selectionEnd: 2, prevValue: "-0.00", inputDirection: "forward" });
+    expect(result.value, "the separator").toBe("-0.00");
+    expect(result.caretPosition, "the separator").toBe(3);
+    result = maskInstance.processInput({ insertedChars: "0", selectionStart: 3, selectionEnd: 3, prevValue: "-0.00", inputDirection: "forward" });
+    expect(result.value, "a typed fractional zero").toBe("-0.00");
+    expect(result.caretPosition, "a typed fractional zero").toBe(4);
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 4, selectionEnd: 4, prevValue: "-0.00", inputDirection: "forward" });
+    expect(result.value, "the last digit").toBe("-0.05");
+    expect(result.caretPosition, "the last digit").toBe(5);
+
+    // "-.05": the typed fractional zero is not mistaken for the padding
+    result = maskInstance.processInput({ insertedChars: "0", selectionStart: 2, selectionEnd: 2, prevValue: "-.", inputDirection: "forward" });
+    expect(result.value, "a typed fractional zero without an integral part").toBe("-0.00");
+    expect(result.caretPosition, "a typed fractional zero without an integral part").toBe(4);
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 4, selectionEnd: 4, prevValue: "-0.00", inputDirection: "forward" });
+    expect(result.value, "the last digit").toBe("-0.05");
+
+    // the padding that a deletion leaves behind is still an empty entry
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 1, selectionEnd: 2, prevValue: "-1.00", inputDirection: "backward" });
+    expect(result.value, "the typed digit of a negative value is deleted").toBe("");
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 0, selectionEnd: 3, prevValue: "1.00", inputDirection: "forward" });
+    expect(result.value, "a selection that leaves a single generated zero").toBe("");
+
+    expect(maskInstance.getMaskedValue(-0.05), "the stored value").toBe("-0.05");
+    expect(maskInstance.getUnmaskedValue("-0.05"), "the unmasked value").toBe(-0.05);
+    expect(maskInstance.getNumberMaskedValue("-0", true), "a completed zero").toBe("0.00");
+  });
+
   test("showTrailingZeros: the generated zeros are not deleted, the caret steps over them", () => {
     const maskInstance = new InputMaskNumeric();
     maskInstance.showTrailingZeros = true;

@@ -1,17 +1,26 @@
 import { Base } from "../base";
+import { ISurvey } from "../base-interfaces";
+import { ItemValue } from "../itemvalue";
 import { JsonObject, JsonObjectProperty, Serializer } from "../jsonobject";
-import { LocalizableString } from "../localizablestring";
+import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Question, QuestionValueType } from "../question";
 import { QuestionFactory } from "../questionfactory";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+
+// What a Filter Control gives its fields: the locale chain for the template question's strings and
+// the survey the question needs to resolve choicesByUrl, text processing and the rest.
+export interface IFilterFieldOwner extends ILocalizableOwner {
+  getSurvey(live?: boolean): ISurvey;
+}
 
 // One field a Filter Control offers in standalone mode: the author declares it here instead of
 // taking it from a Dynamic Matrix or a Dynamic Panel. fieldType works the way cellType works for a
 // Matrix Dropdown column: the properties of the question type that supplies the value editor
 // (choices, choicesByUrl, inputType and the rest) are borrowed from that type and defined on the
 // field instance, so they are authored and serialized as if they were the field's own.
-export class FilterField extends Base {
+export class FilterField extends Base implements ILocalizableOwner {
   private templateQuestionValue: Question;
+  private fieldOwnerValue: IFilterFieldOwner;
 
   constructor(name: string) {
     super();
@@ -20,6 +29,43 @@ export class FilterField extends Base {
   public getType(): string { return "filterfield"; }
 
   public get templateQuestion(): Question { return this.templateQuestionValue; }
+
+  // The control that owns this field. The template question's locOwner is the field itself, so
+  // every localization call arrives here and is forwarded to the owner.
+  public get fieldOwner(): IFilterFieldOwner { return this.fieldOwnerValue; }
+  public set fieldOwner(val: IFilterFieldOwner) {
+    this.fieldOwnerValue = val;
+    this.locTitle.strChanged();
+  }
+  public getSurvey(live: boolean = false): ISurvey {
+    return !!this.fieldOwner ? this.fieldOwner.getSurvey(live) : null;
+  }
+  public getLocale(): string {
+    return !!this.fieldOwner ? this.fieldOwner.getLocale() : "";
+  }
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.fieldOwner ? this.fieldOwner.getMarkdownHtml(text, name, item) : undefined;
+  }
+  public getRenderer(name: string, item?: ItemValue): string {
+    return !!this.fieldOwner ? this.fieldOwner.getRenderer(name, item) : null;
+  }
+  public getRendererContext(locStr: LocalizableString, item?: ItemValue): any {
+    return !!this.fieldOwner ? this.fieldOwner.getRendererContext(locStr, item) : locStr;
+  }
+  public getProcessedText(text: string): string {
+    return !!this.fieldOwner ? this.fieldOwner.getProcessedText(text, this) : text;
+  }
+  // Base.locStrsChanged walks an object's own localizableStrings, and a field owns none: locTitle
+  // belongs to the template question. Without this a locale change leaves field titles stale.
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.templateQuestion.locStrsChanged();
+  }
+  // Same reason: survey.getUsedLocales() would not see the title translations otherwise.
+  public addUsedLocales(locales: Array<string>): void {
+    super.addUsedLocales(locales);
+    this.templateQuestion.addUsedLocales(locales);
+  }
 
   public get name(): string { return this.templateQuestion.name; }
   public set name(val: string) { this.templateQuestion.name = val; }
@@ -37,6 +83,7 @@ export class FilterField extends Base {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.templateQuestion.endLoadingFromJson();
+    this.templateQuestion.onGetSurvey = () => this.getSurvey();
   }
   public getOriginalObj(): Base { return this.templateQuestion; }
   getClassNameProperty(): string { return "fieldType"; }
@@ -83,6 +130,7 @@ export class FilterField extends Base {
       this.removeProperties(prevFieldType);
     }
     this.templateQuestionValue = this.createNewQuestion(fieldType);
+    this.templateQuestion.locOwner = this;
     this.addProperties(fieldType);
     if (!!name) {
       this.name = name;
@@ -99,6 +147,9 @@ export class FilterField extends Base {
       this.propertyValueChanged(options.propertyName, options.oldValue, options.newValue);
     });
     this.templateQuestion.isContentElement = true;
+    if (!this.isLoadingFromJson) {
+      this.templateQuestion.onGetSurvey = () => this.getSurvey();
+    }
     this.templateQuestion.locTitle.strChanged();
   }
   // "" is not a registered class either, so a field with no fieldType gets the same text question the

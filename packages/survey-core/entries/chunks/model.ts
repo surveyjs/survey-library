@@ -251,6 +251,11 @@ export { QuestionDropdownModel } from "../../src/question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
 export { QuestionFileModelBase, QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
+// Value exports on purpose: FilterField and FilterItem register themselves with the Serializer as an
+// import side effect, and "export type" would not run it.
+export { QuestionFilterModel } from "../../src/question_filter";
+export { FilterField, IFilterFieldOwner } from "../../src/filter/filter-field";
+export { FilterItem } from "../../src/filter/filter-item";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";

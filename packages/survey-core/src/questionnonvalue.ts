@@ -21,11 +21,14 @@ export class QuestionNonValue extends Question {
   public get isFilterable(): boolean {
     return false;
   }
+  // A non-value question shows no title by default. A descendant that does - the Filter control -
+  // answers true here instead of re-implementing Question's title logic.
+  protected get supportTitle(): boolean { return false; }
   public get hasTitle(): boolean {
-    return false;
+    return this.supportTitle ? super.hasTitle : false;
   }
   public getTitleLocation(): string {
-    return "";
+    return this.supportTitle ? super.getTitleLocation() : "";
   }
   public get hasComment(): boolean {
     return false;

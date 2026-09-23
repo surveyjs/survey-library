@@ -938,7 +938,7 @@ export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
 }
 export interface DynamicDataErrorEvent extends QuestionEventMixin {
   /**
-   * The data source operation that failed: `"read"`, `"insert"`, `"update"`, `"remove"`, `"move"`, `"filter"` or `"sort"`.
+   * The data source operation that failed: `"read"`, `"insert"`, `"update"`, `"remove"`, or `"move"`.
    */
   operation: string;
   /**

@@ -3,7 +3,8 @@ import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "../../src/dynamic-data/dynamic-data-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import {
-  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
+  IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 /* The controller against a fake owner: a property hash, the two mode flags a question would answer
@@ -49,6 +50,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public get pageIndex(): number { return this.paging.pageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   public get pageCount(): number { return this.paging.pageCount; }
+  public get isCountKnown(): boolean { return this.paging.isCountKnown; }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
   }
@@ -199,9 +201,10 @@ describe("DynamicDataPagingController: loading (invariant 3)", () => {
     owner.paging.flushAuthoredView();
     expect(owner.getDataList().sort, "#1").toEqual(desc);
     expect(owner.getDataList().filter, "#2").toBe("{c1} != 'z'");
-    expect(owner.resetCount, "#3: one reset for the filter and one for the sort, no third").toBe(2);
+    // One setView for both: with a source that pages, two assignments would be two requests.
+    expect(owner.resetCount, "#3: one reset for the whole authored view").toBe(1);
     owner.paging.flushAuthoredView();
-    expect(owner.resetCount, "#4: nothing is pending any more").toBe(2);
+    expect(owner.resetCount, "#4: nothing is pending any more").toBe(1);
   });
   test("a flush while the owner is still loading does nothing", () => {
     const owner = new FakePagingOwner(abc());
@@ -255,13 +258,15 @@ describe("DynamicDataPagingController: the rejected filter (invariant 5)", () =>
 });
 
 describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
+  // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
-    public sorts: Array<Array<IDynamicDataSort>> = [];
-    public filters: Array<string> = [];
+    public requests: Array<IDynamicDataReadRequest> = [];
     constructor(private records: Array<any>) { }
     public read(): Array<any> { return this.records; }
-    public sort(sort: Array<IDynamicDataSort>): void { this.sorts.push(sort); }
-    public filter(expression: string): void { this.filters.push(expression); }
+    public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+      this.requests.push(request);
+      return { records: this.records.slice(), total: this.records.length };
+    }
   }
   test("a source attached after the load receives the parsed descriptors", () => {
     const owner = new FakePagingOwner(abc());
@@ -272,8 +277,9 @@ describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
     owner.paging.flushAuthoredView();
     const source = new SortingSource(abc());
     owner.setSource(source);
-    expect(source.sorts[0], "#1: the descriptors, not the text").toEqual(desc);
-    expect(source.filters[0], "#2: and the expression, untouched").toBe("{c1} != 'z'");
+    expect(source.requests.length, "#0: one request").toBe(1);
+    expect(source.requests[0].sort, "#1: the descriptors, not the text").toEqual(desc);
+    expect(source.requests[0].filter, "#2: and the expression, untouched").toBe("{c1} != 'z'");
     expect(owner.paging.sortBy, "#3: the question still reports them").toBe("c1-");
     expect(owner.paging.filterExpression, "#4").toBe("{c1} != 'z'");
   });

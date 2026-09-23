@@ -9,7 +9,7 @@ import { settings } from "../../src/settings";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import {
-  IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 class Deferred {
@@ -72,36 +72,32 @@ interface IServerCall {
 class FakeServerSource implements IDynamicDataSource {
   public calls: Array<IServerCall> = [];
   public auto: boolean = true;
-  public filterDialect: string = "";
-  public sortOrder: Array<IDynamicDataSort> = [];
-  public readRange?: (skip: number, take: number) => Promise<IDynamicDataReadResult>;
-  public filter?: (expression: string) => Promise<void>;
-  public sort?: (sort: Array<IDynamicDataSort>) => Promise<void>;
+  // false -> the server cannot count the matching records cheaply and answers without a total.
+  public reportTotal: boolean = true;
+  public readRange?: (request: IDynamicDataReadRequest) => Promise<IDynamicDataReadResult>;
   public insert?: (sourceIndex: number, record: any) => Promise<void>;
   public update?: (sourceIndex: number, record: any, changedFields: Array<string>) => Promise<void>;
   public remove?: (sourceIndex: number) => Promise<void>;
   public move?: (fromSourceIndex: number, toSourceIndex: number) => Promise<void>;
 
   constructor(public records: Array<any>, capabilities?: Array<string>) {
-    const caps = capabilities || ["readRange", "filter", "sort", "insert", "update", "remove", "move"];
+    const caps = capabilities || ["readRange", "insert", "update", "remove", "move"];
     const has = (name: string): boolean => caps.indexOf(name) > -1;
     if (has("readRange")) {
-      this.readRange = (skip: number, take: number): Promise<IDynamicDataReadResult> =>
-        this.call("readRange", [skip, take], (): IDynamicDataReadResult => {
-          const view = this.getView();
-          const size = take > 0 ? take : view.length;
-          return { records: view.slice(skip, skip + size).map(this.copy), total: view.length };
+      // One request per read: the range and the view are inside it and the source keeps nothing
+      // between the calls.
+      this.readRange = (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> =>
+        this.call("readRange", [request], (): IDynamicDataReadResult => {
+          const view = this.getView(request);
+          const size = request.take > 0 ? request.take : view.length;
+          const res: IDynamicDataReadResult = {
+            records: view.slice(request.skip, request.skip + size).map(this.copy)
+          };
+          if (this.reportTotal) {
+            res.total = view.length;
+          }
+          return res;
         });
-    }
-    if (has("filter")) {
-      this.filter = (expression: string): Promise<void> => this.call("filter", [expression], (): void => {
-        this.filterDialect = !expression ? "" : translateFilterToDialect(expression);
-      });
-    }
-    if (has("sort")) {
-      this.sort = (sort: Array<IDynamicDataSort>): Promise<void> => this.call("sort", [sort], (): void => {
-        this.sortOrder = (sort || []).slice();
-      });
     }
     if (has("insert")) {
       this.insert = (sourceIndex: number, record: any): Promise<void> =>
@@ -129,18 +125,18 @@ class FakeServerSource implements IDynamicDataSource {
     }
   }
   public read(): Promise<Array<any>> {
-    return this.call("read", [], (): Array<any> => this.getView().map(this.copy));
+    return this.call("read", [], (): Array<any> => this.records.map(this.copy));
   }
   private copy = (record: any): any => Object.assign({}, record);
-  // The server applies its own filter and sort before it pages: that is what "the source decides the
-  // membership" means for the list.
-  private getView(): Array<any> {
+  // The server applies the filter and the sort of the request before it pages: that is what "the
+  // source decides the membership" means for the list.
+  private getView(request: IDynamicDataReadRequest): Array<any> {
     let res = this.records.slice();
-    if (!!this.filterDialect) {
-      res = res.filter(dialectToPredicate(this.filterDialect));
+    if (!!request.filter) {
+      res = res.filter(dialectToPredicate(translateFilterToDialect(request.filter)));
     }
     // Applied back to front, so that the first descriptor wins.
-    this.sortOrder.slice().reverse().forEach((s: IDynamicDataSort): void => {
+    (request.sort || []).slice().reverse().forEach((s: IDynamicDataSort): void => {
       const sign = s.direction === "desc" ? -1 : 1;
       res.sort((a: any, b: any): number => {
         const x = a[s.field];
@@ -176,6 +172,13 @@ class FakeServerSource implements IDynamicDataSource {
   }
   public argsOf(op: string): Array<Array<any>> {
     return this.callsOf(op).map((call: IServerCall): Array<any> => call.args);
+  }
+  // The read requests, and the ranges alone for the tests that only care where the window was.
+  public get requests(): Array<IDynamicDataReadRequest> {
+    return this.argsOf("readRange").map((args: Array<any>): IDynamicDataReadRequest => args[0]);
+  }
+  public get ranges(): Array<Array<number>> {
+    return this.requests.map((request: IDynamicDataReadRequest): Array<number> => [request.skip, request.take]);
   }
   public get pending(): Array<IServerCall> {
     return this.calls.filter((call: IServerCall): boolean => !call.isSettled);
@@ -238,7 +241,7 @@ describe("Remote data source: first load", () => {
     expect(question.visibleRows.length, "#3: one row per window record, not per total").toBe(5);
     expect(question.pageCount, "#4").toBe(5);
     expect(rowValues(question), "#5").toEqual(["v0", "v1", "v2", "v3", "v4"]);
-    expect(source.argsOf("readRange")[0], "#6: skip/take").toEqual([0, 5]);
+    expect(source.ranges[0], "#6: skip/take").toEqual([0, 5]);
   });
   test("panel: the window is one page and panelCount is the server total", async () => {
     const source = new FakeServerSource(serverRecords(23));
@@ -325,7 +328,7 @@ describe("Remote data source: paging", () => {
     const firstRow = question.visibleRows[0];
     question.nextPage();
     await flush();
-    expect(source.argsOf("readRange"), "#1: the second page was read").toEqual([[0, 5], [5, 5]]);
+    expect(source.ranges, "#1: the second page was read").toEqual([[0, 5], [5, 5]]);
     expect(rowValues(question), "#2: the rows hold the new window").toEqual(["v5", "v6", "v7", "v8", "v9"]);
     expect(question.visibleRows[0] === firstRow, "#3: the rows were rebuilt").toBe(false);
     expect(question.rowCount, "#4: the total does not change").toBe(12);
@@ -625,9 +628,9 @@ describe("Remote data source: sorting and filtering", () => {
     source.reset();
     question.sortOrder = [{ field: "col2", direction: "desc" }];
     await flush();
-    expect(source.argsOf("sort")[0][0], "#1: the descriptors reach the source").toEqual([{ field: "col2", direction: "desc" }]);
+    expect(source.requests[0].sort, "#1: the descriptors reach the source").toEqual([{ field: "col2", direction: "desc" }]);
     expect(question.pageIndex, "#2: a sort keeps the page").toBe(1);
-    expect(source.argsOf("readRange")[0], "#3: the same page was re-read").toEqual([5, 5]);
+    expect(source.ranges[0], "#3: the same page was re-read").toEqual([5, 5]);
     expect(rowValues(question), "#4: the server sorted, the list did not").toEqual(["v14", "v13", "v12", "v11", "v10"]);
   });
   test("a filter is pushed to the source as the expression text and returns to page 0", async () => {
@@ -638,7 +641,7 @@ describe("Remote data source: sorting and filtering", () => {
     source.reset();
     question.filterExpression = "{col1} = 'v7'";
     await flush();
-    expect(source.argsOf("filter")[0][0], "#1: the text, untouched").toBe("{col1} = 'v7'");
+    expect(source.requests[0].filter, "#1: the text, untouched").toBe("{col1} = 'v7'");
     expect(question.pageIndex, "#2: back to the first page").toBe(0);
     expect(question.rowCount, "#3: the server total of the filtered view").toBe(1);
     expect(rowValues(question), "#4").toEqual(["v7"]);
@@ -659,15 +662,20 @@ describe("Remote data source: sorting and filtering", () => {
     expect(list.loadedCount, "#1: the window is what the server returned").toBe(1);
     expect(list.getCreatedIndexes(), "#2: no local filter ran over it").toEqual([0]);
   });
-  test("a source without sort makes the list sort the window locally", async () => {
+  /* Paging is one capability with filtering and sorting, so this is the only combination there is:
+     a source that pages sorts itself and the list leaves the window as it came. The local sort of
+     a window is gone with the "pages but does not sort" source it belonged to. */
+  test("a source that pages sorts itself: the request carries the sort and the list does not sort the window", async () => {
     const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     source.reset();
     question.sortOrder = [{ field: "col2", direction: "desc" }];
     await flush();
-    expect(source.callsOf("sort").length, "#1: the source has no sort").toBe(0);
-    expect(source.callsOf("readRange").length, "#2: nothing was re-read").toBe(0);
-    expect(rowValues(question), "#3: the window was sorted locally").toEqual(["v5", "v4", "v3", "v2", "v1", "v0"]);
+    expect(source.requests.length, "#1: exactly one read").toBe(1);
+    expect(source.requests[0].sort, "#2: with the sort inside it").toEqual([{ field: "col2", direction: "desc" }]);
+    expect(rowValues(question), "#3: the server sorted, the list did not").toEqual(["v5", "v4", "v3", "v2", "v1", "v0"]);
+    const list = question.getDataList();
+    expect(list.getCreatedIndexes(), "#4: the window is taken as it came").toEqual([0, 1, 2, 3, 4, 5]);
   });
   test("refreshView re-reads the window when the source decides the membership", async () => {
     const source = new FakeServerSource(serverRecords(12));
@@ -676,7 +684,7 @@ describe("Remote data source: sorting and filtering", () => {
     question.refreshView();
     await flush();
     expect(source.callsOf("readRange").length, "#1: the server decides, so the window is read again").toBe(1);
-    expect(source.argsOf("readRange")[0], "#2: the same page").toEqual([0, 5]);
+    expect(source.ranges[0], "#2: the same page").toEqual([0, 5]);
   });
 });
 
@@ -1070,7 +1078,7 @@ describe("Remote data source: replacing a source", () => {
     const source = new FakeServerSource(serverRecords(12));
     question.dataSource = source;
     await flush();
-    expect(source.argsOf("filter")[0][0], "#1: the source owns it now and was told").toBe("{col1} = 'v3'");
+    expect(source.requests[0].filter, "#1: the source owns it now and was told").toBe("{col1} = 'v3'");
     expect(source.callsOf("readRange").length, "#2: one read, with the filter already in force").toBe(1);
     expect(question.rowCount, "#3").toBe(1);
     expect(rowValues(question), "#4").toEqual(["v3"]);
@@ -1084,7 +1092,7 @@ describe("Remote data source: replacing a source", () => {
     const source = new FakeServerSource(serverRecords(4));
     question.dataSource = source;
     await flush();
-    expect(source.argsOf("sort")[0][0], "#1").toEqual([{ field: "col2", direction: "desc" }]);
+    expect(source.requests[0].sort, "#1").toEqual([{ field: "col2", direction: "desc" }]);
     expect(rowValues(question), "#2: the server sorted before it answered").toEqual(["v3", "v2", "v1", "v0"]);
   });
   test("detaching to a source that does not filter restores the local filter", async () => {
@@ -1114,10 +1122,13 @@ class SyncPagingSource implements IDynamicDataSource {
   public read(): Array<any> {
     return this.records.slice();
   }
-  public readRange(skip: number, take: number): IDynamicDataReadResult {
-    this.readRanges.push([skip, take]);
-    const size = take > 0 ? take : this.records.length;
-    return { records: this.records.slice(skip, skip + size).map(r => Object.assign({}, r)), total: this.records.length };
+  public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    this.readRanges.push([request.skip, request.take]);
+    const size = request.take > 0 ? request.take : this.records.length;
+    return {
+      records: this.records.slice(request.skip, request.skip + size).map(r => Object.assign({}, r)),
+      total: this.records.length
+    };
   }
   public update(sourceIndex: number, record: any): void {
     this.records[sourceIndex] = Object.assign({}, record);
@@ -1324,3 +1335,142 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     }
   });
 });
+
+describe("Remote data source: the authored view costs one read", () => {
+  /* W4: a sort and a filter authored in the JSON, handed to a source that pages. The two setters
+     used to reach the source one after the other - a push and a read each - and the request carries
+     both, so the whole authored view is one round trip. */
+  const matrixJson = {
+    type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+    sortBy: "col2-", filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
+  };
+  const panelJson = {
+    type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,
+    sortBy: "col2-", filterExpression: "{col1} = 'v7'",
+    templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }]
+  };
+  const authoredSort = [{ field: "col2", direction: "desc" }];
+  test("matrix: a source attached after the load reads once, with both inside the request", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const survey = new SurveyModel({ elements: [matrixJson] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    question.dataSource = source;
+    await flush();
+    expect(source.requests.length, "#1: exactly one read").toBe(1);
+    expect(source.calls.length, "#2: and exactly one call - nothing is pushed first").toBe(1);
+    expect(source.requests[0].filter, "#3").toBe("{col1} = 'v7'");
+    expect(source.requests[0].sort, "#4").toEqual(authoredSort);
+    expect(question.rowCount, "#5: the server filtered").toBe(1);
+    expect(rowValues(question), "#6").toEqual(["v7"]);
+  });
+  test("panel: a source attached after the load reads once, with both inside the request", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const survey = new SurveyModel({ elements: [panelJson] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.dataSource = source;
+    await flush();
+    expect(source.requests.length, "#1: exactly one read").toBe(1);
+    expect(source.calls.length, "#2").toBe(1);
+    expect(source.requests[0].filter, "#3").toBe("{col1} = 'v7'");
+    expect(source.requests[0].sort, "#4").toEqual(authoredSort);
+    expect(panelValues(question), "#5").toEqual(["v7"]);
+  });
+  /* Attached from onQuestionAdded, i.e. before the question has finished loading: the attach reads
+     by itself, with nothing authored yet, and the authored view then costs ONE read on top of it -
+     it used to cost two. The attach read is a separate matter (it is also unpaged: the page size
+     has not reached the list at that point) and this step does not change it. */
+  test("matrix: a source attached while the question loads adds one read for the whole view", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const survey = new SurveyModel();
+    survey.onQuestionAdded.add((sender: SurveyModel, options: any): void => {
+      (<any>options.question).dataSource = source;
+    });
+    survey.fromJSON({ elements: [matrixJson] });
+    await flush();
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(source.requests.length, "#1: the attach, then the authored view").toBe(2);
+    expect(source.requests[0].filter, "#2: nothing was authored yet at the attach").toBe("");
+    expect(source.requests[1].filter, "#3: one read for both").toBe("{col1} = 'v7'");
+    expect(source.requests[1].sort, "#4").toEqual(authoredSort);
+    expect(rowValues(question), "#5").toEqual(["v7"]);
+  });
+});
+
+describe("Remote data source: a total the source does not know", () => {
+  const createNoTotalSource = (count: number): FakeServerSource => {
+    const source = new FakeServerSource(serverRecords(count));
+    source.reportTotal = false;
+    return source;
+  };
+  test("matrix: the row count is a lower bound and the pager walks to the end", async () => {
+    const source = createNoTotalSource(25);
+    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    expect(question.isRowCountKnown, "#1").toBe(false);
+    expect(question.rowCount, "#2: the rows known to exist").toBe(10);
+    expect(question.pageCount, "#3").toBe(2);
+    expect(question.canGoNextPage, "#4").toBe(true);
+    question.nextPage();
+    await flush();
+    expect(question.rowCount, "#5").toBe(20);
+    expect(question.pageCount, "#6").toBe(3);
+    question.nextPage();
+    await flush();
+    expect(question.visibleRows.length, "#7: the last page is short").toBe(5);
+    expect(question.rowCount, "#8: and the count is exact now").toBe(25);
+    expect(question.pageCount, "#9").toBe(3);
+    expect(question.canGoNextPage, "#10: nothing behind it").toBe(false);
+  });
+  test("matrix: the pager shows the page number alone while the count is unknown", async () => {
+    const source = createNoTotalSource(25);
+    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const info = question.pagerActions.getActionById("sv-pager-info");
+    expect(info.title, "#1: no total to show").toBe("1");
+    question.nextPage();
+    await flush();
+    expect(info.title, "#2: still walking").toBe("2");
+    question.nextPage();
+    await flush();
+    // The last page settles the count, so the total can be shown from here on.
+    expect(info.title, "#3: the end was reached").toBe("3 / 3");
+    question.prevPage();
+    await flush();
+    expect(info.title, "#4: and it is not forgotten on the way back").toBe("2 / 3");
+  });
+  test("panel: the panel count is a lower bound and isPanelCountKnown says so", async () => {
+    const source = createNoTotalSource(25);
+    const { question } = await createPanel(source, { panelsPerPage: 10 });
+    expect(question.isPanelCountKnown, "#1").toBe(false);
+    expect(question.panelCount, "#2: the records known to exist").toBe(10);
+    expect(question.pageCount, "#3").toBe(2);
+    question.nextPage();
+    await flush();
+    question.nextPage();
+    await flush();
+    expect(question.panels.length, "#4").toBe(5);
+    expect(question.panelCount, "#5").toBe(25);
+    // Reaching the end settles the count: there is nothing behind the last record.
+    expect(question.isPanelCountKnown, "#6").toBe(true);
+    expect(question.pageCount, "#7").toBe(3);
+  });
+  test("a source that reports its total leaves both questions knowing it", async () => {
+    const { question } = await createMatrix(new FakeServerSource(serverRecords(25)), { rowsPerPage: 10 });
+    expect(question.isRowCountKnown, "#1").toBe(true);
+    expect(question.rowCount, "#2").toBe(25);
+    expect(question.pageCount, "#3").toBe(3);
+  });
+});
+
+describe("Remote data source: the operation of a failed read", () => {
+  test("a readRange that rejects a filter reports read, not filter", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { survey, question } = await createMatrix(source);
+    const operations: Array<string> = [];
+    survey.onDynamicDataError.add((sender, options) => { operations.push(options.operation); });
+    source.auto = false;
+    question.filterExpression = "{col1} = 'v3'";
+    source.pending.forEach((call: IServerCall): void => call.fail(new Error("no such column")));
+    await flush();
+    expect(operations, "#1").toEqual(["read"]);
+  });
+});
+

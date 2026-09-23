@@ -248,7 +248,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      edit (the frozen-membership rule).
      rowCount follows the loaded total here and not through its setter: the setter clamps to
      settings.matrix.maxRowCount, truncates the storage and creates one row object per counted
-     record - none of which applies to a window of a larger table. */
+     record - none of which applies to a window of a larger table. With a source that answers
+     without a total it is the count of the rows known to exist, a lower bound - isRowCountKnown
+     says which of the two it is. */
   private storeLoadedRecords(): void {
     this.storeQuestionValue(this.remote.getWindow());
     this.rowCountValue = this.dataList.count;
@@ -446,6 +448,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   // The number of pages; 1 for an empty question and for one that does not page.
   public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  /* False while the data source answers a read without a total: rowCount is then the number of rows
+     known to exist - a lower bound - and pageCount the number of pages found so far. Every source
+     that hands over the whole table leaves it true. */
+  public get isRowCountKnown(): boolean { return this.paging.isCountKnown; }
+  // IDynamicDataPagingOwner: the name the controller reads, as pageSize is for rowsPerPage.
+  public get isCountKnown(): boolean { return this.isRowCountKnown; }
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
   public goToPage(index: number): void { this.paging.goToPage(index); }

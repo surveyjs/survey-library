@@ -50,9 +50,9 @@ export class DynamicDataRemoteController {
          made through one of the objects it materialized) is set when the list is created and holds
          for a remote source unchanged, and isReadThrough turns itself off - it only applies to an
          ArrayDynamicDataSource over the question's own value. Because of the frozen membership,
-         refreshView() on a source that filters or sorts on its own side has to be a refresh():
-         the server decides which records are in the window, so re-deciding the view means
-         re-reading it (see isSourceDecidingView). */
+         refreshView() on a source that pages has to be a refresh(): the server decides which records
+         are in the window, so re-deciding the view means re-reading it (see
+         DynamicDataPagingController.refreshView). */
       list.source = newValue;
     } else {
       list.source = this.owner.createValueDataSource();
@@ -66,11 +66,6 @@ export class DynamicDataRemoteController {
   public hasCapability(operation: DynamicDataOperation): boolean {
     const source: any = this.sourceValue;
     return !!source && typeof source[operation] === "function";
-  }
-  /* The source decides the membership of the window itself: re-deciding the view locally would only
-     re-run a filter or a sort the list never ran. */
-  public get isSourceDecidingView(): boolean {
-    return this.hasCapability("filter") || this.hasCapability("sort");
   }
   // Is the model still waiting for this source? A page that has not arrived, a page that is about to
   // be read again once the pending edits are acknowledged, and an edit that has not been

@@ -89,7 +89,7 @@ export function compareFieldValues(a: any, b: any, field: IDynamicDataField, dir
 }
 // Builds the runner for a filter expression once, so that it is parsed once and run per record.
 // Returns undefined for an empty expression (= no filter) and throws for one that cannot be run
-// locally; DynamicDataList reports that through onError(error, "filter").
+// locally; DynamicDataList reports that through onError(error, "read") and drops the filter.
 export function createFilterRunner(expression: string): ConditionRunner {
   if (!expression) return undefined;
   const runner = new ConditionRunner(expression);

@@ -2,8 +2,8 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import { applyFilter, applySort, createFilterRunner, createIndexes } from "./dynamic-data-filter";
 import {
-  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange,
-  IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource
+  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
+  IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 
@@ -49,6 +49,17 @@ export class DynamicDataList {
   private hiddenCount: number = 0;
   private _windowOffset: number = 0;
   private _total: number = undefined;
+  /* Committed together with the window (see commitRead). A source that cannot count its records
+     cheaply answers without a total: the list then knows only what it has seen, and hasMore is what
+     tells it that there is a page behind the one it holds. Both are true/false by default, which is
+     what every source that is not a paging one answers: read() returns the whole storage. */
+  private _isCountKnown: boolean = true;
+  private _hasMore: boolean = false;
+  /* The filter a total the list worked out ITSELF belongs to (see commitCount). Such a total
+     outlives the read that found it - a walk back to the first page must not send the pager looking
+     for the end all over again - but it describes one set of records, and another filter is another
+     set. undefined = the total is the source's own answer, or there is none. */
+  private discoveredTotalFilter: string = undefined;
   private _isLoading: boolean = false;
   private _filter: string = "";
   private filterRunner: ConditionRunner = undefined;
@@ -165,57 +176,17 @@ export class DynamicDataList {
     this.setIsLoading(false);
     this.resetWindow();
     /* The filter and the sort belong to the list, not to the source it happened to have. Which side
-       runs them is a capability of the source, so a swap re-decides it: a filter the old source ran
-       on its own side has no local runner yet, and one the list ran locally has to be handed to a new
-       source that owns it - otherwise the view the owner is showing disappears with the swap. */
+       runs them is a capability of the source, so a swap re-decides it: a filter a paging source ran
+       on its own side has no local runner yet, and one the list ran locally is handed to a paging
+       source inside the very next read request - otherwise the view the owner is showing would
+       disappear with the swap. */
     this.updateFilterRunner();
     if (wasLoaded) {
-      this.applyViewToSourceAndRead();
+      // One read, with the view inside its request: nothing has to be "applied" to the source first.
+      this.load();
     } else {
       this.raiseChanged({ type: "reset" });
     }
-  }
-  /* Tells the new source about the filter and the sort it owns and then reads once. Sequential and
-     not two runSourceView() calls: each of those reads on its own, and a swap must cost one read,
-     with the filter and the sort already in force when it runs. */
-  private applyViewToSourceAndRead(): void {
-    const operations: Array<DynamicDataOperation> = [];
-    if (!!this._filter && this.isSourceFiltering) operations.push("filter");
-    if (this._sort.length > 0 && this.isSourceSorting) operations.push("sort");
-    if (operations.length === 0) {
-      this.load();
-      return;
-    }
-    const epoch = this.sourceEpoch;
-    const source = this._source;
-    // The owner is waiting for records from the moment the swap was made, not from the read that
-    // follows these calls.
-    this.setIsLoading(true);
-    const runNext = (index: number): void => {
-      // A source replaced again while its own view was being applied: the chain belongs to the
-      // source that is gone and the one that replaced it has started its own.
-      if (this.isDisposed || epoch !== this.sourceEpoch) return;
-      if (index >= operations.length) {
-        this.load();
-        return;
-      }
-      const operation = operations[index];
-      let res: any;
-      try {
-        res = operation === "filter" ? source.filter(this._filter) : source.sort(this._sort);
-      } catch(e) {
-        this.raiseError(e, operation);
-        runNext(index + 1);
-        return;
-      }
-      if (isPromiseLike(res)) {
-        res.then((): void => { runNext(index + 1); },
-          (error: any): void => { this.raiseError(error, operation); runNext(index + 1); });
-      } else {
-        runNext(index + 1);
-      }
-    };
-    runNext(0);
   }
   /* One record operation of the owner is often several list operations, and with a source that
      writes through its owner's storage every one of them is an assignment of its own - and with it
@@ -263,11 +234,23 @@ export class DynamicDataList {
     return this._windowOffset;
   }
 
+  /* The storage count. With an unknown total (isCountKnown false) it is the count of the records
+     known to exist - the ones that have been seen, a lower bound - and never NaN or -1: a source
+     that cannot count its records still has at least the ones it has handed over. */
   public get count(): number {
-    return this._total !== undefined ? this._total : this.recordCount;
+    return this._total !== undefined ? this._total : this._windowOffset + this.recordCount;
+  }
+  // False while the source answers without a total: count is a lower bound and pageCount is the
+  // number of pages known to exist.
+  public get isCountKnown(): boolean {
+    return this._isCountKnown;
+  }
+  // Are there records behind the loaded window? It is what a pager's "next" is built from.
+  public get hasMore(): boolean {
+    return this._hasMore;
   }
   public get filteredCount(): number {
-    if (this.isSourceFiltering || !this._filter) return this.count;
+    if (this.hasReadRange || !this._filter) return this.count;
     return this.getCreatedIndexes().length;
   }
   public get visibleCount(): number {
@@ -362,6 +345,7 @@ export class DynamicDataList {
     }
     this.hiddenFlags.splice(at, 0, false);
     if (this._total !== undefined)this._total++;
+    this.updateHasMoreFromTotal(countAfter);
     this.insertIntoMembership(at, createdPosition, countAfter);
     this.resetViews();
     const sourceIndex = this._windowOffset + at;
@@ -393,6 +377,7 @@ export class DynamicDataList {
     if (this.hiddenFlags[index])this.hiddenCount--;
     this.hiddenFlags.splice(index, 1);
     if (this._total !== undefined)this._total--;
+    this.updateHasMoreFromTotal(countAfter);
     this.removeFromMembership(index, countAfter);
     this.resetViews();
     const sourceIndex = this._windowOffset + index;
@@ -414,9 +399,17 @@ export class DynamicDataList {
      recomputes it from pageIndex and the two agree only by coincidence. */
   private refillWindowAfterRemove(): void {
     if (!this.hasReadRange || !this.isLoaded || this._pageSize <= 0) return;
-    const length = this.recordCount;
-    if (length >= this._pageSize || this._windowOffset + length >= this.count) return;
+    // hasMore and not "windowOffset + length < count": with an unknown total the count is the
+    // records seen so far and would never say that the source has more. With a known total the two
+    // are the same value - updateHasMoreFromTotal recomputed the flag when the remove decremented it.
+    if (this.recordCount >= this._pageSize || !this._hasMore) return;
     this.refresh();
+  }
+  // The committed hasMore follows a total the list changed itself; with an unknown total the flag
+  // stays as the source left it - a record the list removed cannot tell it what is behind the window.
+  private updateHasMoreFromTotal(recordCount: number): void {
+    if (this._total === undefined) return;
+    this._hasMore = this._windowOffset + recordCount < this._total;
   }
   public move(fromIndex: number, toIndex: number): void {
     const length = this.recordCount;
@@ -579,8 +572,12 @@ export class DynamicDataList {
     if (this._pageSize <= 0) return 1;
     // A readRange source pages in the storage, so the page count comes from the storage count; a
     // local source pages over the visible records.
-    const total = this.hasReadRange ? this.count : this.visibleCount;
-    return Math.max(1, Math.ceil(total / this._pageSize));
+    if (!this.hasReadRange) return Math.max(1, Math.ceil(this.visibleCount / this._pageSize));
+    /* An unknown total: the pages known to exist - the one that is loaded, the ones before it, and
+       one more when the source said there is something behind the window. The pager then offers
+       "next" one page at a time, which is exactly what the source has told the list. */
+    if (!this._isCountKnown) return this._pageIndex + 1 + (this._hasMore ? 1 : 0);
+    return Math.max(1, Math.ceil(this.count / this._pageSize));
   }
   public get pageRecordCount(): number {
     return this.getPageIndexes().length;
@@ -615,47 +612,55 @@ export class DynamicDataList {
     return this._filter;
   }
   public set filter(v: string) {
-    this._filter = !!v ? v : "";
-    this._pageIndex = 0;
-    this.filterRunner = undefined;
-    this.resetMembership();
-    if (this.isSourceFiltering) {
-      this.runSourceView("filter", (): any => this._source.filter(this._filter));
-    } else {
-      this.updateFilterRunner();
-      this.resetViews();
-      this.refreezeMembership();
-      this.raiseChanged({ type: "reset" });
-    }
+    this.setView(v, this._sort);
   }
-  /* The runner exists only while the list itself is the one filtering: a source that filters on its
-     own side gets the expression text and the list keeps none. Parsed as soon as the filter - or the
-     source - is set, so that a filter which cannot be run locally is reported then and not on the
-     first read of a view. */
+  /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
+     inside the read request, so two assignments would be two requests, the second superseding the
+     first. It is what the two setters are made of - and what a question that has both authored
+     hands over on its first sync. */
+  public setView(filter: string, sort: Array<IDynamicDataSort>): void {
+    const newFilter = !!filter ? filter : "";
+    /* The page reset belongs to the filter: a different membership makes the page the respondent is
+       on meaningless, while a sort keeps the same records and only reorders them. An assignment of
+       the filter it already has changes neither. */
+    const isFilterChanged = this._filter !== newFilter;
+    this._filter = newFilter;
+    this._sort = Array.isArray(sort) ? sort : [];
+    if (isFilterChanged) {
+      this._pageIndex = 0;
+      this.filterRunner = undefined;
+      this.updateFilterRunner();
+    }
+    this.resetMembership();
+    if (this.hasReadRange) {
+      this.load();
+      return;
+    }
+    this.resetViews();
+    this.refreezeMembership();
+    this.raiseChanged({ type: "reset" });
+  }
+  /* The runner exists only while the list itself is the one filtering: a paging source gets the
+     expression text inside every read request and the list keeps none. Parsed as soon as the
+     filter - or the source - is set, so that a filter which cannot be run locally is reported then
+     and not on the first read of a view. */
   private updateFilterRunner(): void {
     this.filterRunner = undefined;
-    if (!this._filter || this.isSourceFiltering) return;
+    if (!this._filter || this.hasReadRange) return;
     try {
       this.filterRunner = createFilterRunner(this._filter);
     } catch(e) {
-      // The list stays unfiltered: showing every record beats showing none.
+      // The list stays unfiltered: showing every record beats showing none. The operation is "read":
+      // it is the read of the view that the filter made impossible.
       this._filter = "";
-      this.raiseError(e, "filter");
+      this.raiseError(e, "read");
     }
   }
   public get sort(): Array<IDynamicDataSort> {
     return this._sort;
   }
   public set sort(v: Array<IDynamicDataSort>) {
-    this._sort = Array.isArray(v) ? v : [];
-    this.resetMembership();
-    if (this.isSourceSorting) {
-      this.runSourceView("sort", (): any => this._source.sort(this._sort));
-    } else {
-      this.resetViews();
-      this.refreezeMembership();
-      this.raiseChanged({ type: "reset" });
-    }
+    this.setView(this._filter, v);
   }
   public dispose(): void {
     this.isDisposed = true;
@@ -681,14 +686,10 @@ export class DynamicDataList {
   public get isPagedBySource(): boolean {
     return this.hasReadRange;
   }
+  // One capability: a source that pages also filters and sorts itself. A source that filters on its
+  // side but leaves the paging to the list would have the list filter one page.
   private get hasReadRange(): boolean {
     return !!this._source && !!this._source.readRange;
-  }
-  private get isSourceFiltering(): boolean {
-    return !!this._source && !!this._source.filter;
-  }
-  private get isSourceSorting(): boolean {
-    return !!this._source && !!this._source.sort;
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
@@ -715,7 +716,7 @@ export class DynamicDataList {
     }
   }
   private get hasLocalViews(): boolean {
-    return (!!this._filter && !this.isSourceFiltering) || (this._sort.length > 0 && !this.isSourceSorting);
+    return this.hasView && !this.hasReadRange;
   }
   // The flags are spliced in step with the records, so they must stay a dense array of the same
   // length: a shorter one would shift the wrong entries.
@@ -745,8 +746,8 @@ export class DynamicDataList {
     this.alignHiddenFlags();
     let created = this.getFrozenCreatedIndexes(recordCount);
     if (!created) {
-      const needFilter = !!this.filterRunner && !this.isSourceFiltering;
-      const needSort = this._sort.length > 0 && !this.isSourceSorting;
+      const needFilter = !!this.filterRunner && !this.hasReadRange;
+      const needSort = this._sort.length > 0 && !this.hasReadRange;
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.records : undefined;
       created = needFilter ? applyFilter(records, this.filterRunner) : createIndexes(recordCount);
@@ -845,6 +846,9 @@ export class DynamicDataList {
     this.hiddenFlags = [];
     this.hiddenCount = 0;
     this._total = undefined;
+    this._isCountKnown = true;
+    this._hasMore = false;
+    this.discoveredTotalFilter = undefined;
     this._windowOffset = 0;
     this.isLoaded = false;
     this.resetMembership();
@@ -875,8 +879,11 @@ export class DynamicDataList {
     this.load();
     return true;
   }
+  // The window is the whole storage only when it starts at the first record and the source has
+  // nothing behind it. An unknown total makes "count > loadedCount" unusable - the count IS the
+  // window then - so the two committed facts answer it instead.
   private checkWindowIsWholeStorage(operation: string): void {
-    if (this.hasReadRange && this.count > this.recordCount) {
+    if (this.hasReadRange && (this._windowOffset > 0 || this._hasMore)) {
       throw new Error("DynamicDataList." + operation + " requires the whole storage to be loaded.");
     }
   }
@@ -940,9 +947,10 @@ export class DynamicDataList {
     const skip = useReadRange
       ? (useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize)
       : 0;
+    const take = this._pageSize;
     let res: any;
     try {
-      res = useReadRange ? this._source.readRange(skip, this._pageSize) : this._source.read();
+      res = useReadRange ? this._source.readRange(this.createReadRequest(skip, take)) : this._source.read();
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
       this.inFlightRead = undefined;
@@ -951,7 +959,7 @@ export class DynamicDataList {
       return;
     }
     if (isPromiseLike(res)) {
-      const inFlight = { skip: skip, take: this._pageSize, useReadRange: useReadRange, isOvertaken: false };
+      const inFlight = { skip: skip, take: take, useReadRange: useReadRange, isOvertaken: false };
       this.inFlightRead = inFlight;
       this.setIsLoading(true);
       return res.then((data: any): any => {
@@ -964,7 +972,11 @@ export class DynamicDataList {
           // loading state, as a superseding read does.
           return this.startRead(useWindowOffset);
         }
-        this.commitRead(data, skip, useReadRange);
+        /* A page past the end: the read of the page it stepped back to takes this one's place, and
+           it is returned, so that a caller awaiting load()/refresh() waits for the window that is
+           committed and not for the answer that was discarded. It inherits the loading state, as a
+           superseding read does. */
+        if (!this.commitRead(data, skip, take, useReadRange)) return this.load();
         this.setIsLoading(false);
       }, (error: any): void => {
         if (this.isDisposed || requestId !== this.readRequestId) return;
@@ -975,22 +987,47 @@ export class DynamicDataList {
       });
     }
     this.inFlightRead = undefined;
-    this.commitRead(res, skip, useReadRange);
+    if (!this.commitRead(res, skip, take, useReadRange)) return this.load();
     // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
     // read of the same source; the flag that read set is this one's to clear.
     this.setIsLoading(false);
   }
-  // The window, its offset and the total are committed together: while a read is pending or after it
-  // was rejected, the previous window and its own offset stay in force.
-  private commitRead(data: any, skip: number, useReadRange: boolean): void {
+  // One read = one request: the range and the view the list wants. The source keeps no state between
+  // the calls, so nothing has to be pushed to it before a read and two questions may share it.
+  private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
+    return { skip: skip, take: take, filter: this._filter, sort: this._sort.slice() };
+  }
+  /* The window, its offset, the total and what is known about it are committed together: while a
+     read is pending or after it was rejected, the previous window and its own offset stay in force.
+     Returns whether the window was committed - an empty page past the end is not. */
+  private commitRead(data: any, skip: number, take: number, useReadRange: boolean): boolean {
     if (useReadRange) {
       const result = data || {};
-      this.records = Array.isArray(result.records) ? result.records : [];
-      this._total = typeof result.total === "number" ? result.total : this.records.length;
+      const records = Array.isArray(result.records) ? result.records : [];
+      /* A page past the end. With an unknown total nothing stops a pageIndex the source has no
+         records for, and an empty answer at an offset is what says so: the page does not exist. It
+         is not announced - the owner would see a table that is empty for a moment - the list steps
+         one page back and reads that one, and again if it is empty too (bounded by pageIndex).
+         The empty answer is not thrown away: nothing exists at skip or behind it, so the storage
+         holds at most that many records. The window the step back commits then confirms that bound
+         or lowers it, and the pager stops offering the page that answered empty. */
+      if (records.length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && this._pageIndex > 0) {
+        this._total = skip;
+        this._isCountKnown = true;
+        this.discoveredTotalFilter = this._filter;
+        this._pageIndex--;
+        this.pageIndexes = undefined;
+        return false;
+      }
+      this.records = records;
+      this.commitCount(result, skip, take, records.length);
       this._windowOffset = skip;
     } else {
       this.records = Array.isArray(data) ? data : [];
       this._total = undefined;
+      // read() answers with the whole storage, so its length IS the count.
+      this._isCountKnown = true;
+      this._hasMore = false;
       this._windowOffset = 0;
     }
     this.isLoaded = true;
@@ -1001,20 +1038,47 @@ export class DynamicDataList {
     this.refreezeMembership();
     this.clampPageIndex();
     this.raiseChanged({ type: "reset" });
+    return true;
   }
-  private runSourceView(operation: DynamicDataOperation, call: () => any): void {
-    let res: any;
-    try {
-      res = call();
-    } catch(e) {
-      this.raiseError(e, operation);
+  /* Does this answer reach the end of the storage? The source says so with hasMore; otherwise a
+     window shorter than the take it asked for is the end, and so is any window answering a take of
+     0 - that request was for everything from skip. */
+  private isEndOfStorage(result: any, take: number, length: number): boolean {
+    if (typeof result.hasMore === "boolean") return !result.hasMore;
+    return take <= 0 || length < take;
+  }
+  private commitCount(result: any, skip: number, take: number, length: number): void {
+    if (typeof result.total === "number") {
+      this._total = result.total;
+      this._isCountKnown = true;
+      this.discoveredTotalFilter = undefined;
+      this._hasMore = skip + length < this._total;
       return;
     }
-    if (isPromiseLike(res)) {
-      res.then((): void => { this.load(); }, (error: any): void => { this.raiseError(error, operation); });
-    } else {
-      this.load();
+    /* An answer that reaches the end settles the count as well: there is nothing behind the last
+       record, so the storage holds exactly the records up to it. A source that cannot count in
+       advance is therefore counted once, by walking to its end. */
+    if (this.isEndOfStorage(result, take, length)) {
+      this._total = skip + length;
+      this._isCountKnown = true;
+      this.discoveredTotalFilter = this._filter;
+      this._hasMore = false;
+      return;
     }
+    /* A total the list worked out itself is kept while the window fits inside it: this is a page in
+       front of an end that has already been found, and forgetting it would offer a page behind the
+       end again and cost two reads to discover the same end. A window that reaches past it is a
+       storage that has grown, and the end has to be found again. */
+    if (this._total !== undefined && this.discoveredTotalFilter === this._filter && skip + length <= this._total) {
+      this._isCountKnown = true;
+      this._hasMore = skip + length < this._total;
+      return;
+    }
+    this._total = undefined;
+    this._isCountKnown = false;
+    this.discoveredTotalFilter = undefined;
+    // Not the end, so there is at least one record behind this window.
+    this._hasMore = true;
   }
 
   /* The source is captured here, when the write is enqueued, and never read again from the field:

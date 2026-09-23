@@ -10530,21 +10530,21 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     return question.visiblePanels.map(panel => panel.getQuestionByName(name).value);
   };
   const cba = [{ q1: "c" }, { q1: "a" }, { q1: "b" }];
-  // Counts the assignments to DynamicDataList.sort while func runs: "the list receives the authored
-  // sort once per load" is about the reset every assignment costs, not about the value it ends with.
+  /* Counts the view assignments the list receives while func runs - through setView, which is what
+     both setters are made of. "The list receives the authored sort once per load" is about the
+     reset every assignment costs, not about the value it ends with. */
   const countSortAssignments = (func: () => void): number => {
     const proto: any = DynamicDataList.prototype;
-    const original = Object.getOwnPropertyDescriptor(proto, "sort");
+    const original = proto.setView;
     let count = 0;
-    Object.defineProperty(proto, "sort", {
-      configurable: true,
-      get: original.get,
-      set: function(val: any): void { count++; original.set.call(this, val); }
-    });
+    proto.setView = function(filter: string, sort: any): void {
+      count++;
+      original.call(this, filter, sort);
+    };
     try {
       func();
     } finally {
-      Object.defineProperty(proto, "sort", original);
+      proto.setView = original;
     }
     return count;
   };

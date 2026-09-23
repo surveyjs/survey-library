@@ -615,6 +615,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   // The number of pages; 1 for an empty question and for one that does not page.
   public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  /* False while the data source answers a read without a total: panelCount is then the number of
+     records known to exist - a lower bound - and pageCount the number of pages found so far. Every
+     source that hands over the whole storage leaves it true. */
+  public get isPanelCountKnown(): boolean { return this.paging.isCountKnown; }
+  // IDynamicDataPagingOwner: the name the controller reads, as pageSize is for panelsPerPage.
+  public get isCountKnown(): boolean { return this.isPanelCountKnown; }
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
   public goToPage(index: number): void { this.paging.goToPage(index); }

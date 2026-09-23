@@ -30,6 +30,8 @@ export interface IDynamicDataPagingOwner {
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
+  // isRowCountKnown / isPanelCountKnown: false while the source answers without a total.
+  isCountKnown: boolean;
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
   // sortBy is computed from sortOrder and nothing raises its change on its own (see
@@ -65,6 +67,12 @@ export class DynamicDataPagingController {
     const res = this.owner.getPropertyValue("pageCount");
     return res > 0 ? res : 1;
   }
+  /* False while the source answers a read without a total: pageCount is then the number of pages
+     known to exist and the record count is a lower bound. The default is true - every source that
+     is not a paging one hands over the whole storage. */
+  public get isCountKnown(): boolean {
+    return this.owner.getPropertyValue("isCountKnown") !== false;
+  }
   /* Through the owner and not through the mirror: the question answers 1 page and page 0 whenever
      it does not page at all, and that is what "can go" has to agree with. */
   public get canGoNextPage(): boolean {
@@ -86,6 +94,10 @@ export class DynamicDataPagingController {
       this.pageIndex = this.owner.pageIndex - 1;
     }
   }
+  /* With an unknown count this goes one page forward, which is the last page known to exist: the
+     source has told the list that there is something behind the window and nothing more. It is not
+     disabled - a caller that asks for the last page of a table nobody can count gets the last one
+     that has been found, and asking again goes on. */
   public goToLastPage(): void {
     this.pageIndex = this.owner.pageCount - 1;
   }
@@ -108,6 +120,7 @@ export class DynamicDataPagingController {
     const list = this.list;
     this.owner.setPropertyValue("pageIndex", list.pageIndex);
     this.owner.setPropertyValue("pageCount", list.pageCount);
+    this.owner.setPropertyValue("isCountKnown", list.isCountKnown);
     // A sync raised by the push itself: the page state is up to date, the view is being handed over
     // right now and mirroring it half way through would wipe the half that is still pending.
     if (this.isPushingView) return;
@@ -165,11 +178,10 @@ export class DynamicDataPagingController {
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.sortOrder;
-    if (list.filter !== filter) {
-      list.filter = filter;
-    }
-    if (!Helpers.isTwoValueEquals(list.sort, sort)) {
-      list.sort = sort;
+    // One setView and not the two setters: with a paging source each of them is a read of its own,
+    // and the authored view has to cost one request.
+    if (list.filter !== filter || !Helpers.isTwoValueEquals(list.sort, sort)) {
+      list.setView(filter, sort);
     }
     this.isPushingView = false;
     this.mirrorListView();
@@ -179,8 +191,7 @@ export class DynamicDataPagingController {
     const list = this.list;
     if (!list.filter && list.sort.length === 0) return;
     this.isPushingView = true;
-    list.filter = "";
-    list.sort = [];
+    list.setView("", []);
     this.isPushingView = false;
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
@@ -276,13 +287,12 @@ export class DynamicDataPagingController {
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
   }
-  /* Re-decides which records are shown. A source that filters or sorts on its own side has decided
-     that already - the window IS the answer - so re-running a local filter the list never ran would
-     say nothing; the window is read again instead. Every in-memory source takes the local path. */
+  /* Re-decides which records are shown. A source that pages decides the membership of the window
+     itself - the window IS the answer - so re-running a local filter the list never ran would say
+     nothing; the window is read again instead. Every in-memory source takes the local path. */
   public refreshView(): void {
     const list = this.list;
-    const source: any = list.source;
-    if (!!source && (typeof source.filter === "function" || typeof source.sort === "function")) {
+    if (list.isPagedBySource) {
       list.refresh();
     } else {
       list.refreshView();
@@ -298,7 +308,10 @@ export class DynamicDataPagingController {
     });
     const pageInfoAction = new Action({
       id: "sv-pager-info",
-      title: <any>new ComputedUpdater(() => this.owner.pageIndex + 1 + " / " + this.owner.pageCount)
+      // A count nobody knows has no total to show: the page number alone.
+      title: <any>new ComputedUpdater(() => !this.owner.isCountKnown
+        ? String(this.owner.pageIndex + 1)
+        : this.owner.pageIndex + 1 + " / " + this.owner.pageCount)
     });
     const nextAction = new Action({
       id: "sv-pager-next",

@@ -1,7 +1,8 @@
-import { describe, test, expect } from "vitest";
+import { afterEach, describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Serializer } from "../../src/jsonobject";
+import { ComponentCollection } from "../../src/question_custom";
 
 describe("isFilterable and allowFiltering", () => {
   test("the types that cannot be filtered say so", () => {
@@ -85,5 +86,41 @@ describe("getFilterFields", () => {
     const field = panel.getFilterFields()[0];
     panel.setControlFilter("control", "{" + field.valueName + "} = 'a'");
     expect(panel.visiblePanels.length, "#1: the record was reached through the dotted path").toBe(1);
+  });
+});
+
+describe("getFilterFields with a composite cell type", () => {
+  const addCustomerInfo = (): void => {
+    ComponentCollection.Instance.add({ name: "customerinfo", elementsJSON: [
+      { type: "text", name: "firstName" }, { type: "text", name: "lastName" }] });
+  };
+  afterEach(() => { ComponentCollection.Instance.clear(); });
+  test("a composite column contributes its children and not itself", () => {
+    addCustomerInfo();
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
+      { name: "col1", cellType: "customerinfo" }, { name: "col2", cellType: "text" }] }] });
+    const fields = (<any>survey.getQuestionByName("m")).getFilterFields();
+    expect(fields.map((f: any) => f.valueName), "#1: the composite is walked, not offered")
+      .toEqual(["col1.firstName", "col1.lastName", "col2"]);
+    expect(fields[0].name, "#2: the child names itself").toBe("firstName");
+    expect(fields[0].fieldType, "#3: the child supplies the editor").toBe("text");
+  });
+  test("the dotted key of a composite cell is the one the expression resolves", () => {
+    addCustomerInfo();
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2,
+      columns: [{ name: "col1", cellType: "customerinfo" }] }] });
+    const matrix = <any>survey.getQuestionByName("m");
+    matrix.value = [{ col1: { firstName: "Jon" } }, { col1: { firstName: "Jaime" } }];
+    const field = matrix.getFilterFields()[0];
+    matrix.setControlFilter("control", "{" + field.valueName + "} = 'Jon'");
+    expect(matrix.visibleRows.length, "#1: the row was reached through the dotted path").toBe(1);
+  });
+  test("a composite column bound through valueName prefixes by the record key", () => {
+    addCustomerInfo();
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m",
+      columns: [{ name: "col1", cellType: "customerinfo", valueName: "customer" }] }] });
+    const fields = (<any>survey.getQuestionByName("m")).getFilterFields();
+    expect(fields.map((f: any) => f.valueName), "#1: the key the cell writes, not the column name")
+      .toEqual(["customer.firstName", "customer.lastName"]);
   });
 });

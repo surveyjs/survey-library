@@ -53,7 +53,9 @@ export function getFilterFieldsForQuestions(questions: Array<Question>): Array<I
   (questions || []).forEach((question: Question): void => { collectFilterFields(res, question, ""); });
   return res;
 }
-function collectFilterFields(res: Array<IDynamicDataFilterField>, question: Question, valuePrefix: string): void {
+// The one rule, shared by both sources: a matrix column that is not a field of its own walks into
+// its cell question the same way. valuePrefix is the dotted path already walked, "" at the top.
+export function collectFilterFields(res: Array<IDynamicDataFilterField>, question: Question, valuePrefix: string): void {
   if (!question || !question.allowFiltering) return;
   const valueName = valuePrefix + question.getValueName();
   if (question.isFilterable) {

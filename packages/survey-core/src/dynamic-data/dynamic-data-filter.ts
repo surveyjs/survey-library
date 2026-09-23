@@ -142,3 +142,13 @@ export function applySort(records: Array<any>, sort: Array<IDynamicDataSort>,
   });
   return order.map(item => item.recordIndex);
 }
+// Both operands are parenthesized as soon as there are two of them. "or" binds looser than "and"
+// (grammar.pegjs: Expression -> LogicOr -> LogicAnd), so "{a} = 1 or {b} = 2" combined with
+// "{c} = 3" would otherwise read as "{a} = 1 or ({b} = 2 and {c} = 3)".
+export function combineFilterExpressions(first: string, second: string, conjunction: string = "and"): string {
+  const a = (first || "").trim();
+  const b = (second || "").trim();
+  if (!a) return b;
+  if (!b) return a;
+  return "(" + a + ") " + conjunction + " (" + b + ")";
+}

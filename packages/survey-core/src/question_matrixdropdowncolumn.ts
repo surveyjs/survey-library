@@ -1025,9 +1025,14 @@ Serializer.addClass(
     { name: "renderAs", default: "default", visible: false },
     // Invisible until the UI series renders sortable headers, see matrixdynamic.allowSortRows.
     { name: "allowSort:boolean", default: true, visible: false },
-    // Mirrors question.allowFiltering for a cell: the column's own property shadows the cell
-    // question's, the way isRequired and readOnly do. dependsOn re-asks the grid when the cell type
-    // changes, because the cell type is what decides whether a column can be filtered at all.
+    // Mirrors question.allowFiltering for a cell: the column's own property SHADOWS the cell
+    // question's. It deliberately does NOT forward into it - do not copy isRequired here, that one
+    // forwards through an onSet (see its @property above). The column is the only authority:
+    // updateTemplateQuestion() recreates the cell question whenever cellType changes and a
+    // forwarded value would not survive it, so the composite path (question_matrixdynamic.ts,
+    // getFilterFields) asks column.allowFiltering and not the cell question's copy of it.
+    // dependsOn re-asks the grid when the cell type changes, because the cell type is what decides
+    // whether a column can be filtered at all.
     // Because the cell question carries a property of the same name, getOriginalByProperty hands
     // visibleIf the cell question instead of the column, so read the capability off whichever of
     // the two arrives. Never off column.isFilterable: it folds in allowFiltering itself and would

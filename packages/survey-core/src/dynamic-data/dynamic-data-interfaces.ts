@@ -1,4 +1,4 @@
-import { IDynamicDataFilterField } from "./dynamic-data-fields";
+import type { IDynamicDataFilterField } from "./dynamic-data-fields";
 
 // The data-source contract for DynamicDataList. Capabilities are declared by the presence of the
 // optional methods: a source that has "readRange" pages, filters and sorts itself, a source that

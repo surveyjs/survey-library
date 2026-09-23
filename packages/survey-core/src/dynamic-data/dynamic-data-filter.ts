@@ -113,7 +113,9 @@ export function createFilterRunner(expression: string): ConditionRunner {
 function toRunner(filter: string | ConditionRunner): ConditionRunner {
   return typeof filter === "string" ? createFilterRunner(filter) : filter;
 }
-// Returns the indexes of the records the filter expression accepts, in record order.
+// Returns the indexes of the records the filter expression accepts, in record order. The list runs
+// through applyFilters() below; this one is kept as the single-runner convenience that also takes
+// the expression as text, which is what a caller holding one expression wants.
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner): Array<number> {
   const runner = toRunner(filter);
   if (!runner) return createIndexes(records.length);

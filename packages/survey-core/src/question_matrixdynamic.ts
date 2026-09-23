@@ -35,7 +35,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner } from "./dynamic-data/dynamic-data-page-validation";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getDynamicDataFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
+import { collectFilterFields, getDynamicDataFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
@@ -262,14 +262,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.storeQuestionValue(this.remote.getWindow());
     this.rowCountValue = this.dataList.count;
   }
-  // A matrix column is always flat: matrixDropdownColumnTypes holds no composite type, so there is
-  // no nesting to walk here - unlike a Dynamic Panel template.
+  // A filterable column is one field, described by the column itself: its title and its opt-out are
+  // the column's, not the cell question's. A cell whose value is a record of its own - a composite
+  // question registered as a cell type - is not a field: its children are, and they are collected
+  // by the same rule a Dynamic Panel template is walked by. collectFilterFields starts from the
+  // cell question, so it names them under getValueName() - the key the cell writes, which is what
+  // column.sortField reports and is not the column name when the column is bound through valueName.
   public getFilterFields(): Array<IDynamicDataFilterField> {
     const res = new Array<IDynamicDataFilterField>();
     this.columns.forEach((column: MatrixDropdownColumn): void => {
       const field = column.getFilterField();
       if (!!field) {
         res.push(field);
+        return;
+      }
+      if (column.allowFiltering) {
+        collectFilterFields(res, column.templateQuestion, "");
       }
     });
     return res;

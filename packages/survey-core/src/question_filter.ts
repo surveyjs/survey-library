@@ -117,18 +117,19 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!!source) return source.getFilterFields();
     return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
   }
-  // valueName first: it is the only key that is unique across a bound source. A nested field is
-  // named by its leaf ("city") and reached by its dotted path ("address.city"), so two record-valued
-  // questions with same-named children share a name and nothing else. The name is still accepted,
-  // because that is what a standalone field is authored and searched by.
+  // The name first - that is what a standalone field is authored and searched by - and the
+  // valueName after it. A bound nested field is named by its leaf ("city") and reached by its dotted
+  // path ("mt.city"), and only the path is unique, so searchFields has to be able to name it that
+  // way; a dotted path is never a field name, so the second pass cannot take a match away from the
+  // first one.
   public getFieldByName(name: string): IDynamicDataFilterField {
     if (!name) return undefined;
     const fields = this.getFilterFields();
     for (let i = 0; i < fields.length; i++) {
-      if (fields[i].valueName === name) return fields[i];
+      if (fields[i].name === name) return fields[i];
     }
     for (let i = 0; i < fields.length; i++) {
-      if (fields[i].name === name) return fields[i];
+      if (fields[i].valueName === name) return fields[i];
     }
     return undefined;
   }
@@ -240,16 +241,23 @@ export class QuestionFilterModel extends QuestionNonValue {
   private updateFilterSource(): void {
     if (this.isDesignMode) return;
     const source = this.filterSource;
-    if (source !== this.attachedSource) {
-      this.detachFromSource();
-      this.attachedSource = source;
-      // Attaching is not a change of the filter by itself: with nothing composed yet there is
-      // nothing to write and nothing to report.
-      if (!!this.filterExpression) {
-        this.applyToSource();
-      }
+    if (source === this.attachedSource) {
+      this.updateFilterExpression();
+      return;
     }
-    this.updateFilterExpression();
+    this.detachFromSource();
+    // The expression is recomposed against the new source BEFORE anything is written: the search
+    // fragments quote the fields of the source they were built from, so the text composed for the
+    // previous one names fields the new one may not have. Recomposing it silently - the control is
+    // attached to nothing for the length of this call - is what makes the move one write and one
+    // event instead of a wrong pair of them.
+    this.updateFilterExpression(true);
+    this.attachedSource = source;
+    // Attaching is not a change of the filter by itself: with nothing composed there is nothing to
+    // write and nothing to report.
+    if (!!this.filterExpression) {
+      this.applyToSource();
+    }
   }
   private detachFromSource(): void {
     const source: any = this.attachedSource;
@@ -412,14 +420,18 @@ export class QuestionFilterModel extends QuestionNonValue {
     const itemExpression = !!item ? (item.expression || "").trim() : "";
     return combineFilterExpressions(itemExpression, this.calcSearchExpression());
   }
-  private updateFilterExpression(): void {
+  // skipApply is for the one caller that is in the middle of moving the control between two
+  // sources: it does the single write-and-raise itself, once the new source is attached.
+  private updateFilterExpression(skipApply?: boolean): void {
     // Nothing is filtered while the JSON is still being read - onSurveyLoad() composes the
     // expression once it is whole - and nothing is filtered in the designer either.
     if (this.isLoadingFromJson || this.isDesignMode) return;
     const newValue = this.calcFilterExpression();
     if (newValue === this.filterExpression) return;
     this.setPropertyValue("filterExpression", newValue);
-    this.applyToSource();
+    if (!skipApply) {
+      this.applyToSource();
+    }
   }
 }
 

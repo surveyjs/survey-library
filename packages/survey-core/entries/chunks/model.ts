@@ -275,8 +275,9 @@ export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic
 export type {
   IDynamicDataSource, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataOperation, IDynamicDataFilterSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
+export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-fields";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";

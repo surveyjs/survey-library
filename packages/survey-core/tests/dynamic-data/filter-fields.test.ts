@@ -40,3 +40,50 @@ describe("isFilterable and allowFiltering", () => {
     expect(colProp.isVisible("", matrix.columns[0]), "#3").toBe(true);
   });
 });
+
+describe("getFilterFields", () => {
+  test("a matrix answers one descriptor per filterable column", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
+      { name: "c1", title: "Country" },
+      { name: "c2", cellType: "rating" },
+      { name: "c3", cellType: "file" },
+      { name: "c4", allowFiltering: false }] }] });
+    const matrix = <any>survey.getQuestionByName("m");
+    const fields = matrix.getFilterFields();
+    expect(fields.map((f: any) => f.name), "#1: no file, no opted-out column").toEqual(["c1", "c2"]);
+    expect(fields[0].valueName, "#2").toBe("c1");
+    expect(fields[0].locTitle.text, "#3: localizable").toBe("Country");
+    expect(fields[0].fieldType, "#4: the resolved cell type, not 'default'").toBe("dropdown");
+    expect(fields[1].valueType, "#5").toBe("number");
+    expect(fields[1].templateQuestion, "#6").toBe(matrix.columns[1].templateQuestion);
+  });
+  test("a column bound through valueName names the key the cell writes", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m",
+      columns: [{ name: "c1", cellType: "text", valueName: "country" }] }] });
+    const fields = (<any>survey.getQuestionByName("m")).getFilterFields();
+    expect(fields[0].name, "#1: the authored name").toBe("c1");
+    expect(fields[0].valueName, "#2: the record key").toBe("country");
+  });
+  test("a dynamic panel walks its template, its static panels and its composite values", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [
+      { type: "text", name: "q1" },
+      { type: "panel", name: "inner", elements: [{ type: "text", name: "q2" }] },
+      { type: "multipletext", name: "mt", items: [{ name: "i1" }, { name: "i2" }] },
+      { type: "file", name: "q3" },
+      { type: "html", name: "q4" },
+      { type: "matrixdynamic", name: "q5", columns: [{ name: "c1" }] }] }] });
+    const fields = (<any>survey.getQuestionByName("p")).getFilterFields();
+    expect(fields.map((f: any) => f.valueName), "#1: a nested table contributes nothing")
+      .toEqual(["q1", "q2", "mt.i1", "mt.i2"]);
+    expect(fields[1].name, "#2: a static panel is flattened, the key is plain").toBe("q2");
+  });
+  test("the dotted key of a nested field is the one the expression resolves", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 2,
+      templateElements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }] }] }] });
+    const panel = <any>survey.getQuestionByName("p");
+    panel.value = [{ mt: { i1: "a" } }, { mt: { i1: "b" } }];
+    const field = panel.getFilterFields()[0];
+    panel.setControlFilter("control", "{" + field.valueName + "} = 'a'");
+    expect(panel.visiblePanels.length, "#1: the record was reached through the dotted path").toBe(1);
+  });
+});

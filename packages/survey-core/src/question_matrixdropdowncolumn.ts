@@ -11,6 +11,7 @@ import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -545,6 +546,21 @@ export class MatrixDropdownColumn extends Base
      QuestionMatrixDynamicModel.getFields() registers with the data list. */
   public get sortField(): string {
     return this.templateQuestion?.getValueName() || this.name;
+  }
+  public getFilterField(): IDynamicDataFilterField {
+    if (!this.isFilterable) return undefined;
+    const q = this.templateQuestion;
+    return {
+      name: this.name,
+      // The record key the cell writes, which is not the column name when the column is bound
+      // through valueName. The same key getFields() registers with the data list.
+      valueName: this.sortField,
+      locTitle: this.locTitle,
+      valueType: q.getValueType(),
+      // The resolved type and not this.cellType: "default" means "whatever the matrix says".
+      fieldType: q.getType(),
+      templateQuestion: q
+    };
   }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).

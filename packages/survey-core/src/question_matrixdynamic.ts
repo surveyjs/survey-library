@@ -35,10 +35,11 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner } from "./dynamic-data/dynamic-data-page-validation";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
+import { getDynamicDataFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -260,6 +261,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private storeLoadedRecords(): void {
     this.storeQuestionValue(this.remote.getWindow());
     this.rowCountValue = this.dataList.count;
+  }
+  // A matrix column is always flat: matrixDropdownColumnTypes holds no composite type, so there is
+  // no nesting to walk here - unlike a Dynamic Panel template.
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    const res = new Array<IDynamicDataFilterField>();
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      const field = column.getFilterField();
+      if (!!field) {
+        res.push(field);
+      }
+    });
+    return res;
   }
   getFields(): Array<IDynamicDataField> {
     const questions = new Array<Question>();

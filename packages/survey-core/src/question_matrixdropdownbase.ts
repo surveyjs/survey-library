@@ -974,6 +974,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get choiceCallbacks(): ISurveyChoiceCallbacks {
     return this.survey as ISurveyChoiceCallbacks;
   }
+  // A table of its own: its columns are the filter fields, the matrix itself is not one.
+  public get isFilterable(): boolean {
+    return false;
+  }
   public static get defaultCellType() {
     return settings.matrix.defaultCellType;
   }

@@ -767,6 +767,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getValueType(): QuestionValueType {
     return "array";
   }
+  // A table of its own: its template questions are the filter fields, the panel itself is not one.
+  public get isFilterable(): boolean {
+    return false;
+  }
   protected get hasMinWidth(): boolean { return false; }
   protected getAllChildren(): Base[] {
     return [

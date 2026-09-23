@@ -672,6 +672,13 @@ export class Question extends SurveyElement<Question>
   public get hasPlainInput(): boolean {
     return this.hasInput;
   }
+  // Whether a Filter Control can offer this question as a filter field. A question whose value is a
+  // record or a table of its own is not a field - its children may be - and a value only the
+  // question's own UI can produce, a file to upload or a signature to draw, is not one either.
+  public get isFilterable(): boolean {
+    return this.getValueType() !== "object";
+  }
+  @property({ defaultValue: true }) allowFiltering: boolean;
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
@@ -3484,6 +3491,11 @@ Serializer.addClass("question", [
   },
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
+  /* The Filter Control offers this question as a filter field unless the author opts it out. It is
+     shown only where it can do something: a question that cannot be filtered at all answers false
+     through isFilterable and the property does not apply to it. */
+  { name: "allowFiltering:boolean", default: true,
+    visibleIf: (obj: any): boolean => !!obj && obj.isFilterable },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

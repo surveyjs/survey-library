@@ -17,6 +17,10 @@ export class QuestionNonValue extends Question {
   public get hasInput(): boolean {
     return false;
   }
+  // It stores no value, so there is nothing to filter by.
+  public get isFilterable(): boolean {
+    return false;
+  }
   public get hasTitle(): boolean {
     return false;
   }

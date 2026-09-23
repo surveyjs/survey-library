@@ -1065,10 +1065,16 @@ export class SurveyModel extends SurveyElementCore
    * @since 3.1.0
    */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
-  // An event that is raised when a Filter Control composes a new filter expression - the end user
-  // picked another filter item or typed in the quick search. A control bound to a Dynamic Matrix or
-  // a Dynamic Panel has already re-filtered that question by the time the event is raised, so a
-  // handler that looks into the source sees the records it shows now.
+  // An event that is raised whenever a Filter Control composes a new filter expression, whoever
+  // caused it: the end user picked another filter item or typed in the quick search, an authored
+  // defaultItem was applied as the survey loaded, a saved uiState was restored, or the control was
+  // pointed at another source. It answers "the effective filter is now X", not "the respondent
+  // changed something" - that one is onUIStateChanged, which stays silent for an authored default.
+  // A control bound to a Dynamic Matrix or a Dynamic Panel has already re-filtered that question by
+  // the time the event is raised, so a handler that looks into the source sees the records it shows
+  // now. The load-time raise is only observable when the JSON arrives through survey.fromJSON()
+  // after a handler was added: with new SurveyModel(json) the load is over before there is anything
+  // to raise it to.
   public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.

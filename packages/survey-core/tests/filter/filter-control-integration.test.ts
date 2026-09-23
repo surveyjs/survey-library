@@ -102,6 +102,58 @@ describe("Filter control: bound mode", () => {
     expect(m1.visibleRows.length, "#3").toBe(2);
     expect(m2.visibleRows.length, "#4: and the new one is filtered").toBe(1);
   });
+  test("re-pointing source recomposes the expression before it is written anywhere", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "country" }] },
+      { type: "matrixdynamic", name: "m2", columns: [{ name: "city" }] },
+      { type: "filter", name: "f1", source: "m1", showSearch: true,
+        items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    control.toggleItem("de");
+    control.searchString = "xx";
+    const raised: Array<any> = [];
+    survey.onFilterChanged.add((_, options) => {
+      raised.push({ expression: options.filterExpression,
+        source: !!options.sourceQuestion ? options.sourceQuestion.name : "" });
+    });
+    control.source = "m2";
+    const expected = "({country} = 'de') and ({city} contains 'xx')";
+    expect(raised.length, "#1: one move, one event").toBe(1);
+    expect(raised[0].expression, "#2: the search quotes the fields of the source it moved to")
+      .toBe(expected);
+    expect(raised[0].source, "#3").toBe("m2");
+    expect(m2.getControlFilter((<any>control).controlFilterKey), "#4: and that is what was written")
+      .toBe(expected);
+  });
+  test("an applicable defaultItem raises the event while the survey loads", () => {
+    const survey = new SurveyModel();
+    const raised: Array<any> = [];
+    survey.onFilterChanged.add((_, options) => {
+      raised.push({ expression: options.filterExpression,
+        source: !!options.sourceQuestion ? options.sourceQuestion.name : "" });
+    });
+    survey.fromJSON({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "country" }] },
+      { type: "filter", name: "f1", source: "m", defaultItem: "de",
+        items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    expect(raised.length, "#1: the effective filter is X from the first query on").toBe(1);
+    expect(raised[0].expression, "#2").toBe("{country} = 'de'");
+    expect(raised[0].source, "#3").toBe("m");
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(matrix.getControlFilter((<any>control).controlFilterKey), "#4: and the matrix carries it")
+      .toBe("{country} = 'de'");
+  });
+  test("a field is found by its own name before another field's value path", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", items: [],
+      fields: [{ name: "x", valueName: "y" }, { name: "y" }] }] });
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(control.getFieldByName("y").name, "#1: the name wins over another field's valueName")
+      .toBe("y");
+    expect(control.getFieldByName("x").valueName, "#2: and the other one is still reachable")
+      .toBe("y");
+  });
   test("a control on a later page filters a matrix on the first one", () => {
     const survey = new SurveyModel({ pages: [
       { name: "p1", elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "country" }] }] },

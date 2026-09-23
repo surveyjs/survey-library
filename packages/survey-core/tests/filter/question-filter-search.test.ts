@@ -2,6 +2,18 @@ import { describe, test, expect } from "vitest";
 import { createFilter, records } from "./filter-test-helpers";
 import { applyFilter } from "../../src/dynamic-data/dynamic-data-filter";
 import { FilterItem } from "../../src/filter/filter-item";
+import { FilterField } from "../../src/filter/filter-field";
+import { SurveyModel } from "../../src/survey";
+import { QuestionFilterModel } from "../../src/question_filter";
+
+function createDesignFilter(over: any = {}): QuestionFilterModel {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [Object.assign({ type: "filter", name: "f1",
+    fields: [{ name: "name" }, { name: "age" }],
+    items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" }, over)] });
+  return <QuestionFilterModel>survey.getQuestionByName("f1");
+}
 
 describe("QuestionFilterModel: quick search", () => {
   test("a string field searches with contains", () => {
@@ -143,6 +155,16 @@ describe("QuestionFilterModel: update item", () => {
     expect(q.activeItem.expression, "#2").toBe("{age} > 18");
     expect(q.searchString, "#3").toBe("an");
   });
+  // filterExpression is never composed in design mode, so it is "" there: updating the item from
+  // it would overwrite the authored expression with nothing, and expression is serialized.
+  test("an item is not updated in design mode", () => {
+    const q = createDesignFilter({ showSearch: true, searchFields: ["name"] });
+    q.searchString = "an";
+    expect(q.filterExpression, "#1").toBe("");
+    expect(q.canUpdateActiveItem, "#2").toBe(false);
+    q.updateActiveItem();
+    expect(q.activeItem.expression, "#3").toBe("{age} > 18");
+  });
   test("there is nothing to update without an active item", () => {
     const q = createFilter({ showSearch: true, searchFields: ["name"] });
     q.searchString = "an";
@@ -168,6 +190,24 @@ describe("QuestionFilterModel: filterExpression staleness", () => {
     item.expression = "{age} > 21";
     q.items = [item];
     expect(q.filterExpression).toBe("{age} > 21");
+  });
+  // fields takes the same setArray path as items: the prototype splice skips onFieldRemoved and
+  // an empty src pushes nothing, so only the property change itself can report it.
+  test("assigning an empty fields array clears the expression", () => {
+    const q = createFilter({ showSearch: true, searchFields: ["name"] });
+    q.searchString = "an";
+    expect(q.filterExpression, "#1").toBe("{name} contains 'an'");
+    q.fields = [];
+    expect(q.getSearchFields().length, "#2").toBe(0);
+    expect(q.filterExpression, "#3: zero fields cannot still filter by one").toBe("");
+  });
+  test("replacing the fields array recomputes the expression", () => {
+    const q = createFilter({ showSearch: true, searchFields: ["name"] });
+    q.searchString = "an";
+    const field = new FilterField("name");
+    field.valueName = "fullName";
+    q.fields = [field];
+    expect(q.filterExpression).toBe("{fullName} contains 'an'");
   });
 });
 

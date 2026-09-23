@@ -58,6 +58,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   public set showSearch(val: boolean) { this.setPropertyValue("showSearch", val); }
 
   public get searchFields(): Array<string> { return this.getPropertyValue("searchFields"); }
+  // Deliberately not guarded by allowChangeSearchFields: that is an end-user permission and it
+  // lives on setSearchFields() alone. This setter is also how JsonObject.toObject writes the
+  // authored value, so guarding it would make loading order-dependent and would silently drop
+  // searchFields from a survey that also sets allowChangeSearchFields to false. A renderer must
+  // call setSearchFields(), never assign this.
   public set searchFields(val: Array<string>) { this.setPropertyValue("searchFields", val); }
 
   public get allowChangeSearchFields(): boolean { return this.getPropertyValue("allowChangeSearchFields"); }
@@ -141,7 +146,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   public canEditItem(item: FilterItem): boolean { return !!item && item.allowEdit; }
   public canDeleteItem(item: FilterItem): boolean { return this.allowMultipleItems && !!item && item.allowDelete; }
   public canCopyItem(item: FilterItem): boolean { return this.canAddItems && !!item && item.allowCopy; }
+  // Not in design mode: filterExpression is never composed there, so updateActiveItem() would
+  // overwrite the authored expression with an empty string - and expression is serialized, so the
+  // loss would reach the saved JSON.
   public get canUpdateActiveItem(): boolean {
+    if (this.isDesignMode) return false;
     const item = this.activeItem;
     return !!item && item.allowEdit && !!this.searchString;
   }
@@ -169,11 +178,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    // "items" is here because assigning a whole array goes through Base.setArray, which empties
-    // the destination with the prototype splice: the wrapped onRemove never runs and the
-    // expression would keep quoting a deleted item.
-    if (name === "allowMultipleItems" || name === "items" || name === "searchString" ||
-      name === "searchFields" || name === "showSearch") {
+    // "items" and "fields" are here because assigning a whole array goes through Base.setArray,
+    // which empties the destination with the prototype splice: the wrapped onRemove never runs,
+    // and an empty new array pushes nothing either, so the property change is the only report of
+    // it. Without them the control would keep quoting a deleted item or searching a deleted field.
+    if (name === "allowMultipleItems" || name === "items" || name === "fields" ||
+      name === "searchString" || name === "searchFields" || name === "showSearch") {
       this.updateFilterExpression();
     }
   }

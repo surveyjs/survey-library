@@ -86,7 +86,7 @@ import {
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
-  DynamicDataErrorEvent
+  DynamicDataErrorEvent, FilterChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -1065,6 +1065,11 @@ export class SurveyModel extends SurveyElementCore
    * @since 3.1.0
    */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
+  // An event that is raised when a Filter Control composes a new filter expression - the end user
+  // picked another filter item or typed in the quick search. A control bound to a Dynamic Matrix or
+  // a Dynamic Panel has already re-filtered that question by the time the event is raised, so a
+  // handler that looks into the source sees the records it shows now.
+  public onFilterChanged: EventBase<SurveyModel, FilterChangedEvent> = this.addEvent<SurveyModel, FilterChangedEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -6119,6 +6124,10 @@ export class SurveyModel extends SurveyElementCore
   // survey.data. Its end-user state travels through uiState instead, and this is how it says so.
   filterStateChanged(question: IQuestion): void {
     this.doUIStateChanged("filter", question);
+  }
+  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void {
+    this.onFilterChanged.fire(this, { question: <Question>question,
+      filterExpression: filterExpression, sourceQuestion: <Question>sourceQuestion });
   }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions

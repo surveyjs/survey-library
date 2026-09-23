@@ -1,12 +1,13 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { IElementUIState, IFilterElementUIState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { buildSearchFragment } from "./filter/filter-expression";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
 // The Filter Control. It descends from QuestionNonValue because it is a control and not an answer:
@@ -94,13 +95,38 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The composed output of the control. Not registered either: it is computed, never authored.
   public get filterExpression(): string { return this.getPropertyValue("filterExpression", ""); }
 
-  // Standalone mode: the fields the author declared on the control itself.
+  // The key this control's filter lives under on the source. The id and not the name: control
+  // filters are runtime state, ids are unique and a rename does not orphan one.
+  private get controlFilterKey(): string { return "filterControl:" + this.id; }
+  // The source this control is currently writing into. Detaching goes through this and never
+  // through a fresh lookup by name: once source has been re-pointed, or the source question has
+  // been renamed, the lookup no longer finds the question that still carries the filter, and it
+  // would stay filtered forever with nothing left to clear it.
+  private attachedSource: IDynamicDataFilterSource;
+  // The question source names, if it can be filtered by a control. Asked by capability, the way the
+  // data list asks a source whether it has "filter": the control imports neither dynamic question.
+  private get filterSource(): IDynamicDataFilterSource {
+    const q: any = !!this.data ? this.data.findQuestionByName(this.source) : undefined;
+    return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"
+      ? <IDynamicDataFilterSource>q : undefined;
+  }
+
+  // Standalone or bound: one uniform field list, so nothing downstream has to know which one it is.
   public getFilterFields(): Array<IDynamicDataFilterField> {
+    const source = this.filterSource;
+    if (!!source) return source.getFilterFields();
     return this.fields.map((field: FilterField): IDynamicDataFilterField => field.getFilterField());
   }
+  // valueName first: it is the only key that is unique across a bound source. A nested field is
+  // named by its leaf ("city") and reached by its dotted path ("address.city"), so two record-valued
+  // questions with same-named children share a name and nothing else. The name is still accepted,
+  // because that is what a standalone field is authored and searched by.
   public getFieldByName(name: string): IDynamicDataFilterField {
     if (!name) return undefined;
     const fields = this.getFilterFields();
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].valueName === name) return fields[i];
+    }
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].name === name) return fields[i];
     }
@@ -190,8 +216,60 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
+    // The source is resolved before the default is applied, so the expression the default composes
+    // reaches it in one write and raises one event instead of two.
+    this.updateFilterSource();
     this.applyDefaultItem();
+  }
+  // Every question is re-run whenever a survey value changes, which is also when a question the
+  // source names may have appeared or gone.
+  public runCondition(properties: HashTable<any>): void {
+    super.runCondition(properties);
+    this.updateFilterSource();
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    this.updateFilterSource();
+  }
+  public dispose(): void {
+    this.detachFromSource();
+    super.dispose();
+  }
+  // Re-resolves the source and moves the filter with it: the question that is being left is cleared
+  // first, so no ghost filter survives a re-pointed source or a source question that went away.
+  private updateFilterSource(): void {
+    if (this.isDesignMode) return;
+    const source = this.filterSource;
+    if (source !== this.attachedSource) {
+      this.detachFromSource();
+      this.attachedSource = source;
+      // Attaching is not a change of the filter by itself: with nothing composed yet there is
+      // nothing to write and nothing to report.
+      if (!!this.filterExpression) {
+        this.applyToSource();
+      }
+    }
     this.updateFilterExpression();
+  }
+  private detachFromSource(): void {
+    const source: any = this.attachedSource;
+    this.attachedSource = undefined;
+    // A disposed question has no list and no controller left to write into.
+    if (!!source && source.isDisposed !== true) {
+      source.setControlFilter(this.controlFilterKey, "");
+    }
+  }
+  // The order is load-bearing: the source is re-filtered first and the event is raised after, so a
+  // handler that looks into the matrix sees the records it shows now and not the previous ones.
+  private applyToSource(): void {
+    const source = this.attachedSource;
+    if (!!source) {
+      source.setControlFilter(this.controlFilterKey, this.filterExpression);
+    }
+    const survey: any = this.survey;
+    if (!!survey && !!survey.filterChanged) {
+      survey.filterChanged(this, this.filterExpression, source);
+    }
   }
   protected getUIState(): IElementUIState {
     let res = super.getUIState();
@@ -251,6 +329,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    // "source" goes through updateFilterSource() and not through updateFilterExpression(): the
+    // fields and the question the expression is written into both come from it, so re-pointing it
+    // has to move the filter and not only recompose the text.
+    if (name === "source") {
+      this.updateFilterSource();
+      return;
+    }
     // "items" and "fields" are here because assigning a whole array goes through Base.setArray,
     // which empties the destination with the prototype splice: the wrapped onRemove never runs,
     // and an empty new array pushes nothing either, so the property change is the only report of
@@ -334,6 +419,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const newValue = this.calcFilterExpression();
     if (newValue === this.filterExpression) return;
     this.setPropertyValue("filterExpression", newValue);
+    this.applyToSource();
   }
 }
 

@@ -39,7 +39,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataField, IDynamicDataFilterSource, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions, getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
@@ -219,7 +219,8 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner {
+export class QuestionPanelDynamicModel extends Question
+  implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataFilterSource {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -654,6 +655,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      runtime state and are not serialized. */
   public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
   public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  public getControlFilterKeys(): Array<string> { return this.paging.getControlFilterKeys(); }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);
   }

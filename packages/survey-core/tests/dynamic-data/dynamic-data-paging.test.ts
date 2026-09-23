@@ -54,6 +54,10 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
   }
+  // No survey behind the fake: the string name and the arguments are enough to tell texts apart.
+  public getLocalizationFormatString(strName: string, ...args: any[]): string {
+    return strName + ": " + args.join(", ");
+  }
   public getFields(): Array<IDynamicDataField> { return []; }
   public onDataListChanged(change: IDynamicDataListChange): void {
     if (change.type === "reset") {

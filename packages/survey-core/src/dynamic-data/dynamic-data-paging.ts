@@ -25,6 +25,7 @@ export interface IDynamicDataPagingOwner {
   getDataList(): DynamicDataList;
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
+  getLocalizationFormatString(strName: string, ...args: any[]): string;
   // The authored page size: rowsPerPage / panelsPerPage.
   pageSize: number;
   // What the question reports: 1 page and page 0 while it does not page.
@@ -308,10 +309,17 @@ export class DynamicDataPagingController {
     });
     const pageInfoAction = new Action({
       id: "sv-pager-info",
-      // A count nobody knows has no total to show: the page number alone.
-      title: <any>new ComputedUpdater(() => !this.owner.isCountKnown
-        ? String(this.owner.pageIndex + 1)
-        : this.owner.pageIndex + 1 + " / " + this.owner.pageCount)
+      /* A count nobody knows has no total to show: the page number alone. A known count goes through
+         indexText like every other pager (some locales reverse the order). survey.locale is a property
+         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
+         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
+         first run, so a branch not taken then (the total, while the count is unknown) is never
+         observed afterwards. */
+      title: <any>new ComputedUpdater(() => {
+        const page = this.owner.pageIndex + 1;
+        const text = this.owner.getLocalizationFormatString("indexText", page, this.owner.pageCount);
+        return this.owner.isCountKnown ? text : String(page);
+      })
     });
     const nextAction = new Action({
       id: "sv-pager-next",

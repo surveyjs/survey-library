@@ -11167,15 +11167,26 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     const info = matrix.pagerActions.getActionById("sv-pager-info");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
-    expect(info.title, "#4").toBe("1 / 3");
+    expect(info.title, "#4").toBe("1 of 3");
     next.action();
     expect(matrix.pageIndex, "#5").toBe(1);
-    expect(info.title, "#6").toBe("2 / 3");
+    expect(info.title, "#6").toBe("2 of 3");
     expect(prev.enabled, "#7").toBe(true);
     next.action();
     expect(next.enabled, "#8: the last page").toBe(false);
     prev.action();
     expect(matrix.pageIndex, "#9").toBe(1);
+  });
+  test("the pager info follows the survey locale", () => {
+    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    expect(info.title, "#1").toBe("1 of 3");
+    (<SurveyModel>matrix.survey).locale = "de";
+    expect(info.title, "#2").toBe("1 von 3");
+    matrix.nextPage();
+    expect(info.title, "#3").toBe("2 von 3");
+    (<SurveyModel>matrix.survey).locale = "";
+    expect(info.title, "#4").toBe("2 of 3");
   });
   test("single input walks every visible row and ignores the page", () => {
     const survey = createSurvey({ rowCount: 4, rowsPerPage: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);

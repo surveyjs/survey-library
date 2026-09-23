@@ -578,7 +578,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (list.count < this.rowCount) return;
     const index = this.getLastRowRecordIndex();
     if (index < 0) return;
-    list.batch((): void => { list.setRecord(index, record, force && this.isPaddingPending); });
+    list.setRecord(index, record, force && this.isPaddingPending);
   }
   // The record of the last row: the last created one under a view, the last record otherwise (the
   // window can be longer than rowCount while a value that outgrew it has not been normalized yet).
@@ -740,7 +740,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const list = this.dataList;
       const from = this.getRecordIndex(fromIndex);
       const to = this.getRecordIndex(toIndex);
-      list.batch((): void => { list.move(from, to); });
+      list.move(from, to);
     }
     this.draggedRow = null;
   }
@@ -1436,7 +1436,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         val.splice(index, 1);
         this.value = val;
       } else if (recordIndex > -1) {
-        this.dataList.batch((): void => { this.dataList.remove(recordIndex); });
+        this.dataList.remove(recordIndex);
       }
       this.isRowChanging = false;
     }
@@ -1855,9 +1855,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // The merge is the base's; the record it works on is a copy of the one the list holds.
     const rowValue = Object.assign({}, oldRecord);
     this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
-    let isChanged = false;
     this.isRowChanging = true;
-    list.batch((): void => { isChanged = list.setRecord(index, rowValue); });
+    const isChanged = list.setRecord(index, rowValue);
     this.isRowChanging = false;
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }

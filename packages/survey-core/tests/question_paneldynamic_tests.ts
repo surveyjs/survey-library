@@ -10428,10 +10428,10 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const info = question.pagerActions.getActionById("sv-pager-info");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
-    expect(info.title, "#4").toBe("1 / 3");
+    expect(info.title, "#4").toBe("1 of 3");
     next.action();
     expect(question.pageIndex, "#5").toBe(1);
-    expect(info.title, "#6").toBe("2 / 3");
+    expect(info.title, "#6").toBe("2 of 3");
     expect(prev.enabled, "#7").toBe(true);
     next.action();
     expect(next.enabled, "#8: the last page").toBe(false);

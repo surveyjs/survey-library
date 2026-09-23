@@ -1,5 +1,6 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
-import { Helpers } from "../helpers";
+import { Helpers, createDate } from "../helpers";
+import { settings } from "../settings";
 import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from "./dynamic-data-interfaces";
 
 // Local filtering/sorting for DynamicDataList: pure functions over an array of records, so they can
@@ -15,6 +16,9 @@ import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from ".
 // with ConditionsParser into an Operand tree and re-render that tree through
 // Operand.toString(callback), where the callback emits the target dialect for the nodes it knows
 // (BinaryOperand.operator/leftOperand/rightOperand, Variable.variable, Const.correctValue).
+//
+// dataType "string" is text order (localeCompare after settings.comparator.normalizeTextCallback), so
+// "item10" sorts before "item2". A field that needs natural order supplies IDynamicDataField.compare.
 
 function getFieldValue(record: any, field: string): any {
   return !!record ? record[field] : undefined;
@@ -34,7 +38,14 @@ export function createIndexes(count: number): Array<number> {
   return res;
 }
 function compareStrings(a: any, b: any): number {
-  return String(a).localeCompare(String(b));
+  const normalize = settings.comparator.normalizeTextCallback;
+  const sA = normalize(String(a), "compare");
+  const sB = normalize(String(b), "compare");
+  return sA.localeCompare(sB);
+}
+// createDate returns "now" for a falsy value, so 0, -0 and false (not empty for the sort) stay at the epoch.
+function toDate(value: any): Date {
+  return value instanceof Date ? value : (!value ? new Date(value) : createDate("sort", value));
 }
 function compareNumbers(a: any, b: any): number {
   const nA = Helpers.getNumber(a);
@@ -43,8 +54,8 @@ function compareNumbers(a: any, b: any): number {
   return nA === nB ? 0 : (nA > nB ? 1 : -1);
 }
 function compareDates(a: any, b: any): number {
-  const dA = a instanceof Date ? a : new Date(a);
-  const dB = b instanceof Date ? b : new Date(b);
+  const dA = toDate(a);
+  const dB = toDate(b);
   if (isNaN(dA.getTime()) || isNaN(dB.getTime())) return compareStrings(a, b);
   const tA = dA.getTime();
   const tB = dB.getTime();

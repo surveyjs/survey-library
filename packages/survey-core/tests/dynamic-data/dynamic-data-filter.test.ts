@@ -1,9 +1,10 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { applyFilter, applySort, createFilterRunner } from "../../src/dynamic-data/dynamic-data-filter";
 import { DynamicDataSortDirection, IDynamicDataField } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { BinaryOperand, Const, Operand, Variable } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
+import { settings } from "../../src/settings";
 
 function sortBy(records: Array<any>, field: string, direction: DynamicDataSortDirection,
   fields?: Array<IDynamicDataField>): Array<number> {
@@ -193,6 +194,47 @@ describe("dynamic-data-filter: comparison", () => {
     const records = [{ v: 100 }, { v: 1 }, { v: 10 }];
     expect(sortBy(records, "v", "asc", fields)).toEqual([1, 2, 0]);
     expect(sortBy(records, "v", "desc", fields)).toEqual([0, 2, 1]);
+  });
+});
+
+describe("dynamic-data-filter: comparison follows the library settings", () => {
+  const defaultNormalizeText = settings.comparator.normalizeTextCallback;
+  const defaultStoreUtcDates = settings.storeUtcDates;
+  const defaultOnDateCreated = settings.onDateCreated;
+  afterEach(() => {
+    settings.comparator.normalizeTextCallback = defaultNormalizeText;
+    settings.storeUtcDates = defaultStoreUtcDates;
+    settings.onDateCreated = defaultOnDateCreated;
+  });
+  test("dataType string honours settings.comparator.normalizeTextCallback", () => {
+    settings.comparator.normalizeTextCallback = (str: string): string => str.indexOf("z-") === 0 ? str.substring(2) : str;
+    const records = [{ v: "z-a" }, { v: "b" }, { v: "z-c" }];
+    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 1, 2]);
+  });
+  test("dataType date creates its dates through createDate", () => {
+    settings.storeUtcDates = false;
+    const reasons: Array<string> = [];
+    const values: Array<any> = [];
+    settings.onDateCreated = (newDate: Date, reason: string, val?: number | string | Date): Date => {
+      reasons.push(reason);
+      values.push(val);
+      return newDate;
+    };
+    const fields: Array<IDynamicDataField> = [{ name: "v", dataType: "date" }];
+    const records = [{ v: "2024-01-07" }, { v: "2024-01-05" }, { v: "2024-01-06" }];
+    expect(sortBy(records, "v", "asc", fields), "#1").toEqual([1, 2, 0]);
+    expect(reasons.length > 0, "#2: the hook is called").toBe(true);
+    expect(reasons.every(reason => reason === "sort"), "#3: every reason is sort").toBe(true);
+    const distinct = values.filter((val, index) => values.indexOf(val) === index).sort();
+    expect(distinct, "#4: the normalized strings").toEqual(["2024-01-05T00:00:00", "2024-01-06T00:00:00", "2024-01-07T00:00:00"]);
+    // A date-only string is local midnight, as a datetime string without a zone is: equal in every zone.
+    const sameDay = [{ v: "2024-01-05T00:00:00" }, { v: "2024-01-05" }];
+    expect(sortBy(sameDay, "v", "asc", fields), "#5: asc").toEqual([0, 1]);
+    expect(sortBy(sameDay, "v", "desc", fields), "#6: desc").toEqual([0, 1]);
+  });
+  test("dataType date keeps false at the epoch", () => {
+    const records = [{ v: "2024-01-05" }, { v: false }];
+    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 0]);
   });
 });
 

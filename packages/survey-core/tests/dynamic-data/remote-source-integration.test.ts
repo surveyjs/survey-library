@@ -1465,10 +1465,23 @@ describe("Remote data source: a total the source does not know", () => {
     question.nextPage();
     await flush();
     // The last page settles the count, so the total can be shown from here on.
-    expect(info.title, "#3: the end was reached").toBe("3 / 3");
+    expect(info.title, "#3: the end was reached").toBe("3 of 3");
     question.prevPage();
     await flush();
-    expect(info.title, "#4: and it is not forgotten on the way back").toBe("2 / 3");
+    expect(info.title, "#4: and it is not forgotten on the way back").toBe("2 of 3");
+  });
+  test("matrix: the pager follows the locale once an unknown count becomes known", async () => {
+    const source = createNoTotalSource(25);
+    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const info = question.pagerActions.getActionById("sv-pager-info");
+    expect(info.title, "#1: no total to show").toBe("1");
+    question.nextPage();
+    await flush();
+    question.nextPage();
+    await flush();
+    expect(info.title, "#2: the end was reached").toBe("3 of 3");
+    (<SurveyModel>question.survey).locale = "de";
+    expect(info.title, "#3: the locale is observed").toBe("3 von 3");
   });
   test("panel: the panel count is a lower bound and isPanelCountKnown says so", async () => {
     const source = createNoTotalSource(25);

@@ -80,6 +80,15 @@ describe("FilterField: fieldType", () => {
     expect(descriptor.fieldType, "#3").toBe("dropdown");
     expect(descriptor.templateQuestion, "#4").toBe(field.templateQuestion);
   });
+  test("a typeless field reports the type that supplies its editor", () => {
+    const field = new FilterField("age");
+    const descriptor = field.getFilterField();
+    // The bound path reports the resolved question type, so the standalone one has to as well: a
+    // renderer that switches on fieldType sees one contract from both.
+    expect(descriptor.fieldType, "#1: a typeless field runs on a text question").toBe("text");
+    expect(field.getDynamicType(), "#2: and it still borrows no properties").toBe("");
+    expect(new JsonObject().toJsonObject(field), "#3: nothing of it is authored").toEqual({ name: "age" });
+  });
   test("fieldType is read before the type-specific keys whatever the JSON order", () => {
     const field = new FilterField("");
     new JsonObject().toObject({ choices: [1, 2], name: "country", fieldType: "dropdown" }, field);

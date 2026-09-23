@@ -111,11 +111,16 @@ export class FilterField extends Base implements ILocalizableOwner {
     this.setPropertyValue("valueType", val);
   }
 
+  // fieldType is the RESOLVED type and not the authored one: a field with no fieldType runs on a
+  // text question, so "text" is what supplies its editor. The bound path reports the resolved type
+  // too (dynamic-data-fields.ts, collectFilterFields), and a renderer that switches on fieldType
+  // must see one contract from both of them. getDynamicType() keeps answering "" - that one decides
+  // which properties the field borrows, which is a different question.
   public getFilterField(): IDynamicDataFilterField {
     const q = this.templateQuestion;
     return {
       name: this.name, valueName: this.getValueName(), locTitle: this.locTitle,
-      valueType: this.valueType, fieldType: this.fieldType, templateQuestion: q
+      valueType: this.valueType, fieldType: this.fieldType || q.getType(), templateQuestion: q
     };
   }
 

@@ -5,6 +5,12 @@ import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 
+// The keys live on the paging controller: the question's public surface for control filters is
+// setControlFilter/getControlFilter and nothing else, so the observation reaches past it.
+function controlFilterKeys(question: any): Array<string> {
+  return question.paging.getControlFilterKeys();
+}
+
 describe("Filter control: bound mode", () => {
   test("the control writes its expression into the matrix as a filter part", () => {
     const survey = new SurveyModel({ elements: [
@@ -50,11 +56,15 @@ describe("Filter control: bound mode", () => {
     expect(raised[0].question, "#4").toBe("f1");
   });
   test("a source that is not a matrix or a panel does nothing", () => {
+    // The control declares fields of its own, so "no source fields" and "the standalone list" are
+    // two different answers here: an empty result would have been indistinguishable from either.
     const survey = new SurveyModel({ elements: [{ type: "text", name: "t" },
-      { type: "filter", name: "f1", source: "t", items: [{ name: "a", expression: "{x} = 1" }] }] });
+      { type: "filter", name: "f1", source: "t", fields: [{ name: "x" }, { name: "y" }],
+        items: [{ name: "a", expression: "{x} = 1" }] }] });
     const control = <QuestionFilterModel>survey.getQuestionByName("f1");
     control.toggleItem("a");
-    expect(control.getFilterFields(), "#1").toEqual([]);
+    expect(control.getFilterFields().map((f: any) => f.name),
+      "#1: a source that cannot be filtered is no source, so the own fields answer").toEqual(["x", "y"]);
     expect(control.filterExpression, "#2: it still composes its own").toBe("{x} = 1");
   });
   test("two controls filter the same matrix without overwriting each other", () => {
@@ -179,7 +189,7 @@ describe("Filter control: bound mode", () => {
     control.toggleItem("de");
     const before = matrix.visibleRows.length;
     control.name = "renamed";
-    expect(matrix.getControlFilterKeys(), "#1: the key is the id, so the rename changes nothing")
+    expect(controlFilterKeys(matrix), "#1: the key is the id, so the rename changes nothing")
       .toEqual([(<any>control).controlFilterKey]);
     expect(matrix.visibleRows.length, "#2").toBe(before);
   });
@@ -206,10 +216,33 @@ describe("Filter control: bound mode", () => {
         items: [{ name: "de", expression: "{country} = 'de'" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const control = <QuestionFilterModel>survey.getQuestionByName("f1");
-    expect(matrix.getControlFilterKeys(), "#1").toEqual([]);
+    expect(controlFilterKeys(matrix), "#1").toEqual([]);
     control.toggleItem("de");
-    expect(matrix.getControlFilterKeys(), "#2: a click in the designer filters nothing").toEqual([]);
+    expect(controlFilterKeys(matrix), "#2: a click in the designer filters nothing").toEqual([]);
     expect(control.filterExpression, "#3").toBe("");
+  });
+  test("deleting the source question leaves no filter on it", () => {
+    const survey = createBound();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const key = (<any>control).controlFilterKey;
+    control.toggleItem("de");
+    expect(matrix.visibleRows.length, "#1").toBe(1);
+    survey.pages[0].removeElement(matrix);
+    // Pinned as it is and not as it would ideally be: the removal itself is not reported to the
+    // control, so the filter is still on the question that was taken out. The control re-resolves
+    // its source on the next runCondition, which is the next change of a survey value, and that is
+    // when the question it left is cleared.
+    expect(matrix.getControlFilter(key), "#2: the removal alone does not reach the control")
+      .toBe("{country} = 'de'");
+    survey.setValue("somethingelse", 1);
+    expect(matrix.getControlFilter(key), "#3: the next runCondition detaches it").toBe("");
+    expect(controlFilterKeys(matrix), "#4: and nothing is left behind").toEqual([]);
+    expect(control.filterExpression, "#5: the control keeps composing its own expression")
+      .toBe("{country} = 'de'");
+    control.toggleItem("de");
+    expect(control.filterExpression, "#6: and it still answers, with nothing to write into")
+      .toBe("");
   });
   test("a control whose source names nothing keeps composing its own expression", () => {
     const survey = new SurveyModel({ elements: [
@@ -220,7 +253,7 @@ describe("Filter control: bound mode", () => {
     const control = <QuestionFilterModel>survey.getQuestionByName("f1");
     control.toggleItem("de");
     expect(control.filterExpression, "#1").toBe("{country} = 'de'");
-    expect(matrix.getControlFilterKeys(), "#2: nothing was written anywhere").toEqual([]);
+    expect(controlFilterKeys(matrix), "#2: nothing was written anywhere").toEqual([]);
   });
   test("the whole scenario: a bound control, its search, its events and its saved state", () => {
     const survey = new SurveyModel({ elements: [
@@ -244,8 +277,8 @@ describe("Filter control: bound mode", () => {
       .toBe("({price} < 100) and ({country} anyof ['de'] or {price} contains 'Germ')");
     expect(matrix.filterExpression, "#5: the authored expression is untouched").toBe("{price} notempty");
     expect(survey.uiState.questions["f"], "#6: what the respondent did is saved state")
-      .toEqual({ filter: { activeItem: "cheap", searchString: "Germ" } });
-    expect(raised, "#7: nothing was raised while the survey loaded")
+      .toEqual({ filter: { activeItemName: "cheap", searchString: "Germ" } });
+    expect(raised, "#7: one event per change, and none before the first one - this control has no defaultItem")
       .toEqual(["{price} < 100", "({price} < 100) and ({country} anyof ['de'] or {price} contains 'Germ')"]);
   });
   test("searchFields name a bound nested field by its dotted value path", () => {

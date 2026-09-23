@@ -17,7 +17,7 @@ export interface IScrollElementToTopOptions {
 export interface IFilterElementUIState {
   // The name of the applied item. "" means the respondent switched the default item off, which is
   // not the same as "not stored" - the restore has to be able to say that.
-  activeItem?: string;
+  activeItemName?: string;
   searchString?: string;
   searchFields?: Array<string>;
 }

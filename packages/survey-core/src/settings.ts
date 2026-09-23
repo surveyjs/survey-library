@@ -741,6 +741,15 @@ export var settings = {
   animationEnabled: true,
 
   /**
+   * Specifies whether animations follow the operating system `prefers-reduced-motion` setting.
+   *
+   * When `true` and the user requests reduced motion, survey animations and smooth scrolling stay off even if [`animationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/settings#animationEnabled) is `true`.
+   *
+   * Default value: `true`
+   */
+  respectReducedMotion: true,
+
+  /**
    * An object that specifies HTML tags to use when rendering survey, page, panel, and question titles.
    *
    * Default value: `{ survey: "div", page: "div", panel: "div", question: "div" }`

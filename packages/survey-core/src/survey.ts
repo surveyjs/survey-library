@@ -58,6 +58,7 @@ import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
+import { isAnimationEnabled, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -5731,13 +5732,26 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
       .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
+      .append(this.css.rootAnimationDisabled, !isAnimationEnabled())
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
   private isSmoothScrollEnabled = false;
+  private reducedMotionUnsubscribe: () => void;
+  private subscribeToReducedMotion(): void {
+    this.unsubscribeFromReducedMotion();
+    this.reducedMotionUnsubscribe = subscribeReducedMotionChange(() => {
+      if (this.isDisposed) return;
+      this.rootCss = this.getRootCss();
+    });
+  }
+  private unsubscribeFromReducedMotion(): void {
+    if (!this.reducedMotionUnsubscribe) return;
+    this.reducedMotionUnsubscribe();
+    this.reducedMotionUnsubscribe = undefined;
+  }
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
   public generateStylesheet = true;
@@ -5780,6 +5794,8 @@ export class SurveyModel extends SurveyElementCore
         this.resizeObserver.observe(observedElement);
       }
     }
+    this.rootCss = this.getRootCss();
+    this.subscribeToReducedMotion();
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,
@@ -5795,6 +5811,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   beforeDestroySurveyElement() {
+    this.unsubscribeFromReducedMotion();
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
@@ -8813,6 +8830,7 @@ export class SurveyModel extends SurveyElementCore
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
   public dispose(): void {
+    this.unsubscribeFromReducedMotion();
     this.unConnectEditingObj();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();

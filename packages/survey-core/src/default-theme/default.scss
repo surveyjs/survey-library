@@ -120,6 +120,44 @@ body {
   -moz-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+  -webkit-animation-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  -webkit-animation-delay: 0s !important;
+  animation-delay: 0s !important;
+  -webkit-animation-iteration-count: 1 !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+.sd-root-modern--animation-disabled .sd-loading-indicator .sv-svg-icon {
+  -webkit-animation-duration: 1s !important;
+  animation-duration: 1s !important;
+  -webkit-animation-iteration-count: infinite !important;
+  animation-iteration-count: infinite !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-root-modern *,
+  .sv-popup * {
+    -webkit-transition-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    -webkit-transition-delay: 0s !important;
+    transition-delay: 0s !important;
+    -webkit-animation-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    -webkit-animation-delay: 0s !important;
+    animation-delay: 0s !important;
+    -webkit-animation-iteration-count: 1 !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  .sd-loading-indicator .sv-svg-icon {
+    -webkit-animation-duration: 1s !important;
+    animation-duration: 1s !important;
+    -webkit-animation-iteration-count: infinite !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 .sd-root-modern.sd-root-modern--full-container {

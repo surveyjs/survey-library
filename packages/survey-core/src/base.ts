@@ -18,6 +18,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -1705,7 +1706,7 @@ export class Base implements IObjectValueContext {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
+    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {

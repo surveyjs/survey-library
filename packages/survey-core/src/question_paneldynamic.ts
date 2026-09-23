@@ -33,6 +33,7 @@ import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { getScrollBehavior } from "./utils/reduced-motion";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
@@ -736,7 +737,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
           onBeforeRunAnimation: (el) => {
             if (this.focusNewPanelCallback) {
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
-              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
+              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: getScrollBehavior() });
             }
             if (!this.isRenderModeList && el.parentElement) {
               setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });

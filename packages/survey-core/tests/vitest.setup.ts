@@ -9,6 +9,7 @@ import { settings } from "../src/settings";
 import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
+import { reducedMotionMediaQuery } from "../src/utils/reduced-motion";
 
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
@@ -649,7 +650,11 @@ afterEach(() => {
   surveyLocalization.defaultLocale = __defaultLocale;
   // settings: re-apply our test defaults in case a test mutated them
   settings.animationEnabled = false;
+  settings.respectReducedMotion = true;
   settings.dropdownSearchDelay = 0;
+  if (typeof (globalThis as any).__setMatchMedia === "function") {
+    (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);
+  }
   // settings.environment: tests in popuptests / svgRegistryTests swap
   // `settings.environment` to point `root` at a detached shadow root. They
   // restore it at the end of the test, but the restore captures whatever

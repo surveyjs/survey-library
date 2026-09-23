@@ -4,6 +4,7 @@ import { ComputedUpdater } from "../base";
 import { Helpers } from "../helpers";
 import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
+import { combineFilterExpressions } from "./dynamic-data-filter";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
 
 /* The question side of the list's paging, sorting and filtering. Both dynamic questions expose the
@@ -341,14 +342,11 @@ export class DynamicDataPagingController {
     this.syncState();
   }
   // One question may carry more than one control and the list has one control slot, so the filters
-  // are combined here, each bracketed.
+  // are combined here. combineFilterExpressions does the bracketing: how filter expressions are
+  // joined has one owner in this feature.
   private getCombinedControlFilter(): string {
-    const used = this.controlFilterKeys
-      .map((key: string): string => this.controlFilters[key])
-      .filter((expression: string): boolean => !!expression);
-    if (used.length === 0) return "";
-    if (used.length === 1) return used[0];
-    return used.map((expression: string): string => "(" + expression + ")").join(" and ");
+    return this.controlFilterKeys.reduce((res: string, key: string): string =>
+      combineFilterExpressions(res, this.controlFilters[key]), "");
   }
   private pushControlFilter(): void {
     const combined = this.getCombinedControlFilter();

@@ -111,7 +111,9 @@ export function passesFilter(record: any, filter: string | ConditionRunner): boo
   if (!runner) return true;
   return runner.runValues(record || {});
 }
-// Returns the indexes of the records the filter expression accepts, in record order.
+// Returns the indexes of the records the filter expression accepts, in record order. The list runs
+// through applyFilters() below; this one is kept as the single-runner convenience that also takes
+// the expression as text, which is what a caller holding one expression wants.
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner): Array<number> {
   const runner = toRunner(filter);
   if (!runner) return createIndexes(records.length);

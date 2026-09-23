@@ -644,6 +644,13 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      keeps every record. An empty string = no filter. */
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
+     and never touches it: the authored expression is what this question serializes, and a control
+     must be able to filter without overwriting it. The key is the control's own, so two controls do
+     not overwrite each other, and "" removes the filter that control had set. Control filters are
+     runtime state and are not serialized. */
+  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
+  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);
   }

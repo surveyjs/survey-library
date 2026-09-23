@@ -11121,6 +11121,30 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.filterExpression, "#1: the list reset it to none").toBe("");
     expect(matrix.allRows.length, "#2: showing every row beats showing none").toBe(3);
   });
+  test("a control filter applies next to the authored one and is not serialized", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3,
+      columns: [{ name: "c1" }], filterExpression: "{c1} != 'z'" }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "z" }];
+    expect(matrix.visibleRows.length, "#1: the authored filter alone").toBe(2);
+    matrix.setControlFilter("control", "{c1} = 'a'");
+    expect(matrix.visibleRows.length, "#2: both").toBe(1);
+    expect(matrix.filterExpression, "#3: the authored expression is untouched").toBe("{c1} != 'z'");
+    expect(matrix.toJSON().filterExpression, "#4: and it is the only one emitted").toBe("{c1} != 'z'");
+  });
+  test("a broken control filter is reported and does not touch the authored one", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3,
+      columns: [{ name: "c1" }], filterExpression: "{c1} != 'z'" }] });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "z" }];
+    matrix.setControlFilter("control", "{c1} = ");
+    // "read": it is the read of the view that the filter made impossible.
+    expect(errors, "#1").toEqual(["read"]);
+    expect(matrix.filterExpression, "#2: the author is not punished for it").toBe("{c1} != 'z'");
+    expect(matrix.visibleRows.length, "#3: and the authored filter still runs").toBe(2);
+  });
   test("refreshView re-decides the membership and nothing else does", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
     matrix.filterExpression = "{c1} = 'a'";

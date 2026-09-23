@@ -10383,6 +10383,18 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.filterExpression, "#1: the list reset it to none").toBe("");
     expect(question.panels.length, "#2: showing every panel beats showing none").toBe(3);
   });
+  test("a control filter survives a change of the authored filter", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 3,
+      templateElements: [{ type: "text", name: "q1" }] }] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }];
+    panel.setControlFilter("control", "{q1} = 'a'");
+    expect(panel.visiblePanels.length, "#1").toBe(1);
+    panel.filterExpression = "{q1} != 'c'";
+    expect(panel.getControlFilter("control"), "#2: the control filter is still there").toBe("{q1} = 'a'");
+    panel.setControlFilter("control", "");
+    expect(panel.visiblePanels.length, "#3: back to the authored expression alone").toBe(2);
+  });
   test("refreshView re-decides the membership and nothing else does", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
     question.filterExpression = "{q1} = 'a'";

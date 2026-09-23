@@ -426,9 +426,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   onDataSourceError(error: any, operation: DynamicDataOperation): void {
     if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
-    const survey: any = this.survey;
-    if (!!survey && !!survey.dynamicDataError) {
-      survey.dynamicDataError(this, operation, error);
+    if (!!this.survey) {
+      this.survey.dynamicDataError(this, operation, error);
     }
   }
   protected getIsQuestionReady(): boolean {
@@ -3673,8 +3672,8 @@ Serializer.addClass(
     /* Invisible in the property grid until the UI series ships a pager: the property loads from and
        saves to JSON, but a switch that renders nothing is a support ticket. */
     { name: "panelsPerPage:number", default: 0, minValue: 0, visible: false },
-    { name: "sortBy", visible: false },
-    { name: "filterExpression", visible: false },
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

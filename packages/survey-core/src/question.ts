@@ -2398,6 +2398,10 @@ export class Question extends SurveyElement<Question>
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
   }
+  // A question that does not own records answers positionally: the two indexes are the same number.
+  getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    return this.getQuestionFromArray(name, recordIndex);
+  }
   public getDefaultValue(): any {
     return this.defaultValue;
   }
@@ -2848,7 +2852,7 @@ export class Question extends SurveyElement<Question>
      data source follows that source through this method - the row or panel the respondent is typing
      in already holds the new value, and a fan-out would dispose it under the edit. */
   protected storeQuestionValue(newValue: any): void {
-    this.setPropertyValue("value", newValue);
+    this.questionValue = newValue;
     this.updateIsAnswered();
   }
   protected valueFromData(val: any): any { return val; }

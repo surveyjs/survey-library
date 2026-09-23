@@ -191,7 +191,7 @@ describe("DynamicDataList: counts", () => {
     expect(list.isLoading).toBe(false);
     expect(list.count).toBe(3);
     expect(list.loadedCount).toBe(3);
-    expect(list.filteredCount).toBe(3);
+    expect(list.getCreatedIndexes().length).toBe(3);
     expect(list.visibleCount).toBe(3);
     expect(list.windowOffset).toBe(0);
     expect(list.getRecord(1).name).toBe("r1");
@@ -201,12 +201,12 @@ describe("DynamicDataList: counts", () => {
     expect(list.count).toBe(0);
     expect(list.getRecord(0)).toBe(undefined);
   });
-  test("a filter does not change count, but changes filteredCount and visibleCount", () => {
+  test("a filter does not change count, but changes the created and the visible count", () => {
     const list = createList(createRecords(5));
     list.filter = "{id} > 2";
     expect(list.count).toBe(5);
     expect(list.loadedCount).toBe(5);
-    expect(list.filteredCount).toBe(2);
+    expect(list.getCreatedIndexes().length).toBe(2);
     expect(list.visibleCount).toBe(2);
   });
   test("visibleCount is unpaged and drops the owner-hidden records", () => {
@@ -214,9 +214,9 @@ describe("DynamicDataList: counts", () => {
     list.pageSize = 3;
     list.setRecordVisible(0, false);
     expect(list.count).toBe(10);
-    expect(list.filteredCount).toBe(10);
+    expect(list.getCreatedIndexes().length).toBe(10);
     expect(list.visibleCount).toBe(9);
-    expect(list.pageRecordCount).toBe(3);
+    expect(list.getPageIndexes().length).toBe(3);
   });
   test("getRecord and getValue are out-of-range safe", () => {
     const list = createList(createRecords(2));
@@ -423,38 +423,6 @@ describe("DynamicDataList: visibility", () => {
 });
 
 describe("DynamicDataList: index conversions", () => {
-  test("visible index conversions without a filter", () => {
-    const list = createList(createRecords(3));
-    expect(list.visibleIndexToIndex(1)).toBe(1);
-    expect(list.indexToVisibleIndex(1)).toBe(1);
-    expect(list.visibleIndexToIndex(3)).toBe(-1);
-    expect(list.visibleIndexToIndex(-1)).toBe(-1);
-  });
-  test("visible index conversions with a hidden record", () => {
-    const list = createList(createRecords(4));
-    list.setRecordVisible(1, false);
-    expect(list.visibleIndexToIndex(1)).toBe(2);
-    expect(list.indexToVisibleIndex(2)).toBe(1);
-    expect(list.indexToVisibleIndex(1)).toBe(-1);
-  });
-  test("visible index conversions with a sort", () => {
-    const list = createList([{ id: 3 }, { id: 1 }, { id: 2 }]);
-    list.sort = [{ field: "id", direction: "asc" }];
-    expect(list.getVisibleIndexes()).toEqual([1, 2, 0]);
-    expect(list.visibleIndexToIndex(0)).toBe(1);
-    expect(list.indexToVisibleIndex(0)).toBe(2);
-  });
-  test("page-local index conversions", () => {
-    const list = createList(createRecords(10));
-    list.pageSize = 3;
-    list.pageIndex = 1;
-    expect(list.getPageIndexes()).toEqual([3, 4, 5]);
-    expect(list.pageLocalIndexToIndex(0)).toBe(3);
-    expect(list.indexToPageLocalIndex(4)).toBe(1);
-    expect(list.indexToPageLocalIndex(0)).toBe(-1);
-    expect(list.pageLocalIndexToIndex(3)).toBe(-1);
-    expect(list.pageLocalIndexToIndex(-1)).toBe(-1);
-  });
   test("the identity arrays are cached until something changes", () => {
     const list = createList(createRecords(3));
     const visible = list.getVisibleIndexes();
@@ -484,13 +452,12 @@ describe("DynamicDataList: local filter, sort and paging", () => {
     list.filter = "{id} > 2";
     list.sort = [{ field: "id", direction: "desc" }];
     list.pageSize = 3;
-    expect(list.filteredCount).toBe(7);
+    expect(list.getCreatedIndexes().length).toBe(7);
     expect(list.visibleCount).toBe(7);
     expect(list.pageCount).toBe(3);
     expect(list.getPageIndexes()).toEqual([9, 8, 7]);
     list.pageIndex = 2;
     expect(list.getPageIndexes()).toEqual([3]);
-    expect(list.pageRecordCount).toBe(1);
   });
   test("pageCount excludes the owner-hidden records", () => {
     const list = createList(createRecords(10));
@@ -512,10 +479,10 @@ describe("DynamicDataList: local filter, sort and paging", () => {
     const list = createList(createRecords(5));
     expect(list.pageSize).toBe(0);
     expect(list.pageCount).toBe(1);
-    expect(list.pageRecordCount).toBe(5);
+    expect(list.getPageIndexes().length).toBe(5);
     list.pageSize = 2;
     list.pageSize = 0;
-    expect(list.pageRecordCount).toBe(5);
+    expect(list.getPageIndexes().length).toBe(5);
   });
   test("changing the filter resets pageIndex", () => {
     const list = createList(createRecords(10));
@@ -676,7 +643,8 @@ describe("DynamicDataList: a source that filters and sorts itself", () => {
     // The window is taken as it came: nothing is filtered out locally.
     expect(list.loadedCount).toBe(1);
     expect(list.visibleCount).toBe(1);
-    expect(list.filteredCount).toBe(1);
+    // A source that filters itself answers the storage count: it is what the filtered range says.
+    expect(list.count).toBe(1);
     expect(list.getVisibleIndexes()).toEqual([0]);
   });
   test("an expression a source cannot run locally still reaches it untouched", () => {
@@ -710,7 +678,7 @@ describe("DynamicDataList: a source that filters and sorts itself", () => {
     expect(list.getVisibleIndexes()).toEqual([3, 2, 1, 0]);
     list.filter = "{id} > 1";
     expect(list.getVisibleIndexes()).toEqual([3, 2]);
-    expect(list.filteredCount).toBe(2);
+    expect(list.getCreatedIndexes().length).toBe(2);
   });
 });
 
@@ -1183,7 +1151,7 @@ describe("DynamicDataList: records changed outside the list", () => {
     list.pageSize = 2;
     expect(list.getPageIndexes(), "#1").toEqual([0, 1]);
     rec.set(createRecords(1));
-    expect(list.pageRecordCount, "#2").toBe(1);
+    expect(list.getPageIndexes().length, "#2").toBe(1);
     expect(list.getPageIndexes(), "#2: indexes").toEqual([0]);
   });
   test("invalidateViews recomputes a local filter after a same-length content change", () => {
@@ -1208,7 +1176,7 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     list.remove(1);
     expect(list.pageIndex, "#1").toBe(0);
     expect(list.pageCount, "#2").toBe(1);
-    expect(list.pageRecordCount, "#3").toBe(1);
+    expect(list.getPageIndexes().length, "#3").toBe(1);
     expect(changes, "#4: recordRemoved first, pageChanged second").toEqual(["recordRemoved:1", "pageChanged"]);
   });
   test("truncate clamps the page index", () => {
@@ -1217,7 +1185,7 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     list.pageIndex = 1;
     list.truncate(2);
     expect(list.pageIndex, "#1").toBe(0);
-    expect(list.pageRecordCount, "#2").toBe(2);
+    expect(list.getPageIndexes().length, "#2").toBe(2);
   });
   test("setRecordVisible clamps the page index", () => {
     const list = createList(createRecords(3));
@@ -1225,7 +1193,7 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     list.pageIndex = 2;
     list.setRecordVisible(2, false);
     expect(list.pageIndex, "#1").toBe(1);
-    expect(list.pageRecordCount, "#2").toBe(1);
+    expect(list.getPageIndexes().length, "#2").toBe(1);
   });
   test("an edit that makes a record fail the local filter clamps the page index", () => {
     const list = createList([{ a: 1 }, { a: 1 }]);
@@ -1235,7 +1203,7 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     list.setValue(1, "a", 2);
     expect(list.visibleCount, "#1").toBe(1);
     expect(list.pageIndex, "#2").toBe(0);
-    expect(list.pageRecordCount, "#3").toBe(1);
+    expect(list.getPageIndexes().length, "#3").toBe(1);
   });
   test("a clamped page index reloads the page of a readRange source", () => {
     const source = new FakeRangeSource(createRecords(3));
@@ -1297,7 +1265,6 @@ describe("DynamicDataList: created indexes", () => {
     expect(list.getCreatedIndexes(), "#1: the hidden record still has an object").toEqual([0, 2]);
     expect(list.getVisibleIndexes(), "#2").toEqual([2]);
     expect(list.visibleCount, "#3").toBe(1);
-    expect(list.filteredCount, "#4").toBe(2);
   });
   test("the owner-hidden records do not change the sorted order of the rest", () => {
     const list = createList([{ a: 3 }, { a: 1 }, { a: 2 }]);

@@ -16,7 +16,7 @@ import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from ".
 // Operand.toString(callback), where the callback emits the target dialect for the nodes it knows
 // (BinaryOperand.operator/leftOperand/rightOperand, Variable.variable, Const.correctValue).
 
-export function getFieldValue(record: any, field: string): any {
+function getFieldValue(record: any, field: string): any {
   return !!record ? record[field] : undefined;
 }
 function findField(fields: Array<IDynamicDataField>, name: string): IDynamicDataField {
@@ -70,11 +70,7 @@ function compareByType(a: any, b: any, dataType: string): number {
   if (Helpers.isNumber(a) && Helpers.isNumber(b)) return compareNumbers(a, b);
   return compareStrings(a, b);
 }
-// Ascending comparison of two field values; empty values sort last.
-export function compareValues(a: any, b: any, field?: IDynamicDataField): number {
-  return compareFieldValues(a, b, field, "asc");
-}
-export function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: DynamicDataSortDirection): number {
+function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: DynamicDataSortDirection): number {
   // A custom comparer owns the whole comparison, the empty rule included.
   if (!!field && !!field.compare) {
     const custom = field.compare(a, b);
@@ -105,11 +101,6 @@ export function createFilterRunner(expression: string): ConditionRunner {
 }
 function toRunner(filter: string | ConditionRunner): ConditionRunner {
   return typeof filter === "string" ? createFilterRunner(filter) : filter;
-}
-export function passesFilter(record: any, filter: string | ConditionRunner): boolean {
-  const runner = toRunner(filter);
-  if (!runner) return true;
-  return runner.runValues(record || {});
 }
 // Returns the indexes of the records the filter expression accepts, in record order.
 export function applyFilter(records: Array<any>, filter: string | ConditionRunner): Array<number> {

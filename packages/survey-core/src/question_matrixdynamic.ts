@@ -219,9 +219,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   onDataSourceError(error: any, operation: DynamicDataOperation): void {
     if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
-    const survey: any = this.survey;
-    if (!!survey && !!survey.dynamicDataError) {
-      survey.dynamicDataError(this, operation, error);
+    if (!!this.survey) {
+      this.survey.dynamicDataError(this, operation, error);
     }
   }
   protected getIsQuestionReady(): boolean {

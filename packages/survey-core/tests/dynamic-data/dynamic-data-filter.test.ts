@@ -1,7 +1,5 @@
 import { describe, test, expect } from "vitest";
-import {
-  applyFilter, applySort, compareValues, createFilterRunner, getFieldValue, passesFilter
-} from "../../src/dynamic-data/dynamic-data-filter";
+import { applyFilter, applySort, createFilterRunner } from "../../src/dynamic-data/dynamic-data-filter";
 import { DynamicDataSortDirection, IDynamicDataField } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { BinaryOperand, Const, Operand, Variable } from "../../src/expressions/expressions";
@@ -74,12 +72,6 @@ describe("dynamic-data-filter: the filter expression", () => {
     expect(applyFilter(records, "")).toEqual([0, 1, 2, 3]);
     expect(applyFilter(records, undefined)).toEqual([0, 1, 2, 3]);
   });
-  test("passesFilter on a single record", () => {
-    expect(passesFilter(records[0], "{age} = 10")).toBe(true);
-    expect(passesFilter(records[0], "{age} = 11")).toBe(false);
-    expect(passesFilter(undefined, "{age} empty")).toBe(true);
-    expect(passesFilter(records[0], "")).toBe(true);
-  });
   test("a date field compares against a date literal", () => {
     const dates = [{ d: "2020-01-01" }, { d: "2020-06-01" }, { d: "2021-01-01" }];
     expect(applyFilter(dates, "{d} > '2020-03-01'")).toEqual([1, 2]);
@@ -107,10 +99,6 @@ describe("dynamic-data-filter: the filter expression", () => {
   test("a comment key is an ordinary field: the braces take the name as it is", () => {
     const withComments = [{ q1: 1, "q1-Comment": "hello" }, { q1: 2, "q1-Comment": "bye" }];
     expect(applyFilter(withComments, "{q1-Comment} = 'hello'")).toEqual([0]);
-  });
-  test("getFieldValue tolerates a missing record", () => {
-    expect(getFieldValue(undefined, "a")).toBe(undefined);
-    expect(getFieldValue({ a: 1 }, "a")).toBe(1);
   });
 });
 
@@ -205,22 +193,6 @@ describe("dynamic-data-filter: comparison", () => {
     const records = [{ v: 100 }, { v: 1 }, { v: 10 }];
     expect(sortBy(records, "v", "asc", fields)).toEqual([1, 2, 0]);
     expect(sortBy(records, "v", "desc", fields)).toEqual([0, 2, 1]);
-  });
-  test("compareValues is the ascending comparison", () => {
-    expect(compareValues(1, 2)).toBe(-1);
-    expect(compareValues(2, 1)).toBe(1);
-    expect(compareValues(2, 2)).toBe(0);
-    expect(compareValues("a", "b")).toBeLessThan(0);
-  });
-  test("compareValues puts empty values last", () => {
-    expect(compareValues(undefined, 1)).toBe(1);
-    expect(compareValues(1, undefined)).toBe(-1);
-    expect(compareValues(undefined, null)).toBe(0);
-    expect(compareValues("", 1)).toBe(1);
-  });
-  test("compareValues does not treat 0 or false as empty", () => {
-    expect(compareValues(0, 1)).toBe(-1);
-    expect(compareValues(0, undefined)).toBe(-1);
   });
 });
 

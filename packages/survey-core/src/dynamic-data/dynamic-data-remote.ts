@@ -87,9 +87,6 @@ export class DynamicDataRemoteController {
     }
     return res;
   }
-  public raiseError(error: any, operation: DynamicDataOperation): void {
-    this.owner.onDataSourceError(error, operation);
-  }
   /* A remove on a page the source reads again (the refill of a source that pages itself) is answered
      by a rebuild of every item on the page, which disposes the one the question has just focused.
      The question keeps the position here while that read is pending and takes it back from the
@@ -112,8 +109,5 @@ export class DynamicDataRemoteController {
     if (index === undefined || !list || list.hasPendingRead) return -1;
     this.focusIndexAfterRead = undefined;
     return isFocusInsideOrIdle(elementId, element) ? index : -1;
-  }
-  public onLoadingChanged(isLoading: boolean): void {
-    this.owner.onDataLoadingChanged(isLoading);
   }
 }

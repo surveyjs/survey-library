@@ -17,12 +17,12 @@ import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 // |                  | methods. Equals the record index for a source without readRange.  |                       |
 // | visibleIndex     | position among the records that pass the filter and are not       | 0 ... visibleCount-1  |
 // |                  | owner-hidden, in sort order, UNPAGED.                             |                       |
-// | pageLocalIndex   | position on the current page                                      | 0 ... pageRecordCount-1 |
+// | pageLocalIndex   | position on the current page, i.e. in getPageIndexes()            | 0 ... page length-1   |
 // |                  | (= visibleIndex - pageIndex * pageSize).                          |                       |
 //
 // The counts follow the same split: "count" is the STORAGE count (total for a paged source, else the
-// window length) and a filter never changes it; "filteredCount" is what passes the filter;
-// "visibleCount" is filteredCount minus the owner-hidden records; "loadedCount" is the window length.
+// window length) and a filter never changes it; "visibleCount" is what passes the filter minus the
+// owner-hidden records; "loadedCount" is the window length.
 
 function isPromiseLike(value: any): boolean {
   // Never instanceof Promise: a source may return any thenable.
@@ -55,7 +55,6 @@ export class DynamicDataList {
   private _source: IDynamicDataSource;
   private windowRecords: Array<any> = [];
   private hiddenFlags: Array<boolean> = [];
-  private hiddenCount: number = 0;
   private _windowOffset: number = 0;
   private _total: number = undefined;
   /* Committed together with the window (see commitRead). A source that cannot count its records
@@ -100,9 +99,11 @@ export class DynamicDataList {
      requests coalesce into one: queuedReadUseOffset stays true only while every one of them was a
      refresh of the window - a load() recomputes the offset from pageIndex, which is what a page
      change asked for. */
-  private isReadQueued: boolean = false;
   private queuedReadUseOffset: boolean = true;
   private queuedReadWaiter: { promise: Promise<void>, resolve: (value?: any) => void } = undefined;
+  private get isReadQueued(): boolean {
+    return !!this.queuedReadWaiter;
+  }
   // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
   // running against a replaced source cannot report back into the list.
   private sourceEpoch: number = 0;
@@ -162,6 +163,15 @@ export class DynamicDataList {
   }
   private set records(val: Array<any>) {
     this.windowRecords = val;
+  }
+  /* The window array is never mutated: the source may hand out the very array the owner holds, so
+     every structural edit works on a copy that replaces it. With a read-through source there is no
+     window at all - the push that follows the edit is the write - and the edit is skipped. */
+  private editWindow(edit: (records: Array<any>) => void): void {
+    if (this.useReadThrough) return;
+    const newRecords = this.windowRecords.slice();
+    edit(newRecords);
+    this.windowRecords = newRecords;
   }
   // The length of records without reading them: a read-through source may compose the array on every
   // read (the matrix pads its value up to rowCount), and most readers want only the count.
@@ -269,10 +279,6 @@ export class DynamicDataList {
   public get hasMore(): boolean {
     return this._hasMore;
   }
-  public get filteredCount(): number {
-    if (this.hasReadRange || !this._filter) return this.count;
-    return this.getCreatedIndexes().length;
-  }
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
   }
@@ -365,11 +371,7 @@ export class DynamicDataList {
       : Math.max(0, Math.min(index, this.recordCount));
     this.alignHiddenFlags();
     this.writeDepth++;
-    if (!this.useReadThrough) {
-      const newRecords = this.windowRecords.slice();
-      newRecords.splice(at, 0, newRecord);
-      this.windowRecords = newRecords;
-    }
+    this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
     this.hiddenFlags.splice(at, 0, false);
     if (this._total !== undefined)this._total++;
     this.updateHasMoreFromTotal(countAfter);
@@ -402,12 +404,7 @@ export class DynamicDataList {
     const countAfter = this.recordCount - 1;
     this.alignHiddenFlags();
     this.writeDepth++;
-    if (!this.useReadThrough) {
-      const newRecords = this.windowRecords.slice();
-      newRecords.splice(index, 1);
-      this.windowRecords = newRecords;
-    }
-    if (this.hiddenFlags[index])this.hiddenCount--;
+    this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
     this.hiddenFlags.splice(index, 1);
     if (this._total !== undefined)this._total--;
     this.updateHasMoreFromTotal(countAfter);
@@ -451,13 +448,11 @@ export class DynamicDataList {
     const key = this.getRecordKey(fromIndex);
     this.alignHiddenFlags();
     this.writeDepth++;
-    if (!this.useReadThrough) {
-      const newRecords = this.windowRecords.slice();
-      const record = newRecords[fromIndex];
-      newRecords.splice(fromIndex, 1);
-      newRecords.splice(toIndex, 0, record);
-      this.windowRecords = newRecords;
-    }
+    this.editWindow((records: Array<any>): void => {
+      const record = records[fromIndex];
+      records.splice(fromIndex, 1);
+      records.splice(toIndex, 0, record);
+    });
     // A visibility flag belongs to a record, not to a slot: it travels with it.
     const flag = this.hiddenFlags[fromIndex];
     this.hiddenFlags.splice(fromIndex, 1);
@@ -478,7 +473,6 @@ export class DynamicDataList {
     if (!!this.hiddenFlags[index] === isHidden) return false;
     this.alignHiddenFlags();
     this.hiddenFlags[index] = isHidden;
-    this.hiddenCount += isHidden ? 1 : -1;
     this.resetViews();
     this.clampPageIndexAfterChange();
     return true;
@@ -493,8 +487,13 @@ export class DynamicDataList {
      calls this from the one point every value assignment passes through. */
   public invalidateViews(): void {
     // A write of the list's own maintains the membership record by record; re-evaluating it here
-    // would undo that from inside the very assignment that made it.
+    // would undo that from inside the very assignment that made it. refreshView() is the owner's
+    // explicit request and runs during a write too, so the guard stays here and not in the helper.
     if (this.writeDepth > 0) return;
+    this.rebuildMembership();
+  }
+  // Re-decides the membership over the records as they are now, and re-freezes it.
+  private rebuildMembership(): void {
     this.resetMembership();
     this.resetViews();
     this.refreezeMembership();
@@ -529,10 +528,7 @@ export class DynamicDataList {
      view. With isViewFrozenOnEdit off this is what every write does anyway, so it is only the reset
      notification. */
   public refreshView(): void {
-    this.resetMembership();
-    this.resetViews();
-    this.refreezeMembership();
-    this.clampPageIndexAfterChange();
+    this.rebuildMembership();
     this.raiseChanged({ type: "reset" });
   }
   // The records that have an object: the ones that pass the filter, in sort order, owner-hidden ones
@@ -563,14 +559,6 @@ export class DynamicDataList {
   public getVisibleIndexes(): Array<number> {
     this.ensureViews();
     return this.visibleIndexes;
-  }
-  public visibleIndexToIndex(visibleIndex: number): number {
-    const indexes = this.getVisibleIndexes();
-    if (visibleIndex < 0 || visibleIndex >= indexes.length) return -1;
-    return indexes[visibleIndex];
-  }
-  public indexToVisibleIndex(index: number): number {
-    return this.getVisibleIndexes().indexOf(index);
   }
 
   public get pageSize(): number {
@@ -613,9 +601,6 @@ export class DynamicDataList {
     if (!this._isCountKnown) return this._pageIndex + 1 + (this._hasMore ? 1 : 0);
     return Math.max(1, Math.ceil(this.count / this._pageSize));
   }
-  public get pageRecordCount(): number {
-    return this.getPageIndexes().length;
-  }
   public getPageIndexes(): Array<number> {
     // The visible indexes come first: they drop a page cache that an external record change made
     // stale.
@@ -630,14 +615,6 @@ export class DynamicDataList {
       }
     }
     return this.pageIndexes;
-  }
-  public pageLocalIndexToIndex(pageLocalIndex: number): number {
-    const indexes = this.getPageIndexes();
-    if (pageLocalIndex < 0 || pageLocalIndex >= indexes.length) return -1;
-    return indexes[pageLocalIndex];
-  }
-  public indexToPageLocalIndex(index: number): number {
-    return this.getPageIndexes().indexOf(index);
   }
 
   // A survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18". An empty
@@ -708,7 +685,6 @@ export class DynamicDataList {
     this.owner = undefined;
     this.records = [];
     this.hiddenFlags = [];
-    this.hiddenCount = 0;
     this.pendingInserts = [];
     this.filterRunner = undefined;
     this.resetMembership();
@@ -748,13 +724,7 @@ export class DynamicDataList {
   }
   private replaceRecord(index: number, record: any): void {
     if (this.pendingInserts.length > 0)this.repointPendingInsert(this.records[index], record);
-    // The window array is never mutated: the source may hand out the very array the owner holds.
-    // With a read-through source there is no window - the push that follows is the write.
-    if (!this.useReadThrough) {
-      const newRecords = this.windowRecords.slice();
-      newRecords[index] = record;
-      this.windowRecords = newRecords;
-    }
+    this.editWindow((records: Array<any>): void => { records[index] = record; });
     /* A value change can only reorder or re-filter the view when a local filter/sort is active;
        keeping the cached identity array otherwise is what lets the questions compare by instance.
        With a frozen membership the edited record keeps its place, so the recomputation that follows
@@ -785,12 +755,6 @@ export class DynamicDataList {
       this.hiddenFlags.push(false);
     }
     this.hiddenFlags.length = length;
-    // The counter follows the flags: records that disappear take their flags with them, and a
-    // counter left inflated by a trimmed flag would outlive the record it belonged to.
-    this.hiddenCount = 0;
-    for (let i = 0; i < this.hiddenFlags.length; i++) {
-      if (this.hiddenFlags[i])this.hiddenCount++;
-    }
   }
   private ensureViews(): void {
     const recordCount = this.recordCount;
@@ -817,7 +781,9 @@ export class DynamicDataList {
     // The owner-hidden records keep the order the filter and the sort gave them; dropping them from
     // the created indexes is the only difference between the two views.
     let visible = created;
-    if (this.hiddenCount > 0) {
+    // The flags are dense and aligned here (alignHiddenFlags above), so one scan of them answers
+    // whether the filter below has anything to drop; when it has not, the two views share the array.
+    if (this.hiddenFlags.indexOf(true) > -1) {
       visible = created.filter((index: number): boolean => !this.hiddenFlags[index]);
     }
     this.createdIndexes = created;
@@ -902,7 +868,6 @@ export class DynamicDataList {
   private resetWindow(): void {
     this.records = [];
     this.hiddenFlags = [];
-    this.hiddenCount = 0;
     // The inserts of the source that was replaced: their answers belong to a window that is gone.
     this.pendingInserts = [];
     this._total = undefined;
@@ -977,7 +942,6 @@ export class DynamicDataList {
   }
   private queueRead(useWindowOffset: boolean): Promise<void> {
     this.queuedReadUseOffset = this.isReadQueued ? this.queuedReadUseOffset && useWindowOffset : useWindowOffset;
-    this.isReadQueued = true;
     if (!this.queuedReadWaiter) {
       let resolve: (value?: any) => void;
       const promise = new Promise<void>((res: (value?: any) => void): void => { resolve = res; });
@@ -989,14 +953,12 @@ export class DynamicDataList {
     if (!this.isReadQueued) return;
     const useWindowOffset = this.queuedReadUseOffset;
     const waiter = this.queuedReadWaiter;
-    this.isReadQueued = false;
     this.queuedReadWaiter = undefined;
     const res = this.doRead(useWindowOffset);
     if (!!waiter) waiter.resolve(res);
   }
   private dropQueuedRead(): void {
     const waiter = this.queuedReadWaiter;
-    this.isReadQueued = false;
     this.queuedReadWaiter = undefined;
     if (!!waiter) waiter.resolve();
   }
@@ -1094,7 +1056,6 @@ export class DynamicDataList {
     }
     this.isLoaded = true;
     this.hiddenFlags = [];
-    this.hiddenCount = 0;
     this.resetMembership();
     this.resetViews();
     this.refreezeMembership();
@@ -1274,8 +1235,12 @@ export class DynamicDataList {
   }
   private syncWindowAfterSyncPush(epoch: number): void {
     if (this.isDisposed || epoch !== this.sourceEpoch || this.hasReadRange || this.useReadThrough) return;
-    // For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
-    // rebuilt from it so that the list never holds an array the owner does not.
+    /* For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
+       rebuilt from it so that the list never holds an array the owner does not. useReadThrough above
+       does not already answer this - it is true only when the list reads through as well, and a list
+       that does not still has to take the array the push has just written. Any other source is left
+       alone: read() may answer asynchronously, and an unwrapped promise here would empty the
+       window. */
     if (!(this._source instanceof ArrayDynamicDataSource)) return;
     const res = this._source.read();
     this.records = Array.isArray(res) ? res : [];

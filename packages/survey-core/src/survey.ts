@@ -6000,10 +6000,7 @@ export class SurveyModel extends SurveyElementCore
     const questions = this.getQuestionsByValueName(valueName);
     if (!questions) return;
     for (let i = 0; i < questions.length; i++) {
-      const question: any = questions[i];
-      const res = typeof question.getQuestionFromRecord === "function"
-        ? question.getQuestionFromRecord(name, recordIndex)
-        : question.getQuestionFromArray(name, recordIndex);
+      const res = questions[i].getQuestionFromRecord(name, recordIndex);
       if (!!res) return res;
     }
     return null;

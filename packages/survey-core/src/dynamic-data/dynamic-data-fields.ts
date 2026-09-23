@@ -5,13 +5,13 @@ import { DynamicDataFieldType, IDynamicDataField } from "./dynamic-data-interfac
 // The record fields a dynamic panel template or a matrix column contributes to the list. They are
 // used for sorting only (the filter is an expression and needs no typing), so a value type that
 // does not say how to compare is "any": the local sort then compares the raw values.
-export function getDynamicDataFieldType(question: Question): DynamicDataFieldType {
+function getDynamicDataFieldType(question: Question): DynamicDataFieldType {
   const type = question.getValueType();
   // "string" is also what a question that does not know its value type reports (an expression, a
   // select question whose choices are not loaded yet), so it is not trusted: the values decide.
   return type === "number" || type === "date" || type === "boolean" ? type : "any";
 }
-export function getDynamicDataFieldForQuestion(question: Question): IDynamicDataField {
+function getDynamicDataFieldForQuestion(question: Question): IDynamicDataField {
   return { name: question.getValueName(), dataType: getDynamicDataFieldType(question) };
 }
 export function getDynamicDataFieldsForQuestions(questions: Array<Question>): Array<IDynamicDataField> {

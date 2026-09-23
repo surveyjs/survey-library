@@ -40,7 +40,7 @@ import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData }
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
+import { getDynamicDataFieldsForQuestions, getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
@@ -481,6 +481,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   getFields(): Array<IDynamicDataField> {
     return getDynamicDataFieldsForQuestions(this.template.questions);
+  }
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    return getFilterFieldsForQuestions(this.template.questions);
   }
   /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
      called. Which records have a panel changes with it, so the panels are rebuilt.

@@ -1,3 +1,5 @@
+import { IDynamicDataFilterField } from "./dynamic-data-fields";
+
 // The data-source contract for DynamicDataList. Capabilities are declared by the presence of the
 // optional methods: a source that has "readRange" pages, filters and sorts itself, a source that
 // has "remove" can delete a record, and so on. The list falls back to a local implementation for
@@ -156,4 +158,13 @@ export type IDynamicDataListChange =
 export interface IDynamicDataOwner {
   getFields(): Array<IDynamicDataField>;
   onDataListChanged(change: IDynamicDataListChange): void;
+}
+
+// What a question that can be filtered by a Filter Control answers. Both dynamic questions implement
+// it; the control never imports either of them and asks by capability, the way the list asks a
+// source whether it has "filter".
+export interface IDynamicDataFilterSource {
+  getFilterFields(): Array<IDynamicDataFilterField>;
+  setControlFilter(key: string, expression: string): void;
+  getControlFilter(key: string): string;
 }

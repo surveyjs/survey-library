@@ -740,13 +740,8 @@ export var settings = {
   */
   animationEnabled: true,
 
-  /**
-   * Specifies whether animations follow the operating system `prefers-reduced-motion` setting.
-   *
-   * When `true` and the user requests reduced motion, survey animations and smooth scrolling stay off even if [`animationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/settings#animationEnabled) is `true`.
-   *
-   * Default value: `true`
-   */
+  // When true, the OS "prefers-reduced-motion: reduce" preference turns animations and smooth scrolling off
+  // even if animationEnabled is true.
   respectReducedMotion: true,
 
   /**

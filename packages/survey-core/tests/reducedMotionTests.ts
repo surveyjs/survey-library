@@ -58,11 +58,13 @@ describe("prefers-reduced-motion", () => {
     setReducedMotion(true);
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const disabledClass = survey.css.rootAnimationDisabled;
-    expect(survey.rootCss.indexOf(disabledClass) > -1).toBe(true);
+    expect(survey.rootCss.indexOf(disabledClass) > -1, "the preference is not read before mount").toBe(false);
 
     const root = document.createElement("div");
     document.body.appendChild(root);
     survey.afterRenderSurvey(root);
+    expect(survey.rootCss.indexOf(disabledClass) > -1, "the preference is applied after mount").toBe(true);
+
     setReducedMotion(false);
     expect(survey.rootCss.indexOf(disabledClass) > -1).toBe(false);
 

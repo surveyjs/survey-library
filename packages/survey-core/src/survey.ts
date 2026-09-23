@@ -58,7 +58,7 @@ import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
-import { isAnimationEnabled, subscribeReducedMotionChange } from "./utils/reduced-motion";
+import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -5732,19 +5732,27 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
       .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !isAnimationEnabled())
+      .append(this.css.rootAnimationDisabled, !settings.animationEnabled || this.isReducedMotion)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
   private isSmoothScrollEnabled = false;
+  // Read only after mount: during render the server cannot know the preference,
+  // so a class derived from it would break hydration. CSS media query covers the first paint.
+  private isReducedMotion = false;
   private reducedMotionUnsubscribe: () => void;
+  private updateReducedMotion(): void {
+    this.isReducedMotion = isReducedMotionPreferred();
+    this.rootCss = this.getRootCss();
+  }
   private subscribeToReducedMotion(): void {
     this.unsubscribeFromReducedMotion();
+    this.updateReducedMotion();
     this.reducedMotionUnsubscribe = subscribeReducedMotionChange(() => {
       if (this.isDisposed) return;
-      this.rootCss = this.getRootCss();
+      this.updateReducedMotion();
     });
   }
   private unsubscribeFromReducedMotion(): void {
@@ -5794,7 +5802,6 @@ export class SurveyModel extends SurveyElementCore
         this.resizeObserver.observe(observedElement);
       }
     }
-    this.rootCss = this.getRootCss();
     this.subscribeToReducedMotion();
     this.onAfterRenderSurvey.fire(this, {
       survey: this,

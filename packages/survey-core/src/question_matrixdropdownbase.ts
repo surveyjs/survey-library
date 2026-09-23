@@ -1,10 +1,10 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { Question, IConditionObject, IQuestionPlainData } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -435,7 +435,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       this.detailPanelValue = null;
     }
   }
-  private ensureDetailPanel() {
+  public ensureDetailPanel() {
     if (this.isCreatingDetailPanel) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.isCreatingDetailPanel = true;
@@ -1594,22 +1594,59 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return !!question ? question.getConditionJson(operator) : null;
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res || !checks.unknownKeys) return res;
-    if (!Array.isArray(this.visibleRows)) return undefined;
-    const rows = this.generatedVisibleRows;
-    const unknownKeys: Array<string> = [];
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.unknownProperties) return true;
+    // allRows generates the rows and returns all of them in data order, hidden ones included:
+    // their values are in the data and, for a dynamic matrix, the index into a filtered array is
+    // not the data index.
+    const rows = this.allRows;
+    if (!Array.isArray(rows)) return true;
     for (let i = 0; i < rows.length; i++) {
-      const keys = rows[i].getUnknownValueKeys(this.getRowValue(i));
-      keys.forEach(key => unknownKeys.push(this.getRowKeyName(rows[i], i) + "." + key));
+      const rowValue = this.getRowValueCore(rows[i], val);
+      const keys = rows[i].getUnknownValueKeys(rowValue);
+      if (keys.length === 0) continue;
+      context.pushSegment(this.getRowDataSegment(rows[i], i));
+      keys.forEach(key => context.addIssue("unknownProperty", key, rowValue[key], this));
+      context.popSegment();
     }
-    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+    // An unknown key inside a row is not a shape problem: a matrixdropdown still checks its rows.
+    return true;
   }
-  // The name of a row in an unknown key path: the row index here, the key of the row in the value
-  // for a matrixdropdown, which keeps its rows in an object.
-  protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
-    return index + "";
+  // The segment of a row in a location: the row index here, because a dynamic matrix keeps its rows
+  // in an array, and the key of the row in the value for a matrixdropdown, which uses an object.
+  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
+    return index;
+  }
+  public initializeForVerification(): void {
+    const rows = this.allRows;
+    if (!Array.isArray(rows)) return;
+    rows.forEach(row => {
+      row.cells.forEach(cell => cell?.question?.initializeForVerification());
+      row.ensureDetailPanel();
+      row.detailPanel?.initializeForVerification();
+    });
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    const rows = this.allRows;
+    if (!Array.isArray(rows)) return;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      context.pushSegment(this.getRowDataSegment(row, i));
+      row.cells.forEach(cell => cell?.question?.verifyDataCore(context));
+      row.detailPanel?.verifyDataCore(context);
+      context.popSegment();
+    }
+  }
+  public getChildDataSegment(element: SurveyElement): string | number {
+    const rows = this.allRows;
+    if (!Array.isArray(rows)) return undefined;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (row === (<any>element).data || row.detailPanel === element ||
+        row.cells.some(cell => cell?.question === element)) return this.getRowDataSegment(row, i);
+    }
+    return undefined;
   }
   public clearIncorrectValues(): void {
     this.clearIncorrectValueInData();

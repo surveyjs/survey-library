@@ -16,7 +16,8 @@ import {
   ISurvey,
   IFindElement,
   ISurveyValidation,
-  IValidateOptions
+  IVerifyDataOptions,
+  IDataIssue
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
@@ -36,7 +37,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationContext, isValidateOptions, resolveValueChecks } from "./question";
+import { ValidationContext, IVerifyDataContext, createVerifyDataContext } from "./question";
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -978,23 +979,44 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  // The first parameter may be an IValidateOptions object instead of fireCallback.
-  // In that form the other positional parameters are ignored.
-  public validate(fireCallback: boolean | IValidateOptions = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    const context = new ValidationContext(isValidateOptions(fireCallback) ? {
-      fireCallback: fireCallback.fireCallback !== false,
-      focusOnFirstError: !!fireCallback.focusFirstError,
-      valueChecks: resolveValueChecks(this.survey, fireCallback.valueChecks),
-      onAsyncCompleted: fireCallback.onAsyncCompleted
-    } : {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+    const context = new ValidationContext({
       fireCallback: fireCallback,
       focusOnFirstError: focusFirstError,
-      callbackResult: callbackResult,
-      valueChecks: resolveValueChecks(this.survey)
+      callbackResult: callbackResult
     });
     this.validateCore(context);
     context.finish();
     return context.runningResult;
+  }
+  // See Question.verifyData(). On a page or a panel the walk covers that subtree only: the unknown
+  // root keys of the survey data are a survey-level finding.
+  public verifyData(options?: IVerifyDataOptions): Array<IDataIssue> {
+    const context = createVerifyDataContext(options, this.getParentDataSegments());
+    this.initializeForVerification();
+    this.verifyDataCore(context);
+    return context.issues;
+  }
+  public initializeForVerification(): void {
+    this.elements.forEach(element => (<any>element).initializeForVerification());
+  }
+  // A page and a panel own no data key of their own, a dynamic panel item included: the index of
+  // the item is pushed by the dynamic panel that walks into it.
+  public verifyDataCore(context: IVerifyDataContext): void {
+    this.elements.forEach(element => (<any>element).verifyDataCore(context));
+  }
+  public getParentDataSegments(): Array<string | number> {
+    const parentQuestion = <Question>this.parentQuestion;
+    if (!!parentQuestion) {
+      const res = parentQuestion.getParentDataSegments();
+      res.push(parentQuestion.getValueName());
+      const segment = parentQuestion.getChildDataSegment(this);
+      if (segment !== undefined) {
+        res.push(segment);
+      }
+      return res;
+    }
+    return !!this.parent ? this.parent.getParentDataSegments() : [];
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));

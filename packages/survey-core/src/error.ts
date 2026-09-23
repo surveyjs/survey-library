@@ -1,5 +1,5 @@
 import { SurveyError } from "./survey-error";
-import { ISurveyErrorOwner, ValueCheckName } from "./base-interfaces";
+import { ISurveyErrorOwner, DataIssueType } from "./base-interfaces";
 
 export class AnswerRequiredError extends SurveyError {
   constructor(
@@ -117,17 +117,17 @@ export class OtherEmptyError extends SurveyError {
   }
 }
 export class IncorrectValueError extends SurveyError {
-  // check tells which of the value checks failed and keys lists the unknown keys of the value,
-  // for the "unknownKeys" check only. A key of a nested row is reported as "<row>.<key>".
+  // check tells which of the value checks failed and keys lists the unknown properties of the value,
+  // for the "unknownProperty" check only, rendered relative to the question: "[0].zzz", "r1.c", "zz".
   constructor(public text: string = null, errorOwner: ISurveyErrorOwner = null,
-    public check: ValueCheckName = "valueType", public keys: Array<string> = []) {
+    public check: DataIssueType = "invalidValueType", public keys: Array<string> = []) {
     super(text, errorOwner);
   }
   public getErrorType(): string {
     return "incorrectvalue";
   }
   protected getDefaultText(): string {
-    if (this.check === "unknownKeys" && this.keys.length > 0) {
+    if (this.check === "unknownProperty" && this.keys.length > 0) {
       return (<any>this.getLocalizationString("incorrectValueUnknownKeysError"))["format"](this.keys.join(", "));
     }
     return this.getLocalizationString("incorrectValueError");

@@ -7,9 +7,9 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionValueType } from "./question";
+import { QuestionValueType, IVerifyDataContext } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { IProgressInfo, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
+import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -251,22 +251,25 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res) return res;
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
     const unknownKeys: Array<string> = [];
     // A row of another question that shares the value is checked by that question.
     for (const key of Object.keys(val)) {
       if (this.hasValueKey(key)) {
-        if (checks.valueType && !this.isRowValueCorrect(val[key])) return { check: "valueType" };
+        if (context.checks.valueTypes && !this.isRowValueCorrect(val[key])) {
+          context.addIssue("invalidValueType", key, val[key], this);
+        }
       } else {
         if (!this.isValueKeyKnown(key)) unknownKeys.push(key);
       }
     }
-    if (checks.unknownKeys && unknownKeys.length > 0) return { check: "unknownKeys", keys: unknownKeys };
-    return undefined;
+    if (context.checks.unknownProperties) {
+      unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
+    }
+    return true;
   }
-  protected getRowKeyName(row: MatrixDropdownRowModelBase, index: number): string {
+  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
     return row.rowName + "";
   }
   protected hasValueKey(key: string): boolean {

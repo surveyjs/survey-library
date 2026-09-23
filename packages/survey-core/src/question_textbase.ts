@@ -1,5 +1,4 @@
-import { Question } from "./question";
-import { IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
+import { Question, IVerifyDataContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Helpers } from "./helpers";
@@ -35,14 +34,14 @@ export class QuestionTextBase extends Question {
   protected isTextValue(): boolean {
     return true;
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res) return res;
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
     // A custom widget and a question derived from this one, a JSON editor built on a comment question
     // for example, may keep a value of any shape, so only a numeric input reports the value shape.
-    if (!checks.valueType || !!this.customWidget) return undefined;
-    if (this.getValueType() !== "number" || this.isValueOfValueType(val)) return undefined;
-    return { check: "valueType" };
+    if (!context.checks.valueTypes || !!this.customWidget) return true;
+    if (this.getValueType() !== "number" || this.isValueOfValueType(val)) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   /**
    * The maximum text length measured in characters. Assign 0 if the length should be unlimited.

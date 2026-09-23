@@ -7,13 +7,11 @@ import {
   IElement,
   IQuestion,
   ITextProcessor,
-  IProgressInfo,
-  IValueChecks,
-  IIncorrectValueInfo
+  IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext, QuestionValueType } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -625,11 +623,20 @@ export class QuestionMultipleTextModel extends Question
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res || !checks.unknownKeys) return res;
-    const unknownKeys = Object.keys(val).filter(key => !this.isValueKeyKnown(key));
-    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.unknownProperties) return true;
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) return;
+      context.addIssue("unknownProperty", key, val[key], this);
+    });
+    return true;
+  }
+  public initializeForVerification(): void {
+    this.items.forEach(item => item.editor.initializeForVerification());
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    this.items.forEach(item => item.editor.verifyDataCore(context));
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);

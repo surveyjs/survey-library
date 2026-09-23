@@ -16,8 +16,8 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Question, QuestionValueType } from "./question";
-import { ISurveyData, ISurvey, ITextProcessor, IQuestion, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
+import { Question, QuestionValueType, IVerifyDataContext } from "./question";
+import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
@@ -690,9 +690,10 @@ export class QuestionMatrixModel
   protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res) return res;
+  // A single or multi select matrix has no nested question instances: the cell check is its own
+  // and runs against the columns, one finding per row, or per item of a multi select cell.
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
     const unknownKeys: Array<string> = [];
     for (const key in val) {
       if (!this.isValueKeyKnown(key)) {
@@ -700,13 +701,21 @@ export class QuestionMatrixModel
         continue;
       }
       // A row of another matrix that shares the value is checked by that matrix.
-      if (!this.hasValueKey(key) || !checks.choices) continue;
+      if (!this.hasValueKey(key) || !context.checks.choiceValues) continue;
       const cell = val[key];
-      const cellValues = this.isMultiSelect && Array.isArray(cell) ? cell : [cell];
-      if (cellValues.some(cellValue => !ItemValue.getItemByValue(this.columns, cellValue))) return { check: "choices" };
+      const isArrayCell = this.isMultiSelect && Array.isArray(cell);
+      const cellValues = isArrayCell ? cell : [cell];
+      context.pushSegment(key);
+      cellValues.forEach((cellValue: any, index: number) => {
+        if (!!ItemValue.getItemByValue(this.columns, cellValue)) return;
+        context.addIssue("invalidChoiceValue", isArrayCell ? index : undefined, cellValue, this);
+      });
+      context.popSegment();
     }
-    if (checks.unknownKeys && unknownKeys.length > 0) return { check: "unknownKeys", keys: unknownKeys };
-    return undefined;
+    if (context.checks.unknownProperties) {
+      unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
+    }
+    return true;
   }
   protected hasValueKey(key: string): boolean {
     return this.rows.some(row => row.value + "" === key);

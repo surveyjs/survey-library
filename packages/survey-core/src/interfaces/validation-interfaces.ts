@@ -19,40 +19,64 @@ export interface ISurveyValidation {
   getValidateVisitedEmptyFields(): boolean;
 }
 
-// Which of the value checks failed: IncorrectValueError.check reports it.
-export type ValueCheckName = "valueType" | "choices" | "unknownKeys";
-// What a failed value check reports: Question.isValueCorrectCore() returns it, undefined when the
-// value is correct, and the IncorrectValueError built from it carries it to the caller.
+// The kind of a finding verifyData() reports. It is also the vocabulary of the value checks:
+// IValueChecks names the same three checks and IncorrectValueError.check reports the failed one.
+export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidChoiceValue" | "changedValue";
+// What a failed value check reports: Question.getIncorrectValueInfo() builds it from the issues of
+// verifyOwnValue(), and the IncorrectValueError built from it carries it to the caller.
 export interface IIncorrectValueInfo {
-  check: ValueCheckName;
-  // The unknown keys, for the unknownKeys check only. A key of a nested row is reported as "<row>.<key>".
+  // Never "changedValue": that finding exists on the survey level only and never becomes an error.
+  check: DataIssueType;
+  // The unknown properties, for the unknownProperty check only, rendered relative to the question:
+  // "[0].zzz" for an item of a dynamic panel or a dynamic matrix, "r1.c" for a named row, "zz" for
+  // a key of the question value itself.
   keys?: Array<string>;
 }
-// The value checks validate() runs on the question value. Every member is optional: the members that
-// are not set are taken from SurveyModel.validationValueChecks and then from the built-in defaults,
-// { valueType: true, choices: true, unknownKeys: false }.
+// The value checks that run on a question value. Every member is optional: verifyData() runs all
+// three unless a member is set to false, validate() runs the fixed set (Question.getValidateChecks()).
 export interface IValueChecks {
+  // A key of the data that no question, valueName, comment / totals suffix or calculated value
+  // with includeIntoResult owns. Root keys and keys inside a container value alike.
+  unknownProperties?: boolean;
   // The value has the JSON shape the question stores: a numeric input does not hold "abc",
   // a dynamic matrix does not hold a scalar row.
-  valueType?: boolean;
-  // The value refers to an existing choice, matrix column or rate value.
-  // SurveyModel.keepIncorrectValues turns this check off.
-  choices?: boolean;
-  // An object value has no key that no question owns: a matrix row that is not in rows,
-  // a key of a dynamic panel item that is not a question of the panel.
-  // It is a finding about the payload, not something a respondent can fix, so it is off by default.
-  // SurveyModel.keepIncorrectValues turns this check off as well.
-  unknownKeys?: boolean;
+  valueTypes?: boolean;
+  // The value refers to an existing choice, matrix column, row or rate value.
+  choiceValues?: boolean;
 }
-export interface IValidateOptions {
-  fireCallback?: boolean;
-  focusFirstError?: boolean;
-  valueChecks?: IValueChecks;
-  // Called exactly once, when the whole validation, every async validator included, is completed.
-  // It is not the timing of the positional callbacks, which fire on the first failure.
-  // validate() itself still returns false as soon as one failure is known, even if something is pending.
-  onAsyncCompleted?: (isValid: boolean, firstErrorQuestion: Question) => void;
+// The options of PanelModelBase.verifyData() and Question.verifyData(). A separate name from
+// IValueChecks so that the options can grow without touching the check vocabulary.
+export interface IVerifyDataOptions extends IValueChecks {
 }
-export interface ISurveyValidateOptions extends IValidateOptions {
-  changeCurrentPage?: boolean;
+export interface ISurveyVerifyDataOptions extends IVerifyDataOptions {
+  // The response to check, JSON-compatible (plain objects, arrays, strings, numbers, booleans,
+  // null). When passed, verifyData() loads a deep copy of it into the survey first, then runs the
+  // value checks on what the model holds. The caller's object is never modified.
+  // The copy is a JSON round trip, so a Date becomes its ISO string and a class instance loses its
+  // prototype: the Date / class instance behavior of the value checks does not apply to this route.
+  data?: any;
+  // Off by default. With `data`, reports every place where the model's data differs from the
+  // response after loading: a default or calculated value the model added, a value it normalized,
+  // a value it dropped. A diagnostic about what the model did to the input, not a verdict on it.
+  changedValues?: boolean;
+}
+// One finding of verifyData().
+export interface IDataIssue {
+  type: DataIssueType;
+  // The location of the value from the survey root, on every level, as segments: a string is an
+  // object key, a number is an array index. Unambiguous: a key that contains "." or "[" is one segment.
+  segments: Array<string | number>;
+  // The same location rendered for reading: "panel1[2].q1", "matrix.row1.col1". Derived from
+  // segments; not meant to be parsed.
+  path: string;
+  // The offending value as it is in the checked data.
+  value: any;
+  // changedValue only: the value the model holds instead. undefined when the model dropped the value.
+  newValue?: any;
+  // The question that owns the location. For a value check: the instance that holds the value, the
+  // cell question or the panel item question for a nested one. For a changedValue: the question
+  // that owns the ROOT key of the location, whatever the depth, because the comparison does not
+  // walk instances. Undefined for an unknown root property and for a changedValue whose root key
+  // no question owns (a calculated value, a stray key).
+  question?: Question;
 }

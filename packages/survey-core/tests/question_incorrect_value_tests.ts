@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
+import { IncorrectValueError } from "../src/error";
 import { describe, expect, test, vi } from "vitest";
 
 // The server flow: assign a payload from an untrusted client and validate it.
@@ -34,8 +35,8 @@ const matrixDropdownJson = { type: "matrixdropdown", rows: ["r1"], columns: [{ n
 const multipleTextJson = { type: "multipletext", items: [{ name: "i1" }] };
 // label, question, a value that mixes a known and an unknown key, the value after clearing, the reported keys
 const unknownKeyCases: Array<[string, any, any, any, Array<string>]> = [
-  ["matrixdynamic", dynamicMatrix, [{ c: "x", zzz: 1 }], [{ c: "x" }], ["0.zzz"]],
-  ["paneldynamic", dynamicPanel, [{ t: "x", zzz: 1 }], [{ t: "x" }], ["0.zzz"]],
+  ["matrixdynamic", dynamicMatrix, [{ c: "x", zzz: 1 }], [{ c: "x" }], ["[0].zzz"]],
+  ["paneldynamic", dynamicPanel, [{ t: "x", zzz: 1 }], [{ t: "x" }], ["[0].zzz"]],
   ["matrix", matrixJson, { r1: "c1", zz: "c1" }, { r1: "c1" }, ["zz"]],
   ["matrixdropdown", matrixDropdownJson, { r1: { c: 1 }, zz: { c: 2 } }, { r1: { c: 1 } }, ["zz"]],
   ["multipletext", multipleTextJson, { i1: "a", zz: "x" }, { i1: "a" }, ["zz"]],
@@ -164,12 +165,12 @@ describe("Question.isValueCorrect", () => {
       survey.data = { shared: value };
       // A key owned by the sibling question is never an unknown key.
       expect(survey.validate(false, false), label + ": the shared value is correct").toBe(true);
-      expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), label + ": the shared value is correct with unknownKeys").toBe(true);
+      expect(survey.verifyData(), label + ": the shared value is correct for verifyData()").toEqual([]);
       survey.clearIncorrectValues(true);
       expect(survey.data, label + ": clearIncorrectValues keeps the shared value").toEqual({ shared: value });
       survey.data = { shared: JSON.parse(JSON.stringify(valueWithUnknownKey)) };
       expect(survey.validate(false, false), label + ": a key that nobody owns is not reported by default").toBe(true);
-      expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), label + ": a key that nobody owns is reported with unknownKeys").toBe(false);
+      expect(survey.verifyData().length, label + ": a key that nobody owns is reported once by verifyData()").toBe(1);
       survey.clearIncorrectValues(true);
       expect(survey.data, label + ": clearIncorrectValues removes the key that nobody owns").toEqual({ shared: value });
       // The default checks do not stop clearing either.
@@ -196,13 +197,15 @@ describe("Question.isValueCorrect", () => {
     // The name of a detail question that stores its value under a valueName is not a known key.
     survey.data = { q: [{ c: "x", detail: "y" }] };
     expect(q.isValueCorrect(), "not reported by default").toBe(true);
-    expect(q.isValueCorrect({ unknownKeys: true }), "the question name is not the key when valueName is set").toBe(false);
-    expect(survey.validate({ fireCallback: true, valueChecks: { unknownKeys: true } }), "validate").toBe(false);
-    expect(getIncorrectValueErrors(q)[0].keys, "the reported keys").toEqual(["0.detail"]);
-    // The invariant: what validate() reports, clearIncorrectValues() removes.
+    expect(q.isValueCorrect({ unknownProperties: true }), "the question name is not the key when valueName is set").toBe(false);
+    const issues = survey.verifyData();
+    expect(issues.length, "one issue").toBe(1);
+    expect(issues[0].type, "the issue type").toBe("unknownProperty");
+    expect(issues[0].segments, "the issue location").toEqual(["q", 0, "detail"]);
+    // The invariant: what verifyData() reports, clearIncorrectValues() removes.
     survey.clearIncorrectValues(true);
     expect(survey.data, "clearIncorrectValues removes what was reported").toEqual({ q: [{ c: "x" }] });
-    expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), "valid after clearing").toBe(true);
+    expect(survey.verifyData(), "no issue after clearing").toEqual([]);
   });
   test("By default an unknown key is not reported and clearIncorrectValues() removes it", () => {
     unknownKeyCases.forEach(([label, question, value, cleared]) => {
@@ -214,33 +217,27 @@ describe("Question.isValueCorrect", () => {
       expect(res.dataAfterClear, label + ": clearIncorrectValues removes the unknown key").toEqual({ q: cleared });
     });
   });
-  test("An unknown key is reported when the unknownKeys check is on", () => {
+  test("An unknown key is reported by verifyData() and by isValueCorrect({ unknownProperties: true })", () => {
     unknownKeyCases.forEach(([label, question, value, cleared, keys]) => {
-      // Route 1: the options form of validate().
+      // Route 1: verifyData().
       let survey = createSurvey(question, value);
-      expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), label + ": validate(options)").toBe(false);
-      expect(survey.data, label + ": validate(options) does not modify the data").toEqual({ q: value });
-      // Route 2: the survey-level default with the positional form.
-      survey = createSurvey(question, value);
-      survey.validationValueChecks = { unknownKeys: true };
-      expect(survey.validate(false, false), label + ": validationValueChecks").toBe(false);
-      expect(survey.data, label + ": validate does not modify the data").toEqual({ q: value });
-      // Route 3: question.isValueCorrect().
+      expect(survey.verifyData().length, label + ": verifyData()").toBe(1);
+      expect(survey.data, label + ": verifyData() does not modify the data").toEqual({ q: value });
+      // Route 2: question.isValueCorrect().
       survey = createSurvey(question, value);
       const q = survey.getQuestionByName("q");
       expect(q.isValueCorrect(), label + ": isValueCorrect by default").toBe(true);
-      expect(q.isValueCorrect({ unknownKeys: true }), label + ": isValueCorrect({ unknownKeys: true })").toBe(false);
-      // The error names the check and the keys.
-      expect(survey.validate({ valueChecks: { unknownKeys: true } }), label + ": validate with errors").toBe(false);
-      const errors = getIncorrectValueErrors(q);
-      expect(errors.length, label + ": one incorrectvalue error").toBe(1);
-      expect(errors[0].check, label + ": error.check").toBe("unknownKeys");
-      expect(errors[0].keys, label + ": error.keys").toEqual(keys);
-      expect(errors[0].getText(), label + ": error text").toBe("The value contains unknown keys: " + keys.join(", ") + ".");
-      // The invariant: what validate() reports, clearIncorrectValues() removes.
+      expect(q.isValueCorrect({ unknownProperties: true }), label + ": isValueCorrect({ unknownProperties: true })").toBe(false);
+      // The keys are the same on the error a consumer builds from the question.
+      const info = (<any>q).getIncorrectValueInfo({ valueTypes: true, choiceValues: true, unknownProperties: true });
+      expect(info.check, label + ": check").toBe("unknownProperty");
+      expect(info.keys, label + ": keys").toEqual(keys);
+      expect(new IncorrectValueError(null, q, info.check, info.keys).getText(), label + ": error text")
+        .toBe("The value contains unknown keys: " + keys.join(", ") + ".");
+      // The invariant: what verifyData() reports, clearIncorrectValues() removes.
       survey.clearIncorrectValues(true);
       expect(survey.data, label + ": clearIncorrectValues removes the reported keys").toEqual({ q: cleared });
-      expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), label + ": valid after clearing").toBe(true);
+      expect(survey.verifyData(), label + ": no issue after clearing").toEqual([]);
     });
   });
   test("The checks reach the nested questions", () => {
@@ -251,20 +248,22 @@ describe("Question.isValueCorrect", () => {
       }]
     });
     survey.data = { q: [{ m: [{ c: "x", zzz: 1 }] }] };
-    expect(survey.validate(false, false), "not reported by default").toBe(true);
-    expect(survey.validate({ fireCallback: true, valueChecks: { unknownKeys: true } }), "reported in a nested matrix").toBe(false);
+    expect(survey.validate(false, false), "not reported by validate()").toBe(true);
+    const issues = survey.verifyData();
+    expect(issues.length, "reported in a nested matrix").toBe(1);
+    expect(issues[0].segments, "the issue location").toEqual(["q", 0, "m", 0, "zzz"]);
     const matrix = survey.getQuestionByName("q").panels[0].getQuestionByName("m");
-    expect(getIncorrectValueErrors(matrix)[0].keys, "the reported keys").toEqual(["0.zzz"]);
+    expect(issues[0].question, "the issue question").toBe(matrix);
     survey.clearIncorrectValues(true);
     expect(survey.data, "clearIncorrectValues removes the nested key").toEqual({ q: [{ m: [{ c: "x" }] }] });
   });
   test("error.check names the failed check", () => {
     const cases: Array<[string, any, any, string]> = [
-      ["number text <- abc", { type: "text", inputType: "number" }, "abc", "valueType"],
-      ["boolean <- 'maybe'", { type: "boolean" }, "maybe", "valueType"],
-      ["matrixdynamic <- string", dynamicMatrix, "oops", "valueType"],
-      ["rating <- out of range", { type: "rating", rateMax: 5 }, 99, "choices"],
-      ["matrix <- unknown column", matrixJson, { r1: "zz" }, "choices"],
+      ["number text <- abc", { type: "text", inputType: "number" }, "abc", "invalidValueType"],
+      ["boolean <- 'maybe'", { type: "boolean" }, "maybe", "invalidValueType"],
+      ["matrixdynamic <- string", dynamicMatrix, "oops", "invalidValueType"],
+      ["rating <- out of range", { type: "rating", rateMax: 5 }, 99, "invalidChoiceValue"],
+      ["matrix <- unknown column", matrixJson, { r1: "zz" }, "invalidChoiceValue"],
     ];
     cases.forEach(([label, question, value, check]) => {
       const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
@@ -279,35 +278,24 @@ describe("Question.isValueCorrect", () => {
       warn.mockRestore();
     });
   });
-  test("valueChecks: { choices: false } does not report an unknown choice", () => {
+  test("choiceValues: false does not report an unknown choice", () => {
     const survey = createSurvey({ type: "dropdown", choices: ["a", "b"] }, "z");
-    expect(survey.validate({ fireCallback: false }), "reported by default").toBe(false);
-    expect(survey.validate({ fireCallback: false, valueChecks: { choices: false } }), "not reported").toBe(true);
-    expect(survey.getQuestionByName("q").isValueCorrect({ choices: false }), "isValueCorrect").toBe(true);
+    expect(survey.validate(false, false), "reported by default").toBe(false);
+    expect(survey.verifyData({ choiceValues: false }), "not reported by verifyData()").toEqual([]);
+    expect(survey.getQuestionByName("q").isValueCorrect({ choiceValues: false }), "isValueCorrect").toBe(true);
   });
-  test("keepIncorrectValues suppresses the choices and unknownKeys checks but not valueType", () => {
+  test("keepIncorrectValues suppresses the choices check of validate() but not the value type", () => {
     let survey = createSurvey({ type: "dropdown", choices: ["a", "b"] }, "z");
     survey.keepIncorrectValues = true;
-    expect(survey.validate({ fireCallback: false, valueChecks: { choices: true } }), "choices").toBe(true);
-    survey = createSurvey(matrixJson, { r1: "c1", zz: "c1" });
-    survey.keepIncorrectValues = true;
-    expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), "unknownKeys").toBe(true);
+    expect(survey.validate(false, false), "choices").toBe(true);
+    expect(survey.getQuestionByName("q").isValueCorrect(), "isValueCorrect").toBe(true);
+    // verifyData() ignores keepIncorrectValues: it is not a JSON property of the form.
+    expect(survey.verifyData().length, "verifyData() still reports it").toBe(1);
     const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
     survey = createSurvey({ type: "text", inputType: "number" }, "abc");
     survey.keepIncorrectValues = true;
-    expect(survey.validate({ fireCallback: false }), "valueType").toBe(false);
+    expect(survey.validate(false, false), "valueType").toBe(false);
     warn.mockRestore();
-  });
-  test("The checks of a call are merged over survey.validationValueChecks", () => {
-    const survey = createSurvey(multipleTextJson, { i1: "a", zz: "x" });
-    survey.validationValueChecks = { unknownKeys: true };
-    expect(survey.validate(false, false), "the survey default is used").toBe(false);
-    expect(survey.validate({ fireCallback: false, valueChecks: { unknownKeys: false } }), "the call turns it off").toBe(true);
-    const q = survey.getQuestionByName("q");
-    expect(q.isValueCorrect({ unknownKeys: false }), "isValueCorrect turns it off").toBe(true);
-    // A per-call unknownKeys does not switch the other checks off.
-    const other = createSurvey({ type: "dropdown", choices: ["a", "b"] }, "z");
-    expect(other.validate({ fireCallback: false, valueChecks: { unknownKeys: true } }), "choices stays on").toBe(false);
   });
   test("A text or comment question keeps a value of another shape, a question derived from it may store it", () => {
     const cases: Array<[string, any, any]> = [

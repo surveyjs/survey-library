@@ -29,8 +29,8 @@ import {
   ISurveyWebProvider,
   ISaveToJSONOptions,
   IScrollElementToTopOptions,
-  IValueChecks,
-  ISurveyValidateOptions
+  ISurveyVerifyDataOptions,
+  IDataIssue
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -44,7 +44,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, IValidationContextParams, Question, ValidationContext, isValidateOptions, resolveValueChecks } from "./question";
+import { IQuestionPlainData, Question, ValidationContext, IVerifyDataContext, createVerifyDataContext } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -2105,14 +2105,8 @@ export class SurveyModel extends SurveyElementCore
     var data = this.data;
     var hasChanges = false;
     for (var key in data) {
-      if (!!this.getQuestionByValueName(key)) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)
-      )
-        continue;
-      var calcValue = this.getCalculatedValueByName(key);
-      if (!!calcValue && calcValue.includeIntoResult) continue;
+      // isKnownRootKey() is the same test verifyData() runs, so the two never disagree.
+      if (this.isKnownRootKey(key)) continue;
       hasChanges = true;
       delete data[key];
     }
@@ -2140,10 +2134,6 @@ export class SurveyModel extends SurveyElementCore
    * @see clearIncorrectValues
    */
   @property() keepIncorrectValues: boolean;
-  // The default value checks of validate(), including the calls the survey makes itself, on the
-  // Complete and Next buttons. Per-call options are merged over it. It is an integration setting,
-  // not survey JSON, so it is a plain field and not a serializable property.
-  public validationValueChecks: IValueChecks = {};
   /**
    * Specifies the survey's locale.
    *
@@ -4675,12 +4665,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validateCurrentPage
    * @see validatePage
    */
-  // The first parameter may be an ISurveyValidateOptions object instead of fireCallback.
-  // In that form the other positional parameters are ignored.
-  public validate(fireCallback: boolean | ISurveyValidateOptions = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
-    if (isValidateOptions(fireCallback)) {
-      return this.validateElementsCore(this.visiblePages, fireCallback);
-    }
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
   }
   private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
@@ -4688,26 +4673,101 @@ export class SurveyModel extends SurveyElementCore
       fireCallback = true;
     }
     const callbackResult = !!onAsyncValidation ? (res: boolean) => { onAsyncValidation(!res); } : undefined;
-    return this.runValidationContext(elements, { fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage, valueChecks: resolveValueChecks(this) });
-  }
-  private validateElementsCore(elements: Array<PanelModelBase| Question>, options: ISurveyValidateOptions): boolean {
-    // As in the positional form, an async callback needs the errors in the UI.
-    const fireCallback = !!options.onAsyncCompleted || options.fireCallback !== false;
-    return this.runValidationContext(elements, {
-      fireCallback: fireCallback,
-      focusOnFirstError: !!options.focusFirstError,
-      changeCurrentPage: !!options.changeCurrentPage,
-      valueChecks: resolveValueChecks(this, options.valueChecks),
-      onAsyncCompleted: options.onAsyncCompleted
-    });
-  }
-  private runValidationContext(elements: Array<PanelModelBase| Question>, params: IValidationContextParams): boolean {
-    const context = new ValidationContext(params);
+    const context = new ValidationContext({ fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage });
     for (const element of elements) {
       element.validateElement(context);
     }
     context.finish();
     return context.runningResult;
+  }
+  // See Question.verifyData(). On the survey level the walk covers every page, visible or not, and
+  // reports every root key of the data that no question, comment / totals suffix or calculated value
+  // with includeIntoResult owns.
+  // With `data`, a deep copy of the response is loaded into the survey first and the checks run on
+  // what the model holds afterwards; the caller's object is never modified. This is the only case
+  // where verifyData() replaces the survey's data.
+  public verifyData(options?: ISurveyVerifyDataOptions): Array<IDataIssue> {
+    const context = createVerifyDataContext(options, []);
+    const hasData = !!options && options.data !== undefined && options.data !== null;
+    let snapshot: any = undefined;
+    if (hasData) {
+      // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model
+      // change the caller's object and the snapshot alike.
+      snapshot = Helpers.getUnbindValue(options.data);
+      this.data = Helpers.getUnbindValue(options.data);
+    }
+    this.initializeForVerification();
+    this.verifyDataCore(context);
+    if (hasData && options.changedValues === true) {
+      this.collectChangedValues(snapshot, this.data, context);
+    }
+    return context.issues;
+  }
+  private initializeForVerification(): void {
+    this.pages.forEach(page => page.initializeForVerification());
+  }
+  private verifyDataCore(context: IVerifyDataContext): void {
+    if (context.checks.unknownProperties) {
+      const data = this.data;
+      for (const key in data) {
+        if (this.isKnownRootKey(key)) continue;
+        context.addIssue("unknownProperty", key, data[key], undefined);
+      }
+    }
+    this.pages.forEach(page => page.verifyDataCore(context));
+  }
+  // The root keys clearIncorrectValues(true) keeps: a question found by valueName, a comment or a
+  // totals key of such a question, a calculated value that is a part of the result.
+  private isKnownRootKey(key: string): boolean {
+    if (!!this.getQuestionByValueName(key)) return true;
+    if (this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
+      this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
+    const calcValue = this.getCalculatedValueByName(key);
+    return !!calcValue && calcValue.includeIntoResult;
+  }
+  // The changed-values diagnostic: every difference between the response and survey.data after
+  // loading is something the model did to the input, a default it added, a value it normalized or
+  // dropped. The comparison is deep and the leaves are compared by strict identity, never by
+  // Helpers.isTwoValueEquals(), which treats "5" and 5 or "A" and "a " as equal: those are exactly
+  // the normalizations this diagnostic exists to show.
+  private collectChangedValues(oldData: any, newData: any, context: IVerifyDataContext): void {
+    this.collectChangedValuesCore(oldData, newData, context, undefined);
+  }
+  private collectChangedValuesCore(oldVal: any, newVal: any, context: IVerifyDataContext, rootKey: string): void {
+    if (Helpers.isValueObject(oldVal, true) && Helpers.isValueObject(newVal, true) &&
+      !Array.isArray(oldVal) && !Array.isArray(newVal)) {
+      for (const key in oldVal) {
+        context.pushSegment(key);
+        this.collectChangedValuesCore(oldVal[key], newVal[key], context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      }
+      for (const key in newVal) {
+        if (key in oldVal) continue;
+        context.pushSegment(key);
+        this.collectChangedValuesCore(undefined, newVal[key], context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      }
+      return;
+    }
+    if (Array.isArray(oldVal) && Array.isArray(newVal)) {
+      const count = Math.max(oldVal.length, newVal.length);
+      for (let i = 0; i < count; i++) {
+        context.pushSegment(i);
+        this.collectChangedValuesCore(oldVal[i], newVal[i], context, rootKey);
+        context.popSegment();
+      }
+      return;
+    }
+    if (this.isSameDataLeaf(oldVal, newVal)) return;
+    const question = rootKey !== undefined ? this.getQuestionByValueName(rootKey) : undefined;
+    context.addIssue("changedValue", undefined, oldVal, question, newVal);
+  }
+  // null and undefined are both "absent", so a key the model stores as null for a value the
+  // response left out is not a difference. Everything else is compared by strict identity.
+  private isSameDataLeaf(oldVal: any, newVal: any): boolean {
+    const oldRes = oldVal === null ? undefined : oldVal;
+    const newRes = newVal === null ? undefined : newVal;
+    return oldRes === newRes;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {

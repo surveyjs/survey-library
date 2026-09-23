@@ -1,5 +1,5 @@
 import { ItemValue } from "./itemvalue";
-import { Question, QuestionValueType, getScalarValueType } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import type { ISelectQuestion } from "./question_baseselect";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -11,7 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
-import { ISurveyImpl, IValueChecks, IIncorrectValueInfo } from "./base-interfaces";
+import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
@@ -842,11 +842,15 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res) return res;
-    if (!checks.choices || !!this.survey?.keepIncorrectValues) return undefined;
-    return !!ItemValue.getItemByValue(this.visibleRateValues, val) ? undefined : { check: "choices" };
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    // keepIncorrectValues is not read here: getValidateChecks() and clearIncorrectValues() fold it
+    // into choiceValues: false, and verifyData() ignores it.
+    if (!context.checks.choiceValues) return true;
+    if (!ItemValue.getItemByValue(this.visibleRateValues, val)) {
+      context.addIssue("invalidChoiceValue", undefined, val, this);
+    }
+    return true;
   }
   public setValueFromClick(value: any) {
     this.resetDigitShortcut();

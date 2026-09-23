@@ -9,14 +9,12 @@ import {
   ITextProcessor,
   IProgressInfo,
   IPlainDataOptions, IElementUIState,
-  ISurveyDynamicPanelCallbacks,
-  IValueChecks,
-  IIncorrectValueInfo
+  ISurveyDynamicPanelCallbacks
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -1832,18 +1830,41 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       panels[i].randomSeedChanged();
     }
   }
-  protected isValueCorrectCore(val: any, checks: IValueChecks): IIncorrectValueInfo {
-    const res = super.isValueCorrectCore(val, checks);
-    if (!!res || !checks.unknownKeys || !Array.isArray(val)) return res;
-    const panels = this.panelsCore;
-    const unknownKeys: Array<string> = [];
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.unknownProperties || !Array.isArray(val)) return true;
+    const panels = this.panels;
     for (let i = 0; i < panels.length && i < val.length; i++) {
       if (!Helpers.isValueObject(val[i], true)) continue;
+      context.pushSegment(i);
       for (const key in val[i]) {
-        if (this.isUnknownValueKey(panels[i], key, i)) unknownKeys.push(i + "." + key);
+        if (!this.isUnknownValueKey(panels[i], key, i)) continue;
+        context.addIssue("unknownProperty", key, val[i][key], this);
       }
+      context.popSegment();
     }
-    return unknownKeys.length > 0 ? { check: "unknownKeys", keys: unknownKeys } : undefined;
+    return true;
+  }
+  public initializeForVerification(): void {
+    this.panels.forEach(panel => panel.initializeForVerification());
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    const panels = this.panels;
+    for (let i = 0; i < panels.length; i++) {
+      context.pushSegment(i);
+      panels[i].verifyDataCore(context);
+      context.popSegment();
+    }
+  }
+  public getChildDataSegment(element: SurveyElement): string | number {
+    const panels = this.panels;
+    let el: any = element;
+    while(!!el) {
+      const index = panels.indexOf(el);
+      if (index > -1) return index;
+      el = el.parent;
+    }
+    return undefined;
   }
   private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
     if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;

@@ -15,7 +15,17 @@
 //     // read() and every read is ONE request carrying the range and the view it wants.
 //     //   request.skip   the first record to return, in the source's filtered and sorted order
 //     //   request.take   how many; 0 means "everything from skip"
-//     //   request.filter the expression text of question.filterExpression, "" for no filter
+//     //   request.filter the expression text of the question's filter, "" for no filter. When a
+//     //                  Filter Control filters the question too, it is the authored expression
+//     //                  and the control's combined, each one bracketed:
+//     //                  "({country} = 'de') and ({price} > 10)". Parse it, never pattern-match
+//     //                  it - and expect more requests: every change a control commits is one.
+//     //                  Translate it with the library's own parser and re-render the tree in
+//     //                  your dialect:
+//     //                    const operand = new ConditionsParser().parseExpression(request.filter);
+//     //                    const where = operand.toString(op => op.getType() === "variable"
+//     //                      ? op.variable : undefined);
+//     //                  The callback answers for the nodes you know, undefined for the rest.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from

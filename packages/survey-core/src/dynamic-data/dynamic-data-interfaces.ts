@@ -24,16 +24,36 @@
 //       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
 //         .then(r => r.json())
 //         .then(r => ({ records: r.items, total: r.total })),
-//     // Optional, one capability each. sourceIndex is the position in the WHOLE source, not in the
-//     // loaded page: the list has already added the offset of the page the edit was made on.
-//     // Missing insert -> no add button; missing remove -> no delete button; missing move -> no
-//     // drag reorder; missing update -> the question is read-only.
-//     insert: (sourceIndex, record) => post("/api/orders", { at: sourceIndex, record }),
-//     update: (sourceIndex, record, changedFields) => put(`/api/orders/${sourceIndex}`, record),
-//     remove: (sourceIndex) => del(`/api/orders/${sourceIndex}`),
-//     move: (from, to) => post("/api/orders/move", { from, to })
+//     // Optional. The record field that identifies a record: present -> every write below receives
+//     // record[keyField] as its key instead of a position. A source whose records change under the
+//     // grid - a second user, a background job, another tab - needs it: "the record at position 37"
+//     // is a different record by the time the request lands.
+//     keyField: "id",
+//     // Optional, one capability each. Missing insert -> no add button; missing remove -> no
+//     // delete button; missing move -> no drag reorder; missing update -> the question is
+//     // read-only. The position is where the record goes, the source assigns the key: return the
+//     // stored record (or a promise of it) so that the list learns it.
+//     insert: (record, sourceIndex) => post("/api/orders", { at: sourceIndex, record }),
+//     update: (key, record, changedFields) => put(`/api/orders/${key}`, record),
+//     remove: (key) => del(`/api/orders/${key}`),
+//     // The key names the record; the target is still a position, that is what a move is.
+//     move: (key, toSourceIndex) => post("/api/orders/move", { id: key, to: toSourceIndex })
 //   };
 //   matrixQuestion.dataSource = source;   // or panelQuestion.dataSource = source
+//
+// A source WITHOUT keyField receives the source index as the key: the position in the WHOLE source,
+// not in the loaded page - the list has already added the offset of the page the edit was made on.
+// That is what the in-memory sources use, and it is exact for a source only this list writes to.
+// sourceIndex, where it is passed on its own, is always that position.
+//
+// Limitation of a keyed source: until the list knows the key of a new record it cannot address it.
+// Return the stored record from insert so that the key arrives as early as possible; an edit made
+// before that answer lands is still not delivered - it stays in the window, onDynamicDataError
+// reports it, and either a later edit of the same record carries it (an update sends the whole
+// record) or the next read reconciles.
+//
+// keyField has nothing to do with question.keyName (the uniqueness validator of the matrix and the
+// dynamic panel): one names a record for the source, the other forbids duplicate answers.
 //
 // The filter is a survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18".
 // The list never parses it. A source that speaks another dialect translates it with the library's
@@ -91,12 +111,20 @@ export interface IDynamicDataSource {
   // read is one request carrying the range and the view.
   // Absent -> the list calls read() once and pages, filters and sorts what it returns.
   readRange?(request: IDynamicDataReadRequest): IDynamicDataReadResult | Promise<IDynamicDataReadResult>;
+  // Present -> the record field that identifies a record in the source, and every write below
+  // receives record[keyField] as its key. Absent -> the key IS the source index (the position in
+  // the whole source, in the order the last read returned), as before.
+  keyField?: string;
   // Present -> edits are pushed to the source (write-through); absent -> the source is read-only
   // for that operation and the edit stays in the loaded window.
-  insert?(sourceIndex: number, record: any): void | Promise<void>;
-  update?(sourceIndex: number, record: any, changedFields: Array<string>): void | Promise<void>;
-  remove?(sourceIndex: number): void | Promise<void>;
-  move?(fromSourceIndex: number, toSourceIndex: number): void | Promise<void>;
+  // The position is where the record goes; the source assigns the key. Return the stored record (or
+  // a promise of it) so that the list learns the key: until it does, writes made to the new record
+  // cannot be delivered.
+  insert?(record: any, sourceIndex: number): any | Promise<any>;
+  update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
+  remove?(key: any): void | Promise<void>;
+  // The key names the record; the target is still a position, that is what a move is.
+  move?(key: any, toSourceIndex: number): void | Promise<void>;
   // Present -> the source collects the writes of func and applies them as one; absent -> the list
   // just runs func. See DynamicDataList.batch.
   batch?(func: () => void): void;

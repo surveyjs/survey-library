@@ -21,7 +21,7 @@ describe("ArrayDynamicDataSource", () => {
   test("insert builds a new array", () => {
     const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
     const before = source.array;
-    source.insert(1, { a: 2 });
+    source.insert({ a: 2 }, 1);
     const after = source.array;
     expect(after).not.toBe(before);
     expect(before.length).toBe(1);
@@ -29,9 +29,9 @@ describe("ArrayDynamicDataSource", () => {
   });
   test("insert at the start and out of range", () => {
     const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
-    source.insert(0, { a: 0 });
-    source.insert(100, { a: 9 });
-    source.insert(-5, { a: -1 });
+    source.insert({ a: 0 }, 0);
+    source.insert({ a: 9 }, 100);
+    source.insert({ a: -1 }, -5);
     expect(source.array.map((r: any) => r.a)).toEqual([-1, 0, 1, 9]);
   });
   test("update builds a new array and replaces the record", () => {
@@ -90,7 +90,7 @@ describe("ArrayDynamicDataSource", () => {
       assigned.push(arr);
       holder.items = arr;
     });
-    source.insert(1, { a: 2 });
+    source.insert({ a: 2 }, 1);
     source.update(0, { a: 11 });
     source.remove(1);
     expect(assigned.length).toBe(3);
@@ -124,7 +124,7 @@ describe("ArrayDynamicDataSource.count", () => {
     expect(source.count(), "#1: the callback answers").toBe(7);
     expect(readCount, "#2").toBe(0);
     source.batch((): void => {
-      source.insert(1, { a: 2 });
+      source.insert({ a: 2 }, 1);
       expect(source.count(), "#3: the batch array").toBe(2);
     });
     expect(local.length, "#4").toBe(2);

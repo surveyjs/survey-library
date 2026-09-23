@@ -73,7 +73,7 @@ class FakeRangeSource implements IDynamicDataSource {
     this.ops.push("update:" + sourceIndex + ":" + changedFields.join(","));
     this.records[sourceIndex] = record;
   }
-  public insert(sourceIndex: number, record: any): void {
+  public insert(record: any, sourceIndex: number): void {
     this.ops.push("insert:" + sourceIndex);
     this.records.splice(sourceIndex, 0, record);
   }
@@ -1495,7 +1495,7 @@ class FakeTableSource implements IDynamicDataSource {
   public update(sourceIndex: number, record: any): Promise<void> {
     return this.call("update", [sourceIndex], (): void => { this.records[sourceIndex] = this.copy(record); });
   }
-  public insert(sourceIndex: number, record: any): Promise<void> {
+  public insert(record: any, sourceIndex: number): Promise<void> {
     return this.call("insert", [sourceIndex], (): void => { this.records.splice(sourceIndex, 0, this.copy(record)); });
   }
   public remove(sourceIndex: number): Promise<void> {

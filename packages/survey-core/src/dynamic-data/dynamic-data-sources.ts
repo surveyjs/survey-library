@@ -70,7 +70,8 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
       this.setArray(arr);
     }
   }
-  public insert(sourceIndex: number, record: any): void {
+  // A source without keyField: the key IS the source index, so update/remove/move take a position.
+  public insert(record: any, sourceIndex: number): void {
     const arr = this.read().slice();
     const index = Math.max(0, Math.min(sourceIndex, arr.length));
     arr.splice(index, 0, record);

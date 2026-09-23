@@ -75,12 +75,21 @@ class FakeServerSource implements IDynamicDataSource {
   // false -> the server cannot count the matching records cheaply and answers without a total.
   public reportTotal: boolean = true;
   public readRange?: (request: IDynamicDataReadRequest) => Promise<IDynamicDataReadResult>;
-  public insert?: (sourceIndex: number, record: any) => Promise<void>;
-  public update?: (sourceIndex: number, record: any, changedFields: Array<string>) => Promise<void>;
-  public remove?: (sourceIndex: number) => Promise<void>;
-  public move?: (fromSourceIndex: number, toSourceIndex: number) => Promise<void>;
+  /* Set -> the server names its records by this field instead of by their position, which is what a
+     server whose table changes under the grid has to do. Every write below then looks the record up
+     by its key, and insert assigns one. */
+  public keyField?: string;
+  // false -> insert answers with nothing, which is what a source that ignores the return contract
+  // does: the list then never learns the key of the new record.
+  public insertAnswersRecord: boolean = true;
+  private nextKey: number = 1000;
+  public insert?: (record: any, sourceIndex: number) => Promise<any>;
+  public update?: (key: any, record: any, changedFields: Array<string>) => Promise<void>;
+  public remove?: (key: any) => Promise<void>;
+  public move?: (key: any, toSourceIndex: number) => Promise<void>;
 
-  constructor(public records: Array<any>, capabilities?: Array<string>) {
+  constructor(public records: Array<any>, capabilities?: Array<string>, keyField?: string) {
+    this.keyField = keyField;
     const caps = capabilities || ["readRange", "insert", "update", "remove", "move"];
     const has = (name: string): boolean => caps.indexOf(name) > -1;
     if (has("readRange")) {
@@ -100,29 +109,54 @@ class FakeServerSource implements IDynamicDataSource {
         });
     }
     if (has("insert")) {
-      this.insert = (sourceIndex: number, record: any): Promise<void> =>
-        this.call("insert", [sourceIndex, this.copy(record)], (): void => {
-          this.records.splice(sourceIndex, 0, this.copy(record));
+      // The answer is the stored record: with a keyField it is what carries the key the server
+      // assigned back to the list.
+      this.insert = (record: any, sourceIndex: number): Promise<any> =>
+        this.call("insert", [this.copy(record), sourceIndex], (): any => {
+          const stored = this.copy(record);
+          if (!!this.keyField) {
+            stored[this.keyField] = this.nextKey++;
+          }
+          this.records.splice(sourceIndex, 0, stored);
+          return this.insertAnswersRecord ? this.copy(stored) : undefined;
         });
     }
     if (has("update")) {
-      this.update = (sourceIndex: number, record: any, changedFields: Array<string>): Promise<void> =>
-        this.call("update", [sourceIndex, this.copy(record), (changedFields || []).slice()], (): void => {
-          this.records[sourceIndex] = this.copy(record);
+      this.update = (key: any, record: any, changedFields: Array<string>): Promise<void> =>
+        this.call("update", [key, this.copy(record), (changedFields || []).slice()], (): void => {
+          const at = this.indexOfKey(key);
+          if (at > -1)this.records[at] = this.copy(record);
         });
     }
     if (has("remove")) {
-      this.remove = (sourceIndex: number): Promise<void> => this.call("remove", [sourceIndex], (): void => {
-        this.records.splice(sourceIndex, 1);
+      this.remove = (key: any): Promise<void> => this.call("remove", [key], (): void => {
+        const at = this.indexOfKey(key);
+        if (at > -1)this.records.splice(at, 1);
       });
     }
     if (has("move")) {
-      this.move = (from: number, to: number): Promise<void> => this.call("move", [from, to], (): void => {
+      this.move = (key: any, to: number): Promise<void> => this.call("move", [key, to], (): void => {
+        const from = this.indexOfKey(key);
+        if (from < 0) return;
         const record = this.records[from];
         this.records.splice(from, 1);
         this.records.splice(to, 0, record);
       });
     }
+  }
+  // Without a keyField the key IS the position, which is what the list passes for such a source.
+  private indexOfKey(key: any): number {
+    if (!this.keyField) return key;
+    for (let i = 0; i < this.records.length; i++) {
+      if (this.records[i][this.keyField] === key) return i;
+    }
+    return -1;
+  }
+  // The table changes behind the list's back: a second user, a background job, another tab.
+  public moveRecordBehindTheGrid(from: number, to: number): void {
+    const record = this.records[from];
+    this.records.splice(from, 1);
+    this.records.splice(to, 0, record);
   }
   public read(): Promise<Array<any>> {
     return this.call("read", [], (): Array<any> => this.records.map(this.copy));
@@ -521,8 +555,8 @@ describe("Remote data source: adding and removing", () => {
     expect(source.callsOf("move").length, "#2: no move").toBe(0);
     expect(source.callsOf("update").length, "#3: no follow-up update").toBe(0);
     const args = source.argsOf("insert")[0];
-    expect(args[0], "#4: appended").toBe(3);
-    expect(args[1], "#5: the complete record").toEqual({ col2: 7 });
+    expect(args[0], "#4: the complete record").toEqual({ col2: 7 });
+    expect(args[1], "#5: appended").toBe(3);
     expect(question.rowCount, "#6: the total grew").toBe(4);
     expect(question.visibleRows.length, "#7: one row more").toBe(4);
   });
@@ -534,8 +568,8 @@ describe("Remote data source: adding and removing", () => {
     source.reset();
     question.addRow();
     const args = source.argsOf("insert")[0];
-    expect(args[0], "#1: windowOffset 5 + 5 records in the window").toBe(10);
-    expect(args[1].col1, "#2: copied from the last record of the WINDOW, not of the table").toBe("v9");
+    expect(args[0].col1, "#1: copied from the last record of the WINDOW, not of the table").toBe("v9");
+    expect(args[1], "#2: windowOffset 5 + 5 records in the window").toBe(10);
     expect(source.callsOf("move").length, "#3").toBe(0);
     expect(source.callsOf("update").length, "#4").toBe(0);
   });
@@ -548,8 +582,8 @@ describe("Remote data source: adding and removing", () => {
     expect(source.callsOf("move").length, "#2: no move").toBe(0);
     expect(source.callsOf("update").length, "#3: no follow-up update").toBe(0);
     const args = source.argsOf("insert")[0];
-    expect(args[0], "#4: appended").toBe(3);
-    expect(args[1], "#5").toEqual({ col2: 7 });
+    expect(args[0], "#4").toEqual({ col2: 7 });
+    expect(args[1], "#5: appended").toBe(3);
     expect(question.panelCount, "#6").toBe(4);
     expect(question.panels.length, "#7").toBe(4);
   });
@@ -561,8 +595,8 @@ describe("Remote data source: adding and removing", () => {
     source.reset();
     question.addPanel();
     const args = source.argsOf("insert")[0];
-    expect(args[0], "#1").toBe(10);
-    expect(args[1].col1, "#2").toBe("v9");
+    expect(args[0].col1, "#1").toBe("v9");
+    expect(args[1], "#2").toBe(10);
     expect(source.callsOf("update").length, "#3").toBe(0);
   });
   test("matrix: the added row is in the window at once and the value follows", async () => {
@@ -603,7 +637,7 @@ describe("Remote data source: adding and removing", () => {
     await flush();
     source.reset();
     question.addRowByIndex({ col1: "inserted" }, 2);
-    expect(source.argsOf("insert")[0], "#1").toEqual([7, { col1: "inserted" }]);
+    expect(source.argsOf("insert")[0], "#1").toEqual([{ col1: "inserted" }, 7]);
     expect(source.callsOf("move").length, "#2: no move").toBe(0);
     expect(rowValues(question), "#3").toEqual(["v5", "v6", "inserted", "v7", "v8", "v9"]);
   });
@@ -1133,7 +1167,7 @@ class SyncPagingSource implements IDynamicDataSource {
   public update(sourceIndex: number, record: any): void {
     this.records[sourceIndex] = Object.assign({}, record);
   }
-  public insert(sourceIndex: number, record: any): void {
+  public insert(record: any, sourceIndex: number): void {
     this.records.splice(sourceIndex, 0, Object.assign({}, record));
   }
   public remove(sourceIndex: number): void {
@@ -1474,3 +1508,227 @@ describe("Remote data source: the operation of a failed read", () => {
   });
 });
 
+/* A keyed source: keyField is set, and serverRecords(n, 100) gives every record an id that is NOT
+   its position (100, 101, ... at positions 0, 1, ...), so an assertion on the key cannot pass by
+   coincidence. */
+function keyedSource(count: number, capabilities?: Array<string>): FakeServerSource {
+  return new FakeServerSource(serverRecords(count, 100), capabilities, "id");
+}
+function recordWithKey(source: FakeServerSource, key: any): any {
+  return source.records.filter((record: any): boolean => record.id === key)[0];
+}
+
+describe("Remote data source: a keyed source addresses records by key", () => {
+  test("matrix: a cell edit on the second page carries the key, not the position", async () => {
+    const source = keyedSource(20);
+    const { question } = await createMatrix(source);
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    await flush();
+    const args = source.argsOf("update")[0];
+    expect(args[0], "#1: the id of the record at position 5, not 5").toBe(105);
+    expect(args[1].col1, "#2: the complete record").toBe("edited");
+    expect(args[2], "#3: the changed fields").toEqual(["col1"]);
+    expect(recordWithKey(source, 105).col1, "#4: the server record").toBe("edited");
+  });
+  test("panel: a field edit on the second page carries the key", async () => {
+    const source = keyedSource(20);
+    const { question } = await createPanel(source);
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.panels[0].getQuestionByName("col1").value = "edited";
+    await flush();
+    expect(source.argsOf("update")[0][0], "#1").toBe(105);
+    expect(recordWithKey(source, 105).col1, "#2").toBe("edited");
+  });
+  test("matrix: removeRow carries the key", async () => {
+    const source = keyedSource(20);
+    const { question } = await createMatrix(source);
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.removeRow(2);
+    await flush();
+    expect(source.argsOf("remove")[0], "#1: the id at position 7").toEqual([107]);
+    expect(recordWithKey(source, 107), "#2: it is gone from the server").toBe(undefined);
+    expect(source.records.length, "#3").toBe(19);
+  });
+  test("panel: removePanel carries the key", async () => {
+    const source = keyedSource(20);
+    const { question } = await createPanel(source);
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.removePanel(2);
+    await flush();
+    expect(source.argsOf("remove")[0], "#1").toEqual([107]);
+    expect(recordWithKey(source, 107), "#2").toBe(undefined);
+  });
+  test("matrix: a drag reorder carries the key and a target position", async () => {
+    const source = keyedSource(20);
+    const { question } = await createMatrix(source);
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.moveRowByIndex(0, 2);
+    await flush();
+    expect(source.argsOf("move")[0], "#1: the id that moved, and where to").toEqual([105, 7]);
+    expect(source.records.slice(5, 10).map((r: any): any => r.id), "#2").toEqual([106, 107, 105, 108, 109]);
+    expect(rowValues(question), "#3").toEqual(["v106", "v107", "v105", "v108", "v109"]);
+  });
+  test("[R] the server reorders its records behind the grid: the edit still reaches the right record",
+    async () => {
+      const source = keyedSource(20);
+      const { question } = await createMatrix(source);
+      source.reset();
+      /* Another user moves a record from the far end to the front. The window the respondent is
+         looking at is the one that was read, so "the row at position 0" is no longer record 100. */
+      source.moveRecordBehindTheGrid(10, 0);
+      question.visibleRows[0].getQuestionByName("col1").value = "edited";
+      await flush();
+      expect(source.argsOf("update")[0][0], "#1: the key of the edited record").toBe(100);
+      expect(recordWithKey(source, 100).col1, "#2: the record the respondent edited").toBe("edited");
+      expect(recordWithKey(source, 110).col1, "#3: the record that moved in front is untouched")
+        .toBe("v110");
+    });
+  test("keyName is not the key: a source without keyField still gets positions", async () => {
+    const source = new FakeServerSource(serverRecords(20, 100));
+    const { question } = await createMatrix(source, { keyName: "col1" });
+    question.goToPage(1);
+    await flush();
+    source.reset();
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    await flush();
+    expect(question.keyName, "#1: the uniqueness validator is set").toBe("col1");
+    expect(source.argsOf("update")[0][0], "#2: the source index, not the record field").toBe(5);
+  });
+});
+
+describe("Remote data source: a keyed source and a read in flight", () => {
+  test("[R] a record moved between the pages does not commit a stale page", async () => {
+    const source = keyedSource(20);
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    source.reset();
+    question.goToPage(1);
+    /* While the page-2 read is in flight another writer moves record 102 - which the respondent can
+       still see on the committed page 1 - into the range that read asked for. The answer will carry
+       it with the value it had before the edit below. */
+    source.moveRecordBehindTheGrid(2, 7);
+    question.visibleRows[2].getQuestionByName("col1").value = "edited";
+    source.settleAll();
+    await flush();
+    source.settleAll();
+    await flush();
+    expect(source.ranges, "#1: the stale answer was discarded and the page read again")
+      .toEqual([[5, 5], [5, 5]]);
+    expect(rowValues(question), "#2: the committed page shows the edit")
+      .toEqual(["v106", "v107", "edited", "v108", "v109"]);
+    expect(source.argsOf("update")[0][0], "#3: the edit named the record, not its position").toBe(102);
+    expect(recordWithKey(source, 102).col1, "#4: and so does the server").toBe("edited");
+  });
+  test("an edit of a record the answer does not contain commits it as it is", async () => {
+    const source = keyedSource(20);
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    source.reset();
+    question.goToPage(1);
+    question.visibleRows[2].getQuestionByName("col1").value = "edited";
+    source.settleAll();
+    await flush();
+    source.settleAll();
+    await flush();
+    expect(source.ranges, "#1: one read, the answer was not stale").toEqual([[5, 5]]);
+    expect(rowValues(question), "#2").toEqual(["v105", "v106", "v107", "v108", "v109"]);
+  });
+});
+
+describe("Remote data source: a record without a key", () => {
+  test("the insert answer brings the key and later edits use it", async () => {
+    const source = keyedSource(3);
+    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    source.reset();
+    question.addRow();
+    const row = question.visibleRows[3];
+    await flush();
+    expect(source.argsOf("insert")[0][1], "#1: appended").toBe(3);
+    expect(question.value[3].id, "#2: the key the server assigned").toBe(1000);
+    expect(question.visibleRows[3], "#3: the row object survived the merge").toBe(row);
+    row.getQuestionByName("col1").value = "typed";
+    await flush();
+    expect(source.argsOf("update")[0][0], "#4: the edit names the new record").toBe(1000);
+    expect(recordWithKey(source, 1000).col1, "#5").toBe("typed");
+  });
+  test("a field edited between the insert and its answer keeps the client value", async () => {
+    const source = keyedSource(3);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<any> = [];
+    survey.onDynamicDataError.add((sender, options) => {
+      errors.push({ operation: options.operation, message: options.error.message });
+    });
+    source.auto = false;
+    source.reset();
+    question.addRow();
+    question.visibleRows[3].getQuestionByName("col1").value = "typed";
+    expect(source.callsOf("update").length, "#1: undeliverable, so it was not pushed").toBe(0);
+    expect(errors, "#2: and it says why").toEqual([
+      { operation: "update", message: "DynamicDataList: the record has no key yet" }
+    ]);
+    expect(question.value[3].col1, "#3: the respondent still sees it").toBe("typed");
+    source.settleAll();
+    await flush();
+    expect(question.value[3], "#4: the key landed, the client value won")
+      .toEqual({ id: 1000, col1: "typed" });
+    question.visibleRows[3].getQuestionByName("col2").value = 42;
+    await flush();
+    expect(source.argsOf("update")[0][0], "#5: an edit made now is delivered").toBe(1000);
+    expect(errors.length, "#6: no second error").toBe(1);
+  });
+  test("an insert that answers with nothing leaves the record keyless", async () => {
+    const source = keyedSource(3);
+    source.insertAnswersRecord = false;
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+    source.reset();
+    question.addRow();
+    await flush();
+    expect(question.value[3].id, "#1: no key").toBe(undefined);
+    question.visibleRows[3].getQuestionByName("col1").value = "typed";
+    await flush();
+    expect(source.callsOf("update").length, "#2: nothing was pushed").toBe(0);
+    expect(errors, "#3: reported, not thrown").toEqual(["update"]);
+    expect(question.value[3].col1, "#4").toBe("typed");
+  });
+  test("the next read reconciles a record whose edits were not delivered", async () => {
+    const source = keyedSource(3);
+    source.insertAnswersRecord = false;
+    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    question.addRow();
+    await flush();
+    question.visibleRows[3].getQuestionByName("col1").value = "typed";
+    await flush();
+    question.refreshView();
+    await flush();
+    expect(rowValues(question), "#1: the server value, not the undelivered edit")
+      .toEqual(["v100", "v101", "v102", undefined]);
+  });
+  test("a remove of a record that has no key yet is reported and kept local", async () => {
+    const source = keyedSource(3);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<any> = [];
+    survey.onDynamicDataError.add((sender, options) => {
+      errors.push(options.operation + ":" + options.error.message);
+    });
+    source.auto = false;
+    source.reset();
+    question.addRow();
+    question.removeRow(3);
+    expect(source.callsOf("remove").length, "#1").toBe(0);
+    expect(errors, "#2").toEqual(["remove:DynamicDataList: the record has no key yet"]);
+    expect(question.rowCount, "#3: the row is gone locally").toBe(3);
+  });
+});

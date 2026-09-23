@@ -28,6 +28,15 @@ function isPromiseLike(value: any): boolean {
   // Never instanceof Promise: a source may return any thenable.
   return !!value && typeof value.then === "function";
 }
+/* What a write tells pushToSource about the record it addresses, beyond the call itself: the key it
+   was enqueued with, the position an update was made at (which is what the range check of a read in
+   flight compares for a source without a key), and for an insert the window object of the new
+   record, which its answer is matched by. */
+interface IDynamicDataPushInfo {
+  sourceIndex?: number;
+  key?: any;
+  insertedRecord?: any;
+}
 function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
   const res: Array<string> = [];
   const add = (key: string): void => {
@@ -73,9 +82,20 @@ export class DynamicDataList {
   // always fulfills - a rejected push is reported through onError and the chain continues.
   private pushChain: Promise<void> = undefined;
   private pendingPushes: number = 0;
+  /* Keyed source only: one entry per insert that has not answered yet, holding the window object of
+     the new record. The object is what the answer is matched by - a key the record does not have yet
+     cannot be - and every write replaces that object, so replaceRecord re-points the entry instead
+     of the entry holding the object add created, which one keystroke would already have discarded. */
+  private pendingInserts: Array<{ record: any }> = [];
   /* The asynchronous read in flight: the range it asked for, and whether a write enqueued since it
      was issued made its answer stale (see startRead). */
-  private inFlightRead: { skip: number, take: number, useReadRange: boolean, isOvertaken: boolean } = undefined;
+  private inFlightRead: {
+    skip: number, take: number, useReadRange: boolean, isOvertaken: boolean,
+    /* Keyed source only: the keys of the records updated while this read was in flight. There a
+       position cannot decide it - another writer may move a record between the pages while the read
+       runs - so the answer is checked for those records instead (see isAnswerOvertaken). */
+    updatedKeys: Array<any>,
+  } = undefined;
   /* A read requested while writes are pending waits for the chain to drain (see startRead). The
      requests coalesce into one: queuedReadUseOffset stays true only while every one of them was a
      refresh of the window - a load() recomputes the offset from pageIndex, which is what a page
@@ -297,12 +317,16 @@ export class DynamicDataList {
       newRecord[field] = value;
     }
     const sourceIndex = this._windowOffset + index;
+    // The key of the record that is being replaced, resolved before the replacement: that record is
+    // the one the respondent edited, and the copy made on write is not in the window yet.
+    const key = this.getRecordKey(index);
     this.writeDepth++;
     this.replaceRecord(index, newRecord);
     // The push comes before the notification: with a read-through source the push IS the local write,
     // so the owner must not be notified of a change it cannot read yet.
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(sourceIndex, newRecord, [field]), sourceIndex);
+      (source: IDynamicDataSource): any => source.update(key, newRecord, [field]),
+      { sourceIndex: sourceIndex, key: key });
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
@@ -316,10 +340,13 @@ export class DynamicDataList {
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
     const changedFields = getChangedFields(oldRecord, record);
     const sourceIndex = this._windowOffset + index;
+    // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
+    const key = this.getRecordKey(index);
     this.writeDepth++;
     this.replaceRecord(index, record);
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(sourceIndex, record, changedFields), sourceIndex);
+      (source: IDynamicDataSource): any => source.update(key, record, changedFields),
+      { sourceIndex: sourceIndex, key: key });
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
@@ -349,7 +376,10 @@ export class DynamicDataList {
     this.insertIntoMembership(at, createdPosition, countAfter);
     this.resetViews();
     const sourceIndex = this._windowOffset + at;
-    this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(sourceIndex, newRecord));
+    /* An added record has no key yet: the position says where it goes and the source assigns the
+       key, which the answer of insert brings back (applyInsertAnswer). */
+    this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
+      { insertedRecord: newRecord });
     this.endWrite();
     this.raiseChanged({ type: "recordAdded", index: at });
     return at;
@@ -366,6 +396,9 @@ export class DynamicDataList {
   }
   public remove(index: number): void {
     if (index < 0 || index >= this.recordCount) return;
+    /* Before the splice: afterwards this slot holds the record that moved up into it, and the last
+       record of the window has no slot at all. */
+    const key = this.getRecordKey(index);
     const countAfter = this.recordCount - 1;
     this.alignHiddenFlags();
     this.writeDepth++;
@@ -380,8 +413,7 @@ export class DynamicDataList {
     this.updateHasMoreFromTotal(countAfter);
     this.removeFromMembership(index, countAfter);
     this.resetViews();
-    const sourceIndex = this._windowOffset + index;
-    this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(sourceIndex));
+    this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(key), { key: key });
     this.endWrite();
     this.raiseChanged({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
@@ -415,6 +447,8 @@ export class DynamicDataList {
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
+    // Before the splice, for the same reason as in remove.
+    const key = this.getRecordKey(fromIndex);
     this.alignHiddenFlags();
     this.writeDepth++;
     if (!this.useReadThrough) {
@@ -430,9 +464,9 @@ export class DynamicDataList {
     this.hiddenFlags.splice(toIndex, 0, flag);
     this.moveInMembership(fromIndex, toIndex);
     this.resetViews();
-    const fromSourceIndex = this._windowOffset + fromIndex;
     const toSourceIndex = this._windowOffset + toIndex;
-    this.pushToSource("move", (source: IDynamicDataSource): any => source.move(fromSourceIndex, toSourceIndex));
+    this.pushToSource("move", (source: IDynamicDataSource): any => source.move(key, toSourceIndex),
+      { key: key });
     this.endWrite();
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
@@ -675,6 +709,7 @@ export class DynamicDataList {
     this.records = [];
     this.hiddenFlags = [];
     this.hiddenCount = 0;
+    this.pendingInserts = [];
     this.filterRunner = undefined;
     this.resetMembership();
     this.resetViews();
@@ -697,7 +732,22 @@ export class DynamicDataList {
   private copyRecord(record: any): any {
     return Object.assign({}, record);
   }
+  /* The name a write gives the record it addresses. A source that declares keyField is told WHICH
+     record changed, a source that does not is told WHERE it is - the source index, exactly as
+     before, and for such a source the key and the position are the same number. Every write resolves
+     it at enqueue time and before its own splice: the window already reflects every earlier write,
+     so the record at index is the record the respondent acted on. */
+  private get keyField(): string {
+    return !!this._source ? this._source.keyField : undefined;
+  }
+  private getRecordKey(index: number): any {
+    const field = this.keyField;
+    if (!field) return this._windowOffset + index;
+    const record = this.getRecord(index);
+    return !!record ? record[field] : undefined;
+  }
   private replaceRecord(index: number, record: any): void {
+    if (this.pendingInserts.length > 0)this.repointPendingInsert(this.records[index], record);
     // The window array is never mutated: the source may hand out the very array the owner holds.
     // With a read-through source there is no window - the push that follows is the write.
     if (!this.useReadThrough) {
@@ -714,6 +764,14 @@ export class DynamicDataList {
       // The edited record may have left the filter: the visible count can shrink.
       this.clampPageIndexAfterChange();
     }
+  }
+  // An insert that has not answered yet is matched by the window object of its record, and every
+  // write replaces that object: the entry follows the record across the replacements.
+  private repointPendingInsert(oldRecord: any, newRecord: any): void {
+    if (oldRecord === undefined || oldRecord === newRecord) return;
+    this.pendingInserts.forEach((entry: { record: any }): void => {
+      if (entry.record === oldRecord) entry.record = newRecord;
+    });
   }
   private get hasLocalViews(): boolean {
     return this.hasView && !this.hasReadRange;
@@ -845,6 +903,8 @@ export class DynamicDataList {
     this.records = [];
     this.hiddenFlags = [];
     this.hiddenCount = 0;
+    // The inserts of the source that was replaced: their answers belong to a window that is gone.
+    this.pendingInserts = [];
     this._total = undefined;
     this._isCountKnown = true;
     this._hasMore = false;
@@ -959,14 +1019,16 @@ export class DynamicDataList {
       return;
     }
     if (isPromiseLike(res)) {
-      const inFlight = { skip: skip, take: take, useReadRange: useReadRange, isOvertaken: false };
+      const inFlight = {
+        skip: skip, take: take, useReadRange: useReadRange, isOvertaken: false, updatedKeys: <Array<any>>[]
+      };
       this.inFlightRead = inFlight;
       this.setIsLoading(true);
       return res.then((data: any): any => {
         // A later read supersedes this one: its result is discarded when it arrives.
         if (this.isDisposed || requestId !== this.readRequestId) return;
         this.inFlightRead = undefined;
-        if (inFlight.isOvertaken) {
+        if (inFlight.isOvertaken || this.isAnswerOvertaken(inFlight, data)) {
           // A write overtook this read: the answer describes a server that did not have it yet. The
           // read is issued again - behind the chain while writes are pending - and it inherits the
           // loading state, as a superseding read does.
@@ -1086,14 +1148,24 @@ export class DynamicDataList {
      when the push finally runs. The capability check follows the same rule - the operation names are
      the source method names. */
   private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource) => any,
-    updatedSourceIndex?: number): void {
+    info?: IDynamicDataPushInfo): void {
     const source = this._source;
     if (this.isDisposed || !source || !(<any>source)[operation]) return;
-    this.markInFlightReadOvertaken(operation, updatedSourceIndex);
+    const push = info || {};
+    /* A keyed source cannot be told about a record it has not named yet - the insert of a record
+       added a moment ago is still in flight. The write is kept: it is in the window, so the
+       respondent sees it, the error says why it was not delivered, and the next read reconciles. */
+    if (operation !== "insert" && !!this.keyField && push.key === undefined) {
+      this.raiseError(new Error("DynamicDataList: the record has no key yet"), operation);
+      return;
+    }
+    this.markInFlightReadOvertaken(operation, push);
     const epoch = this.sourceEpoch;
+    const entry = this.registerPendingInsert(operation, push);
+    const onAnswer = !!entry ? (answer: any): void => this.applyInsertAnswer(entry, answer, epoch) : undefined;
     const action = (): any => method(source);
     if (!this.pushChain) {
-      const res = this.runPush(operation, action);
+      const res = this.runPush(operation, action, onAnswer);
       if (!res) {
         this.syncWindowAfterSyncPush(epoch);
         return;
@@ -1104,34 +1176,89 @@ export class DynamicDataList {
     }
     this.pendingPushes++;
     this.pushChain = this.pushChain.then((): any => {
-      const res = this.runPush(operation, action);
+      const res = this.runPush(operation, action, onAnswer);
       return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
     });
+  }
+  private registerPendingInsert(operation: DynamicDataOperation, push: IDynamicDataPushInfo): { record: any } {
+    if (operation !== "insert" || !this.keyField || push.insertedRecord === undefined) return undefined;
+    const entry = { record: push.insertedRecord };
+    this.pendingInserts.push(entry);
+    return entry;
+  }
+  /* The answer of an insert is the stored record: it carries the key the source assigned, and
+     whatever else the source filled in. The client fields win over it - a value typed while the
+     insert was in flight is the newer one - and the merged record replaces the one in the window, so
+     that every later write finds the key on it. The record is found through the pending entry and
+     never by indexOf of the object add created: a write copies the record, and that lookup would
+     miss it. */
+  private applyInsertAnswer(entry: { record: any }, answer: any, epoch: number): void {
+    const at = this.pendingInserts.indexOf(entry);
+    if (at > -1)this.pendingInserts.splice(at, 1);
+    const field = this.keyField;
+    if (this.isDisposed || epoch !== this.sourceEpoch || !field) return;
+    if (!answer || typeof answer !== "object" || Helpers.isValueEmpty(answer[field])) return;
+    // Gone from the window: it was removed, or a read replaced the window - and that read brought
+    // the key itself.
+    const index = this.records.indexOf(entry.record);
+    if (index < 0) return;
+    this.writeDepth++;
+    this.replaceRecord(index, Object.assign({}, answer, entry.record));
+    this.endWrite();
+    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
   }
   /* Does this write make the answer of the read in flight stale? An insert or a remove shifts the
      records and changes the total, and a move shifts the records between its two ends, so each of
      them does. An update changes one record in place: only a record inside the range that read asked
      for - an edit on page 1 while page 2 is loading leaves the answer for page 2 as it is. */
-  private markInFlightReadOvertaken(operation: DynamicDataOperation, updatedSourceIndex: number): void {
+  private markInFlightReadOvertaken(operation: DynamicDataOperation, push: IDynamicDataPushInfo): void {
     const read = this.inFlightRead;
     if (!read || read.isOvertaken) return;
     if (operation === "update" && read.useReadRange && read.take > 0) {
-      if (updatedSourceIndex < read.skip || updatedSourceIndex >= read.skip + read.take) return;
+      /* A keyed source: where the record is by now is not the position it was edited at - another
+         writer may have moved it between the pages while the read was running - so the answer is
+         checked for that record when it arrives instead of the range being compared. */
+      if (!!this.keyField) {
+        read.updatedKeys.push(push.key);
+        return;
+      }
+      if (push.sourceIndex < read.skip || push.sourceIndex >= read.skip + read.take) return;
     }
     read.isOvertaken = true;
   }
-  // Returns a promise that always fulfills, or undefined when the push stayed synchronous.
-  private runPush(operation: DynamicDataOperation, action: () => any): Promise<void> {
+  /* The other half of the rule above: the answer of a read an update overtook is stale only when it
+     carries one of the updated records, because it then describes the value the respondent has just
+     replaced. An edit of a record the answer does not contain leaves it as it is, which is what the
+     positional check decides by range. */
+  private isAnswerOvertaken(read: { updatedKeys: Array<any> }, data: any): boolean {
+    const field = this.keyField;
+    if (!field || read.updatedKeys.length === 0) return false;
+    const records = Array.isArray(data) ? data : (!!data && Array.isArray(data.records) ? data.records : []);
+    return records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
+  }
+  // Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
+  // is what the source answered - only an insert has an answer - and it runs for a failed push too,
+  // with undefined, so that the pending entry never outlives its push.
+  private runPush(operation: DynamicDataOperation, action: () => any,
+    onAnswer?: (answer: any) => void): Promise<void> {
     let res: any;
     try {
       res = action();
     } catch(e) {
       this.raiseError(e, operation);
+      if (!!onAnswer) onAnswer(undefined);
       return undefined;
     }
-    if (!isPromiseLike(res)) return undefined;
+    if (!isPromiseLike(res)) {
+      if (!!onAnswer) onAnswer(res);
+      return undefined;
+    }
     // A rejected push keeps the local change and reports the error; the chain continues.
-    return res.then((): void => { }, (error: any): void => { this.raiseError(error, operation); });
+    return res.then((answer: any): void => { if (!!onAnswer) onAnswer(answer); },
+      (error: any): void => {
+        this.raiseError(error, operation);
+        if (!!onAnswer) onAnswer(undefined);
+      });
   }
   private onPushSettled(epoch: number, wasSync: boolean): void {
     // A chain detached by a source change runs to its end against its own source, but the counters

@@ -655,7 +655,6 @@ export class QuestionPanelDynamicModel extends Question
      runtime state and are not serialized. */
   public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
   public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
-  public getControlFilterKeys(): Array<string> { return this.paging.getControlFilterKeys(); }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);
   }

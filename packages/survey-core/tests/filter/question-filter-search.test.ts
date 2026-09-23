@@ -33,6 +33,17 @@ describe("QuestionFilterModel: quick search", () => {
     expect(q.filterExpression, "#1").toBe("false");
     expect(applyFilter(records, q.filterExpression), "#2").toEqual([]);
   });
+  test("a built-in choice item is never expanded into anyof", () => {
+    const q = createFilter({ showSearch: true, searchFields: ["country"],
+      fields: [{ name: "country", fieldType: "dropdown", showOtherItem: true, showNoneItem: true,
+        choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }] }] });
+    q.searchString = "o";
+    // "Other (describe)" and "None" both contain the text, and neither is a value a record holds.
+    // Counting them as a match would also take the "false" answer away from the field.
+    expect(q.filterExpression, "#1").toBe("false");
+    q.searchString = "an";
+    expect(q.filterExpression, "#2: a real choice still expands").toBe("{country} anyof ['de', 'fr']");
+  });
   test("an unknown searchField name is skipped, not turned into a variable", () => {
     const q = createFilter({ showSearch: true, searchFields: ["nosuchfield", "name"] });
     q.searchString = "an";

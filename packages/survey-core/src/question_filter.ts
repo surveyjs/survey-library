@@ -19,7 +19,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // no extra serializable "dirty" property is needed.
   private authoredSearchFields: Array<string>;
   // Restoring is not a new change: it must not raise onUIStateChanged, or a host that saves on every
-  // change would save immediately after every restore.
+  // change would save immediately after every restore. It also holds back the write into the source
+  // and onFilterChanged with it, so the three restored keys land as one filter and not as three -
+  // see setUIState().
   private isSettingUIState: boolean = false;
   private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
@@ -124,7 +126,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   // first one.
   public getFieldByName(name: string): IDynamicDataFilterField {
     if (!name) return undefined;
-    const fields = this.getFilterFields();
+    return this.findFieldInList(this.getFilterFields(), name);
+  }
+  // Takes the field list instead of rebuilding it: a bound control asks its source for the whole
+  // list on every call, and getSearchFields() would otherwise pay for it once per name, inside
+  // runCondition, on every survey value change.
+  private findFieldInList(fields: Array<IDynamicDataFilterField>, name: string): IDynamicDataFilterField {
+    if (!name) return undefined;
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].name === name) return fields[i];
     }
@@ -140,7 +148,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const names = this.searchFields;
     if (!Array.isArray(names) || names.length === 0) return all;
     const res: Array<IDynamicDataFilterField> = [];
-    names.forEach((n: string) => { const f = this.getFieldByName(n); if (!!f) res.push(f); });
+    names.forEach((n: string) => { const f = this.findFieldInList(all, n); if (!!f) res.push(f); });
     return res;
   }
   public setSearchFields(val: Array<string>): void {
@@ -285,13 +293,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     let isEmpty = true;
     // The baseline is the default the control could actually apply, not the raw defaultItem:
     // applyDefaultItem() refuses a defaultItem that names no item, so activeItemName stays "" and
-    // comparing against the raw name would make an untouched control store activeItem: "". That
+    // comparing against the raw name would make an untouched control store activeItemName: "". That
     // would both produce a spurious save and, once the author fixed or added the item, keep the now
     // valid default from ever applying to a returning respondent. The same holds while items are
     // still on their way from a source and nothing resolves yet.
     const appliedDefault = !!this.getItemByName(this.defaultItem) ? this.defaultItem : "";
     if (this.allowMultipleItems && this.activeItemName !== appliedDefault) {
-      state.activeItem = this.activeItemName;
+      state.activeItemName = this.activeItemName;
       isEmpty = false;
     }
     if (!!this.searchString) { state.searchString = this.searchString; isEmpty = false; }
@@ -308,20 +316,34 @@ export class QuestionFilterModel extends QuestionNonValue {
     super.setUIState(state);
     const filter = !!state ? state.filter : undefined;
     if (!filter) return;
+    // Each of the three keys recomposes the expression on its own, and only the last composition is
+    // the filter that is actually in effect. The flag holds the write into the source and
+    // onFilterChanged back until all three have landed: without it a restore would report - and
+    // make a host that mirrors the filter query - two intermediate expressions nothing was ever
+    // filtered by, and would rebuild the bound question's rows three times.
+    const oldExpression = this.filterExpression;
     this.isSettingUIState = true;
-    // A key that is not there was not changed by the respondent, EXCEPT activeItem, whose "" means
-    // "switched off" and must survive.
-    if (filter.activeItem !== undefined) {
-      this.activeItemName = filter.activeItem;
+    try {
+      // A key that is not there was not changed by the respondent, EXCEPT activeItemName, whose ""
+      // means "switched off" and must survive.
+      if (filter.activeItemName !== undefined) {
+        this.activeItemName = filter.activeItemName;
+      }
+      if (filter.searchString !== undefined) {
+        this.searchString = filter.searchString;
+      }
+      if (Array.isArray(filter.searchFields)) {
+        this.searchFields = [].concat(filter.searchFields);
+      }
+    } finally {
+      // A throw in any of the three must not leave the control silent for the rest of the session.
+      this.isSettingUIState = false;
     }
-    if (filter.searchString !== undefined) {
-      this.searchString = filter.searchString;
-    }
-    if (Array.isArray(filter.searchFields)) {
-      this.searchFields = [].concat(filter.searchFields);
-    }
-    this.isSettingUIState = false;
     this.updateFilterExpression();
+    // The one write and the one event of the whole restore. Nothing changed = nothing to report.
+    if (this.filterExpression !== oldExpression) {
+      this.applyToSource();
+    }
   }
   // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it.
   private raiseUIStateChanged(): void {
@@ -420,8 +442,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     const itemExpression = !!item ? (item.expression || "").trim() : "";
     return combineFilterExpressions(itemExpression, this.calcSearchExpression());
   }
-  // skipApply is for the one caller that is in the middle of moving the control between two
-  // sources: it does the single write-and-raise itself, once the new source is attached.
+  // skipApply is for the caller that is in the middle of moving the control between two sources: it
+  // does the single write-and-raise itself, once the new source is attached. A uiState restore is
+  // in the same position for the length of its three assignments and says so through the flag.
   private updateFilterExpression(skipApply?: boolean): void {
     // Nothing is filtered while the JSON is still being read - onSurveyLoad() composes the
     // expression once it is whole - and nothing is filtered in the designer either.
@@ -429,7 +452,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const newValue = this.calcFilterExpression();
     if (newValue === this.filterExpression) return;
     this.setPropertyValue("filterExpression", newValue);
-    if (!skipApply) {
+    if (!skipApply && !this.isSettingUIState) {
       this.applyToSource();
     }
   }

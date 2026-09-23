@@ -237,3 +237,99 @@ jobs:
           gh api graphql --input - <<< "$BODY"
 
           echo "::notice::Added column '$COLUMN_NAME' after '$AFTER_COLUMN' in project '$PROJECT_TITLE'."
+
+      # -------------------------------------------------------------------
+      # Step 5: repoint the built-in "Item closed" Project workflow at the
+      # newly created column, so from now on any closed issue/PR whose card
+      # is on the board will be moved to the new v* column.
+      #
+      # Built-in Project workflows live inside the Project itself (they are
+      # not Actions .yml files). We locate the one named "Item closed" and
+      # update its actions so that its Status assignment points at the new
+      # single-select option id.
+      # -------------------------------------------------------------------
+      - name: Point "Item closed" project workflow at the new column
+        run: |
+          set -euo pipefail
+
+          PROJECT_ID='${{ steps.lookup.outputs.project_id }}'
+          FIELD_ID='${{ steps.lookup.outputs.field_id }}'
+          COLUMN_NAME='${{ steps.next.outputs.column_name }}'
+
+          # Re-fetch the Status options — we need the *id* of the option we
+          # just added, and updateProjectV2Field doesn't return ids for new
+          # options in a stable way.
+          OPTION_ID=$(gh api graphql -f query='
+            query($p: ID!) {
+              node(id: $p) {
+                ... on ProjectV2 {
+                  fields(first: 50) {
+                    nodes {
+                      ... on ProjectV2SingleSelectField {
+                        name
+                        options { id name }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f p="$PROJECT_ID" \
+            | jq -r --arg n "$COLUMN_NAME" \
+                '.data.node.fields.nodes[]
+                 | select(.name=="Status")
+                 | .options[]
+                 | select(.name==$n)
+                 | .id')
+
+          if [ -z "$OPTION_ID" ] || [ "$OPTION_ID" = "null" ]; then
+            echo "::error::New option '$COLUMN_NAME' not found on the Status field."
+            exit 1
+          fi
+          echo "New option id: $OPTION_ID"
+
+          # List the project's built-in workflows and find the one named
+          # "Item closed" (this is the exact name shown in the Project UI).
+          WORKFLOWS=$(gh api graphql -f query='
+            query($p: ID!) {
+              node(id: $p) {
+                ... on ProjectV2 {
+                  workflows(first: 50) {
+                    nodes { id name enabled }
+                  }
+                }
+              }
+            }' -f p="$PROJECT_ID")
+
+          WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r \
+            '.data.node.workflows.nodes[] | select(.name=="Item closed") | .id')
+
+          if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
+            echo "::error::'Item closed' built-in workflow not found on project."
+            exit 1
+          fi
+          echo "Item closed workflow id: $WORKFLOW_ID"
+
+          # Update the workflow so its Status action targets the new option.
+          # The API mutation is updateProjectV2Workflow; we pass the new
+          # option id inside a "singleSelectOptionId" field on the Status
+          # field action.
+          gh api graphql -f query='
+            mutation($workflow: ID!, $field: ID!, $option: String!) {
+              updateProjectV2Workflow(input: {
+                workflowId: $workflow,
+                enabled: true,
+                actions: [{
+                  setFieldValue: {
+                    fieldId: $field,
+                    singleSelectOptionId: $option
+                  }
+                }]
+              }) {
+                projectV2Workflow { id name enabled }
+              }
+            }' \
+            -f workflow="$WORKFLOW_ID" \
+            -f field="$FIELD_ID" \
+            -f option="$OPTION_ID"
+
+          echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."

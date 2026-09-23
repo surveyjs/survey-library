@@ -162,7 +162,7 @@ export interface IDynamicDataOwner {
 
 // What a question that can be filtered by a Filter Control answers. Both dynamic questions implement
 // it; the control never imports either of them and asks by capability, the way the list asks a
-// source whether it has "filter".
+// source whether it has "readRange".
 export interface IDynamicDataFilterSource {
   getFilterFields(): Array<IDynamicDataFilterField>;
   setControlFilter(key: string, expression: string): void;

@@ -829,6 +829,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get hasPlainInput(): boolean {
     return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
   }
+  public get isFilterable(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.isFilterable : super.isFilterable;
+  }
   public isSelectQuestion(): boolean {
     return !!this.contentQuestion && this.contentQuestion.isSelectQuestion();
   }

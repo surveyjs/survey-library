@@ -532,6 +532,14 @@ export class MatrixDropdownColumn extends Base
     const matrix: any = this.colOwner;
     return !!matrix && matrix.allowSortRows === true && this.allowSort;
   }
+  /* Opts this column out of the Filter Control, the way allowSort opts it out of the header-click
+     sort. A cell type that stores no value a filter can compare - a file to upload - says so
+     through the cell question itself and the property does not apply. */
+  @property({ defaultValue: true }) allowFiltering: boolean;
+  public get isFilterable(): boolean {
+    const q = this.templateQuestion;
+    return !!q && q.isFilterable && this.allowFiltering;
+  }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
      a column with a valueName shares the key with the question it is bound to. It is the same name
      QuestionMatrixDynamicModel.getFields() registers with the data list. */
@@ -1001,6 +1009,18 @@ Serializer.addClass(
     { name: "renderAs", default: "default", visible: false },
     // Invisible until the UI series renders sortable headers, see matrixdynamic.allowSortRows.
     { name: "allowSort:boolean", default: true, visible: false },
+    // Mirrors question.allowFiltering for a cell: the column's own property shadows the cell
+    // question's, the way isRequired and readOnly do. dependsOn re-asks the grid when the cell type
+    // changes, because the cell type is what decides whether a column can be filtered at all.
+    // Because the cell question carries a property of the same name, getOriginalByProperty hands
+    // visibleIf the cell question instead of the column, so read the capability off whichever of
+    // the two arrives. Never off column.isFilterable: it folds in allowFiltering itself and would
+    // hide the switch the moment it is turned off.
+    { name: "allowFiltering:boolean", default: true, dependsOn: "cellType",
+      visibleIf: (obj: any): boolean => {
+        const q = !!obj && !!obj.templateQuestion ? obj.templateQuestion : obj;
+        return !!q && !!q.isFilterable;
+      } },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

@@ -37,6 +37,11 @@ export class QuestionFileModelBase extends Question {
   public get hasPlainInput(): boolean {
     return false;
   }
+  // The value is a list of uploaded files: only the question's own UI can produce a value a filter
+  // could compare against.
+  public get isFilterable(): boolean {
+    return false;
+  }
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
   /**

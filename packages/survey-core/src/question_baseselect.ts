@@ -495,9 +495,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    // A respondent cannot fix a value that refers to a choice that is gone, so it is removed when errors are shown.
-    // A silent check, validate(false), reports such a value as incorrect and leaves the data as it is.
-    if (context.fireCallback && context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
+    if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
       this.clearIncorrectValues();
     }
     let res = true;
@@ -2357,7 +2355,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.clearValue(true);
       return;
     }
-    // keepIncorrectValues is read here and in getValidateChecks(), not in the check code itself.
+    // keepIncorrectValues is read here, not in the check code: verifyData() ignores it.
     if (this.isKeepIncorrectValues) return;
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {

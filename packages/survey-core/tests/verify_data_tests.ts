@@ -286,18 +286,20 @@ describe("verifyData: options", () => {
     expect(createSurvey(json, data).verifyData({ choiceValues: false }).map(i => i.type).sort())
       .toEqual(["invalidValueType", "unknownProperty"]);
   });
-  test("keepIncorrectValues changes nothing for verifyData but suppresses the choices check of validate()", () => {
+  test("keepIncorrectValues changes nothing for verifyData() and isValueCorrect(); it governs clearing only", () => {
     const survey = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] }, { q: "z" });
     (<any>survey.getQuestionByName("q")).keepIncorrectValues = true;
     expect(shortIssues(survey.verifyData()), "the question level").toEqual([
       { type: "invalidChoiceValue", segments: ["q"], path: "q", value: "z" }
     ]);
-    expect(survey.validate(false, false), "validate() keeps it").toBe(true);
-    expect(survey.getQuestionByName("q").isValueCorrect(), "isValueCorrect() keeps it").toBe(true);
+    expect(survey.getQuestionByName("q").isValueCorrect(), "isValueCorrect() reports it").toBe(false);
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "clearIncorrectValues() keeps it").toEqual({ q: "z" });
     const surveyLevel = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] }, { q: "z" });
     surveyLevel.keepIncorrectValues = true;
     expect(surveyLevel.verifyData().length, "the survey level").toBe(1);
-    expect(surveyLevel.validate(false, false), "validate() keeps it").toBe(true);
+    surveyLevel.clearIncorrectValues(true);
+    expect(surveyLevel.data, "clearIncorrectValues() keeps it on the survey level").toEqual({ q: "z" });
   });
 });
 
@@ -629,31 +631,40 @@ describe("verifyData: a direct call on a nested instance", () => {
   });
 });
 
-describe("verifyData: agreement with validate() and clearIncorrectValues()", () => {
-  const cases: Array<[string, any, any, boolean]> = [
-    ["number text <- \"abc\"", { type: "text", inputType: "number" }, "abc", false],
-    ["dropdown <- unknown choice", { type: "dropdown", choices: ["a"] }, "z", false],
-    ["matrix <- unknown column", matrixJson, { r1: "zz" }, false],
-    ["matrixdynamic <- unknown key", dynamicMatrix, [{ c: "x", zzz: 1 }], true],
-    ["multipletext <- unknown item", multipleTextJson, { i1: "a", zz: "x" }, true],
+describe("verifyData: validate() is unchanged, clearIncorrectValues() removes what verifyData() reports", () => {
+  const cases: Array<[string, any, any]> = [
+    ["number text <- \"abc\"", { type: "text", inputType: "number" }, "abc"],
+    ["dropdown <- unknown choice", { type: "dropdown", choices: ["a"] }, "z"],
+    ["matrix <- unknown column", matrixJson, { r1: "zz" }],
+    ["matrixdynamic <- unknown key", dynamicMatrix, [{ c: "x", zzz: 1 }]],
+    ["multipletext <- unknown item", multipleTextJson, { i1: "a", zz: "x" }],
   ];
-  test("What verifyData() reports, clearIncorrectValues(true) removes", () => {
-    cases.forEach(([label, question, value, passesValidate]) => {
+  test("validate() never reports a data issue", () => {
+    cases.forEach(([label, question, value]) => {
       const survey = createQuestionSurvey(question, value);
       expect(survey.verifyData().length > 0, label + ": reported by verifyData()").toBe(true);
-      expect(survey.validate(false, false), label + ": validate()").toBe(passesValidate);
-      survey.clearIncorrectValues(true);
-      expect(survey.verifyData(), label + ": nothing left after clearing").toEqual([]);
-      expect(survey.validate(false, false), label + ": validate() passes after clearing").toBe(true);
+      expect(survey.validate(true, false), label + ": validate() passes").toBe(true);
+      expect(survey.getQuestionByName("q").errors, label + ": no error is set").toEqual([]);
     });
   });
-  test("With keepIncorrectValues an unknown choice survives clearing and stays reported", () => {
+  test("What verifyData() reports, clearIncorrectValues(true) removes", () => {
+    cases.forEach(([label, question, value]) => {
+      const survey = createQuestionSurvey(question, value);
+      survey.clearIncorrectValues(true);
+      expect(survey.verifyData(), label + ": nothing left after clearing").toEqual([]);
+    });
+  });
+  test("validate() on a select question still clears an unknown choice, as it always did", () => {
     const survey = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] }, { q: "z" });
-    survey.keepIncorrectValues = true;
-    survey.clearIncorrectValues(true);
-    expect(survey.data, "the value is kept").toEqual({ q: "z" });
-    expect(survey.validate(false, false), "validate() passes").toBe(true);
-    expect(survey.verifyData().length, "verifyData() still reports it").toBe(1);
+    expect(survey.validate(false, false), "validate(false) passes").toBe(true);
+    expect(survey.data, "and has removed the value").toEqual({});
+    const kept = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] }, { q: "z" });
+    kept.keepIncorrectValues = true;
+    expect(kept.validate(false, false), "with keepIncorrectValues validate(false) passes").toBe(true);
+    expect(kept.data, "and keeps the value").toEqual({ q: "z" });
+    kept.clearIncorrectValues(true);
+    expect(kept.data, "clearIncorrectValues() keeps it too").toEqual({ q: "z" });
+    expect(kept.verifyData().length, "verifyData() still reports it").toBe(1);
   });
 });
 

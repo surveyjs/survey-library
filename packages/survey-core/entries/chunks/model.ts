@@ -143,7 +143,6 @@ export {
   HorizontalAlignment,
   VerticalAlignment,
   DataIssueType,
-  IIncorrectValueInfo,
   IValueChecks,
   IVerifyDataOptions,
   ISurveyVerifyDataOptions,

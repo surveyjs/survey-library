@@ -844,8 +844,8 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    // keepIncorrectValues is not read here: getValidateChecks() and clearIncorrectValues() fold it
-    // into choiceValues: false, and verifyData() ignores it.
+    // keepIncorrectValues is not read here: clearIncorrectValues() folds it into choiceValues: false
+    // and verifyData() ignores it.
     if (!context.checks.choiceValues) return true;
     if (!ItemValue.getItemByValue(this.visibleRateValues, val)) {
       context.addIssue("invalidChoiceValue", undefined, val, this);

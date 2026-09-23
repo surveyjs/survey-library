@@ -3,20 +3,23 @@ import { Helpers } from "../src/helpers";
 import { IncorrectValueError } from "../src/error";
 import { describe, expect, test, vi } from "vitest";
 
-// The server flow: assign a payload from an untrusted client and validate it.
-// isValueCorrect()/validate() must not modify the data, clearIncorrectValues() removes what they report.
-function checkValue(question: any, value: any): { isCorrect: boolean, isValid: boolean, errorTypes: Array<string>, dataAfterValidate: any, dataAfterClear: any } {
+// The server flow: assign a payload from an untrusted client and check it. isValueCorrect() and
+// verifyData() report and never modify the data; clearIncorrectValues() removes what they report.
+// validate() is the respondent-facing validation and reports none of it; on a select question it still
+// clears an unknown choice, as it always did.
+function checkValue(question: any, value: any): { isCorrect: boolean, issueCount: number, isValid: boolean, errorTypes: Array<string>, dataAfterValidate: any, dataAfterClear: any } {
   const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
   const survey = new SurveyModel({ elements: [Helpers.createCopy({ name: "q", ...question })] });
   survey.data = { q: value };
   const q = survey.getQuestionByName("q");
   const isCorrect = q.isValueCorrect();
+  const issueCount = survey.verifyData().length;
   const isValid = survey.validate(false, false);
   const dataAfterValidate = Helpers.createCopy(survey.data);
   q.validate(true);
   const errorTypes = q.getAllErrors().map(error => error.getErrorType());
   survey.clearIncorrectValues(true);
-  const res = { isCorrect, isValid, errorTypes, dataAfterValidate, dataAfterClear: survey.data };
+  const res = { isCorrect, issueCount, isValid, errorTypes, dataAfterValidate, dataAfterClear: survey.data };
   warn.mockRestore();
   return res;
 }
@@ -25,25 +28,22 @@ function createSurvey(question: any, value: any): SurveyModel {
   survey.data = { q: JSON.parse(JSON.stringify(value)) };
   return survey;
 }
-function getIncorrectValueErrors(question: any): Array<any> {
-  return question.getAllErrors().filter((error: any) => error.getErrorType() === "incorrectvalue");
-}
 const dynamicMatrix = { type: "matrixdynamic", columns: [{ name: "c", cellType: "text" }] };
 const dynamicPanel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t" }] };
 const matrixJson = { type: "matrix", rows: ["r1"], columns: ["c1"] };
 const matrixDropdownJson = { type: "matrixdropdown", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] };
 const multipleTextJson = { type: "multipletext", items: [{ name: "i1" }] };
-// label, question, a value that mixes a known and an unknown key, the value after clearing, the reported keys
-const unknownKeyCases: Array<[string, any, any, any, Array<string>]> = [
-  ["matrixdynamic", dynamicMatrix, [{ c: "x", zzz: 1 }], [{ c: "x" }], ["[0].zzz"]],
-  ["paneldynamic", dynamicPanel, [{ t: "x", zzz: 1 }], [{ t: "x" }], ["[0].zzz"]],
-  ["matrix", matrixJson, { r1: "c1", zz: "c1" }, { r1: "c1" }, ["zz"]],
-  ["matrixdropdown", matrixDropdownJson, { r1: { c: 1 }, zz: { c: 2 } }, { r1: { c: 1 } }, ["zz"]],
-  ["multipletext", multipleTextJson, { i1: "a", zz: "x" }, { i1: "a" }, ["zz"]],
+// label, question, a value that mixes a known and an unknown key, the value after clearing, the location of the key
+const unknownKeyCases: Array<[string, any, any, any, Array<string | number>]> = [
+  ["matrixdynamic", dynamicMatrix, [{ c: "x", zzz: 1 }], [{ c: "x" }], ["q", 0, "zzz"]],
+  ["paneldynamic", dynamicPanel, [{ t: "x", zzz: 1 }], [{ t: "x" }], ["q", 0, "zzz"]],
+  ["matrix", matrixJson, { r1: "c1", zz: "c1" }, { r1: "c1" }, ["q", "zz"]],
+  ["matrixdropdown", matrixDropdownJson, { r1: { c: 1 }, zz: { c: 2 } }, { r1: { c: 1 } }, ["q", "zz"]],
+  ["multipletext", multipleTextJson, { i1: "a", zz: "x" }, { i1: "a" }, ["q", "zz"]],
 ];
 
 describe("Question.isValueCorrect", () => {
-  test("An incorrect value is reported by validate() and the data is not modified", () => {
+  test("An incorrect value is reported by isValueCorrect() and verifyData(), never by validate()", () => {
     const cases: Array<[string, any, any]> = [
       ["number text <- \"abc\"", { type: "text", inputType: "number" }, "abc"],
       ["number text <- object", { type: "text", inputType: "number" }, { x: 1 }],
@@ -68,8 +68,31 @@ describe("Question.isValueCorrect", () => {
     cases.forEach(([label, question, value]) => {
       const res = checkValue(question, value);
       expect(res.isCorrect, label + ": isValueCorrect").toBe(false);
-      expect(res.isValid, label + ": validate").toBe(false);
-      expect(res.dataAfterValidate, label + ": validate does not modify data").toEqual({ q: value });
+      expect(res.issueCount > 0, label + ": verifyData").toBe(true);
+      expect(res.isValid, label + ": validate() passes").toBe(true);
+      expect(res.errorTypes, label + ": validate() sets no error").toEqual([]);
+    });
+  });
+  test("validate() does not modify the data, except that a select question clears an unknown choice as before", () => {
+    const untouched: Array<[string, any, any]> = [
+      ["number text <- \"abc\"", { type: "text", inputType: "number" }, "abc"],
+      ["boolean <- 'maybe'", { type: "boolean" }, "maybe"],
+      ["rating <- out of range", { type: "rating", rateMax: 5 }, 99],
+      ["matrixdynamic <- string", dynamicMatrix, "oops"],
+      ["matrix <- unknown column", matrixJson, { r1: "zz" }],
+      ["multipletext <- unknown item", multipleTextJson, { i1: "a", zz: "x" }],
+    ];
+    untouched.forEach(([label, question, value]) => {
+      const res = checkValue(question, value);
+      expect(res.dataAfterValidate, label + ": validate does not modify the data").toEqual({ q: value });
+    });
+    const cleared: Array<[string, any, any, any]> = [
+      ["radiogroup <- unknown", { type: "radiogroup", choices: ["a", "b"] }, "z", {}],
+      ["checkbox <- unknown", { type: "checkbox", choices: ["a", "b"] }, ["a", "z"], { q: ["a"] }],
+    ];
+    cleared.forEach(([label, question, value, expected]) => {
+      const res = checkValue(question, value);
+      expect(res.dataAfterValidate, label + ": validate(false) clears the unknown choice").toEqual(expected);
     });
   });
   test("A nested incorrect value is reported by the nested question", () => {
@@ -80,8 +103,8 @@ describe("Question.isValueCorrect", () => {
     ];
     cases.forEach(([label, question, value]) => {
       const res = checkValue(question, value);
-      expect(res.isValid, label + ": validate").toBe(false);
-      expect(res.dataAfterValidate, label + ": validate does not modify data").toEqual({ q: value });
+      expect(res.issueCount, label + ": one issue").toBe(1);
+      expect(res.isValid, label + ": validate() passes").toBe(true);
     });
   });
   test("A correct value is not reported", () => {
@@ -111,13 +134,10 @@ describe("Question.isValueCorrect", () => {
     cases.forEach(([label, question, value]) => {
       const res = checkValue(question, value);
       expect(res.isCorrect, label + ": isValueCorrect").toBe(true);
+      expect(res.issueCount, label + ": verifyData").toBe(0);
       expect(res.isValid, label + ": validate").toBe(true);
       expect(res.dataAfterClear, label + ": clearIncorrectValues keeps the value").toEqual({ q: value });
     });
-  });
-  test("validate() adds the 'incorrectvalue' error", () => {
-    const res = checkValue(dynamicMatrix, "oops");
-    expect(res.errorTypes).toEqual(["incorrectvalue"]);
   });
   test("clearIncorrectValues() removes an incorrect value and never throws", () => {
     const cases: Array<[string, any, any, any]> = [
@@ -140,12 +160,21 @@ describe("Question.isValueCorrect", () => {
       expect(res.dataAfterClear, label).toEqual(expected);
     });
   });
-  test("keepIncorrectValues turns off the choices check", () => {
+  test("keepIncorrectValues keeps an unknown choice through validate() and clearIncorrectValues(); isValueCorrect() still reports it", () => {
     const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }] });
     survey.keepIncorrectValues = true;
     survey.data = { q: "z" };
-    expect(survey.getQuestionByName("q").isValueCorrect()).toBe(true);
-    expect(survey.validate(false, false)).toBe(true);
+    expect(survey.getQuestionByName("q").isValueCorrect(), "isValueCorrect ignores keepIncorrectValues").toBe(false);
+    expect(survey.validate(false, false), "validate passes").toBe(true);
+    expect(survey.data, "validate keeps the value").toEqual({ q: "z" });
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "clearIncorrectValues keeps the value").toEqual({ q: "z" });
+    const perQuestion = new SurveyModel({ elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }] });
+    (<any>perQuestion.getQuestionByName("q")).keepIncorrectValues = true;
+    perQuestion.data = { q: "z" };
+    expect(perQuestion.validate(false, false), "the question-level flag: validate passes").toBe(true);
+    perQuestion.clearIncorrectValues(true);
+    expect(perQuestion.data, "the question-level flag: the value is kept").toEqual({ q: "z" });
   });
   test("Questions that share a valueName know the keys of each other", () => {
     const cases: Array<[string, Array<any>, any, any]> = [
@@ -164,20 +193,14 @@ describe("Question.isValueCorrect", () => {
       const survey = new SurveyModel({ elements: elements });
       survey.data = { shared: value };
       // A key owned by the sibling question is never an unknown key.
-      expect(survey.validate(false, false), label + ": the shared value is correct").toBe(true);
-      expect(survey.verifyData(), label + ": the shared value is correct for verifyData()").toEqual([]);
+      expect(survey.verifyData(), label + ": the shared value is correct").toEqual([]);
       survey.clearIncorrectValues(true);
       expect(survey.data, label + ": clearIncorrectValues keeps the shared value").toEqual({ shared: value });
       survey.data = { shared: JSON.parse(JSON.stringify(valueWithUnknownKey)) };
-      expect(survey.validate(false, false), label + ": a key that nobody owns is not reported by default").toBe(true);
-      expect(survey.verifyData().length, label + ": a key that nobody owns is reported once by verifyData()").toBe(1);
+      expect(survey.validate(false, false), label + ": validate() does not report a key that nobody owns").toBe(true);
+      expect(survey.verifyData().length, label + ": verifyData() reports it once").toBe(1);
       survey.clearIncorrectValues(true);
       expect(survey.data, label + ": clearIncorrectValues removes the key that nobody owns").toEqual({ shared: value });
-      // The default checks do not stop clearing either.
-      survey.data = { shared: JSON.parse(JSON.stringify(valueWithUnknownKey)) };
-      expect(survey.validate(false, false), label + ": not reported by default, again").toBe(true);
-      survey.clearIncorrectValues(true);
-      expect(survey.data, label + ": clearIncorrectValues removes it with the default checks").toEqual({ shared: value });
     });
   });
   test("A matrix detail panel question with valueName is a known key", () => {
@@ -191,13 +214,13 @@ describe("Question.isValueCorrect", () => {
     survey.data = { q: value };
     const q = survey.getQuestionByName("q");
     expect(q.isValueCorrect(), "isValueCorrect").toBe(true);
-    expect(survey.validate(false, false), "validate").toBe(true);
+    expect(survey.verifyData(), "verifyData").toEqual([]);
     survey.clearIncorrectValues(true);
     expect(survey.data, "clearIncorrectValues keeps the detail values").toEqual({ q: value });
     // The name of a detail question that stores its value under a valueName is not a known key.
     survey.data = { q: [{ c: "x", detail: "y" }] };
-    expect(q.isValueCorrect(), "not reported by default").toBe(true);
-    expect(q.isValueCorrect({ unknownProperties: true }), "the question name is not the key when valueName is set").toBe(false);
+    expect(q.isValueCorrect(), "the question name is not the key when valueName is set").toBe(false);
+    expect(q.isValueCorrect({ unknownProperties: false }), "with the check off").toBe(true);
     const issues = survey.verifyData();
     expect(issues.length, "one issue").toBe(1);
     expect(issues[0].type, "the issue type").toBe("unknownProperty");
@@ -207,37 +230,21 @@ describe("Question.isValueCorrect", () => {
     expect(survey.data, "clearIncorrectValues removes what was reported").toEqual({ q: [{ c: "x" }] });
     expect(survey.verifyData(), "no issue after clearing").toEqual([]);
   });
-  test("By default an unknown key is not reported and clearIncorrectValues() removes it", () => {
-    unknownKeyCases.forEach(([label, question, value, cleared]) => {
+  test("An unknown key is reported by isValueCorrect() and verifyData(), not by validate(), and clearIncorrectValues() removes it", () => {
+    unknownKeyCases.forEach(([label, question, value, cleared, segments]) => {
       const res = checkValue(question, value);
-      expect(res.isCorrect, label + ": isValueCorrect").toBe(true);
+      expect(res.isCorrect, label + ": isValueCorrect").toBe(false);
+      expect(res.issueCount, label + ": one issue").toBe(1);
       expect(res.isValid, label + ": validate").toBe(true);
       expect(res.errorTypes, label + ": no error").toEqual([]);
       expect(res.dataAfterValidate, label + ": validate does not modify the data").toEqual({ q: value });
       expect(res.dataAfterClear, label + ": clearIncorrectValues removes the unknown key").toEqual({ q: cleared });
-    });
-  });
-  test("An unknown key is reported by verifyData() and by isValueCorrect({ unknownProperties: true })", () => {
-    unknownKeyCases.forEach(([label, question, value, cleared, keys]) => {
-      // Route 1: verifyData().
-      let survey = createSurvey(question, value);
-      expect(survey.verifyData().length, label + ": verifyData()").toBe(1);
+      const survey = createSurvey(question, value);
+      const issues = survey.verifyData();
+      expect(issues[0].type, label + ": the issue type").toBe("unknownProperty");
+      expect(issues[0].segments, label + ": the issue location").toEqual(segments);
       expect(survey.data, label + ": verifyData() does not modify the data").toEqual({ q: value });
-      // Route 2: question.isValueCorrect().
-      survey = createSurvey(question, value);
-      const q = survey.getQuestionByName("q");
-      expect(q.isValueCorrect(), label + ": isValueCorrect by default").toBe(true);
-      expect(q.isValueCorrect({ unknownProperties: true }), label + ": isValueCorrect({ unknownProperties: true })").toBe(false);
-      // The keys are the same on the error a consumer builds from the question.
-      const info = (<any>q).getIncorrectValueInfo({ valueTypes: true, choiceValues: true, unknownProperties: true });
-      expect(info.check, label + ": check").toBe("unknownProperty");
-      expect(info.keys, label + ": keys").toEqual(keys);
-      expect(new IncorrectValueError(null, q, info.check, info.keys).getText(), label + ": error text")
-        .toBe("The value contains unknown keys: " + keys.join(", ") + ".");
-      // The invariant: what verifyData() reports, clearIncorrectValues() removes.
-      survey.clearIncorrectValues(true);
-      expect(survey.data, label + ": clearIncorrectValues removes the reported keys").toEqual({ q: cleared });
-      expect(survey.verifyData(), label + ": no issue after clearing").toEqual([]);
+      expect(survey.getQuestionByName("q").isValueCorrect({ unknownProperties: false }), label + ": with the check off").toBe(true);
     });
   });
   test("The checks reach the nested questions", () => {
@@ -257,45 +264,22 @@ describe("Question.isValueCorrect", () => {
     survey.clearIncorrectValues(true);
     expect(survey.data, "clearIncorrectValues removes the nested key").toEqual({ q: [{ m: [{ c: "x" }] }] });
   });
-  test("error.check names the failed check", () => {
-    const cases: Array<[string, any, any, string]> = [
-      ["number text <- abc", { type: "text", inputType: "number" }, "abc", "invalidValueType"],
-      ["boolean <- 'maybe'", { type: "boolean" }, "maybe", "invalidValueType"],
-      ["matrixdynamic <- string", dynamicMatrix, "oops", "invalidValueType"],
-      ["rating <- out of range", { type: "rating", rateMax: 5 }, 99, "invalidChoiceValue"],
-      ["matrix <- unknown column", matrixJson, { r1: "zz" }, "invalidChoiceValue"],
-    ];
-    cases.forEach(([label, question, value, check]) => {
-      const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
-      const survey = createSurvey(question, value);
-      const q = survey.getQuestionByName("q");
-      expect(survey.validate(true, false), label + ": validate").toBe(false);
-      const errors = getIncorrectValueErrors(q);
-      expect(errors.length, label + ": one incorrectvalue error").toBe(1);
-      expect(errors[0].check, label + ": error.check").toBe(check);
-      expect(errors[0].keys, label + ": error.keys").toEqual([]);
-      expect(errors[0].getText(), label + ": error text").toBe("The value is incorrect.");
-      warn.mockRestore();
-    });
+  test("IncorrectValueError is available to a consumer that turns an issue into a question error", () => {
+    const survey = createSurvey(dynamicMatrix, [{ c: "x", zzz: 1 }]);
+    const q = survey.getQuestionByName("q");
+    const issue = survey.verifyData()[0];
+    const withKeys = new IncorrectValueError(null, q, issue.type, [issue.path]);
+    expect(withKeys.getErrorType()).toBe("incorrectvalue");
+    expect(withKeys.check).toBe("unknownProperty");
+    expect(withKeys.getText()).toBe("The value contains unknown keys: q[0].zzz.");
+    expect(new IncorrectValueError(null, q).getText(), "the default text").toBe("The value is incorrect.");
+    expect(q.errors.length, "the library itself sets no such error").toBe(0);
   });
   test("choiceValues: false does not report an unknown choice", () => {
     const survey = createSurvey({ type: "dropdown", choices: ["a", "b"] }, "z");
-    expect(survey.validate(false, false), "reported by default").toBe(false);
+    expect(survey.getQuestionByName("q").isValueCorrect(), "reported by default").toBe(false);
     expect(survey.verifyData({ choiceValues: false }), "not reported by verifyData()").toEqual([]);
     expect(survey.getQuestionByName("q").isValueCorrect({ choiceValues: false }), "isValueCorrect").toBe(true);
-  });
-  test("keepIncorrectValues suppresses the choices check of validate() but not the value type", () => {
-    let survey = createSurvey({ type: "dropdown", choices: ["a", "b"] }, "z");
-    survey.keepIncorrectValues = true;
-    expect(survey.validate(false, false), "choices").toBe(true);
-    expect(survey.getQuestionByName("q").isValueCorrect(), "isValueCorrect").toBe(true);
-    // verifyData() ignores keepIncorrectValues: it is not a JSON property of the form.
-    expect(survey.verifyData().length, "verifyData() still reports it").toBe(1);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
-    survey = createSurvey({ type: "text", inputType: "number" }, "abc");
-    survey.keepIncorrectValues = true;
-    expect(survey.validate(false, false), "valueType").toBe(false);
-    warn.mockRestore();
   });
   test("A text or comment question keeps a value of another shape, a question derived from it may store it", () => {
     const cases: Array<[string, any, any]> = [
@@ -306,7 +290,7 @@ describe("Question.isValueCorrect", () => {
     cases.forEach(([label, question, value]) => {
       const res = checkValue(question, value);
       expect(res.isCorrect, label + ": isValueCorrect").toBe(true);
-      expect(res.isValid, label + ": validate").toBe(true);
+      expect(res.issueCount, label + ": verifyData").toBe(0);
       expect(res.dataAfterClear, label + ": clearIncorrectValues keeps the value").toEqual({ q: value });
     });
   });
@@ -318,7 +302,7 @@ describe("Question.isValueCorrect", () => {
     const q = survey.getQuestionByName("q");
     q.value = new CustomValue(1);
     expect(q.isValueCorrect(), "isValueCorrect").toBe(true);
-    expect(survey.validate(false, false), "validate").toBe(true);
+    expect(survey.verifyData(), "verifyData").toEqual([]);
     survey.clearIncorrectValues(true);
     expect(q.value instanceof CustomValue, "clearIncorrectValues keeps the value").toBe(true);
   });

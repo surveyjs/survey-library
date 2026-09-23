@@ -20,20 +20,12 @@ export interface ISurveyValidation {
 }
 
 // The kind of a finding verifyData() reports. It is also the vocabulary of the value checks:
-// IValueChecks names the same three checks and IncorrectValueError.check reports the failed one.
+// IValueChecks names the same three checks and IncorrectValueError.check names one of them.
 export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidChoiceValue" | "changedValue";
-// What a failed value check reports: Question.getIncorrectValueInfo() builds it from the issues of
-// verifyOwnValue(), and the IncorrectValueError built from it carries it to the caller.
-export interface IIncorrectValueInfo {
-  // Never "changedValue": that finding exists on the survey level only and never becomes an error.
-  check: DataIssueType;
-  // The unknown properties, for the unknownProperty check only, rendered relative to the question:
-  // "[0].zzz" for an item of a dynamic panel or a dynamic matrix, "r1.c" for a named row, "zz" for
-  // a key of the question value itself.
-  keys?: Array<string>;
-}
-// The value checks that run on a question value. Every member is optional: verifyData() runs all
-// three unless a member is set to false, validate() runs the fixed set (Question.getValidateChecks()).
+// The value checks that run on a question value. Every member is optional: verifyData() and
+// isValueCorrect() run all three unless a member is set to false, and clearIncorrectValues() removes
+// what they report, keeping an unknown choice when keepIncorrectValues asks for it. validate() runs
+// none of them: it is the respondent-facing validation and its behavior does not depend on these.
 export interface IValueChecks {
   // A key of the data that no question, valueName, comment / totals suffix or calculated value
   // with includeIntoResult owns. Root keys and keys inside a container value alike.

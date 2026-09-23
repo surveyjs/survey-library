@@ -32,7 +32,6 @@ export type {
   ISurveyValidatorOwner,
   ISurveyValidation,
   DataIssueType,
-  IIncorrectValueInfo,
   IValueChecks,
   IVerifyDataOptions,
   ISurveyVerifyDataOptions,

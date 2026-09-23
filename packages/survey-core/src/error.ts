@@ -117,8 +117,10 @@ export class OtherEmptyError extends SurveyError {
   }
 }
 export class IncorrectValueError extends SurveyError {
-  // check tells which of the value checks failed and keys lists the unknown properties of the value,
-  // for the "unknownProperty" check only, rendered relative to the question: "[0].zzz", "r1.c", "zz".
+  // validate() does not raise this error: verifyData() reports data issues and clearIncorrectValues()
+  // removes them. It is here for a consumer that turns an IDataIssue into a question error: check is
+  // the issue type and keys lists the unknown properties, for "unknownProperty" only, in the form the
+  // consumer chooses; the default text joins them with ", ".
   constructor(public text: string = null, errorOwner: ISurveyErrorOwner = null,
     public check: DataIssueType = "invalidValueType", public keys: Array<string> = []) {
     super(text, errorOwner);

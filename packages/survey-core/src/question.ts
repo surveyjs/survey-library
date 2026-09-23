@@ -1,11 +1,11 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IVerifyDataOptions, IIncorrectValueInfo, IDataIssue, DataIssueType } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IVerifyDataOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
-import { AnswerRequiredError, CustomError, IncorrectValueError } from "./error";
+import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -2770,14 +2770,6 @@ export class Question extends SurveyElement<Question>
   }
   private collectErrors(qErrors: Array<SurveyError>, context: ValidationContext): void {
     this.onCheckForErrors(qErrors, context.isOnValueChanged, context.fireCallback);
-    // The value checks are reported here and not in onCheckForErrors(), which many question types
-    // and third-party code override.
-    if (!context.isOnValueChanged) {
-      const info = this.getIncorrectValueInfo(this.getValidateChecks());
-      if (!!info) {
-        qErrors.push(new IncorrectValueError(null, this, info.check, info.keys));
-      }
-    }
     if (qErrors.length > 0 || !this.canRunValidators(context.isOnValueChanged)) return;
     const errors = this.runValidators(context);
     if (errors.length > 0) {
@@ -2946,31 +2938,20 @@ export class Question extends SurveyElement<Question>
   // question of a finding is the instance that actually holds the value.
   public verifyNestedValues(context: IVerifyDataContext): void { }
   // Tells whether the question can hold the value it has: the value has the JSON shape the question
-  // stores and refers to existing choices, rows or items only. It never modifies the value or the survey data.
-  // validate() reports an incorrect value as an error and clearIncorrectValues() removes it.
-  // Without the argument it runs the checks of validate(); a member set here replaces that default.
+  // stores, refers to existing choices, rows or items only and has no key that nobody owns. It is the
+  // boolean form of verifyData() for the question's own value, nested values excluded, with the same
+  // defaults: the three checks are on unless a member is set to false, keepIncorrectValues is ignored.
+  // It never modifies the value or the survey data; clearIncorrectValues() removes what it reports.
   public isValueCorrect(checks?: IValueChecks): boolean {
-    const res = this.getValidateChecks();
-    if (!!checks) {
-      if (checks.valueTypes !== undefined) res.valueTypes = checks.valueTypes;
-      if (checks.choiceValues !== undefined) res.choiceValues = checks.choiceValues;
-      if (checks.unknownProperties !== undefined) res.unknownProperties = checks.unknownProperties;
-    }
-    return !this.hasIncorrectValue(res);
-  }
-  // The checks validate() runs: the value shape always, the choices unless keepIncorrectValues is set,
-  // an unknown property never. An extra key is a finding about the payload, not something a respondent
-  // can see or fix, so verifyData() is the method that reports it.
-  protected getValidateChecks(): IValueChecks {
-    return { valueTypes: true, choiceValues: !this.isKeepIncorrectValues, unknownProperties: false };
+    return !this.hasIncorrectValue(checks);
   }
   // clearIncorrectValues() removes what any check reports, an unknown property included, and keeps
   // an unknown choice when keepIncorrectValues asks for it.
   protected getClearIncorrectValuesChecks(): IValueChecks {
     return { ...allValueChecks, choiceValues: !this.isKeepIncorrectValues };
   }
-  // keepIncorrectValues is not a JSON property of the form, so verifyData() ignores it. It is read
-  // here only, by the checks validate() and clearIncorrectValues() run.
+  // keepIncorrectValues is not a JSON property of the form, so verifyData() and isValueCorrect()
+  // ignore it. It is read by clearIncorrectValues() only.
   protected get isKeepIncorrectValues(): boolean {
     return !!this.survey?.keepIncorrectValues;
   }
@@ -2980,18 +2961,6 @@ export class Question extends SurveyElement<Question>
     context.pushSegment(this.getValueName());
     this.verifyOwnValue(context);
     return context.hasIssues;
-  }
-  // The single boolean of isValueCorrect() is not enough for the error: it has to name the check
-  // that failed and, for unknownProperty, the keys. The keys are rendered relative to the question.
-  protected getIncorrectValueInfo(checks: IValueChecks): IIncorrectValueInfo {
-    const context = createVerifyDataContext(checks, []);
-    context.pushSegment(this.getValueName());
-    this.verifyOwnValue(context);
-    const issues = context.issues;
-    if (issues.length === 0) return undefined;
-    const keys = issues.filter(issue => issue.type === "unknownProperty")
-      .map(issue => renderDataPath(issue.segments.slice(1)));
-    return { check: issues[0].type, keys: keys };
   }
   // A value that is an instance of a class, a model object or a File for example, is not survey data.
   // A question may hold it on purpose, the property editors in Survey Creator do, so it is not checked.

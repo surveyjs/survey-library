@@ -197,7 +197,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     let res = super.getUIState();
     const state: IFilterElementUIState = {};
     let isEmpty = true;
-    if (this.allowMultipleItems && this.activeItemName !== (this.defaultItem || "")) {
+    // The baseline is the default the control could actually apply, not the raw defaultItem:
+    // applyDefaultItem() refuses a defaultItem that names no item, so activeItemName stays "" and
+    // comparing against the raw name would make an untouched control store activeItem: "". That
+    // would both produce a spurious save and, once the author fixed or added the item, keep the now
+    // valid default from ever applying to a returning respondent. The same holds while items are
+    // still on their way from a source and nothing resolves yet.
+    const appliedDefault = !!this.getItemByName(this.defaultItem) ? this.defaultItem : "";
+    if (this.allowMultipleItems && this.activeItemName !== appliedDefault) {
       state.activeItem = this.activeItemName;
       isEmpty = false;
     }
@@ -258,7 +265,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     // A defaultItem that names nothing leaves the control unfiltered, which is what "no active item"
     // means anyway: an author typo must not throw and must not filter records away.
     if (!!this.defaultItem && !!this.getItemByName(this.defaultItem)) {
-      this.activeItemName = this.defaultItem;
+      // Written through setPropertyValue and not through the setter: applying the authored default
+      // is not an end-user change and must not raise onUIStateChanged. The isLoadingFromJson guard
+      // in raiseUIStateChanged() is no help here - SurveyElement reads that flag off the survey
+      // (survey-element.ts:698) and SurveyModel.endLoadingFromJson() clears it before it calls
+      // doElementsOnLoad(), which is what runs onSurveyLoad().
+      this.setPropertyValue("activeItemName", this.defaultItem);
+      this.updateFilterExpression();
     }
   }
   private onFieldAdded(field: FilterField): void {

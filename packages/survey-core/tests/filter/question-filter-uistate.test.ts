@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { createSurvey } from "./filter-test-helpers";
 import { QuestionFilterModel } from "../../src/question_filter";
+import { SurveyModel } from "../../src/survey";
 
 describe("QuestionFilterModel: uiState", () => {
   test("an untouched control contributes nothing to survey.uiState", () => {
@@ -45,10 +46,37 @@ describe("QuestionFilterModel: uiState", () => {
     survey.onUIStateChanged.add((_, o) => reasons.push(o.changedProperty));
     q.searchString = "de";
     expect(reasons, "#1").toEqual(["filter"]);
-    reasons.length = 0;
+    q.toggleItem("adults");
+    expect(reasons, "#2").toEqual(["filter", "filter"]);
     const state = survey.uiState;
-    survey.uiState = state;
-    expect(reasons, "#2").toHaveLength(0);
+    // The restore has to be a real change on the target, or the suppression flag is not what keeps
+    // the event quiet: this fresh control has "adults" applied and an empty search box, and the
+    // state switches the item off and fills the box.
+    const restored = createSurvey();
+    const restoredReasons: Array<string> = [];
+    restored.onUIStateChanged.add((_, o) => restoredReasons.push(o.changedProperty));
+    restored.uiState = state;
+    const q2 = <QuestionFilterModel>restored.getQuestionByName("f1");
+    expect(q2.activeItemName, "#3").toBe("");
+    expect(q2.searchString, "#4").toBe("de");
+    expect(restoredReasons, "#5").toHaveLength(0);
+  });
+  test("a defaultItem that names no item stores nothing for an untouched control", () => {
+    const survey = createSurvey({ defaultItem: "typo" });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(q.activeItemName, "#1").toBe("");
+    expect(survey.uiState.questions, "#2").toBe(undefined);
+  });
+  test("applying the authored defaultItem on load does not fire onUIStateChanged", () => {
+    const survey = new SurveyModel();
+    const reasons: Array<string> = [];
+    survey.onUIStateChanged.add((_, o) => reasons.push(o.changedProperty));
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1",
+      items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(q.activeItemName, "#1").toBe("adults");
+    // The page raises its own "shown" while loading; only "filter" is this control's business.
+    expect(reasons.filter((r: string) => r === "filter"), "#2").toEqual([]);
   });
   test("updateActiveItem bakes the search into the item and clears the search box", () => {
     const survey = createSurvey();

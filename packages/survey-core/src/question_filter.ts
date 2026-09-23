@@ -1,6 +1,8 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
+import { Helpers } from "./helpers";
+import { IElementUIState, IFilterElementUIState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { buildSearchFragment } from "./filter/filter-expression";
@@ -11,6 +13,13 @@ import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 // it never assigns this.value, so it stays out of survey.data, out of the condition editor and out
 // of validation. What the end user does with it is UI state, not survey data.
 export class QuestionFilterModel extends QuestionNonValue {
+  // The searchFields the JSON authored, taken once the JSON is read. getUIState() stores searchFields
+  // only when they differ from it, so an authored value is not duplicated into the saved state and
+  // no extra serializable "dirty" property is needed.
+  private authoredSearchFields: Array<string>;
+  // Restoring is not a new change: it must not raise onUIStateChanged, or a host that saves on every
+  // change would save immediately after every restore.
+  private isSettingUIState: boolean = false;
   private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
   };
@@ -63,7 +72,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // authored value, so guarding it would make loading order-dependent and would silently drop
   // searchFields from a survey that also sets allowChangeSearchFields to false. A renderer must
   // call setSearchFields(), never assign this.
-  public set searchFields(val: Array<string>) { this.setPropertyValue("searchFields", val); }
+  public set searchFields(val: Array<string>) {
+    this.setPropertyValue("searchFields", val);
+    this.raiseUIStateChanged();
+  }
 
   public get allowChangeSearchFields(): boolean { return this.getPropertyValue("allowChangeSearchFields"); }
   public set allowChangeSearchFields(val: boolean) { this.setPropertyValue("allowChangeSearchFields", val); }
@@ -72,7 +84,12 @@ export class QuestionFilterModel extends QuestionNonValue {
   // runtime state and never authored. It is not named searchText because Base.searchText(text,
   // founded) is a method PanelModelBase.searchText calls on every element of a survey.
   public get searchString(): string { return this.getPropertyValue("searchString", ""); }
-  public set searchString(val: string) { this.setPropertyValue("searchString", val || ""); }
+  public set searchString(val: string) {
+    val = val || "";
+    if (val === this.searchString) return;
+    this.setPropertyValue("searchString", val);
+    this.raiseUIStateChanged();
+  }
 
   // The composed output of the control. Not registered either: it is computed, never authored.
   public get filterExpression(): string { return this.getPropertyValue("filterExpression", ""); }
@@ -121,6 +138,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (val === this.activeItemName) return;
     this.setPropertyValue("activeItemName", val);
     this.updateFilterExpression();
+    this.raiseUIStateChanged();
   }
   public get activeItem(): FilterItem {
     // Single mode: there is one filter and it is always on.
@@ -165,10 +183,58 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.searchString = "";
   }
 
+  public endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    const fields = this.searchFields;
+    this.authoredSearchFields = Array.isArray(fields) ? [].concat(fields) : fields;
+  }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.applyDefaultItem();
     this.updateFilterExpression();
+  }
+  protected getUIState(): IElementUIState {
+    let res = super.getUIState();
+    const state: IFilterElementUIState = {};
+    let isEmpty = true;
+    if (this.allowMultipleItems && this.activeItemName !== (this.defaultItem || "")) {
+      state.activeItem = this.activeItemName;
+      isEmpty = false;
+    }
+    if (!!this.searchString) { state.searchString = this.searchString; isEmpty = false; }
+    if (!Helpers.isTwoValueEquals(this.searchFields, this.authoredSearchFields)) {
+      state.searchFields = [].concat(this.searchFields || []);
+      isEmpty = false;
+    }
+    if (isEmpty) return res;
+    res = res || {};
+    res.filter = state;
+    return res;
+  }
+  protected setUIState(state: IElementUIState): void {
+    super.setUIState(state);
+    const filter = !!state ? state.filter : undefined;
+    if (!filter) return;
+    this.isSettingUIState = true;
+    // A key that is not there was not changed by the respondent, EXCEPT activeItem, whose "" means
+    // "switched off" and must survive.
+    if (filter.activeItem !== undefined) {
+      this.activeItemName = filter.activeItem;
+    }
+    if (filter.searchString !== undefined) {
+      this.searchString = filter.searchString;
+    }
+    if (Array.isArray(filter.searchFields)) {
+      this.searchFields = [].concat(filter.searchFields);
+    }
+    this.isSettingUIState = false;
+    this.updateFilterExpression();
+  }
+  // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it.
+  private raiseUIStateChanged(): void {
+    if (this.isLoadingFromJson || this.isSettingUIState || !this.survey) return;
+    const survey: any = this.survey;
+    if (!!survey.filterStateChanged) survey.filterStateChanged(this);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

@@ -1146,7 +1146,7 @@ export interface UIStateChangedEvent {
    * @since 2.4.0
    */
   // MERGE(V3): keep the `"shown"` member; master (V2) ends this union with `"passed"`. Keep V3 on merge.
-  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown";
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

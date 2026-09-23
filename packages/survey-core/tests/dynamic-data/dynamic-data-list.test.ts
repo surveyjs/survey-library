@@ -2387,6 +2387,32 @@ describe("DynamicDataList: the control filter slot", () => {
     expect(list.hasView, "#5").toBe(false);
     expect(list.filteredCount, "#6").toBe(3);
   });
+  // The edit path asks the same question as hasView, in its own words (hasLocalViews): a bare list
+  // re-evaluates its view on every write, and it must do so for a control filter too.
+  test("a control filter alone re-evaluates the view when a record is edited", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.controlFilter = "{n} > 1";
+    expect(values(list), "#1").toEqual(["b", "c"]);
+    list.setValue(1, "n", 0);
+    expect(values(list), "#2: the edited record left the filter").toEqual(["c"]);
+  });
+  /* And the frozen membership is decided by the same question, so a control filter alone has to
+     freeze it: without that the two questions would re-sort and re-filter under the cursor, which
+     is the mode createReadThroughDataList exists to avoid. */
+  test("a control filter alone freezes the membership", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    // What createReadThroughDataList sets for both questions.
+    list.isViewFrozenOnEdit = true;
+    list.load();
+    list.controlFilter = "{n} > 1";
+    expect(values(list), "#1").toEqual(["b", "c"]);
+    list.add({ c1: "d", n: 0 });
+    expect(values(list), "#2: an added record is in the view even when it fails the filter")
+      .toEqual(["b", "c", "d"]);
+    list.refreshView();
+    expect(values(list), "#3: the next refresh filters it out").toEqual(["b", "c"]);
+  });
   test("a source swap hands the control filter to the source that owns it", () => {
     const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
     list.load();

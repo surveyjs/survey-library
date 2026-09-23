@@ -2312,6 +2312,8 @@ describe("DynamicDataList: the control filter slot", () => {
   const records = (): Array<any> => [{ c1: "a", n: 1 }, { c1: "b", n: 2 }, { c1: "c", n: 3 }];
   const values = (list: DynamicDataList): Array<any> =>
     list.getCreatedIndexes().map((i: number): any => list.getRecord(i).c1);
+  const requestFilters = (source: FakeServerViewSource): Array<string> =>
+    source.requests.map((request: IDynamicDataReadRequest): string => request.filter);
   const lastFilter = (source: FakeServerViewSource): string =>
     source.requests[source.requests.length - 1].filter;
 
@@ -2369,6 +2371,39 @@ describe("DynamicDataList: the control filter slot", () => {
     list.load();
     list.controlFilter = "{c1} != 'c'";
     expect(lastFilter(source)).toBe("{c1} != 'c'");
+  });
+  /* hasView is not an internal detail: both questions gate the whole view machinery on it - the
+     created indexes they read and the "reset" handler that rebuilds the rows/panels - so a control
+     filter the list computes but does not declare a view for would be inert in the questions. */
+  test("a control filter alone is a view", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    expect(list.hasView, "#1: neither slot, no view").toBe(false);
+    list.controlFilter = "{n} > 1";
+    expect(list.hasView, "#2: the control slot alone declares a view").toBe(true);
+    expect(list.filteredCount, "#3: and the filtered count is the one the slot decided").toBe(2);
+    expect(list.count, "#4: a filter never changes the storage count").toBe(3);
+    list.controlFilter = "";
+    expect(list.hasView, "#5").toBe(false);
+    expect(list.filteredCount, "#6").toBe(3);
+  });
+  test("a source swap hands the control filter to the source that owns it", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.controlFilter = "{c1} != 'c'";
+    const source = new FakeServerViewSource(records());
+    list.source = source;
+    expect(requestFilters(source), "a filter the list ran locally must survive the swap")
+      .toEqual(["{c1} != 'c'"]);
+  });
+  test("a source swap hands over both slots, combined and bracketed", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.filter = "{n} > 1";
+    list.controlFilter = "{c1} != 'c'";
+    const source = new FakeServerViewSource(records());
+    list.source = source;
+    expect(requestFilters(source)).toEqual(["({n} > 1) and ({c1} != 'c')"]);
   });
   test("setting the control filter resets the page index", () => {
     const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));

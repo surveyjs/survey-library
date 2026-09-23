@@ -27,6 +27,7 @@ import {
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
   ISurveyWebProvider,
+  ISurveyFilterCallbacks,
   ISaveToJSONOptions,
   IScrollElementToTopOptions
 } from "./base-interfaces";
@@ -242,7 +243,8 @@ export class SurveyModel extends SurveyElementCore
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
-  ISurveyTimerText {
+  ISurveyTimerText,
+  ISurveyFilterCallbacks {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {
@@ -6113,6 +6115,11 @@ export class SurveyModel extends SurveyElementCore
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
   }
+  // ISurveyFilterCallbacks: the Filter Control is a non-value question, so nothing it does reaches
+  // survey.data. Its end-user state travels through uiState instead, and this is how it says so.
+  filterStateChanged(question: IQuestion): void {
+    this.doUIStateChanged("filter", question);
+  }
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
@@ -6135,7 +6142,7 @@ export class SurveyModel extends SurveyElementCore
   pageShown(page: IPage): void {
     this.doUIStateChanged("shown", page);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown" | "filter", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }

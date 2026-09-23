@@ -9,6 +9,7 @@ export type {
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
   ISurveyDynamicDataCallbacks,
+  ISurveyFilterCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,

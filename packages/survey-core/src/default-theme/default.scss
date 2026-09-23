@@ -115,7 +115,9 @@ body {
   }
 }
 
-.sd-root-modern--animation-disabled * {
+.sd-root-modern--animation-disabled *,
+.sd-root-modern--animation-disabled *::before,
+.sd-root-modern--animation-disabled *::after {
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -o-transition: none !important;
@@ -138,7 +140,11 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .sd-root-modern *,
-  .sv-popup * {
+  .sd-root-modern *::before,
+  .sd-root-modern *::after,
+  .sv-popup *,
+  .sv-popup *::before,
+  .sv-popup *::after {
     -webkit-transition-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     -webkit-transition-delay: 0s !important;

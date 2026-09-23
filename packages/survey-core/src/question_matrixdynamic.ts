@@ -34,7 +34,7 @@ import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner } from "./dynamic-data/dynamic-data-page-validation";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataField, IDynamicDataFilterSource, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { collectFilterFields, getDynamicDataFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
@@ -111,7 +111,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner {
+  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner,
+    IDynamicDataFilterSource {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -632,6 +633,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      runtime state and are not serialized. */
   public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
   public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  public getControlFilterKeys(): Array<string> { return this.paging.getControlFilterKeys(); }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);
   }

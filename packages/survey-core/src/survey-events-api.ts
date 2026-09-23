@@ -946,6 +946,16 @@ export interface DynamicDataErrorEvent extends QuestionEventMixin {
    */
   error: any;
 }
+// Raised when a Filter Control composes a new expression. The source question, if the control is
+// bound to one, has already been re-filtered by the time the event is raised.
+export interface FilterChangedEvent extends QuestionEventMixin {
+  // The expression the control composed: its active item and its quick search, combined. An empty
+  // string means the control filters nothing.
+  filterExpression: string;
+  // The Dynamic Matrix or Dynamic Panel the control filters, or undefined for a standalone control
+  // and for a control whose source resolves to nothing.
+  sourceQuestion: Question;
+}
 export interface TimerPanelInfoTextEvent {
   /**
    * the timer panel info text

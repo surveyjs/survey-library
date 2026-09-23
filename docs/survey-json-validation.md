@@ -51,7 +51,7 @@ The linter can find:
 - Invalid choice comparisons
 - Other issues that are not reported by [model validation](#validate-survey-json-with-a-survey-model)
 
-The linter uses pure functions: they analyze the survey JSON without building a survey model, return findings, and do not modify the input. A finding can carry a repair that you apply to a copy of the JSON. See [Apply a Fix](#apply-a-fix).
+The linter uses pure functions: they analyze the survey JSON without building a survey model, return findings, and do not modify the input.
 
 ### Import the Linter
 
@@ -125,8 +125,7 @@ Each finding is an object with the following properties:
 | `path` | Path to the affected value in the survey JSON (for example `pages[0].elements[1].visibleIf` or `triggers[0].setToName`). |
 | `elementName` | Name of the affected survey element, if available. |
 | `elementType` | Type of the affected survey element, if available. |
-| `suggestion` | Closest known name, when the defect looks like a typo. |
-| `fix` | A machine-applicable repair, when the defect has exactly one. See [Apply a Fix](#apply-a-fix). |
+| `suggestion` | Suggested fix, if available. |
 | `related` | Related elements or paths, if available. |
 | `reproduction` | Reproduction steps or details that demonstrate the finding, if available. |
 
@@ -135,47 +134,6 @@ Use `renderFindings` to produce a human-readable report:
 ```js
 console.log(renderFindings(result));
 ```
-
-### Apply a Fix
-
-A finding whose defect has exactly one mechanical repair carries that repair in its `fix` property. Pass the fix to `applyFix` together with the survey JSON to get a repaired copy:
-
-```js
-import { lintSurvey, applyFix } from "survey-core/linter";
-
-const result = lintSurvey(surveyJson);
-const finding = result.findings.filter(f => !!f.fix)[0];
-if (finding) {
-  const fixedJson = applyFix(surveyJson, finding.fix);
-}
-```
-
-`applyFix` does not modify the survey JSON you pass to it. It returns a new object.
-
-Apply one fix at a time. Removing an array item renumbers the paths of the items after it, so run the linter again before you apply the next fix:
-
-```js
-let current = surveyJson;
-for (;;) {
-  const finding = lintSurvey(current).findings.filter(f => !!f.fix)[0];
-  if (!finding) break;
-  current = applyFix(current, finding.fix);
-}
-```
-
-A fix is an object with a `reason` and a list of `edits`. `reason` is one of the values in the frozen `SurveyLintFixReasons` table and says what the repair does, so that you can label the command that offers it. Each edit has an `op` (`set`, `remove`, `rename`, or `wrap`) and a `path` into the survey JSON, plus a `value` for `set` and a `key` for `rename`.
-
-The following rules offer a fix: `name/duplicate`, `name/reserved`, `property/required`, `property/unknown`, `property/not-an-array`, `property/invalid-value`, `property/dead`, `element/unknown-type`, `trigger/unknown-type`, `trigger/unknown-target`, `validator/unknown-type`, `mask/mismatch`, `choices/dead-source`, `choices/duplicate`, `reference/unknown`, and `expression/unknown-function`. Defects with no unique repair, such as a cycle, a contradiction, or an empty page, carry no `fix`.
-
-Three fixes have to invent an element name. They spell it in English: `question1`, `page1`, `panel1`. If your application shows its users another language, pass a `newElementName` function in the linter options:
-
-```js
-lintSurvey(surveyJson, {
-  newElementName: (nameKind, taken) => myLocalizedName(nameKind, taken)
-});
-```
-
-`nameKind` is `"page"`, `"panel"`, or `"question"`. `taken` lists every name the survey JSON already uses, plus the names that the current run has already handed out.
 
 ### Linter Rules
 

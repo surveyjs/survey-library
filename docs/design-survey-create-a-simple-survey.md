@@ -276,11 +276,7 @@ export default function SurveyComponent() {
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (

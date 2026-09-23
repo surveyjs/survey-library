@@ -59,6 +59,8 @@ A valid explicit pattern overrides [`regionalFormat.currencyPattern`](/form-libr
 
 Default value: `undefined` (the mask inherits its currency pattern)
 
+Available since: v3.1.0
+
 ### `currencySymbol`
 
 **Type**: `string`
@@ -70,6 +72,8 @@ The symbol's position is specified by the `@` token in the [`currencyPattern`](#
 Specify this property to override the survey-wide currency symbol, or use an empty string to display no symbol.
 
 Default value: `undefined` (the mask inherits [`regionalFormat.currencySymbol`](/form-library/documentation/api-reference/regionalformat#currencySymbol) or the symbol used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"$"` in English))
+
+Available since: v3.1.0
 
 ### `prefix`
 

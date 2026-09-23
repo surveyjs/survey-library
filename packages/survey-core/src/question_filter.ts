@@ -106,7 +106,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // would stay filtered forever with nothing left to clear it.
   private attachedSource: IDynamicDataFilterSource;
   // The question source names, if it can be filtered by a control. Asked by capability, the way the
-  // data list asks a source whether it has "filter": the control imports neither dynamic question.
+  // data list asks a source whether it has "readRange": the control imports neither dynamic question.
   private get filterSource(): IDynamicDataFilterSource {
     const q: any = !!this.data ? this.data.findQuestionByName(this.source) : undefined;
     return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"

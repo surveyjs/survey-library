@@ -20,7 +20,12 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
-   that lags behind. isViewPending says which direction the next sync runs in. */
+   that lags behind. isViewPending says which direction the next sync runs in.
+
+   A Filter Control does not write the authored expression: it has an entrance of its own,
+   setControlFilter(key, expression), whose values go to the list's second filter slot and are never
+   serialized, never mirrored and never mixed with filterExpression. The key is the control's, so
+   several controls on one question do not overwrite each other. The list ANDs its two slots. */
 export interface IDynamicDataPagingOwner {
   getDataList(): DynamicDataList;
   getPropertyValue(name: string): any;
@@ -178,10 +183,17 @@ export class DynamicDataPagingController {
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.sortOrder;
-    // One setView and not the two setters: with a paging source each of them is a read of its own,
-    // and the authored view has to cost one request.
-    if (list.filter !== filter || !Helpers.isTwoValueEquals(list.sort, sort)) {
-      list.setView(filter, sort);
+    const controlFilter = this.getCombinedControlFilter();
+    /* A slot the list refused reset itself to "" and must not be handed the same text again, so
+       what says whether there is something new to push is pushedControlFilter and not
+       list.controlFilter; with nothing new, the list keeps the slot it ended up with. */
+    const newControlFilter = this.pushedControlFilter !== controlFilter ? controlFilter : list.controlFilter;
+    this.pushedControlFilter = controlFilter;
+    // One setView and not the three setters: with a paging source each of them is a read of its
+    // own, and the authored view has to cost one request.
+    if (list.filter !== filter || list.controlFilter !== newControlFilter
+      || !Helpers.isTwoValueEquals(list.sort, sort)) {
+      list.setView(filter, sort, newControlFilter);
     }
     this.isPushingView = false;
     this.mirrorListView();
@@ -189,9 +201,10 @@ export class DynamicDataPagingController {
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
-    if (!list.filter && list.sort.length === 0) return;
+    this.pushedControlFilter = "";
+    if (!list.filter && !list.controlFilter && list.sort.length === 0) return;
     this.isPushingView = true;
-    list.setView("", []);
+    list.setView("", [], "");
     this.isPushingView = false;
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
@@ -286,6 +299,62 @@ export class DynamicDataPagingController {
     // A filter the list cannot run locally is reported through its onError and reset to "": the
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
+  }
+  /* The filters the controls bound to this question set, by key. The authored filterExpression is
+     not one of them and never passes through here: it has its own property, its own setter, its own
+     serialization and its own slot in the list. Two doors, two stores, all the way down. */
+  private controlFilters: { [index: string]: string } = {};
+  private controlFilterKeys: Array<string> = [];
+  /* The last value handed to the list. A slot the list refuses resets itself to "", so comparing
+     with list.controlFilter would hand the same broken text over - and report it - on every sync.
+     The authored slot does not need this: its mirror writes the "" back into the hash, so there is
+     nothing left to re-push. It starts - and goes back to - "", which is what an untouched control
+     slot holds: the setter raises a reset even when the value did not change, and every reset costs
+     a full rebuild of the rows/panels. */
+  private pushedControlFilter: string = "";
+
+  public getControlFilter(key: string): string { return this.controlFilters[key] || ""; }
+  public getControlFilterKeys(): Array<string> { return this.controlFilterKeys.slice(); }
+  public setControlFilter(key: string, expression: string): void {
+    if (!key) return;
+    const newValue = !!expression ? expression : "";
+    if (this.getControlFilter(key) === newValue) return;
+    const index = this.controlFilterKeys.indexOf(key);
+    if (!newValue) {
+      delete this.controlFilters[key];
+      if (index > -1) {
+        this.controlFilterKeys.splice(index, 1);
+      }
+    } else {
+      if (index < 0) {
+        this.controlFilterKeys.push(key);
+      }
+      this.controlFilters[key] = newValue;
+    }
+    if (!this.canPushToList) {
+      // The controller is the truth while the question loads and for as long as it is in design
+      // mode; the slot waits for the flush, exactly as the authored expression always has.
+      this.isViewPending = true;
+      return;
+    }
+    this.pushControlFilter();
+    this.syncState();
+  }
+  // One question may carry more than one control and the list has one control slot, so the filters
+  // are combined here, each bracketed.
+  private getCombinedControlFilter(): string {
+    const used = this.controlFilterKeys
+      .map((key: string): string => this.controlFilters[key])
+      .filter((expression: string): boolean => !!expression);
+    if (used.length === 0) return "";
+    if (used.length === 1) return used[0];
+    return used.map((expression: string): string => "(" + expression + ")").join(" and ");
+  }
+  private pushControlFilter(): void {
+    const combined = this.getCombinedControlFilter();
+    if (this.pushedControlFilter === combined) return;
+    this.pushedControlFilter = combined;
+    this.list.controlFilter = combined;
   }
   /* Re-decides which records are shown. A source that pages decides the membership of the window
      itself - the window IS the answer - so re-running a local filter the list never ran would say

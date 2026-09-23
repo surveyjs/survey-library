@@ -18,6 +18,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public isLoadingFromJson: boolean = false;
   public sortByChanges: Array<string> = [];
   public resetCount: number = 0;
+  public errors: Array<string> = [];
   private listValue: DynamicDataList;
   private source: IDynamicDataSource;
   constructor(records: Array<any>) {
@@ -28,6 +29,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public getDataList(): DynamicDataList {
     if (!this.listValue) {
       this.listValue = new DynamicDataList(this.source, this);
+      this.listValue.onError = (e: any, op: string): void => { this.errors.push(op); };
       this.listValue.load();
       // The question pushes the authored page size from here too: the list is created on demand.
       this.paging.updatePageSize();
@@ -401,5 +403,66 @@ describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
     owner.paging.toggleSort("", true);
     expect(owner.paging.sortBy, "#1: the sort is untouched").toBe("c1");
     expect(owner.sortByChanges, "#2").toEqual([]);
+  });
+});
+
+describe("DynamicDataPagingController: the control filter entrance", () => {
+  test("a control filter applies next to the authored one and does not touch it", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.filterExpression = "{c1} != 'z'";
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.view, "#1").toEqual(["a"]);
+    expect(owner.paging.filterExpression, "#2: the authored expression is untouched").toBe("{c1} != 'z'");
+    expect(owner.hash["filterExpression"], "#3: and so is its storage").toBe("{c1} != 'z'");
+    expect(owner.getDataList().filter, "#4: two slots, not one string").toBe("{c1} != 'z'");
+    expect(owner.getDataList().controlFilter, "#5").toBe("{c1} = 'a'");
+  });
+  test("two controls do not overwrite each other and clear with an empty string", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.setControlFilter("a", "{c1} != 'z'");
+    owner.paging.setControlFilter("b", "{c1} != 'b'");
+    expect(owner.view, "#1").toEqual(["c", "a"]);
+    expect(owner.getDataList().controlFilter, "#2: combined, each bracketed")
+      .toBe("({c1} != 'z') and ({c1} != 'b')");
+    owner.paging.setControlFilter("b", "");
+    expect(owner.getDataList().controlFilter, "#3: one left, unwrapped").toBe("{c1} != 'z'");
+    expect(owner.paging.getControlFilterKeys(), "#4").toEqual(["a"]);
+    owner.paging.setControlFilter("a", "");
+    expect(owner.getDataList().controlFilter, "#5").toBe("");
+    expect(owner.view, "#6").toEqual(["c", "a", "b"]);
+  });
+  test("a control filter written while loading reaches the list at the flush", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} != 'z'";
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.hasList, "#1: neither writer created the list").toBe(false);
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(owner.getDataList().filter, "#2").toBe("{c1} != 'z'");
+    expect(owner.getDataList().controlFilter, "#3").toBe("{c1} = 'a'");
+    expect(owner.view, "#4").toEqual(["a"]);
+  });
+  test("design mode holds neither slot and gives both back on the way out", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.filterExpression = "{c1} != 'z'";
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.getDataList().filter, "#1").toBe("");
+    expect(owner.getDataList().controlFilter, "#2").toBe("");
+    expect(owner.paging.getControlFilter("control"), "#3: the controller kept the text").toBe("{c1} = 'a'");
+    owner.isDesignMode = false;
+    owner.paging.syncState();
+    expect(owner.getDataList().controlFilter, "#4").toBe("{c1} = 'a'");
+  });
+  test("a broken control filter is reported once and not re-pushed on every sync", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.setControlFilter("control", "{c1} = ");
+    expect(owner.view, "#1: showing every record beats showing none").toEqual(["c", "a", "b"]);
+    expect(owner.errors.length, "#2").toBe(1);
+    owner.paging.syncState();
+    owner.paging.syncState();
+    expect(owner.errors.length, "#3: the list cleared its slot, the controller does not re-hand it")
+      .toBe(1);
   });
 });

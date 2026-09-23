@@ -2307,3 +2307,75 @@ describe("DynamicDataList: the end of a source that cannot count", () => {
     expect(list.getRecord(0).id, "#5").toBe(0);
   });
 });
+
+describe("DynamicDataList: the control filter slot", () => {
+  const records = (): Array<any> => [{ c1: "a", n: 1 }, { c1: "b", n: 2 }, { c1: "c", n: 3 }];
+  const values = (list: DynamicDataList): Array<any> =>
+    list.getCreatedIndexes().map((i: number): any => list.getRecord(i).c1);
+  const lastFilter = (source: FakeServerViewSource): string =>
+    source.requests[source.requests.length - 1].filter;
+
+  test("the two slots are independent and both apply", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.filter = "{n} > 1";
+    expect(values(list), "#1: the authored slot alone").toEqual(["b", "c"]);
+    list.controlFilter = "{c1} != 'c'";
+    expect(values(list), "#2: a record has to pass both").toEqual(["b"]);
+    expect(list.filter, "#3: neither slot sees the other").toBe("{n} > 1");
+    expect(list.controlFilter, "#4").toBe("{c1} != 'c'");
+    list.controlFilter = "";
+    expect(values(list), "#5").toEqual(["b", "c"]);
+  });
+  test("an or inside one slot does not swallow the other", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.filter = "{c1} = 'a' or {c1} = 'b'";
+    list.controlFilter = "{c1} != 'b'";
+    expect(values(list), "no string combination, so no precedence to get wrong").toEqual(["a"]);
+  });
+  test("a broken control filter clears itself and leaves the authored slot alone", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    const errors: Array<string> = [];
+    list.onError = (e: any, op: string): void => { errors.push(op); };
+    list.load();
+    list.filter = "{n} > 1";
+    list.controlFilter = "{c1} = ";
+    expect(list.filter, "#1: the author is not punished for it").toBe("{n} > 1");
+    expect(list.controlFilter, "#2: the broken slot cleared itself").toBe("");
+    expect(values(list), "#3: and the authored slot still runs").toEqual(["b", "c"]);
+    expect(errors, "#4: one report, of the read the filter made impossible").toEqual(["read"]);
+  });
+  test("a broken authored filter clears itself and leaves the control slot alone", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.controlFilter = "{n} > 1";
+    list.filter = "{c1} = ";
+    expect(list.filter, "#1: today's behaviour, unchanged").toBe("");
+    expect(list.controlFilter, "#2").toBe("{n} > 1");
+    expect(values(list), "#3").toEqual(["b", "c"]);
+  });
+  test("a source that pages receives the two slots combined and bracketed", () => {
+    const source = new FakeServerViewSource(records());
+    const list = new DynamicDataList(source);
+    list.load();
+    list.filter = "{n} > 1";
+    list.controlFilter = "{c1} != 'c'";
+    expect(lastFilter(source)).toBe("({n} > 1) and ({c1} != 'c')");
+  });
+  test("one slot alone reaches a source untouched", () => {
+    const source = new FakeServerViewSource(records());
+    const list = new DynamicDataList(source);
+    list.load();
+    list.controlFilter = "{c1} != 'c'";
+    expect(lastFilter(source)).toBe("{c1} != 'c'");
+  });
+  test("setting the control filter resets the page index", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(records()));
+    list.load();
+    list.pageSize = 1;
+    list.pageIndex = 2;
+    list.controlFilter = "{n} > 0";
+    expect(list.pageIndex, "a new filter starts at the first page").toBe(0);
+  });
+});

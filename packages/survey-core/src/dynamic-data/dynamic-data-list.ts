@@ -1,6 +1,8 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
-import { applyFilter, applySort, createFilterRunner, createIndexes } from "./dynamic-data-filter";
+import {
+  applyFilters, applySort, combineFilterExpressions, createFilterRunner, createIndexes
+} from "./dynamic-data-filter";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
   IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
@@ -64,14 +66,17 @@ export class DynamicDataList {
      what every source that is not a paging one answers: read() returns the whole storage. */
   private _isCountKnown: boolean = true;
   private _hasMore: boolean = false;
-  /* The filter a total the list worked out ITSELF belongs to (see commitCount). Such a total
-     outlives the read that found it - a walk back to the first page must not send the pager looking
-     for the end all over again - but it describes one set of records, and another filter is another
-     set. undefined = the total is the source's own answer, or there is none. */
+  /* The filter a total the list worked out ITSELF belongs to (see commitCount): both slots
+     combined, the same text the read request carried. Such a total outlives the read that found
+     it - a walk back to the first page must not send the pager looking for the end all over
+     again - but it describes one set of records, and another filter is another set.
+     undefined = the total is the source's own answer, or there is none. */
   private discoveredTotalFilter: string = undefined;
   private _isLoading: boolean = false;
   private _filter: string = "";
   private filterRunner: ConditionRunner = undefined;
+  private _controlFilter: string = "";
+  private controlFilterRunner: ConditionRunner = undefined;
   private _sort: Array<IDynamicDataSort> = [];
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
@@ -199,8 +204,9 @@ export class DynamicDataList {
        runs them is a capability of the source, so a swap re-decides it: a filter a paging source ran
        on its own side has no local runner yet, and one the list ran locally is handed to a paging
        source inside the very next read request - otherwise the view the owner is showing would
-       disappear with the swap. */
-    this.updateFilterRunner();
+       disappear with the swap. Both slots are re-decided: the control slot is a filter like any
+       other. */
+    this.updateFilterRunners();
     if (wasLoaded) {
       // One read, with the view inside its request: nothing has to be "applied" to the source first.
       this.load();
@@ -270,7 +276,7 @@ export class DynamicDataList {
     return this._hasMore;
   }
   public get filteredCount(): number {
-    if (this.hasReadRange || !this._filter) return this.count;
+    if (this.hasReadRange || !this.hasFilter) return this.count;
     return this.getCreatedIndexes().length;
   }
   public get visibleCount(): number {
@@ -558,7 +564,7 @@ export class DynamicDataList {
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
   // keeps one object per record, which is the path every question takes until step 04.
   public get hasView(): boolean {
-    return !!this._filter || this._sort.length > 0;
+    return this.hasFilter || this._sort.length > 0;
   }
   public getVisibleIndexes(): Array<number> {
     this.ensureViews();
@@ -648,22 +654,36 @@ export class DynamicDataList {
   public set filter(v: string) {
     this.setView(v, this._sort);
   }
+  /* The filter a control sets, next to the authored one. Two slots and not one: the authored
+     expression is what the question serializes and mirrors, and a control must be able to filter
+     without touching it - or erasing it when its own expression turns out to be unparsable. */
+  public get controlFilter(): string {
+    return this._controlFilter;
+  }
+  public set controlFilter(v: string) {
+    this.applyView(this._filter, v, this._sort);
+  }
   /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
      inside the read request, so two assignments would be two requests, the second superseding the
      first. It is what the two setters are made of - and what a question that has both authored
-     hands over on its first sync. */
-  public setView(filter: string, sort: Array<IDynamicDataSort>): void {
+     hands over on its first sync. controlFilter is the control slot; left out, the slot keeps what
+     the list already holds. */
+  public setView(filter: string, sort: Array<IDynamicDataSort>, controlFilter?: string): void {
+    this.applyView(filter, controlFilter !== undefined ? controlFilter : this._controlFilter, sort);
+  }
+  private applyView(filter: string, controlFilter: string, sort: Array<IDynamicDataSort>): void {
     const newFilter = !!filter ? filter : "";
+    const newControlFilter = !!controlFilter ? controlFilter : "";
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
-       the filter it already has changes neither. */
-    const isFilterChanged = this._filter !== newFilter;
+       the filter it already has changes neither. Either slot counts - both of them filter. */
+    const isFilterChanged = this._filter !== newFilter || this._controlFilter !== newControlFilter;
     this._filter = newFilter;
+    this._controlFilter = newControlFilter;
     this._sort = Array.isArray(sort) ? sort : [];
     if (isFilterChanged) {
       this._pageIndex = 0;
-      this.filterRunner = undefined;
-      this.updateFilterRunner();
+      this.updateFilterRunners();
     }
     this.resetMembership();
     if (this.hasReadRange) {
@@ -674,20 +694,39 @@ export class DynamicDataList {
     this.refreezeMembership();
     this.raiseChanged({ type: "reset" });
   }
-  /* The runner exists only while the list itself is the one filtering: a paging source gets the
-     expression text inside every read request and the list keeps none. Parsed as soon as the
-     filter - or the source - is set, so that a filter which cannot be run locally is reported then
-     and not on the first read of a view. */
-  private updateFilterRunner(): void {
-    this.filterRunner = undefined;
-    if (!this._filter || this.hasReadRange) return;
+  // A read request carries one expression, so here - and only here - the slots are combined. Each
+  // side is bracketed because "or" binds looser than "and".
+  private get sourceFilterExpression(): string {
+    return combineFilterExpressions(this._filter, this._controlFilter);
+  }
+  // Either slot filters the list, so every decision that used to read the authored expression
+  // alone - is there a view at all, does the filtered count differ from the storage count - asks
+  // this instead.
+  private get hasFilter(): boolean {
+    return !!this._filter || !!this._controlFilter;
+  }
+  /* A runner per slot, each parsed on its own: the list never concatenates the two expressions, so
+     there is no precedence to get wrong ("or" binds looser than "and"), and a slot the list cannot
+     run resets ITSELF to "" and reports. An expression a control got wrong must not erase the one
+     the author wrote, nor the other way round. The runners exist only while the list itself is the
+     one filtering: a paging source gets the expression text inside every read request and the list
+     keeps none. Parsed as soon as the filter - or the source - is set, so that a filter which
+     cannot be run locally is reported then and not on the first read of a view. */
+  private updateFilterRunners(): void {
+    this.filterRunner = this.createSlotRunner(this._filter, (): void => { this._filter = ""; });
+    this.controlFilterRunner = this.createSlotRunner(this._controlFilter,
+      (): void => { this._controlFilter = ""; });
+  }
+  private createSlotRunner(expression: string, clearSlot: () => void): ConditionRunner {
+    if (!expression || this.hasReadRange) return undefined;
     try {
-      this.filterRunner = createFilterRunner(this._filter);
+      return createFilterRunner(expression);
     } catch(e) {
-      // The list stays unfiltered: showing every record beats showing none. The operation is "read":
-      // it is the read of the view that the filter made impossible.
-      this._filter = "";
+      // The slot stays unfiltered: showing every record beats showing none. The operation is
+      // "read": it is the read of the view that the filter made impossible.
+      clearSlot();
       this.raiseError(e, "read");
+      return undefined;
     }
   }
   public get sort(): Array<IDynamicDataSort> {
@@ -711,6 +750,8 @@ export class DynamicDataList {
     this.hiddenCount = 0;
     this.pendingInserts = [];
     this.filterRunner = undefined;
+    this._controlFilter = "";
+    this.controlFilterRunner = undefined;
     this.resetMembership();
     this.resetViews();
   }
@@ -804,11 +845,13 @@ export class DynamicDataList {
     this.alignHiddenFlags();
     let created = this.getFrozenCreatedIndexes(recordCount);
     if (!created) {
-      const needFilter = !!this.filterRunner && !this.hasReadRange;
+      const runners = [this.filterRunner, this.controlFilterRunner]
+        .filter((runner: ConditionRunner): boolean => !!runner);
+      const needFilter = runners.length > 0 && !this.hasReadRange;
       const needSort = this._sort.length > 0 && !this.hasReadRange;
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.records : undefined;
-      created = needFilter ? applyFilter(records, this.filterRunner) : createIndexes(recordCount);
+      created = needFilter ? applyFilters(records, runners) : createIndexes(recordCount);
       if (needSort) {
         created = applySort(records, this._sort, this.getFields(), created);
       }
@@ -1057,7 +1100,7 @@ export class DynamicDataList {
   // One read = one request: the range and the view the list wants. The source keeps no state between
   // the calls, so nothing has to be pushed to it before a read and two questions may share it.
   private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
-    return { skip: skip, take: take, filter: this._filter, sort: this._sort.slice() };
+    return { skip: skip, take: take, filter: this.sourceFilterExpression, sort: this._sort.slice() };
   }
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
@@ -1076,7 +1119,7 @@ export class DynamicDataList {
       if (records.length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && this._pageIndex > 0) {
         this._total = skip;
         this._isCountKnown = true;
-        this.discoveredTotalFilter = this._filter;
+        this.discoveredTotalFilter = this.sourceFilterExpression;
         this._pageIndex--;
         this.pageIndexes = undefined;
         return false;
@@ -1123,7 +1166,7 @@ export class DynamicDataList {
     if (this.isEndOfStorage(result, take, length)) {
       this._total = skip + length;
       this._isCountKnown = true;
-      this.discoveredTotalFilter = this._filter;
+      this.discoveredTotalFilter = this.sourceFilterExpression;
       this._hasMore = false;
       return;
     }
@@ -1131,7 +1174,8 @@ export class DynamicDataList {
        front of an end that has already been found, and forgetting it would offer a page behind the
        end again and cost two reads to discover the same end. A window that reaches past it is a
        storage that has grown, and the end has to be found again. */
-    if (this._total !== undefined && this.discoveredTotalFilter === this._filter && skip + length <= this._total) {
+    if (this._total !== undefined && this.discoveredTotalFilter === this.sourceFilterExpression
+      && skip + length <= this._total) {
       this._isCountKnown = true;
       this._hasMore = skip + length < this._total;
       return;

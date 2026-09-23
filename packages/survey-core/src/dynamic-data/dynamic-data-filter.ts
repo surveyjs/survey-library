@@ -121,6 +121,26 @@ export function applyFilter(records: Array<any>, filter: string | ConditionRunne
   }
   return res;
 }
+// The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
+// was parsed on its own, so this never concatenates the two expressions - and therefore never has
+// to bracket them.
+export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>): Array<number> {
+  const used = (runners || []).filter((runner: ConditionRunner): boolean => !!runner);
+  if (used.length === 0) return createIndexes(records.length);
+  const res: Array<number> = [];
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i] || {};
+    let passes = true;
+    for (let j = 0; j < used.length; j++) {
+      if (!used[j].runValues(record)) {
+        passes = false;
+        break;
+      }
+    }
+    if (passes) res.push(i);
+  }
+  return res;
+}
 // Returns the record indexes in sort order. "indexes" limits the sort to a subset (the filtered and
 // owner-visible records); when it is omitted every record takes part. The input is never modified.
 export function applySort(records: Array<any>, sort: Array<IDynamicDataSort>,

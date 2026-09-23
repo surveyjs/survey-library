@@ -42,6 +42,18 @@ describe("FilterField: fieldType", () => {
     field.fieldType = "nosuchtype";
     expect(field.templateQuestion.getType()).toBe("text");
   });
+  // The transition the empty fieldType makes and no other test covers: the question type does not
+  // change - a field with no fieldType already runs on a text question - while the dynamic type goes
+  // from "" to "text". A guard that compares question types would skip it and borrow nothing.
+  test("fieldType \"text\" borrows the text question properties although the question type is unchanged", () => {
+    const field = new FilterField("q");
+    expect(field.templateQuestion.getType(), "#1: it already runs on a text question").toBe("text");
+    field.fieldType = "text";
+    expect(Object.prototype.hasOwnProperty.call(field, "inputType"), "#2: the property is on the field").toBe(true);
+    (<any>field).inputType = "number";
+    expect(field.valueType, "#3: and it reaches the question").toBe("number");
+    expect(new JsonObject().toJsonObject(field), "#4").toEqual({ name: "q", fieldType: "text", inputType: "number" });
+  });
   test("a field with a fieldType round-trips through JSON", () => {
     const field = new FilterField("country");
     field.title = "Country";

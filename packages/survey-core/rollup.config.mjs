@@ -63,6 +63,11 @@ const buildPlatformJson = {
       "import": "./fesm/linter/index.mjs",
       "require": "./linter/index.js"
     },
+    "./collaboration": {
+      "types": "./typings/entries/collaboration.d.ts",
+      "import": "./fesm/collaboration/index.mjs",
+      "require": "./collaboration/index.js"
+    },
     "./*.css": "./*.css",
     "./survey.i18n": {
       "import": "./fesm/survey.i18n.mjs",

@@ -1,16 +1,40 @@
 import { ILintRule, LintContext } from "../rule";
 import {
   classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, equalsCI, FunctionArgRef,
+  respellSegment,
 } from "../expression-utils";
 import { closestMatch } from "../levenshtein";
 import {
-  CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef,
+  CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
 } from "../symbols";
 import { didYouMean } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
-import { ILintHint } from "../types";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { ILintFix, ILintHint } from "../types";
+import { setFix } from "../fix-utils";
+import { ILintResolvedSettings } from "../lint-settings";
 
 const reasons = SurveyLintReasons["reference/unknown"];
+const fixReasons = SurveyLintFixReasons["reference/unknown"];
+
+// The name the author meant, with only the segment that did not resolve respelled: the
+// container a dotted reference starts with is right where it was written.
+function respellRaw(ref: ParsedRef): string | undefined {
+  return respellSegment(ref.raw, ref.unknownSegmentIndex || 0, ref.suggestion);
+}
+
+// A reference stands between the delimiters the settings configure, so the whole token is
+// replaced rather than the name inside it - {q1} then never matches inside {q10}. Every
+// occurrence goes: they are one and the same defect.
+function rewriteReference(text: string, ref: ParsedRef,
+  settings: ILintResolvedSettings): string | undefined {
+  const raw = respellRaw(ref);
+  if (!raw || !text) return undefined;
+  const start = settings.expressionVariableStartDelimiter;
+  const end = settings.expressionVariableEndDelimiter;
+  const token = start + ref.raw + end;
+  if (text.indexOf(token) < 0) return undefined;
+  return text.split(token).join(start + raw + end);
+}
 
 function segmentName(ref: ParsedRef): string {
   const idx = ref.unknownSegmentIndex || 0;
@@ -98,7 +122,7 @@ function getHint(ref: ParsedRef): ILintHint {
 // where only the context sentence differs.
 function reportRef(ctx: LintContext, ref: ParsedRef, params: {
   path: string, owner?: ElementRecord, context: string, expression?: string, refKind: string,
-  prop?: string,
+  prop?: string, fix?: ILintFix,
 }): void {
   ctx.report({
     message: buildMessage(ref, params.context),
@@ -120,6 +144,7 @@ function reportRef(ctx: LintContext, ref: ParsedRef, params: {
     elementName: params.owner ? params.owner.name : undefined,
     elementType: params.owner ? params.owner.type : undefined,
     suggestion: ref.suggestion,
+    fix: params.fix,
   });
 }
 
@@ -151,6 +176,7 @@ function checkKeyName(ctx: LintContext, record: ElementRecord): void {
       label + ", so duplicate-key validation never runs." + didYouMean(suggestion),
     path: record.path + ".keyName",
     reason: reasons.keyNameNotFound,
+    fix: setFix(fixReasons.setKeyName, record.path + ".keyName", suggestion),
     messageData: {
       name: record.name,
       questionType: record.type,
@@ -174,6 +200,9 @@ export const referenceUnknownRule: ILintRule = {
         reportRef(ctx, ref, {
           path: site.path, owner: site.owner, refKind: "expression",
           expression: site.text, context: site.text ? "(in \"" + site.text + "\")" : "",
+          fix: isCarvedOutSite(site) ? undefined
+            : setFix(fixReasons.renameReference, site.path,
+              rewriteReference(site.text, ref, ctx.index.settings)),
         });
       });
       classifyFunctionArgRefs(site, ctx.index, ctx.options).forEach((argRef: FunctionArgRef) => {
@@ -186,6 +215,9 @@ export const referenceUnknownRule: ILintRule = {
       reportRef(ctx, ref, {
         path: nameRef.path, owner: nameRef.owner, refKind: nameRef.kind, prop: nameRef.prop,
         context: getNameRefContext(nameRef),
+        fix: setFix(fixReasons.renameReference, nameRef.path, nameRef.kind === "binding"
+          ? respellRaw(ref)
+          : rewriteReference(nameRef.text, ref, ctx.index.settings)),
       });
     });
     ctx.index.allElements.forEach(record => checkKeyName(ctx, record));

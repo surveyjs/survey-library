@@ -275,11 +275,50 @@ describe("DropdownListModel", () => {
     list.onItemClick(getVisibleActionByIndex(list, 3));
     expect(popup.isVisible, "popup.isVisible 3").toBe(false);
     expect(dropdownListModel.filterString, "filterString 2").toBe("");
+    expect(list.filterString, "list stays filtered while popup closes").toBe("1");
     expect(question.value, "question.value").toBe("item12");
 
+    dropdownListModel.onClick();
+    expect(popup.isVisible, "popup.isVisible 4").toBe(true);
+    expect(list.filterString, "list filter reset on reopen").toBe("");
+
+    popup.hide();
     dropdownListModel.onClear(new Event("click"));
     expect(dropdownListModel.filterString, "filterString after onClear").toBe("");
     expect(question.value, "question.value after onClear").toBeUndefined();
+  });
+
+  test("keep list filter while dropdown popup closes", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popup = dropdownListModel.popupModel;
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    list.flushUpdates();
+    const getVisibleItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+    dropdownListModel.filterString = "12";
+    expect(popup.isVisible).toBe(true);
+    expect(getVisibleItems().length).toBe(1);
+
+    list.onItemClick(getVisibleItems()[0]);
+    expect(popup.isVisible).toBe(false);
+    expect(dropdownListModel.filterString).toBe("");
+    expect(list.filterString).toBe("12");
+    expect(getVisibleItems().length).toBe(1);
+
+    dropdownListModel.onClick();
+    expect(popup.isVisible).toBe(true);
+    expect(list.filterString).toBe("");
+    expect(getVisibleItems().length).toBe(28);
+
+    dropdownListModel.filterString = "12";
+    expect(getVisibleItems().length).toBe(1);
+    dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(popup.isVisible).toBe(false);
+    expect(dropdownListModel.filterString).toBe("");
+    expect(list.filterString).toBe("12");
+    expect(getVisibleItems().length).toBe(1);
   });
 
   test("hide dropdown on clear", () => {

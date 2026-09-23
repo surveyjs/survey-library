@@ -1,0 +1,187 @@
+@use "../variables.scss" as *;
+
+// The collaboration strip is a plain ActionContainer handed to survey.addLayoutElement
+// under the already-registered "sv-action-bar" component, so there is no component of
+// ours in any UI package. Everything below is therefore styling of action-bar output.
+//
+// It sits in the `header` container, which renders with needRenderWrapper: false - so
+// the strip is a DIRECT child of .sd-container-modern, outside .sd-body and its 40px
+// padding, and with a containing block tall enough for sticky to mean something.
+//
+// The form title is not a layout element, so no container can put the strip above it:
+// it is emitted in the template just before this container. Reordering is the only
+// way, and reordering needs a flex parent - hence the rule below. It is scoped with
+// :has() so that a form WITHOUT the plugin is untouched by merely loading this
+// stylesheet, which is what keeps the UI packages' screenshot tests valid.
+.sd-container-modern:has(> .sv-collab-bar) {
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-collab-bar {
+  order: -1;
+  position: sticky;
+  top: 0;
+  // Above the top progress bar, which sticks to the same top: 0 with z-index 50.
+  // They still overlap when both are present - the strip cannot publish its height
+  // to CSS - but the outer chrome should at least win the paint.
+  z-index: 60;
+  // The gap goes through the theme's own custom property rather than a raw `gap`,
+  // because survey-core drives it from there: .sd-action-bar__item--hidden computes
+  // its collapse margin from --sd-action-bar-gap, and a raw override would leave that
+  // compensation sized for the default gap instead of ours.
+  --sd-action-bar-gap: var(--sjs2-spacing-x200, 16px);
+  // How far each avatar slides over the one before it. Kept smaller than the circle's
+  // own inner margin so the overlap eats the padding and not the initials - the ring
+  // below is what makes the group read as a stack, not the depth of the bite.
+  --collab-avatar-overlap: var(--sjs2-spacing-x050, 4px);
+  // The strip's own padding - .sd-action-bar declares none, so this is all of it, and
+  // box-sizing is content-box, meaning it adds to the height rather than fitting in.
+  // Horizontal stays wider than vertical: it lines the avatars up with the form title
+  // right below.
+  padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x300, 24px);
+  background: var(--sjs2-color-component-survey-body-default-bg, #fff);
+  border-bottom: 1px solid var(--sjs2-color-utility-border-default, #d4d4d4);
+}
+
+// The avatars overlap into one group. position:relative alone decides who is on top:
+// positioned siblings paint in DOM order, so each avatar covers the previous one and
+// no z-index bookkeeping is needed.
+.sv-collab-bar__participant {
+  position: relative;
+}
+
+// Same technique the library uses on .sd-action-bar__item--hidden: a flex gap cannot
+// be negative, so the pull-back has to absorb the container gap as well as the overlap
+// itself. The modifier is put on the element by the model rather than picked out with
+// a sibling selector - Angular renders a hidden <sv-ng-action> host between the items,
+// which breaks `+`, `:first-child` and `:nth-child` there.
+.sv-collab-bar__participant--stacked {
+  margin-inline-start: calc(-1 * (var(--sd-action-bar-gap) + var(--collab-avatar-overlap)));
+}
+
+// The avatar under the pointer comes up whole, together with its tooltip target.
+.sv-collab-bar__participant:hover,
+.sv-collab-bar__participant:focus-within {
+  z-index: 1;
+}
+
+// Pushes everything after it to the right edge: the info rows and the connection
+// plate stay left, participants and Invite go right.
+.sv-collab-bar__spacer {
+  margin-inline-end: auto;
+}
+
+.sv-collab-bar__avatar {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+  color: var(--collab-avatar-fg, #fff);
+  background: var(--collab-avatar-bg, #808080);
+  // Separator ring in the strip's own background colour, as an OUTSET shadow: it
+  // neither shrinks the fill nor grows the layout box, so the overlap stays exactly
+  // the distance the margin above asks for.
+  box-shadow: 0 0 0 var(--sjs2-border-width-x200, 2px)
+    var(--sjs2-color-component-survey-body-default-bg, #fff);
+}
+
+// The initials live in a nested .sd-action__title, which declares its own font-size,
+// so setting one on the button does nothing at all - a declaration on the element
+// always beats inheritance from an ancestor. Its padding is zeroed too, so the circle
+// is exactly as wide as the avatar asks for.
+//
+// Two classes deep on purpose: collaboration.css is a separate artifact and nothing in
+// the build guarantees it loads after survey-core.css, so this wins on specificity
+// rather than on source order.
+.sv-collab-bar__avatar .sd-action__title {
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+// One theme slot per participant. The slot index is derived from the client id, so
+// every client paints the same person the same colour without the server having to
+// agree on one - and the paired foreground keeps the initials legible in both the
+// light and the dark palette.
+.sv-collab-bar__avatar--color-0 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-0);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-0);
+}
+.sv-collab-bar__roster-item--color-0::before {
+  background: var(--sjs2-color-utility-user-bg-color-0);
+}
+.sv-collab-bar__avatar--color-1 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-1);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-1);
+}
+.sv-collab-bar__roster-item--color-1::before {
+  background: var(--sjs2-color-utility-user-bg-color-1);
+}
+.sv-collab-bar__avatar--color-2 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-2);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-2);
+}
+.sv-collab-bar__roster-item--color-2::before {
+  background: var(--sjs2-color-utility-user-bg-color-2);
+}
+.sv-collab-bar__avatar--color-3 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-3);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-3);
+}
+.sv-collab-bar__roster-item--color-3::before {
+  background: var(--sjs2-color-utility-user-bg-color-3);
+}
+.sv-collab-bar__avatar--color-4 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-4);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-4);
+}
+.sv-collab-bar__roster-item--color-4::before {
+  background: var(--sjs2-color-utility-user-bg-color-4);
+}
+.sv-collab-bar__avatar--color-5 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-5);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-5);
+}
+.sv-collab-bar__roster-item--color-5::before {
+  background: var(--sjs2-color-utility-user-bg-color-5);
+}
+.sv-collab-bar__avatar--color-6 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-6);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-6);
+}
+.sv-collab-bar__roster-item--color-6::before {
+  background: var(--sjs2-color-utility-user-bg-color-6);
+}
+.sv-collab-bar__avatar--color-7 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-7);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-7);
+}
+.sv-collab-bar__roster-item--color-7::before {
+  background: var(--sjs2-color-utility-user-bg-color-7);
+}
+.sv-collab-bar__avatar--color-8 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-8);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-8);
+}
+.sv-collab-bar__roster-item--color-8::before {
+  background: var(--sjs2-color-utility-user-bg-color-8);
+}
+.sv-collab-bar__avatar--color-9 {
+  --collab-avatar-bg: var(--sjs2-color-utility-user-bg-color-9);
+  --collab-avatar-fg: var(--sjs2-color-utility-user-fg-on-color-9);
+}
+.sv-collab-bar__roster-item--color-9::before {
+  background: var(--sjs2-color-utility-user-bg-color-9);
+}
+
+.sv-collab-bar__roster-item::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: var(--sjs2-spacing-x100, 8px);
+  border-radius: 50%;
+  background: var(--sjs2-color-utility-border-default, #909090);
+}

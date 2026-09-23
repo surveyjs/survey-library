@@ -210,13 +210,42 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val === "datetime_local" || val === "datetime") val = "datetime-local";
+    const prevType = this.inputType;
     this.setPropertyValue("inputType", val.toLowerCase());
-    if (!this.isLoadingFromJson) {
-      this.min = undefined;
-      this.max = undefined;
-      this.step = undefined;
+    if (!this.isLoadingFromJson && !isMinMaxCompatible(prevType, this.inputType)) {
+      this.resetMinMaxValues();
+      // min/maxValueExpression are supported for the "text" inputType as well, clear them only if they came from a min/max inputType
+      if (minMaxTypes.indexOf(prevType) > -1) {
+        this.minValueExpression = undefined;
+        this.maxValueExpression = undefined;
+      }
     }
     this.updateMaskAdapter();
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.clearIrrelevantMinMaxOnLoading();
+  }
+  // min/max can come from a JSON copied/converted from another inputType (for example, number -> tel or date -> number)
+  private clearIrrelevantMinMaxOnLoading(): void {
+    // do not touch unknown/custom inputTypes
+    if (settings.questions.inputTypes.indexOf(this.inputType) < 0) return;
+    if (!this.isMinMaxType) {
+      this.resetMinMaxValues();
+      return;
+    }
+    const isNumeric = numberTypes.indexOf(this.inputType) > -1;
+    ["min", "max"].forEach(name => {
+      const val = this.getPropertyValue(name);
+      if (!this.isValueEmpty(val) && Helpers.isNumber(val) !== isNumeric) {
+        this.setPropertyValue(name, undefined);
+      }
+    });
+  }
+  private resetMinMaxValues(): void {
+    this.min = undefined;
+    this.max = undefined;
+    this.step = undefined;
   }
   public getMaxLength(): any {
     if (!this.isTextInput) return null;
@@ -925,6 +954,11 @@ const minMaxTypes = [
   "week",
 ];
 
+// min/max/step can be kept on changing inputType only if both types use the same value format (number <-> range).
+function isMinMaxCompatible(prevType: string, newType: string): boolean {
+  if (prevType === newType) return true;
+  return numberTypes.indexOf(prevType) > -1 && numberTypes.indexOf(newType) > -1;
+}
 export function isMinMaxType(obj: any): boolean {
   const t = !!obj ? obj.inputType : "";
   if (!t) return false;
@@ -1127,7 +1161,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.isTextInput;
+        return obj.isTextInput || obj.inputType === "number";
       },
     },
     {

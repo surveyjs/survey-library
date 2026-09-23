@@ -1621,11 +1621,7 @@ describe("Tagbox question", () => {
     list.onItemClick(list.actions[0]);
     expect([...(question.value)], "question value #4").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
-    expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #1").toBe(999);
-    doneCallback(opts[2]);
-    expect([...(question.value)], "question value #5").toEqual([999]);
-    expect(question.selectedChoices.length).toBe(1);
-    expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #2").toBe(999);
+    expect(question.selectedChoices[0].value).toBe(999);
   });
 
   test("The new selected value is always replaced with the the first selected value while searching #8751", assert => {
@@ -1661,16 +1657,15 @@ describe("Tagbox question", () => {
     dropdownListModel.onClear(null);
     expect([...(question.value)], "question value #2").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
-    doneCallback(opts[2]);
     dropdownListModel.inputStringRendered = "999";
     expect([...(question.value)], "question value #3").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
-    doneCallback(opts[3]);
+    doneCallback(opts[2]);
     list.onItemClick(list.actions[0]);
     expect([...(question.value)], "question value #4").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #1").toBe(999);
-    doneCallback(opts[4]);
+    doneCallback(opts[3]);
     expect([...(question.value)], "question value #5").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #2").toBe(999);

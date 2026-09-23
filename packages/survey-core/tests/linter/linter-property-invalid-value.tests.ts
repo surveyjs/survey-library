@@ -44,6 +44,12 @@ describe("property/invalid-value - values outside the allowed set", () => {
       ],
     })).toHaveLength(0);
   });
+  test("\"default\" is an accepted spelling of the survey locale", () => {
+    // the Creator writes locale: "default" for the default locale (survey-creator Bug#7541), and
+    // the property's own accepted values say so - the linter reads the same list
+    expect(byRule({ locale: "default", elements: [{ type: "text", name: "q1" }] })).toHaveLength(0);
+    expect(byRule({ locale: "nosuchlocale", elements: [{ type: "text", name: "q1" }] })).toHaveLength(1);
+  });
   test("free-form values are not checked against anything", () => {
     expect(byRule({
       elements: [

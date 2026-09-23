@@ -1,6 +1,7 @@
-import { frameworks, initSurvey, url, test, expect } from "../helper";
+import { frameworks, initSurvey, url, test, expect, mockChoicesByUrl } from "../helper";
 
 const title = "questionsInOneLine and titles location";
+const countriesUrl = "http://127.0.0.1:8080/mock-api/countries";
 
 const json = {
   questionTitleLocation: "bottom",
@@ -26,7 +27,7 @@ const json = {
           startWithNewLine: false,
           title: "Country",
           choicesByUrl: {
-            url: "http://services.groupkt.com/country/get/all",
+            url: countriesUrl,
             path: "RestResponse;result",
             valueName: "name",
           },
@@ -39,6 +40,7 @@ const json = {
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test("check one line", async ({ page }) => {
+      await mockChoicesByUrl(page, countriesUrl, { RestResponse: { result: [{ name: "United States" }, { name: "Romania" }] } });
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
 

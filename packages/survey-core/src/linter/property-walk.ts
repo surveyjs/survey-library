@@ -30,6 +30,7 @@ export interface UnknownKeySite {
   className: string;
   key: string;
   path: string;
+  json: any;
   knownKeys: Array<string>;
   owner: PropertyOwner;
 }
@@ -45,10 +46,34 @@ export interface AliasPairSite {
   owner: PropertyOwner;
 }
 
+// A non-array value written for an array property. The deserializer wraps it into a one-item
+// array (JsonObject.valueToObj), so the value works - and the spelling is a defect all the same.
+export interface NotArraySite {
+  className: string;
+  key: string;
+  value: any;
+  path: string;
+  owner: PropertyOwner;
+}
+
+// An object the deserializer builds a survey object out of: the site a required property is
+// checked against. "owner" is the nearest named ancestor-or-self the way the other sites name
+// it; "ownName" is the object's own name, absent when it has none - which is what
+// property/required reports.
+export interface ObjectSite {
+  className: string;
+  json: any;
+  path: string;
+  owner: PropertyOwner;
+  ownName?: string;
+}
+
 export interface PropertyWalkResult {
   props: Array<PropertySite>;
   unknownKeys: Array<UnknownKeySite>;
   aliasPairs: Array<AliasPairSite>;
+  notArrays: Array<NotArraySite>;
+  objects: Array<ObjectSite>;
 }
 
 interface WalkState {
@@ -69,6 +94,11 @@ const TYPE_KEY = "type";
 // author wrote, so no rule reports it.
 export const POSITION_KEY = "pos";
 const MAX_DEPTH = 30;
+
+// The keys an author wrote: the position marker is not one of them.
+export function userKeys(value: any): Array<string> {
+  return Object.keys(value).filter(key => key !== POSITION_KEY);
+}
 
 function isPlainObject(value: any): boolean {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -163,6 +193,10 @@ function walkObject(state: WalkState, json: any, className: string, path: string
   // */unknown-type rules own whatever the JSON says here
   if (!known) return;
   const owner = ownerOf(json, className, parentOwner);
+  state.result.objects.push({
+    className: className, json: json, path: path, owner: owner,
+    ownName: typeof json.name === "string" && !!json.name ? json.name : undefined,
+  });
   const reportUnknown = !isComponentClass(state, className, json);
   const keys = Object.keys(json);
   keys.forEach(key => {
@@ -172,15 +206,24 @@ function walkObject(state: WalkState, json: any, className: string, path: string
     if (!prop) {
       if (reportUnknown) {
         state.result.unknownKeys.push({
-          className: className, key: key, path: keyPath, knownKeys: known.names, owner: owner,
+          className: className, key: key, path: keyPath, json: json,
+          knownKeys: known.names, owner: owner,
         });
       }
       return;
     }
+    const value = json[key];
     state.result.props.push({
-      className: className, key: key, prop: prop, value: json[key],
+      className: className, key: key, prop: prop, value: value,
       path: keyPath, json: json, owner: owner,
     });
+    // the deserializer's own test (valueToObj): a property with a setter of its own takes the
+    // value as it is, every other array property wraps a truthy non-array
+    if (prop.isArray && !prop.hasToUseSetValue && !!value && !Array.isArray(value)) {
+      state.result.notArrays.push({
+        className: className, key: key, value: value, path: keyPath, owner: owner,
+      });
+    }
     addAliasPair(state, json, prop, key, keyPath, owner, className, keys);
     walkValue(state, json[key], prop, keyPath, json, owner, depth);
   });
@@ -190,7 +233,7 @@ export function walkProperties(json: any, metadata: LintMetadata, options: ISurv
   settings: ILintResolvedSettings): PropertyWalkResult {
   const state: WalkState = {
     metadata: metadata, options: options, settings: settings, visited: new WeakSet(),
-    result: { props: [], unknownKeys: [], aliasPairs: [] },
+    result: { props: [], unknownKeys: [], aliasPairs: [], notArrays: [], objects: [] },
   };
   walkObject(state, json, SURVEY_CLASS, "", undefined, {}, 0);
   return state.result;

@@ -41,7 +41,19 @@ $blue: var(--sjs2-color-bg-note-primary);
 $blue-light: var(--sjs2-color-bg-note-secondary);
 $blue-forecolor: var(--sjs2-color-fg-note-on-primary);
 
-$font-family: var(--sjs2-typography-font-family-text);
+$font-family-fallbacks:
+  Inter,
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  Roboto,
+  "Noto Sans",
+  "Helvetica Neue",
+  Ubuntu,
+  "Segoe UI",
+  Arial,
+  sans-serif;
+$font-family: var(--sjs2-typography-font-family-text), $font-family-fallbacks;
 
 $font-questiontitle-weight: var(--sjs2-typography-font-weight-component-question-title);
 $font-questiontitle-color: var(--sjs2-color-component-question-default-title, var(--sjs2-color-fg-basic-primary));

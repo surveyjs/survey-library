@@ -81,6 +81,7 @@ export class InputMaskNumeric extends InputMaskBase {
    *
    * Default value: `undefined` (the mask inherits [`regionalFormat.decimalSeparator`](/form-library/documentation/api-reference/regionalformat#decimalSeparator) or the separator used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"."` in English))
    * @see precision
+   * @see showTrailingZeros
    * @see thousandsSeparator
    */
   public get decimalSeparator(): string {
@@ -94,12 +95,18 @@ export class InputMaskNumeric extends InputMaskBase {
    *
    * Default value: 2
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see decimalSeparator
+   * @see showTrailingZeros
    */
   @property() precision: number;
-  // Keeps the fractional part of a displayed number filled with zeros up to precision, from the first
-  // digit a respondent types on: an input with a precision of 2 displays "1.50" and "2.00".
+  /**
+   * Specifies whether to add trailing zeros to the fractional part of a displayed number to match the specified [`precision`](#precision).
+   *
+   * When this property is `true`, trailing zeros appear immediately as respondents enter a value, without waiting for the input field to lose focus. For example, with `precision` set to 2, entering 1 displays "1.00", and entering 1.5 displays "1.50".
+   *
+   * Default value: `false`
+   */
   @property() showTrailingZeros: boolean;
   /**
    * A symbol that separates the digits of a large number into groups of three.

@@ -123,4 +123,21 @@ describe("getFilterFields with a composite cell type", () => {
     expect(fields.map((f: any) => f.valueName), "#1: the key the cell writes, not the column name")
       .toEqual(["customer.firstName", "customer.lastName"]);
   });
+  test("a dropdown matrix in a panel template contributes no field", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdropdown", name: "md", rows: ["r1", "r2"], columns: [{ name: "c1" }] }] }] });
+    const fields = (<any>survey.getQuestionByName("p")).getFilterFields();
+    expect(fields.map((f: any) => f.valueName), "#1: its cells sit under the row, not under the matrix")
+      .toEqual(["q1"]);
+  });
+  test("a select column with no choices of its own reports the matrix choices", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m",
+      choices: [{ value: "de", text: "Germany" }], columns: [
+        { name: "c1" }, { name: "c2", cellType: "dropdown", choices: ["x"] }, { name: "c3", cellType: "text" }] }] });
+    const fields = (<any>survey.getQuestionByName("m")).getFilterFields();
+    expect(fields[0].choices.map((item: any) => item.value), "#1: what its cells show").toEqual(["de"]);
+    expect(fields[1].choices, "#2: its own choices are the template question's").toBe(undefined);
+    expect(fields[2].choices, "#3: not a select column").toBe(undefined);
+  });
 });

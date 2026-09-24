@@ -978,6 +978,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get isFilterable(): boolean {
     return false;
   }
+  // A Dropdown Matrix is a record too, but its cells write one level deeper, under the row
+  // ({md.r1.c1}), and its nested questions are one per row and column: walking into it would offer
+  // the same column once per row, under a path nothing resolves.
+  public get hasNestedFilterFields(): boolean {
+    return false;
+  }
   public static get defaultCellType() {
     return settings.matrix.defaultCellType;
   }

@@ -677,6 +677,11 @@ export class Question extends SurveyElement<Question>
   public get isFilterable(): boolean {
     return this.getValueType() !== "object";
   }
+  // Whether a Filter Control walks into a question that is not a field for the fields of its own:
+  // a record whose nested questions write directly under its value, so {address.city} reaches them.
+  public get hasNestedFilterFields(): boolean {
+    return this.getValueType() === "object";
+  }
   @property({ defaultValue: true }) allowFiltering: boolean;
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.

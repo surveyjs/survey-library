@@ -832,6 +832,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get isFilterable(): boolean {
     return !!this.contentQuestion ? this.contentQuestion.isFilterable : super.isFilterable;
   }
+  public get hasNestedFilterFields(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.hasNestedFilterFields : super.hasNestedFilterFields;
+  }
   public isSelectQuestion(): boolean {
     return !!this.contentQuestion && this.contentQuestion.isSelectQuestion();
   }

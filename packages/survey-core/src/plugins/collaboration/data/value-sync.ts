@@ -1,15 +1,8 @@
 import { EventBase, Question, QuestionMatrixDynamicModel, settings, SurveyModel } from "survey-core";
 import { IInitMessage, IValueMessage } from "../collab-messages";
-import { decodeValueKey, encodeValueKey, IDecodedKey, MAX_VALUE_CHARS } from "./value-record";
+import { decodeSurveyName, decodeValueKey, encodeValueKey, IDecodedKey } from "./value-record";
 import { normalizeOutgoingValue, syncMatrixRowCount, withNestedMatrixRows } from "./value-normalize";
 import { commitFocusedEditor, ICommittedEditor, writeEditorText } from "./editor-commit";
-
-export interface IValueSyncOptions {
-  maxValueChars?: number;
-  // Raised when a value is refused for being too large, so the host can word the
-  // message. Default: an English sentence put on the question as an error.
-  onValueTooLarge?: (question: Question | null, key: string) => void;
-}
 
 // Answer synchronisation: local edits out, peer edits in.
 //
@@ -25,7 +18,7 @@ export class ValueSyncController {
   private loading = false;
   private detachHandlers: Array<() => void> = [];
 
-  constructor(private survey: SurveyModel, private options: IValueSyncOptions = {}) {
+  constructor(private survey: SurveyModel) {
     const onLocalChange = (_sender: SurveyModel, options: { name: string, value: any }) => {
       this.emitName(options.name, options.value);
     };
@@ -152,11 +145,8 @@ export class ValueSyncController {
     const suffix = this.survey.commentSuffix;
     const res: { [key: string]: any } = {};
     Object.keys(data).forEach((key) => {
-      if (!!suffix && key.length > suffix.length && key.substring(key.length - suffix.length) === suffix) {
-        res[encodeValueKey(key.substring(0, key.length - suffix.length), true)] = data[key];
-      } else {
-        res[key] = data[key];
-      }
+      const decoded = decodeSurveyName(key, suffix);
+      res[encodeValueKey(decoded.name, decoded.isComment)] = data[key];
     });
     return res;
   }
@@ -168,28 +158,14 @@ export class ValueSyncController {
 
   private emitName(name: string, value: any): void {
     if (this.loading) return;
-    const suffix = this.survey.commentSuffix;
-    const isComment = !!suffix && name.length > suffix.length &&
-      name.substring(name.length - suffix.length) === suffix;
-    const baseName = isComment ? name.substring(0, name.length - suffix.length) : name;
-    if (baseName === this.applyingName) return;
-    const outgoing = isComment ? value : normalizeOutgoingValue(this.survey, baseName, value);
-    this.emit(encodeValueKey(baseName, isComment), outgoing);
+    const decoded = decodeSurveyName(name, this.survey.commentSuffix);
+    if (decoded.name === this.applyingName) return;
+    const outgoing = decoded.isComment ? value : normalizeOutgoingValue(this.survey, decoded.name, value);
+    this.emit(encodeValueKey(decoded.name, decoded.isComment), outgoing);
   }
 
+  // No size limit here: the relay knows its own frame limit and enforces it.
   private emit(key: string, value: any): void {
-    const serialized = JSON.stringify(value);
-    const limit = this.options.maxValueChars || MAX_VALUE_CHARS;
-    if (serialized !== undefined && serialized.length > limit) {
-      const decoded = decodeValueKey(key);
-      const question = this.survey.getQuestionByValueName(decoded.name);
-      if (!!this.options.onValueTooLarge) {
-        this.options.onValueTooLarge(question, key);
-      } else if (!!question) {
-        question.addError("This answer is too large to share with the other participants.");
-      }
-      return;
-    }
     this.onMessage.fire(this, { message: { type: "value", key: key, value: value } });
   }
 }

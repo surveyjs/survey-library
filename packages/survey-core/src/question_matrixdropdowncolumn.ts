@@ -559,8 +559,18 @@ export class MatrixDropdownColumn extends Base
       valueType: q.getValueType(),
       // The resolved type and not this.cellType: "default" means "whatever the matrix says".
       fieldType: q.getType(),
-      templateQuestion: q
+      templateQuestion: q,
+      choices: this.getMatrixChoicesForFilter()
     };
+  }
+  // The rule onUpdateSelectBaseCellQuestion applies to every cell: a select cell with no choices and
+  // no choicesByUrl of its own shows the matrix's. It is applied to the cells only, never to the
+  // template question, and copying them there would serialize them into the column.
+  private getMatrixChoicesForFilter(): Array<ItemValue> {
+    const q: any = this.templateQuestion;
+    if (!q || q.isChoicesUrlEmpty !== true || (Array.isArray(q.choices) && q.choices.length > 0)) return undefined;
+    const matrixChoices: Array<ItemValue> = !!this.colOwner ? (<any>this.colOwner).choices : undefined;
+    return Array.isArray(matrixChoices) && matrixChoices.length > 0 ? matrixChoices : undefined;
   }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).

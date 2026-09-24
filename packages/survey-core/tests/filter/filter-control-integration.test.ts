@@ -189,7 +189,7 @@ describe("Filter control: bound mode", () => {
     control.toggleItem("de");
     const before = matrix.visibleRows.length;
     control.name = "renamed";
-    expect(controlFilterKeys(matrix), "#1: the key is the id, so the rename changes nothing")
+    expect(controlFilterKeys(matrix), "#1: the key is not the name, so the rename changes nothing")
       .toEqual([(<any>control).controlFilterKey]);
     expect(matrix.visibleRows.length, "#2").toBe(before);
   });
@@ -293,5 +293,83 @@ describe("Filter control: bound mode", () => {
     control.searchString = "Ber";
     expect(control.filterExpression, "#1").toBe("{mt.city} contains 'Ber'");
     expect(panel.visiblePanels.length, "#2").toBe(1);
+  });
+  test("a control taken off its page clears its part and brings it back when it is put back", () => {
+    const survey = createBound();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    control.toggleItem("de");
+    expect(matrix.visibleRows.length, "#1").toBe(1);
+    survey.pages[0].removeElement(control);
+    expect(controlFilterKeys(matrix), "#2: the removal alone detaches it").toEqual([]);
+    expect(matrix.visibleRows.length, "#3").toBe(3);
+    survey.pages[0].addElement(control);
+    expect(controlFilterKeys(matrix), "#4").toEqual([(<any>control).controlFilterKey]);
+    expect(matrix.visibleRows.length, "#5").toBe(1);
+  });
+  test("a control that is off its page does not attach to a source it is re-pointed to", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "country" }] },
+      { type: "matrixdynamic", name: "m2", columns: [{ name: "country" }] },
+      { type: "filter", name: "f1", source: "m1", defaultItem: "de",
+        items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    survey.pages[0].removeElement(control);
+    control.source = "m2";
+    expect(controlFilterKeys(m2), "#1: a removed control still reaches the survey, but filters nothing")
+      .toEqual([]);
+  });
+  test("a control whose page is removed clears its part", () => {
+    const survey = new SurveyModel({ pages: [
+      { name: "p1", elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "country" }] }] },
+      { name: "p2", elements: [{ type: "filter", name: "f1", source: "m", defaultItem: "de",
+        items: [{ name: "de", expression: "{country} = 'de'" }] }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ country: "de" }, { country: "fr" }];
+    expect(matrix.visibleRows.length, "#1").toBe(1);
+    survey.removePage(survey.pages[1]);
+    expect(controlFilterKeys(matrix), "#2").toEqual([]);
+    expect(matrix.visibleRows.length, "#3").toBe(2);
+  });
+  test("changing the id does not orphan the part the control has written", () => {
+    const survey = createBound();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    control.toggleItem("de");
+    control.id = "customId";
+    control.toggleItem("de");
+    expect(controlFilterKeys(matrix), "#1: the key does not follow the id").toEqual([]);
+    expect(matrix.visibleRows.length, "#2").toBe(3);
+  });
+  test("re-pointing source to one where the expression becomes empty reports the change", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", columns: [{ name: "city" }] },
+      { type: "matrixdynamic", name: "m2", columns: [{ name: "doc", cellType: "file" }] },
+      { type: "filter", name: "f1", source: "m1", showSearch: true, items: [] }] });
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    control.searchString = "Ber";
+    expect(control.filterExpression, "#1").toBe("{city} contains 'Ber'");
+    const raised: Array<any> = [];
+    survey.onFilterChanged.add((_, options) => {
+      raised.push({ expression: options.filterExpression,
+        source: !!options.sourceQuestion ? options.sourceQuestion.name : "" });
+    });
+    control.source = "m2";
+    expect(control.filterExpression, "#2: nothing on m2 can be searched").toBe("");
+    expect(raised, "#3: the filter a host mirrors did change").toEqual([{ expression: "", source: "m2" }]);
+  });
+  test("a column that shows the matrix choices is searched by their display text", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m",
+        choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }],
+        columns: [{ name: "country" }] },
+      { type: "filter", name: "f1", source: "m", showSearch: true, items: [] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ country: "de" }, { country: "fr" }];
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    control.searchString = "Germ";
+    expect(control.filterExpression, "#1: the cells show the matrix choices").toBe("{country} anyof ['de']");
+    expect(matrix.visibleRows.length, "#2").toBe(1);
   });
 });

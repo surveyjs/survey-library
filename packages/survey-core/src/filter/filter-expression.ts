@@ -42,16 +42,18 @@ function containsText(value: string, text: string): boolean {
   if (settings.comparator.caseSensitive) return value.indexOf(text) > -1;
   return value.toLowerCase().indexOf(text.toLowerCase()) > -1;
 }
-// The choices of the question that supplies the editor, or none. visibleChoices is empty while
-// choicesByUrl is still loading, so the field falls back to "contains" over the raw value and
-// silently upgrades to anyof once the choices arrive and the field reports the change.
+// The choices the respondent sees for the field: the ones the source resolved for it, else those of
+// the question that supplies the editor, else none. A field with no choices is searched by
+// "contains" over the raw value - which is also what a choicesByUrl field gets: neither a FilterField's
+// template question nor a matrix column's is ever run, only the questions a respondent answers are.
 // The built-in items - "None", "Other", "Select All", "Refuse", "Don't know" - are left out:
 // they are gestures over the value set and not values a record holds, so an anyof over one of them
 // matches nothing, and counting one as a match would also take the "false" answer away from a field
 // whose real choices have nothing to offer.
 function getFieldChoiceItems(field: IDynamicDataFilterField): Array<any> {
   const q: any = field.templateQuestion;
-  if (!q || !Array.isArray(q.visibleChoices)) return [];
-  if (typeof q.isBuiltInChoice !== "function") return q.visibleChoices;
-  return q.visibleChoices.filter((item: any): boolean => !q.isBuiltInChoice(item));
+  const choices: Array<any> = Array.isArray(field.choices) ? field.choices : (!!q ? q.visibleChoices : undefined);
+  if (!Array.isArray(choices)) return [];
+  if (!q || typeof q.isBuiltInChoice !== "function") return choices;
+  return choices.filter((item: any): boolean => !q.isBuiltInChoice(item));
 }

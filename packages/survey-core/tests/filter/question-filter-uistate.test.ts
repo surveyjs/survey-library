@@ -135,4 +135,15 @@ describe("QuestionFilterModel: uiState", () => {
     expect(q.items[0].expression, "#1").toBe("({age} > 18) and ({country} anyof ['de'])");
     expect(q.searchString, "#2").toBe("");
   });
+  test("assigning the same searchFields, or assigning any in the designer, fires nothing", () => {
+    const survey = createSurvey({ searchFields: ["name"] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const reasons: Array<string> = [];
+    survey.onUIStateChanged.add((_, o) => reasons.push(o.changedProperty));
+    q.searchFields = ["name"];
+    expect(reasons, "#1: nothing changed").toEqual([]);
+    survey.setDesignMode(true);
+    q.searchFields = ["country"];
+    expect(reasons, "#2: the designer has no respondent whose state it would be").toEqual([]);
+  });
 });

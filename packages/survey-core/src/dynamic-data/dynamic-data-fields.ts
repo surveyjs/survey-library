@@ -1,5 +1,6 @@
 import { Question, QuestionValueType } from "../question";
 import { LocalizableString } from "../localizablestring";
+import { ItemValue } from "../itemvalue";
 import { settings } from "../settings";
 import { DynamicDataFieldType, IDynamicDataField } from "./dynamic-data-interfaces";
 
@@ -43,11 +44,16 @@ export interface IDynamicDataFilterField {
   fieldType: string;
   // The question the editor is cloned from. It belongs to the source and is never stored.
   templateQuestion: Question;
+  // The choices a respondent sees for this field when they are not the template question's own: a
+  // select column with no choices shows the matrix's in its cells, and only the cells receive them.
+  // undefined = the template question's visibleChoices.
+  choices?: Array<ItemValue>;
 }
 // The fields a Filter Control offers for a set of questions. A question whose value is a record of
 // its own - Multiple Textboxes, a composite question - is not a field: its children are, under the
 // dotted path the expression language reads them with ({address.city}). A question whose value is a
-// table of its own - a nested Dynamic Matrix or Dynamic Panel - is neither, and is skipped whole.
+// table of its own - a nested Dynamic Matrix or Dynamic Panel, a Dropdown Matrix - is neither, and is
+// skipped whole.
 export function getFilterFieldsForQuestions(questions: Array<Question>): Array<IDynamicDataFilterField> {
   const res = new Array<IDynamicDataFilterField>();
   (questions || []).forEach((question: Question): void => { collectFilterFields(res, question, ""); });
@@ -65,7 +71,7 @@ export function collectFilterFields(res: Array<IDynamicDataFilterField>, questio
     });
     return;
   }
-  if (question.getValueType() !== "object") return;
+  if (!question.hasNestedFilterFields) return;
   question.getNestedQuestions(false, false).forEach((nested: Question): void => {
     collectFilterFields(res, nested, valueName + ".");
   });

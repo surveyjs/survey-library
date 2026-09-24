@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
 import { Helpers, HashTable } from "./helpers";
+import { ISurveyImpl } from "./base-interfaces";
 import { IElementUIState, IFilterElementUIState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
@@ -76,6 +77,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // searchFields from a survey that also sets allowChangeSearchFields to false. A renderer must
   // call setSearchFields(), never assign this.
   public set searchFields(val: Array<string>) {
+    if (Helpers.isTwoValueEquals(val, this.searchFields)) return;
     this.setPropertyValue("searchFields", val);
     this.raiseUIStateChanged();
   }
@@ -97,9 +99,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The composed output of the control. Not registered either: it is computed, never authored.
   public get filterExpression(): string { return this.getPropertyValue("filterExpression", ""); }
 
-  // The key this control's filter lives under on the source. The id and not the name: control
-  // filters are runtime state, ids are unique and a rename does not orphan one.
-  private get controlFilterKey(): string { return "filterControl:" + this.id; }
+  // The key this control's filter lives under on the source. Neither the name nor the id: both can
+  // be reassigned while the filter is on the source, and the detach that follows would then clear a
+  // key nothing was written under. uniqueId is fixed for the life of the object.
+  private get controlFilterKey(): string { return "filterControl:" + this.uniqueId; }
   // The source this control is currently writing into. Detaching goes through this and never
   // through a fresh lookup by name: once source has been re-pointed, or the source question has
   // been renamed, the lookup no longer finds the question that still carries the filter, and it
@@ -107,8 +110,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   private attachedSource: IDynamicDataFilterSource;
   // The question source names, if it can be filtered by a control. Asked by capability, the way the
   // data list asks a source whether it has "readRange": the control imports neither dynamic question.
+  // A control taken off its page keeps its data, so without the parent check it would still find a
+  // source - and filter it from outside the survey - the next time it re-resolves one.
   private get filterSource(): IDynamicDataFilterSource {
-    const q: any = !!this.data ? this.data.findQuestionByName(this.source) : undefined;
+    const q: any = !!this.data && !!this.parent ? this.data.findQuestionByName(this.source) : undefined;
     return !!q && typeof q.getFilterFields === "function" && typeof q.setControlFilter === "function"
       ? <IDynamicDataFilterSource>q : undefined;
   }
@@ -240,6 +245,28 @@ export class QuestionFilterModel extends QuestionNonValue {
     super.onSetData();
     this.updateFilterSource();
   }
+  // A removed page takes its questions out of the survey with setSurveyImpl(null), which, unlike
+  // a non-null one, does not reach onSetData().
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    if (!value) {
+      this.detachFromSource();
+    }
+  }
+  // removeElement() only resets the parent: data and survey stay, and runCondition() no longer
+  // reaches the control, so this is the one report of the removal it gets. Taking the control out
+  // detaches it without an event, the way dispose() does; putting it back re-resolves the source.
+  // Known gap: a control inside a panel that is removed, or inside a Dynamic Panel item that is
+  // removed, is not reported either - its own parent does not change - and keeps its filter on a
+  // source outside that panel until it is disposed.
+  protected onParentChanged(): void {
+    super.onParentChanged();
+    if (!this.parent) {
+      this.detachFromSource();
+    } else {
+      this.updateFilterSource();
+    }
+  }
   public dispose(): void {
     this.detachFromSource();
     super.dispose();
@@ -254,6 +281,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       return;
     }
     this.detachFromSource();
+    const oldExpression = this.filterExpression;
     // The expression is recomposed against the new source BEFORE anything is written: the search
     // fragments quote the fields of the source they were built from, so the text composed for the
     // previous one names fields the new one may not have. Recomposing it silently - the control is
@@ -261,9 +289,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     // event instead of a wrong pair of them.
     this.updateFilterExpression(true);
     this.attachedSource = source;
-    // Attaching is not a change of the filter by itself: with nothing composed there is nothing to
-    // write and nothing to report.
-    if (!!this.filterExpression) {
+    // Attaching is not a change of the filter by itself: with nothing composed, before or now, there
+    // is nothing to write and nothing to report. A move that empties the expression is one, though:
+    // a host that mirrors the filter would otherwise keep querying by the text composed for the old
+    // source.
+    if (!!this.filterExpression || this.filterExpression !== oldExpression) {
       this.applyToSource();
     }
   }
@@ -345,9 +375,10 @@ export class QuestionFilterModel extends QuestionNonValue {
       this.applyToSource();
     }
   }
-  // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it.
+  // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it. The
+  // designer has no respondent, so nothing done to the control there is respondent state.
   private raiseUIStateChanged(): void {
-    if (this.isLoadingFromJson || this.isSettingUIState || !this.survey) return;
+    if (this.isLoadingFromJson || this.isSettingUIState || this.isDesignMode || !this.survey) return;
     const survey: any = this.survey;
     if (!!survey.filterStateChanged) survey.filterStateChanged(this);
   }

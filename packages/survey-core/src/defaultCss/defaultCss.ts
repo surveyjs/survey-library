@@ -230,6 +230,7 @@ export var defaultCss = {
     descriptionUnderInput: "sd-question__description--under-input",
     comment: "sd-formbox sd-comment",
     commentControl: "sd-formbox__input sd-comment__input",
+    commentOnError: "sd-formbox--error",
     commentGrip: "sd-comment__grip",
     commentGripIconId: "icon-grip",
     required: "sd-question--required",

@@ -462,7 +462,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.survey) {
       actions = this.titleSettings.getUpdatedElementTitleActions(this, actions);
     }
-    this.setArrayPropertyValue("titleActions", actions);
+    if (Array.isArray(this.getPropertyValueWithoutDefault("titleActions"))) {
+      this.setArrayPropertyValue("titleActions", actions);
+    } else {
+      //titleActions are requested lazily (hasTitleActions is read during rendering), do not notify UI subscribers on creating them
+      const titleActions = this.titleActions;
+      Array.prototype.push.apply(titleActions, actions);
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

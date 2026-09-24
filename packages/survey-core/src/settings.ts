@@ -742,6 +742,10 @@ export var settings = {
 
   // When true, the OS "prefers-reduced-motion: reduce" preference turns animations and smooth scrolling off
   // even if animationEnabled is true.
+  // SSR: the preference is a browser fact the server cannot see, so SurveyModel reads it only after mount
+  // and adds the "animation-disabled" root class then; server HTML and the hydration render never carry it
+  // (the CSS media query covers that first paint). A test or app that needs the root class to be identical
+  // on both sides sets this to false and drives motion through animationEnabled alone.
   respectReducedMotion: true,
 
   /**

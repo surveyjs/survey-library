@@ -11,8 +11,20 @@ interface IReducedMotionMedia {
   removeListener?: (listener: () => void) => void;
 }
 
+// isAnimationEnabled() sits behind every animationAllowed read, so the MediaQueryList is resolved
+// once per window rather than on each call. A MediaQueryList is live: its matches flag and listeners
+// follow the OS preference, so holding on to it loses nothing. null (no window / no matchMedia)
+// is not cached: the environment may gain a window later, e.g. a model created before mount.
+let cachedMedia: IReducedMotionMedia | null = null;
+let cachedWindow: Window | null = null;
 function getReducedMotionMedia(): IReducedMotionMedia | null {
-  return DomWindowHelper.matchMedia(reducedMotionMediaQuery) as IReducedMotionMedia | null;
+  const currentWindow = DomWindowHelper.getWindow();
+  if (!currentWindow) return null;
+  if (!cachedMedia || cachedWindow !== currentWindow) {
+    cachedMedia = DomWindowHelper.matchMedia(reducedMotionMediaQuery) as IReducedMotionMedia | null;
+    cachedWindow = cachedMedia ? currentWindow : null;
+  }
+  return cachedMedia;
 }
 
 export function isReducedMotionPreferred(): boolean {

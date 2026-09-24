@@ -2,7 +2,7 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Helpers } from "./helpers";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base, ComputedUpdater } from "./base";
 import { ActionContainer } from "./actions/container";
@@ -118,12 +118,13 @@ export class QuestionTextBase extends Question {
   }
   protected getValueSeparator(): string { return ", "; }
   public getRootClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle).toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview
+    );
   }
   public getControlClass(): string {
     return this.cssClasses.control;

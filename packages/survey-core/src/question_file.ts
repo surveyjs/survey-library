@@ -7,7 +7,7 @@ import { ComputedUpdater, Base } from "./base";
 import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector, isElementVisible } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
@@ -304,7 +304,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.chooseFile).append(this.cssClasses.chooseFileDisabled, this.isInputReadOnly).toString()) as any),
+      innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.chooseFile, this.isInputReadOnly && this.cssClasses.chooseFileDisabled)) as any),
       data: { question: this },
       locTitle: this.locChooseButtonText,
       appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "secondary", size: "small" }; }) as any,
@@ -390,7 +390,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-closecamera",
         id: "sv-file-close-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.closeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.closeCameraButton)) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
           this.stopVideo();
@@ -406,7 +406,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-takepicture",
         id: "sv-file-take-picture",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.takePictureButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.takePictureButton)) as any),
         locTitle: this.locTakePhotoCaption,
         showTitle: false,
         appearance: { style: "alert", size: "large", mode: "primary" },
@@ -425,7 +425,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-changecamera",
         id: "sv-file-change-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.changeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.changeCameraButton)) as any),
         visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
@@ -1059,13 +1059,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return questionPlainData;
   }
   public getImageWrapperCss(data: any): string {
-    return new CssClassBuilder().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+    return toCssClasses(this.cssClasses.imageWrapper, this.defaultImage(data) && this.cssClasses.imageWrapperDefaultImage);
   }
   protected getActionsContainerCss(css: any): string {
-    return new CssClassBuilder()
-      .append(css.actionsContainer)
-      .append(css.actionsContainerAnswered, this.isAnswered)
-      .toString();
+    return toCssClasses(css.actionsContainer, this.isAnswered && css.actionsContainerAnswered);
   }
   private removeFileButtonMap: Map<Object, Action> = new Map<Object, Action>();
   public getRemoveFileButton(item: any): Action {
@@ -1074,7 +1071,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.removeFileButtonMap.set(item, new Action({
         iconName: new ComputedUpdater<string>(() => this.cssClasses.removeFileSvgIconId) as any,
         locTitle: this.locRemoveFileCaption,
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.removeFileButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.removeFileButton)) as any),
         showTitle: false,
         action: () => { this.doRemoveFile(item); },
         iconSize: "auto",
@@ -1084,30 +1081,27 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.removeFileButtonMap.get(item);
   }
   public getReadOnlyFileCss(): string {
-    return new CssClassBuilder()
-      .append("form-control")
-      .append(this.cssClasses.placeholderInput)
-      .toString();
+    return toCssClasses("form-control", this.cssClasses.placeholderInput);
   }
   public get fileRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
-      .append(this.cssClasses.rootDragging, this.isDragging)
-      .append(this.cssClasses.rootAnswered, this.isAnswered)
-      .append(this.cssClasses.single, !this.allowMultiple)
-      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
-      .append(this.cssClasses.mobile, this.isMobile)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview,
+      this.isDragging && this.cssClasses.rootDragging,
+      this.isAnswered && this.cssClasses.rootAnswered,
+      !this.allowMultiple && this.cssClasses.single,
+      !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]) && this.cssClasses.singleImage,
+      this.isMobile && this.cssClasses.mobile
+    );
   }
   public getFileDecoratorCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.fileDecorator,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDragging && this.cssClasses.fileDecoratorDrag
+    );
   }
 
   private onChange(src: any) {
@@ -1163,17 +1157,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return {
       getEnterOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
-        return { cssClass: pageClass ? new CssClassBuilder()
-          .append(`${pageClass}--enter-from-left`, this.navigationDirection == "left" || this.navigationDirection == "left-delete")
-          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString() : ""
+        return { cssClass: pageClass ? toCssClasses(
+          (this.navigationDirection == "left" || this.navigationDirection == "left-delete") && `${pageClass}--enter-from-left`,
+          this.navigationDirection == "right" && `${pageClass}--enter-from-right`) : ""
         };
       },
       getLeaveOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
         return {
-          cssClass: pageClass ? new CssClassBuilder()
-            .append(`${pageClass}--leave-to-left`, this.navigationDirection == "right")
-            .append(`${pageClass}--leave-to-right`, this.navigationDirection == "left").toString() : ""
+          cssClass: pageClass ? toCssClasses(
+            this.navigationDirection == "right" && `${pageClass}--leave-to-left`,
+            this.navigationDirection == "left" && `${pageClass}--leave-to-right`) : ""
         };
       },
       getAnimatedElement: (page: QuestionFilePage) => {

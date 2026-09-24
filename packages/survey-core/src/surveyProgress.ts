@@ -1,16 +1,10 @@
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export class SurveyProgressModel {
   public static getProgressTextInBarCss(css: any): string {
-    return new CssClassBuilder()
-      .append(css.progressText)
-      .append(css.progressTextInBar)
-      .toString();
+    return toCssClasses(css.progressText, css.progressTextInBar);
   }
   public static getProgressTextUnderBarCss(css: any): string {
-    return new CssClassBuilder()
-      .append(css.progressText)
-      .append(css.progressTextUnderBar)
-      .toString();
+    return toCssClasses(css.progressText, css.progressTextUnderBar);
   }
 }

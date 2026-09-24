@@ -13,7 +13,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./utils/animation";
@@ -2404,10 +2404,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return !this.isOtherSelected;
   }
   getColumnClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.column)
-      .append("sv-q-column-" + this.colCount, this.hasColumns)
-      .toString();
+    return toCssClasses(this.cssClasses.column, this.hasColumns && "sv-q-column-" + this.colCount);
   }
   getItemIndex(item: any): number {
     return this.visibleChoices.indexOf(item);
@@ -2425,12 +2422,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.colCount;
   }
   protected getItemClassCore(item: any, options: any): string {
-    const builder = new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
-      .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
-      .append(this.cssClasses.itemOnError, this.hasCssError());
-
     const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
@@ -2441,27 +2432,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     options.isChecked = isChecked;
     options.isNone = isNone;
 
-    return builder
-      .append(this.cssClasses.itemDisabled, isDisabled)
-      .append(this.cssClasses.itemReadOnly, isReadOnly)
-      .append(this.cssClasses.itemPreview, this.isPreviewStyle)
-      .append(this.cssClasses.itemChecked, isChecked)
-      .append(this.cssClasses.itemHover, allowHover)
-      .append(this.cssClasses.itemNone, isNone)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.item,
+      !this.hasColumns && this.colCount === 0 && this.cssClasses.itemInline,
+      !this.hasColumns && this.colCount !== 0 && "sv-q-col-" + this.getCurrentColCount(),
+      this.hasCssError() && this.cssClasses.itemOnError,
+      isDisabled && this.cssClasses.itemDisabled,
+      isReadOnly && this.cssClasses.itemReadOnly,
+      this.isPreviewStyle && this.cssClasses.itemPreview,
+      isChecked && this.cssClasses.itemChecked,
+      allowHover && this.cssClasses.itemHover,
+      isNone && this.cssClasses.itemNone
+    );
   }
 
   getLabelClass(item: ItemValue): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.labelChecked, this.isItemSelected(item))
-      .toString();
+    return toCssClasses(this.cssClasses.label, this.isItemSelected(item) && this.cssClasses.labelChecked);
   }
   getControlLabelClass(item: ItemValue): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.controlLabel)
-      .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
-      .toString() || undefined;
+    return toCssClasses(this.cssClasses.controlLabel, this.isItemSelected(item) && this.cssClasses.controlLabelChecked) || undefined;
   }
 
   @propertyArray() _renderedChoices: Array<ItemValue> = [];
@@ -2687,10 +2676,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.cssClasses.itemSvgIconId;
   }
   public getSelectBaseRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.getQuestionRootCss())
-      .append(this.cssClasses.rootRow, this.rowLayout)
-      .toString();
+    return toCssClasses(this.getQuestionRootCss(), this.rowLayout && this.cssClasses.rootRow);
   }
   protected allowMobileInDesignMode(): boolean {
     return true;

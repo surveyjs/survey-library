@@ -27,7 +27,7 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/dom-utils";
 import { floorTo2Decimals } from "./utils/utils";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { IValueGetterContext } from "./conditions/conditionProcessValue";
@@ -268,12 +268,12 @@ export class QuestionRowModel extends Base {
     this.stopLazyRendering();
   }
   public getRowCss() {
-    return new CssClassBuilder()
-      .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.rowCompact, this.panel["isCompact"])
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (this.panel as PanelModel).showPanelAsPage)
-      .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
-      .toString();
+    return toCssClasses(
+      this.panel.cssClasses.row,
+      this.panel["isCompact"] && this.panel.cssClasses.rowCompact,
+      (this.panel.isPage || (this.panel as PanelModel).showPanelAsPage) && this.panel.cssClasses.pageRow,
+      this.visibleElements.length > 1 && this.panel.cssClasses.rowMultiple
+    );
   }
   private rootElement?: HTMLElement;
   public setRootElement(element?: HTMLElement) {
@@ -352,7 +352,7 @@ export class PanelModelBase extends SurveyElement<Question>
       getEnterOptions: (_: QuestionRowModel, animationInfo) => {
         const cssClasses = this.cssClasses;
         return {
-          cssClass: new CssClassBuilder().append(cssClasses.rowEnter).append(cssClasses.rowDelayedEnter, animationInfo.isDeletingRunning).toString(),
+          cssClass: toCssClasses(cssClasses.rowEnter, animationInfo.isDeletingRunning && cssClasses.rowDelayedEnter),
           onBeforeRunAnimation: prepareElementForVerticalAnimation,
           onAfterRunAnimation: cleanHtmlElementAfterAnimation
         };
@@ -2122,7 +2122,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getCssError(this.cssClasses);
   }
   protected getCssError(cssClasses: any): string {
-    return new CssClassBuilder().append(cssClasses.error.root).toString();
+    return toCssClasses(cssClasses.error.root);
   }
 
   public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
@@ -2456,10 +2456,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected getCssError(cssClasses: any): string {
     if (this.isPage) return super.getCssError(cssClasses);
-    const builder = new CssClassBuilder()
-      .append(super.getCssError(cssClasses))
-      .append(cssClasses.panel.errorsContainer);
-    return builder.append("panel-error-root", builder.isEmpty()).toString();
+    return toCssClasses(super.getCssError(cssClasses), cssClasses.panel.errorsContainer) || "panel-error-root";
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();
@@ -2515,12 +2512,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.container)
-      .append(cssClasses.asPage, this.showPanelAsPage)
-      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
-      .toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      cssClasses.container,
+      this.showPanelAsPage && cssClasses.asPage,
+      !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible && cssClasses.invisible
+    );
   }
   public getContainerCss(): string {
     return this.getCssRoot(this.cssClasses.panel);

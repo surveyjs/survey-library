@@ -4,7 +4,7 @@ import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
 import { ListModel } from "../list";
@@ -300,36 +300,31 @@ export abstract class BaseAction extends Base implements IAction {
     return this.popupModel.contentComponentData.model;
   }
   public getActionBarItemTitleCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
-      .toString();
+    return toCssClasses(this.cssClasses.itemTitle, !!this.iconName && this.cssClasses.itemTitleWithIcon);
   }
   public getActionBarItemCss(): string {
     const hasTitle = this.hasTitle;
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
+    return toCssClasses(
+      this.cssClasses.item,
       //TODO: remove itemWithTitle and itemAsIcon, itemIcon classes and replace with modifiers to item class in css
-      .append(this.cssClasses.itemWithTitle, hasTitle)
-      .append(this.cssClasses.itemAsIcon, !hasTitle)
+      hasTitle && this.cssClasses.itemWithTitle,
+      !hasTitle && this.cssClasses.itemAsIcon,
       //end of TODO
-      .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPopupActive, !!this.popupActive)
-      .append(this.innerCss)
-      .toString();
+      !!this.active && this.cssClasses.itemActive,
+      !!this.popupActive && this.cssClasses.itemPopupActive,
+      this.innerCss
+    );
   }
   public getActionRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.containerItem)
-      .append(this.css)
-      .append(this.cssClasses.containerItemSpace, this.needSpace)
-      .append(this.cssClasses.containerItemHidden, !this.isVisible)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.containerItem,
+      this.css,
+      this.needSpace && this.cssClasses.containerItemSpace,
+      !this.isVisible && this.cssClasses.containerItemHidden
+    );
   }
   public getActionRootContentCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.containerItemContent)
-      .toString();
+    return toCssClasses(this.cssClasses.containerItemContent);
   }
   public getTooltip(): string {
     return this.tooltip || (!this.hasTitle ? this.title : null);
@@ -672,12 +667,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!prefix) {
       return css;
     }
-    return new CssClassBuilder().append(css)
-      .append(`${prefix}--${appearance.style}`, !!appearance.style)
-      .append(`${prefix}--${appearance.mode}`, !!appearance.mode)
-      .append(`${prefix}--${appearance.size}`, !!appearance.size)
-      .append(`${prefix}--border`, !!appearance.showBorder)
-      .toString();
+    return toCssClasses(
+      css,
+      !!appearance.style && `${prefix}--${appearance.style}`,
+      !!appearance.mode && `${prefix}--${appearance.mode}`,
+      !!appearance.size && `${prefix}--${appearance.size}`,
+      !!appearance.showBorder && `${prefix}--border`
+    );
   }
 }
 

@@ -16,7 +16,7 @@ import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { getElementWidth, isContainerVisible } from "./utils/dom-utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
@@ -1464,22 +1464,20 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     const hasError = this.hasCssError(true);
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(this.isFlowLayout && !this.isDesignMode
-        ? cssClasses.flowRoot
-        : cssClasses.mainRoot)
-      .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
-      .append(cssClasses.titleTopRoot, !this.isFlowLayout && this.hasTitleOnTop)
-      .append(cssClasses.titleBottomRoot, !this.isFlowLayout && this.hasTitleOnBottom)
-      .append(cssClasses.descriptionUnderInputRoot, !this.isFlowLayout && this.hasDescriptionUnderInput)
-      .append(cssClasses.hasError, hasError)
-      .append(cssClasses.hasErrorTop, hasError && this.getErrorLocation() == "top")
-      .append(cssClasses.hasErrorBottom, hasError && this.getErrorLocation() == "bottom")
-      .append(cssClasses.small, !this.width)
-      .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.noPointerEventsMode, this.isReadOnlyAttr)
-      .toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      this.isFlowLayout && !this.isDesignMode ? cssClasses.flowRoot : cssClasses.mainRoot,
+      !this.isFlowLayout && this.hasTitleOnLeft && cssClasses.titleLeftRoot,
+      !this.isFlowLayout && this.hasTitleOnTop && cssClasses.titleTopRoot,
+      !this.isFlowLayout && this.hasTitleOnBottom && cssClasses.titleBottomRoot,
+      !this.isFlowLayout && this.hasDescriptionUnderInput && cssClasses.descriptionUnderInputRoot,
+      hasError && cssClasses.hasError,
+      hasError && this.getErrorLocation() == "top" && cssClasses.hasErrorTop,
+      hasError && this.getErrorLocation() == "bottom" && cssClasses.hasErrorBottom,
+      !this.width && cssClasses.small,
+      this.isAnswered && cssClasses.answered,
+      this.isReadOnlyAttr && cssClasses.noPointerEventsMode
+    );
   }
   public get cssHeader(): string {
     this.ensureElementCss();
@@ -1489,12 +1487,12 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssHeader", val);
   }
   protected getCssHeader(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(super.getCssHeader(cssClasses))
-      .append(cssClasses.headerTop, this.hasTitleOnTop)
-      .append(cssClasses.headerLeft, this.hasTitleOnLeft)
-      .append(cssClasses.headerBottom, this.hasTitleOnBottom)
-      .toString();
+    return toCssClasses(
+      super.getCssHeader(cssClasses),
+      this.hasTitleOnTop && cssClasses.headerTop,
+      this.hasTitleOnLeft && cssClasses.headerLeft,
+      this.hasTitleOnBottom && cssClasses.headerBottom
+    );
   }
   protected supportContainerQueries() {
     return false;
@@ -1507,11 +1505,11 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssContent", val);
   }
   protected getCssContent(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(cssClasses.content)
-      .append(cssClasses.contentSupportContainerQueries, this.supportContainerQueries())
-      .append(cssClasses.contentLeft, this.hasTitleOnLeft)
-      .toString();
+    return toCssClasses(
+      cssClasses.content,
+      this.supportContainerQueries() && cssClasses.contentSupportContainerQueries,
+      this.hasTitleOnLeft && cssClasses.contentLeft
+    );
   }
   public get cssTitle(): string {
     this.ensureElementCss();
@@ -1523,12 +1521,12 @@ export class Question extends SurveyElement<Question>
     this.resetPropertyValue("cssTitle");
   }
   protected getCssTitle(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(super.getCssTitle(cssClasses))
-      .append(cssClasses.singleInputTitle, !!this.singleInputQuestion)
-      .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
-      .append(cssClasses.titleEmpty, !this.title.trim())
-      .toString();
+    return toCssClasses(
+      super.getCssTitle(cssClasses),
+      !!this.singleInputQuestion && cssClasses.singleInputTitle,
+      !this.containsErrors && this.isAnswered && cssClasses.titleOnAnswer,
+      !this.title.trim() && cssClasses.titleEmpty
+    );
   }
   public get cssDescription(): string {
     this.ensureElementCss();
@@ -1538,10 +1536,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssDescription", val);
   }
   protected getCssDescription(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(cssClasses.description)
-      .append(cssClasses.descriptionUnderInput, this.getDescriptionLocation() == "underInput")
-      .toString();
+    return toCssClasses(cssClasses.description, this.getDescriptionLocation() == "underInput" && cssClasses.descriptionUnderInput);
   }
   public get showErrorsAboveQuestion(): boolean {
     return this.getErrorLocation() === "top";
@@ -1558,14 +1553,14 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssError", val);
   }
   protected getCssError(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(cssClasses.error.root)
-      .append(cssClasses.error.warningMode, this.currentNotificationType === "warning")
-      .append(cssClasses.error.infoMode, this.currentNotificationType === "info")
-      .append(cssClasses.errorsContainer)
-      .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
-      .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
-      .toString();
+    return toCssClasses(
+      cssClasses.error.root,
+      this.currentNotificationType === "warning" && cssClasses.error.warningMode,
+      this.currentNotificationType === "info" && cssClasses.error.infoMode,
+      cssClasses.errorsContainer,
+      this.showErrorsAboveQuestion && cssClasses.errorsContainerTop,
+      this.showErrorsBelowQuestion && cssClasses.errorsContainerBottom
+    );
   }
   protected hasCssError(includeWarning?: boolean): boolean {
     const erros = this.errors;
@@ -1591,25 +1586,21 @@ export class Question extends SurveyElement<Question>
     return super.getHasFrameV2();
   }
   public getRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssRoot, !this.singleInputQuestion)
-      .append(this.cssClasses.rootSingleInput, !!this.singleInputQuestion)
-      .append(this.cssClasses.mobile, this.isMobile)
-      .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.disabled, this.isDisabledStyle)
-      .append(this.cssClasses.preview, this.isPreviewStyle)
-      .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
-      .toString();
+    return toCssClasses(
+      !this.singleInputQuestion && this.cssRoot,
+      !!this.singleInputQuestion && this.cssClasses.rootSingleInput,
+      this.isMobile && this.cssClasses.mobile,
+      this.isReadOnlyStyle && this.cssClasses.readOnly,
+      this.isDisabledStyle && this.cssClasses.disabled,
+      this.isPreviewStyle && this.cssClasses.preview,
+      !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible && this.cssClasses.invisible
+    );
   }
   public getQuestionContainerCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.questionContainer)
-      .toString();
+    return toCssClasses(this.cssClasses.questionContainer);
   }
   public getHeaderAndContentContainerCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.headerAndContentContainer)
-      .toString();
+    return toCssClasses(this.cssClasses.headerAndContentContainer);
   }
   public get isComplexQuestion(): boolean {
     const rootCss = this.getRootCss() || "";
@@ -1617,10 +1608,7 @@ export class Question extends SurveyElement<Question>
     // return this.isContainer || !!this.singleInputQuestion;
   }
   public getQuestionRootCss() {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootMobile, this.isMobile)
-      .toString();
+    return toCssClasses(this.cssClasses.root, this.isMobile && this.cssClasses.rootMobile);
   }
   public updateElementCss(reNew?: boolean): void {
     if (this.wasRendered) {
@@ -1658,18 +1646,16 @@ export class Question extends SurveyElement<Question>
   protected updateCssClasses(res: any, css: any): void {
     if (!css.question) return;
     const objCss = css[this.getCssType()];
-    const titleBuilder = new CssClassBuilder().append(res.title)
-      .append(css.question.titleRequired, this.isRequired);
-    res.title = titleBuilder.toString();
+    res.title = toCssClasses(res.title, this.isRequired && css.question.titleRequired);
 
-    const rootBuilder = new CssClassBuilder().append(res.root)
-      .append(objCss, this.isRequired && !!css.question.required);
+    const isRequiredCss = this.isRequired && !!css.question.required;
     if (objCss === undefined || objCss === null) {
-      res.root = rootBuilder.toString();
+      res.root = toCssClasses(res.root);
     } else if (typeof objCss === "string" || objCss instanceof String) {
-      res.root = rootBuilder.append(objCss.toString()).toString();
+      const objCssStr = objCss.toString();
+      res.root = toCssClasses(res.root, isRequiredCss && objCssStr, objCssStr);
     } else {
-      res.root = rootBuilder.toString();
+      res.root = toCssClasses(res.root);
       for (const key in objCss) {
         res[key] = objCss[key];
       }
@@ -2478,12 +2464,12 @@ export class Question extends SurveyElement<Question>
     return typeof val === "string" && !val.trim() ? "" : val;
   }
   public getCommentAreaCss(isOther: boolean = false): string {
-    return new CssClassBuilder()
-      .append("form-group", isOther)
-      .append(this.cssClasses.formGroup, !isOther)
-      .append(this.cssClasses.commentArea)
-      .append(this.cssClasses.otherArea, isOther)
-      .toString();
+    return toCssClasses(
+      isOther && "form-group",
+      !isOther && this.cssClasses.formGroup,
+      this.cssClasses.commentArea,
+      isOther && this.cssClasses.otherArea
+    );
   }
 
   protected getQuestionComment(): string {

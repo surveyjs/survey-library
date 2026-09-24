@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
 import { updateListCssValues } from "./utils/dom-utils";
 
@@ -51,15 +51,15 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
 
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root, !this.isDropdown)
-      .append(this.cssClasses.control, this.isDropdown)
-      .append(this.cssClasses.controlEmpty, this.isDropdown && this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      !this.isDropdown && this.cssClasses.root,
+      this.isDropdown && this.cssClasses.control,
+      this.isDropdown && this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
@@ -237,13 +237,13 @@ export class ButtonGroupItemModel {
     return this.selected ? -1 : 0;
   }
   private get labelClass() {
-    return new CssClassBuilder()
-      .append(this.question.cssClasses.item)
-      .append(this.question.cssClasses.itemSelected, this.selected)
-      .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
-      .append(this.question.cssClasses.itemDisabled, !this.item.isEnabled)
-      .append(this.question.cssClasses.itemReadOnly, this.question.isReadOnly)
-      .toString();
+    return toCssClasses(
+      this.question.cssClasses.item,
+      this.selected && this.question.cssClasses.itemSelected,
+      !this.readOnly && !this.selected && this.question.cssClasses.itemHover,
+      !this.item.isEnabled && this.question.cssClasses.itemDisabled,
+      this.question.isReadOnly && this.question.cssClasses.itemReadOnly
+    );
   }
   public get css() {
     return {

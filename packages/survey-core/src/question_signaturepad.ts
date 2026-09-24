@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import SignaturePad from "signature_pad";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
@@ -50,10 +50,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   protected getCssRoot(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.small, this.signatureWidth.toString() === "300")
-      .toString();
+    return toCssClasses(super.getCssRoot(cssClasses), this.signatureWidth.toString() === "300" && cssClasses.small);
   }
 
   protected getFormat() {

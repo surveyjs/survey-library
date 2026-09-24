@@ -9,7 +9,7 @@ import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { QuestionValueType } from "./question";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask, IMaskLocaleChange } from "./mask/mask_utils";
@@ -772,11 +772,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(super.getControlClass())
-      .append(this.cssClasses.isValueChanged, this._isValueChanged)
-      .append(this.cssClasses.hasMask, !this.maskTypeIsEmpty)
-      .toString();
+    return toCssClasses(
+      super.getControlClass(),
+      this._isValueChanged && this.cssClasses.isValueChanged,
+      !this.maskTypeIsEmpty && this.cssClasses.hasMask
+    );
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

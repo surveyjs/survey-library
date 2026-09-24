@@ -7,7 +7,7 @@ import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
@@ -887,14 +887,16 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
 
   public get ratingRootCss(): string {
     const hasLabel = this.hasMaxLabel || this.hasMinLabel;
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootWrappable, this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode) || (this.displayMode == "auto" && !this.supportResponsiveness()))
-      .append(this.cssClasses.rootLabelsTop, hasLabel && this.rateDescriptionLocation == "top")
-      .append(this.cssClasses.rootLabelsBottom, hasLabel && this.rateDescriptionLocation == "bottom")
-      .append(this.cssClasses.rootLabelsDiagonal, hasLabel && this.rateDescriptionLocation == "topBottom")
-      .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
-      .toString();
+    const isWrappable = this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode) ||
+      (this.displayMode == "auto" && !this.supportResponsiveness());
+    return toCssClasses(
+      this.cssClasses.root,
+      isWrappable && this.cssClasses.rootWrappable,
+      hasLabel && this.rateDescriptionLocation == "top" && this.cssClasses.rootLabelsTop,
+      hasLabel && this.rateDescriptionLocation == "bottom" && this.cssClasses.rootLabelsBottom,
+      hasLabel && this.rateDescriptionLocation == "topBottom" && this.cssClasses.rootLabelsDiagonal,
+      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall
+    );
   }
 
   public get itemStarIcon(): string {
@@ -1029,21 +1031,21 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
 
     const options: any = { item: item, css: "" };
 
-    options.css = new CssClassBuilder()
-      .append(itemClass)
-      .append(itemSelectedClass, isSelected)
-      .append(itemDisabledClass, this.isDisabledStyle)
-      .append(itemReadOnlyClass, this.isReadOnlyStyle)
-      .append(itemPreviewClass, this.isPreviewStyle)
-      .append(itemHoverClass, allowHover)
-      .append(itemHighlightedClass, isHighlighted)
-      .append(itemScaleColoredClass, this.scaleColorMode == "colored")
-      .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
-      .append(itemUnhighlightedClass, isUnhighlighted)
-      .append(itemitemOnErrorClass, this.hasCssError())
-      .append(itemSmallClass, this.itemSmallMode)
-      .append(this.cssClasses.itemFixedSize, hasFixedSize)
-      .toString();
+    options.css = toCssClasses(
+      itemClass,
+      isSelected && itemSelectedClass,
+      this.isDisabledStyle && itemDisabledClass,
+      this.isReadOnlyStyle && itemReadOnlyClass,
+      this.isPreviewStyle && itemPreviewClass,
+      allowHover && itemHoverClass,
+      isHighlighted && itemHighlightedClass,
+      this.scaleColorMode == "colored" && itemScaleColoredClass,
+      this.rateColorMode == "scale" && isSelected && itemRateColoredClass,
+      isUnhighlighted && itemUnhighlightedClass,
+      this.hasCssError() && itemitemOnErrorClass,
+      this.itemSmallMode && itemSmallClass,
+      hasFixedSize && this.cssClasses.itemFixedSize
+    );
 
     if (!!this.survey) {
       this.cssCallbacks.updateChoiceItemCss(this, options);
@@ -1054,14 +1056,14 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   //methods for mobile view
   public getControlClass(): string {
     this.isEmpty();
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   @property({ localizable: { defaultStr: "ratingOptionsCaption" } }) placeholder: string;
   get allowClear(): boolean {

@@ -16,7 +16,7 @@ import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
@@ -1067,12 +1067,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
+    return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
   }
   public getToolbarCssClass(location?: "top" | "bottom"): string {
-    return new CssClassBuilder().append(this.cssClasses.toolbar)
-      .append(this.cssClasses.toolbarBottom, location == "bottom")
-      .append(this.cssClasses.toolbarTop, location == "top").toString();
+    return toCssClasses(
+      this.cssClasses.toolbar,
+      location == "bottom" && this.cssClasses.toolbarBottom,
+      location == "top" && this.cssClasses.toolbarTop
+    );
   }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;
@@ -1096,7 +1098,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.addRowUI();
       },
       iconName: <any>new ComputedUpdater(() => this.cssClasses.iconAddId),
-      innerCss: new ComputedUpdater(() => new CssClassBuilder().append(this.cssClasses.button).append(this.cssClasses.buttonAdd).toString()) as any as string,
+      innerCss: new ComputedUpdater(() => toCssClasses(this.cssClasses.button, this.cssClasses.buttonAdd)) as any as string,
       id: "sv-md-add-btn"
     });
     this.toolbarValue.addAction(addBtnAction);
@@ -1109,7 +1111,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.toolbarValue;
   }
   public getTableCss(): string {
-    return new CssClassBuilder().append(super.getTableCss()).append(this.cssClasses.hasFooter, !!this.getShowToolbar("bottom")).toString();
+    return toCssClasses(super.getTableCss(), !!this.getShowToolbar("bottom") && this.cssClasses.hasFooter);
   }
 }
 

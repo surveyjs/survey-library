@@ -363,6 +363,9 @@ export class InputMaskNumeric extends InputMaskBase {
   private getNumberUnmaskedValue(str: string, decimalSeparator?: string, thousandsSeparator?: string): number | undefined {
     const parsedNumber = this.parseNumber(str, decimalSeparator, thousandsSeparator);
     if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
+    // An entry in progress may sit below min (the prefix "0" of "0,1"). A completed value
+    // outside min/max is not an answer.
+    if (!this.validateNumber(parsedNumber, true)) return undefined;
     return this.convertNumber(parsedNumber);
   }
 

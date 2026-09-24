@@ -425,7 +425,15 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
       if (value === undefined || value === null || value === "") {
-        keepEnteredText = true;
+        // A finished number outside min/max is not an entry in progress: drop it so completion
+        // does not keep the out-of-range answer or treat the field as an incomplete mask.
+        if (this.maskInstance.getMaskedValue(val) === null) {
+          _inputValue = this.maskInstance.getMaskedValue("");
+          // the question value may already be empty, so no value change reaches the element
+          this.maskInputAdapter?.updateInputElementText(_inputValue);
+        } else {
+          keepEnteredText = true;
+        }
         value = undefined;
       } else {
         _inputValue = this.maskInstance.getMaskedValue(value);

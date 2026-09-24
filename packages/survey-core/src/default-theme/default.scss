@@ -115,12 +115,9 @@ body {
   }
 }
 
-// Three entry points share one set of declarations so a survey looks the same no matter which of
-// them turned motion off: the runtime class (settings.animationEnabled = false, or the OS preference
-// read after mount), the OS media query alone (covers the first paint of SSR HTML, before the class
-// is applied), and popups. Keeping them identical matters for SSR: the frame before hydration and the
-// frame after mount must not differ.
-@mixin motion-off {
+.sd-root-modern--animation-disabled *,
+.sd-root-modern--animation-disabled *::before,
+.sd-root-modern--animation-disabled *::after {
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -o-transition: none !important;
@@ -134,35 +131,11 @@ body {
   scroll-behavior: auto !important;
 }
 
-@mixin motion-off-loading-indicator {
+.sd-root-modern--animation-disabled .sd-loading-indicator .sv-svg-icon {
   -webkit-animation-duration: 1s !important;
   animation-duration: 1s !important;
   -webkit-animation-iteration-count: infinite !important;
   animation-iteration-count: infinite !important;
-}
-
-.sd-root-modern--animation-disabled *,
-.sd-root-modern--animation-disabled *::before,
-.sd-root-modern--animation-disabled *::after {
-  @include motion-off;
-}
-
-.sd-root-modern--animation-disabled .sd-loading-indicator .sv-svg-icon {
-  @include motion-off-loading-indicator;
-}
-
-// Popups mount outside the survey root (settings.environment.popupMountContainer), so the root
-// class cannot reach them by descendant selector. animationEnabled is global, so any survey
-// carrying the class means motion is off for the whole page. Kept in its own rule: a browser
-// without :has() drops the entire selector list, and that must not take the root rule with it.
-:root:has(.sd-root-modern--animation-disabled) .sv-popup *,
-:root:has(.sd-root-modern--animation-disabled) .sv-popup *::before,
-:root:has(.sd-root-modern--animation-disabled) .sv-popup *::after {
-  @include motion-off;
-}
-
-:root:has(.sd-root-modern--animation-disabled) .sv-popup .sd-loading-indicator .sv-svg-icon {
-  @include motion-off-loading-indicator;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -172,11 +145,24 @@ body {
   .sv-popup *,
   .sv-popup *::before,
   .sv-popup *::after {
-    @include motion-off;
+    -webkit-transition-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    -webkit-transition-delay: 0s !important;
+    transition-delay: 0s !important;
+    -webkit-animation-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    -webkit-animation-delay: 0s !important;
+    animation-delay: 0s !important;
+    -webkit-animation-iteration-count: 1 !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 
   .sd-loading-indicator .sv-svg-icon {
-    @include motion-off-loading-indicator;
+    -webkit-animation-duration: 1s !important;
+    animation-duration: 1s !important;
+    -webkit-animation-iteration-count: infinite !important;
+    animation-iteration-count: infinite !important;
   }
 }
 

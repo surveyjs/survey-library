@@ -11,8 +11,16 @@ interface IReducedMotionMedia {
   removeListener?: (listener: () => void) => void;
 }
 
+let cachedMedia: IReducedMotionMedia | null = null;
+let cachedWindow: Window | null = null;
 function getReducedMotionMedia(): IReducedMotionMedia | null {
-  return DomWindowHelper.matchMedia(reducedMotionMediaQuery) as IReducedMotionMedia | null;
+  const currentWindow = DomWindowHelper.getWindow();
+  if (!currentWindow) return null;
+  if (!cachedMedia || cachedWindow !== currentWindow) {
+    cachedMedia = DomWindowHelper.matchMedia(reducedMotionMediaQuery) as IReducedMotionMedia | null;
+    cachedWindow = cachedMedia ? currentWindow : null;
+  }
+  return cachedMedia;
 }
 
 export function isReducedMotionPreferred(): boolean {

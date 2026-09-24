@@ -1069,6 +1069,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
 
   private isUpdatingRenderedPanels: boolean;
   private updateRenderedPanels() {
+    /* The panels of a question in a survey are built on its first rendering. Before that there is
+       nothing to render, and reading the page - visiblePanels - would build them: a page size set
+       or loaded, or a paging sync after a value write, must not do it. The first build renders
+       the page itself - every panel it creates asks for a render. */
+    if (this.wasNotRenderedInSurvey) return;
     let panels: Array<PanelModel> = [];
     this.isUpdatingRenderedPanels = true;
     if (this.isRenderModeList) {
@@ -2990,6 +2995,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
     const created = this.getCreatedIndexesSnapshot();
+    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
+    const oldValue = this.getPropertyValueWithoutDefault("value");
+    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     super.setQuestionValue(newValue, false);
     this.invalidateDataListViews();
     this.rebuildPanelsIfViewChanged(created);
@@ -2999,10 +3007,29 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     // value and drop transient UI-only state, such as an added trailing empty row.
     if (!this.isSettingPanelItemData()) {
       for (var i = 0; i < this.panelsCore.length; i++) {
-        this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+        if (this.isPanelRecordChanged(i, oldRecords)) {
+          this.panelUpdateValueFromSurvey(i);
+        }
       }
     }
     this.updateIsAnswered();
+  }
+  /* A question bound to the same value receives the whole array on every write one of its siblings
+     makes to a single record field - and the survey hands it its own copy (updateValueFromSurvey
+     unbinds the value), so the previous value is a snapshot nothing has written into. A panel whose
+     record is a different, strictly equal object is already showing it and is not refreshed: with
+     every write refreshing every panel of every sibling, loading N records cost O(N^2).
+     The same record object may have been changed in place, and a previous value that is not an
+     array says nothing about the panels: those panels are refreshed. index is a created position,
+     oldRecords a copy of the previous value array. */
+  private isPanelRecordChanged(index: number, oldRecords: any): boolean {
+    const newRecords = this.getPropertyValueWithoutDefault("value");
+    if (!Array.isArray(oldRecords) || !Array.isArray(newRecords) || this.isRemoteData) return true;
+    const recordIndex = this.getRecordIndexByPanelIndex(index);
+    const oldRecord = oldRecords[recordIndex];
+    const newRecord = newRecords[recordIndex];
+    if (oldRecord === newRecord && oldRecord !== undefined) return true;
+    return DynamicDataList.isValueChanged(newRecord, oldRecord);
   }
 
   private isSettingPanelItemData(): boolean {
@@ -3015,7 +3042,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (newValue === undefined && this.isAllPanelsEmpty()) return;
     super.onSurveyValueChanged(newValue);
     for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelSurveyValueChanged(this.panelsCore[i]);
+      this.panelSurveyValueChanged(i);
     }
     if (newValue === undefined) {
       this.setValueBasedOnPanelCount();
@@ -3029,9 +3056,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     return true;
   }
-  private panelUpdateValueFromSurvey(panel: PanelModel) {
-    const questions = panel.questions;
-    var values = this.getItemData(panel.data);
+  /* index is a created position. The loops that call these two know it: getItemData(panel.data)
+     looks it up in a new items array - for every panel, on every write of the value. */
+  private panelUpdateValueFromSurvey(index: number) {
+    const questions = this.panelsCore[index].questions;
+    var values = this.getPanelItemDataByIndex(index);
     for (var i = 0; i < questions.length; i++) {
       const q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
@@ -3041,9 +3070,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       q.initDataUI();
     }
   }
-  private panelSurveyValueChanged(panel: PanelModel) {
-    var questions = panel.questions;
-    var values = this.getItemData(panel.data);
+  private panelSurveyValueChanged(index: number) {
+    var questions = this.panelsCore[index].questions;
+    var values = this.getPanelItemDataByIndex(index);
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       q.onSurveyValueChanged(values[q.getValueName()]);

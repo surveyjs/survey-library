@@ -10804,6 +10804,23 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.canGoNextPage, "#6").toBe(false);
     expect(matrix.canGoPrevPage, "#7").toBe(false);
   });
+  test("a page size, from JSON or the setter, creates no row before the rows are asked for", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p1", elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowsPerPage: 2 }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    survey.data = { matrix: abcde };
+    matrix.rowsPerPage = 3;
+    matrix.rowsPerPage = 0;
+    matrix.rowsPerPage = 2;
+    expect((<any>matrix).generatedVisibleRows, "#1: generatedVisibleRows is protected").toBeFalsy();
+    survey.currentPageNo = 1;
+    expect(pageValues(matrix), "#2").toEqual(["a", "b"]);
+    expect(matrix.pageCount, "#3").toBe(3);
+  });
   test("an empty question reports one page", () => {
     const matrix = createMatrix({ rowCount: 0, rowsPerPage: 2 });
     expect(matrix.visibleRows.length, "#1: no rows").toBe(0);

@@ -1675,6 +1675,82 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect((<any>t.question(2)).panelsCore.length, "#3: pd2 has nothing built").toBe(0);
     t.restore();
   });
+  function sharedValueNamePagedSurvey(nDynamic: number): SurveyModel {
+    const json = sharedValueNameJson(nDynamic, "expression");
+    json.pages.forEach((page: any) => page.elements.forEach((el: any) => {
+      if (el.type === "paneldynamic") el.panelsPerPage = 20;
+    }));
+    return new SurveyModel(json);
+  }
+  test("A page size on a shared valueName builds no panel and makes no record write when the data is assigned", () => {
+    const survey = sharedValueNamePagedSurvey(3);
+    // createNewPanel is protected, updateItemValue is called by the panel items only.
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const createSpy = vi.spyOn(proto, "createNewPanel");
+    const writeSpy = vi.spyOn(proto, "updateItemValue");
+    survey.data = { rec: sharedValueNameRecords(50) };
+    expect(createSpy.mock.calls.length, "#1").toBe(0);
+    expect(writeSpy.mock.calls.length, "#2: no panel, so no writer runs").toBe(0);
+    survey.currentPageNo = 1;
+    const pd0 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd0");
+    expect(createSpy.mock.calls.length, "#3: pd0 only").toBe(50);
+    expect(pd0.renderedPanels.length, "#4: one page").toBe(20);
+    expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#5").toBe(0);
+    expect(survey.data.rec, "#6: the first build completes every record").toEqual(sharedValueNameExpectedData(50));
+    createSpy.mockRestore();
+    writeSpy.mockRestore();
+  });
+  /* Every write a writer makes to one record field reaches the siblings as the whole array. A
+     sibling used to refresh every panel it had, so assigning N records to built siblings cost
+     O(N^2) panel refreshes (25300 for 50 records here); it now refreshes the panels whose record
+     changed. Doubling the records roughly doubles every count - a quadratic one quadruples. */
+  test("Assigning data to built siblings sharing a valueName costs calls linear in the records", () => {
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const measure = (count: number): Array<number> => {
+      const survey = sharedValueNamePagedSurvey(3);
+      for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
+      const spies = ["panelUpdateValueFromSurvey", "setQuestionValue", "updateItemValue"].map(name => vi.spyOn(proto, name));
+      survey.data = { rec: sharedValueNameRecords(count) };
+      const res = spies.map(spy => spy.mock.calls.length);
+      spies.forEach(spy => spy.mockRestore());
+      expect(survey.data.rec, "records: " + count).toEqual(sharedValueNameExpectedData(count));
+      for (let i = 0; i < 3; i++) {
+        const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd" + i)).panels[count - 1];
+        expect(panel.getQuestionByName("q1").value, "records: " + count + ", pd" + i).toBe("a" + (count - 1));
+        expect(panel.getQuestionByName("exp4").value, "records: " + count + ", pd" + i).toBe("No");
+      }
+      return res;
+    };
+    const small = measure(25);
+    const large = measure(50);
+    expect(large[0], "#1: panel refreshes").toBeLessThan(small[0] * 2.5);
+    expect(large[1], "#2: setQuestionValue").toBeLessThan(small[1] * 2.5);
+    expect(large[2], "#3: updateItemValue").toBeLessThan(small[2] * 2.5);
+    // 150 panels, five writer results per record: at most once per written field and once more.
+    expect(large[0], "#4").toBeLessThanOrEqual(150 * 6);
+  });
+  test("A record edit refreshes that record's panel only in the siblings sharing the valueName", () => {
+    const survey = sharedValueNamePagedSurvey(3);
+    for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
+    survey.data = { rec: sharedValueNameRecords(30) };
+    const pd = (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index);
+    const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "panelUpdateValueFromSurvey");
+    pd(0).panels[7].getQuestionByName("q1").value = "x7";
+    expect(refreshSpy.mock.calls.length, "#1: one panel in each of the two siblings").toBe(2);
+    expect(pd(1).panels[7].getQuestionByName("q1").value, "#2").toBe("x7");
+    expect(pd(2).panels[7].getQuestionByName("q1").value, "#3").toBe("x7");
+    expect(pd(1).panels[6].getQuestionByName("q1").value, "#4: its neighbour is untouched").toBe("a6");
+    pd(0).panels[7].getQuestionByName("q1").value = "X7";
+    expect(pd(1).panels[7].getQuestionByName("q1").value, "#5: a case-only edit is a change").toBe("X7");
+    refreshSpy.mockRestore();
+    survey.data = { rec: sharedValueNameRecords(30) };
+    expect(pd(2).panels[7].getQuestionByName("q1").value, "#6: an assignment that restores it").toBe("a7");
+    survey.setValue("rec", [{ q1: "only" }]);
+    expect(pd(1).panels.length, "#7").toBe(1);
+    expect(pd(1).panels[0].getQuestionByName("q1").value, "#8").toBe("only");
+    survey.clear();
+    expect(pd(2).panels[0].getQuestionByName("q1").isEmpty(), "#9: cleared").toBe(true);
+  });
 
   test("PanelDynamic vs MatrixDynamic add/remove items, bug#T2130", () => {
     var json = {
@@ -10509,6 +10585,34 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const byDefault = createQuestion({ panelCount: 2 });
     expect(byDefault.toJSON().panelsPerPage, "#4: the default is not serialized").toBe(undefined);
     expect(byDefault.panelsPerPage, "#5").toBe(0);
+  });
+  /* The panels are built on the first rendering, and a page size must not bring that forward: the
+     page is a slice of visiblePanels, whose getter builds them. */
+  test("a page size, from JSON or the setter, builds no panel before the question is rendered", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p1", elements: [{ type: "paneldynamic", name: "panel", panelsPerPage: 2, templateElements: template }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const createdCount = (): number => (<any>question).panelsCore.length;
+    expect(createdCount(), "#1: loaded").toBe(0);
+    survey.data = { panel: abcde };
+    expect(createdCount(), "#2: data assigned").toBe(0);
+    question.panelsPerPage = 3;
+    question.panelsPerPage = 0;
+    question.panelsPerPage = 2;
+    expect(createdCount(), "#3: the setter, paging on and off").toBe(0);
+    expect(question.renderedPanels.length, "#4").toBe(0);
+    survey.currentPageNo = 1;
+    expect(createdCount(), "#5: the first rendering builds the panels").toBe(5);
+    expect(renderedValues(question), "#6: and renders the first page").toEqual(["a", "b"]);
+    expect(question.pageCount, "#7").toBe(3);
+    question.nextPage();
+    expect(renderedValues(question), "#8").toEqual(["c", "d"]);
+    question.pageIndex = 2;
+    expect(renderedValues(question), "#9").toEqual(["e"]);
   });
 });
 

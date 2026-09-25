@@ -1,5 +1,5 @@
-import { settings } from "./settings";
 import { DomWindowHelper } from "./global_variables_utils";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 import { cancelScrollAnimation, getScrollContainerForElement, getScrollerViewport, scrollElementIntoScroller } from "./utils/scroll-utils";
 
 export interface IFocusedQuestionScrollHost {
@@ -53,7 +53,7 @@ export class FocusedQuestionScrollController {
     // A question that fits the container is centered. A taller one would clip the
     // focused control if we centered the question box, so keep that control in view.
     const el = questionEl && questionRect.height <= visibleHeight ? questionEl : target;
-    const behavior: ScrollBehavior = settings.animationEnabled ? "smooth" : "auto";
+    const behavior: ScrollBehavior = isAnimationEnabled() ? "smooth" : "auto";
     if (behavior !== "auto" && this.animatedScrollers.indexOf(scroller) < 0) {
       this.animatedScrollers.push(scroller);
     }

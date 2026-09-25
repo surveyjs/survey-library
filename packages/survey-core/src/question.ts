@@ -27,6 +27,7 @@ import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 
 export interface IConditionObject {
   name: string;
@@ -1708,7 +1709,7 @@ export class Question extends SurveyElement<Question>
         this.singleInputBehavior.focusSingleInput(onError);
       } else {
         this.expandAllParents();
-        const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
+        const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] && isAnimationEnabled() ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
           element: this, question: this, id: this.id,
           scrollIfVisible, scrollIntoViewOptions: scrollOptions,

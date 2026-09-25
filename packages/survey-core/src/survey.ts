@@ -58,6 +58,7 @@ import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
+import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
@@ -5726,18 +5727,42 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() rootCss: string;
   public getRootCss(): string {
+    // Read up front. `!animationEnabled || isReducedMotion` would skip the property while animations
+    // are off, and Vue only re-renders properties a render actually touched.
+    const reducedMotion = this.isReducedMotion;
     return new CssClassBuilder()
       .append(this.css.root)
       .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
       .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
+      .append(this.css.rootAnimationDisabled, reducedMotion || !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
   private isSmoothScrollEnabled = false;
+  // Read only after mount: during render the server cannot know the preference,
+  // so a class derived from it would break hydration. CSS media query covers the first paint.
+  @property({ defaultValue: false }) private isReducedMotion: boolean;
+  private reducedMotionUnsubscribe: () => void;
+  private updateReducedMotion(): void {
+    this.isReducedMotion = isReducedMotionPreferred();
+    this.rootCss = this.getRootCss();
+  }
+  private subscribeToReducedMotion(): void {
+    this.unsubscribeFromReducedMotion();
+    this.updateReducedMotion();
+    this.reducedMotionUnsubscribe = subscribeReducedMotionChange(() => {
+      if (this.isDisposed) return;
+      this.updateReducedMotion();
+    });
+  }
+  private unsubscribeFromReducedMotion(): void {
+    if (!this.reducedMotionUnsubscribe) return;
+    this.reducedMotionUnsubscribe();
+    this.reducedMotionUnsubscribe = undefined;
+  }
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
   public generateStylesheet = true;
@@ -5780,6 +5805,7 @@ export class SurveyModel extends SurveyElementCore
         this.resizeObserver.observe(observedElement);
       }
     }
+    this.subscribeToReducedMotion();
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,
@@ -5795,6 +5821,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   beforeDestroySurveyElement() {
+    this.unsubscribeFromReducedMotion();
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
@@ -8813,6 +8840,7 @@ export class SurveyModel extends SurveyElementCore
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
   public dispose(): void {
+    this.unsubscribeFromReducedMotion();
     this.unConnectEditingObj();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();

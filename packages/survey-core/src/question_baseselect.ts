@@ -12,6 +12,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
+import { isAnimationEnabled as areSurveyAnimationsEnabled } from "./utils/reduced-motion";
 import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -95,7 +96,7 @@ export class ChoiceItem extends ItemValue {
             onAfterRunAnimation: cleanHtmlElementAfterAnimation };
         },
         isAnimationEnabled: () => {
-          return settings.animationEnabled;
+          return areSurveyAnimationsEnabled();
         },
         getRerenderEvent: ()=> {
           return this.onElementRerendered;
@@ -167,7 +168,7 @@ export class ChoiceItem extends ItemValue {
             onAfterRunAnimation: cleanHtmlElementAfterAnimation };
         },
         isAnimationEnabled: () => {
-          return settings.animationEnabled;
+          return areSurveyAnimationsEnabled();
         },
         getRerenderEvent: ()=> {
           return this.onElementRerendered;

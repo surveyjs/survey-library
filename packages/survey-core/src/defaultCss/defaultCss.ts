@@ -248,6 +248,7 @@ export var defaultCss = {
     nested: "sd-element--nested sd-question--nested",
     invisible: "sd-element--invisible",
     composite: "sd-element--complex sd-composite",
+    compositeCompact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
     compositeHeader: "sd-question__header--complex",
     disabled: "sd-question--disabled",
     readOnly: "sd-question--readonly",

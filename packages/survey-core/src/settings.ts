@@ -677,6 +677,34 @@ export var settings = {
     visiblePanelIndex: "visiblePanelIndex",
     unwrapPostfix: "-unwrapped"
   },
+  // The operators the condition editors offer - Creator's logic editor and the Filter Control - and the
+  // question types each of them takes: a class name takes the class and every class derived from it,
+  // "!name" refuses them, an empty list takes every type. The key order is the order the editors list
+  // the operators in. defaultOperators: the operator a new condition starts with, by question type,
+  // else "default". Moved from survey-creator-core, whose settings.operators and
+  // settings.logic.defaultOperators now point here.
+  logic: {
+    operators: <{ [operator: string]: Array<string> }>{
+      empty: [],
+      notempty: [],
+      equal: ["!file"],
+      notequal: ["!file"],
+      contains: ["checkbox", "text", "comment"],
+      notcontains: ["checkbox", "text", "comment"],
+      anyof: ["selectbase"],
+      noneof: ["selectbase"],
+      allof: ["checkbox"],
+      greater: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      less: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      greaterorequal: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      lessorequal: ["!checkbox", "!imagepicker", "!boolean", "!file"]
+    },
+    defaultOperators: <{ [questionType: string]: string }>{
+      default: "equal",
+      checkbox: "allof",
+      tagbox: "allof"
+    }
+  },
   /**
    * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */

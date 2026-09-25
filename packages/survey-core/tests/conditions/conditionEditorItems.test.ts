@@ -125,7 +125,7 @@ describe("ConditionEditorItemsBuilder: text to rows", () => {
       { conjunction: "and", questionName: "c", operator: "equal", value: 3 }]);
     expect(build("{a} = 1 and ({b} = 2 or {c} = 3)"), "#2: the rows cannot say it").toEqual([]);
   });
-  test("a constant on the left is taken only where swapping the sides keeps the meaning", () => {
+  test("a constant on the left is taken only where swapping the sides keeps the meaning of strings, numbers and arrays", () => {
     expect(build("1 < {q1}")[0].operator, "#1").toBe("greater");
     expect(build("1 >= {q1}")[0].operator, "#2").toBe("lessorequal");
     expect(build("1 = {q1}")[0].operator, "#3").toBe("equal");

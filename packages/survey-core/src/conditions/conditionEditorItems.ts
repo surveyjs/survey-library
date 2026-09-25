@@ -150,12 +150,12 @@ export class ConditionEditorItemsBuilder {
     const arrayValue = this.getArrayValueFromOperand(op);
     const constOperand = !arrayValue ? <Const>this.getOperandByType(op, "const") : null;
     if (!variableOperand || (!constOperand && !arrayValue && this.canShowValueByOperator(op.operator))) return false;
-    const isVariableOnRight = op.leftOperand !== variableOperand;
-    if (isVariableOnRight && !this.canSwapSides(op.operator)) return false;
+    const operator = op.leftOperand !== variableOperand ? this.getSwappedOperator(op.operator) : op.operator;
+    if (!operator) return false;
     if (!this.isVariableInSurvey(variableOperand.variable)) return false;
     const item = new ConditionEditorItem();
     item.questionName = variableOperand.variable;
-    item.operator = isVariableOnRight ? this.getOppositeOperator(op.operator) : op.operator;
+    item.operator = operator;
     if (!!arrayValue) {
       item.value = arrayValue;
     }
@@ -196,20 +196,30 @@ export class ConditionEditorItemsBuilder {
     res.push(item);
     return true;
   }
-  // A row names the question first, so "const op {question}" becomes a row only when swapping the sides
-  // keeps the meaning: equality as it is, an ordering operator mirrored by getOppositeOperator.
-  // contains, notcontains and allof have no mirror, and anyof / noneof read an empty value differently
-  // on each side ("['a'] anyof {q1}" is true for an empty q1, "{q1} anyof ['a']" is false), so such a
-  // text stays text. A list of the safe ones: an operator added to the language later stays text too.
-  private canSwapSides(operator: string): boolean {
-    return ["equal", "notequal", "less", "greater", "lessorequal", "greaterorequal"].indexOf(operator) > -1;
-  }
-  private getOppositeOperator(operator: string): string {
-    if (operator == "less") return "greater";
-    if (operator == "greater") return "less";
-    if (operator == "lessorequal") return "greaterorequal";
-    if (operator == "greaterorequal") return "lessorequal";
-    return operator;
+  // The operator "const op {question}" turns into once the sides are swapped - a row names the question
+  // first - or undefined when no operator says the same thing that way. Equality reads the same both
+  // ways and an ordering operator is mirrored. contains, notcontains and allof have no mirror, and
+  // anyof / noneof read an empty value differently on each side ("['a'] anyof {q1}" is true for an
+  // empty q1, "{q1} anyof ['a']" is false), so such a text stays text, as does any operator added to
+  // the language later. The swap keeps the meaning for strings, numbers, booleans and arrays. A Date
+  // value with a time part compared to a date string is the known exception: convertValForDateCompare
+  // trims a Date to the string's precision only when the Date is on the left.
+  private getSwappedOperator(operator: string): string {
+    switch(operator) {
+      case "equal":
+      case "notequal":
+        return operator;
+      case "less":
+        return "greater";
+      case "greater":
+        return "less";
+      case "lessorequal":
+        return "greaterorequal";
+      case "greaterorequal":
+        return "lessorequal";
+      default:
+        return undefined;
+    }
   }
   private getOperandByType(op: BinaryOperand, opType: string): Operand {
     // Either side is null for a "null" literal; the Creator original checked the right side only.

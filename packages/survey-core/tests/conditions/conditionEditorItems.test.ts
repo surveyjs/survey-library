@@ -130,6 +130,8 @@ describe("ConditionEditorItemsBuilder: text to rows", () => {
     expect(build("1 >= {q1}")[0].operator, "#2").toBe("lessorequal");
     expect(build("1 = {q1}")[0].operator, "#3").toBe("equal");
     expect(build("1 != {q1}")[0].operator, "#4").toBe("notequal");
+    expect(build("1 > {q1}")[0].operator, "#5").toBe("less");
+    expect(build("1 <= {q1}")[0].operator, "#6").toBe("greaterorequal");
     // No mirror operator, or an empty value that reads differently on each side.
     ["'abc' contains {q1}", "'abc' notcontains {q1}", "['a', 'x'] allof {q1}", "['a', 'x'] anyof {q1}",
       "['a', 'x'] noneof {q1}", "{a} = 1 and 'x' contains {q1}"]

@@ -116,10 +116,15 @@ describe("ConditionEditorItemsBuilder: text to rows", () => {
       { conjunction: "and", questionName: "c", operator: "equal", value: 3 }]);
     expect(build("{a} = 1 and ({b} = 2 or {c} = 3)"), "#2: the rows cannot say it").toEqual([]);
   });
-  test("a constant on the left flips an ordering operator only", () => {
+  test("a constant on the left is taken only where swapping the sides keeps the meaning", () => {
     expect(build("1 < {q1}")[0].operator, "#1").toBe("greater");
     expect(build("1 >= {q1}")[0].operator, "#2").toBe("lessorequal");
-    expect(build("'abc' contains {q1}")[0].operator, "#3: kept as written").toBe("contains");
+    expect(build("1 = {q1}")[0].operator, "#3").toBe("equal");
+    expect(build("1 != {q1}")[0].operator, "#4").toBe("notequal");
+    // No mirror operator, or an empty value that reads differently on each side.
+    ["'abc' contains {q1}", "'abc' notcontains {q1}", "['a', 'x'] allof {q1}", "['a', 'x'] anyof {q1}",
+      "['a', 'x'] noneof {q1}", "{a} = 1 and 'x' contains {q1}"]
+      .forEach((text: string): void => { expect(build(text), text).toEqual([]); });
   });
   test("arrays of constants are values, empty and notempty take none", () => {
     expect(build("{q3} = [1, 2]")[0].value, "#1").toEqual([1, 2]);

@@ -149,10 +149,12 @@ export class ConditionEditorItemsBuilder {
     const arrayValue = this.getArrayValueFromOperand(op);
     const constOperand = !arrayValue ? <Const>this.getOperandByType(op, "const") : null;
     if (!variableOperand || (!constOperand && !arrayValue && this.canShowValueByOperator(op.operator))) return false;
+    const isVariableOnRight = op.leftOperand !== variableOperand;
+    if (isVariableOnRight && !this.canSwapSides(op.operator)) return false;
     if (!this.isVariableInSurvey(variableOperand.variable)) return false;
     const item = new ConditionEditorItem();
     item.questionName = variableOperand.variable;
-    item.operator = op.leftOperand !== variableOperand ? this.getOppositeOperator(op.operator) : op.operator;
+    item.operator = isVariableOnRight ? this.getOppositeOperator(op.operator) : op.operator;
     if (!!arrayValue) {
       item.value = arrayValue;
     }
@@ -192,6 +194,14 @@ export class ConditionEditorItemsBuilder {
     item.operator = operator;
     res.push(item);
     return true;
+  }
+  // A row names the question first, so "const op {question}" becomes a row only when swapping the sides
+  // keeps the meaning: equality as it is, an ordering operator mirrored by getOppositeOperator.
+  // contains, notcontains and allof have no mirror, and anyof / noneof read an empty value differently
+  // on each side ("['a'] anyof {q1}" is true for an empty q1, "{q1} anyof ['a']" is false), so such a
+  // text stays text. A list of the safe ones: an operator added to the language later stays text too.
+  private canSwapSides(operator: string): boolean {
+    return ["equal", "notequal", "less", "greater", "lessorequal", "greaterorequal"].indexOf(operator) > -1;
   }
   private getOppositeOperator(operator: string): string {
     if (operator == "less") return "greater";

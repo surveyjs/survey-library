@@ -22,6 +22,7 @@ import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
+import { getDynamicDataAriaSort } from "./components/dynamic-data/sortable-header";
 
 class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
   protected get question() {
@@ -55,8 +56,11 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         columnStyle.minWidth = cell.minWidth;
       }
       const cellContent = this.renderCellContent(cell, "column-header", {});
+      const content = cell.column?.isSortable ?
+        ReactElementFactory.Instance.createElement("sv-dynamic-data-sort-header", { cell: cell, question: this.question, content: cellContent })
+        : cellContent;
       const header = cell.hasTitle ?
-        <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
+        <th className={cell.className} key={key} style={columnStyle} aria-sort={getDynamicDataAriaSort(cell, this.question)}> {content} </th>
         : <td className={cell.className} key={key} style={columnStyle}></td>;
       headers.push(header);
     }

@@ -67,9 +67,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
+        {this.renderPager()}
         {navigation}
       </div>
     );
+  }
+
+  /* Prototype (#11873). Paging applies to displayMode: "list" only - in carousel and tab mode
+     renderedPanels holds the one current panel and the question has a navigator of its own. */
+  protected renderPager(): React.JSX.Element | null {
+    if (!(this.question.pageSize > 0) || !this.question.isRenderModeList) return null;
+    return ReactElementFactory.Instance.createElement("sv-dynamic-data-pager", { question: this.question });
   }
 
   protected renderRange(): React.JSX.Element {

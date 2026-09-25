@@ -49,6 +49,12 @@ describe("condition operators", () => {
     expect(isQuestionClassContains("radiogroup", ["checkbox"], []), "#7").toBe(false);
     expect(isQuestionClassContains("ranking", ["checkbox"], []), "#8").toBe(true);
   });
+  test("no question type is no class: only a list of refusals takes it", () => {
+    expect(isQuestionClassContains("", ["checkbox"], []), "#1").toBe(false);
+    expect(isQuestionClassContains("", [], ["file"]), "#2").toBe(true);
+    expect(isQuestionClassContains(undefined, ["checkbox"], []), "#3: no throw").toBe(false);
+    expect(isQuestionClassContains(null, [], ["file"]), "#4").toBe(true);
+  });
   test("an operator the table does not name takes every type", () => {
     expect(isConditionOperatorEnabled("text", "nosuchoperator")).toBe(true);
   });

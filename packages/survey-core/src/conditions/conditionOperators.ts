@@ -21,6 +21,8 @@ export function isQuestionTypeInList(questionType: string, types: Array<string>)
 }
 // Walks up the class hierarchy: the nearest class named in either list decides.
 export function isQuestionClassContains(questionType: string, contains: Array<string>, notContains: Array<string>): boolean {
+  // No type is no class: the same answer an unknown type gets below. Serializer.findClass would throw.
+  if (!questionType) return contains.length == 0;
   let classInfo = Serializer.findClass(questionType);
   while(!!classInfo) {
     if (contains.indexOf(classInfo.name) > -1) return true;

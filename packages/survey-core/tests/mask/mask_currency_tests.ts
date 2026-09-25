@@ -564,6 +564,29 @@ describe("Currency mask", () => {
     expect(result.caretPosition, "try insert 999").toBe(9);
   });
 
+  test("currency isValueOutOfRange strips the affixes", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.suffix = " USD";
+    maskInstance.min = 0.1;
+    maskInstance.max = 99;
+
+    expect(maskInstance.isValueOutOfRange("$  USD"), "empty").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 0 USD"), "below min").toBe(true);
+    expect(maskInstance.isValueOutOfRange("$ 5 USD"), "in range").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 100 USD"), "above max").toBe(true);
+
+    const survey = new SurveyModel({ elements: [{
+      type: "text", name: "q1", maskType: "currency", maskSettings: { prefix: "$ ", suffix: " USD", min: 0.1, max: 99 }
+    }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "$ 0 USD";
+    expect(q.value, "below min is not stored").toBeUndefined();
+    expect(q.inputValue, "the entry is dropped").toBe(maskInstance.getMaskedValue(""));
+    q.inputValue = "$ 5 USD";
+    expect(q.value, "in range").toBe(5);
+  });
+
   test("currency processInput: min & max", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$ ";
@@ -590,6 +613,38 @@ describe("Currency mask", () => {
     result = maskInstance.processInput({ insertedChars: "", selectionStart: 3, selectionEnd: 4, prevValue: "$ -1", inputDirection: "forward" });
     expect(result.value, "remove 1").toBe("$ -");
     expect(result.caretPosition, "remove 1").toBe(3);
+  });
+
+  test("currency showTrailingZeros: the padding goes inside the affixes", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.suffix = " USD";
+    maskInstance.showTrailingZeros = true;
+
+    expect(maskInstance.getMaskedValue(123), "an integer").toBe("$ 123.00 USD");
+    expect(maskInstance.getMaskedValue(123.4), "one fractional digit").toBe("$ 123.40 USD");
+    expect(maskInstance.getMaskedValue(1234.56), "a grouped value").toBe("$ 1,234.56 USD");
+    expect(maskInstance.getMaskedValue("123."), "a dangling separator").toBe("$ 123.00 USD");
+    expect(maskInstance.getMaskedValue(""), "an empty value has no affixes either").toBe("");
+    expect(maskInstance.getUnmaskedValue("$ 123.00 USD"), "the stored value").toBe(123);
+  });
+
+  test("currency showTrailingZeros: the zeros appear while typing", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 2, selectionEnd: 2, prevValue: "$ ", inputDirection: "forward" });
+    expect(result.value, "the first digit").toBe("$ 1.00");
+    expect(result.caretPosition, "the caret is after the typed digit").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 4, selectionEnd: 4, prevValue: "$ 1.00", inputDirection: "forward" });
+    expect(result.value, "a fractional digit replaces the first zero").toBe("$ 1.50");
+    expect(result.caretPosition, "a fractional digit replaces the first zero").toBe(5);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 5, selectionEnd: 6, prevValue: "$ 1.50", inputDirection: "backward" });
+    expect(result.value, "the generated zero is kept").toBe("$ 1.50");
+    expect(result.caretPosition, "the caret steps over the generated zero").toBe(5);
   });
 });
 

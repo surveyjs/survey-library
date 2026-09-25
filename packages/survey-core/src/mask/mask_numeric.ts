@@ -10,6 +10,9 @@ interface INumericalComposition {
   hasDecimalSeparator?: boolean;
 }
 
+const nonZeroDigitDefinition = /[1-9]/;
+const trailingZerosDefinition = /0+$/;
+
 export function splitString(str: string, reverse = true, n = 3): Array<string> {
   let arr = [];
 
@@ -78,6 +81,7 @@ export class InputMaskNumeric extends InputMaskBase {
    *
    * Default value: `undefined` (the mask inherits [`regionalFormat.decimalSeparator`](/form-library/documentation/api-reference/regionalformat#decimalSeparator) or the separator used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"."` in English))
    * @see precision
+   * @see showTrailingZeros
    * @see thousandsSeparator
    */
   public get decimalSeparator(): string {
@@ -91,10 +95,19 @@ export class InputMaskNumeric extends InputMaskBase {
    *
    * Default value: 2
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * [Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see decimalSeparator
+   * @see showTrailingZeros
    */
   @property() precision: number;
+  /**
+   * Specifies whether to add trailing zeros to the fractional part of a displayed number to match the specified [`precision`](#precision).
+   *
+   * When this property is `true`, trailing zeros appear immediately as respondents enter a value, without waiting for the input field to lose focus. For example, with `precision` set to 2, entering 1 displays "1.00", and entering 1.5 displays "1.50".
+   *
+   * Default value: `false`
+   */
+  @property() showTrailingZeros: boolean;
   /**
    * A symbol that separates the digits of a large number into groups of three.
    *
@@ -161,6 +174,31 @@ export class InputMaskNumeric extends InputMaskBase {
     return !number.integralPart && !number.fractionalPart;
   }
 
+  private get hasTrailingZeros(): boolean {
+    return !!this.showTrailingZeros && this.precision > 0;
+  }
+  private isZeroNumber(number: INumericalComposition): boolean {
+    return !nonZeroDigitDefinition.test(number.integralPart || "") && !nonZeroDigitDefinition.test(number.fractionalPart || "");
+  }
+  // Fills the fractional part up to precision. The zeros belong to the displayed text, not to the
+  // entry: the caret is placed by the digits the respondent typed, and a deletion cannot take them out.
+  private addTrailingZeros(number: INumericalComposition): INumericalComposition {
+    if (!this.hasTrailingZeros || this.numericalCompositionIsEmpty(number)) return number;
+    return {
+      ...number,
+      fractionalPart: number.fractionalPart.substring(0, this.precision).padEnd(this.precision, "0"),
+      hasDecimalSeparator: true
+    };
+  }
+  // The generated zeros are no part of the entry either, so the limits are checked against the typed
+  // digits: while an entry is in progress "2.60" is the prefix "2.6" and "20.00" is the prefix "20".
+  private removeTrailingZeros(number: INumericalComposition): INumericalComposition {
+    if (!this.hasTrailingZeros || !number.fractionalPart) return number;
+    const fractionalPart = number.fractionalPart.replace(trailingZerosDefinition, "");
+    // "20." is not a prefix of "200", "20.00" is: the separator goes with its zeros
+    return { ...number, fractionalPart, hasDecimalSeparator: !!fractionalPart };
+  }
+
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     this.textSeparators = { decimal: this.decimalSeparator, thousands: this.thousandsSeparator };
     let displayIntegralPart = parsedNumber.integralPart;
@@ -170,15 +208,13 @@ export class InputMaskNumeric extends InputMaskBase {
       displayIntegralPart = splitString(displayIntegralPart).join(this.thousandsSeparator);
     }
     let displayFractionalPart = parsedNumber.fractionalPart;
-    const minusSign = parsedNumber.isNegative ? "-" : "";
+    // A completed zero carries no minus sign: "-0" is displayed as "0". While an entry is in
+    // progress the sign stays, as the respondent may be on the way to "-0.05".
+    const isCompletedZero = matchWholeMask && this.isZeroNumber(parsedNumber);
+    const minusSign = parsedNumber.isNegative && !isCompletedZero ? "-" : "";
     if (displayFractionalPart === "") {
-      if (matchWholeMask) {
-        return (!displayIntegralPart || displayIntegralPart === "0") ? displayIntegralPart : minusSign + displayIntegralPart;
-      } else {
-        const displayDecimalSeparator = parsedNumber.hasDecimalSeparator && !matchWholeMask ? this.decimalSeparator : "";
-        const src = displayIntegralPart + displayDecimalSeparator;
-        return src === "0" ? src : minusSign + src;
-      }
+      const displayDecimalSeparator = parsedNumber.hasDecimalSeparator && !matchWholeMask ? this.decimalSeparator : "";
+      return minusSign + displayIntegralPart + displayDecimalSeparator;
     } else {
       displayIntegralPart = displayIntegralPart || "0";
       displayFractionalPart = displayFractionalPart.substring(0, this.precision);
@@ -197,7 +233,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return value;
   }
 
-  public validateNumber(number: INumericalComposition, matchWholeMask: boolean): boolean {
+  public validateNumber(srcNumber: INumericalComposition, matchWholeMask: boolean): boolean {
+    const number = this.removeTrailingZeros(srcNumber);
     const min = this.min || Number.MIN_SAFE_INTEGER;
     const max = this.max || Number.MAX_SAFE_INTEGER;
 
@@ -309,14 +346,29 @@ export class InputMaskNumeric extends InputMaskBase {
     if (!this.validateNumber(parsedNumber, matchWholeMask)) {
       return null;
     }
-    const displayText = this.displayNumber(parsedNumber, true, matchWholeMask);
-    return displayText;
+    return this.displayParsedNumber(parsedNumber, matchWholeMask);
+  }
+  // The generated zeros and the separator that precedes them are the text the mask renders by itself,
+  // so a deletion that leaves nothing else empties the entry - as a pattern mask holding only
+  // placeholders is empty. The text alone cannot tell a generated zero from a typed one (".0" is
+  // both the remainder of "1.00" and the start of "-.05"), so the rule is applied when no digit
+  // has been typed.
+  private displayParsedNumber(parsedNumber: INumericalComposition, matchWholeMask: boolean, insertedChars?: string): string {
+    const isTrailingZerosOnly = this.hasTrailingZeros && !numberDefinition.test(insertedChars || "")
+      && !parsedNumber.integralPart && !!parsedNumber.fractionalPart && this.isZeroNumber(parsedNumber);
+    if (isTrailingZerosOnly) return "";
+    return this.displayNumber(this.addTrailingZeros(parsedNumber), true, matchWholeMask);
   }
 
   private getNumberUnmaskedValue(str: string, decimalSeparator?: string, thousandsSeparator?: string): number | undefined {
     const parsedNumber = this.parseNumber(str, decimalSeparator, thousandsSeparator);
     if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
+  }
+  public isValueOutOfRange(src: string): boolean {
+    const parsedNumber = this.parseNumber(src);
+    if (this.numericalCompositionIsEmpty(parsedNumber)) return false;
+    return !this.validateNumber(parsedNumber, true);
   }
 
   public getTextAlignment(): "left" | "right" | "auto" {
@@ -367,17 +419,27 @@ export class InputMaskNumeric extends InputMaskBase {
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedChars || "");
     const rightPart = args.prevValue.slice(args.selectionEnd);
-    const src = leftPart + rightPart;
-    const parsedNumber = this.parseNumber(src);
+    const deletedText = args.prevValue.slice(args.selectionStart, args.selectionEnd);
+    // showTrailingZeros keeps a fractional part in the displayed text, so its separator belongs to the
+    // mask rather than to the entry: a deletion or a replacement that covers the separator takes out
+    // the digits it selected and leaves the separator in place. With no digit left there is nothing
+    // to separate any more.
+    const keepsDecimalSeparator = this.hasTrailingZeros && deletedText.indexOf(this.decimalSeparator) !== -1 && numberDefinition.test(leftPart + rightPart);
+    const parsedNumber = this.parseNumber(leftPart + (keepsDecimalSeparator ? this.decimalSeparator : "") + rightPart);
 
     if (!this.validateNumber(parsedNumber, false)) {
       return result;
     }
 
-    const maskedValue = this.getNumberMaskedValue(src);
-    const caretPosition = this.calccaretPosition(leftPart, args, maskedValue);
+    const maskedValue = this.displayParsedNumber(parsedNumber, false, args.insertedChars);
     result.value = maskedValue;
-    result.caretPosition = caretPosition;
+    if (!args.insertedChars && !!deletedText && maskedValue === args.prevValue) {
+      // the mask keeps what the deletion aimed at - a separator or a generated zero - so the text is
+      // regenerated as it was and the caret steps over the character instead of taking it out
+      result.caretPosition = args.inputDirection === "backward" ? args.selectionStart : args.selectionEnd;
+      return result;
+    }
+    result.caretPosition = this.calccaretPosition(leftPart, args, maskedValue);
 
     return result;
   }
@@ -406,6 +468,11 @@ Serializer.addClass(
       onSerializeValue: (obj: InputMaskNumeric) => obj.getExplicitPropertyValue("thousandsSeparator")
     },
     { name: "precision:number", default: 2, minValue: 0 },
+    {
+      name: "showTrailingZeros:boolean", default: false,
+      dependsOn: ["precision"],
+      visibleIf: (obj: any) => { return !!obj && obj.precision > 0; }
+    },
     { name: "min:number" },
     { name: "max:number" },
   ],

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenAPI 3.1 → SurveyJS — survey-converter demo</title>
+
+    <!-- SurveyJS Form Library (renders the converted survey). Same CDN the docs use. -->
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
+    <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+
+    <!-- The JSON Schema converter. In production, load from the CDN:
+         <script src="https://unpkg.com/survey-converter/dist/survey.converter.json-schema.min.js"></script>
+         Here we point at the freshly built local bundle so the in-repo demo runs offline. -->
+    <script src="../../dist/survey.converter.json-schema.min.js"></script>
+
+    <style>
+        body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; color: #161616; background: #f3f3f3; }
+        header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e0e0e0; }
+        header h1 { font-size: 18px; margin: 0 0 4px; }
+        header p { margin: 0; color: #555; font-size: 13px; }
+        header code { background: #f3f3f3; padding: 1px 4px; border-radius: 3px; }
+        .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 16px 24px; align-items: start; }
+        @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+        .panel { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+        .panel > h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: #666; margin: 0; padding: 10px 14px; border-bottom: 1px solid #eee; }
+        textarea { width: 100%; box-sizing: border-box; border: 0; padding: 12px 14px; font-family: "SF Mono", Consolas, monospace; font-size: 12px; line-height: 1.5; min-height: 340px; resize: vertical; }
+        pre { margin: 0; padding: 12px 14px; font-family: "SF Mono", Consolas, monospace; font-size: 12px; line-height: 1.5; overflow: auto; max-height: 340px; }
+        .bar { padding: 10px 24px; background: #fff; border-bottom: 1px solid #e0e0e0; display: flex; gap: 12px; align-items: center; }
+        button { background: #19b394; color: #fff; border: 0; border-radius: 4px; padding: 8px 18px; font-size: 14px; cursor: pointer; }
+        button:hover { background: #14a085; }
+        #status { font-size: 13px; color: #555; }
+        #status.err { color: #d0021b; }
+        #status.ok { color: #0a7d54; }
+        .report-empty { color: #0a7d54; }
+        #surveyContainer { padding: 0 24px 32px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>OpenAPI 3.1 → SurveyJS</h1>
+        <p>
+            OpenAPI 3.1 request-body schemas <em>are</em> JSON Schema 2020-12, so they convert directly.
+            Paste an operation and the demo pulls
+            <code>requestBody.content["application/json"].schema</code>, converts it, and renders the result.
+            Ceiling for a bare schema: a <strong>flat form</strong> — the schema carries no page/section layout.
+        </p>
+    </header>
+
+    <div class="bar">
+        <button id="convertBtn" type="button">Convert &amp; render ▸</button>
+        <span id="status"></span>
+    </div>
+
+    <div class="cols">
+        <div class="panel">
+            <h2>OpenAPI 3.1 (or a bare JSON Schema)</h2>
+            <textarea id="input" spellcheck="false"></textarea>
+        </div>
+        <div class="panel">
+            <h2>Converted SurveyJS JSON</h2>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <div class="cols">
+        <div class="panel">
+            <h2>Conversion report (content-free: codes, paths, counts)</h2>
+            <pre id="report"></pre>
+        </div>
+        <div class="panel">
+            <h2>Live survey</h2>
+            <div id="surveyContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        var SAMPLE = {
+            openapi: "3.1.0",
+            info: { title: "Helpdesk API", version: "1.0.0" },
+            paths: {
+                "/support/tickets": {
+                    post: {
+                        summary: "Open a support ticket",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        title: "Support Ticket",
+                                        description: "Tell us what went wrong and we'll get back to you.",
+                                        type: "object",
+                                        required: ["subject", "severity"],
+                                        properties: {
+                                            subject: { type: "string", title: "Subject", maxLength: 120 },
+                                            severity: { type: "string", title: "Severity", enum: ["low", "normal", "high", "urgent"], default: "normal" },
+                                            description: { type: "string", title: "What happened?" },
+                                            contactEmail: { type: "string", format: "email", title: "Contact email" },
+                                            affectedUsers: { type: "integer", title: "How many users are affected?", minimum: 1 },
+                                            consentToContact: { type: "boolean", title: "You may contact me about this ticket" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // Pull the request-body schema out of an OpenAPI doc; if the pasted JSON
+        // is already a bare JSON Schema, use it as-is. This is the ONLY glue a
+        // caller writes — the conversion itself is one function call.
+        function extractSchema(doc) {
+            if (doc && doc.paths) {
+                for (var path in doc.paths) {
+                    var ops = doc.paths[path];
+                    for (var method in ops) {
+                        var body = ops[method] && ops[method].requestBody;
+                        var schema = body && body.content && body.content["application/json"] && body.content["application/json"].schema;
+                        if (schema) return schema;
+                    }
+                }
+                throw new Error("No requestBody application/json schema found in the OpenAPI document.");
+            }
+            return doc; // already a bare JSON Schema
+        }
+
+        var input = document.getElementById("input");
+        var outputEl = document.getElementById("output");
+        var reportEl = document.getElementById("report");
+        var statusEl = document.getElementById("status");
+        var survey = null;
+
+        input.value = JSON.stringify(SAMPLE, null, 2);
+
+        function run() {
+            statusEl.className = "";
+            statusEl.textContent = "";
+            var doc;
+            try {
+                doc = JSON.parse(input.value);
+            } catch (e) {
+                statusEl.className = "err";
+                statusEl.textContent = "Invalid JSON: " + e.message;
+                return;
+            }
+            try {
+                var schema = extractSchema(doc);
+
+                // --- the one line this page is about -------------------------
+                var result = SurveyConverterJsonSchema.convert(schema);
+                // -------------------------------------------------------------
+
+                outputEl.textContent = JSON.stringify(result.output, null, 2);
+
+                var entries = (result.report && result.report.entries) || [];
+                if (entries.length === 0) {
+                    reportEl.innerHTML = '<span class="report-empty">✓ Clean — every construct mapped. No unsupported / assumed / dropped entries.</span>';
+                } else {
+                    reportEl.textContent = JSON.stringify(result.report, null, 2);
+                }
+
+                if (survey) { survey.dispose(); }
+                survey = new Survey.Model(result.output);
+                var jsonErrors = survey.jsonErrors || [];
+                survey.render(document.getElementById("surveyContainer"));
+
+                statusEl.className = "ok";
+                statusEl.textContent = "Rendered " + survey.getAllQuestions().length +
+                    " question(s), " + jsonErrors.length + " survey-core error(s).";
+            } catch (e) {
+                statusEl.className = "err";
+                statusEl.textContent = e.message;
+            }
+        }
+
+        document.getElementById("convertBtn").addEventListener("click", run);
+        document.addEventListener("DOMContentLoaded", run);
+    </script>
+</body>
+</html>

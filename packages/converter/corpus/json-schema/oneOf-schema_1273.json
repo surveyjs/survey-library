@@ -1,0 +1,69 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "quantity": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/unrangedQuantity"
+          },
+          {
+            "$ref": "#/definitions/rangedQuantity"
+          }
+        ]
+      }
+    },
+    "definitions": {
+      "unrangedQuantity": {
+        "title": "Value",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "unit"
+        ]
+      },
+      "rangedQuantity": {
+        "title": "Range",
+        "type": "object",
+        "properties": {
+          "valueLow": {
+            "type": "number"
+          },
+          "valueHigh": {
+            "type": "number",
+            "maximum": 10
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "valueLow",
+          "valueHigh",
+          "unit"
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/name"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/addressOrUser"
+      }
+    ]
+  }
+}

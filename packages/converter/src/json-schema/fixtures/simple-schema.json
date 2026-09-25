@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "title": "Registration",
+  "properties": {
+    "firstName": { "type": "string", "title": "First name" },
+    "age": { "type": "integer", "title": "Age", "minimum": 0 },
+    "subscribe": { "type": "boolean", "title": "Subscribe to newsletter" },
+    "country": {
+      "type": "string",
+      "title": "Country",
+      "enum": ["us", "ee", "de"]
+    }
+  },
+  "required": ["firstName"]
+}

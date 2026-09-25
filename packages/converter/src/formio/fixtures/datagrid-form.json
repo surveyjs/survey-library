@@ -1,0 +1,69 @@
+{
+  "display": "form",
+  "title": "Expense report",
+  "components": [
+    {
+      "type": "textfield",
+      "key": "employee",
+      "label": "Employee",
+      "validate": { "required": true }
+    },
+    {
+      "type": "datagrid",
+      "key": "lineItems",
+      "label": "Line items",
+      "validate": { "required": true },
+      "components": [
+        {
+          "type": "textfield",
+          "key": "description",
+          "label": "Description"
+        },
+        {
+          "type": "number",
+          "key": "amount",
+          "label": "Amount",
+          "validate": { "min": 0 }
+        },
+        {
+          "type": "select",
+          "key": "category",
+          "label": "Category",
+          "data": {
+            "values": [
+              { "label": "Travel", "value": "travel" },
+              { "label": "Meals", "value": "meals" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "key": "approved",
+      "label": "Approved"
+    },
+    {
+      "type": "textarea",
+      "key": "notes",
+      "label": "Notes",
+      "placeholder": "Optional notes",
+      "customConditional": "show = data.approved === true;"
+    },
+    {
+      "type": "button",
+      "key": "submit",
+      "label": "Submit"
+    },
+    {
+      "type": "recaptcha",
+      "key": "captcha",
+      "label": "Captcha"
+    },
+    {
+      "type": "acmeCustomWidget",
+      "key": "acme",
+      "label": "Vendor widget"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "toggleTopLayout": {
+        "type": "boolean"
+      },
+      "topString": {
+        "type": "string"
+      },
+      "middleNumber": {
+        "type": "number"
+      },
+      "toggleBottomLayout": {
+        "type": "boolean"
+      },
+      "bottomBoolean": {
+        "type": "boolean"
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "rule": {
+      "effect": "ENABLE",
+      "condition": {
+        "scope": "#/properties/toggleTopLayout",
+        "schema": {
+          "const": true
+        }
+      }
+    },
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/topString"
+      },
+      {
+        "type": "HorizontalLayout",
+        "elements": [
+          {
+            "type": "Control",
+            "scope": "#/properties/middleNumber"
+          },
+          {
+            "type": "Group",
+            "label": "group",
+            "rule": {
+              "effect": "SHOW",
+              "condition": {
+                "scope": "#/properties/toggleBottomLayout",
+                "schema": {
+                  "const": true
+                }
+              }
+            },
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/bottomBoolean"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

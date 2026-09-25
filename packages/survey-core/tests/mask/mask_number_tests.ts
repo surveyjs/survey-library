@@ -1275,6 +1275,81 @@ describe("Numeric mask", () => {
     expect(property.isVisible("", maskInstance), "precision 2").toBe(true);
   });
 
+  test("isValueOutOfRange", () => {
+    const maskInstance = new InputMaskNumeric();
+    expect(maskInstance.isValueOutOfRange("0"), "no limits").toBe(false);
+    expect(maskInstance.isValueOutOfRange(""), "empty, no limits").toBe(false);
+
+    maskInstance.min = 0.1;
+    maskInstance.max = 99;
+    expect(maskInstance.isValueOutOfRange(""), "empty").toBe(false);
+    expect(maskInstance.isValueOutOfRange("-"), "no digits").toBe(false);
+    expect(maskInstance.isValueOutOfRange("0"), "below min").toBe(true);
+    expect(maskInstance.isValueOutOfRange("0.1"), "min").toBe(false);
+    expect(maskInstance.isValueOutOfRange("5"), "in range").toBe(false);
+    expect(maskInstance.isValueOutOfRange("99"), "max").toBe(false);
+    expect(maskInstance.isValueOutOfRange("100"), "above max").toBe(true);
+    expect(maskInstance.isValueOutOfRange("1,000"), "above max, grouped").toBe(true);
+  });
+
+  test("a completed value below min is not stored", () => {
+    const survey = new SurveyModel({
+      pages: [{
+        name: "page1",
+        elements: [{
+          type: "text",
+          name: "question1",
+          maskType: "numeric",
+          maskSettings: {
+            allowNegativeValues: false,
+            decimalSeparator: ",",
+            thousandsSeparator: " ",
+            min: 0.1,
+            max: 99
+          }
+        }]
+      }]
+    });
+    const q = survey.getQuestionByName("question1") as QuestionTextModel;
+    q.inputValue = "0";
+    survey.tryComplete();
+    expect(survey.state, "a value below min does not block completion").toBe("completed");
+    expect(survey.data).toEqual({});
+    expect(q.value).toBeUndefined();
+
+    const survey2 = new SurveyModel(survey.toJSON());
+    const q2 = survey2.getQuestionByName("question1") as QuestionTextModel;
+    q2.inputValue = "0,1";
+    survey2.tryComplete();
+    expect(survey2.data).toEqual({ question1: 0.1 });
+  });
+
+  test("a value below min typed into the element is cleared on blur", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const survey = new SurveyModel({
+      elements: [{
+        type: "text",
+        name: "q1",
+        maskType: "numeric",
+        maskSettings: { allowNegativeValues: false, min: 0.1, max: 99 }
+      }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.afterRenderQuestionElement(testInput);
+    const adapter = new InputElementAdapter(q.maskInstance as InputMaskNumeric, testInput);
+    adapter.beforeInputHandler({ data: "0", inputType: "insertText", target: testInput, preventDefault: () => { } });
+    expect(testInput.value, "0 is a valid start of an entry").toBe("0");
+
+    q.onBlur({ target: testInput });
+    expect(q.value, "the value is not stored").toBeUndefined();
+    expect(testInput.value, "the element is cleared").toBe("");
+    expect(q.errors.length, "no incomplete mask error").toBe(0);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
   test("showTrailingZeros: question value & inputValue", () => {
     const q = new QuestionTextModel("q1");
     q.maskType = "numeric";

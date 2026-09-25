@@ -365,6 +365,11 @@ export class InputMaskNumeric extends InputMaskBase {
     if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
   }
+  public isValueOutOfRange(src: string): boolean {
+    const parsedNumber = this.parseNumber(src);
+    if (this.numericalCompositionIsEmpty(parsedNumber)) return false;
+    return !this.validateNumber(parsedNumber, true);
+  }
 
   public getTextAlignment(): "left" | "right" | "auto" {
     return "right";

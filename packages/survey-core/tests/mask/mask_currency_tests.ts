@@ -564,6 +564,29 @@ describe("Currency mask", () => {
     expect(result.caretPosition, "try insert 999").toBe(9);
   });
 
+  test("currency isValueOutOfRange strips the affixes", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.suffix = " USD";
+    maskInstance.min = 0.1;
+    maskInstance.max = 99;
+
+    expect(maskInstance.isValueOutOfRange("$  USD"), "empty").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 0 USD"), "below min").toBe(true);
+    expect(maskInstance.isValueOutOfRange("$ 5 USD"), "in range").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 100 USD"), "above max").toBe(true);
+
+    const survey = new SurveyModel({ elements: [{
+      type: "text", name: "q1", maskType: "currency", maskSettings: { prefix: "$ ", suffix: " USD", min: 0.1, max: 99 }
+    }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "$ 0 USD";
+    expect(q.value, "below min is not stored").toBeUndefined();
+    expect(q.inputValue, "the entry is dropped").toBe(maskInstance.getMaskedValue(""));
+    q.inputValue = "$ 5 USD";
+    expect(q.value, "in range").toBe(5);
+  });
+
   test("currency processInput: min & max", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$ ";

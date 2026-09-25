@@ -7504,7 +7504,10 @@ export class SurveyModel extends SurveyElementCore
       this.isTwoValueEquals(newValue, newQuestionValue)
     )
       return;
-    var oldValue = this.getValue(name);
+    /* The hash entry is replaced below, not updated, so the value it held stays as it is and is read
+       without a copy (a copy is of every record for an array question). Storage behind
+       valueHashSetDataCallback may update the entry in place: then it is copied. */
+    const oldValue = !name || !!this.valueHashSetDataCallback ? this.getValue(name) : this.getDataValueCore(this.valuesHash, name);
     if (this.isValueEmpyOnSetValue(name, newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
@@ -7579,7 +7582,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
-    var oldValue = this.getValue(name);
+    // Compared only: the stored value is read without the copy getValue makes.
+    var oldValue = !name ? null : this.getDataValueCore(this.valuesHash, name);
     if (oldValue === "" || oldValue === undefined) oldValue = null;
     if (newValue === null || oldValue === null) return newValue === oldValue;
     return this.isTwoValueEquals(newValue, oldValue);

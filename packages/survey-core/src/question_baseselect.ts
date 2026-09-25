@@ -1594,6 +1594,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected updateVisibleChoices(): void {
     if (this.isLoadingFromJson || this.isDisposed) return;
     var calcValue = this.calcVisibleChoices();
+    this.visibleChoicesProjection = this.carryForwardQuestionType === "array" ? this.arrayChoicesProjection : undefined;
     var newValue = new Array<ItemValue>();
     (calcValue || []).forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
@@ -1854,26 +1855,37 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private getQuestionWithArrayValue(question: Question): Question {
     return !!question && question.isValueArray ? question : null;
   }
+  /* The source projects its value once for all its dependents (Question.getArrayValueChoices); the
+     items made from it are this question's own - createItemValue makes the question their owner - and
+     are kept while the projection instance is the same, so that every reader of activeChoices gets
+     them without projecting the source again. */
+  private arrayChoicesProjection: Array<{ value: any, text: any }>;
+  private arrayChoicesItems: Array<ItemValue>;
+  // The projection visibleChoices were last computed from: what updateDependedQuestion compares with.
+  private visibleChoicesProjection: Array<{ value: any, text: any }>;
   private getChoicesFromArrayQuestion(question: Question): Array<ItemValue> {
     if (this.isInDesignMode) return [];
-    const val = question.value;
-    if (!Array.isArray(val)) return [];
-    const res: Array<ItemValue> = [];
-    for (var i = 0; i < val.length; i++) {
-      const obj = val[i];
-      if (!Helpers.isValueObject(obj)) continue;
-      const key = this.getValueKeyName(obj);
-      if (!!key && !this.isValueEmpty(obj[key])) {
-        const text = !!this.choiceTextsFromQuestion ? obj[this.choiceTextsFromQuestion] : undefined;
-        res.push(this.createItemValue(obj[key], text));
-      }
+    const projection = this.getArrayQuestionProjection(question);
+    if (projection !== this.arrayChoicesProjection) {
+      this.arrayChoicesProjection = projection;
+      this.arrayChoicesItems = projection.map(item => this.createItemValue(item.value, item.text));
     }
-    return res;
+    return this.arrayChoicesItems;
   }
-  private getValueKeyName(obj: any): string {
-    if (this.choiceValuesFromQuestion) return this.choiceValuesFromQuestion;
-    const keys = Object.keys(obj);
-    return keys.length > 0 ? keys[0] : undefined;
+  private getArrayQuestionProjection(question: Question): Array<{ value: any, text: any }> {
+    return question.getArrayValueChoices(this.choiceValuesFromQuestion, this.choiceTextsFromQuestion);
+  }
+  /* A write to any field of any record of the source reaches every dependent. When the projection
+     instance is the one the visible choices were computed from, the choices did not change, so a value
+     that was known cannot have become unknown either. The check is here and not in
+     updateVisibleChoices: that one also runs for this question's own changes (choicesOrder,
+     choicesVisibleIf, showOtherItem, ...) while the projection stays the same. */
+  private isArrayChoicesSourceUnchanged(): boolean {
+    const prev = this.visibleChoicesProjection;
+    if (!prev || this.isInDesignMode) return false;
+    const question = this.getCarryForwardQuestion();
+    if (this.carryForwardQuestionType !== "array") return false;
+    return this.getArrayQuestionProjection(question) === prev;
   }
   private getChoicesFromSelectQuestion(question: QuestionSelectBase): Array<ItemValue> {
     if (this.isInDesignMode) return [];
@@ -2049,7 +2061,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.runChoicesByUrl();
     }
     const chQuestion = this.choicesFromQuestion;
-    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion)) {
+    // The same write reached updateDependedQuestion already, which recorded the projection it used.
+    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion) && !this.isArrayChoicesSourceUnchanged()) {
       this.onVisibleChoicesChanged();
       this.clearIncorrectValues();
     }
@@ -2276,6 +2289,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.isUpdatingChoicesDependedQuestions = false;
   }
   protected updateDependedQuestion(): void {
+    if (this.isArrayChoicesSourceUnchanged()) return;
     this.onVisibleChoicesChanged();
     this.clearIncorrectValues();
   }

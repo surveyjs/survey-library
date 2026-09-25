@@ -159,17 +159,18 @@ class PanelDynamicTabbedMenuItem extends Action {
 
 export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   private panelValue: PanelModel;
-  constructor(public data: IDynamicItemModelData, panel: PanelModel) {
+  // isLight: the questions are attached without running their conditions; the owner runs them later.
+  constructor(public data: IDynamicItemModelData, panel: PanelModel, isLight?: boolean) {
     super(data);
     this.data = data;
     this.panelValue = panel;
-    this.setSurveyImpl();
+    this.setSurveyImpl(isLight);
   }
   public get panel(): PanelModel {
     return this.panelValue;
   }
-  public setSurveyImpl() {
-    this.panel.setSurveyImpl(this);
+  public setSurveyImpl(isLight?: boolean) {
+    this.panel.setSurveyImpl(this, isLight);
   }
   public getValueGetterContext(): IValueGetterContext {
     return new PanelDynamicItemGetterContext(this);
@@ -1678,12 +1679,25 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private isAddingNewPanels: boolean = false;
   private addingNewPanelsValue: any;
   private isNewPanelsValueChanged: boolean;
+  private lightBuiltPanels: Array<PanelModel> = [];
+  /* What a light attach skipped (Question.runConditions), run once the batch placed its panels and
+     every question has its value, still inside the batch: a value a condition computes for a record
+     that does not hold it yet is buffered and published with the others, as it was when each question
+     computed it on attach. */
+  private runLightBuiltPanelsConditions(): void {
+    const panels = this.lightBuiltPanels.filter(panel => !panel.isDisposed);
+    this.lightBuiltPanels = [];
+    if (panels.length === 0 || !this.data) return;
+    this.runPanelsCondition(panels, this.getDataFilteredProperties());
+    panels.forEach(panel => panel.locStrsChanged());
+  }
   private prepareValueForPanelCreating() {
     this.addingNewPanelsValue = this.value;
     this.isAddingNewPanels = true;
     this.isNewPanelsValueChanged = false;
   }
   private setValueAfterPanelsCreating() {
+    this.runLightBuiltPanelsConditions();
     this.isAddingNewPanels = false;
     if (this.isNewPanelsValueChanged) {
       this.isValueChangingInternally = true;
@@ -1880,10 +1894,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         : new QuestionPanelDynamicTemplateSurveyImpl(this)
     );
   }
-  private setPanelsSurveyImpl() {
+  // onlyPanels: attach these of the panels only.
+  private setPanelsSurveyImpl(onlyPanels?: Array<PanelModel>) {
     for (var i = 0; i < this.panelsCore.length; i++) {
       var panel = this.panelsCore[i];
       if (panel == this.template) continue;
+      if (!!onlyPanels && onlyPanels.indexOf(panel) < 0) continue;
       panel.setSurveyImpl(<QuestionPanelDynamicItem>panel.data);
     }
   }
@@ -3084,6 +3100,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.syncListPageSize();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
+    // Panels that exist before the first build (built while the question had no survey) are attached
+    // again below; the ones this build creates were attached to their item on creation.
+    const panelsBefore: Array<PanelModel> = [].concat(this.panelsCore);
     if (this.isRemoteData) {
       /* The records come from a data source: the panels are built for the loaded window and the
          stored panelCount says nothing about them - the panelCount setter is a no-op while a source
@@ -3105,7 +3124,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.useTemplatePanel) {
       this.rebuildPanels();
     }
-    this.setPanelsSurveyImpl();
+    this.setPanelsSurveyImpl(panelsBefore);
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
     if (this.data && this.isValueChangedWithoutPanels) {
@@ -3647,7 +3666,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     panel.questions.forEach(q => q.setParentQuestion(this));
-    const item = new QuestionPanelDynamicItem(this, panel);
+    /* Attached one by one, in element order, every question would run its conditions before the
+       questions after it have their values: an expression reading {panel.x} computes a wrong value,
+       writes it, and the survey writes the right one back after the build. Every batch that creates
+       panels runs inside prepareValueForPanelCreating; setValueAfterPanelsCreating runs the conditions
+       of its panels once, over all the values (runLightBuiltPanelsConditions). */
+    const isLight = this.isAddingNewPanels && !this.isDesignMode && !!this.data;
+    const item = new QuestionPanelDynamicItem(this, panel, isLight);
+    if (isLight) {
+      this.lightBuiltPanels.push(panel);
+    }
     item.builtRecordIndex = this.getRecordIndexByPanelIndex(this.panelsCore.length);
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
@@ -3861,9 +3889,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return res > -1 ? res : this.items.length;
   }
   getItemRecordIndex(item: ISurveyData): number {
-    const position = this.items.indexOf(item);
-    if (position < 0) return this.dataList.count;
-    return this.getRecordIndexByPanelIndex(position);
+    const items = this.items;
+    const position = items.indexOf(item);
+    // A panel that is being created is about to take the position at the end: the record it names is
+    // the one updateItemValue writes and getPanelItemDataByIndex reads for it, not the record count.
+    return this.getRecordIndexByPanelIndex(position < 0 ? items.length : position);
   }
   getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
     const position = this.hasDataListView ? this.dataList.indexToMaterializedIndex(recordIndex) : recordIndex;

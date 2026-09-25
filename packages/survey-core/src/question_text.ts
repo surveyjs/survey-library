@@ -279,7 +279,12 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) {
+      // With saveMaskedValue a string value is already masked: masking it again misreads its separators
+      // ("1.234,56" becomes "1,23" for a comma decimal separator). A raw value still has to be masked.
+      if (this.maskSettings.saveMaskedValue && typeof value === "string") return value;
+      return this.maskInstance.getMaskedValue(value);
+    }
     return super.getDisplayValueCore(keysAsText, value);
   }
   isLayoutTypeSupported(layoutType: string): boolean {

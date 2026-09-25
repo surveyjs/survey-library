@@ -32,6 +32,15 @@ describe("ConditionEditorItem: rows to text", () => {
     expect(item.conjunction, "#2").toBe("and");
     expect(item.isReady, "#3: no question").toBe(false);
   });
+  test("a new row takes the default operator the settings give when it is created", () => {
+    const prev = settings.logic.defaultOperators.default;
+    settings.logic.defaultOperators.default = "notequal";
+    try {
+      expect(new ConditionEditorItem().operator).toBe("notequal");
+    } finally {
+      settings.logic.defaultOperators.default = prev;
+    }
+  });
   test("operators are written the way the editor has always written them", () => {
     expect(textOf(1, "equal")).toBe("{q1} = 1");
     expect(textOf(1, "notequal")).toBe("{q1} <> 1");

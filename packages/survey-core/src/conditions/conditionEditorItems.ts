@@ -2,6 +2,7 @@ import { Helpers } from "../helpers";
 import { settings } from "../settings";
 import { ISurvey } from "../interfaces/survey-interfaces";
 import { ConditionsParser } from "./conditionsParser";
+import { getConditionDefaultOperator } from "./conditionOperators";
 import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } from "../expressions/expressions";
 
 /* One row of a condition: "{questionName} operator value", joined to the row before it by
@@ -11,7 +12,7 @@ import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } f
 export class ConditionEditorItem {
   public conjunction: string = "and";
   public questionName: string;
-  public operator: string = settings.logic.defaultOperators.default;
+  public operator: string = getConditionDefaultOperator();
   public value: any;
   public getOperatorText(): string {
     const op = this.operator;

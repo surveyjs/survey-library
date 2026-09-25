@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { settings } from "../../src/settings";
 import { SurveyModel } from "../../src/survey";
-import { ConditionEditorItem, SurveyConditionEditorItem } from "../../src/conditions/conditionEditorItems";
+import { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 import "../../src/question_text";
 
 function createItem(questionName: string, operator: string, value?: any, conjunction?: string): ConditionEditorItem {
@@ -77,5 +77,93 @@ describe("ConditionEditorItem: rows to text", () => {
     expect(item.toExpression(), "#2: no valueName, no change").toBe("{q2} = 1");
     item.questionName = "nosuchquestion";
     expect(item.toExpression(), "#3: an unknown name goes as it is").toBe("{nosuchquestion} = 1");
+  });
+});
+
+const build = (text: string): Array<any> => new ConditionEditorItemsBuilder().build(text)
+  .map((item: ConditionEditorItem): any => (
+    { conjunction: item.conjunction, questionName: item.questionName, operator: item.operator, value: item.value }));
+
+describe("ConditionEditorItemsBuilder: text to rows", () => {
+  // Ported from survey-creator-core tests/property-grid/condition-survey.tests.ts.
+  test("Items Builder, simple test", () => {
+    const builder = new ConditionEditorItemsBuilder();
+    let items = builder.build("{question1} = 1");
+    expect(items).toHaveLength(1);
+    expect(items[0].questionName).toEqual("question1");
+    expect(items[0].operator).toEqual("equal");
+    expect(items[0].value).toEqual(1);
+    items = builder.build("1 = {question1}");
+    expect(items).toHaveLength(1);
+    expect(items[0].questionName).toEqual("question1");
+    expect(items[0].operator).toEqual("equal");
+    expect(items[0].value).toEqual(1);
+  });
+  // Ported from survey-creator-core tests/property-grid/condition-survey.tests.ts.
+  test("Items Builder with double braces", () => {
+    withDoubleBraces((): void => {
+      const items = new ConditionEditorItemsBuilder().build("{{question1}} = 1");
+      expect(items).toHaveLength(1);
+      expect(items[0].questionName).toEqual("question1");
+      expect(items[0].operator).toEqual("equal");
+      expect(items[0].value).toEqual(1);
+    });
+  });
+  test("or binds looser than and: a flat chain is taken, an or inside an and is not", () => {
+    expect(build("{a} = 1 or {b} = 2 and {c} = 3"), "#1").toEqual([
+      { conjunction: "and", questionName: "a", operator: "equal", value: 1 },
+      { conjunction: "or", questionName: "b", operator: "equal", value: 2 },
+      { conjunction: "and", questionName: "c", operator: "equal", value: 3 }]);
+    expect(build("{a} = 1 and ({b} = 2 or {c} = 3)"), "#2: the rows cannot say it").toEqual([]);
+  });
+  test("a constant on the left flips an ordering operator only", () => {
+    expect(build("1 < {q1}")[0].operator, "#1").toBe("greater");
+    expect(build("1 >= {q1}")[0].operator, "#2").toBe("lessorequal");
+    expect(build("'abc' contains {q1}")[0].operator, "#3: kept as written").toBe("contains");
+  });
+  test("arrays of constants are values, empty and notempty take none", () => {
+    expect(build("{q3} = [1, 2]")[0].value, "#1").toEqual([1, 2]);
+    expect(build("{q3} anyof ['a', 'b']")[0], "#2")
+      .toEqual({ conjunction: "and", questionName: "q3", operator: "anyof", value: ["a", "b"] });
+    expect(build("{q1} empty")[0], "#3")
+      .toEqual({ conjunction: "and", questionName: "q1", operator: "empty", value: undefined });
+    expect(build("{q1} = '5'")[0].value, "#4: a quoted number stays a string").toBe("5");
+  });
+  test("anything the rows cannot say gives no rows", () => {
+    ["", "{q1} = ", "!({q1} = 1)", "age({q1}) = 1", "{q1} + 1 = 2", "{a} = {b}", "{q1} = null", "1 = 2"]
+      .forEach((text: string): void => { expect(build(text), text).toEqual([]); });
+  });
+  test("a null operand is refused, not thrown on", () => {
+    expect(build("null = {q1}"), "#1").toEqual([]);
+    expect(build("{q1} = 1 and null"), "#2").toEqual([]);
+  });
+  test("hasValue turns away the names it does not know", () => {
+    const builder = new ConditionEditorItemsBuilder((name: string): boolean => name === "q1");
+    expect(builder.build("{q1} = 1"), "#1").toHaveLength(1);
+    expect(builder.build("{q1} = 1 and {q2} = 2"), "#2").toEqual([]);
+    expect(builder.build("{q2} empty"), "#3").toEqual([]);
+  });
+  // "Can parse expression" is ported from survey-creator-core, the rest is new.
+  test("Can parse expression", () => {
+    expect(ConditionEditorItemsBuilder.canBuildExpression("{q1} = 1"), "#1").toBe(true);
+    expect(ConditionEditorItemsBuilder.canBuildExpression("age({q1}) = 1"), "#2").toBe(false);
+    expect(ConditionEditorItemsBuilder.canBuildExpression(""), "#3: nothing to build").toBe(true);
+    expect(ConditionEditorItemsBuilder.canParseExpression("age({q1}) = 1"), "#4").toBe(true);
+    expect(ConditionEditorItemsBuilder.canParseExpression("{q1} = "), "#5").toBe(false);
+  });
+});
+
+describe("ConditionEditorItemsBuilder.itemsToExpression", () => {
+  test("rows are joined by their conjunctions, without brackets", () => {
+    expect(ConditionEditorItemsBuilder.itemsToExpression([createItem("a", "equal", 1), createItem("b", "equal", 2, "or")]))
+      .toBe("{a} = 1 or {b} = 2");
+  });
+  test("the first row that is not ready ends the text", () => {
+    expect(ConditionEditorItemsBuilder.itemsToExpression(
+      [createItem("a", "equal", 1), createItem("b", "equal"), createItem("c", "equal", 3)])).toBe("{a} = 1");
+  });
+  test("text built from rows parses back into the same rows", () => {
+    const text = "{a} = 1 or {b} <> 'x' and {c} empty and {d} anyof [1, 2]";
+    expect(ConditionEditorItemsBuilder.itemsToExpression(new ConditionEditorItemsBuilder().build(text))).toBe(text);
   });
 });

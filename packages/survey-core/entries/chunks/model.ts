@@ -179,7 +179,7 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ConditionEditorItem, SurveyConditionEditorItem } from "../../src/conditions/conditionEditorItems";
+export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 export {
   isConditionOperatorEnabled,
   isQuestionTypeInList,

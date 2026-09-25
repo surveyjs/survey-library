@@ -641,6 +641,44 @@ const getCurrencyMask = (survey: SurveyModel): InputMaskCurrency => {
   return <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
 };
 
+describe("Currency mask: displayValue with saveMaskedValue", () => {
+  test.each([
+    { prefix: "", suffix: "" },
+    { prefix: "$ ", suffix: "" },
+    { prefix: "", suffix: " EUR" }
+  ])("A comma decimal separator keeps the stored text, Bug#11910: %j", ({ prefix, suffix }) => {
+    const survey = createCurrencySurvey({
+      decimalSeparator: ",", thousandsSeparator: ".", precision: 2, saveMaskedValue: true, prefix, suffix
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    q.inputValue = prefix + "1.234,56" + suffix;
+    expect(q.value, "value #1").toBe(prefix + "1.234,56" + suffix);
+    expect(q.displayValue, "displayValue #1").toBe(prefix + "1.234,56" + suffix);
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue #1").toBe(prefix + "1.234,56" + suffix);
+
+    q.inputValue = prefix + "234,56" + suffix;
+    expect(q.value, "value #2").toBe(prefix + "234,56" + suffix);
+    expect(q.displayValue, "displayValue #2").toBe(prefix + "234,56" + suffix);
+
+    survey.data = { q1: prefix + "9.876.543,21" + suffix };
+    expect(q.displayValue, "displayValue from data").toBe(prefix + "9.876.543,21" + suffix);
+    expect(q.inputValue, "inputValue from data").toBe(prefix + "9.876.543,21" + suffix);
+  });
+
+  test("The german locale with saveMaskedValue: displayValue, Bug#11910", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    q.inputValue = "1234,56";
+    const stored = q.value;
+    expect(typeof stored, "a masked string is stored").toBe("string");
+    expect(stored.indexOf("1.234,56") > -1, "the stored text keeps the german separators: " + stored).toBe(true);
+    expect(q.displayValue, "displayValue equals the stored text").toBe(stored);
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue").toBe(stored);
+  });
+});
+
 describe("Currency mask: inherited localization", () => {
   afterEach(() => {
     surveyLocalization.currentLocale = "";

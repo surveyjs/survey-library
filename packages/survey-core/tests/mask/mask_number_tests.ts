@@ -1315,6 +1315,52 @@ describe("Numeric mask", () => {
     expect(result.value).toBe("1234");
     expect(result.caretPosition).toBe(4);
   });
+
+  test("saveMaskedValue with a comma decimal separator: displayValue, Bug#11910", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "text", name: "amount", maskType: "numeric",
+        maskSettings: { decimalSeparator: ",", thousandsSeparator: ".", precision: 2, saveMaskedValue: true }
+      }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("amount");
+
+    q.inputValue = "1.234,56";
+    expect(q.value, "value #1").toBe("1.234,56");
+    expect(q.displayValue, "displayValue #1").toBe("1.234,56");
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue #1").toBe("1.234,56");
+
+    q.inputValue = "234,56";
+    expect(q.value, "value #2").toBe("234,56");
+    expect(q.displayValue, "displayValue #2").toBe("234,56");
+
+    q.inputValue = "1.234.567";
+    expect(q.value, "value #3").toBe("1.234.567");
+    expect(q.displayValue, "displayValue #3").toBe("1.234.567");
+
+    q.inputValue = "-1.234,5";
+    expect(q.value, "value #4").toBe("-1.234,5");
+    expect(q.displayValue, "displayValue #4").toBe("-1.234,5");
+
+    survey.data = { amount: "9.876,54" };
+    expect(q.displayValue, "displayValue from data").toBe("9.876,54");
+    expect(q.inputValue, "inputValue from data").toBe("9.876,54");
+  });
+
+  test("saveMaskedValue is off with a comma decimal separator: displayValue, Bug#11910", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "text", name: "amount", maskType: "numeric",
+        maskSettings: { decimalSeparator: ",", thousandsSeparator: ".", precision: 2 }
+      }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("amount");
+
+    q.inputValue = "1.234,56";
+    expect(q.value, "value").toBe(1234.56);
+    expect(q.displayValue, "displayValue").toBe("1.234,56");
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue").toBe("1.234,56");
+  });
 });
 
 describe("Numeric mask: localization", () => {

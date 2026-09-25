@@ -1275,6 +1275,23 @@ describe("Numeric mask", () => {
     expect(property.isVisible("", maskInstance), "precision 2").toBe(true);
   });
 
+  test("isValueOutOfRange", () => {
+    const maskInstance = new InputMaskNumeric();
+    expect(maskInstance.isValueOutOfRange("0"), "no limits").toBe(false);
+    expect(maskInstance.isValueOutOfRange(""), "empty, no limits").toBe(false);
+
+    maskInstance.min = 0.1;
+    maskInstance.max = 99;
+    expect(maskInstance.isValueOutOfRange(""), "empty").toBe(false);
+    expect(maskInstance.isValueOutOfRange("-"), "no digits").toBe(false);
+    expect(maskInstance.isValueOutOfRange("0"), "below min").toBe(true);
+    expect(maskInstance.isValueOutOfRange("0.1"), "min").toBe(false);
+    expect(maskInstance.isValueOutOfRange("5"), "in range").toBe(false);
+    expect(maskInstance.isValueOutOfRange("99"), "max").toBe(false);
+    expect(maskInstance.isValueOutOfRange("100"), "above max").toBe(true);
+    expect(maskInstance.isValueOutOfRange("1,000"), "above max, grouped").toBe(true);
+  });
+
   test("a completed value below min is not stored", () => {
     const survey = new SurveyModel({
       pages: [{

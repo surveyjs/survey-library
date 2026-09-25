@@ -279,6 +279,15 @@ export class DynamicDataList {
   public get hasMore(): boolean {
     return this._hasMore;
   }
+  /* The most records the list knows to exist: the total when there is one, otherwise the furthest
+     any window has reached. count is the lower bound of the window in force, so a walk back to the
+     first page of a source without a total would make it forget the pages it has already seen;
+     this does not. It is what a "Panel N of M" counts against. */
+  public get knownCount(): number {
+    if (this._total !== undefined) return this._total;
+    return Math.max(this._windowOffset + this.recordCount, this.maxSeenCount);
+  }
+  private maxSeenCount: number = 0;
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
   }
@@ -374,6 +383,7 @@ export class DynamicDataList {
     this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
     this.hiddenFlags.splice(at, 0, false);
     if (this._total !== undefined)this._total++;
+    if (this.maxSeenCount > 0)this.maxSeenCount++;
     this.updateHasMoreFromTotal(countAfter);
     this.insertIntoMembership(at, createdPosition, countAfter);
     this.resetViews();
@@ -407,6 +417,7 @@ export class DynamicDataList {
     this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
     this.hiddenFlags.splice(index, 1);
     if (this._total !== undefined)this._total--;
+    if (this.maxSeenCount > 0)this.maxSeenCount--;
     this.updateHasMoreFromTotal(countAfter);
     this.removeFromMembership(index, countAfter);
     this.resetViews();
@@ -560,6 +571,45 @@ export class DynamicDataList {
     this.ensureViews();
     return this.visibleIndexes;
   }
+  /* The records an owner materializes an object for, in object order. The view answers every DATA
+     question (which records are in it, their order, the totals, the neighbours); this answers every
+     OBJECT question (which record a panel or a row holds). Without paging they are the created
+     indexes - owner-hidden records included, the owner keeps an object for them. With paging they
+     are the current page, which holds visible records only: an owner that pages builds nothing for a
+     record that is not on it. It lives here and not on the owner because it is the page cut of the
+     view, and the list owns both. */
+  public getMaterializedIndexes(): Array<number> {
+    return this._pageSize > 0 ? this.getPageIndexes() : this.getCreatedIndexes();
+  }
+  public materializedIndexToIndex(position: number): number {
+    if (this._pageSize <= 0) return this.createdIndexToIndex(position);
+    const indexes = this.getPageIndexes();
+    return position >= 0 && position < indexes.length ? indexes[position] : -1;
+  }
+  public indexToMaterializedIndex(index: number): number {
+    if (this._pageSize <= 0) return this.indexToCreatedIndex(index);
+    return this.getPageIndexes().indexOf(index);
+  }
+  /* The owner-visibility of many records at once, decided without an object per record. One view
+     reset and one page clamp for the whole run instead of one per record: setRecordVisible
+     recomputes the views on the clamp, which over every record would be quadratic. Returns whether a
+     flag changed. */
+  public setRecordsVisible(isVisible: (index: number) => boolean): boolean {
+    const count = this.recordCount;
+    this.alignHiddenFlags();
+    let isChanged = false;
+    for (let i = 0; i < count; i++) {
+      const isHidden = !isVisible(i);
+      if (!!this.hiddenFlags[i] !== isHidden) {
+        this.hiddenFlags[i] = isHidden;
+        isChanged = true;
+      }
+    }
+    if (!isChanged) return false;
+    this.resetViews();
+    this.clampPageIndexAfterChange();
+    return true;
+  }
 
   public get pageSize(): number {
     return this._pageSize;
@@ -639,6 +689,8 @@ export class DynamicDataList {
     this._sort = Array.isArray(sort) ? sort : [];
     if (isFilterChanged) {
       this._pageIndex = 0;
+      // Another filter is another set of records: what the old one reached says nothing about it.
+      this.maxSeenCount = 0;
       this.filterRunner = undefined;
       this.updateFilterRunner();
     }
@@ -875,6 +927,7 @@ export class DynamicDataList {
     this._hasMore = false;
     this.discoveredTotalFilter = undefined;
     this._windowOffset = 0;
+    this.maxSeenCount = 0;
     this.isLoaded = false;
     this.resetMembership();
     this.resetViews();
@@ -1046,6 +1099,7 @@ export class DynamicDataList {
       this.records = records;
       this.commitCount(result, skip, take, records.length);
       this._windowOffset = skip;
+      this.maxSeenCount = Math.max(this.maxSeenCount, skip + records.length);
     } else {
       this.records = Array.isArray(data) ? data : [];
       this._total = undefined;

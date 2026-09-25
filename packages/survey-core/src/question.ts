@@ -188,6 +188,11 @@ export interface IValidationContextParams {
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
+  /* false: the validation shows errors and changes no value. A question that pages its records
+     validates a page before the respondent leaves it; a select question would otherwise clear the
+     values that are not among its choices, and every page move would rewrite records - over a data
+     source, push them. The survey's own page and complete validation keep clearing them. */
+  clearIncorrectValues?: boolean;
 }
 
 export class ValidationContext extends AsyncElementsRunner {
@@ -212,8 +217,11 @@ export class ValidationContext extends AsyncElementsRunner {
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
+    this.clearIncorrectValuesValue = context.clearIncorrectValues !== false;
   }
+  private clearIncorrectValuesValue: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
+  public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
@@ -1707,7 +1715,6 @@ export class Question extends SurveyElement<Question>
       if (isSingleInput) {
         this.singleInputBehavior.focusSingleInput(onError);
       } else {
-        this.revealInParentQuestions();
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop({
@@ -1744,18 +1751,6 @@ export class Question extends SurveyElement<Question>
   }
   protected onFocusCore(event: any): void {
     this.isFocusEmpty = this.isValidateVisitedEmptyFields;
-  }
-  /* A question that shows its items a page at a time - a paged matrix or dynamic panel - brings the
-     item that holds this one into view before the focus reaches it. It hangs on focus and not on
-     validation because an error found by an asynchronous validator arrives long after the
-     validation that started it returned, and the focus is what the error triggers in both cases. */
-  protected revealNestedQuestion(question: Question): void { }
-  private revealInParentQuestions(): void {
-    let question: Question = this;
-    while(!!question.parentQuestion) {
-      question.parentQuestion.revealNestedQuestion(question);
-      question = question.parentQuestion;
-    }
   }
   public expandAllParents(): void {
     this.expandAllParentsCore(this);

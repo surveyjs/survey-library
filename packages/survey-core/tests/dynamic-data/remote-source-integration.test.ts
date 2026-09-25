@@ -1009,7 +1009,8 @@ describe("Remote data source: currentPanel and dispose", () => {
     const { question } = await createPanel(source, { displayMode: "tab" });
     question.goToPage(1);
     await flush();
-    question.currentIndex = 2;
+    // currentIndex is the position in the whole list, on every page (prompt 15, OPEN 59).
+    question.currentIndex = 7;
     expect(question.currentPanel.getQuestionByName("col1").value, "#1").toBe("v7");
     question.refreshView();
     await flush();

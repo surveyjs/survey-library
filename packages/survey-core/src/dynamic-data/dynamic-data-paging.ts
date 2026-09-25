@@ -28,6 +28,10 @@ export interface IDynamicDataPagingOwner {
   getLocalizationFormatString(strName: string, ...args: any[]): string;
   // The authored page size: rowsPerPage / panelsPerPage.
   pageSize: number;
+  /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
+     a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
+     object. Absent -> pageSize. */
+  listPageSize?: number;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -38,6 +42,14 @@ export interface IDynamicDataPagingOwner {
   // sortBy is computed from sortOrder and nothing raises its change on its own (see
   // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
   raiseSortByChanged(oldValue: string, newValue: string): void;
+  /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
+     (see DynamicDataPageValidation.leave) and runs move now, later, or never. Returns false only
+     when an error was found synchronously. Absent -> the move just happens. */
+  leavePage?(isForward: boolean, move: () => void): boolean;
+  // Drops a move that waits for its validators: every change that replaces the page from code.
+  cancelPendingPageMove?(): void;
+  // True while a move waits for the asynchronous validators of the page: the pager is not usable.
+  isPageMovePending?: boolean;
 }
 
 export class DynamicDataPagingController {
@@ -50,7 +62,7 @@ export class DynamicDataPagingController {
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
   private updateListPageSize(): void {
-    const size = this.owner.isDesignMode ? 0 : this.owner.pageSize;
+    const size = this.owner.isDesignMode ? 0 : this.listPageSize;
     this.list.pageSize = size > 0 ? size : 0;
   }
   public updatePageSize(): void {
@@ -60,9 +72,18 @@ export class DynamicDataPagingController {
   public get pageIndex(): number {
     return this.owner.getPropertyValue("pageIndex") || 0;
   }
+  // A page set from code: no validation, and a move that waits for its validators is dropped.
   public set pageIndex(val: number) {
+    this.cancelPendingPageMove();
+    this.setPageIndexCore(val);
+  }
+  private setPageIndexCore(val: number): void {
     this.list.pageIndex = val;
     this.syncState();
+  }
+  // The move itself, once the page it leaves has passed: the pending move it may have been is over.
+  private movePage(val: number): void {
+    this.setPageIndexCore(val);
   }
   public get pageCount(): number {
     const res = this.owner.getPropertyValue("pageCount");
@@ -76,42 +97,65 @@ export class DynamicDataPagingController {
   }
   /* Through the owner and not through the mirror: the question answers 1 page and page 0 whenever
      it does not page at all, and that is what "can go" has to agree with. */
+  // Not while a move waits for its validators: the pager is not usable until they settle.
   public get canGoNextPage(): boolean {
-    return this.owner.pageIndex < this.owner.pageCount - 1;
+    return !this.isPageMovePending && this.owner.pageIndex < this.owner.pageCount - 1;
   }
   public get canGoPrevPage(): boolean {
-    return this.owner.pageIndex > 0;
+    return !this.isPageMovePending && this.owner.pageIndex > 0;
   }
-  public goToPage(index: number): void {
-    this.pageIndex = index;
+  /* The respondent's page moves. A move forward validates the page it leaves first and does not
+     happen on an error; a move back does not validate, as the survey's own previous page does not.
+     The return value is the survey's contract: false only for an error found synchronously, true
+     for a move that happened or waits for asynchronous validators - the move itself is observed
+     through pageIndex. */
+  public goToPage(index: number): boolean {
+    // Clamped against the pages known to exist, as the list clamps it: whether the move goes forward
+    // is decided on the page it will reach.
+    const target = this.getClampedPage(index);
+    if (target === this.owner.pageIndex) return true;
+    return this.leavePage(target > this.owner.pageIndex, (): void => { this.movePage(target); });
   }
-  public nextPage(): void {
-    if (this.canGoNextPage) {
-      this.pageIndex = this.owner.pageIndex + 1;
-    }
+  public nextPage(): boolean {
+    if (!this.canGoNextPage) return false;
+    const target = this.owner.pageIndex + 1;
+    return this.leavePage(true, (): void => { this.movePage(target); });
   }
-  public prevPage(): void {
-    if (this.canGoPrevPage) {
-      this.pageIndex = this.owner.pageIndex - 1;
-    }
+  public prevPage(): boolean {
+    if (!this.canGoPrevPage) return false;
+    const target = this.owner.pageIndex - 1;
+    return this.leavePage(false, (): void => { this.movePage(target); });
   }
   /* With an unknown count this goes one page forward, which is the last page known to exist: the
      source has told the list that there is something behind the window and nothing more. It is not
      disabled - a caller that asks for the last page of a table nobody can count gets the last one
      that has been found, and asking again goes on. */
-  public goToLastPage(): void {
-    this.pageIndex = this.owner.pageCount - 1;
+  public goToLastPage(): boolean {
+    return this.goToPage(this.owner.pageCount - 1);
   }
-  /* Brings the object at a position in visibleRows / visiblePanels onto the current page - the same
-     arithmetic the page slice itself uses. An object that is owner-hidden has no visible index and
-     therefore no page, and -1 does nothing.
-     With a source that pages itself the objects exist for the loaded page only, so a visible index
-     is page-local: every object there is already on the page, and the arithmetic would read it as a
-     position in the whole table and navigate away from the object it was asked to reveal. */
-  public goToPageOfVisibleIndex(visibleIndex: number): void {
+  private get listPageSize(): number {
+    const size = this.owner.listPageSize;
+    return size !== undefined ? size : this.owner.pageSize;
+  }
+  private get isPageMovePending(): boolean {
+    return this.owner.isPageMovePending === true;
+  }
+  private cancelPendingPageMove(): void {
+    if (typeof this.owner.cancelPendingPageMove === "function")this.owner.cancelPendingPageMove();
+  }
+  private leavePage(isForward: boolean, move: () => void): boolean {
+    if (typeof this.owner.leavePage === "function") return this.owner.leavePage(isForward, move);
+    move();
+    return true;
+  }
+  private getClampedPage(index: number): number {
+    return Math.max(0, Math.min(index, this.owner.pageCount - 1));
+  }
+  // The page that holds a position among the visible records - a visibleIndex - of the whole list.
+  public getPageOfVisibleIndex(visibleIndex: number): number {
     const pageSize = this.list.pageSize;
-    if (pageSize <= 0 || visibleIndex < 0 || this.list.isPagedBySource) return;
-    this.pageIndex = Math.floor(visibleIndex / pageSize);
+    if (pageSize <= 0 || visibleIndex < 0) return 0;
+    return Math.floor(visibleIndex / pageSize);
   }
   /* The list does not announce every change of the visible count: setRecordVisible and
      invalidateViews raise nothing unless the page index had to be clamped, yet both change
@@ -210,7 +254,15 @@ export class DynamicDataPagingController {
     return this.owner.getPropertyValue("sortOrder") || [];
   }
   public set sortOrder(val: Array<IDynamicDataSort>) {
+    this.setSortOrderCore(val, true);
+  }
+  // A sort from code drops a move that waits for its validators; the one toggleSort validated is
+  // that move, and it has already been dropped by leavePage.
+  private setSortOrderCore(val: Array<IDynamicDataSort>, isFromCode: boolean): void {
     const newValue = Array.isArray(val) ? val.slice() : [];
+    if (isFromCode && this.canPushToList) {
+      this.cancelPendingPageMove();
+    }
     if (!this.canPushToList) {
       // The hash only: the setter neither pushes nor creates the list while the question is loading
       // or in design mode.
@@ -240,8 +292,18 @@ export class DynamicDataPagingController {
      third spelling; what is unique here is the cycle, which every renderer needs in one place.
      addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
      a modified header click does in a grid - and leaves the other fields where they are. */
-  public toggleSort(field: string, addToSort?: boolean): void {
-    if (!field) return;
+  /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
+     validated first (layer 1). Returns false only for an error found synchronously. */
+  public toggleSort(field: string, addToSort?: boolean): boolean {
+    if (!field) return false;
+    const newSort = this.getToggledSort(field, addToSort);
+    if (!this.canPushToList) {
+      this.setSortOrderCore(newSort, true);
+      return true;
+    }
+    return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
+  }
+  private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {
     const sort = this.sortOrder;
     const current = sort.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
     let dir: DynamicDataSortDirection = undefined;
@@ -251,21 +313,20 @@ export class DynamicDataPagingController {
       dir = "desc";
     }
     if (!addToSort) {
-      this.sortOrder = !dir ? [] : [{ field: field, direction: dir }];
-      return;
+      return !dir ? [] : [{ field: field, direction: dir }];
     }
-    // Every branch below assigns a NEW array: the setter compares the incoming value with the sort
+    // Every branch below builds a NEW array: the setter compares the incoming value with the sort
     // the list already has, so an array changed in place would be a silent no-op.
     if (!dir) {
       // Cycled off: it leaves the sort and the fields around it keep their order.
-      this.sortOrder = sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
-    } else if (!current) {
-      // A field joins at the end: the last one clicked is the last tie-breaker.
-      this.sortOrder = sort.concat([{ field: field, direction: dir }]);
-    } else {
-      this.sortOrder = sort.map((s: IDynamicDataSort): IDynamicDataSort =>
-        s.field === field ? { field: field, direction: dir } : s);
+      return sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
     }
+    if (!current) {
+      // A field joins at the end: the last one clicked is the last tie-breaker.
+      return sort.concat([{ field: field, direction: dir }]);
+    }
+    return sort.map((s: IDynamicDataSort): IDynamicDataSort =>
+      s.field === field ? { field: field, direction: dir } : s);
   }
   public clearSort(): void {
     this.sortOrder = [];
@@ -283,6 +344,7 @@ export class DynamicDataPagingController {
     }
     const list = this.list;
     if (list.filter === newValue) return;
+    this.cancelPendingPageMove();
     list.filter = newValue;
     // A filter the list cannot run locally is reported through its onError and reset to "": the
     // mirror takes what the list ended up with, not what was assigned.
@@ -293,6 +355,7 @@ export class DynamicDataPagingController {
      nothing; the window is read again instead. Every in-memory source takes the local path. */
   public refreshView(): void {
     const list = this.list;
+    this.cancelPendingPageMove();
     if (list.isPagedBySource) {
       list.refresh();
     } else {

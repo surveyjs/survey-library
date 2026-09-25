@@ -347,9 +347,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   public dispose(): void {
     super.dispose();
-    const q = this.getQuestionWithChoices();
-    if (!!q) {
-      q.removeDependedQuestion(this);
+    // activeChoices registers with a select source and with an array source alike (a dynamic panel or
+    // a matrix whose records are the choices); a question left registered with an array source is
+    // updated on every write of it for as long as the source lives.
+    const q = this.findCarryForwardQuestion();
+    if (!!this.getQuestionWithChoicesCore(q) || !!this.getQuestionWithArrayValue(q)) {
+      (<any>q).removeDependedQuestion(this);
     }
     const dist = this.commentAreaModelValues;
     if (!!dist) {
@@ -495,7 +498,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
+    if (context.isOnValueChanged !== true && context.clearIncorrectValues && this.getClearIfInvisible() !== "none") {
       this.clearIncorrectValues();
     }
     let res = true;

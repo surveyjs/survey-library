@@ -205,10 +205,17 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 }
 
 export class MatrixRowGetterContext extends DynamicItemGetterContext {
+  /* row is a row object, or - for a matrix that pages - a record without a row read as a value
+     (DynamicRecordItem): the neighbours of the first and last row of a page, and rowsVisibleIf,
+     which decides the page before any row exists. */
   constructor(protected row: MatrixDropdownRowModelBase) {
     super(row);
   }
+  // The position among the visible records of the whole list when the matrix knows it (a matrix
+  // that pages), else the position in visibleRows.
   protected get visibleIndex(): number {
+    const data: any = this.row.data;
+    if (!!data && typeof data.getItemVisibleIndex === "function") return data.getItemVisibleIndex(this.row);
     const rows = this.getQuestionData().visibleRows;
     return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
@@ -219,6 +226,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     return settings.expressionVariables.prevRow;
   }
   protected getVisibleItem(index: number): DynamicItemModelBase {
+    const data: any = this.row.data;
+    if (!!data && typeof data.getItemByVisibleIndex === "function") return data.getItemByVisibleIndex(index);
     const matrix = this.getQuestionData();
     const rows = matrix.visibleRows;
     if (!rows || index < 0 || index >= rows.length) return null;
@@ -255,6 +264,11 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     const setVar = settings.expressionVariables;
     name = name.toLocaleLowerCase();
     if (name === setVar.rowIndex.toLocaleLowerCase()) {
+      // A record without a row: its record number, 1-based, in the whole list.
+      if (!(this.row instanceof MatrixDropdownRowModelBase)) {
+        const record: DynamicItemModelBase = this.row;
+        return record.getIndex() + 1 + DynamicItemModelBase.getRecordNumberOffset(record.data);
+      }
       return this.row.rowIndex;
     }
     if (name === setVar.visibleRowIndex.toLocaleLowerCase()) {
@@ -278,7 +292,14 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
   public onDetailPanelShowingChanged: () => void;
+  // The row's position among the visible records of the whole list: a matrix that pages holds one
+  // page of them as rows (see pageVisibleIndex).
   public visibleIndex: number = -1;
+  // The row's position in visibleRows: the page it is on, when the matrix pages.
+  public get pageVisibleIndex(): number {
+    const rows = !!this.data ? (<any>this.data).visibleRows : undefined;
+    return Array.isArray(rows) ? rows.indexOf(this) : -1;
+  }
 
   constructor(public data: IMatrixDropdownData, value: any) {
     super(data);
@@ -874,10 +895,13 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
   }
-  // 1-based RECORD index: it names the record, not the row slot, so that a stored {rowIndex}
-  // expression keeps meaning the same row when a filter or a sort changes which rows exist.
+  /* 1-based RECORD index: it names the record, not the row slot, so that a stored {rowIndex}
+     expression keeps meaning the same row when a filter or a sort changes which rows exist - and in
+     the whole list, so that row 23 is record 23 on every page of a data source that pages itself.
+     getIndex() stays the window-local record index the matrix storage is addressed by. */
   public get rowIndex(): number {
-    return this.getItemIndex();
+    const res = this.getItemIndex();
+    return res > 0 ? res + DynamicItemModelBase.getRecordNumberOffset(this.data) : res;
   }
   public getIndex(): number {
     return this.getItemIndex() - 1;
@@ -1285,11 +1309,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const vriName = settings.expressionVariables.visibleRowIndex;
     const keys = {};
     keys[vriName] = 0;
+    // A row's visibleIndex is its position among the visible records of the whole list; the rows of
+    // a matrix that pages are one page of them.
+    const start = this.getFirstRowVisibleIndex();
     for (let i = 0; i < rows.length; i ++) {
-      rows[i].visibleIndex = i;
-      keys[vriName] = i + 1;
-      rows[i].runTriggers(vriName, i + 1, keys);
+      rows[i].visibleIndex = start + i;
+      keys[vriName] = start + i + 1;
+      rows[i].runTriggers(vriName, start + i + 1, keys);
     }
+  }
+  protected getFirstRowVisibleIndex(): number {
+    return 0;
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -1656,7 +1686,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     let isRowVisiblilityChanged = false;
     this.isRunningCellsCondition = true;
     const isAlwaysVisible = this.areInvisibleElementsShowing;
-    const rowsVisibleIf = this.getExpressionFromSurvey("rowsVisibleIf");
+    const rowsVisibleIf = this.getRowsVisibleIfForRows();
     const rows = this.generatedVisibleRows;
     if (!!rows) {
       for (var i = 0; i < rows.length; i++) {
@@ -1671,6 +1701,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.checkColumnsRenderedRequired();
     this.isRunningCellsCondition = false;
     return isRowVisiblilityChanged;
+  }
+  // The rowsVisibleIf the rows run themselves. A matrix that pages decides it over the records and
+  // builds rows for visible records only, so its rows run none.
+  protected getRowsVisibleIfForRows(): string {
+    return this.getExpressionFromSurvey("rowsVisibleIf");
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
     const expression = this.getExpressionFromSurvey("columnsVisibleIf");
@@ -2340,12 +2375,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return every ? true : false;
   }
   protected validateElementCore(context: ValidationContext): boolean {
+    const rowsValidation = this.validateRowObjects(context);
+    return super.validateElementCore(context) && rowsValidation;
+  }
+  // The rows that exist and the duplicates they take part in: what a page of a matrix that pages is
+  // validated by before the respondent leaves it.
+  protected validateRowObjects(context: ValidationContext): boolean {
     const rowsValidation = this.validateRows(context);
     const isDuplicated = this.isValueDuplicated(context);
-    return super.validateElementCore(context) && rowsValidation && !isDuplicated;
+    return rowsValidation && !isDuplicated;
   }
-  protected getIsRunningValidators(): boolean {
-    if (super.getIsRunningValidators()) return true;
+  protected isRunningValidatorsInRows(): boolean {
     if (!this.generatedVisibleRows) return false;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var cells = this.generatedVisibleRows[i].cells;
@@ -2357,6 +2397,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
     return false;
+  }
+  protected getIsRunningValidators(): boolean {
+    return super.getIsRunningValidators() || this.isRunningValidatorsInRows();
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
@@ -2442,7 +2485,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return !!rowVal ? rowVal[columnName] : undefined;
   }
   private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
-    const keyValues: HashTable<Array<IMatrixDuplicationEntry>> = {};
+    // A Map keyed by the string a plain object would use: the values are respondent input, and
+    // "__proto__" as a plain object key is the prototype.
+    const keyValues = new Map<string, Array<IMatrixDuplicationEntry>>();
     const res: Array<MatrixDropdownRowModelBase> = [];
     const entries = this.getDuplicationEntries(columnName);
     for (var i = 0; i < entries.length; i++) {
@@ -2451,17 +2496,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         if (!this.useCaseSensitiveComparison && typeof val === "string") {
           val = val.toLocaleLowerCase();
         }
-        if (!keyValues[val]) {
-          keyValues[val] = [];
+        const key = String(val);
+        if (!keyValues.has(key)) {
+          keyValues.set(key, []);
         }
-        keyValues[val].push(entries[i]);
+        keyValues.get(key).push(entries[i]);
       }
     }
-    for (let key in keyValues) {
-      if (keyValues[key].length > 1) {
-        keyValues[key].forEach(entry => { if (!!entry.row) res.push(entry.row); });
+    keyValues.forEach((group: Array<IMatrixDuplicationEntry>): void => {
+      if (group.length > 1) {
+        group.forEach(entry => { if (!!entry.row) res.push(entry.row); });
       }
-    }
+    });
     return res;
   }
   private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {

@@ -3,7 +3,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 /**
   * A class that describes the HTML question type. Unlike other question types, HTML cannot have a title or value.
@@ -47,7 +47,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
     return true;
   }
   public get renderCssRoot(): string {
-    return new CssClassBuilder().append(this.cssClasses.root).append(this.cssClasses.nested, this.getIsNested()).toString() || undefined;
+    return toCssClasses(this.cssClasses.root, this.getIsNested() && this.cssClasses.nested) || undefined;
   }
 }
 Serializer.addClass(

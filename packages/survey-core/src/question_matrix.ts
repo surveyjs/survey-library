@@ -13,7 +13,7 @@ import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType } from "./question";
@@ -109,16 +109,17 @@ export class MatrixRowModel extends Base {
   public get isReadOnlyAttr(): boolean { return this.data.isReadOnlyAttr; }
   public get isDisabledAttr(): boolean { return !this.item.enabled || this.data.isDisabledAttr; }
   public get rowTextClasses(): string {
-    return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
+    return toCssClasses(this.data.cssClasses.rowTextCell);
   }
   @property({ defaultValue: false }) hasError: boolean;
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
-    return new CssClassBuilder().append(cssClasses.row)
-      .append(cssClasses.rowError, this.hasError)
-      .append(cssClasses.rowReadOnly, this.isReadOnly)
-      .append(cssClasses.rowDisabled, this.data.isDisabledStyle)
-      .toString();
+    return toCssClasses(
+      cssClasses.row,
+      this.hasError && cssClasses.rowError,
+      this.isReadOnly && cssClasses.rowReadOnly,
+      this.data.isDisabledStyle && cssClasses.rowDisabled
+    );
   }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixRowValueGetterContext(this);
@@ -493,7 +494,7 @@ export class QuestionMatrixModel
     return (val || "").replace("{type}", this.checkType);
   }
   public get emptyCellCss() {
-    return new CssClassBuilder().append(this.cssClasses.cell).append(this.cssClasses.emptyCell).toString();
+    return toCssClasses(this.cssClasses.cell, this.cssClasses.emptyCell);
   }
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
@@ -501,16 +502,16 @@ export class QuestionMatrixModel
     const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
-    return new CssClassBuilder()
-      .append(css.cell, hasCellText)
-      .append(hasCellText ? css.cellText : this.formatCss(css.label))
-      .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
-      .append(hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked), isChecked)
-      .append(hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled), this.isDisabledStyle)
-      .append(hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly), this.isReadOnlyStyle)
-      .append(hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview), this.isPreviewStyle)
-      .append(this.formatCss(css.itemHover), allowHover && !hasCellText)
-      .toString();
+    return toCssClasses(
+      hasCellText && css.cell,
+      hasCellText ? css.cellText : this.formatCss(css.label),
+      !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()) && css.itemOnError,
+      isChecked && (hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked)),
+      this.isDisabledStyle && (hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled)),
+      this.isReadOnlyStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
+      this.isPreviewStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
+      allowHover && !hasCellText && this.formatCss(css.itemHover)
+    );
   }
   public get itemSvgIcon(): string {
     if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {

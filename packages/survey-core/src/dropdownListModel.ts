@@ -15,7 +15,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
 import { classesToSelector } from "./utils/dom-utils";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/key2click";
@@ -436,7 +436,7 @@ export class DropdownListModel extends Base {
   }
   protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
-    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.getPopupCssClasses()).toString();
+    this.popupModel.cssClass = toCssClasses(popupCssClass, this.getPopupCssClasses());
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(updateList = false): void {

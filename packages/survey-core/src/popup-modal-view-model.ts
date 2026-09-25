@@ -1,4 +1,4 @@
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { CssClassBuilder, toCssClasses } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IAction } from "./actions/action";
@@ -16,7 +16,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-    this.footerToolbar.setCssClasses({ item: new CssClassBuilder().append("sv-popup__body-footer-item").append(defaultActionBarCss.item).toString() });
+    this.footerToolbar.setCssClasses({ item: toCssClasses("sv-popup__body-footer-item", defaultActionBarCss.item) });
     this.footerToolbar.setActionsAppearance({ style: "brand", mode: "secondary", size: "medium" });
     this.footerToolbar.containerCss = "sv-modal-footer-action-bar";
     let footerActions = [

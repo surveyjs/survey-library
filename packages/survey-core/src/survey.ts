@@ -5727,12 +5727,15 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() rootCss: string;
   public getRootCss(): string {
+    // Read up front. `!animationEnabled || isReducedMotion` would skip the property while animations
+    // are off, and Vue only re-renders properties a render actually touched.
+    const reducedMotion = this.isReducedMotion;
     return new CssClassBuilder()
       .append(this.css.root)
       .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
       .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !settings.animationEnabled || this.isReducedMotion)
+      .append(this.css.rootAnimationDisabled, reducedMotion || !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)

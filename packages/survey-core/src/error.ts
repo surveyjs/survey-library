@@ -1,5 +1,5 @@
 import { SurveyError } from "./survey-error";
-import { ISurveyErrorOwner } from "./base-interfaces";
+import { ISurveyErrorOwner, DataIssueType } from "./base-interfaces";
 
 export class AnswerRequiredError extends SurveyError {
   constructor(
@@ -114,6 +114,26 @@ export class OtherEmptyError extends SurveyError {
   }
   protected getDefaultText(): string {
     return this.getLocalizationString("otherRequiredError");
+  }
+}
+export class IncorrectValueError extends SurveyError {
+  // validate() does not raise this error: SurveyModel.setData() reports data issues and
+  // clearIncorrectValues() removes them. It is here for a consumer that turns an IDataIssue into a
+  // question error: check is the issue type, never "expressionResultMismatch", which is a diagnostic
+  // about the loading and not about the value; keys lists the unknown properties, for
+  // "unknownProperty" only, in the form the consumer chooses; the default text joins them with ", ".
+  constructor(public text: string = null, errorOwner: ISurveyErrorOwner = null,
+    public check: DataIssueType = "invalidValueType", public keys: Array<string> = []) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "incorrectvalue";
+  }
+  protected getDefaultText(): string {
+    if (this.check === "unknownProperty" && this.keys.length > 0) {
+      return (<any>this.getLocalizationString("incorrectValueUnknownKeysError"))["format"](this.keys.join(", "));
+    }
+    return this.getLocalizationString("incorrectValueError");
   }
 }
 export class UploadingFileError extends SurveyError {

@@ -28,7 +28,10 @@ import {
   ITextProcessorResult, ISurveyUIState,
   ISurveyWebProvider,
   ISaveToJSONOptions,
-  IScrollElementToTopOptions
+  IScrollElementToTopOptions,
+  IDataVerificationOptions,
+  IDataIssue,
+  IValueChecks
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -42,7 +45,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question, ValidationContext } from "./question";
+import { IQuestionPlainData, Question, ValidationContext, IVerifyDataContext, createVerifyDataContext } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -2103,14 +2106,8 @@ export class SurveyModel extends SurveyElementCore
     var data = this.data;
     var hasChanges = false;
     for (var key in data) {
-      if (!!this.getQuestionByValueName(key)) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)
-      )
-        continue;
-      var calcValue = this.getCalculatedValueByName(key);
-      if (!!calcValue && calcValue.includeIntoResult) continue;
+      // isKnownRootKey() is the same test setData() runs, so the two never disagree.
+      if (this.isKnownRootKey(key)) continue;
       hasChanges = true;
       delete data[key];
     }
@@ -3364,6 +3361,10 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   public set data(data: any) {
+    this.assignData(data);
+  }
+  // The data setter and setData() both assign through here, so the two can never drift apart.
+  private assignData(data: any): void {
     this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
@@ -4683,6 +4684,122 @@ export class SurveyModel extends SurveyElementCore
     }
     context.finish();
     return context.runningResult;
+  }
+  // Assigns a response exactly the way `survey.data = data` does and returns what is wrong with it
+  // against the form definition; an empty array when no applicable check found anything, never
+  // undefined.
+  // The survey receives a deep copy, a JSON round trip: the caller's object is never modified, a
+  // Date reaches the model as its ISO string and a class instance as a plain object. null and
+  // undefined clear the data, as with the setter.
+  // The assignment keeps every effect of the setter: value-changed events, conditions, triggers,
+  // a new current page when a condition hides the current one, answered pages marked as shown.
+  // Then the model is initialized the way rendering would, every page visible or not, dynamic rows
+  // and panel items included, with their creation events, default values and triggers, and the
+  // checks run on the data the model holds after that. The checks themselves change nothing: no
+  // validation event, no errors, no focus, no collapse or expand, no page change.
+  // The three value checks are on unless an option is set to false: root keys and nested keys that
+  // nobody owns, values of the wrong shape, unknown choices, columns, rows and rate values.
+  // keepIncorrectValues is ignored: it is not a JSON property of the form, so it is not part of the
+  // definition the data is checked against.
+  // An empty result does not mean "this response is valid": required questions, validators and the
+  // validation events are not run, the choices check is skipped for a question whose choicesByUrl has
+  // not loaded, that allows custom choices or that shares a valueName, and a value that is a class
+  // instance or a File is not checked. The questions inside the panels of choice items (a checkbox
+  // or radiogroup whose choices have elements) are not reached yet either; promts/misc/nested-walk.md
+  // is the task that adds them. validate() is the method for a form being filled in.
+  // reportExpressionResultMismatches is off unless it is set to true. It compares the response with
+  // survey.data after loading and reports every difference, see collectExpressionResultMismatches().
+  // With null or undefined the response is compared with {}, so every default the model adds is
+  // reported.
+  public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
+    const hasData = data !== undefined && data !== null;
+    // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model
+    // change the caller's object and the snapshot alike.
+    const snapshot = hasData ? Helpers.getUnbindValue(data) : {};
+    this.assignData(hasData ? Helpers.getUnbindValue(data) : data);
+    const context = createVerifyDataContext(this.getValueChecksFromOptions(options));
+    this.initializeForVerification();
+    this.verifyDataCore(context);
+    if (options?.reportExpressionResultMismatches === true) {
+      this.collectExpressionResultMismatches(snapshot, this.data, context);
+    }
+    return context.issues;
+  }
+  // The public options name the checks from the caller's side; the walk and isValueCorrect() share
+  // IValueChecks. An absent member stays absent, so createVerifyDataContext() turns it on.
+  private getValueChecksFromOptions(options: IDataVerificationOptions): IValueChecks {
+    return {
+      unknownProperties: options?.reportUnknownProperties,
+      valueTypes: options?.reportInvalidValueTypes,
+      choiceValues: options?.reportInvalidChoiceValues
+    };
+  }
+  private initializeForVerification(): void {
+    this.pages.forEach(page => page.initializeForVerification());
+  }
+  private verifyDataCore(context: IVerifyDataContext): void {
+    if (context.checks.unknownProperties) {
+      const data = this.data;
+      for (const key in data) {
+        if (this.isKnownRootKey(key)) continue;
+        context.addIssue("unknownProperty", key, data[key], undefined);
+      }
+    }
+    this.pages.forEach(page => page.verifyDataCore(context));
+  }
+  // The root keys clearIncorrectValues(true) keeps: a question found by valueName, a comment or a
+  // totals key of such a question, a calculated value that is a part of the result.
+  private isKnownRootKey(key: string): boolean {
+    if (!!this.getQuestionByValueName(key)) return true;
+    if (this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
+      this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
+    const calcValue = this.getCalculatedValueByName(key);
+    return !!calcValue && calcValue.includeIntoResult;
+  }
+  // The expressionResultMismatch diagnostic. Despite the name it is not limited to expressions:
+  // every difference between the response and survey.data after loading is something the model did
+  // to the input, a default it added, a value it normalized, a value a trigger set or a condition
+  // cleared, a value it dropped. The comparison is deep and the leaves are compared by strict
+  // identity, never by Helpers.isTwoValueEquals(), which treats "5" and 5 or "A" and "a " as equal:
+  // those are exactly the normalizations this diagnostic exists to show.
+  private collectExpressionResultMismatches(oldData: any, newData: any, context: IVerifyDataContext): void {
+    this.collectExpressionResultMismatchesCore(oldData, newData, context, undefined);
+  }
+  private collectExpressionResultMismatchesCore(oldVal: any, newVal: any, context: IVerifyDataContext, rootKey: string): void {
+    if (Helpers.isValueObject(oldVal, true) && Helpers.isValueObject(newVal, true) &&
+      !Array.isArray(oldVal) && !Array.isArray(newVal)) {
+      for (const key in oldVal) {
+        context.pushSegment(key);
+        this.collectExpressionResultMismatchesCore(oldVal[key], newVal[key], context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      }
+      for (const key in newVal) {
+        if (key in oldVal) continue;
+        context.pushSegment(key);
+        this.collectExpressionResultMismatchesCore(undefined, newVal[key], context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      }
+      return;
+    }
+    if (Array.isArray(oldVal) && Array.isArray(newVal)) {
+      const count = Math.max(oldVal.length, newVal.length);
+      for (let i = 0; i < count; i++) {
+        context.pushSegment(i);
+        this.collectExpressionResultMismatchesCore(oldVal[i], newVal[i], context, rootKey);
+        context.popSegment();
+      }
+      return;
+    }
+    if (this.isSameDataLeaf(oldVal, newVal)) return;
+    const question = rootKey !== undefined ? this.getQuestionByValueName(rootKey) : undefined;
+    context.addIssue("expressionResultMismatch", undefined, oldVal, question, newVal);
+  }
+  // null and undefined are both "absent", so a key the model stores as null for a value the
+  // response left out is not a difference. Everything else is compared by strict identity.
+  private isSameDataLeaf(oldVal: any, newVal: any): boolean {
+    const oldRes = oldVal === null ? undefined : oldVal;
+    const newRes = newVal === null ? undefined : newVal;
+    return oldRes === newRes;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {

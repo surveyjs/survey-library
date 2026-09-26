@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext, QuestionValueType } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -620,8 +620,45 @@ export class QuestionMultipleTextModel extends Question
   public getChildErrorLocation(child: Question): string {
     return this.getQuestionErrorLocation();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.unknownProperties) return true;
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) return;
+      context.addIssue("unknownProperty", key, val[key], this);
+    });
+    return true;
+  }
+  public initializeForVerification(): void {
+    this.items.forEach(item => item.editor.initializeForVerification());
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    this.items.forEach(item => item.editor.verifyDataCore(context));
+  }
+  protected hasValueKey(key: string): boolean {
+    return !!this.getItemByName(key);
+  }
+  protected clearIncorrectValuesCore(): void {
+    const val = this.value;
+    // A value of another shape, a string for example, has no items to keep: drop it as a whole.
+    if (!Helpers.isValueObject(val, true)) {
+      super.clearIncorrectValuesCore();
+      return;
+    }
+    const newValue: any = {};
+    Object.keys(val).forEach(key => {
+      if (this.isValueKeyKnown(key)) {
+        newValue[key] = val[key];
+      }
+    });
+    this.value = newValue;
+  }
+  public clearIncorrectValues(): void {
+    super.clearIncorrectValues();
+    this.items.forEach(item => item.editor.clearIncorrectValues());
   }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {

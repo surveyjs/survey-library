@@ -1,7 +1,7 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, QuestionValueType, getScalarValueType } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -215,6 +215,13 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   }
   public getValueFalse(): any {
     return this.valueFalse !== undefined ? this.valueFalse : false;
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.valueTypes) return true;
+    if (!(val instanceof Object) && (val == this.getValueTrue() || val == this.getValueFalse())) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);

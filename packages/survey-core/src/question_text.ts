@@ -8,7 +8,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
-import { QuestionValueType } from "./question";
+import { QuestionValueType, IVerifyDataContext } from "./question";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
@@ -255,6 +255,13 @@ export class QuestionTextModel extends QuestionTextBase {
     if (numberTypes.indexOf(this.inputType) > -1) return "number";
     // What is left of the inputTypes that carry min/max are the date and time ones.
     return isMinMaxType(this) ? "date" : "string";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.valueTypes || !!this.customWidget || ["date", "datetime-local", "month"].indexOf(this.inputType) < 0) return true;
+    if (!isNaN(this.createDate(val).getTime())) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   public getSupportedValidators(): Array<string> {
     const supportedHash: HashTable<Array<string>> = {};

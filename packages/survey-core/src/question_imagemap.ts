@@ -2,7 +2,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, QuestionValueType } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -169,6 +169,25 @@ export class QuestionImageMapModel extends Question {
     this.clearIncorrectValues();
   }
 
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (context.checks.valueTypes && Array.isArray(val) !== this.isMultiSelect) {
+      context.addIssue("invalidValueType", undefined, val, this);
+      return false;
+    }
+    if (!context.checks.choiceValues) return true;
+    const values = Array.isArray(val) ? val : [val];
+    values.forEach((v: any, index: number) => {
+      if (!!this.areas.find(i => i.value === v)) return;
+      context.addIssue("invalidChoiceValue", Array.isArray(val) ? index : undefined, v, this);
+    });
+    return true;
+  }
+  protected clearIncorrectValuesCore(): void {
+    if (Array.isArray(this.value) !== this.isMultiSelect) {
+      this.clearValue(true);
+    }
+  }
   public clearIncorrectValues(): void {
     super.clearIncorrectValues();
     if (!this.value) return;

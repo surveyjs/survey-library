@@ -15,6 +15,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "vitest run",
+    "test:types": "tsc -p tests/typings/tsconfig.json",
     "test:watch": "vitest --no-isolate",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "build:translate": "survey-utils translate library --path ../..",

@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
@@ -188,6 +188,94 @@ export interface IValidationContextParams {
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
+}
+
+// Everything on: the value checks run all three unless the caller turns one off.
+const allValueChecks: IValueChecks = { valueTypes: true, choiceValues: true, unknownProperties: true };
+
+// Renders a location for reading: the segments joined with ".", a number as "[n]" without a dot
+// before it. A string segment is written as is, so the result is ambiguous for a key that contains
+// "." or "["; that is why IDataIssue.path is not meant to be parsed and the context deduplicates
+// by the segments.
+export function renderDataPath(segments: Array<string | number>): string {
+  let res = "";
+  segments.forEach(segment => {
+    if (typeof segment === "number") {
+      res += "[" + segment + "]";
+    } else {
+      res += (!!res ? "." : "") + segment;
+    }
+  });
+  return res;
+}
+
+// The state of one verification walk. It is internal: the public surface is SurveyModel.setData(),
+// IDataIssue and the options. Every walk starts at the survey root. A container pushes its
+// segment(s) before walking into its nested instances and pops after, so the location of a finding
+// is state of the walk and not something a question computes by climbing its parents.
+export interface IVerifyDataContext {
+  // Fully resolved: every member is a boolean.
+  checks: IValueChecks;
+  issues: Array<IDataIssue>;
+  // Internal callers only, isValueCorrect() and clearIncorrectValues(): the walk may stop as soon
+  // as something is found. setData() never sets it.
+  stopOnFirst: boolean;
+  readonly hasIssues: boolean;
+  readonly issueCount: number;
+  pushSegment(segment: string | number): void;
+  popSegment(): void;
+  // lastSegment is appended for this issue only: an unknown key, the array index of an offending item.
+  // The issue is dropped when one with the same type and segments is already in the list: two
+  // questions that share a valueName walk the same value and can find the same thing.
+  addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void;
+}
+
+// Strict, never Helpers.isTwoValueEquals(): the number 0 and the string "0" are different segments.
+function isSameSegments(a: Array<string | number>, b: Array<string | number>): boolean {
+  return a.length === b.length && a.every((segment, index) => segment === b[index]);
+}
+
+class VerifyDataContext implements IVerifyDataContext {
+  public issues: Array<IDataIssue> = [];
+  public stopOnFirst: boolean = false;
+  private segments: Array<string | number> = [];
+  // The segments of every issue, parallel to issues. The public issue has the rendered path only,
+  // which is ambiguous; deduplication needs the unambiguous form.
+  private issueSegments: Array<Array<string | number>> = [];
+  constructor(public checks: IValueChecks) {
+  }
+  public get hasIssues(): boolean { return this.issues.length > 0; }
+  public get issueCount(): number { return this.issues.length; }
+  public pushSegment(segment: string | number): void {
+    this.segments.push(segment);
+  }
+  public popSegment(): void {
+    this.segments.pop();
+  }
+  public addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void {
+    if (this.stopOnFirst && this.hasIssues) return;
+    const segments = this.segments.slice();
+    if (lastSegment !== undefined) {
+      segments.push(lastSegment);
+    }
+    if (this.issues.some((issue, index) => issue.type === type && isSameSegments(this.issueSegments[index], segments))) return;
+    const issue: IDataIssue = { type: type, path: renderDataPath(segments), value: value, question: question || undefined };
+    if (expressionResult !== undefined) {
+      issue.expressionResult = expressionResult;
+    }
+    this.issues.push(issue);
+    this.issueSegments.push(segments);
+  }
+}
+
+// The three value checks are on unless a member is set to false.
+export function createVerifyDataContext(options: IValueChecks): IVerifyDataContext {
+  const checks: IValueChecks = {
+    valueTypes: options?.valueTypes !== false,
+    choiceValues: options?.choiceValues !== false,
+    unknownProperties: options?.unknownProperties !== false
+  };
+  return new VerifyDataContext(checks);
 }
 
 export class ValidationContext extends AsyncElementsRunner {
@@ -2774,14 +2862,140 @@ export class Question extends SurveyElement<Question>
   }
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
-    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
+    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isDataValueCorrect(val);
     if (!res) {
       ConsoleWarnings.inCorrectQuestionValue(this.name, val);
     }
     return res;
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return true;
+  }
+  // The walk behind SurveyModel.setData(), which describes what it reports and what it does not.
+  // The methods stay public because a panel calls them on its questions and a matrix on its cells.
+  // Pass 1: a container builds its dynamic rows and panel items and recurses into them, so that a
+  // creation handler or a trigger in a later container cannot change the answer of an earlier
+  // question after it has been checked. Nothing else happens here.
+  public initializeForVerification(): void { }
+  // Pass 2: the question adds its own segment, reports its own value and walks into the instances
+  // that hold its nested values.
+  public verifyDataCore(context: IVerifyDataContext): void {
+    const segment = this.getDataSegment();
+    if (segment !== undefined) context.pushSegment(segment);
+    this.verifyOwnValue(context);
+    if (!context.stopOnFirst || !context.hasIssues) {
+      this.verifyNestedValues(context);
+    }
+    if (segment !== undefined) context.popSegment();
+  }
+  // The key this question adds to a location: its value name. Undefined for the content question of
+  // a custom question, which holds the wrapper's value and adds nothing: the wrapper's key is the
+  // location of both.
+  protected getDataSegment(): string {
+    return !!this.getCustomQuestionWrapper() ? undefined : this.getValueName();
+  }
+  // The content question of a custom question has no parentQuestion; its data is the wrapper
+  // (QuestionCustomModelBase.getSurveyData() returns the wrapper itself).
+  private getCustomQuestionWrapper(): Question {
+    const data: any = this.data;
+    return !!data && data.isQuestion === true && data.contentQuestion === this ? <Question>data : undefined;
+  }
+  // The findings about the value of this question alone: its shape, its own choices, the keys of
+  // its value that nobody owns. It never walks into the nested instances: in validate() a nested
+  // cell reports its own error on itself and the container must not get a second error for it.
+  public verifyOwnValue(context: IVerifyDataContext): void {
+    if (context.checks.valueTypes) {
+      const valueInData = this.getIncorrectValueInData();
+      if (valueInData !== undefined) {
+        context.addIssue("invalidValueType", undefined, valueInData, this);
+        return;
+      }
+    }
+    const val = this.value;
+    if (this.isEmpty() || this.isNonDataValue(val)) return;
+    this.verifyValueCore(val, context);
+  }
+  // A container overrides this and calls verifyDataCore() on every nested instance, so that the
+  // question of a finding is the instance that actually holds the value.
+  public verifyNestedValues(context: IVerifyDataContext): void { }
+  // Tells whether the question can hold the value it has: the value has the JSON shape the question
+  // stores, refers to existing choices, rows or items only and has no key that nobody owns. It runs
+  // the value checks of SurveyModel.setData() on the question's own value, nested values excluded,
+  // with the same defaults: the three checks are on unless a member is set to false,
+  // keepIncorrectValues is ignored.
+  // It never modifies the value or the survey data; clearIncorrectValues() removes what it reports.
+  public isValueCorrect(checks?: IValueChecks): boolean {
+    return !this.hasIncorrectValue(checks);
+  }
+  // clearIncorrectValues() removes what any check reports, an unknown property included, and keeps
+  // an unknown choice when keepIncorrectValues asks for it.
+  protected getClearIncorrectValuesChecks(): IValueChecks {
+    return { ...allValueChecks, choiceValues: !this.isKeepIncorrectValues };
+  }
+  // keepIncorrectValues is not a JSON property of the form, so setData() and isValueCorrect()
+  // ignore it. It is read by clearIncorrectValues() only.
+  protected get isKeepIncorrectValues(): boolean {
+    return !!this.survey?.keepIncorrectValues;
+  }
+  private hasIncorrectValue(checks: IValueChecks): boolean {
+    const context = createVerifyDataContext(checks);
+    context.stopOnFirst = true;
+    context.pushSegment(this.getValueName());
+    this.verifyOwnValue(context);
+    return context.hasIssues;
+  }
+  // A value that is an instance of a class, a model object or a File for example, is not survey data.
+  // A question may hold it on purpose, the property editors in Survey Creator do, so it is not checked.
+  private isNonDataValue(val: any): boolean {
+    return Helpers.isValueObject(val, true) && val.constructor !== Object && !(val instanceof Date);
+  }
+  // Adds the findings about val. Returns false only when the value as a whole has the wrong shape:
+  // the checks that follow have nothing to add to it. A finding about a part of the value, an
+  // unknown choice, a malformed row, an unknown key, does not stop the chain; an override adds it
+  // and returns true, so that a subclass still reports what it checks (a matrixdropdown reports its
+  // unknown row names even when a row has an unknown cell key).
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (context.checks.valueTypes && !this.isDataValueCorrect(val)) {
+      context.addIssue("invalidValueType", undefined, val, this);
+      return false;
+    }
+    return true;
+  }
+  // A value that fails isDataValueCorrect() is not taken by the question, but it stays in the survey data.
+  private getIncorrectValueInData(): any {
+    if (!this.data) return undefined;
+    const val = this.valueFromDataCore(this.data.getValue(this.getValueName()));
+    if (this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isDataValueCorrect(val)) return undefined;
+    return val;
+  }
+  private hasIncorrectValueInData(): boolean {
+    return this.getIncorrectValueInData() !== undefined;
+  }
+  // Tells whether a key of an object value belongs to this question: it is its row or its item.
+  protected hasValueKey(key: string): boolean {
+    return false;
+  }
+  // Several questions may share the same valueName and keep their rows or items in one object.
+  // A key that belongs to any of them is a known key for all of them.
+  protected isValueKeyKnown(key: string): boolean {
+    if (this.hasValueKey(key)) return true;
+    if (!this.survey) return false;
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    if (!Array.isArray(questions)) return false;
+    return questions.some((q: any) => q !== this && q instanceof Question && q.hasValueKey(key));
+  }
+  // Tells whether a value has the JSON shape getValueType() reports.
+  protected isValueOfValueType(val: any): boolean {
+    const type = this.getValueType();
+    if (type === "array") return Array.isArray(val);
+    const isObject = Helpers.isValueObject(val, true) && !(val instanceof Date);
+    if (type === "object") return isObject;
+    if (Array.isArray(val) || isObject) return false;
+    return type !== "number" || Helpers.isNumber(val);
+  }
+  protected clearIncorrectValueInData(): void {
+    if (!this.hasIncorrectValueInData()) return;
+    this.data.setValue(this.getValueName(), undefined, false, this.allowNotifyValueChanged, this.name);
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
@@ -2978,7 +3192,22 @@ export class Question extends SurveyElement<Question>
    *
    * @see validate
    */
-  public clearIncorrectValues(): void { }
+  public clearIncorrectValues(): void {
+    // Clearing is not affected by the checks of validate(): an unknown key is removed even when
+    // nobody asks validate() to report it. keepIncorrectValues is still honored by the question types.
+    if (this.isValueCorrectToClear()) return;
+    this.clearIncorrectValueInData();
+    if (!this.isEmpty()) {
+      this.clearIncorrectValuesCore();
+    }
+  }
+  protected isValueCorrectToClear(): boolean {
+    return !this.hasIncorrectValue(this.getClearIncorrectValuesChecks());
+  }
+  // A question that can drop the incorrect part of its value only, an unknown choice or row, overrides this function.
+  protected clearIncorrectValuesCore(): void {
+    this.clearValue(true);
+  }
   public clearOnDeletingContainer(): void { }
   /**
    * Empties the `errors` array.

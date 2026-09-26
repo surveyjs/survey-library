@@ -1,5 +1,5 @@
 import { ItemValue } from "./itemvalue";
-import { Question, QuestionValueType, getScalarValueType } from "./question";
+import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import type { ISelectQuestion } from "./question_baseselect";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -842,11 +842,15 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-  public clearIncorrectValues(): void {
-    if (this.isEmpty() || this.survey?.keepIncorrectValues) return;
-    if (!ItemValue.getItemByValue(this.visibleRateValues, this.value)) {
-      this.clearValue(true);
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    // keepIncorrectValues is not read here: clearIncorrectValues() folds it into choiceValues: false
+    // and setData() ignores it.
+    if (!context.checks.choiceValues) return true;
+    if (!ItemValue.getItemByValue(this.visibleRateValues, val)) {
+      context.addIssue("invalidChoiceValue", undefined, val, this);
     }
+    return true;
   }
   public setValueFromClick(value: any) {
     this.resetDigitShortcut();

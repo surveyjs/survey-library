@@ -7,7 +7,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionValueType } from "./question";
+import { QuestionValueType, IVerifyDataContext } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
@@ -248,8 +248,36 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    const unknownKeys: Array<string> = [];
+    // A row of another question that shares the value is checked by that question.
+    for (const key of Object.keys(val)) {
+      if (this.hasValueKey(key)) {
+        if (context.checks.valueTypes && !this.isRowValueCorrect(val[key])) {
+          context.addIssue("invalidValueType", key, val[key], this);
+        }
+      } else {
+        if (!this.isValueKeyKnown(key)) unknownKeys.push(key);
+      }
+    }
+    if (context.checks.unknownProperties) {
+      unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
+    }
+    return true;
+  }
+  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
+    return row.rowName + "";
+  }
+  protected hasValueKey(key: string): boolean {
+    return this.rows.some(row => row.value + "" === key);
+  }
+  // Every row is a plain object.
+  private isRowValueCorrect(rowValue: any): boolean {
+    return Helpers.isValueEmpty(rowValue) || Helpers.isValueObject(rowValue, true);
   }
   public clearIncorrectValues(): void {
     if (!this.isEmpty()) {
@@ -258,7 +286,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       const val = this.value;
       for (let key in val) {
         const row = this.getRowByKey(key);
-        if (!!row && row.isVisible) {
+        const isSharedRow = !this.hasValueKey(key) && this.isValueKeyKnown(key);
+        if (isSharedRow || (!!row && row.isVisible && this.isRowValueCorrect(val[key]))) {
           newVal[key] = val[key];
         }
       }

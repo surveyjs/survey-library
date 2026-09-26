@@ -1,14 +1,15 @@
 // A compile-time fixture, not a unit test: vitest does not type-check and nothing else in the package
 // type-checks the tests, so `npm run test:types` compiles this file on its own.
 // It guards the source compatibility of validate(): an application subclass that overrides the
-// positional signature must keep compiling. It also compiles the verifyData() surface and proves,
-// through the @ts-expect-error lines below, that validate() has no options form.
+// positional signature must keep compiling. It also compiles the SurveyModel.setData() surface and
+// proves, through the @ts-expect-error lines below, that validate() has no options form and that
+// data verification has no page, panel or question entry point.
 import { Question } from "../../src/question";
 import { QuestionTextModel } from "../../src/question_text";
 import { PanelModel } from "../../src/panel";
 import { PageModel } from "../../src/page";
 import { SurveyModel } from "../../src/survey";
-import { IDataIssue } from "../../src/base-interfaces";
+import { IDataIssue, IDataVerificationOptions } from "../../src/base-interfaces";
 
 // The full positional signature.
 export class QuestionWithFullOverride extends QuestionTextModel {
@@ -41,7 +42,10 @@ export class SurveyWithOverride extends SurveyModel {
   }
 }
 
-export function callValidateAndVerifyData(): Array<boolean> {
+// The keys of T without its index signature: the members the class really declares.
+type DeclaredKeys<T> = keyof { [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K] };
+
+export function callValidateAndSetData(): Array<boolean> {
   const res: Array<boolean> = [];
   const survey = new SurveyModel();
   res.push(survey.validate(false, true));
@@ -62,21 +66,26 @@ export function callValidateAndVerifyData(): Array<boolean> {
   res.push(new PageWithShortOverride("page").validate(false));
   res.push(new SurveyWithOverride().validate(true, false));
 
-  const issues: Array<IDataIssue> = survey.verifyData();
-  const segments: Array<string | number> = issues.length > 0 ? issues[0].segments : [];
-  res.push(segments.length === 0);
-  res.push(survey.verifyData({ valueTypes: true, choiceValues: true, unknownProperties: true }).length === 0);
-  res.push(survey.verifyData({ data: {}, changedValues: true }).length === 0);
-  res.push(page.verifyData({ unknownProperties: false }).length === 0);
-  res.push(panel.verifyData().length === 0);
-  res.push(question.verifyData({ choiceValues: false }).length === 0);
+  const issues: Array<IDataIssue> = survey.setData({});
+  const path: string = issues.length > 0 ? issues[0].path : "";
+  const expressionResult: any = issues.length > 0 ? issues[0].expressionResult : undefined;
+  res.push(path === "" && expressionResult === undefined);
+  const options: IDataVerificationOptions = { reportUnknownProperties: false };
+  const withOptions: Array<IDataIssue> = survey.setData({}, options);
+  res.push(withOptions.length === 0);
+  res.push(survey.setData({}, { reportInvalidValueTypes: false }).length === 0);
+  res.push(survey.setData({}, { reportInvalidChoiceValues: false }).length === 0);
+  res.push(survey.setData({}, { reportExpressionResultMismatches: true }).length === 0);
+  res.push(survey.setData(null).length === 0);
 
   // @ts-expect-error an unknown option member is not accepted, so this fixture is really type-checked
-  res.push(survey.verifyData({ unknownOption: true }).length === 0);
-  // @ts-expect-error data is a survey-level option only
-  res.push(question.verifyData({ data: {} }).length === 0);
-  // @ts-expect-error changedValues is a survey-level option only
-  res.push(panel.verifyData({ changedValues: true }).length === 0);
+  res.push(survey.setData({}, { unknownOption: true }).length === 0);
+  // Question has an index signature, so question.verifyData() compiles whatever the class declares.
+  // @ts-expect-error data verification has no question-level entry point: not a declared member
+  const questionMember: DeclaredKeys<Question> = "verifyData";
+  res.push(!!questionMember);
+  // @ts-expect-error data verification has no panel-level entry point
+  res.push(panel.verifyData().length === 0);
   // @ts-expect-error the options form of validate() is gone
   res.push(survey.validate({ fireCallback: false }));
   return res;

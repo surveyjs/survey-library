@@ -117,10 +117,11 @@ export class OtherEmptyError extends SurveyError {
   }
 }
 export class IncorrectValueError extends SurveyError {
-  // validate() does not raise this error: verifyData() reports data issues and clearIncorrectValues()
-  // removes them. It is here for a consumer that turns an IDataIssue into a question error: check is
-  // the issue type and keys lists the unknown properties, for "unknownProperty" only, in the form the
-  // consumer chooses; the default text joins them with ", ".
+  // validate() does not raise this error: SurveyModel.setData() reports data issues and
+  // clearIncorrectValues() removes them. It is here for a consumer that turns an IDataIssue into a
+  // question error: check is the issue type, never "expressionResultMismatch", which is a diagnostic
+  // about the loading and not about the value; keys lists the unknown properties, for
+  // "unknownProperty" only, in the form the consumer chooses; the default text joins them with ", ".
   constructor(public text: string = null, errorOwner: ISurveyErrorOwner = null,
     public check: DataIssueType = "invalidValueType", public keys: Array<string> = []) {
     super(text, errorOwner);

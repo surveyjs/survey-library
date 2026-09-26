@@ -15,9 +15,7 @@ import {
   IProgressInfo,
   ISurvey,
   IFindElement,
-  ISurveyValidation,
-  IVerifyDataOptions,
-  IDataIssue
+  ISurveyValidation
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
@@ -37,7 +35,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationContext, IVerifyDataContext, createVerifyDataContext } from "./question";
+import { ValidationContext, IVerifyDataContext } from "./question";
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -989,14 +987,9 @@ export class PanelModelBase extends SurveyElement<Question>
     context.finish();
     return context.runningResult;
   }
-  // See Question.verifyData(). On a page or a panel the walk covers that subtree only: the unknown
-  // root keys of the survey data are a survey-level finding.
-  public verifyData(options?: IVerifyDataOptions): Array<IDataIssue> {
-    const context = createVerifyDataContext(options, this.getParentDataSegments());
-    this.initializeForVerification();
-    this.verifyDataCore(context);
-    return context.issues;
-  }
+  // The walk behind SurveyModel.setData(), see Question.initializeForVerification(). On a page or a
+  // panel it covers that subtree only: the unknown root keys of the survey data are a survey-level
+  // finding.
   public initializeForVerification(): void {
     this.elements.forEach(element => (<any>element).initializeForVerification());
   }
@@ -1004,19 +997,6 @@ export class PanelModelBase extends SurveyElement<Question>
   // the item is pushed by the dynamic panel that walks into it.
   public verifyDataCore(context: IVerifyDataContext): void {
     this.elements.forEach(element => (<any>element).verifyDataCore(context));
-  }
-  public getParentDataSegments(): Array<string | number> {
-    const parentQuestion = <Question>this.parentQuestion;
-    if (!!parentQuestion) {
-      const res = parentQuestion.getParentDataSegments();
-      res.push(parentQuestion.getValueName());
-      const segment = parentQuestion.getChildDataSegment(this);
-      if (segment !== undefined) {
-        res.push(segment);
-      }
-      return res;
-    }
-    return !!this.parent ? this.parent.getParentDataSegments() : [];
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));

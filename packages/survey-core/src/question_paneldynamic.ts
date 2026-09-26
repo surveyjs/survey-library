@@ -1856,16 +1856,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       context.popSegment();
     }
   }
-  public getChildDataSegment(element: SurveyElement): string | number {
-    const panels = this.panels;
-    let el: any = element;
-    while(!!el) {
-      const index = panels.indexOf(el);
-      if (index > -1) return index;
-      el = el.parent;
-    }
-    return undefined;
-  }
   private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
     if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;
     return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&

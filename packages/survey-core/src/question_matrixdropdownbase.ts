@@ -1638,16 +1638,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       context.popSegment();
     }
   }
-  public getChildDataSegment(element: SurveyElement): string | number {
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return undefined;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (row === (<any>element).data || row.detailPanel === element ||
-        row.cells.some(cell => cell?.question === element)) return this.getRowDataSegment(row, i);
-    }
-    return undefined;
-  }
   public clearIncorrectValues(): void {
     this.clearIncorrectValueInData();
     if (!Array.isArray(this.visibleRows)) return;

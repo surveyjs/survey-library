@@ -144,8 +144,7 @@ export {
   VerticalAlignment,
   DataIssueType,
   IValueChecks,
-  IVerifyDataOptions,
-  ISurveyVerifyDataOptions,
+  IDataVerificationOptions,
   IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";

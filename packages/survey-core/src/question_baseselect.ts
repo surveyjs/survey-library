@@ -2355,7 +2355,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.clearValue(true);
       return;
     }
-    // keepIncorrectValues is read here, not in the check code: verifyData() ignores it.
+    // keepIncorrectValues is read here, not in the check code: setData() ignores it.
     if (this.isKeepIncorrectValues) return;
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {

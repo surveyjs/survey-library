@@ -1,5 +1,6 @@
 import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { Helpers } from "./helpers";
 import { Question, QuestionItemValueGetterContext } from "./question";
 import { settings } from "./settings";
@@ -9,7 +10,23 @@ export interface IDynamicItemModelData {
     getSurvey(): ISurvey;
     getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
+    // The position of the item among the objects the owner created.
     getItemIndex(item: ISurveyData): number;
+    /* The index of the item record in the owner storage. It is the only index two questions bound
+       to one value share: they may create objects for a different set of records (a filtered list)
+       or in a different order (a sorted one). */
+    getItemRecordIndex(item: ISurveyData): number;
+    getItemByRecordIndex(recordIndex: number): DynamicItemModelBase;
+    /* The index the respondent and the expressions see for the item's record ({panelIndex},
+       {rowIndex}) is the record index plus this offset: the position of the loaded window in the
+       whole list for a data source that pages itself, 0 otherwise. The record index itself stays
+       window-local - it is what the owner's storage is addressed by. */
+    getRecordNumberOffset?(): number;
+    /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
+       row's visibleIndex), and the item at such a position - an object when the record has one, a
+       record read as a value when it has not (the owner pages). */
+    getItemVisibleIndex?(item: ISurveyData): number;
+    getItemByVisibleIndex?(visibleIndex: number): DynamicItemModelBase;
     getValueGetterContext(): IValueGetterContext;
     getFilteredData(): any;
     getBindedQuestions(): IQuestion[];
@@ -213,17 +230,21 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
       }
       q.runTriggers(triggerName, newValue);
     }
-    var index = this.data.getItemIndex(this);
+    /* The record index, not the position of this item: a question bound to the same value may have
+       created its objects for a different set of records or in a different order. A custom bound
+       question that has no record lookup keeps the old positional call. */
+    const index = this.data.getItemRecordIndex(this);
     if (index < 0) return;
     const bindedQuestions = this.data.getBindedQuestions();
     bindedQuestions.forEach((q: any) => {
       if (q === this.data) return;
-      if (typeof q.getItem === "function") {
-        const item = q.getItem(index);
-        if (item && item instanceof DynamicItemModelBase) {
-          const triggerName = item.getVariableName() + "." + name;
-          item.runTriggers(triggerName, newValue);
-        }
+      const getItem = typeof q.getItemByRecordIndex === "function" ? q.getItemByRecordIndex :
+        (typeof q.getItem === "function" ? q.getItem : undefined);
+      if (!getItem) return;
+      const item = getItem.call(q, index);
+      if (item && item instanceof DynamicItemModelBase) {
+        const triggerName = item.getVariableName() + "." + name;
+        item.runTriggers(triggerName, newValue);
       }
     });
   }
@@ -244,7 +265,7 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
   protected isValueChanged(name: string, newValue: any): boolean {
     const oldItemData = this.data.getItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
+    return DynamicDataList.isValueChanged(newValue, oldValue);
   }
 
   protected getSharedQuestionByName(columnName: string): Question {
@@ -298,6 +319,10 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     return res;
   }
 
+  public static getRecordNumberOffset(data: IDynamicItemModelData): number {
+    return !!data && typeof data.getRecordNumberOffset === "function" ? data.getRecordNumberOffset() : 0;
+  }
+
   public static setDefaultValueCore(
     question: Question,
     defaultItemValue: any,
@@ -312,5 +337,49 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     var newValue: any[] = [];
     for (var i = 0; i < itemCount; i++) newValue.push(defaultItemValue);
     question.value = newValue;
+  }
+}
+
+/* A record that has no object - an owner that pages builds objects for the current page only - seen
+   by an expression as a value: {panel.x} / {row.x} is the record's field, the index variables are
+   the record's, and nothing inside it is a question. What reads the record this way: the
+   {prevPanel.x} / {nextRow.x} neighbours of the first and last object of a page, and
+   templateVisibleIf / rowsVisibleIf, which decide the page before any object exists. It is never
+   written through. */
+export class DynamicRecordItem extends DynamicItemModelBase {
+  constructor(data: IDynamicItemModelData, private recordIndex: number, private record: any,
+    private variableName: string, private createContext: (item: DynamicRecordItem) => IValueGetterContext) {
+    super(data);
+  }
+  public reset(recordIndex: number, record: any): void {
+    this.recordIndex = recordIndex;
+    this.record = record;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return this.createContext(this);
+  }
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    return [];
+  }
+  public getVariableName(): string {
+    return this.variableName;
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return null;
+  }
+  public getIndex(): number {
+    return this.recordIndex;
+  }
+  public getAllValues(): any {
+    return this.record || {};
+  }
+  public setValue(name: string, newValue: any): void { }
+  public getComment(name: string): string {
+    const res = this.getAllValues()[name + settings.commentSuffix];
+    return !!res ? res : "";
+  }
+  public setComment(name: string, newValue: string, locNotification: boolean): void { }
+  public get questions(): Array<Question> {
+    return [];
   }
 }

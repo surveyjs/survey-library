@@ -302,3 +302,76 @@ describe("Cancellation while the survey is busy", () => {
     expect(codes(result.tests[0]).indexOf(SurveyTestIssueCodes.asyncOperationTimeout)).toBe(-1);
   });
 });
+
+/* A dynamic matrix over a caller-provided data source: a page it is reading and an edit it has not
+   pushed are asynchronous operations of the survey, so the tester waits for them exactly as it waits
+   for a server validation - the model enumerates them in getRunningAsyncOperations() and the tester
+   learns about a new mechanism without a change of its own. */
+function createDelayedSource(records: Array<any>, calls: Array<string>, delay: number = 5): any {
+  const later = (run: () => any): Promise<any> => new Promise<any>(resolve => {
+    setTimeout(() => resolve(run()), delay);
+  });
+  return {
+    read: (): Promise<any> => { calls.push("read"); return later(() => records.slice()); },
+    update: (sourceIndex: number, record: any): Promise<void> => {
+      calls.push("update");
+      return later(() => { records[sourceIndex] = record; });
+    },
+  };
+}
+const remoteMatrixSurvey = {
+  elements: [
+    { type: "text", name: "q1" },
+    { type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "c1", cellType: "text" }] },
+  ],
+};
+
+describe("Dynamic data source", () => {
+  test("A set step after a deferred page read waits for the read", async () => {
+    const calls: Array<string> = [];
+    let loadedRowsWhenSet = -1;
+    const result = await run(remoteMatrixSurvey, {
+      tests: [{
+        name: "t", steps: [
+          { set: { q1: "abc" } },
+          { expect: { q1: { value: "abc" } } },
+        ],
+      }],
+    }, survey => {
+      const question: any = survey.getQuestionByName("m");
+      survey.onValueChanged.add((_, options: any) => {
+        if (options.name === "q1") {
+          loadedRowsWhenSet = question.rowCount;
+        }
+      });
+      question.dataSource = createDelayedSource([{ c1: "a" }, { c1: "b" }, { c1: "c" }], calls);
+    });
+    expect(JSON.stringify(allIssues(result.tests[0]))).toBe("[]");
+    expect(result.tests[0].status).toBe("passed");
+    expect(calls).toEqual(["read"]);
+    // The step ran after the page had landed: the tester waited for the read it never started.
+    expect(loadedRowsWhenSet).toBe(3);
+  });
+  test("A complete step after a cell edit waits for the pending update", async () => {
+    const calls: Array<string> = [];
+    const records = [{ c1: "a" }, { c1: "b" }];
+    let pushedWhenCompleted: string = undefined;
+    const result = await run(remoteMatrixSurvey, {
+      tests: [{
+        name: "t", steps: [
+          { set: { "m[0].c1": "edited" } },
+          { complete: { survey: true } },
+          { expect: { survey: { state: "completed" } } },
+        ],
+      }],
+    }, survey => {
+      survey.onComplete.add(() => { pushedWhenCompleted = records[0].c1; });
+      (<any>survey.getQuestionByName("m")).dataSource = createDelayedSource(records, calls);
+    });
+    expect(JSON.stringify(allIssues(result.tests[0]))).toBe("[]");
+    expect(result.tests[0].status).toBe("passed");
+    expect(calls).toEqual(["read", "update"]);
+    // The survey did not complete while the edit was still on its way to the server.
+    expect(pushedWhenCompleted).toBe("edited");
+  });
+});

@@ -15,5 +15,7 @@ export interface ISurveyValidation {
   createRegexValidator(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
   isValidateOnValueChanging: boolean;
   isValidateOnValueChanged: boolean;
+  // A forward page move is allowed with errors (checkErrorsMode "onComplete", validationAllowSwitchPages).
+  canLeavePageWithErrors: boolean;
   getValidateVisitedEmptyFields(): boolean;
 }

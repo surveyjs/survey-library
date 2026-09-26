@@ -188,6 +188,11 @@ export interface IValidationContextParams {
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
+  /* false: the validation shows errors and changes no value. A question that pages its records
+     validates a page before the respondent leaves it; a select question would otherwise clear the
+     values that are not among its choices, and every page move would rewrite records - over a data
+     source, push them. The survey's own page and complete validation keep clearing them. */
+  clearIncorrectValues?: boolean;
 }
 
 export class ValidationContext extends AsyncElementsRunner {
@@ -212,8 +217,11 @@ export class ValidationContext extends AsyncElementsRunner {
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
+    this.clearIncorrectValuesValue = context.clearIncorrectValues !== false;
   }
+  private clearIncorrectValuesValue: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
+  public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
@@ -717,6 +725,52 @@ export class Question extends SurveyElement<Question>
   }
   protected updateDependedQuestion(): void { }
   protected resetDependedQuestion(): void { }
+  private valueRevision: number = 0;
+  private arrayValueChoices: { [key: string]: { value: any, revision: number, choices: Array<{ value: any, text: any }> } };
+  /* internal: the choices a question with choicesFromQuestion takes from this question's array value -
+     one { value, text } per record that has a value in valueField (the first key of the record when
+     valueField is empty). Every dependent asks on every write of any field of any record, so the
+     projection is made once per value change and per field pair, not once per dependent. A value
+     change does not drop it: the next read recomputes it and returns the previous instance when the
+     values and texts are the same, which is how a dependent tells that its choices did not change. */
+  public getArrayValueChoices(valueField: string, textField: string): Array<{ value: any, text: any }> {
+    const val = this.value;
+    const key = (valueField || "") + "\n" + (textField || "");
+    if (!this.arrayValueChoices) {
+      this.arrayValueChoices = {};
+    }
+    const cached = this.arrayValueChoices[key];
+    if (!!cached && cached.value === val && cached.revision === this.valueRevision) return cached.choices;
+    const choices = this.createArrayValueChoices(val, valueField, textField);
+    const res = !!cached && this.isSameArrayValueChoices(cached.choices, choices) ? cached.choices : choices;
+    this.arrayValueChoices[key] = { value: val, revision: this.valueRevision, choices: res };
+    return res;
+  }
+  private createArrayValueChoices(val: any, valueField: string, textField: string): Array<{ value: any, text: any }> {
+    const res: Array<{ value: any, text: any }> = [];
+    if (!Array.isArray(val)) return res;
+    for (let i = 0; i < val.length; i++) {
+      const obj = val[i];
+      if (!Helpers.isValueObject(obj)) continue;
+      const key = valueField || Object.keys(obj)[0];
+      // Base.isValueEmpty (trimmed) without the call through the question: made on the source
+      // question, it met another object shape than the dropdowns and V8 deoptimized it in a loop.
+      const keyValue = !!key ? obj[key] : undefined;
+      if (!!key && !Helpers.isValueEmpty(typeof keyValue === "string" || keyValue instanceof String ? keyValue.trim() : keyValue)) {
+        res.push({ value: obj[key], text: !!textField ? obj[textField] : undefined });
+      }
+    }
+    return res;
+  }
+  private isSameArrayValueChoices(a: Array<{ value: any, text: any }>, b: Array<{ value: any, text: any }>): boolean {
+    if (a.length !== b.length) return false;
+    // Exact: a key renamed by case or by a trailing space is a new choice.
+    const isSame = (x: any, y: any): boolean => x === y || Helpers.isTwoValueEquals(x, y, false, true, false);
+    for (let i = 0; i < a.length; i++) {
+      if (!isSame(a[i].value, b[i].value) || !isSame(a[i].text, b[i].text)) return false;
+    }
+    return true;
+  }
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
   }
@@ -1980,6 +2034,9 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValueWithoutDefault("value");
   }
   private set questionValue(val: any) {
+    // An array value is updated in place (Base.setArrayPropertyDirectly): its instance does not say
+    // that it changed, the revision does.
+    this.valueRevision++;
     this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
@@ -2385,6 +2442,10 @@ export class Question extends SurveyElement<Question>
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
   }
+  // A question that does not own records answers positionally: the two indexes are the same number.
+  getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    return this.getQuestionFromArray(name, recordIndex);
+  }
   public getDefaultValue(): any {
     return this.defaultValue;
   }
@@ -2758,7 +2819,11 @@ export class Question extends SurveyElement<Question>
     }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
-    const oldValue = this.getUnbindValue(this.value);
+    /* The previous value has one reader: survey.questionValueChanged passes it to
+       onDynamicPanelValueChanged for a question inside a dynamic panel. The copy is taken before the
+       write because an array value is updated in place, and for an array question it is a copy of every
+       record - so it is made only for a question that can have that reader. */
+    const oldValue = this.isOldValueReadOnSetNewValue() ? this.getUnbindValue(this.value) : undefined;
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
@@ -2771,6 +2836,10 @@ export class Question extends SurveyElement<Question>
     if (this.survey) {
       this.survey.questionValueChanged(this, oldValue);
     }
+  }
+  private isOldValueReadOnSetNewValue(): boolean {
+    const parent = this.parentQuestion;
+    return !!parent && parent.isDescendantOf("paneldynamic");
   }
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
@@ -2828,6 +2897,15 @@ export class Question extends SurveyElement<Question>
   }
   protected canSetValueToSurvey(): boolean {
     return true;
+  }
+  /* The storage half of a value assignment and nothing else: the question holds the new value and
+     the reactivity bridge sees it, but the survey hash is not written, the nested objects are not
+     refreshed and no value-changed notification is raised. A question whose records are owned by a
+     data source follows that source through this method - the row or panel the respondent is typing
+     in already holds the new value, and a fan-out would dispose it under the edit. */
+  protected storeQuestionValue(newValue: any): void {
+    this.questionValue = newValue;
+    this.updateIsAnswered();
   }
   protected valueFromData(val: any): any { return val; }
   protected valueToData(val: any): any { return val; }

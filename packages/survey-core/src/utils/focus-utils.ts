@@ -23,6 +23,20 @@ export function findFocusElement(target: FocusElementTarget, containerEl?: HTMLE
   return target();
 }
 
+/* Is the keyboard focus where a late answer may still move it from: on nothing (<body>) or inside
+   the given element (looked up by id when the renderer has not handed it over)? Anywhere else the
+   respondent has gone on, and pulling the focus back would be wrong. A shadow root keeps its own
+   activeElement. */
+export function isFocusInsideOrIdle(elementId: string, element?: HTMLElement): boolean {
+  const doc = DomDocumentHelper.getDocument();
+  if (!doc) return false;
+  const root: any = settings.environment.root || doc;
+  const active: Element = (!!root && root.activeElement) || doc.activeElement;
+  if (!active || active === doc.body) return true;
+  const el = element || (!!root && typeof root.getElementById === "function" ? root.getElementById(elementId) : null);
+  return !!el && el.contains(active);
+}
+
 // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
 export function canFocusElement(el: HTMLElement): boolean {
   return !!el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null;

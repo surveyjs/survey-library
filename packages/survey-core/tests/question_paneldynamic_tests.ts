@@ -22,6 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 import { describe, test, expect, vi } from "vitest";
@@ -1062,7 +1063,8 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.isNextButtonVisible, "currentIndex = 1, nextButton is hidden").toBe(false);
     panel.addPanel();
     expect(panel.currentIndex, "The last added panel is current").toBe(2);
-    panel.removePanel(2);
+    // A number is a position in visiblePanels, and a carousel's page is its one panel (prompt 15).
+    panel.removePanel(panel.currentPanel);
     expect(panel.currentIndex, "The last  panel is removed").toBe(1);
   });
   test("PanelDynamic, displayMode is not list + hasError", () => {
@@ -1080,7 +1082,9 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.currentIndex = 1;
     expect(panel.currentIndex, "go to the second panel").toBe(1);
     panel.validate(true, true);
-    expect(panel.currentIndex, "it should show the first panel where the error happened").toBe(0);
+    // A carousel pages one panel at a time: a panel that was left by code and never edited is not
+    // validated (prompt 15, a behaviour change for carousels).
+    expect(panel.currentIndex, "the panel shown is the one validated").toBe(1);
   });
   test("PanelDynamic, keyName + hasError + getAllErrors", () => {
     var survey = new SurveyModel();
@@ -1454,6 +1458,311 @@ describe("Survey_QuestionPanelDynamic", () => {
     matrix.removeRow(1);
     expect(matrix.rowCount, "matrix: One row was removed").toBe(1);
     expect(panel.panelCount, "panel: One panel was removed").toBe(1);
+  });
+
+  /* Several dynamic questions bound to one valueName used to turn the first render of one of
+     them into a cascade: the sibling lookup after a cell write went through visiblePanels and
+     force-built every not-yet-rendered sibling. Panels are built lazily, per visited page, so
+     the invariants are per page: R panels on the first visited page (for that question only),
+     N * R after every page has been visited, and a single onValueChanged for the whole first
+     render. The tests below assert call counts, never wall-clock time. */
+  const sharedWriterNames = ["exp0", "exp1", "exp2", "exp3", "exp4"];
+  function sharedValueNameJson(nDynamic: number, writer: "expression" | "defaultValueExpression", withMatrix?: boolean): any {
+    const templateElements: Array<any> = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+    sharedWriterNames.forEach(name => {
+      templateElements.push(writer === "expression"
+        ? { type: "expression", name: name, expression: "'No'" }
+        : { type: "text", name: name, defaultValueExpression: "'No'" });
+    });
+    const pages: Array<any> = [{ name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] }];
+    for (let i = 0; i < nDynamic; i++) {
+      pages.push({
+        name: "p" + i,
+        elements: [{
+          type: "paneldynamic", name: "pd" + i, valueName: "rec",
+          panelCount: 1, minPanelCount: 1,
+          templateElements: JSON.parse(JSON.stringify(templateElements))
+        }]
+      });
+    }
+    if (withMatrix) {
+      pages.push({
+        name: "pm",
+        elements: [{
+          type: "matrixdynamic", name: "m", valueName: "rec",
+          columns: [{ name: "q1", cellType: "text" }, { name: "q2", cellType: "text" }]
+        }]
+      });
+    }
+    return { pages: pages };
+  }
+  function sharedValueNameRecords(count: number, withWriterValues?: boolean): Array<any> {
+    const res: Array<any> = [];
+    for (let i = 0; i < count; i++) {
+      const record: any = { q1: "a" + i, q2: "b" + i };
+      if (withWriterValues) sharedWriterNames.forEach(name => record[name] = "No");
+      res.push(record);
+    }
+    return res;
+  }
+  function sharedValueNameExpectedData(count: number): Array<any> {
+    return sharedValueNameRecords(count, true);
+  }
+  function trackSharedValueName(nDynamic: number, records: Array<any>,
+    options?: { writer?: "expression" | "defaultValueExpression", withMatrix?: boolean }) {
+    const writer = options?.writer || "expression";
+    const survey = new SurveyModel(sharedValueNameJson(nDynamic, writer, options?.withMatrix));
+    survey.data = { rec: records };
+    // createNewPanel is protected and panelUpdateValueFromSurvey is private.
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const createSpy = vi.spyOn(proto, "createNewPanel");
+    const refreshSpy = vi.spyOn(proto, "panelUpdateValueFromSurvey");
+    let valueChanged = 0;
+    survey.onValueChanged.add(() => { valueChanged++; });
+    return {
+      survey: survey,
+      question: (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index),
+      created: (): number => createSpy.mock.calls.length,
+      refreshed: (): number => refreshSpy.mock.calls.length,
+      changed: (): number => valueChanged,
+      restore: (): void => { createSpy.mockRestore(); refreshSpy.mockRestore(); }
+    };
+  }
+
+  test("One dynamic question builds one panel per record on the first render, the control case", () => {
+    const t = trackSharedValueName(1, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: one panel per record").toBe(3);
+    expect(t.changed(), "#2: the writers publish once").toBe(1);
+    expect(t.question(0).panels.length, "#3").toBe(3);
+    t.restore();
+  });
+  test("Two dynamic questions sharing valueName build lazily, one panel per record per visited page", () => {
+    const t = trackSharedValueName(2, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: pd0 only, the sibling is not built").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#3: pd1 adds its own three").toBe(6);
+    expect(t.changed(), "#4: nothing new to publish").toBe(1);
+    t.restore();
+  });
+  test("Three dynamic questions sharing valueName build lazily, one panel per record per visited page", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1: pd0 only").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    expect(t.refreshed(), "#3: at most one refresh per built panel").toBeLessThanOrEqual(3);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#4").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#5").toBe(9);
+    expect(t.changed(), "#6").toBe(1);
+    expect(t.refreshed(), "#7").toBeLessThanOrEqual(3);
+    t.restore();
+  });
+  test("defaultValueExpression writers behave as expression questions on a shared valueName", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3), { writer: "defaultValueExpression" });
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    expect(t.changed(), "#2").toBe(1);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#3").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#4").toBe(9);
+    expect(t.changed(), "#5").toBe(1);
+    t.restore();
+  });
+  test("A matrixdynamic on the same valueName does not change the panel build", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3), { withMatrix: true });
+    for (let page = 1; page <= 4; page++) t.survey.currentPageNo = page;
+    expect(t.created(), "#1").toBe(9);
+    expect(t.changed(), "#2").toBe(1);
+    const matrix = <QuestionMatrixDynamicModel>t.survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#3").toBe(3);
+    for (let i = 0; i < 3; i++) {
+      const cells = matrix.visibleRows[i].cells;
+      expect(cells[0].question.value, "#4: row " + i + " q1").toBe("a" + i);
+      expect(cells[1].question.value, "#5: row " + i + " q2").toBe("b" + i);
+    }
+    expect(matrix.value, "#6: the matrix keeps the writers' results").toEqual(sharedValueNameExpectedData(3));
+    t.restore();
+  });
+  test("A shared valueName keeps the data intact while the panels are built page by page", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.survey.data.rec, "#1: every record is complete before a sibling is built")
+      .toEqual(sharedValueNameExpectedData(3));
+    t.survey.currentPageNo = 2;
+    t.survey.currentPageNo = 3;
+    expect(t.survey.data.rec, "#2").toEqual(sharedValueNameExpectedData(3));
+    for (let i = 0; i < 3; i++) {
+      const question = t.question(i);
+      expect(question.panels.length, "#3: pd" + i).toBe(3);
+      for (let j = 0; j < 3; j++) {
+        const panel = question.panels[j];
+        expect(panel.getQuestionByName("q1").value, "#4: pd" + i + " panel " + j).toBe("a" + j);
+        expect(panel.getQuestionByName("q2").value, "#5: pd" + i + " panel " + j).toBe("b" + j);
+        expect(panel.getQuestionByName("exp0").value, "#6: pd" + i + " panel " + j).toBe("No");
+      }
+    }
+    t.restore();
+  });
+  test("addPanel/removePanel with every sibling of a shared valueName already built", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    for (let page = 1; page <= 3; page++) t.survey.currentPageNo = page;
+    expect(t.created(), "#1").toBe(9);
+    t.question(0).addPanel();
+    expect(t.created(), "#2: one new panel per dynamic question").toBe(12);
+    for (let i = 0; i < 3; i++) expect(t.question(i).panels.length, "#3: pd" + i).toBe(4);
+    expect(t.survey.data.rec.length, "#4").toBe(4);
+    sharedWriterNames.forEach(name => {
+      expect(t.survey.data.rec[3][name], "#5: " + name + " in the new record").toBe("No");
+    });
+    t.question(0).removePanel(3);
+    for (let i = 0; i < 3; i++) expect(t.question(i).panels.length, "#6: pd" + i).toBe(3);
+    expect(t.survey.data.rec.length, "#7").toBe(3);
+    t.restore();
+  });
+  test("addPanel before the siblings of a shared valueName are built", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    t.question(0).addPanel();
+    expect(t.created(), "#2: nothing is built for the unvisited siblings").toBe(4);
+    expect(t.survey.data.rec.length, "#3").toBe(4);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#4: pd1 builds its four panels now").toBe(8);
+    expect(t.question(1).panels.length, "#5").toBe(4);
+    t.restore();
+  });
+  test("Data that already holds the writers' results causes no value change on a shared valueName", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3, true));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    t.survey.currentPageNo = 2;
+    expect(t.created(), "#2").toBe(6);
+    t.survey.currentPageNo = 3;
+    expect(t.created(), "#3").toBe(9);
+    expect(t.changed(), "#4: nothing is written").toBe(0);
+    expect(t.refreshed(), "#5: and nothing is refreshed").toBe(0);
+    t.restore();
+  });
+  test("A comment-only edit reaches the sibling bound to the same valueName", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p0", elements: [{ type: "paneldynamic", name: "pd0", valueName: "rec", panelCount: 1, minPanelCount: 1,
+          templateElements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3], showCommentArea: true }] }] },
+        { name: "p1", elements: [{ type: "paneldynamic", name: "pd1", valueName: "rec", panelCount: 1, minPanelCount: 1,
+          templateElements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3], showCommentArea: true }] }] }
+      ]
+    });
+    survey.data = { rec: [{ q1: 1, "q1-Comment": "before" }] };
+    survey.currentPageNo = 1;
+    survey.currentPageNo = 2;
+    const q0 = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd0")).panels[0].getQuestionByName("q1");
+    const q1 = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd1")).panels[0].getQuestionByName("q1");
+    expect(q1.comment, "#1").toBe("before");
+    q0.comment = "after";
+    expect(q1.comment, "#2: the sibling gets a comment-only update").toBe("after");
+    expect(q1.value, "#3: and keeps its value").toBe(1);
+    expect(survey.data.rec[0]["q1-Comment"], "#4").toBe("after");
+  });
+  test("The sibling lookup on a shared valueName creates no panel in a question that was never rendered", () => {
+    const t = trackSharedValueName(3, sharedValueNameRecords(3));
+    t.survey.currentPageNo = 1;
+    expect(t.created(), "#1").toBe(3);
+    // panelsCore, not panels - the panels getter would build them here.
+    expect((<any>t.question(1)).panelsCore.length, "#2: pd1 has nothing built").toBe(0);
+    expect((<any>t.question(2)).panelsCore.length, "#3: pd2 has nothing built").toBe(0);
+    t.restore();
+  });
+  function sharedValueNamePagedSurvey(nDynamic: number): SurveyModel {
+    const json = sharedValueNameJson(nDynamic, "expression");
+    json.pages.forEach((page: any) => page.elements.forEach((el: any) => {
+      if (el.type === "paneldynamic") el.panelsPerPage = 20;
+    }));
+    return new SurveyModel(json);
+  }
+  /* Only the records of a built page have panels, and only a panel runs the writers: the records
+     past the first page keep what was assigned (prompt 15 - expressions stored in records). */
+  function sharedValueNamePagedExpectedData(count: number, pageSize: number = 20): Array<any> {
+    const res = sharedValueNameRecords(count);
+    for (let i = 0; i < Math.min(count, pageSize); i++) {
+      sharedWriterNames.forEach(name => res[i][name] = "No");
+    }
+    return res;
+  }
+  test("A page size on a shared valueName builds no panel and makes no record write when the data is assigned", () => {
+    const survey = sharedValueNamePagedSurvey(3);
+    // createNewPanel is protected, updateItemValue is called by the panel items only.
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const createSpy = vi.spyOn(proto, "createNewPanel");
+    const writeSpy = vi.spyOn(proto, "updateItemValue");
+    survey.data = { rec: sharedValueNameRecords(50) };
+    expect(createSpy.mock.calls.length, "#1").toBe(0);
+    expect(writeSpy.mock.calls.length, "#2: no panel, so no writer runs").toBe(0);
+    survey.currentPageNo = 1;
+    const pd0 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd0");
+    expect(createSpy.mock.calls.length, "#3: pd0 only, and its first page only (prompt 15)").toBe(20);
+    expect(pd0.renderedPanels.length, "#4: one page").toBe(20);
+    expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#5").toBe(0);
+    expect(survey.data.rec, "#6: the first build completes the records of the page").toEqual(sharedValueNamePagedExpectedData(50));
+    createSpy.mockRestore();
+    writeSpy.mockRestore();
+  });
+  /* Every write a writer makes to one record field reaches the siblings as the whole array. A
+     sibling used to refresh every panel it had, so assigning N records to built siblings cost
+     O(N^2) panel refreshes (25300 for 50 records here); it now refreshes the panels whose record
+     changed. Doubling the records roughly doubles every count - a quadratic one quadruples. */
+  test("Assigning data to built siblings sharing a valueName costs calls linear in the records", () => {
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const measure = (count: number): Array<number> => {
+      const survey = sharedValueNamePagedSurvey(3);
+      for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
+      const spies = ["panelUpdateValueFromSurvey", "setQuestionValue", "updateItemValue"].map(name => vi.spyOn(proto, name));
+      survey.data = { rec: sharedValueNameRecords(count) };
+      const res = spies.map(spy => spy.mock.calls.length);
+      spies.forEach(spy => spy.mockRestore());
+      expect(survey.data.rec, "records: " + count).toEqual(sharedValueNamePagedExpectedData(count));
+      for (let i = 0; i < 3; i++) {
+        // The last panel of the page (prompt 15): record 19.
+        const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd" + i)).panels[19];
+        expect(panel.getQuestionByName("q1").value, "records: " + count + ", pd" + i).toBe("a19");
+        expect(panel.getQuestionByName("exp4").value, "records: " + count + ", pd" + i).toBe("No");
+      }
+      return res;
+    };
+    const small = measure(25);
+    const large = measure(50);
+    expect(large[0], "#1: panel refreshes").toBeLessThan(small[0] * 2.5);
+    expect(large[1], "#2: setQuestionValue").toBeLessThan(small[1] * 2.5);
+    expect(large[2], "#3: updateItemValue").toBeLessThan(small[2] * 2.5);
+    // 150 panels, five writer results per record: at most once per written field and once more.
+    expect(large[0], "#4").toBeLessThanOrEqual(150 * 6);
+  });
+  test("A record edit refreshes that record's panel only in the siblings sharing the valueName", () => {
+    const survey = sharedValueNamePagedSurvey(3);
+    for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
+    survey.data = { rec: sharedValueNameRecords(30) };
+    const pd = (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index);
+    const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "panelUpdateValueFromSurvey");
+    pd(0).panels[7].getQuestionByName("q1").value = "x7";
+    expect(refreshSpy.mock.calls.length, "#1: one panel in each of the two siblings").toBe(2);
+    expect(pd(1).panels[7].getQuestionByName("q1").value, "#2").toBe("x7");
+    expect(pd(2).panels[7].getQuestionByName("q1").value, "#3").toBe("x7");
+    expect(pd(1).panels[6].getQuestionByName("q1").value, "#4: its neighbour is untouched").toBe("a6");
+    pd(0).panels[7].getQuestionByName("q1").value = "X7";
+    expect(pd(1).panels[7].getQuestionByName("q1").value, "#5: a case-only edit is a change").toBe("X7");
+    refreshSpy.mockRestore();
+    survey.data = { rec: sharedValueNameRecords(30) };
+    expect(pd(2).panels[7].getQuestionByName("q1").value, "#6: an assignment that restores it").toBe("a7");
+    survey.setValue("rec", [{ q1: "only" }]);
+    expect(pd(1).panels.length, "#7").toBe(1);
+    expect(pd(1).panels[0].getQuestionByName("q1").value, "#8").toBe("only");
+    survey.clear();
+    expect(pd(2).panels[0].getQuestionByName("q1").isEmpty(), "#9: cleared").toBe(true);
   });
 
   test("PanelDynamic vs MatrixDynamic add/remove items, bug#T2130", () => {
@@ -7332,17 +7641,18 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel2.panels[0].wasRendered, "panel2, #1").toBe(true);
     expect(panel2.panels[1].wasRendered, "panel2, #2").toBe(true);
     expect(panel3.panels[0].wasRendered, "panel3, #1").toBe(true);
-    expect(panel3.panels[1].wasRendered, "panel3, #2").toBe(false);
+    // A carousel builds the panel it shows only (prompt 15): the hidden one is not even created.
+    expect(panel3.panels.length, "panel3, #2").toBe(1);
     panel1.currentIndex = 1;
     expect(panel1.panels[0].wasRendered, "panel1, #3").toBe(true);
     panel3.currentIndex = 1;
-    expect(panel3.panels[1].wasRendered, "panel3, #3").toBe(true);
+    expect(panel3.panels[0].wasRendered, "panel3, #3").toBe(true);
     panel1.addPanel();
     expect(panel1.panels[2].wasRendered, "panel1, #4").toBe(true);
     panel2.addPanel();
     expect(panel2.panels[2].wasRendered, "panel2, #4").toBe(true);
     panel3.addPanel();
-    expect(panel3.panels[2].wasRendered, "panel3, #4").toBe(true);
+    expect(panel3.panels[0].wasRendered, "panel3, #4").toBe(true);
   });
   test("paneldynamic vs nested panels: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
     const survey = new SurveyModel({
@@ -7526,7 +7836,9 @@ describe("Survey_QuestionPanelDynamic", () => {
     leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
     expect(panelContainer2.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    question.displayMode = "carousel";
+    // Tab and not carousel: a carousel builds one panel (prompt 15), and this test animates two
+    // panels that both exist. The direction and height hooks are the same for both modes.
+    question.displayMode = "tab";
     question.currentIndex = 0;
     question["_renderedPanels"] = [question.panels[0], question.panels[1]];
 
@@ -7953,6 +8265,102 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "updated default value").toBe(300);
     settings.panel.maxPanelCount = 100;
     expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "default value again").toBe(100);
+  });
+  function createMaxPanelCountSurvey(json: any, count?: number): QuestionPanelDynamicModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "n" }, Object.assign({ type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "id" }] }, json)]
+    });
+    if (count !== undefined) {
+      const records: Array<any> = [];
+      for (let i = 0; i < count; i++) records.push({ id: i });
+      survey.setValue("pd", records);
+    }
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  }
+  test("settings.panel.maxPanelCount is the maximum number of panels on one page: panelsPerPage above it is capped", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 10 }, 12);
+      expect(question.panels.length, "#1: five panels on the page").toBe(5);
+      expect(question.pageCount, "#2: 12 records, five per page").toBe(3);
+      expect(question.panelsPerPage, "#3: the property keeps its value").toBe(10);
+      expect(question.toJSON().panelsPerPage, "#4: and its JSON").toBe(10);
+      question.pageIndex = 2;
+      expect(question.panels.length, "#5: the last page").toBe(2);
+      question.panelsPerPage = 4;
+      expect(question.panels.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(question.pageCount, "#7").toBe(3);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount does not limit the total number of panels while paging is on", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 3 }, 12);
+      expect(question.panelCount, "#1: every record is kept").toBe(12);
+      expect(question.value.length, "#2").toBe(12);
+      expect(question.canAddPanel, "#3: a panel can be added").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#4: the add is not blocked").toBe(13);
+      expect(question.panels.length, "#5: the page holds the last record").toBe(1);
+      const fromJson = createMaxPanelCountSurvey({ panelsPerPage: 3, panelCount: 8 });
+      expect(fromJson.panelCount, "#6: panelCount from JSON is not truncated").toBe(8);
+      expect(fromJson.panels.length, "#7").toBe(3);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount: an explicit maxPanelCount above it limits the total while paging is on", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 3, maxPanelCount: 8 }, 7);
+      expect(question.maxPanelCount, "#1: the value is not capped by the setting").toBe(8);
+      expect(question.toJSON().maxPanelCount, "#2: and it is serialized").toBe(8);
+      expect(question.canAddPanel, "#3: 7 of 8").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#4").toBe(8);
+      expect(question.canAddPanel, "#5: 8 of 8").toBe(false);
+      const fromJson = createMaxPanelCountSurvey({ panelsPerPage: 3, maxPanelCount: 8, panelCount: 10 });
+      expect(fromJson.panelCount, "#6: panelCount from JSON is limited by maxPanelCount").toBe(8);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount limits the total number of panels without paging: they are all on one page", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ maxPanelCount: 8, panelCount: 10 });
+      expect(question.maxPanelCount, "#1: the property keeps its value").toBe(8);
+      expect(question.panelCount, "#2: the setting limits panelCount from JSON").toBe(5);
+      expect(question.canAddPanel, "#3: 5 panels on the only page").toBe(false);
+      question.panelsPerPage = 3;
+      expect(question.canAddPanel, "#4: paging on, maxPanelCount is the limit").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#5").toBe(6);
+      const tabs = createMaxPanelCountSurvey({ displayMode: "tab", panelCount: 7 });
+      expect(tabs.panelCount, "#6: tab mode without panelsPerPage builds every panel").toBe(5);
+      const carousel = createMaxPanelCountSurvey({ displayMode: "carousel", panelCount: 7 });
+      expect(carousel.panelCount, "#7: a carousel shows one panel per page").toBe(7);
+      carousel.currentIndex = 6;
+      expect(carousel.canAddPanel, "#8: on the last panel").toBe(true);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount and panelCountExpression: the result is limited by the setting without paging only", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const paged = createMaxPanelCountSurvey({ panelsPerPage: 3, panelCountExpression: "{n}" });
+      paged.survey.setValue("n", 9);
+      expect(paged.panelCount, "#1: paging on").toBe(9);
+      expect(paged.panels.length, "#2").toBe(3);
+      const plain = createMaxPanelCountSurvey({ panelCountExpression: "{n}" });
+      plain.survey.setValue("n", 9);
+      expect(plain.panelCount, "#3: paging off").toBe(5);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
   });
   test("Do not serialize renderMode & showProgressBar", () => {
     const survey = new SurveyModel({
@@ -9440,5 +9848,1064 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
     expect(question.toJSON().panelCountExpression, "The expression is serialized").toBe("{n}");
+  });
+});
+
+describe("DynamicDataList integration", () => {
+  const createQuestion = (panelCount: number = 0): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: panelCount,
+          templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }
+      ]
+    });
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  };
+  test("the list and question.value are one storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    expect(list.count, "Nothing yet").toBe(0);
+    question.value = [{ q1: "a" }, { q1: "b" }];
+    expect(list.count, "The list sees the assignment at once").toBe(2);
+    expect(list.getRecord(0), "The record is the stored object, not a copy").toBe(question.value[0]);
+    expect(list.getRecord(5), "Out of range").toBe(undefined);
+  });
+  test("addPanel at an index moves the record with the panel", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "c" }];
+    const list = question.getDataList();
+    question.addPanel(1);
+    expect(list.count, "One more record").toBe(3);
+    expect(question.value, "The new record is at index 1").toEqual([{ q1: "a" }, {}, { q1: "c" }]);
+    question.panels[1].getQuestionByName("q1").value = "b";
+    expect(question.value).toEqual([{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(list.getRecord(1).q1, "The list reads the same record").toBe("b");
+  });
+  test("removePanel removes the record", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }];
+    const list = question.getDataList();
+    question.removePanel(1);
+    expect(list.count).toBe(2);
+    expect(question.value).toEqual([{ q1: "a" }, { q1: "c" }]);
+    expect(question.panelCount, "The panels follow").toBe(2);
+  });
+  test("panelCount grows and shrinks the storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.panelCount = 3;
+    expect(list.count, "Grown").toBe(3);
+    expect(question.value.length).toBe(3);
+    question.panels[2].getQuestionByName("q1").value = "c";
+    question.panelCount = 1;
+    expect(list.count, "Shrunk from the end").toBe(1);
+    expect(question.value).toEqual([{}]);
+  });
+  test("a write to a panel whose record does not exist yet pads the storage", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.value = [{ q1: "a" }];
+    expect(list.count, "One record, one panel").toBe(1);
+    question.panelCount = 3;
+    question.getDataList();
+    question.panels[2].getQuestionByName("q1").value = "c";
+    expect(question.value, "The storage was padded up to the panel count").toEqual([{ q1: "a" }, {}, { q1: "c" }]);
+    expect(list.count).toBe(3);
+  });
+  test("batched panel creation reaches the list as one final array", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }];
+    const list = question.getDataList();
+    let counter = 0;
+    let lastCountInHandler = -1;
+    question.survey.onValueChanged.add((sender, options) => {
+      counter++;
+      lastCountInHandler = list.count;
+    });
+    question.panelCount = 4;
+    expect(counter, "One assignment for the whole growth").toBe(1);
+    expect(lastCountInHandler, "The list sees the final array once").toBe(4);
+    expect(question.value.length).toBe(4);
+  });
+  test("a record write replaces the record instead of mutating it", () => {
+    const question = createQuestion();
+    question.value = [{ q1: "a" }, { q1: "b" }];
+    const prevRecord = question.value[1];
+    const untouchedRecord = question.value[0];
+    question.panels[1].getQuestionByName("q1").value = "bb";
+    expect(prevRecord.q1, "The record is replaced, not mutated").toBe("b");
+    expect(question.value[1].q1).toBe("bb");
+    expect(question.value[0], "An untouched record keeps its identity").toBe(untouchedRecord);
+  });
+  test("oldValue of a value change is the previous array - copy on write", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "paneldynamic", name: "inner", panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("inner");
+    inner.panels[0].getQuestionByName("q1").value = "a";
+    const oldValues = new Array<any>();
+    const newValues = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((sender, options) => {
+      oldValues.push(options.oldValue);
+      newValues.push(options.value);
+    });
+    inner.addPanel();
+    expect(newValues.length, "One value change for the added panel").toBe(1);
+    expect(oldValues[0], "oldValue is the array before the panel was added").toEqual([{ q1: "a" }]);
+    expect(newValues[0]).toEqual([{ q1: "a" }, {}]);
+  });
+  test("visibleCount follows visiblePanelCount", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 3,
+          templateVisibleIf: "{panel.q1} = 'a'",
+          templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const list = question.getDataList();
+    question.value = [{ q1: "a" }, { q1: "b" }, { q1: "a" }];
+    expect(question.visiblePanelCount, "One panel is hidden").toBe(2);
+    expect(list.visibleCount, "The list agrees").toBe(question.visiblePanelCount);
+    expect(list.isRecordVisible(1)).toBe(false);
+    expect(list.count, "A hidden panel keeps its record and its panel object").toBe(3);
+    expect(question.panelCount).toBe(3);
+    question.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+    expect(question.visiblePanelCount).toBe(3);
+    expect(list.visibleCount, "The list agrees again").toBe(3);
+  });
+  test("survey.data assignment is seen by the list", () => {
+    const question = createQuestion();
+    const list = question.getDataList();
+    question.survey.data = { panel: [{ q1: "a" }, { q1: "b" }] };
+    expect(list.count).toBe(2);
+    expect(list.getRecord(1).q1).toBe("b");
+    question.survey.clear(true, false);
+    expect(list.count, "The list follows survey.clear").toBe(0);
+  });
+  test("a dynamic panel inside a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "paneldynamic", name: "inner", panelCount: 1,
+              templateElements: [{ type: "text", name: "q1" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("inner");
+    inner.panels[0].getQuestionByName("q1").value = "a";
+    expect(survey.data).toEqual({ outer: [{ inner: [{ q1: "a" }] }] });
+    expect(outer.getDataList().count).toBe(1);
+    expect(inner.getDataList().count, "The inner list reads the outer record").toBe(1);
+    inner.addPanel();
+    inner.panels[1].getQuestionByName("q1").value = "b";
+    expect(survey.data).toEqual({ outer: [{ inner: [{ q1: "a" }, { q1: "b" }] }] });
+    expect(inner.getDataList().count).toBe(2);
+  });
+  test("a matrix dynamic inside a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1,
+          templateElements: [
+            { type: "matrixdynamic", name: "matrix", rowCount: 1, columns: [{ name: "col1", cellType: "text" }] }
+          ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    matrix.visibleRows[0].getQuestionByName("col1").value = "a";
+    expect(survey.data).toEqual({ outer: [{ matrix: [{ col1: "a" }] }] });
+    expect(outer.getDataList().getRecord(0).matrix).toEqual([{ col1: "a" }]);
+    matrix.addRow();
+    matrix.visibleRows[1].getQuestionByName("col1").value = "b";
+    expect(survey.data).toEqual({ outer: [{ matrix: [{ col1: "a" }, { col1: "b" }] }] });
+  });
+  test("getFields maps the template questions and their comments", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "age", inputType: "number" },
+            { type: "text", name: "born", inputType: "date" },
+            { type: "boolean", name: "agree" },
+            { type: "boolean", name: "agreeText", valueTrue: "yes", valueFalse: "no" },
+            { type: "rating", name: "mark" },
+            { type: "rating", name: "grade", rateValues: ["a", "b"] },
+            { type: "checkbox", name: "tags", choices: [1, 2] },
+            { type: "dropdown", name: "note", choices: [1, 2], showCommentArea: true }
+          ] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.getFields()).toEqual([
+      { name: "q1", dataType: "any" },
+      { name: "age", dataType: "number" },
+      { name: "born", dataType: "date" },
+      { name: "agree", dataType: "boolean" },
+      { name: "agreeText", dataType: "any" },
+      { name: "mark", dataType: "number" },
+      { name: "grade", dataType: "any" },
+      { name: "tags", dataType: "any" },
+      { name: "note", dataType: "number" },
+      { name: "note-Comment", dataType: "string" }
+    ]);
+  });
+});
+
+describe("Question Panel Dynamic: DynamicDataList review fixes", () => {
+  const createQuestion = (json: any, data?: any): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "panel" }, json)] });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  };
+  const template = [{ type: "text", name: "q1" }];
+  test("The cached views follow a value assigned outside the question", () => {
+    const question = createQuestion({ panelCount: 1, templateElements: template });
+    const survey = <SurveyModel>question.survey;
+    const list = question.getDataList();
+    expect(list.visibleCount, "#1: visibleCount").toBe(1);
+    survey.setValue("panel", [{ q1: "a" }, { q1: "b" }]);
+    expect(list.count, "#2: count").toBe(2);
+    expect(list.visibleCount, "#2: visibleCount").toBe(2);
+    expect(question.panelCount, "#2: panelCount").toBe(2);
+  });
+  test("A value change of the same length invalidates the cached views", () => {
+    const question = createQuestion({ panelCount: 2, templateElements: template }, [{ q1: "a" }, { q1: "b" }]);
+    const survey = <SurveyModel>question.survey;
+    const list = question.getDataList();
+    list.filter = "{q1} = 'x'";
+    expect(list.visibleCount, "#1: nothing passes the filter").toBe(0);
+    survey.setValue("panel", [{ q1: "x" }, { q1: "b" }]);
+    expect(list.visibleCount, "#2: the filter was re-run").toBe(1);
+    expect(list.getVisibleIndexes(), "#2: indexes").toEqual([0]);
+  });
+});
+
+describe("Question Panel Dynamic: panels follow the view", () => {
+  const template = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+  const createSurvey = (json: any, data?: any): SurveyModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "paneldynamic", name: "panel", templateElements: template }, json)]
+    });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return survey;
+  };
+  const createQuestion = (json: any, data?: any): QuestionPanelDynamicModel => {
+    return <QuestionPanelDynamicModel>createSurvey(json, data).getQuestionByName("panel");
+  };
+  const panelValues = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
+    return question.panels.map(panel => panel.getQuestionByName(name).value);
+  };
+
+  test("with no filter and no sort the panels are the records, and an edit keeps the instances", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(question.panels.length, "#1").toBe(question.panelCount);
+    const panels = question.panels.slice();
+    question.panels[1].getQuestionByName("q1").value = "bb";
+    expect(question.panels, "#2: the same instances").toEqual(panels);
+    expect(question.value, "#3").toEqual([{ q1: "a" }, { q1: "bb" }, { q1: "c" }]);
+  });
+  test("a filter creates panels only for the records that pass it", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(2);
+    expect(panelValues(question), "#2").toEqual(["a", "a"]);
+    expect(question.panelCount, "#3: panelCount is the record count").toBe(3);
+    expect(question.value, "#4").toEqual([{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    expect(question.visiblePanels.length, "#5").toBe(2);
+    expect(question.getDataList().visibleCount, "#6").toBe(2);
+  });
+  test("a sort orders the panels and never the value", () => {
+    const survey = createSurvey({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    let valueChanged = 0;
+    survey.onValueChanged.add(() => valueChanged++);
+    question.getDataList().sort = [{ field: "q1", direction: "asc" }];
+    expect(panelValues(question), "#1").toEqual(["a", "b", "c"]);
+    expect(question.value, "#2: the value kept its order").toEqual([{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    expect(valueChanged, "#3: no value change").toBe(0);
+  });
+  test("an edit under a filter and a sort writes the right record", () => {
+    const question = createQuestion({ panelCount: 4 },
+      [{ q1: "a", q2: "2" }, { q1: "b", q2: "1" }, { q1: "a", q2: "1" }, { q1: "a", q2: "3" }]);
+    const list = question.getDataList();
+    list.filter = "{q1} = 'a'";
+    list.sort = [{ field: "q2", direction: "asc" }];
+    expect(panelValues(question, "q2"), "#1").toEqual(["1", "2", "3"]);
+    question.panels[0].getQuestionByName("q2").value = "9";
+    expect(question.value, "#2: record 2 took the edit").toEqual([
+      { q1: "a", q2: "2" }, { q1: "b", q2: "1" }, { q1: "a", q2: "9" }, { q1: "a", q2: "3" }]);
+    expect(panelValues(question, "q2"), "#3: the panel kept its place").toEqual(["9", "2", "3"]);
+  });
+  test("a panel added under a filter stays even when its record does not match", () => {
+    const question = createQuestion({ panelCount: 2 }, [{ q1: "a" }, { q1: "b" }]);
+    const list = question.getDataList();
+    list.filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(1);
+    question.addPanel();
+    expect(question.panelCount, "#2: a record was added").toBe(3);
+    expect(question.panels.length, "#3: the new panel exists").toBe(2);
+    list.refreshView();
+    expect(question.panels.length, "#4: the refresh filters it out").toBe(1);
+  });
+  test("removing a panel under a sort removes the record the panel holds", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    question.getDataList().sort = [{ field: "q1", direction: "asc" }];
+    question.removePanel(0);
+    expect(question.value, "#1: record 1 is gone").toEqual([{ q1: "c" }, { q1: "b" }]);
+    expect(question.panelCount, "#2").toBe(2);
+  });
+  test("panelCount grows and shrinks under a filter", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    const list = question.getDataList();
+    list.filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(2);
+    question.panelCount = 5;
+    expect(list.count, "#2").toBe(5);
+    expect(question.panels.length, "#3: the new records are in the view").toBe(4);
+    question.panelCount = 2;
+    expect(list.count, "#4").toBe(2);
+    expect(question.panels.length, "#5: only record 0 passes now").toBe(1);
+  });
+  test("an assignment from outside that changes which records match rebuilds the panels", () => {
+    const survey = createSurvey({ panelCount: 2 }, [{ q1: "a" }, { q1: "b" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(1);
+    survey.setValue("panel", [{ q1: "a" }, { q1: "a" }]);
+    expect(question.panels.length, "#2").toBe(2);
+    expect(panelValues(question), "#3").toEqual(["a", "a"]);
+  });
+  test("an assignment from outside that does not change the view keeps the panel instances", () => {
+    const survey = createSurvey({ panelCount: 2 }, [{ q1: "a", q2: "1" }, { q1: "b" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.getDataList().filter = "{q1} = 'a'";
+    const panel = question.panels[0];
+    survey.setValue("panel", [{ q1: "a", q2: "2" }, { q1: "b" }]);
+    expect(question.panels.length, "#1").toBe(1);
+    expect(question.panels[0] === panel, "#2: the same panel").toBe(true);
+    expect(panel.getQuestionByName("q2").value, "#3: its value was refreshed").toBe("2");
+  });
+  test("survey.data assigned under a filter rebuilds the panels", () => {
+    const survey = createSurvey({ panelCount: 2 }, [{ q1: "a" }, { q1: "b" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(1);
+    survey.data = { panel: [{ q1: "b" }, { q1: "a" }, { q1: "a" }] };
+    expect(question.panels.length, "#2").toBe(2);
+    expect(question.panelCount, "#3").toBe(3);
+  });
+  test("addPanel at a position under a filter inserts before the record that panel holds", () => {
+    const question = createQuestion({ panelCount: 3, displayMode: "list" }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.getDataList().filter = "{q1} = 'a'";
+    question.addPanel(1);
+    expect(question.value.length, "#1").toBe(4);
+    expect(question.value[2], "#2: the new record took the place of the second panel").toEqual({});
+    expect(question.value[3], "#3").toEqual({ q1: "a" });
+    expect(panelValues(question), "#4").toEqual(["a", undefined, "a"]);
+  });
+  test("B2: a key that repeats a record without a panel is a duplicate", () => {
+    const survey = createSurvey({ panelCount: 3, keyName: "q1" }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.getDataList().filter = "{q1} != 'a'";
+    expect(question.panels.length, "#1").toBe(2);
+    question.panels[0].getQuestionByName("q1").value = "a";
+    question.hasErrors(true);
+    expect(question.panels[0].getQuestionByName("q1").errors.length, "#2: the duplicate is reported").toBe(1);
+  });
+  test("B3: panelIndex names the record, visiblePanelIndex follows the view", () => {
+    const question = createQuestion({
+      panelCount: 3,
+      templateElements: [
+        { type: "text", name: "q1" },
+        { type: "expression", name: "idx", expression: "{panelIndex}" },
+        { type: "expression", name: "vidx", expression: "{visiblePanelIndex}" }
+      ]
+    }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.map(p => p.getQuestionByName("idx").value), "#1: the record indexes").toEqual([0, 2]);
+    expect(question.panels.map(p => p.getQuestionByName("vidx").value), "#2: the view positions").toEqual([0, 1]);
+  });
+  test("B4: the public index arguments keep the index they take", () => {
+    const question = createQuestion({ panelCount: 4, templateVisibleIf: "{panel.q1} != 'h'" },
+      [{ q1: "h", q2: "0" }, { q1: "x", q2: "1" }, { q1: "a", q2: "2" }, { q1: "a", q2: "3" }]);
+    question.getDataList().filter = "{q1} != 'x'";
+    expect(question.panels.length, "#1: created panels").toBe(3);
+    expect(question.visiblePanels.length, "#2: visible panels").toBe(2);
+    expect((<Question>question.getQuestionFromArray("q2", 0)).value, "#3: a created position").toBe("0");
+    expect((<Question>question.getQuestionFromRecord("q2", 3)).value, "#4: a record index").toBe("3");
+    expect((<any>question).getItemByRecordIndex(1), "#5: the filtered-out record has no panel").toBe(undefined);
+    expect(question.getItem(2) === <any>question.panels[2].data, "#6: getItem is a created position").toBe(true);
+  });
+  test("the current panel follows its record across a re-sort", () => {
+    const question = createQuestion({ panelCount: 3, displayMode: "tab" }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    question.currentIndex = 2;
+    expect(question.currentPanel.getQuestionByName("q1").value, "#1").toBe("b");
+    question.getDataList().sort = [{ field: "q1", direction: "asc" }];
+    expect(panelValues(question), "#2").toEqual(["a", "b", "c"]);
+    expect(question.currentPanel.getQuestionByName("q1").value, "#3: the same record").toBe("b");
+    expect(question.currentIndex, "#4: at its new position").toBe(1);
+  });
+  test("the current panel falls back to the first one when its record leaves the view", () => {
+    const question = createQuestion({ panelCount: 3, displayMode: "tab" }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.currentIndex = 1;
+    expect(question.currentPanel.getQuestionByName("q1").value, "#1").toBe("b");
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.length, "#2").toBe(2);
+    expect(question.currentIndex, "#3: the first visible panel took over").toBe(0);
+  });
+  test("templateVisibleIf and a filter intersect", () => {
+    const question = createQuestion({ panelCount: 4, templateVisibleIf: "{panel.q2} != 'h'" },
+      [{ q1: "a", q2: "h" }, { q1: "b" }, { q1: "a" }, { q1: "a", q2: "h" }]);
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(3);
+    expect(question.visiblePanels.length, "#2").toBe(1);
+    expect(question.getDataList().visibleCount, "#3").toBe(question.visiblePanels.length);
+  });
+  test("getFilteredData and getPlainData answer for the view", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.getDataList().filter = "{q1} = 'a'";
+    expect(question.getFilteredData(), "#1").toEqual([{ q1: "a" }, { q1: "a" }]);
+    const plain = question.getPlainData();
+    expect((<Array<any>>plain.data).length, "#2: one entry per panel").toBe(2);
+  });
+  test("a rebuild loses the panel state - the accepted cost", () => {
+    const question = createQuestion({ panelCount: 2, templateTitle: "t" }, [{ q1: "a" }, { q1: "b" }]);
+    const list = question.getDataList();
+    list.filter = "{q1} != ''";
+    const panel = question.panels[0];
+    panel.collapse();
+    expect(panel.isCollapsed, "#1").toBe(true);
+    list.sort = [{ field: "q1", direction: "desc" }];
+    expect(panelValues(question), "#2").toEqual(["b", "a"]);
+    expect(question.panels[1] === panel, "#3: a new panel object").toBe(false);
+    expect(question.panels[1].isCollapsed, "#4: the collapsed state is gone").toBe(false);
+  });
+});
+
+describe("Question Panel Dynamic: paging and sorting", () => {
+  const template = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+  const createSurvey = (json: any, data?: any, extra?: Array<any>): SurveyModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "paneldynamic", name: "panel", templateElements: template }, json)].concat(extra || [])
+    });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return survey;
+  };
+  const createQuestion = (json: any, data?: any, extra?: Array<any>): QuestionPanelDynamicModel => {
+    return <QuestionPanelDynamicModel>createSurvey(json, data, extra).getQuestionByName("panel");
+  };
+  const pageValues = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
+    return question.panelsOnPage.map(panel => panel.getQuestionByName(name).value);
+  };
+  const renderedValues = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
+    return question.renderedPanels.map(panel => panel.getQuestionByName(name).value);
+  };
+  const abcde = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }, { q1: "e" }];
+
+  test("paging is off by default: the page is every visible panel, the same instance", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(question.panelsPerPage, "#1: off").toBe(0);
+    expect(question.pageSize, "#2: the alias reads it").toBe(0);
+    expect(question.panelsOnPage === question.visiblePanels, "#3: the same array instance").toBe(true);
+    expect(question.pageCount, "#4: one page").toBe(1);
+    expect(question.pageIndex, "#5").toBe(0);
+    expect(question.canGoNextPage, "#6").toBe(false);
+    expect(question.canGoPrevPage, "#7").toBe(false);
+    expect(question.renderedPanels.length, "#8: every panel is rendered").toBe(3);
+  });
+  test("an empty question reports one page", () => {
+    const question = createQuestion({ panelCount: 0, panelsPerPage: 2 });
+    expect(question.visiblePanels.length, "#1: no panels").toBe(0);
+    expect(question.pageCount, "#2: still one page").toBe(1);
+    expect(question.pageIndex, "#3: page 0 is always valid").toBe(0);
+    expect(question.canGoNextPage, "#4").toBe(false);
+    expect(question.canGoPrevPage, "#5").toBe(false);
+  });
+  test("pageCount for one, N and an exact multiple of records", () => {
+    const question = createQuestion({ panelCount: 1, panelsPerPage: 2 });
+    expect(question.pageCount, "#1: one record").toBe(1);
+    question.panelCount = 5;
+    expect(question.pageCount, "#2: five records of two").toBe(3);
+    question.panelCount = 4;
+    expect(question.pageCount, "#3: an exact multiple").toBe(2);
+  });
+  test("renderedPanels is the page in list mode, and the last page is the shorter one", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    expect(pageValues(question), "#1").toEqual(["a", "b"]);
+    expect(renderedValues(question), "#2: the renderers see the page").toEqual(["a", "b"]);
+    question.nextPage();
+    expect(question.pageIndex, "#3").toBe(1);
+    expect(renderedValues(question), "#4").toEqual(["c", "d"]);
+    question.nextPage();
+    expect(renderedValues(question), "#5: the last page holds what is left").toEqual(["e"]);
+    expect(question.visiblePanels.length, "#6: visiblePanels is the page (prompt 15)").toBe(1);
+    expect(question.panels.length, "#7").toBe(1);
+    expect(question.panelCount, "#8: the record count is untouched").toBe(5);
+  });
+  test("navigation clamps at both ends", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    question.prevPage();
+    expect(question.pageIndex, "#1: there is no page before the first").toBe(0);
+    question.goToPage(-5);
+    expect(question.pageIndex, "#2").toBe(0);
+    question.goToPage(99);
+    expect(question.pageIndex, "#3: clamped to the last page").toBe(2);
+    question.nextPage();
+    expect(question.pageIndex, "#4").toBe(2);
+    expect(question.canGoNextPage, "#5").toBe(false);
+    expect(question.canGoPrevPage, "#6").toBe(true);
+  });
+  test("switching paging off restores the unpaged panels and page 0", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    question.goToPage(2);
+    question.panelsPerPage = 0;
+    expect(question.panelsOnPage === question.visiblePanels, "#1: the same instance again").toBe(true);
+    expect(question.pageCount, "#2").toBe(1);
+    expect(question.pageIndex, "#3").toBe(0);
+    expect(question.renderedPanels.length, "#4").toBe(5);
+  });
+  test("a negative panelsPerPage is 0, from the setter and from JSON", () => {
+    const question = createQuestion({ panelCount: 3, panelsPerPage: -2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(question.panelsPerPage, "#1: JSON is clamped too - the onSettingValue hook would be skipped").toBe(0);
+    question.panelsPerPage = -1;
+    expect(question.panelsPerPage, "#2").toBe(0);
+    expect(question.panelsOnPage.length, "#3").toBe(3);
+    question.panelsPerPage = 2;
+    expect(question.panelsOnPage.length, "#4").toBe(2);
+  });
+  test("a panel hidden by templateVisibleIf takes no page slot", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2, templateVisibleIf: "{panel.q1} != 'b'" },
+      [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
+    expect(question.visiblePanelCount, "#1: three records are visible").toBe(3);
+    expect(question.panels.length, "#2: the page's two panels exist, a hidden record has none (prompt 15)").toBe(2);
+    expect(question.pageCount, "#3: three visible panels of two").toBe(2);
+    expect(pageValues(question), "#4: the hidden panel does not take a slot").toEqual(["a", "c"]);
+    question.nextPage();
+    expect(pageValues(question), "#5").toEqual(["d"]);
+  });
+  test("pageCount follows a panel that becomes hidden, with no list event", () => {
+    const survey = createSurvey({ panelCount: 4, panelsPerPage: 3, templateVisibleIf: "{panel.q1} != {q0}" },
+      [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }], [{ type: "text", name: "q0" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.pageCount, "#1").toBe(2);
+    survey.setValue("q0", "b");
+    expect(question.visiblePanelCount, "#2").toBe(3);
+    expect(question.pageCount, "#3: three visible panels fit on one page").toBe(1);
+    survey.setValue("q0", "");
+    expect(question.visiblePanelCount, "#4").toBe(4);
+    expect(question.pageCount, "#5: the panel that came back needs a second one").toBe(2);
+  });
+  test("pageCount follows an array replaced by survey.setValue", () => {
+    const survey = createSurvey({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.pageCount, "#1").toBe(3);
+    survey.setValue("panel", [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(question.panelCount, "#2").toBe(3);
+    expect(question.pageCount, "#3").toBe(2);
+    survey.setValue("panel", [{ q1: "a" }]);
+    expect(question.pageCount, "#4").toBe(1);
+    expect(question.pageIndex, "#5: the page index was clamped").toBe(0);
+    expect(question.renderedPanels.length, "#6").toBe(1);
+  });
+  test("adding a panel lands on its page and the page index follows", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
+    expect(question.pageIndex, "#1").toBe(0);
+    question.addPanelUI();
+    expect(question.panelCount, "#2").toBe(5);
+    expect(question.pageCount, "#3").toBe(3);
+    expect(question.pageIndex, "#4: the page of the new panel").toBe(2);
+    expect(question.renderedPanels.length, "#5").toBe(1);
+    expect(question.renderedPanels[0] === question.panels[0], "#6: the new panel, the only one of its page").toBe(true);
+  });
+  test("removing the last panel of the last page moves the page index back", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    question.goToPage(2);
+    expect(question.panelsOnPage.length, "#1").toBe(1);
+    question.removePanel(0);
+    expect(question.panelCount, "#2").toBe(4);
+    expect(question.pageCount, "#3").toBe(2);
+    expect(question.pageIndex, "#4: the list clamped it and the question re-read it").toBe(1);
+    expect(renderedValues(question), "#5").toEqual(["c", "d"]);
+  });
+  test("removing a panel that was added and never filled moves the page index back", () => {
+    const abcd = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }];
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2 }, abcd);
+    question.addPanelUI();
+    expect(question.pageCount, "#1").toBe(3);
+    expect(question.pageIndex, "#2").toBe(2);
+    question.removePanelUI(question.panelsOnPage[0]);
+    expect(question.panelCount, "#3").toBe(4);
+    expect(question.pageCount, "#4").toBe(2);
+    expect(question.pageIndex, "#5").toBe(1);
+    expect(renderedValues(question), "#6").toEqual(["c", "d"]);
+    expect(question.value, "#7: the records that were there are untouched").toEqual(abcd);
+  });
+  test("removing the last panel of the last page moves the page index back when the question has no value", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 });
+    question.goToPage(2);
+    expect(question.panelsOnPage.length, "#1").toBe(1);
+    question.removePanelUI(question.panels[0]);
+    expect(question.panelCount, "#2").toBe(4);
+    expect(question.pageCount, "#3").toBe(2);
+    expect(question.pageIndex, "#4").toBe(1);
+    expect(question.panelsOnPage.length, "#5").toBe(2);
+    expect(question.renderedPanels.length, "#6: the rendered panels are the page it fell back to").toBe(2);
+  });
+  test("a carousel shows one panel and ignores panelsPerPage, tab mode pages its tabs", () => {
+    const carousel = createQuestion({ panelCount: 5, panelsPerPage: 2, displayMode: "carousel" }, abcde);
+    expect(carousel.renderedPanels.length, "#1: the current panel only").toBe(1);
+    expect(carousel.currentIndex, "#2").toBe(0);
+    carousel.goToNextPanel();
+    expect(carousel.currentIndex, "#3: the carousel navigates panels, not pages").toBe(1);
+    expect(carousel.renderedPanels[0] === carousel.visiblePanels[0], "#4: the one panel of its page (page size 1)").toBe(true);
+    const tab = createQuestion({ panelCount: 5, panelsPerPage: 2, displayMode: "tab" }, abcde);
+    expect(tab.renderedPanels.length, "#5").toBe(1);
+    expect(tab.tabbedMenu.actions.length, "#6: the tabs of the page (prompt 15)").toBe(2);
+  });
+  test("a required question on a page that was never opened does not block the survey (prompt 15)", () => {
+    const survey = createSurvey({ panelCount: 5, panelsPerPage: 2, templateElements: [{ type: "text", name: "q1", isRequired: true }] },
+      [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "" }, { q1: "e" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.pageIndex, "#1").toBe(0);
+    expect(survey.completeLastPage(), "#2: only the page is validated").toBe(true);
+  });
+  test("the neighbour expressions follow the sorted panels and ignore the page", () => {
+    const question = createQuestion({
+      panelCount: 4, panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "q1" }, { type: "expression", name: "q2", expression: "{prevPanel.q1}" }]
+    }, [{ q1: "d" }, { q1: "c" }, { q1: "b" }, { q1: "a" }]);
+    expect(question.visiblePanels.map(p => p.getQuestionByName("q2").value), "#1: the record order, page 1")
+      .toEqual([undefined, "d"]);
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(question.visiblePanels.map(p => p.getQuestionByName("q2").value), "#2: the sorted neighbour, page 1")
+      .toEqual([undefined, "a"]);
+    question.goToPage(1);
+    expect(question.visiblePanels.map(p => p.getQuestionByName("q2").value), "#3: the first panel of page 2 reads a record of page 1")
+      .toEqual(["b", "c"]);
+    expect(pageValues(question, "q2"), "#4").toEqual(["b", "c"]);
+  });
+  test("keyName duplicates are looked for in every record, on-page or not", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1" },
+      [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "a" }]);
+    expect(question.hasErrors(true), "#1: the pair is on two different pages").toBe(true);
+    question.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }];
+    expect(question.hasErrors(true), "#2").toBe(false);
+  });
+  test("panelCountExpression pages like a panelCount that was set", () => {
+    const survey = createSurvey({ panelsPerPage: 2, panelCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    survey.setValue("q0", 5);
+    expect(question.panelCount, "#1").toBe(5);
+    expect(question.pageCount, "#2").toBe(3);
+    expect(question.panelsOnPage.length, "#3").toBe(2);
+    survey.setValue("q0", 1);
+    expect(question.pageCount, "#4").toBe(1);
+  });
+  test("a filter, a sort and a page combined", () => {
+    const question = createQuestion({ panelCount: 6, panelsPerPage: 2 },
+      [{ q1: "a", q2: "6" }, { q1: "b", q2: "5" }, { q1: "a", q2: "4" }, { q1: "a", q2: "3" }, { q1: "b", q2: "2" }, { q1: "a", q2: "1" }]);
+    question.filterExpression = "{q1} = 'a'";
+    question.sortOrder = [{ field: "q2", direction: "asc" }];
+    expect(question.visiblePanelCount, "#1: four records pass the filter").toBe(4);
+    expect(question.pageCount, "#2").toBe(2);
+    expect(pageValues(question, "q2"), "#3: the first two of the sorted panels").toEqual(["1", "3"]);
+    question.nextPage();
+    expect(pageValues(question, "q2"), "#4").toEqual(["4", "6"]);
+    expect(question.value.length, "#5: the records are untouched").toBe(6);
+  });
+  test("sortOrder, toggleSort and clearSort reach the list and read back from it", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    const list = question.getDataList();
+    expect(question.sortOrder, "#1: none").toEqual([]);
+    question.toggleSort("q1");
+    expect(question.sortOrder, "#2: a header click sorts ascending").toEqual([{ field: "q1", direction: "asc" }]);
+    expect(list.sort, "#3: the list has it").toEqual([{ field: "q1", direction: "asc" }]);
+    expect(question.panels.map(p => p.getQuestionByName("q1").value), "#4").toEqual(["a", "b", "c"]);
+    question.toggleSort("q1");
+    expect(question.sortOrder, "#5: the second click is descending").toEqual([{ field: "q1", direction: "desc" }]);
+    question.toggleSort("q1");
+    expect(question.sortOrder, "#6: the third clears it").toEqual([]);
+    expect(question.panels.map(p => p.getQuestionByName("q1").value), "#7: the record order is back").toEqual(["c", "a", "b"]);
+    question.sortOrder = [{ field: "q1", direction: "desc" }];
+    expect(question.value, "#8: the value kept its order").toEqual([{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    question.clearSort();
+    expect(question.sortOrder, "#9").toEqual([]);
+    expect(list.sort, "#10").toEqual([]);
+  });
+  test("the filter reaches the list, reads back from it and keeps every record", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    expect(question.filterExpression, "#1").toBe("");
+    question.filterExpression = "{q1} = 'a'";
+    expect(question.filterExpression, "#2").toBe("{q1} = 'a'");
+    expect(question.getDataList().filter, "#3: the list has it").toBe("{q1} = 'a'");
+    expect(question.panels.length, "#4: only the records that pass it have a panel").toBe(2);
+    expect(question.panelCount, "#5: the records are untouched").toBe(3);
+    expect(question.value.length, "#6").toBe(3);
+    question.filterExpression = "";
+    expect(question.panels.length, "#7").toBe(3);
+  });
+  test("a filter the list cannot run locally is refused and reads back as empty", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.filterExpression = "{q1} = ";
+    expect(question.filterExpression, "#1: the list reset it to none").toBe("");
+    expect(question.panels.length, "#2: showing every panel beats showing none").toBe(3);
+  });
+  test("refreshView re-decides the membership and nothing else does", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "a" }]);
+    question.filterExpression = "{q1} = 'a'";
+    expect(question.panels.length, "#1").toBe(2);
+    question.panels[0].getQuestionByName("q1").value = "z";
+    expect(question.panels.length, "#2: the edited record keeps its panel").toBe(2);
+    question.refreshView();
+    expect(question.panels.length, "#3: the refresh drops it").toBe(1);
+  });
+  test("assigning the same sort or the same filter rebuilds nothing", () => {
+    const question = createQuestion({ panelCount: 3 }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    question.filterExpression = "{q1} != 'z'";
+    const panels = question.panels.slice();
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(question.panels.every((panel, i) => panel === panels[i]), "#1: the same panel instances").toBe(true);
+    question.filterExpression = "{q1} != 'z'";
+    expect(question.panels.every((panel, i) => panel === panels[i]), "#2: the same panel instances").toBe(true);
+    question.sortOrder = [{ field: "q1", direction: "desc" }];
+    expect(question.panels[0] === panels[0], "#3: a different sort does rebuild them").toBe(false);
+  });
+  test("pageIndex, pageCount, sortOrder and filterExpression notify the reactivity bridge", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    const changed: Array<string> = [];
+    question.onPropertyChanged.add((sender, options) => { changed.push(options.name); });
+    question.nextPage();
+    expect(changed.indexOf("pageIndex") > -1, "#1").toBe(true);
+    changed.splice(0, changed.length);
+    question.panelCount = 2;
+    expect(changed.indexOf("pageCount") > -1, "#2").toBe(true);
+    changed.splice(0, changed.length);
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(changed.indexOf("sortOrder") > -1, "#3").toBe(true);
+    changed.splice(0, changed.length);
+    question.filterExpression = "{q1} != 'z'";
+    expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
+  });
+  test("the pager actions run the navigation and follow it", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    expect(question.pagerActions.actions.length, "#1: prev, the page info and next").toBe(3);
+    const prev = question.pagerActions.getActionById("sv-pager-prev");
+    const next = question.pagerActions.getActionById("sv-pager-next");
+    const info = question.pagerActions.getActionById("sv-pager-info");
+    expect(prev.enabled, "#2").toBe(false);
+    expect(next.enabled, "#3").toBe(true);
+    expect(info.title, "#4").toBe("1 of 3");
+    next.action();
+    expect(question.pageIndex, "#5").toBe(1);
+    expect(info.title, "#6").toBe("2 of 3");
+    expect(prev.enabled, "#7").toBe(true);
+    next.action();
+    expect(next.enabled, "#8: the last page").toBe(false);
+    prev.action();
+    expect(question.pageIndex, "#9").toBe(1);
+  });
+  test("single input walks every visible panel and ignores the page", () => {
+    const survey = createSurvey({ panelCount: 4, panelsPerPage: 2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
+    survey.questionsOnPageMode = "inputPerPage";
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.singleInputSummary?.items.length, "#1: every visible panel, not the page - single input is its own paging").toBe(4);
+    expect(question.pageCount, "#2: the question does not page while single input is active (prompt 15)").toBe(1);
+    expect(question.panelsOnPage.length, "#3").toBe(4);
+  });
+  test("getStructuredValue and the progress answer for every visible panel", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
+    expect(question.getStructuredValue(1).length, "#1: the page - it is built from the panels, like getPlainData (a recorded gap)").toBe(2);
+    expect(question.visiblePanelCount, "#2").toBe(4);
+    expect(question.getProgressInfo().questionCount, "#3: four panels of two questions").toBe(8);
+  });
+  test("design mode pages nothing and keeps the authored value", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "paneldynamic", name: "panel", templateElements: template, panelCount: 5, panelsPerPage: 2 }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.panelsPerPage, "#1: the authored value is kept for serialization").toBe(2);
+    expect(question.pageCount, "#2").toBe(1);
+    /* Design mode is a "do not push to the list" rule and nothing more: the authored sort and
+       filter are stored, read back and serialized - the Creator has to be able to edit them - and
+       only the list is left alone, so nothing is sorted or filtered. */
+    question.filterExpression = "{q1} = 'a'";
+    expect(question.filterExpression, "#3: it is kept").toBe("{q1} = 'a'");
+    expect(question.getDataList().filter, "#4: and not applied").toBe("");
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(question.sortOrder, "#5").toEqual([{ field: "q1", direction: "asc" }]);
+    expect(question.sortBy, "#6").toBe("q1");
+    expect(question.getDataList().sort, "#7: and not applied").toEqual([]);
+    const json = question.toJSON();
+    expect(json.panelsPerPage, "#8").toBe(2);
+    expect(json.sortBy, "#9").toBe("q1");
+    expect(json.filterExpression, "#10").toBe("{q1} = 'a'");
+  });
+  test("panelsPerPage round-trips through JSON and stays out of the property grid", () => {
+    const question = createQuestion({ panelCount: 2, panelsPerPage: 3 });
+    expect(question.panelsPerPage, "#1").toBe(3);
+    expect(question.toJSON().panelsPerPage, "#2").toBe(3);
+    expect(Serializer.findProperty("paneldynamic", "panelsPerPage").visible, "#3").toBe(false);
+    const byDefault = createQuestion({ panelCount: 2 });
+    expect(byDefault.toJSON().panelsPerPage, "#4: the default is not serialized").toBe(undefined);
+    expect(byDefault.panelsPerPage, "#5").toBe(0);
+  });
+  /* The panels are built on the first rendering, and a page size must not bring that forward: the
+     page is a slice of visiblePanels, whose getter builds them. */
+  test("a page size, from JSON or the setter, builds no panel before the question is rendered", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
+        { name: "p1", elements: [{ type: "paneldynamic", name: "panel", panelsPerPage: 2, templateElements: template }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const createdCount = (): number => (<any>question).panelsCore.length;
+    expect(createdCount(), "#1: loaded").toBe(0);
+    survey.data = { panel: abcde };
+    expect(createdCount(), "#2: data assigned").toBe(0);
+    question.panelsPerPage = 3;
+    question.panelsPerPage = 0;
+    question.panelsPerPage = 2;
+    expect(createdCount(), "#3: the setter, paging on and off").toBe(0);
+    expect(question.renderedPanels.length, "#4").toBe(0);
+    survey.currentPageNo = 1;
+    expect(createdCount(), "#5: the first rendering builds the panels of the page").toBe(2);
+    expect(renderedValues(question), "#6: and renders the first page").toEqual(["a", "b"]);
+    expect(question.pageCount, "#7").toBe(3);
+    question.nextPage();
+    expect(renderedValues(question), "#8").toEqual(["c", "d"]);
+    question.pageIndex = 2;
+    expect(renderedValues(question), "#9").toEqual(["e"]);
+  });
+});
+
+describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
+  const template = [{ type: "text", name: "q1" }, { type: "text", name: "q2" }];
+  const createSurvey = (json: any, data?: any, designMode?: boolean): SurveyModel => {
+    const survey = new SurveyModel();
+    if (designMode) survey.setDesignMode(true);
+    survey.fromJSON({ elements: [Object.assign({ type: "paneldynamic", name: "panel", templateElements: template }, json)] });
+    if (!!data) {
+      survey.data = { panel: data };
+    }
+    return survey;
+  };
+  const createQuestion = (json: any, data?: any, designMode?: boolean): QuestionPanelDynamicModel => {
+    return <QuestionPanelDynamicModel>createSurvey(json, data, designMode).getQuestionByName("panel");
+  };
+  const values = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
+    return question.visiblePanels.map(panel => panel.getQuestionByName(name).value);
+  };
+  const cba = [{ q1: "c" }, { q1: "a" }, { q1: "b" }];
+  /* Counts the view assignments the list receives while func runs - through setView, which is what
+     both setters are made of. "The list receives the authored sort once per load" is about the
+     reset every assignment costs, not about the value it ends with. */
+  const countSortAssignments = (func: () => void): number => {
+    const proto: any = DynamicDataList.prototype;
+    const original = proto.setView;
+    let count = 0;
+    proto.setView = function(filter: string, sort: any): void {
+      count++;
+      original.call(this, filter, sort);
+    };
+    try {
+      func();
+    } finally {
+      proto.setView = original;
+    }
+    return count;
+  };
+
+  test("sortBy and filterExpression load from JSON, apply and round-trip", () => {
+    const question = createQuestion({ panelCount: 4, sortBy: "q1-", filterExpression: "{q1} <> 'z'" },
+      [{ q1: "c" }, { q1: "z" }, { q1: "a" }, { q1: "b" }]);
+    expect(question.sortBy, "#1").toBe("q1-");
+    expect(question.sortOrder, "#2: the two faces of one storage").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(question.filterExpression, "#3").toBe("{q1} <> 'z'");
+    expect(values(question), "#4: sorted, and the filtered record has no panel").toEqual(["c", "b", "a"]);
+    expect(question.value.length, "#5: the records are untouched").toBe(4);
+    const json = question.toJSON();
+    expect(json.sortBy, "#6: the canonical text").toBe("q1-");
+    expect(json.filterExpression, "#7").toBe("{q1} <> 'z'");
+    expect(json.sortOrder, "#8: the descriptors are not serialized").toBe(undefined);
+  });
+  test("a multi-field sortBy loads and is written back canonically", () => {
+    const question = createQuestion({ panelCount: 4, sortBy: " q1 ; q2 - " },
+      [{ q1: "a", q2: "1" }, { q1: "b", q2: "2" }, { q1: "a", q2: "3" }, { q1: "b", q2: "1" }]);
+    expect(question.sortOrder, "#1").toEqual([{ field: "q1", direction: "asc" }, { field: "q2", direction: "desc" }]);
+    expect(values(question, "q2"), "#2").toEqual(["3", "1", "2", "1"]);
+    expect(question.toJSON().sortBy, "#3: normalized").toBe("q1;q2-");
+  });
+  test("the defaults are not serialized and the properties stay out of the property grid", () => {
+    const question = createQuestion({ panelCount: 2 }, cba);
+    const json = question.toJSON();
+    expect(json.sortBy, "#1").toBe(undefined);
+    expect(json.filterExpression, "#2").toBe(undefined);
+    expect(question.sortBy, "#3").toBe("");
+    expect(question.filterExpression, "#4").toBe("");
+    expect(Serializer.findProperty("paneldynamic", "sortBy").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "filterExpression").visible, "#6").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "sortBy").isExpression, "#7: a plain string, not a condition").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "filterExpression").isExpression, "#8").toBe(false);
+  });
+  test("sortBy assigned at runtime equals the parsed sortOrder", () => {
+    const byText = createQuestion({ panelCount: 3 }, cba);
+    byText.sortBy = "q1-";
+    const byOrder = createQuestion({ panelCount: 3 }, cba);
+    byOrder.sortOrder = [{ field: "q1", direction: "desc" }];
+    expect(byText.sortOrder, "#1").toEqual(byOrder.sortOrder);
+    expect(values(byText), "#2").toEqual(values(byOrder));
+    expect(byText.toJSON().sortBy, "#3").toBe(byOrder.toJSON().sortBy);
+  });
+  test("the sort toggleSort makes is what toJSON emits", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#1").toBe("q1");
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#2").toBe("q1-");
+    question.toggleSort("q1");
+    expect(question.toJSON().sortBy, "#3: the third call clears it").toBe(undefined);
+  });
+  test("onPropertyChanged fires for sortBy once per real change", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    const changed: Array<any> = [];
+    question.onPropertyChanged.add((sender, options) => {
+      if (options.name === "sortBy") changed.push(options.oldValue + " -> " + options.newValue);
+    });
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(changed, "#1: sortOrder is assigned").toEqual([" -> q1"]);
+    question.sortOrder = [{ field: "q1", direction: "asc" }];
+    expect(changed, "#2: the same sort says nothing").toEqual([" -> q1"]);
+    question.toggleSort("q1");
+    expect(changed, "#3: the toggle").toEqual([" -> q1", "q1 -> q1-"]);
+    question.getDataList().sort = [];
+    expect(changed, "#4: the list changed it on its own").toEqual([" -> q1", "q1 -> q1-", "q1- -> "]);
+  });
+  test("the JSON key order does not decide the sort (invariant 3)", () => {
+    const before = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
+    expect(before.sortBy, "#1: sortBy before panelsPerPage").toBe("q1-");
+    expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
+    const after = createQuestion({ panelsPerPage: 2, sortBy: "q1-", panelCount: 3 }, cba);
+    expect(after.sortBy, "#3: and after it").toBe("q1-");
+    expect(values(after), "#4").toEqual(["c", "b"]);
+    expect(after.panelsOnPage.length, "#5: the page size survived it too").toBe(2);
+  });
+  test("the list receives the authored sort once per load", () => {
+    let question: QuestionPanelDynamicModel;
+    const count = countSortAssignments(() => {
+      question = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
+      question.visiblePanels;
+    });
+    expect(count, "#1: no intermediate reset").toBe(1);
+    expect(values(question), "#2: the first page of the sorted records").toEqual(["c", "b"]);
+  });
+  test("fromJSON into an attached question that already runs a different sort", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.sortBy = "q1";
+    expect(values(question), "#1").toEqual(["a", "b", "c"]);
+    question.fromJSON({ type: "paneldynamic", name: "panel", templateElements: template, panelCount: 3,
+      sortBy: "q1-", filterExpression: "{q1} <> 'a'" });
+    expect(question.sortBy, "#2: the new sort, not the one that was mirrored").toBe("q1-");
+    expect(question.getDataList().sort, "#3: and the list has it").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(values(question), "#4").toEqual(["c", "b"]);
+  });
+  test("a reload whose JSON has no sortBy key leaves the current sort alone", () => {
+    const question = createQuestion({ panelCount: 3 }, cba);
+    question.sortBy = "q1-";
+    question.fromJSON({ type: "paneldynamic", name: "panel", templateElements: template, panelCount: 3 });
+    expect(question.sortBy, "#1").toBe("q1-");
+    expect(values(question), "#2").toEqual(["c", "b", "a"]);
+  });
+  test("design mode set before the load, the Creator's order (invariants 1 and 4)", () => {
+    const question = createQuestion({ panelCount: 3, sortBy: "q1-", filterExpression: "{q1} = 'a'" }, undefined, true);
+    expect(question.sortBy, "#1: authored and read back").toBe("q1-");
+    expect(question.filterExpression, "#2").toBe("{q1} = 'a'");
+    expect(question.getDataList().sort, "#3: the list has nothing").toEqual([]);
+    expect(question.getDataList().filter, "#4").toBe("");
+    const json = question.toJSON();
+    expect(json.sortBy, "#5: and both are serialized").toBe("q1-");
+    expect(json.filterExpression, "#6").toBe("{q1} = 'a'");
+  });
+  test("a design-mode switch after the load takes effect at the next sync (the section 3.4 limit)", () => {
+    const survey = createSurvey({ panelCount: 3, sortBy: "q1-" }, cba);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(values(question), "#1").toEqual(["c", "b", "a"]);
+    survey.setDesignMode(true);
+    expect(question.sortBy, "#2: the hash is right at once").toBe("q1-");
+    expect(question.toJSON().sortBy, "#3: and so is the JSON").toBe("q1-");
+    expect(question.getDataList().sort, "#4: nothing told the list yet").toEqual([{ field: "q1", direction: "desc" }]);
+    question.refreshView();
+    expect(question.getDataList().sort, "#5: the next sync clears it").toEqual([]);
+    expect(question.sortBy, "#6: and keeps what was authored").toBe("q1-");
+    survey.setDesignMode(false);
+    question.refreshView();
+    expect(question.getDataList().sort, "#7: the way back").toEqual([{ field: "q1", direction: "desc" }]);
+    expect(values(question), "#8").toEqual(["c", "b", "a"]);
+  });
+  test("a filter the list cannot run is not handed back after a load (invariant 5)", () => {
+    const question = createQuestion({ panelCount: 3, filterExpression: "{q1} = " }, cba);
+    expect(question.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
+    expect(values(question), "#2: showing every panel beats showing none").toEqual(["c", "a", "b"]);
+    question.refreshView();
+    expect(question.filterExpression, "#3: and it is not re-pushed").toBe("");
+  });
+});
+
+describe("paneldynamic: one paging sync per condition run", () => {
+  test("a condition run that changes no panel visibility renders the page zero times, one that does renders it once", () => {
+    const records: Array<any> = [];
+    for (let i = 1; i <= 30; i++) records.push({ id: i });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "outside" },
+        { type: "text", name: "unrelated" },
+        {
+          type: "paneldynamic", name: "panel", panelsPerPage: 10,
+          templateVisibleIf: "{outside} empty or {panel.id} > {outside}",
+          templateElements: [{ type: "text", name: "id" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.value = records;
+    expect(question.visiblePanelCount, "#1").toBe(30);
+    expect(question.pageCount, "#2").toBe(3);
+    const spy = vi.spyOn(<any>question, "updateRenderedPanels");
+    survey.setValue("unrelated", 1);
+    const onUnrelated = spy.mock.calls.length;
+    expect(onUnrelated, "#3: an unrelated change, was " + onUnrelated).toBe(0);
+    spy.mockClear();
+    survey.setValue("outside", 5);
+    const onFive = spy.mock.calls.length;
+    expect(onFive, "#4: panels 1-5 hidden, was " + onFive).toBe(1);
+    expect(question.visiblePanelCount, "#5").toBe(25);
+    expect(question.pageCount, "#6").toBe(3);
+    spy.mockClear();
+    survey.setValue("outside", 11);
+    const onEleven = spy.mock.calls.length;
+    expect(onEleven, "#7: six more hidden, was " + onEleven).toBe(1);
+    expect(question.visiblePanelCount, "#8").toBe(19);
+    expect(question.pageCount, "#9").toBe(2);
+    expect(question.renderedPanels.length, "#10").toBe(10);
+    expect(question.renderedPanels[0].getQuestionByName("id").value, "#11").toBe(12);
+    spy.mockRestore();
   });
 });

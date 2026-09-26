@@ -936,6 +936,16 @@ export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
    */
   allow: boolean;
 }
+export interface DynamicDataErrorEvent extends QuestionEventMixin {
+  /**
+   * The data source operation that failed: `"read"`, `"insert"`, `"update"`, `"remove"`, or `"move"`.
+   */
+  operation: string;
+  /**
+   * The error the data source reported: whatever its promise was rejected with or its method threw.
+   */
+  error: any;
+}
 export interface TimerPanelInfoTextEvent {
   /**
    * the timer panel info text

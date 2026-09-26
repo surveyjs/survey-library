@@ -706,7 +706,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public get listPageSize(): number {
     if (this.isSingleInputActive) return 0;
     if (this.displayMode === "carousel") return 1;
-    return this.panelsPerPage;
+    // settings.panel.maxPanelCount is the number of panels one page may hold.
+    return Math.min(this.panelsPerPage, settings.panel.maxPanelCount);
   }
   /* The number of panels on one page, 0 = no paging. In list mode the page is what is shown; in tab
      mode it is the tabs of one page, of which one panel is shown; a carousel ignores it and pages one
@@ -1753,7 +1754,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       if (val < min) {
         val = min;
       }
-      const max = this.maxPanelCount;
+      const max = this.panelCountLimit;
       if (max > 0 && val > max) {
         val = max;
       }
@@ -1940,7 +1941,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   /**
    * An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
    *
-   * The calculation result is clamped to the [`minPanelCount`](#minPanelCount) and [`maxPanelCount`](#maxPanelCount) limits: a value below the minimum is set to `minPanelCount`, and a value above the maximum is capped at `maxPanelCount`. The global [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel) setting also limits the maximum.
+   * The calculation result is clamped to the [`minPanelCount`](#minPanelCount) and [`maxPanelCount`](#maxPanelCount) limits: a value below the minimum is set to `minPanelCount`, and a value above the maximum is capped at `maxPanelCount`. If panels are not split into pages, the global [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel) setting also limits the maximum.
    *
    * While this property is set, users cannot add or remove panels manually. The expression is reevaluated when its referenced values or panel limits change.
    *
@@ -1955,7 +1956,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return !!this.panelCountExpression && !this.isRemoteData;
   }
   private setPanelCountByExpression(val: any): void {
-    this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.maxPanelCount);
+    this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
   }
   /* The result is clamped by minPanelCount/maxPanelCount, so changing a limit has to
      recalculate it: the raw expression result is not stored anywhere */
@@ -1993,17 +1994,30 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
    *
+   * `settings.panel.maxPanelCount` is the maximum number of panels on one page. If panels are not split into pages, it also limits `maxPanelCount`. If they are, only `maxPanelCount` limits the total number of panels, and only when you set it.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see panelCount
    * @see minPanelCount
    * @see allowAddPanel
    */
-  @property({ onSetting: (val: number) => val <= 0 ? 1 : val < settings.panel.maxPanelCount ? val : settings.panel.maxPanelCount }) maxPanelCount: number;
+  @property({ onSetting: (val: number) => val <= 0 ? 1 : val }) maxPanelCount: number;
+  /* internal: the limit panelCount is checked against. settings.panel.maxPanelCount is the number of
+     panels one page may hold: without paging every panel is on the one page, so it limits the total
+     as well; with paging it limits the page size only (listPageSize), and the total is limited by
+     maxPanelCount alone - when the question sets it, since its default is the setting. */
+  public get panelCountLimit(): number {
+    const pageMax = settings.panel.maxPanelCount;
+    if (this.isDesignMode || !(this.listPageSize > 0)) return Math.min(this.maxPanelCount, pageMax);
+    const val = this.getPropertyValueWithoutDefault("maxPanelCount");
+    return val > 0 ? val : Number.MAX_SAFE_INTEGER;
+  }
 
   private onMaxPanelCountChanged(): void {
     const val = this.maxPanelCount;
     if (val < this.minPanelCount)this.minPanelCount = val;
-    if (this.panelCount > val)this.panelCount = val;
+    const limit = this.panelCountLimit;
+    if (this.panelCount > limit)this.panelCount = limit;
     this.rerunPanelCountExpression();
     this.updateFooterActions();
   }
@@ -2311,7 +2325,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return (
       this.allowAddPanel &&
       !this.isReadOnly &&
-      this.panelCount < this.maxPanelCount
+      this.panelCount < this.panelCountLimit
     );
   }
   /**
@@ -3085,8 +3099,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (pnlCount < this.minPanelCount) {
       return this.minPanelCount;
     }
-    if (pnlCount > this.maxPanelCount) {
-      return this.maxPanelCount;
+    if (pnlCount > this.panelCountLimit) {
+      return this.panelCountLimit;
     }
     return -1;
   }
@@ -4423,7 +4437,7 @@ Serializer.addClass(
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       onSettingValue: (obj: any, val: any): any => {
         if (val < obj.minPanelCount) return obj.minPanelCount;
-        if (val > obj.maxPanelCount) return obj.maxPanelCount;
+        if (val > obj.panelCountLimit) return obj.panelCountLimit;
         return val;
       },
     },

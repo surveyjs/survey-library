@@ -8266,6 +8266,102 @@ describe("Survey_QuestionPanelDynamic", () => {
     settings.panel.maxPanelCount = 100;
     expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "default value again").toBe(100);
   });
+  function createMaxPanelCountSurvey(json: any, count?: number): QuestionPanelDynamicModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "n" }, Object.assign({ type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "id" }] }, json)]
+    });
+    if (count !== undefined) {
+      const records: Array<any> = [];
+      for (let i = 0; i < count; i++) records.push({ id: i });
+      survey.setValue("pd", records);
+    }
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  }
+  test("settings.panel.maxPanelCount is the maximum number of panels on one page: panelsPerPage above it is capped", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 10 }, 12);
+      expect(question.panels.length, "#1: five panels on the page").toBe(5);
+      expect(question.pageCount, "#2: 12 records, five per page").toBe(3);
+      expect(question.panelsPerPage, "#3: the property keeps its value").toBe(10);
+      expect(question.toJSON().panelsPerPage, "#4: and its JSON").toBe(10);
+      question.pageIndex = 2;
+      expect(question.panels.length, "#5: the last page").toBe(2);
+      question.panelsPerPage = 4;
+      expect(question.panels.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(question.pageCount, "#7").toBe(3);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount does not limit the total number of panels while paging is on", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 3 }, 12);
+      expect(question.panelCount, "#1: every record is kept").toBe(12);
+      expect(question.value.length, "#2").toBe(12);
+      expect(question.canAddPanel, "#3: a panel can be added").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#4: the add is not blocked").toBe(13);
+      expect(question.panels.length, "#5: the page holds the last record").toBe(1);
+      const fromJson = createMaxPanelCountSurvey({ panelsPerPage: 3, panelCount: 8 });
+      expect(fromJson.panelCount, "#6: panelCount from JSON is not truncated").toBe(8);
+      expect(fromJson.panels.length, "#7").toBe(3);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount: an explicit maxPanelCount above it limits the total while paging is on", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ panelsPerPage: 3, maxPanelCount: 8 }, 7);
+      expect(question.maxPanelCount, "#1: the value is not capped by the setting").toBe(8);
+      expect(question.toJSON().maxPanelCount, "#2: and it is serialized").toBe(8);
+      expect(question.canAddPanel, "#3: 7 of 8").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#4").toBe(8);
+      expect(question.canAddPanel, "#5: 8 of 8").toBe(false);
+      const fromJson = createMaxPanelCountSurvey({ panelsPerPage: 3, maxPanelCount: 8, panelCount: 10 });
+      expect(fromJson.panelCount, "#6: panelCount from JSON is limited by maxPanelCount").toBe(8);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount limits the total number of panels without paging: they are all on one page", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const question = createMaxPanelCountSurvey({ maxPanelCount: 8, panelCount: 10 });
+      expect(question.maxPanelCount, "#1: the property keeps its value").toBe(8);
+      expect(question.panelCount, "#2: the setting limits panelCount from JSON").toBe(5);
+      expect(question.canAddPanel, "#3: 5 panels on the only page").toBe(false);
+      question.panelsPerPage = 3;
+      expect(question.canAddPanel, "#4: paging on, maxPanelCount is the limit").toBe(true);
+      question.addPanel();
+      expect(question.panelCount, "#5").toBe(6);
+      const tabs = createMaxPanelCountSurvey({ displayMode: "tab", panelCount: 7 });
+      expect(tabs.panelCount, "#6: tab mode without panelsPerPage builds every panel").toBe(5);
+      const carousel = createMaxPanelCountSurvey({ displayMode: "carousel", panelCount: 7 });
+      expect(carousel.panelCount, "#7: a carousel shows one panel per page").toBe(7);
+      carousel.currentIndex = 6;
+      expect(carousel.canAddPanel, "#8: on the last panel").toBe(true);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
+  test("settings.panel.maxPanelCount and panelCountExpression: the result is limited by the setting without paging only", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const paged = createMaxPanelCountSurvey({ panelsPerPage: 3, panelCountExpression: "{n}" });
+      paged.survey.setValue("n", 9);
+      expect(paged.panelCount, "#1: paging on").toBe(9);
+      expect(paged.panels.length, "#2").toBe(3);
+      const plain = createMaxPanelCountSurvey({ panelCountExpression: "{n}" });
+      plain.survey.setValue("n", 9);
+      expect(plain.panelCount, "#3: paging off").toBe(5);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
   test("Do not serialize renderMode & showProgressBar", () => {
     const survey = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "panel1", displayMode: "carousel", showProgressBar: false }]

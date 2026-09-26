@@ -859,8 +859,6 @@ describe("Page window: three indexes", () => {
 describe("Page window: carousel, tab and design mode", () => {
   test("(m) a carousel pages one panel at a time, whatever panelsPerPage says", () => {
     const spy = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel");
-    // 60 records and not 100: settings.panel.maxPanelCount caps maxPanelCount at 100, and the add below
-    // needs room for one more.
     const question = createPanel({ displayMode: "carousel",
       templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }] }, records(60));
     expect(question.panels.length, "#1: one panel").toBe(1);

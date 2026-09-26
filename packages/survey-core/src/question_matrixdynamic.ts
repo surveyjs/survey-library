@@ -494,7 +494,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // Single-input mode is its own paging: it walks every row and lists them in its summary.
   public get listPageSize(): number {
-    return this.isSingleInputActive ? 0 : this.rowsPerPage;
+    // settings.matrix.maxRowCount is the number of rows one page may hold.
+    return this.isSingleInputActive ? 0 : Math.min(this.rowsPerPage, settings.matrix.maxRowCount);
   }
   // internal: single-input mode reads every row, and nothing tells the list that it became active.
   public syncPageSizeWithMode(): void {
@@ -1061,7 +1062,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        An incoming total above settings.matrix.maxRowCount is accepted there; the clamp below stays
        what it has always been, a limit on what a caller may ask for. */
     if (this.isRemoteData) return;
-    if (val < 0 || val > settings.matrix.maxRowCount || val === this.rowCount) return;
+    if (val < 0 || val === this.rowCount) return;
+    if (val > settings.matrix.maxRowCount) {
+      // The page size is not known yet while loading: rowsPerPage may follow rowCount in the JSON.
+      if (this.isLoadingFromJson) {
+        this.rowCountAboveSettings = val;
+        return;
+      }
+      if (this.isRowCountLimitedBySettings) return;
+    }
+    this.setRowCountCore(val);
+  }
+  private rowCountAboveSettings: number;
+  endLoadingFromJson(): void {
+    const val = this.rowCountAboveSettings;
+    this.rowCountAboveSettings = undefined;
+    if (val > 0 && !this.isRowCountLimitedBySettings) {
+      this.setRowCountCore(val);
+    }
+    super.endLoadingFromJson();
+  }
+  private setRowCountCore(val: number): void {
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
@@ -1125,7 +1146,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
    *
-   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. The global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. If rows are not split into pages, the global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
    *
    * While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
    *
@@ -1140,8 +1161,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !!this.rowCountExpression && !this.isRemoteData;
   }
   private setRowCountByExpression(val: any): void {
-    const maxCount = Math.min(this.maxRowCount, settings.matrix.maxRowCount);
-    this.rowCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minRowCount, maxCount);
+    this.rowCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minRowCount, this.rowCountLimit);
   }
   /* The result is clamped by minRowCount/maxRowCount, so changing a limit has to recalculate
      it: the raw expression result is not stored anywhere */
@@ -1279,17 +1299,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
    *
+   * `settings.matrix.maxRowCount` is the maximum number of rows on one page. If rows are not split into pages, it also limits `maxRowCount`. If they are, only `maxRowCount` limits the total number of rows, and only when you set it.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
    */
-  @property({ onSetting: (val: number) => val <= 0 ? 1 : val > settings.matrix.maxRowCount ? settings.matrix.maxRowCount : val }) maxRowCount: number;
+  @property({ onSetting: (val: number) => val <= 0 ? 1 : val }) maxRowCount: number;
+  /* settings.matrix.maxRowCount is the number of rows one page may hold: without paging every row is
+     on the one page, so it limits the total as well; with paging it limits the page size only
+     (listPageSize). */
+  private get isRowCountLimitedBySettings(): boolean {
+    return this.isDesignMode || !(this.listPageSize > 0);
+  }
+  /* internal: the limit rowCount is checked against. With paging the total is limited by maxRowCount
+     alone - when the question sets it, since its default is the setting. */
+  public get rowCountLimit(): number {
+    if (this.isRowCountLimitedBySettings) return Math.min(this.maxRowCount, settings.matrix.maxRowCount);
+    const val = this.getPropertyValueWithoutDefault("maxRowCount");
+    return val > 0 ? val : Number.MAX_SAFE_INTEGER;
+  }
 
   private onMaxRowCountChanged(): void {
     const val = this.maxRowCount;
     if (val < this.minRowCount)this.minRowCount = val;
-    if (this.rowCount > val)this.rowCount = val;
+    const limit = this.rowCountLimit;
+    if (this.rowCount > limit)this.rowCount = limit;
     this.rerunRowCountExpression();
   }
   /**
@@ -1325,7 +1361,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get canAddRow(): boolean {
     return (
       this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
-      this.canInsertRecord && this.rowCount < this.maxRowCount
+      this.canInsertRecord && this.rowCount < this.rowCountLimit
     );
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;

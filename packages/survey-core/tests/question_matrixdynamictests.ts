@@ -9871,6 +9871,95 @@ describe("Survey_QuestionMatrixDynamic", () => {
       settings.matrix.maxRowCount = prevMaxRowCount;
     }
   });
+  function createMaxRowCountMatrix(json: any, count?: number): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "n" }, Object.assign({ type: "matrixdynamic", name: "md", columns: [{ name: "id", cellType: "text" }] }, json)]
+    });
+    if (count !== undefined) {
+      const records: Array<any> = [];
+      for (let i = 0; i < count; i++) records.push({ id: i });
+      survey.setValue("md", records);
+    }
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+  }
+  test("settings.matrix.maxRowCount is the maximum number of rows on one page: rowsPerPage above it is capped", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 10 }, 12);
+      expect(matrix.visibleRows.length, "#1: five rows on the page").toBe(5);
+      expect(matrix.pageCount, "#2: 12 records, five per page").toBe(3);
+      expect(matrix.rowsPerPage, "#3: the property keeps its value").toBe(10);
+      expect(matrix.toJSON().rowsPerPage, "#4: and its JSON").toBe(10);
+      matrix.pageIndex = 2;
+      expect(matrix.visibleRows.length, "#5: the last page").toBe(2);
+      matrix.rowsPerPage = 4;
+      expect(matrix.visibleRows.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(matrix.pageCount, "#7").toBe(3);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount does not limit the total number of rows while paging is on", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 3 }, 12);
+      expect(matrix.rowCount, "#1: every record is kept").toBe(12);
+      expect(matrix.canAddRow, "#2: a row can be added").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#3: the add is not blocked").toBe(13);
+      matrix.rowCount = 15;
+      expect(matrix.rowCount, "#4: rowCount above the setting from code").toBe(15);
+      const fromJson = createMaxRowCountMatrix({ rowCount: 8, rowsPerPage: 3 });
+      expect(fromJson.rowCount, "#5: rowCount from JSON, rowsPerPage loaded after it").toBe(8);
+      expect(fromJson.visibleRows.length, "#6").toBe(3);
+      expect(fromJson.pageCount, "#7").toBe(3);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount: an explicit maxRowCount above it limits the total while paging is on", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 3, maxRowCount: 8 }, 7);
+      expect(matrix.maxRowCount, "#1: the value is not capped by the setting").toBe(8);
+      expect(matrix.toJSON().maxRowCount, "#2: and it is serialized").toBe(8);
+      expect(matrix.canAddRow, "#3: 7 of 8").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#4").toBe(8);
+      expect(matrix.canAddRow, "#5: 8 of 8").toBe(false);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount limits the total number of rows without paging: they are all on one page", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, maxRowCount: 8 }, 6);
+      expect(matrix.maxRowCount, "#1: the property keeps its value").toBe(8);
+      expect(matrix.canAddRow, "#2: 6 rows on the only page, above the setting").toBe(false);
+      matrix.rowCount = 7;
+      expect(matrix.rowCount, "#3: rowCount above the setting is rejected").toBe(6);
+      matrix.rowsPerPage = 3;
+      expect(matrix.canAddRow, "#4: paging on, maxRowCount is the limit").toBe(true);
+      matrix.addRow();
+      expect(matrix.rowCount, "#5").toBe(7);
+      const fromJson = createMaxRowCountMatrix({ rowCount: 7 });
+      expect(fromJson.rowCount, "#6: rowCount from JSON above the setting is rejected").toBe(2);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
+  test("settings.matrix.maxRowCount and rowCountExpression: the result is limited by the setting without paging only", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const matrix = createMaxRowCountMatrix({ rowsPerPage: 3, rowCountExpression: "{n}" });
+      matrix.survey.setValue("n", 9);
+      expect(matrix.rowCount, "#1: paging on").toBe(9);
+      expect(matrix.visibleRows.length, "#2").toBe(3);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
   test("rowCountExpression with an invalid result, Issue#11793", () => {
     const survey = new SurveyModel({
       elements: [

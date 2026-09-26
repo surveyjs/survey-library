@@ -921,7 +921,9 @@ describe("Remote data source: limits, expressions and errors", () => {
     const { question } = await createMatrix(source);
     expect(question.rowCount, "#1: the server total, above the clamp").toBe(settings.matrix.maxRowCount + 500);
     expect(question.visibleRows.length, "#2: still one row per window record").toBe(5);
-    expect(question.canAddRow, "#3: the add path still honours maxRowCount").toBe(false);
+    expect(question.canAddRow, "#3: paging is on, the setting limits the page only").toBe(true);
+    question.maxRowCount = settings.matrix.maxRowCount + 100;
+    expect(question.canAddRow, "#4: the add path honours maxRowCount set on the question").toBe(false);
   });
   test("rowCountExpression is ignored while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(7));

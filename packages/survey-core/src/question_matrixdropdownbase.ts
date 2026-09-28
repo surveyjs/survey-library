@@ -16,7 +16,7 @@ import { settings } from "./settings";
 import { KeyDuplicationError } from "./error";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -2694,12 +2694,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailButtonCss" + row.id));
-    return builder.append(this.cssClasses.detailButton, builder.toString() === "").toString();
+    const css = toCssClasses(this.getPropertyValue("detailButtonCss" + row.id));
+    return toCssClasses(css, !css && this.cssClasses.detailButton);
   }
   public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
-    return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
+    const css = toCssClasses(this.getPropertyValue("detailIconCss" + row.id));
+    return toCssClasses(css, !css && this.cssClasses.detailIcon);
   }
   public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
     return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
@@ -2708,13 +2708,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const classes = this.cssClasses;
     const isPanelShowing = this.getIsDetailPanelShowing(row);
 
-    const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
-      .append(classes.detailIconExpanded, isPanelShowing);
-    this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());
-
-    const buttonBuilder = new CssClassBuilder().append(classes.detailButton)
-      .append(classes.detailButtonExpanded, isPanelShowing);
-    this.setPropertyValue("detailButtonCss" + row.id, buttonBuilder.toString());
+    this.setPropertyValue("detailIconCss" + row.id, toCssClasses(classes.detailIcon, isPanelShowing && classes.detailIconExpanded));
+    this.setPropertyValue("detailButtonCss" + row.id, toCssClasses(classes.detailButton, isPanelShowing && classes.detailButtonExpanded));
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
@@ -2841,7 +2836,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.resetRenderedTable();
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
+    return toCssClasses(super.getRootCss(), this.horizontalScroll && this.cssClasses.rootScroll);
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
     super.afterRenderQuestionElement(el);

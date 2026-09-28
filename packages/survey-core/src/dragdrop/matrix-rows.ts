@@ -1,4 +1,4 @@
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
@@ -75,10 +75,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   private get shortcutClass(): string {
-    return new CssClassBuilder()
-      .append(this.parentElement.cssClasses.draggedRow)
-      //.append(this.parentElement.cssClasses.dragShortcutMobileMod, IsMobile)
-      .toString();
+    return toCssClasses(
+      this.parentElement.cssClasses.draggedRow
+      // IsMobile && this.parentElement.cssClasses.dragShortcutMobileMod
+    );
   }
 
   protected createDraggedElementShortcut(

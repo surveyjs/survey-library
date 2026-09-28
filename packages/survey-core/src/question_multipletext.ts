@@ -19,7 +19,7 @@ import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
@@ -848,22 +848,22 @@ export class QuestionMultipleTextModel extends Question
     // do nothing
   }
   public getItemLabelCss(item: MultipleTextItemModel): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemLabel)
-      .append(this.cssClasses.itemLabelDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.itemLabelReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.itemLabelPreview, this.isPreviewStyle)
-      .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
-      .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
-      .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
-      .append(this.cssClasses.itemWithCharacterCounter, !!item.getMaxLength())
-      .toString();
+    return toCssClasses(
+      this.cssClasses.itemLabel,
+      this.isDisabledStyle && this.cssClasses.itemLabelDisabled,
+      this.isReadOnlyStyle && this.cssClasses.itemLabelReadOnly,
+      this.isPreviewStyle && this.cssClasses.itemLabelPreview,
+      item.editor.isAnswered && this.cssClasses.itemLabelAnswered,
+      !this.isDesignMode && this.cssClasses.itemLabelAllowFocus,
+      item.editor.errors.length > 0 && this.cssClasses.itemLabelOnError,
+      !!item.getMaxLength() && this.cssClasses.itemWithCharacterCounter
+    );
   }
   public getItemCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.item).toString();
+    return toCssClasses(this.cssClasses.item);
   }
   public getItemTitleCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
+    return toCssClasses(this.cssClasses.itemTitle);
   }
   public get ariaRole(): string {
     return "group";
@@ -897,7 +897,7 @@ export class MultipleTextCell {
   constructor(public item: MultipleTextItemModel, protected question: QuestionMultipleTextModel) {}
   public isErrorsCell: boolean = false;
   protected getClassName(): string {
-    return new CssClassBuilder().append(this.question.cssClasses.cell).toString();
+    return toCssClasses(this.question.cssClasses.cell);
   }
   public get className(): string {
     return this.getClassName();
@@ -907,12 +907,12 @@ export class MultipleTextCell {
 export class MultipleTextErrorCell extends MultipleTextCell {
   public isErrorsCell: boolean = true;
   protected getClassName(): string {
-    return new CssClassBuilder()
-      .append(super.getClassName())
-      .append(this.question.cssClasses.cellError)
-      .append(this.question.cssClasses.cellErrorTop, this.question.showItemErrorOnTop)
-      .append(this.question.cssClasses.cellErrorBottom, this.question.showItemErrorOnBottom)
-      .toString();
+    return toCssClasses(
+      super.getClassName(),
+      this.question.cssClasses.cellError,
+      this.question.showItemErrorOnTop && this.question.cssClasses.cellErrorTop,
+      this.question.showItemErrorOnBottom && this.question.cssClasses.cellErrorBottom
+    );
   }
 }
 

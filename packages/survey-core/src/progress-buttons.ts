@@ -6,7 +6,7 @@ import { propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
@@ -44,18 +44,18 @@ export class ProgressButtons extends Base {
   }
   public getListElementCss(index: number | any): string {
     if (index >= this.survey.visiblePages.length) return;
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsListElementPassed, this.survey.visiblePages[index].passed)
-      .append(this.survey.css.progressButtonsListElementCurrent, this.survey.currentPageNo === index)
-      .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
-      .toString();
+    return toCssClasses(
+      this.survey.visiblePages[index].passed && this.survey.css.progressButtonsListElementPassed,
+      this.survey.currentPageNo === index && this.survey.css.progressButtonsListElementCurrent,
+      !this.isListElementClickable(index) && this.survey.css.progressButtonsListElementNonClickable
+    );
   }
   public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): string {
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsImageButtonLeft, isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonRight, !isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonHidden, !hasScroller)
-      .toString();
+    return toCssClasses(
+      isLeftScroll && this.survey.css.progressButtonsImageButtonLeft,
+      !isLeftScroll && this.survey.css.progressButtonsImageButtonRight,
+      !hasScroller && this.survey.css.progressButtonsImageButtonHidden
+    );
   }
   public clickListElement(element: number | PageModel): void {
     if (!(element instanceof PageModel)) {

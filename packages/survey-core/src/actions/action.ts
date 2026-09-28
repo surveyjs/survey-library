@@ -3,7 +3,7 @@ import { Base, ComputedUpdater } from "../base";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
 
@@ -283,29 +283,26 @@ export abstract class BaseAction extends Base implements IAction {
     return !!this.items && this.items.length > 0;
   }
   public getActionBarItemTitleCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
-      .toString();
+    return toCssClasses(this.cssClasses.itemTitle, !!this.iconName && this.cssClasses.itemTitleWithIcon);
   }
   public getActionBarItemCss(): string {
     const hasTitle = this.hasTitle;
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemWithTitle, hasTitle)
-      .append(this.cssClasses.itemAsIcon, !hasTitle)
-      .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPressed, !!this.pressed)
-      .append(this.innerCss)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.item,
+      hasTitle && this.cssClasses.itemWithTitle,
+      !hasTitle && this.cssClasses.itemAsIcon,
+      !!this.active && this.cssClasses.itemActive,
+      !!this.pressed && this.cssClasses.itemPressed,
+      this.innerCss
+    );
   }
   public getActionRootCss(): string {
-    return new CssClassBuilder()
-      .append("sv-action")
-      .append(this.css)
-      .append("sv-action--space", this.needSpace)
-      .append("sv-action--hidden", !this.isVisible)
-      .toString();
+    return toCssClasses(
+      "sv-action",
+      this.css,
+      this.needSpace && "sv-action--space",
+      !this.isVisible && "sv-action--hidden"
+    );
   }
   public getTooltip(): string {
     return this.tooltip || this.title;

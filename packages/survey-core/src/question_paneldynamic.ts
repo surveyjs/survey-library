@@ -25,7 +25,7 @@ import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
@@ -699,7 +699,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
     const getDirectionCssClass = () => {
       if (this.isRenderModeList) return "";
-      let cssClass = new CssClassBuilder();
       let isRemoving = false;
       const leavingPanel = this.renderedPanels.filter(el => el !== this.currentPanel)[0];
       let leavingPanelIndex = this.visiblePanels.indexOf(leavingPanel);
@@ -707,12 +706,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         isRemoving = true;
         leavingPanelIndex = this.removedPanelIndex;
       }
-      return cssClass
-        .append("sv-pd-animation-adding", !!this.focusNewPanelCallback)
-        .append("sv-pd-animation-removing", isRemoving)
-        .append("sv-pd-animation-left", leavingPanelIndex <= this.currentIndex)
-        .append("sv-pd-animation-right", leavingPanelIndex > this.currentIndex)
-        .toString();
+      return toCssClasses(
+        !!this.focusNewPanelCallback && "sv-pd-animation-adding",
+        isRemoving && "sv-pd-animation-removing",
+        leavingPanelIndex <= this.currentIndex && "sv-pd-animation-left",
+        leavingPanelIndex > this.currentIndex && "sv-pd-animation-right"
+      );
     };
     return {
       getRerenderEvent: () => this.onElementRerendered,
@@ -723,7 +722,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         }
       },
       getEnterOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperEnter).append(getDirectionCssClass()).toString();
+        const cssClass = toCssClasses(this.cssClasses.panelWrapperEnter, getDirectionCssClass());
         return {
           onBeforeRunAnimation: (el) => {
             if (this.focusNewPanelCallback) {
@@ -746,7 +745,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         };
       },
       getLeaveOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperLeave).append(getDirectionCssClass()).toString();
+        const cssClass = toCssClasses(this.cssClasses.panelWrapperLeave, getDirectionCssClass());
         return {
           onBeforeRunAnimation: (el) => {
             if (!this.isRenderModeList && el.parentElement) {
@@ -2520,50 +2519,44 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return getLocaleString("progressbar", this.getLocale());
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
+    return toCssClasses(super.getRootCss(), this.getShowNoEntriesPlaceholder() && this.cssClasses.empty);
   }
   public get cssHeader(): string {
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
-    return new CssClassBuilder()
-      .append(super.getCssHeader(this.cssClasses))
-      .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
-      .toString();
+    return toCssClasses(
+      super.getCssHeader(this.cssClasses),
+      this.hasTitleOnTop && showTab && this.cssClasses.headerTab
+    );
   }
   public getTabsContainerCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.tabsContainer).append(this.cssClasses.tabsContainerWithHeader, this.hasTitleOnTop).toString();
+    return toCssClasses(this.cssClasses.tabsContainer, this.hasTitleOnTop && this.cssClasses.tabsContainerWithHeader);
   }
   public getPanelWrapperCss(panel: PanelModel): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.panelWrapper, !panel || panel.visible)
-      .append(this.cssClasses.panelWrapperList, this.isRenderModeList)
-      .append(this.cssClasses.panelWrapperInRow, this.removePanelButtonLocation === "right")
-      .toString();
+    return toCssClasses(
+      (!panel || panel.visible) && this.cssClasses.panelWrapper,
+      this.isRenderModeList && this.cssClasses.panelWrapperList,
+      this.removePanelButtonLocation === "right" && this.cssClasses.panelWrapperInRow
+    );
   }
   public getPanelRemoveButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonRemove)
-      .append(this.cssClasses.buttonRemoveRight, this.removePanelButtonLocation === "right")
-      .toString();
+    return toCssClasses(
+      this.cssClasses.button,
+      this.cssClasses.buttonRemove,
+      this.removePanelButtonLocation === "right" && this.cssClasses.buttonRemoveRight
+    );
   }
   public getAddButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
-      .toString();
+    return toCssClasses(
+      this.cssClasses.button,
+      this.cssClasses.buttonAdd,
+      this.displayMode === "list" && this.cssClasses.buttonAdd + "--list-mode"
+    );
   }
   public getPrevButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
-      .toString();
+    return toCssClasses(this.cssClasses.buttonPrev, !this.isPrevButtonVisible && this.cssClasses.buttonPrevDisabled);
   }
   public getNextButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
-      .toString();
+    return toCssClasses(this.cssClasses.buttonNext, !this.isNextButtonVisible && this.cssClasses.buttonNextDisabled);
   }
   /**
    * A text displayed when Dynamic Panel contains no entries.
@@ -2730,12 +2723,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private getTabbedMenuCss(cssClasses?: any): string {
     const css = cssClasses ?? this.cssClasses;
-    return new CssClassBuilder()
-      .append(css.tabsRoot)
-      .append(css.tabsLeft, this.tabAlign === "left")
-      .append(css.tabsRight, this.tabAlign === "right")
-      .append(css.tabsCenter, this.tabAlign === "center")
-      .toString();
+    return toCssClasses(
+      css.tabsRoot,
+      this.tabAlign === "left" && css.tabsLeft,
+      this.tabAlign === "right" && css.tabsRight,
+      this.tabAlign === "center" && css.tabsCenter
+    );
   }
   private updateTabToolbarItemsPressedState() {
     if (!this.isRenderModeTab) return;

@@ -4,7 +4,7 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 /**
  * A base class for all matrix question types.
@@ -178,19 +178,18 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return !this.isMobile && !this.columns.some(col => !!col.width);
   }
   public getTableCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.columnsAutoWidth, this.columnsAutoWidth)
-      .append(this.cssClasses.noHeader, !this.showHeader)
-      .append(this.cssClasses.hasFooter, !!this.renderedTable?.showAddRowOnBottom)
-      .append(this.cssClasses.rootAlternateRows, this.alternateRows)
-      .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
-      .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.columnsAutoWidth && this.cssClasses.columnsAutoWidth,
+      !this.showHeader && this.cssClasses.noHeader,
+      !!this.renderedTable?.showAddRowOnBottom && this.cssClasses.hasFooter,
+      this.alternateRows && this.cssClasses.rootAlternateRows,
+      this.verticalAlign === "top" && this.cssClasses.rootVerticalAlignTop,
+      this.verticalAlign === "middle" && this.cssClasses.rootVerticalAlignMiddle
+    );
   }
   public getTableWrapperCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.tableWrapper)
-      .append(this.cssClasses.tableWrapperLeft, this.titleLocation == "left").toString();
+    return toCssClasses(this.cssClasses.tableWrapper, this.titleLocation == "left" && this.cssClasses.tableWrapperLeft);
   }
 
   /**

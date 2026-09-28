@@ -2,7 +2,7 @@ import { property } from "./decorators";
 import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { IListModel } from "./actions/list-model";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
 import { normalizeTextForSearch } from "./helpers";
@@ -249,26 +249,25 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public getListClass: () => string = () => {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemsContainer)
-      .append(this.cssClasses.itemsContainerFiltering, !!this.filterString && this.visibleActions.length !== this.visibleItems.length)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.itemsContainer,
+      !!this.filterString && this.visibleActions.length !== this.visibleItems.length && this.cssClasses.itemsContainerFiltering
+    );
   };
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     const isSelected = this.isItemSelected(itemValue);
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
-      .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
-      .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
-      .append(this.cssClasses.itemSelected, !itemValue.hasSubItems && isSelected)
-      .append(this.cssClasses.itemGroup, itemValue.hasSubItems)
-      .append(this.cssClasses.itemGroupSelected, itemValue.hasSubItems && isSelected)
-
-      .append(this.cssClasses.itemHovered, itemValue.isHovered)
-      .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
-      .append(itemValue.css)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.item,
+      !!itemValue.iconName && this.cssClasses.itemWithIcon,
+      this.isItemDisabled(itemValue) && this.cssClasses.itemDisabled,
+      this.isItemFocused(itemValue) && this.cssClasses.itemFocused,
+      !itemValue.hasSubItems && isSelected && this.cssClasses.itemSelected,
+      itemValue.hasSubItems && this.cssClasses.itemGroup,
+      itemValue.hasSubItems && isSelected && this.cssClasses.itemGroupSelected,
+      itemValue.isHovered && this.cssClasses.itemHovered,
+      this.textWrapEnabled && this.cssClasses.itemTextWrap,
+      itemValue.css
+    );
   };
 
   // public getItemIndent = (itemValue: any) => {

@@ -8,7 +8,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
@@ -704,12 +704,14 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
+  public getControlClass(): string {
     const maxLength = this.getMaxLength();
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99)
-      .append(this.cssClasses.isValueChanged, this._isValueChanged);
+    return toCssClasses(
+      super.getControlClass(),
+      !!maxLength && this.cssClasses.constrolWithCharacterCounter,
+      maxLength > 99 && this.cssClasses.characterCounterBig,
+      this._isValueChanged && this.cssClasses.isValueChanged
+    );
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

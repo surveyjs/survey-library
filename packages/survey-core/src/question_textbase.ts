@@ -2,7 +2,7 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Helpers } from "./helpers";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
 import { ISurveyImpl } from "./base-interfaces";
@@ -110,16 +110,14 @@ export class QuestionTextBase extends Question {
     return val;
   }
   protected getValueSeparator(): string { return ", "; }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle);
-  }
   public getControlClass(): string {
-    return this.getControlCssClassBuilder().toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
 
   //a11y

@@ -7,7 +7,7 @@ import { ComputedUpdater, Base } from "./base";
 import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector, isElementVisible } from "./utils/dom-utils";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
@@ -366,7 +366,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-closecamera",
         id: "sv-file-close-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.closeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.contextButton, this.cssClasses.closeCameraButton)) as any),
         action: () => {
           this.stopVideo();
         }
@@ -382,7 +382,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-takepicture",
         id: "sv-file-take-picture",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.contextButton, this.cssClasses.takePictureButton)) as any),
         locTitle: this.locTakePhotoCaption,
         showTitle: false,
         action: () => {
@@ -401,7 +401,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-changecamera",
         id: "sv-file-change-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.changeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => toCssClasses(this.cssClasses.contextButton, this.cssClasses.changeCameraButton)) as any),
         visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
         action: () => {
           this.flipCamera();
@@ -1015,56 +1015,47 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return questionPlainData;
   }
   public getImageWrapperCss(data: any): string {
-    return new CssClassBuilder().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+    return toCssClasses(this.cssClasses.imageWrapper, this.defaultImage(data) && this.cssClasses.imageWrapperDefaultImage);
   }
   protected getActionsContainerCss(css: any): string {
-    return new CssClassBuilder()
-      .append(css.actionsContainer)
-      .append(css.actionsContainerAnswered, this.isAnswered)
-      .toString();
+    return toCssClasses(css.actionsContainer, this.isAnswered && css.actionsContainerAnswered);
   }
   public getRemoveButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.removeFileButton)
-      .append(this.cssClasses.contextButton)
-      .toString();
+    return toCssClasses(this.cssClasses.removeFileButton, this.cssClasses.contextButton);
   }
   public getChooseFileCss(): string {
     const isAnswered = this.isAnswered;
-    return new CssClassBuilder()
-      .append(this.cssClasses.chooseFile)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .append(this.cssClasses.chooseFileAsText, !isAnswered)
-      .append(this.cssClasses.chooseFileAsTextDisabled, !isAnswered && this.isInputReadOnly)
-      .append(this.cssClasses.contextButton, isAnswered)
-      .append(this.cssClasses.chooseFileAsIcon, isAnswered)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.chooseFile,
+      this.isReadOnly && this.cssClasses.controlDisabled,
+      !isAnswered && this.cssClasses.chooseFileAsText,
+      !isAnswered && this.isInputReadOnly && this.cssClasses.chooseFileAsTextDisabled,
+      isAnswered && this.cssClasses.contextButton,
+      isAnswered && this.cssClasses.chooseFileAsIcon
+    );
   }
   public getReadOnlyFileCss(): string {
-    return new CssClassBuilder()
-      .append("form-control")
-      .append(this.cssClasses.placeholderInput)
-      .toString();
+    return toCssClasses("form-control", this.cssClasses.placeholderInput);
   }
   public get fileRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
-      .append(this.cssClasses.rootDragging, this.isDragging)
-      .append(this.cssClasses.rootAnswered, this.isAnswered)
-      .append(this.cssClasses.single, !this.allowMultiple)
-      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
-      .append(this.cssClasses.mobile, this.isMobile)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.isDisabledStyle && this.cssClasses.rootDisabled,
+      this.isReadOnlyStyle && this.cssClasses.rootReadOnly,
+      this.isPreviewStyle && this.cssClasses.rootPreview,
+      this.isDragging && this.cssClasses.rootDragging,
+      this.isAnswered && this.cssClasses.rootAnswered,
+      !this.allowMultiple && this.cssClasses.single,
+      !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]) && this.cssClasses.singleImage,
+      this.isMobile && this.cssClasses.mobile
+    );
   }
   public getFileDecoratorCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.fileDecorator,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDragging && this.cssClasses.fileDecoratorDrag
+    );
   }
 
   private onChange(src: any) {
@@ -1123,17 +1114,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return {
       getEnterOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
-        return { cssClass: pageClass ? new CssClassBuilder()
-          .append(`${pageClass}--enter-from-left`, this.navigationDirection == "left" || this.navigationDirection == "left-delete")
-          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString() : ""
+        return { cssClass: pageClass ? toCssClasses(
+          (this.navigationDirection == "left" || this.navigationDirection == "left-delete") && `${pageClass}--enter-from-left`,
+          this.navigationDirection == "right" && `${pageClass}--enter-from-right`) : ""
         };
       },
       getLeaveOptions: (page: QuestionFilePage) => {
         const pageClass = this.cssClasses.page;
         return {
-          cssClass: pageClass ? new CssClassBuilder()
-            .append(`${pageClass}--leave-to-left`, this.navigationDirection == "right")
-            .append(`${pageClass}--leave-to-right`, this.navigationDirection == "left").toString() : ""
+          cssClass: pageClass ? toCssClasses(
+            this.navigationDirection == "right" && `${pageClass}--leave-to-left`,
+            this.navigationDirection == "left" && `${pageClass}--leave-to-right`) : ""
         };
       },
       getAnimatedElement: (page: QuestionFilePage) => {

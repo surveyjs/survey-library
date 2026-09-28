@@ -17,7 +17,7 @@ import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { TextContextProcessor } from "./textPreProcessor";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -1170,7 +1170,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.contentPanel;
   }
   protected getCssRoot(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssRoot(cssClasses)).append(cssClasses.composite).toString();
+    return toCssClasses(super.getCssRoot(cssClasses), cssClasses.composite);
   }
   public get contentPanel(): PanelModel {
     return this.panelWrapper;

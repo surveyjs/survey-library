@@ -16,7 +16,7 @@ import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
@@ -1039,20 +1039,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   public getAddRowButtonCss(isEmptySection: boolean = false): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.emptyRowsButton, isEmptySection)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.button,
+      this.cssClasses.buttonAdd,
+      isEmptySection && this.cssClasses.emptyRowsButton
+    );
   }
   public getRemoveRowButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonRemove)
-      .toString();
+    return toCssClasses(this.cssClasses.button, this.cssClasses.buttonRemove);
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
+    return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
   }
 }
 

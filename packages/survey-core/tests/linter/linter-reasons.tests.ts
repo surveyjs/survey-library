@@ -757,6 +757,16 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
       }],
     },
   },
+  {
+    ruleId: "progress/incompatible-location", reason: "belowHeader",
+    json: {
+      headerView: "advanced",
+      showProgressBar: true,
+      progressBarType: "questions",
+      progressBarLocation: "belowheader",
+      elements: [{ type: "text", name: "q1" }],
+    },
+  },
 ];
 
 describe("linter reasons - the (ruleId, reason) table", () => {

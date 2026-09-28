@@ -7,7 +7,7 @@ import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
@@ -105,13 +105,12 @@ export class QuestionMatrixDropdownRenderedCell {
     this.classNameValue = val;
   }
   public get className(): string {
-    const builder = new CssClassBuilder().append(this.classNameValue);
-    if (this.hasQuestion) {
-      builder
-        .append(this.question.cssClasses.hasError, this.question.errors.length > 0)
-        .append(this.question.cssClasses.answered, this.question.isAnswered);
-    }
-    return builder.toString();
+    const hasQuestion = this.hasQuestion;
+    return toCssClasses(
+      this.classNameValue,
+      hasQuestion && this.question.errors.length > 0 && this.question.cssClasses.hasError,
+      hasQuestion && this.question.isAnswered && this.question.cssClasses.answered
+    );
   }
   public get cellQuestionWrapperClassName(): string {
     return this.cell.getQuestionWrapperClassName(this.matrix.cssClasses.cellQuestionWrapper);
@@ -123,7 +122,7 @@ export class QuestionMatrixDropdownRenderedCell {
     return this.hasQuestion && this.matrix?.isMobile;
   }
   public get responsiveTitleCss(): string {
-    return new CssClassBuilder().append(this.matrix.cssClasses.cellResponsiveTitle).toString();
+    return toCssClasses(this.matrix.cssClasses.cellResponsiveTitle);
   }
   public get showErrors(): boolean {
     return this.hasQuestion && this.matrix.isMobile;
@@ -169,12 +168,12 @@ export class QuestionMatrixDropdownRenderedCell {
   public calculateFinalClassName(matrixCssClasses: any): string {
     const questionCss = this.cell.question.cssClasses;
     // 'text-align': $data.isChoice ? 'center':
-    const builder = new CssClassBuilder()
-      .append(questionCss.itemValue, !!questionCss)
-      .append(questionCss.asCell, !!questionCss);
-    return builder.append(matrixCssClasses.cell, builder.isEmpty() && !!matrixCssClasses)
-      .append(matrixCssClasses.choiceCell, this.isChoice)
-      .toString();
+    const questionClasses = toCssClasses(!!questionCss && questionCss.itemValue, !!questionCss && questionCss.asCell);
+    return toCssClasses(
+      questionClasses,
+      !questionClasses && !!matrixCssClasses && matrixCssClasses.cell,
+      this.isChoice && matrixCssClasses.choiceCell
+    );
   }
   public focusIn(): void {
     if (this.question) {
@@ -220,17 +219,17 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return { "data-sv-drop-target-matrix-row": this.row.id };
   }
   public get className(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.row)
-      .append(this.cssClasses.errorRow, this.isErrorsRow)
-      .append(this.cssClasses.dataRow, !this.isDetailRow && !this.isErrorsRow)
-      .append(this.cssClasses.detailRow, this.isDetailRow)
-      .append(this.cssClasses.rowHasPanel, this.row?.hasPanel)
-      .append(this.cssClasses.expandedRow, this.row?.isDetailPanelShowing && !this.isDetailRow)
-      .append(this.cssClasses.rowHasEndActions, this.hasEndActions)
-      .append(this.cssClasses.ghostRow, this.isGhostRow)
-      .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.row,
+      this.isErrorsRow && this.cssClasses.errorRow,
+      !this.isDetailRow && !this.isErrorsRow && this.cssClasses.dataRow,
+      this.isDetailRow && this.cssClasses.detailRow,
+      this.row?.hasPanel && this.cssClasses.rowHasPanel,
+      this.row?.isDetailPanelShowing && !this.isDetailRow && this.cssClasses.expandedRow,
+      this.hasEndActions && this.cssClasses.rowHasEndActions,
+      this.isGhostRow && this.cssClasses.ghostRow,
+      this.isAdditionalClasses && this.cssClasses.rowAdditional
+    );
   }
   private rootElement: HTMLTableRowElement;
   public setRootElement(val: HTMLTableRowElement): void {
@@ -259,10 +258,7 @@ export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdo
     return {};
   }
   public get className(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.row)
-      .append(this.cssClasses.errorRow)
-      .toString();
+    return toCssClasses(this.cssClasses.row, this.cssClasses.errorRow);
   }
   public onAfterCreated(): void {
     const callback = () => {
@@ -290,10 +286,7 @@ export class QuestionMatrixDropdownRenderedEmptyRow extends QuestionMatrixDropdo
     return this.customId;
   }
   public get className(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.row)
-      .append(this.cssClasses.rowEmpty)
-      .toString();
+    return toCssClasses(this.cssClasses.row, this.cssClasses.rowEmpty);
   }
 }
 
@@ -597,8 +590,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     if (this.matrix.hasRowText) {
       const cell = this.createTextCell(this.matrix.getFooterText());
-      cell.className = new CssClassBuilder().append(cell.className)
-        .append(this.cssClasses.footerTotalCell).toString();
+      cell.className = toCssClasses(cell.className, this.cssClasses.footerTotalCell);
       this.footerRow.cells.push(cell);
     }
     var cells = this.matrix.visibleTotalRow.cells;
@@ -612,8 +604,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         if (cell.column) {
           this.setCellWidth(cell.column, editCell);
         }
-        editCell.className = new CssClassBuilder().append(editCell.className)
-          .append(this.cssClasses.footerCell).toString();
+        editCell.className = toCssClasses(editCell.className, this.cssClasses.footerCell);
         this.footerRow.cells.push(editCell);
       }
     }
@@ -684,20 +675,21 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   private getActionsCellClassName(cell: QuestionMatrixDropdownRenderedCell = null): string {
-    const classBuilder =
-      new CssClassBuilder()
-        .append(this.cssClasses.actionsCell)
-        .append(this.cssClasses.detailRowCell, cell?.isDetailRowCell)
-        .append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal);
+    const actionClasses: Array<string> = [];
     if (cell.isActionsCell) {
       const actions = (cell.item.value as ActionContainer).actions;
       if (this.cssClasses.actionsCellPrefix) {
         actions.forEach(action => {
-          classBuilder.append(this.cssClasses.actionsCellPrefix + "--" + action.id);
+          actionClasses.push(this.cssClasses.actionsCellPrefix + "--" + action.id);
         });
       }
     }
-    return classBuilder.toString();
+    return toCssClasses(
+      this.cssClasses.actionsCell,
+      cell?.isDetailRowCell && this.cssClasses.detailRowCell,
+      !this.matrix.isColumnLayoutHorizontal && this.cssClasses.verticalCell,
+      ...actionClasses
+    );
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end", isDetailRow: boolean = false) {
     const rowActions = this.getRowActions(rowIndex, location);
@@ -769,7 +761,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           id: "remove-row",
           css: "sv-action--remove-row",
           iconSize: "auto",
-          innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
+          innerCss: toCssClasses(this.matrix.cssClasses.button, this.matrix.cssClasses.buttonRemove),
           location: "end",
           iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
           showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
@@ -841,12 +833,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       res.cells.push(renderedCell);
       this.setCellWidth(null, renderedCell);
 
-      renderedCell.className = new CssClassBuilder()
-        .append(renderedCell.className)
-        .append(this.cssClasses.rowTextCell)
-        .append(this.cssClasses.columnTitleCell, !this.matrix.isColumnLayoutHorizontal)
-        .append(this.cssClasses.detailRowText, row.hasPanel)
-        .toString();
+      renderedCell.className = toCssClasses(
+        renderedCell.className,
+        this.cssClasses.rowTextCell,
+        !this.matrix.isColumnLayoutHorizontal && this.cssClasses.columnTitleCell,
+        row.hasPanel && this.cssClasses.detailRowText
+      );
     }
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
@@ -982,10 +974,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var lTitle = !!choice ? choice.locText : column.locTitle;
       var hCell = this.createTextCell(lTitle);
       hCell.column = column;
-      hCell.className = new CssClassBuilder()
-        .append(hCell.className)
-        .append(this.cssClasses.rowTextCell)
-        .append(this.cssClasses.columnTitleCell).toString();
+      hCell.className = toCssClasses(hCell.className, this.cssClasses.rowTextCell, this.cssClasses.columnTitleCell);
       res.cells.push(hCell);
     }
     var rows = this.matrix.visibleRows;
@@ -1044,12 +1033,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   private setItemCellCssClasses(cell: QuestionMatrixDropdownRenderedCell) {
-    cell.className = new CssClassBuilder()
-      .append(this.cssClasses.cell)
-      .append(this.cssClasses.itemCell)
-      .append(this.cssClasses.radioCell, cell.isRadio)
-      .append(this.cssClasses.checkboxCell, cell.isCheckbox)
-      .toString();
+    cell.className = toCssClasses(
+      this.cssClasses.cell,
+      this.cssClasses.itemCell,
+      cell.isRadio && this.cssClasses.radioCell,
+      cell.isCheckbox && this.cssClasses.checkboxCell
+    );
   }
   private createEditCell(
     cell: MatrixDropdownCell,
@@ -1076,12 +1065,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     res.row = cell.row;
     res.matrix = this.matrix;
     res.isErrorsCell = true;
-    res.className = new CssClassBuilder()
-      .append(this.cssClasses.cell)
-      .append(this.cssClasses.errorsCell)
-      .append(this.cssClasses.errorsCellTop, this.showCellErrorsTop)
-      .append(this.cssClasses.errorsCellBottom, this.showCellErrorsBottom)
-      .toString();
+    res.className = toCssClasses(
+      this.cssClasses.cell,
+      this.cssClasses.errorsCell,
+      this.showCellErrorsTop && this.cssClasses.errorsCellTop,
+      this.showCellErrorsBottom && this.cssClasses.errorsCellBottom
+    );
     return res;
   }
   private createMutlipleColumnsFooter(
@@ -1109,13 +1098,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return choices;
   }
   private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string, classMod?: string): void {
-    cell.className = new CssClassBuilder()
-      .append(this.cssClasses.headerCell)
-      .append(this.cssClasses.columnTitleCell, this.matrix.isColumnLayoutHorizontal)
-      .append(this.cssClasses.emptyCell, !!cell.isEmpty)
-      .append(this.cssClasses.cell + "--" + cellType, !!cellType)
-      .append(classMod, !!classMod)
-      .toString();
+    cell.className = toCssClasses(
+      this.cssClasses.headerCell,
+      this.matrix.isColumnLayoutHorizontal && this.cssClasses.columnTitleCell,
+      !!cell.isEmpty && this.cssClasses.emptyCell,
+      !!cellType && this.cssClasses.cell + "--" + cellType,
+      classMod
+    );
   }
   private createHeaderCell(
     column: MatrixDropdownColumn,
@@ -1155,11 +1144,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private createEmptyCell(isError: boolean = false): QuestionMatrixDropdownRenderedCell {
     const res = this.createTextCell(null);
     res.isEmpty = true;
-    res.className = new CssClassBuilder()
-      .append(this.cssClasses.cell)
-      .append(this.cssClasses.emptyCell)
-      .append(this.cssClasses.errorsCell, isError)
-      .toString();
+    res.className = toCssClasses(this.cssClasses.cell, this.cssClasses.emptyCell, isError && this.cssClasses.errorsCell);
     return res;
   }
 }

@@ -5,7 +5,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/dom-utils";
 
 export class CoverCell {
@@ -46,12 +46,12 @@ export class CoverCell {
     return this.cover.survey;
   }
   get css(): string {
-    const result = new CssClassBuilder()
-      .append(CoverCell.CLASSNAME)
-      .append(`${CoverCell.CLASSNAME}--${this.positionX}`)
-      .append(`${CoverCell.CLASSNAME}--${this.positionY}`)
-      .append(CoverCell.CLASSNAME + "--empty", this.isEmpty)
-      .toString();
+    const result = toCssClasses(
+      CoverCell.CLASSNAME,
+      `${CoverCell.CLASSNAME}--${this.positionX}`,
+      `${CoverCell.CLASSNAME}--${this.positionY}`,
+      this.isEmpty && CoverCell.CLASSNAME + "--empty"
+    );
 
     return result;
   }
@@ -112,14 +112,14 @@ export class Cover extends Base implements ILayoutElementModel {
   }
   private updateHeaderClasses(): void {
     const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
-    this.headerClasses = new CssClassBuilder()
-      .append("sv-header")
-      .append("sv-header--height-auto", !this.renderedHeight)
-      .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
-      .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", !backgroundColorNone && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__overlap", this.overlapEnabled)
-      .toString();
+    this.headerClasses = toCssClasses(
+      "sv-header",
+      !this.renderedHeight && "sv-header--height-auto",
+      backgroundColorNone && !this.backgroundImage && "sv-header__without-background",
+      backgroundColorNone && !this.titleColor && !this.descriptionColor && "sv-header__background-color--none",
+      !backgroundColorNone && !this.titleColor && !this.descriptionColor && "sv-header__background-color--custom",
+      this.overlapEnabled && "sv-header__overlap"
+    );
   }
   private updateContentClasses(): void {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
@@ -131,18 +131,18 @@ export class Cover extends Base implements ILayoutElementModel {
         this.maxWidth = parseFloat(maxWidthString) + "px";
       }
     }
-    this.contentClasses = new CssClassBuilder()
-      .append("sv-header__content")
-      .append("sv-header__content--static", useSurveyWidth)
-      .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
-      .toString();
+    this.contentClasses = toCssClasses(
+      "sv-header__content",
+      useSurveyWidth && "sv-header__content--static",
+      (this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive")) && "sv-header__content--responsive"
+    );
   }
   private updateBackgroundImageClasses(): void {
-    this.backgroundImageClasses = new CssClassBuilder()
-      .append("sv-header__background-image")
-      .append("sv-header__background-image--contain", this.backgroundImageFit === "contain")
-      .append("sv-header__background-image--tile", this.backgroundImageFit === "tile")
-      .toString();
+    this.backgroundImageClasses = toCssClasses(
+      "sv-header__background-image",
+      this.backgroundImageFit === "contain" && "sv-header__background-image--contain",
+      this.backgroundImageFit === "tile" && "sv-header__background-image--tile"
+    );
   }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header || {});

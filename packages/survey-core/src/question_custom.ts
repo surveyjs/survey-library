@@ -18,7 +18,7 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { TextContextProcessor } from "./textPreProcessor";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -1201,14 +1201,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected getCssRoot(cssClasses: any): string {
     // Panelless themes set isCompact and drop the question frame. A composite is shown as a panel card, so keep that frame.
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.compositeCompact, this.isCompact && this.getHasFrameV2())
-      .append(cssClasses.composite)
-      .toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      this.isCompact && this.getHasFrameV2() && cssClasses.compositeCompact,
+      cssClasses.composite
+    );
   }
   protected getCssHeader(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssHeader(cssClasses)).append(cssClasses.compositeHeader).toString();
+    return toCssClasses(super.getCssHeader(cssClasses), cssClasses.compositeHeader);
   }
 
   public get contentPanel(): PanelModel {

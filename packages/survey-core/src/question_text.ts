@@ -9,7 +9,7 @@ import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { QuestionValueType } from "./question";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask, IMaskLocaleChange } from "./mask/mask_utils";
@@ -279,7 +279,12 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) {
+      // With saveMaskedValue a string value is already masked: masking it again misreads its separators
+      // ("1.234,56" becomes "1,23" for a comma decimal separator). A raw value still has to be masked.
+      if (this.maskSettings.saveMaskedValue && typeof value === "string") return value;
+      return this.maskInstance.getMaskedValue(value);
+    }
     return super.getDisplayValueCore(keysAsText, value);
   }
   isLayoutTypeSupported(layoutType: string): boolean {
@@ -781,11 +786,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(super.getControlClass())
-      .append(this.cssClasses.isValueChanged, this._isValueChanged)
-      .append(this.cssClasses.hasMask, !this.maskTypeIsEmpty)
-      .toString();
+    return toCssClasses(
+      super.getControlClass(),
+      this._isValueChanged && this.cssClasses.isValueChanged,
+      !this.maskTypeIsEmpty && this.cssClasses.hasMask
+    );
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

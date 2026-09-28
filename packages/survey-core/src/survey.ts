@@ -65,7 +65,7 @@ import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
 import {
@@ -1425,16 +1425,9 @@ export class SurveyModel extends SurveyElementCore
   private cssValue: any = null;
   private updateCompletedPageCss() {
     this.containerCss = this.css.container;
-    this.completedCss = new CssClassBuilder().append(this.css.body)
-      .append(this.css.completedPage).toString(); // for completed page
-    this.completedBeforeCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.completedBeforePage)
-      .toString();
-    this.loadingBodyCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.bodyLoading)
-      .toString();
+    this.completedCss = toCssClasses(this.css.body, this.css.completedPage); // for completed page
+    this.completedBeforeCss = toCssClasses(this.css.body, this.css.completedBeforePage);
+    this.loadingBodyCss = toCssClasses(this.css.body, this.css.bodyLoading);
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
@@ -1471,9 +1464,11 @@ export class SurveyModel extends SurveyElementCore
     return this.css.title;
   }
   public get bodyCss(): string {
-    return new CssClassBuilder().append(this.css.body)
-      .append(this.css.bodyWithTimer, this.showTimer && this.state === "running")
-      .append(this.css.body + "--" + this.calculatedWidthMode).toString();
+    return toCssClasses(
+      this.css.body,
+      this.showTimer && this.state === "running" && this.css.bodyWithTimer,
+      this.css.body + "--" + this.calculatedWidthMode
+    );
   }
   public get bodyContainerCss(): string {
     return this.css.bodyContainer;
@@ -2280,8 +2275,13 @@ export class SurveyModel extends SurveyElementCore
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, this.locale);
   }
+  // The locale the survey is displayed in. `locale` is empty when the default locale is used,
+  // so renderers bind the root element's `lang` attribute to this value instead.
+  public get rootLang(): string {
+    return this.locale || surveyLocalization.defaultLocale || "en";
+  }
   public get localeDir(): string {
-    return surveyLocalization.localeDirections[this.locale];
+    return surveyLocalization.localeDirections[this.rootLang];
   }
   /**
    * Returns an array of locales whose translations are used in the survey.
@@ -2504,8 +2504,7 @@ export class SurveyModel extends SurveyElementCore
       top: "sv-logo--top",
       bottom: "sv-logo--bottom",
     };
-    return new CssClassBuilder().append(this.css.logo)
-      .append(logoClasses[this.logoPosition]).toString();
+    return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
   public get titleIsEmpty(): boolean {
     return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
@@ -2631,11 +2630,11 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() wrapperFormCss: string;
   public updateWrapperFormCss(): void {
-    this.wrapperFormCss = new CssClassBuilder()
-      .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
-      .append(this.css.rootWrapperFixed, !this.formScrollDisabled)
-      .toString();
+    this.wrapperFormCss = toCssClasses(
+      this.css.rootWrapper,
+      !!this.backgroundImage && this.css.rootWrapperHasImage,
+      !this.formScrollDisabled && this.css.rootWrapperFixed
+    );
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3237,11 +3236,11 @@ export class SurveyModel extends SurveyElementCore
     return "sv-progress-" + this.getEffectiveProgressBarType().toLowerCase();
   }
   public getProgressCssClasses(container: string = ""): string {
-    return new CssClassBuilder()
-      .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
-      .toString();
+    return toCssClasses(
+      this.css.progress,
+      this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
+      this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
+    );
   }
   private canShowProgressBar(): boolean {
     return (
@@ -5730,16 +5729,16 @@ export class SurveyModel extends SurveyElementCore
     // Read up front. `!animationEnabled || isReducedMotion` would skip the property while animations
     // are off, and Vue only re-renders properties a render actually touched.
     const reducedMotion = this.isReducedMotion;
-    return new CssClassBuilder()
-      .append(this.css.root)
-      .append(this.css.rootTheme)
-      .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
-      .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, reducedMotion || !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
-      .append(this.css.rootCompact, this.isCompact)
-      .append(this.css.rootFitToContainer, this.fitToContainer)
-      .toString();
+    return toCssClasses(
+      this.css.root,
+      this.css.rootTheme,
+      this.css.rootProgress + "--" + this.getEffectiveProgressBarType(),
+      this.isMobile && this.css.rootMobile,
+      (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
+      this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
+      this.isCompact && this.css.rootCompact,
+      this.fitToContainer && this.css.rootFitToContainer
+    );
   }
   private isSmoothScrollEnabled = false;
   // Read only after mount: during render the server cannot know the preference,

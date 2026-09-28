@@ -2577,17 +2577,6 @@ export class SurveyModel extends SurveyElementCore
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
   }
-  @property() private _isCompact: boolean = false;
-  public set isCompact(newVal: boolean) {
-    if (newVal !== this._isCompact) {
-      this._isCompact = newVal;
-      this.updateElementCss();
-      this.triggerResponsiveness(true);
-    }
-  }
-  public get isCompact(): boolean {
-    return this._isCompact;
-  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -5732,7 +5721,6 @@ export class SurveyModel extends SurveyElementCore
       this.isMobile && this.css.rootMobile,
       !settings.animationEnabled && this.css.rootAnimationDisabled,
       this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
-      this.isCompact && this.css.rootCompact,
       this.fitToContainer && this.css.rootFitToContainer
     );
   }
@@ -8763,12 +8751,10 @@ export class SurveyModel extends SurveyElementCore
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "header") {
+      if (key === "header" || key === "isPanelless") {
         return;
       }
-      if (key === "isPanelless") {
-        this.isCompact = theme[key];
-      } else if (key === "cssVariables") {
+      if (key === "cssVariables") {
         this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];
@@ -8788,6 +8774,7 @@ export class SurveyModel extends SurveyElementCore
     // so the renderers deliver the fresh resets in the same render as the theme.
     this.resetVariables = undefined;
     this.themeChanged(theme);
+    this.triggerResponsiveness(true);
   }
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));

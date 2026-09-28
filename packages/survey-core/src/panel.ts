@@ -270,7 +270,6 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return toCssClasses(
       this.panel.cssClasses.row,
-      this.panel["isCompact"] && this.panel.cssClasses.rowCompact,
       (this.panel.isPage || (this.panel as PanelModel).showPanelAsPage) && this.panel.cssClasses.pageRow,
       this.visibleElements.length > 1 && this.panel.cssClasses.rowMultiple
     );
@@ -674,14 +673,11 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   @property() visibleIf: string;
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
       classes.pageRow = css.pageRow;
-    }
-    if (!!css.rowCompact) {
-      classes.rowCompact = css.rowCompact;
     }
     if (!!css.row) {
       classes.row = css.row;

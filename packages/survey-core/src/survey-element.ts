@@ -970,9 +970,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !this.isDesignMode;
   }
 
-  protected get isCompact(): boolean {
-    return this.survey && (<SurveyModel>this.survey)["isCompact"];
-  }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
     if (<any>this.singleInput?.currentSingleElement === this) return true;
@@ -989,8 +986,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
     return toCssClasses(
-      this.getHasFrameV2() && !this.isCompact && cssClasses.withFrame,
-      this.isCompact && this.getHasFrameV2() && cssClasses.compact,
+      this.getHasFrameV2() && cssClasses.withFrame,
       !!this.isCollapsed && cssClasses.collapsed,
       isExpanadable && this.isAnimatingCollapseExpand && cssClasses.expandableAnimating,
       !!this.isExpanded && this.renderedIsExpanded && cssClasses.expanded,

@@ -2279,8 +2279,13 @@ export class SurveyModel extends SurveyElementCore
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, this.locale);
   }
+  // The locale the survey is displayed in. `locale` is empty when the default locale is used,
+  // so renderers bind the root element's `lang` attribute to this value instead.
+  public get rootLang(): string {
+    return this.locale || surveyLocalization.defaultLocale || "en";
+  }
   public get localeDir(): string {
-    return surveyLocalization.localeDirections[this.locale];
+    return surveyLocalization.localeDirections[this.rootLang];
   }
   /**
    * Returns an array of locales whose translations are used in the survey.

@@ -5,7 +5,7 @@ import { Question, QuestionValueType, getScalarValueType } from "./question";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
@@ -230,29 +230,29 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     return this.locLabelFalse.textOrHtml;
   }
   private getItemCssValue(css: any): string {
-    return new CssClassBuilder()
-      .append(css.item)
-      .append(css.itemOnError, this.hasCssError())
-      .append(css.itemDisabled, this.isDisabledStyle)
-      .append(css.itemReadOnly, this.isReadOnlyStyle)
-      .append(css.itemPreview, this.isPreviewStyle)
-      .append(css.itemHover, !this.isDesignMode)
-      .append(css.itemChecked, !!this.booleanValue)
-      .append(css.itemExchanged, !!this.swapOrder)
-      .append(css.itemIndeterminate, !this.isDeterminated)
-      .append(css.itemIsLabelRendered, !!this.isLabelRendered)
-      .toString();
+    return toCssClasses(
+      css.item,
+      this.hasCssError() && css.itemOnError,
+      this.isDisabledStyle && css.itemDisabled,
+      this.isReadOnlyStyle && css.itemReadOnly,
+      this.isPreviewStyle && css.itemPreview,
+      !this.isDesignMode && css.itemHover,
+      !!this.booleanValue && css.itemChecked,
+      !!this.swapOrder && css.itemExchanged,
+      !this.isDeterminated && css.itemIndeterminate,
+      !!this.isLabelRendered && css.itemIsLabelRendered
+    );
   }
 
   public getItemCss(): string {
     return this.getItemCssValue(this.cssClasses);
   }
   public getSwitchButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.switchButton)
-      .append(this.cssClasses.switchButtonChecked, !!this.booleanValue)
-      .append(this.cssClasses.switchButtonReadOnly, this.isReadOnlyStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.switchButton,
+      !!this.booleanValue && this.cssClasses.switchButtonChecked,
+      this.isReadOnlyStyle && this.cssClasses.switchButtonReadOnly
+    );
   }
   public getCheckboxItemCss() {
     return this.getItemCssValue(
@@ -271,14 +271,14 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   }
 
   public getLabelCss(checked: boolean): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isDisabledStyle)
-      .append(this.cssClasses.labelReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.labelPreview, this.isPreviewStyle)
-      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
-      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.label,
+      (this.booleanValue === !checked || this.isDisabledStyle) && this.cssClasses.disabledLabel,
+      this.isReadOnlyStyle && this.cssClasses.labelReadOnly,
+      this.isPreviewStyle && this.cssClasses.labelPreview,
+      !this.isIndeterminate && checked === !this.swapOrder && this.cssClasses.labelTrue,
+      !this.isIndeterminate && checked === this.swapOrder && this.cssClasses.labelFalse
+    );
   }
 
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {

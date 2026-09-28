@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
@@ -248,16 +248,16 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    */
   @property() choicesLazyLoadPageSize: number;
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlSelect, this.renderAs == "select")
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.renderAs == "select" && this.cssClasses.controlSelect,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview,
+      !!this.inputFieldComponentName && this.cssClasses.controlInputFieldComponent
+    );
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);

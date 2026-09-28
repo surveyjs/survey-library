@@ -64,7 +64,7 @@ import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
 import {
@@ -1434,16 +1434,9 @@ export class SurveyModel extends SurveyElementCore
   private cssValue: any = null;
   private updateCompletedPageCss() {
     this.containerCss = this.css.container;
-    this.completedCss = new CssClassBuilder().append(this.css.body)
-      .append(this.css.completedPage).toString(); // for completed page
-    this.completedBeforeCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.completedBeforePage)
-      .toString();
-    this.loadingBodyCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.bodyLoading)
-      .toString();
+    this.completedCss = toCssClasses(this.css.body, this.css.completedPage); // for completed page
+    this.completedBeforeCss = toCssClasses(this.css.body, this.css.completedBeforePage);
+    this.loadingBodyCss = toCssClasses(this.css.body, this.css.bodyLoading);
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
@@ -1480,9 +1473,11 @@ export class SurveyModel extends SurveyElementCore
     return this.css.title;
   }
   public get bodyCss(): string {
-    return new CssClassBuilder().append(this.css.body)
-      .append(this.css.bodyWithTimer, this.showTimer && this.state === "running")
-      .append(this.css.body + "--" + this.calculatedWidthMode).toString();
+    return toCssClasses(
+      this.css.body,
+      this.showTimer && this.state === "running" && this.css.bodyWithTimer,
+      this.css.body + "--" + this.calculatedWidthMode
+    );
   }
   public get bodyContainerCss(): string {
     return this.css.bodyContainer;
@@ -2518,8 +2513,7 @@ export class SurveyModel extends SurveyElementCore
       top: "sv-logo--top",
       bottom: "sv-logo--bottom",
     };
-    return new CssClassBuilder().append(this.css.logo)
-      .append(logoClasses[this.logoPosition]).toString();
+    return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
   public get titleIsEmpty(): boolean {
     return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
@@ -2645,11 +2639,11 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() wrapperFormCss: string;
   public updateWrapperFormCss(): void {
-    this.wrapperFormCss = new CssClassBuilder()
-      .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
-      .append(this.css.rootWrapperFixed, !this.formScrollDisabled)
-      .toString();
+    this.wrapperFormCss = toCssClasses(
+      this.css.rootWrapper,
+      !!this.backgroundImage && this.css.rootWrapperHasImage,
+      !this.formScrollDisabled && this.css.rootWrapperFixed
+    );
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3251,11 +3245,11 @@ export class SurveyModel extends SurveyElementCore
     return "sv-progress-" + this.getEffectiveProgressBarType().toLowerCase();
   }
   public getProgressCssClasses(container: string = ""): string {
-    return new CssClassBuilder()
-      .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
-      .toString();
+    return toCssClasses(
+      this.css.progress,
+      this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
+      this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
+    );
   }
   private canShowProgressBar(): boolean {
     return (
@@ -5747,16 +5741,16 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() rootCss: string;
   public getRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.css.root)
-      .append(this.css.rootTheme)
-      .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
-      .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
-      .append(this.css.rootCompact, this.isCompact)
-      .append(this.css.rootFitToContainer, this.fitToContainer)
-      .toString();
+    return toCssClasses(
+      this.css.root,
+      this.css.rootTheme,
+      this.css.rootProgress + "--" + this.getEffectiveProgressBarType(),
+      this.isMobile && this.css.rootMobile,
+      !settings.animationEnabled && this.css.rootAnimationDisabled,
+      this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
+      this.isCompact && this.css.rootCompact,
+      this.fitToContainer && this.css.rootFitToContainer
+    );
   }
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
@@ -9122,7 +9116,19 @@ Serializer.addClass("survey", [
   {
     name: "progressBarLocation",
     default: "auto",
-    choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    choices: (obj: any) => {
+      const choices = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+      if (!obj) return choices;
+      const headerView = obj.headerView;
+      const isAdvanced = headerView === undefined || headerView === null || headerView === ""
+        || isStrCiEqual(String(headerView), "advanced");
+      const type = typeof obj.progressBarType === "string" ? obj.progressBarType.toLowerCase() : "";
+      const isQuestionProgress = type === "questions"
+        || type === "requiredquestions" || type === "requiredquestion"
+        || type === "correctquestions" || type === "correctquestion";
+      if (isAdvanced && isQuestionProgress) return choices.filter(item => item !== "belowheader");
+      return choices;
+    },
     visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
@@ -9309,3 +9315,7 @@ Serializer.addClass("survey", [
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);
+const progressBarLocationProp = Serializer.findProperty("survey", "progressBarLocation");
+progressBarLocationProp.dependsOn = ["progressBarType", "headerView"];
+Serializer.findProperty("survey", "progressBarType").addDependedProperty("progressBarLocation");
+Serializer.findProperty("survey", "headerView").addDependedProperty("progressBarLocation");

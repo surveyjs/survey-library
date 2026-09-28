@@ -33,7 +33,7 @@
         v-if="!hideLabel"
         :class="question.cssClasses.controlLabel"
         :id="question.getItemLabelId(item)"
-        aria-hidden="true"
+        :aria-hidden="question.isItemLabelAriaHidden ? 'true' : undefined"
       >
         <SvComponent :is="'survey-string'" :locString="item.locText" />
       </span>

@@ -49,7 +49,7 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
     const id = this.question.getItemId(this.item);
     const itemClass = this.question.getItemClass(this.item);
     const labelClass = this.question.getLabelClass(this.item);
-    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel} id={this.question.getItemLabelId(this.item)} aria-hidden="true">{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
       <div className={itemClass} role="presentation" ref={this.rootRef}>

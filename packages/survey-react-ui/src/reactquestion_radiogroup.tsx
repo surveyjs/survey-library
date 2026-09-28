@@ -66,7 +66,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);
-    const itemLabel = !this.hideCaption ? <span className={controlLabelClass} id={this.question.getItemLabelId(this.item)} aria-hidden="true">{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const itemLabel = !this.hideCaption ? <span className={controlLabelClass} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
     return (
       <div
         className={itemClass}

@@ -46,24 +46,50 @@ export interface IDataVerificationOptions {
   // legitimate input.
   reportExpressionResultMismatches?: boolean;
 }
-// One finding of SurveyModel.setData(). It carries no text: the consumer is a developer, and type,
-// path, value, expressionResult and question identify the issue. A consumer that shows issues to
-// end users builds the text from type and path.
+/**
+ * Describes an issue reported by the [`SurveyModel.setData()`](/form-library/documentation/api-reference/survey-data-model#setData) method.
+ */
 export interface IDataIssue {
+  /**
+   * Identifies the issue type.
+   *
+   * Possible values:
+   *
+   * - `"unknownProperty"`\
+   * A data property does not correspond to a recognized survey result field.
+   *
+   * - `"invalidValueType"`\
+   * A value's type or structure does not match the question configuration.
+   *
+   * - `"invalidChoiceValue"`\
+   * A value does not match an available choice, matrix column or row, or rating value.
+   *
+   * - `"expressionResultMismatch"`\
+   * A value was added, changed, or removed by expressions, defaults, triggers, or other logic applied during loading.
+   */
   type: DataIssueType;
-  // The location of the value from the survey root, rendered for reading: "panel1[2].q1",
-  // "matrix.row1.col1". A key is written as is, so the path is ambiguous for a key that contains
-  // "." or "[": it is for reading and not meant to be parsed.
+  /**
+   * The value's location in the survey data, such as `"panel1[2].q1"` or `"matrix.row1.col1"`.
+   *
+   * This path is intended for display, not parsing, because property names are not escaped.
+   */
   path: string;
-  // The offending value as it is in the checked data.
+  /**
+   * The value associated with the issue.
+   *
+   * For an [`"expressionResultMismatch"`](#type) issue, this is the original value from the supplied data.
+   */
   value: any;
-  // expressionResultMismatch only: the value the model holds instead. undefined when the model
-  // dropped the value.
+  /**
+   * The value stored in the survey after loading.
+   *
+   * This property applies only to [`"expressionResultMismatch"`](#type) issues and is `undefined` if the value was removed.
+   */
   expressionResult?: any;
-  // The question that owns the location. For a value check: the instance that holds the value, the
-  // cell question or the panel item question for a nested one. For an expressionResultMismatch: the
-  // question that owns the ROOT key of the location, whatever the depth, because the comparison does
-  // not walk instances. Undefined for an unknown root property and for a mismatch whose root key
-  // no question owns (a calculated value, a stray key).
+  /**
+   * The question associated with the issue, or `undefined` if the data property does not correspond to a question.
+   *
+   * For nested values, this is the cell or panel question. For an [`"expressionResultMismatch"`](#type) issue, it is the question associated with the root data property.
+   */
   question?: Question;
 }

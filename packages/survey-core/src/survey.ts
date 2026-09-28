@@ -4684,32 +4684,20 @@ export class SurveyModel extends SurveyElementCore
     context.finish();
     return context.runningResult;
   }
-  // Assigns a response exactly the way `survey.data = data` does and returns what is wrong with it
-  // against the form definition; an empty array when no applicable check found anything, never
-  // undefined.
-  // The survey receives a deep copy, a JSON round trip: the caller's object is never modified, a
-  // Date reaches the model as its ISO string and a class instance as a plain object. null and
-  // undefined clear the data, as with the setter.
-  // The assignment keeps every effect of the setter: value-changed events, conditions, triggers,
-  // a new current page when a condition hides the current one, answered pages marked as shown.
-  // Then the model is initialized the way rendering would, every page visible or not, dynamic rows
-  // and panel items included, with their creation events, default values and triggers, and the
-  // checks run on the data the model holds after that. The checks themselves change nothing: no
-  // validation event, no errors, no focus, no collapse or expand, no page change.
-  // The three value checks are on unless an option is set to false: root keys and nested keys that
-  // nobody owns, values of the wrong shape, unknown choices, columns, rows and rate values.
-  // keepIncorrectValues is ignored: it is not a JSON property of the form, so it is not part of the
-  // definition the data is checked against.
-  // An empty result does not mean "this response is valid": required questions, validators and the
-  // validation events are not run, the choices check is skipped for a question whose choicesByUrl has
-  // not loaded, that allows custom choices or that shares a valueName, and a value that is a class
-  // instance or a File is not checked. The questions inside the panels of choice items (a checkbox
-  // or radiogroup whose choices have elements) are not reached yet either; promts/misc/nested-walk.md
-  // is the task that adds them. validate() is the method for a form being filled in.
-  // reportExpressionResultMismatches is off unless it is set to true. It compares the response with
-  // survey.data after loading and reports every difference, see collectExpressionResultMismatches().
-  // With null or undefined the response is compared with {}, so every default the model adds is
-  // reported.
+  /**
+   * Loads survey data, checks it against the survey definition, and returns an array of [detected issues](/form-library/documentation/api-reference/idataissue).
+   *
+   * This method applies the same survey logic as direct assignment to the [`data`](#data) property, then checks the resulting values and reports issues. Use the `options` parameter to configure these checks.
+   *
+   * This method does not run the validation rules defined in the JSON schema. To run them, call the [`validate()`](#validate) method separately.
+   * @param data A JSON-serializable object with survey answers.
+   * @param options *(Optional)* Specifies which issues to report.
+   * @param {boolean} options.reportUnknownProperties Reports data properties that do not correspond to a question or another recognized survey result field. Default value: `true`
+   * @param {boolean} options.reportInvalidValueTypes Reports values whose type or structure does not match the question configuration. Default value: `true`
+   * @param {boolean} options.reportInvalidChoiceValues Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true`
+   * @param {boolean} options.reportExpressionResultMismatches Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false`
+   * @returns An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+   */
   public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
     const hasData = data !== undefined && data !== null;
     // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model

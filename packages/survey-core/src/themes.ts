@@ -1,5 +1,6 @@
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
 import { legacyCssVariables } from "./legacy-vars";
+import DefaultLightPanelless from "./themes/default-light-panelless";
 
 export type ImageFit = "auto" | "contain" | "cover";
 export type ImageAttachment = "fixed" | "scroll";
@@ -320,6 +321,15 @@ function initDefaultCssVariables(convertedCssVariable: { [index: string]: string
 
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
+  const inputKeys = new Set(Object.keys(newCssVariable));
+  if (isPanelless) {
+    const panellessCssVariables = DefaultLightPanelless.cssVariables;
+    Object.keys(panellessCssVariables).forEach((key) => {
+      if (newCssVariable[key] === undefined) {
+        newCssVariable[key] = panellessCssVariables[key];
+      }
+    });
+  }
   const convertedCssVariable: { [index: string]: string } = {};
   patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
   initDefaultCssVariables(convertedCssVariable, isPanelless);
@@ -364,7 +374,7 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
   patchComponentRadiusCssVariables(newCssVariable, convertedCssVariable);
 
   Object.keys(convertedCssVariable).forEach((key) => {
-    if (newCssVariable[key] === undefined) {
+    if (!inputKeys.has(key)) {
       newCssVariable[key] = convertedCssVariable[key];
     }
   });

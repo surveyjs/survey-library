@@ -1832,7 +1832,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.unknownProperties || !Array.isArray(val)) return true;
+    if (!context.checks.reportUnknownProperties || !Array.isArray(val)) return true;
     const panels = this.panels;
     for (let i = 0; i < panels.length && i < val.length; i++) {
       if (!Helpers.isValueObject(val[i], true)) continue;

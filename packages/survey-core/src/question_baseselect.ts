@@ -2325,11 +2325,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (context.checks.valueTypes && !this.isValueShapeCorrect(val)) {
+    if (context.checks.reportInvalidValueTypes && !this.isValueShapeCorrect(val)) {
       context.addIssue("invalidValueType", undefined, val, this);
       return false;
     }
-    if (!context.checks.choiceValues) return true;
+    if (!context.checks.reportInvalidChoiceValues) return true;
     // The guards below are about the definition and not about the value: a choicesByUrl that has
     // not loaded, a question that allows custom choices, a valueName shared by several questions.
     // The choices of such a question are not known here, so nothing is reported.

@@ -218,7 +218,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.valueTypes) return true;
+    if (!context.checks.reportInvalidValueTypes) return true;
     if (!(val instanceof Object) && (val == this.getValueTrue() || val == this.getValueFalse())) return true;
     context.addIssue("invalidValueType", undefined, val, this);
     return false;

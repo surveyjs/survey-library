@@ -59,7 +59,7 @@ export function callValidateAndSetData(): Array<boolean> {
 
   const question = new QuestionTextModel("q");
   res.push(question.validate(true, false, false, undefined, false));
-  res.push(question.isValueCorrect({ unknownProperties: true }));
+  res.push(question.isValueCorrect({ reportUnknownProperties: true }));
 
   res.push(new QuestionWithShortOverride("q").validate(true));
   res.push(new PanelWithOverride("p").validate(true, false));
@@ -70,12 +70,12 @@ export function callValidateAndSetData(): Array<boolean> {
   const path: string = issues.length > 0 ? issues[0].path : "";
   const expressionResult: any = issues.length > 0 ? issues[0].expressionResult : undefined;
   res.push(path === "" && expressionResult === undefined);
-  const options: IDataVerificationOptions = { unknownProperties: false };
+  const options: IDataVerificationOptions = { reportUnknownProperties: false };
   const withOptions: Array<IDataIssue> = survey.setData({}, options);
   res.push(withOptions.length === 0);
-  res.push(survey.setData({}, { valueTypes: false }).length === 0);
-  res.push(survey.setData({}, { choiceValues: false }).length === 0);
-  res.push(survey.setData({}, { expressionResultMismatches: true }).length === 0);
+  res.push(survey.setData({}, { reportInvalidValueTypes: false }).length === 0);
+  res.push(survey.setData({}, { reportInvalidChoiceValues: false }).length === 0);
+  res.push(survey.setData({}, { reportExpressionResultMismatches: true }).length === 0);
   res.push(survey.setData(null).length === 0);
 
   // @ts-expect-error an unknown option member is not accepted, so this fixture is really type-checked

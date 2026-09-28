@@ -257,14 +257,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     // A row of another question that shares the value is checked by that question.
     for (const key of Object.keys(val)) {
       if (this.hasValueKey(key)) {
-        if (context.checks.valueTypes && !this.isRowValueCorrect(val[key])) {
+        if (context.checks.reportInvalidValueTypes && !this.isRowValueCorrect(val[key])) {
           context.addIssue("invalidValueType", key, val[key], this);
         }
       } else {
         if (!this.isValueKeyKnown(key)) unknownKeys.push(key);
       }
     }
-    if (context.checks.unknownProperties) {
+    if (context.checks.reportUnknownProperties) {
       unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
     }
     return true;

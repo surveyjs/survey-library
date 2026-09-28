@@ -701,7 +701,7 @@ export class QuestionMatrixModel
         continue;
       }
       // A row of another matrix that shares the value is checked by that matrix.
-      if (!this.hasValueKey(key) || !context.checks.choiceValues) continue;
+      if (!this.hasValueKey(key) || !context.checks.reportInvalidChoiceValues) continue;
       const cell = val[key];
       const isArrayCell = this.isMultiSelect && Array.isArray(cell);
       const cellValues = isArrayCell ? cell : [cell];
@@ -712,7 +712,7 @@ export class QuestionMatrixModel
       });
       context.popSegment();
     }
-    if (context.checks.unknownProperties) {
+    if (context.checks.reportUnknownProperties) {
       unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
     }
     return true;

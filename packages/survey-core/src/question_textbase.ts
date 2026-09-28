@@ -38,7 +38,7 @@ export class QuestionTextBase extends Question {
     if (!super.verifyValueCore(val, context)) return false;
     // A custom widget and a question derived from this one, a JSON editor built on a comment question
     // for example, may keep a value of any shape, so only a numeric input reports the value shape.
-    if (!context.checks.valueTypes || !!this.customWidget) return true;
+    if (!context.checks.reportInvalidValueTypes || !!this.customWidget) return true;
     if (this.getValueType() !== "number" || this.isValueOfValueType(val)) return true;
     context.addIssue("invalidValueType", undefined, val, this);
     return false;

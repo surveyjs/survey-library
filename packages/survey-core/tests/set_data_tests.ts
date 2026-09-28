@@ -299,22 +299,22 @@ describe("setData: options", () => {
     expect(types.sort(), "the calculated value is not reported").toEqual(["invalidChoiceValue", "invalidValueType", "unknownProperty"]);
   });
   test("A value check set to false is not run", () => {
-    expect(createSurvey(json).setData(data, { unknownProperties: false }).map(i => i.type).sort())
+    expect(createSurvey(json).setData(data, { reportUnknownProperties: false }).map(i => i.type).sort())
       .toEqual(["invalidChoiceValue", "invalidValueType"]);
-    expect(createSurvey(json).setData(data, { valueTypes: false }).map(i => i.type).sort())
+    expect(createSurvey(json).setData(data, { reportInvalidValueTypes: false }).map(i => i.type).sort())
       .toEqual(["invalidChoiceValue", "unknownProperty"]);
-    expect(createSurvey(json).setData(data, { choiceValues: false }).map(i => i.type).sort())
+    expect(createSurvey(json).setData(data, { reportInvalidChoiceValues: false }).map(i => i.type).sort())
       .toEqual(["invalidValueType", "unknownProperty"]);
-    expect(createSurvey(json).setData(data, { unknownProperties: true, valueTypes: true, choiceValues: true }).length,
+    expect(createSurvey(json).setData(data, { reportUnknownProperties: true, reportInvalidValueTypes: true, reportInvalidChoiceValues: true }).length,
       "true is the default").toBe(3);
   });
-  test("expressionResultMismatches: true turns the diagnostic on", () => {
-    const issues = createSurvey(json).setData(data, { expressionResultMismatches: true });
+  test("reportExpressionResultMismatches: true turns the diagnostic on", () => {
+    const issues = createSurvey(json).setData(data, { reportExpressionResultMismatches: true });
     expect(issues.map(i => i.type).sort()).toEqual(["expressionResultMismatch", "invalidChoiceValue", "invalidValueType", "unknownProperty"]);
     const mismatch = issues.filter(issue => issue.type === "expressionResultMismatch")[0];
     expect(mismatch.path).toBe("calc");
     expect(mismatch.expressionResult).toBe(2);
-    expect(createSurvey(json).setData(data, { expressionResultMismatches: false }).length, "false is the default").toBe(3);
+    expect(createSurvey(json).setData(data, { reportExpressionResultMismatches: false }).length, "false is the default").toBe(3);
   });
   test("keepIncorrectValues changes nothing for setData() and isValueCorrect(); it governs clearing only", () => {
     const survey = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] });
@@ -372,7 +372,7 @@ describe("setData: the copy of the data", () => {
   test("The data is copied through JSON: a Date arrives as its ISO string, a class instance as a plain object", () => {
     const survey = createSurvey({ elements: [{ type: "text", name: "d", inputType: "date" }, { type: "text", name: "c" }] });
     const data = { d: new Date(Date.UTC(2020, 0, 2)), c: new CustomValue(1) };
-    const issues = survey.setData(data, { expressionResultMismatches: true });
+    const issues = survey.setData(data, { reportExpressionResultMismatches: true });
     expect(survey.data.d, "a string, never a Date").toBe("2020-01-02T00:00:00.000Z");
     expect(survey.data.c instanceof CustomValue, "not the class instance").toBe(false);
     expect(survey.data.c, "a plain object").toEqual({ id: 1 });
@@ -462,7 +462,7 @@ describe("setData: the same assignment as survey.data =", () => {
     const survey = createSurvey(json);
     const data = { q1: "z", m: [{ c: "a" }], dp: [{ t: "x" }] };
     const copy = JSON.parse(JSON.stringify(data));
-    survey.setData(data, { expressionResultMismatches: true });
+    survey.setData(data, { reportExpressionResultMismatches: true });
     expect(survey.data.m, "the model applied the default").toEqual([{ c: "a", c2: "cv" }]);
     expect(data, "nested objects included").toEqual(copy);
   });
@@ -491,9 +491,9 @@ describe("setData: null", () => {
       expect(survey.data.q1, String(value) + ": the answer is gone").toBeUndefined();
     });
   });
-  test("With expressionResultMismatches the data is compared with {}, so every default is reported", () => {
+  test("With reportExpressionResultMismatches the data is compared with {}, so every default is reported", () => {
     const survey = createSurvey(json);
-    const issues = survey.setData(null, { expressionResultMismatches: true });
+    const issues = survey.setData(null, { reportExpressionResultMismatches: true });
     expect(survey.data).toEqual({ m: [{ c: "cv" }], calc: 2 });
     expect(shortIssues(issues)).toEqual([
       { type: "expressionResultMismatch", path: "m", value: undefined },
@@ -540,7 +540,7 @@ describe("setData: initialization", () => {
     expect(survey.setData(nestedData), "the same issues").toEqual(first);
     // Without question: it is a different instance in each model.
     const withResult = (issues: Array<IDataIssue>) => shortIssues(issues).map((issue, index) => ({ ...issue, expressionResult: issues[index].expressionResult }));
-    const options = { expressionResultMismatches: true };
+    const options = { reportExpressionResultMismatches: true };
     expect(withResult(createSurvey(nestedJson).setData(nestedData, options)), "two fresh models, the same list")
       .toEqual(withResult(createSurvey(nestedJson).setData(nestedData, options)));
   });
@@ -555,7 +555,7 @@ describe("setData: initialization", () => {
       (<any>byAssignment.getQuestionByName("panel")).panels;
     });
     const survey = createSurvey(nestedJson);
-    const options = { expressionResultMismatches: true };
+    const options = { reportExpressionResultMismatches: true };
     expect(survey.setData(nestedData, options).map(issue => issue.path), "the first call")
       .toEqual(["matrix[0].zzz", "matrix[0].c2", "panel[0].q2"]);
     expect(survey.setData(nestedData, options).map(issue => issue.path), "the second call")
@@ -583,7 +583,7 @@ describe("setData: initialization", () => {
 });
 
 describe("setData: the expressionResultMismatch diagnostic", () => {
-  const mismatches = { expressionResultMismatches: true };
+  const mismatches = { reportExpressionResultMismatches: true };
   test("A calculated value with includeIntoResult is reported as added", () => {
     const survey = createSurvey({
       calculatedValues: [{ name: "calc", expression: "1+1", includeIntoResult: true }],

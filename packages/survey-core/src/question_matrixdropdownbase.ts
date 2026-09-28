@@ -1596,7 +1596,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.unknownProperties) return true;
+    if (!context.checks.reportUnknownProperties) return true;
     // allRows generates the rows and returns all of them in data order, hidden ones included:
     // their values are in the data and, for a dynamic matrix, the index into a filtered array is
     // not the data index.

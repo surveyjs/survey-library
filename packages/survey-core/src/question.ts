@@ -191,7 +191,7 @@ export interface IValidationContextParams {
 }
 
 // Everything on: the value checks run all three unless the caller turns one off.
-const allValueChecks: IDataVerificationOptions = { valueTypes: true, choiceValues: true, unknownProperties: true };
+const allValueChecks: IDataVerificationOptions = { reportInvalidValueTypes: true, reportInvalidChoiceValues: true, reportUnknownProperties: true };
 
 // Renders a location for reading: the segments joined with ".", a number as "[n]" without a dot
 // before it. A string segment is written as is, so the result is ambiguous for a key that contains
@@ -271,9 +271,9 @@ class VerifyDataContext implements IVerifyDataContext {
 // The three value checks are on unless a member is set to false.
 export function createVerifyDataContext(options: IDataVerificationOptions): IVerifyDataContext {
   const checks: IDataVerificationOptions = {
-    valueTypes: options?.valueTypes !== false,
-    choiceValues: options?.choiceValues !== false,
-    unknownProperties: options?.unknownProperties !== false
+    reportInvalidValueTypes: options?.reportInvalidValueTypes !== false,
+    reportInvalidChoiceValues: options?.reportInvalidChoiceValues !== false,
+    reportUnknownProperties: options?.reportUnknownProperties !== false
   };
   return new VerifyDataContext(checks);
 }
@@ -2904,7 +2904,7 @@ export class Question extends SurveyElement<Question>
   // its value that nobody owns. It never walks into the nested instances: in validate() a nested
   // cell reports its own error on itself and the container must not get a second error for it.
   public verifyOwnValue(context: IVerifyDataContext): void {
-    if (context.checks.valueTypes) {
+    if (context.checks.reportInvalidValueTypes) {
       const valueInData = this.getIncorrectValueInData();
       if (valueInData !== undefined) {
         context.addIssue("invalidValueType", undefined, valueInData, this);
@@ -2930,7 +2930,7 @@ export class Question extends SurveyElement<Question>
   // clearIncorrectValues() removes what any check reports, an unknown property included, and keeps
   // an unknown choice when keepIncorrectValues asks for it.
   protected getClearIncorrectValuesChecks(): IDataVerificationOptions {
-    return { ...allValueChecks, choiceValues: !this.isKeepIncorrectValues };
+    return { ...allValueChecks, reportInvalidChoiceValues: !this.isKeepIncorrectValues };
   }
   // keepIncorrectValues is not a JSON property of the form, so setData() and isValueCorrect()
   // ignore it. It is read by clearIncorrectValues() only.
@@ -2955,7 +2955,7 @@ export class Question extends SurveyElement<Question>
   // and returns true, so that a subclass still reports what it checks (a matrixdropdown reports its
   // unknown row names even when a row has an unknown cell key).
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
-    if (context.checks.valueTypes && !this.isDataValueCorrect(val)) {
+    if (context.checks.reportInvalidValueTypes && !this.isDataValueCorrect(val)) {
       context.addIssue("invalidValueType", undefined, val, this);
       return false;
     }

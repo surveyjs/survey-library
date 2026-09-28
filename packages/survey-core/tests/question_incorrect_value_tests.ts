@@ -225,7 +225,7 @@ describe("Question.isValueCorrect", () => {
     // The name of a detail question that stores its value under a valueName is not a known key.
     const issues = survey.setData({ q: [{ c: "x", detail: "y" }] });
     expect(q.isValueCorrect(), "the question name is not the key when valueName is set").toBe(false);
-    expect(q.isValueCorrect({ unknownProperties: false }), "with the check off").toBe(true);
+    expect(q.isValueCorrect({ reportUnknownProperties: false }), "with the check off").toBe(true);
     expect(issues.length, "one issue").toBe(1);
     expect(issues[0].type, "the issue type").toBe("unknownProperty");
     expect(issues[0].path, "the issue location").toBe("q[0].detail");
@@ -248,7 +248,7 @@ describe("Question.isValueCorrect", () => {
       expect(issues[0].type, label + ": the issue type").toBe("unknownProperty");
       expect(issues[0].path, label + ": the issue location").toBe(path);
       expect(survey.data, label + ": setData() keeps the data as given").toEqual({ q: value });
-      expect(survey.getQuestionByName("q").isValueCorrect({ unknownProperties: false }), label + ": with the check off").toBe(true);
+      expect(survey.getQuestionByName("q").isValueCorrect({ reportUnknownProperties: false }), label + ": with the check off").toBe(true);
     });
   });
   test("The checks reach the nested questions", () => {
@@ -278,11 +278,11 @@ describe("Question.isValueCorrect", () => {
     expect(new IncorrectValueError(null, q).getText(), "the default text").toBe("The value is incorrect.");
     expect(q.errors.length, "the library itself sets no such error").toBe(0);
   });
-  test("choiceValues: false does not report an unknown choice", () => {
+  test("reportInvalidChoiceValues: false does not report an unknown choice", () => {
     const survey = createSurvey({ type: "dropdown", choices: ["a", "b"] });
-    expect(survey.setData({ q: "z" }, { choiceValues: false }), "not reported by setData()").toEqual([]);
+    expect(survey.setData({ q: "z" }, { reportInvalidChoiceValues: false }), "not reported by setData()").toEqual([]);
     expect(survey.getQuestionByName("q").isValueCorrect(), "reported by default").toBe(false);
-    expect(survey.getQuestionByName("q").isValueCorrect({ choiceValues: false }), "isValueCorrect").toBe(true);
+    expect(survey.getQuestionByName("q").isValueCorrect({ reportInvalidChoiceValues: false }), "isValueCorrect").toBe(true);
   });
   test("A text or comment question keeps a value of another shape, a question derived from it may store it", () => {
     const cases: Array<[string, any, any]> = [

@@ -31,12 +31,12 @@ export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidCho
 export interface IDataVerificationOptions {
   // A key of the data that no question, valueName, comment / totals suffix or calculated value
   // with includeIntoResult owns. Root keys and keys inside a container value alike.
-  unknownProperties?: boolean;
+  reportUnknownProperties?: boolean;
   // The value has the JSON shape the question stores: a numeric input does not hold "abc",
   // a dynamic matrix does not hold a scalar row.
-  valueTypes?: boolean;
+  reportInvalidValueTypes?: boolean;
   // The value refers to an existing choice, matrix column, row or rate value.
-  choiceValues?: boolean;
+  reportInvalidChoiceValues?: boolean;
   // setData() only: a question value check ignores it. Unlike the members above it is off unless it
   // is set to true. Reports every place where survey.data after loading differs from the response.
   // Despite the name, the mismatch is not limited to expressions: it is anything the model added,
@@ -44,7 +44,7 @@ export interface IDataVerificationOptions {
   // condition. A diagnostic about what the model did to the input, not a verdict on it. Off by
   // default: a valid partial response receives defaults, so the report would never be empty for
   // legitimate input.
-  expressionResultMismatches?: boolean;
+  reportExpressionResultMismatches?: boolean;
 }
 // One finding of SurveyModel.setData(). It carries no text: the consumer is a developer, and type,
 // path, value, expressionResult and question identify the issue. A consumer that shows issues to

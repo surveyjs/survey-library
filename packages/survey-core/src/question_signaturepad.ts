@@ -79,7 +79,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.valueTypes) return true;
+    if (!context.checks.reportInvalidValueTypes) return true;
     // A signature is a string: the data url or, with storeDataAsText off, the uploaded file url.
     if (typeof val === "string") return true;
     context.addIssue("invalidValueType", undefined, val, this);

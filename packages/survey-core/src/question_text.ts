@@ -258,7 +258,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.valueTypes || !!this.customWidget || ["date", "datetime-local", "month"].indexOf(this.inputType) < 0) return true;
+    if (!context.checks.reportInvalidValueTypes || !!this.customWidget || ["date", "datetime-local", "month"].indexOf(this.inputType) < 0) return true;
     if (!isNaN(this.createDate(val).getTime())) return true;
     context.addIssue("invalidValueType", undefined, val, this);
     return false;

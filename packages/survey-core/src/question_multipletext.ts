@@ -625,7 +625,7 @@ export class QuestionMultipleTextModel extends Question
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.unknownProperties) return true;
+    if (!context.checks.reportUnknownProperties) return true;
     Object.keys(val).forEach(key => {
       if (this.isValueKeyKnown(key)) return;
       context.addIssue("unknownProperty", key, val[key], this);

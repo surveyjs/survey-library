@@ -4706,7 +4706,7 @@ export class SurveyModel extends SurveyElementCore
   // instance or a File is not checked. The questions inside the panels of choice items (a checkbox
   // or radiogroup whose choices have elements) are not reached yet either; promts/misc/nested-walk.md
   // is the task that adds them. validate() is the method for a form being filled in.
-  // expressionResultMismatches is off unless it is set to true. It compares the response with
+  // reportExpressionResultMismatches is off unless it is set to true. It compares the response with
   // survey.data after loading and reports every difference, see collectExpressionResultMismatches().
   // With null or undefined the response is compared with {}, so every default the model adds is
   // reported.
@@ -4719,7 +4719,7 @@ export class SurveyModel extends SurveyElementCore
     const context = createVerifyDataContext(options);
     this.initializeForVerification();
     this.verifyDataCore(context);
-    if (options?.expressionResultMismatches === true) {
+    if (options?.reportExpressionResultMismatches === true) {
       this.collectExpressionResultMismatches(snapshot, this.data, context);
     }
     return context.issues;
@@ -4728,7 +4728,7 @@ export class SurveyModel extends SurveyElementCore
     this.pages.forEach(page => page.initializeForVerification());
   }
   private verifyDataCore(context: IVerifyDataContext): void {
-    if (context.checks.unknownProperties) {
+    if (context.checks.reportUnknownProperties) {
       const data = this.data;
       for (const key in data) {
         if (this.isKnownRootKey(key)) continue;

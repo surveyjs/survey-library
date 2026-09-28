@@ -579,7 +579,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.valueTypes) return true;
+    if (!context.checks.reportInvalidValueTypes) return true;
     // A value is a file entry or an array of them. An entry is either a file object or a string:
     // a file url or the file content, the shape loadPreview() and the file editors in Survey Creator use.
     const files = Array.isArray(val) ? val : [val];

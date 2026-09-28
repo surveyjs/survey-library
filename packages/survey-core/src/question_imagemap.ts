@@ -171,11 +171,11 @@ export class QuestionImageMapModel extends Question {
 
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (context.checks.valueTypes && Array.isArray(val) !== this.isMultiSelect) {
+    if (context.checks.reportInvalidValueTypes && Array.isArray(val) !== this.isMultiSelect) {
       context.addIssue("invalidValueType", undefined, val, this);
       return false;
     }
-    if (!context.checks.choiceValues) return true;
+    if (!context.checks.reportInvalidChoiceValues) return true;
     const values = Array.isArray(val) ? val : [val];
     values.forEach((v: any, index: number) => {
       if (!!this.areas.find(i => i.value === v)) return;

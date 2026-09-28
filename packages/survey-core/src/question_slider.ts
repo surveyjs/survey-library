@@ -309,7 +309,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
-    if (!context.checks.valueTypes) return true;
+    if (!context.checks.reportInvalidValueTypes) return true;
     // A single slider holds a number, a range slider an array of numbers.
     const isCorrect = this.sliderType === "range" ?
       Array.isArray(val) && val.every(item => Helpers.isNumber(item)) : this.isValueOfValueType(val);

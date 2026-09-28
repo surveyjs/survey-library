@@ -279,7 +279,12 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) {
+      // With saveMaskedValue a string value is already masked: masking it again misreads its separators
+      // ("1.234,56" becomes "1,23" for a comma decimal separator). A raw value still has to be masked.
+      if (this.maskSettings.saveMaskedValue && typeof value === "string") return value;
+      return this.maskInstance.getMaskedValue(value);
+    }
     return super.getDisplayValueCore(keysAsText, value);
   }
   isLayoutTypeSupported(layoutType: string): boolean {
@@ -423,14 +428,23 @@ export class QuestionTextModel extends QuestionTextBase {
     let _inputValue = val;
     let keepEnteredText = false;
     if (!this.maskTypeIsEmpty) {
-      value = this.maskInstance.getUnmaskedValue(val);
-      if (value === undefined || value === null || value === "") {
-        keepEnteredText = true;
+      // A finished number outside min/max is not an entry in progress: drop it so completion
+      // does not keep the out-of-range answer or treat the field as an incomplete mask.
+      if (this.maskSettings.isValueOutOfRange(val)) {
         value = undefined;
+        _inputValue = this.maskInstance.getMaskedValue("");
+        // the question value may already be empty, so no value change reaches the element
+        this.maskInputAdapter?.updateInputElementText(_inputValue);
       } else {
-        _inputValue = this.maskInstance.getMaskedValue(value);
-        if (!!value && this.maskSettings.saveMaskedValue) {
-          value = _inputValue;
+        value = this.maskInstance.getUnmaskedValue(val);
+        if (value === undefined || value === null || value === "") {
+          keepEnteredText = true;
+          value = undefined;
+        } else {
+          _inputValue = this.maskInstance.getMaskedValue(value);
+          if (!!value && this.maskSettings.saveMaskedValue) {
+            value = _inputValue;
+          }
         }
       }
     }

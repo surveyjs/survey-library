@@ -1200,7 +1200,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.contentPanel;
   }
   protected getCssRoot(cssClasses: any): string {
-    return toCssClasses(super.getCssRoot(cssClasses), cssClasses.composite);
+    // Panelless themes set isCompact and drop the question frame. A composite is shown as a panel card, so keep that frame.
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      this.isCompact && this.getHasFrameV2() && cssClasses.compositeCompact,
+      cssClasses.composite
+    );
   }
   protected getCssHeader(cssClasses: any): string {
     return toCssClasses(super.getCssHeader(cssClasses), cssClasses.compositeHeader);

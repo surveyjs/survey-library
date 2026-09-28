@@ -442,7 +442,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       propertyNames: [this.getCommentPropertyValue(item)],
       cssClasses: () => {
         return {
-          root: this.cssClasses.comment,
+          root: new CssClassBuilder()
+            .append(this.cssClasses.comment)
+            .append(this.cssClasses.commentOnError, this.isItemCommentOnError(item))
+            .toString(),
           control: this.cssClasses.commentControl,
           grip: this.cssClasses.commentGrip,
           gripIconId: this.cssClasses.commentGripIconId
@@ -455,6 +458,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       autoGrow: () => this.survey && this.survey.autoGrowComment,
       ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
+      ariaInvalid: () => this.isItemCommentOnError(item) ? "true" : null,
+      ariaDescribedBy: () => this.isItemCommentOnError(item) ? this.renderedId + "_errors" : null,
       getTextValue: () => { return this.getCommentValueCore(item); },
       onTextAreaChange: (e) => { this.onOtherValueChange(item, e); },
       onTextAreaInput: (e) => { this.onOtherValueInput(item, e); },
@@ -1990,12 +1995,40 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   private hasEmptyComments(): boolean {
+    return !!this.getFirstEmptyRequiredComment();
+  }
+  private getFirstEmptyRequiredComment(): ItemValue {
     const choices = this.visibleChoices;
     for (let i = 0; i < choices.length; i++) {
-      const choice = choices[i];
-      if (choice.isCommentRequired && this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
+      if (this.isEmptyRequiredComment(choices[i])) return choices[i];
     }
-    return false;
+    return null;
+  }
+  private isEmptyRequiredComment(item: ItemValue): boolean {
+    return (<ChoiceItem>item).isCommentRequired && this.isCommentShowing(item) && !this.getCommentValue(item);
+  }
+  // An empty required comment (including "Other") is reported as OtherEmptyError. It belongs to the
+  // comment area, so it highlights that area and must not paint the choice items as erroneous.
+  private isOtherEmptyError(error: SurveyError): boolean {
+    return error instanceof OtherEmptyError;
+  }
+  private hasVisibleOtherEmptyError(): boolean {
+    return this.errors.some(er => er.visible && er.isError && this.isOtherEmptyError(er));
+  }
+  private isItemCommentOnError(item: ItemValue): boolean {
+    return this.isEmptyRequiredComment(item) && this.hasVisibleOtherEmptyError();
+  }
+  protected hasItemsCssError(): boolean {
+    if (!this.hasCssError()) return false;
+    if (this.hasCssErrorCallback()) return true;
+    return this.errors.some(er => er.visible && er.isError && !this.isOtherEmptyError(er));
+  }
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
+    if (!this.hasItemsCssError() && this.hasVisibleOtherEmptyError()) {
+      const item = this.getFirstEmptyRequiredComment();
+      if (!!item) return this.getItemCommentId(item);
+    }
+    return super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoicesValue = true;
@@ -2429,7 +2462,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
       .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
-      .append(this.cssClasses.itemOnError, this.hasCssError());
+      .append(this.cssClasses.itemOnError, this.hasItemsCssError());
 
     const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
     const isReadOnly = readOnlyStyles[0];

@@ -8,7 +8,7 @@ import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Question, QuestionValueType } from "./question";
 import { QuestionFactory } from "./questionfactory";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 import { getRootNode } from "./utils/dom-utils";
 
@@ -318,37 +318,31 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
 
   public get rootCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
-      .append(this.cssClasses.rootNegativeScaleMode, !!this.isNegativeScale)
-      .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
-      .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
-      .append(this.cssClasses.rootTooltipsAlwaysMode, this.tooltipVisibility === "always")
-      .append(this.cssClasses.rootLabelsShowValueTextMode, this.isLabelsShowValueText)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root,
+      this.sliderType === "single" && this.cssClasses.rootSingleMode,
+      !!this.isNegativeScale && this.cssClasses.rootNegativeScaleMode,
+      !!this.isDesignMode && this.cssClasses.rootDesignMode,
+      !!this.animatedThumb && this.cssClasses.rootAnimatedThumbMode,
+      this.tooltipVisibility === "always" && this.cssClasses.rootTooltipsAlwaysMode,
+      this.isLabelsShowValueText && this.cssClasses.rootLabelsShowValueTextMode
+    );
   }
 
   public getThumbContainerCss = (thumbNumber: number): string => {
-    return new CssClassBuilder()
-      .append(this.cssClasses.thumbContainer)
-      .append(this.cssClasses.thumbContainerIndeterminateMode, !!this.isIndeterminate)
-      .append(this.cssClasses.thumbContainerFocusedMode, thumbNumber === this.focusedThumb)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.thumbContainer,
+      !!this.isIndeterminate && this.cssClasses.thumbContainerIndeterminateMode,
+      thumbNumber === this.focusedThumb && this.cssClasses.thumbContainerFocusedMode
+    );
   };
 
   public get tooltipCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.tooltip)
-      .append(this.cssClasses.tooltipOnHoverMode, this.tooltipVisibility === "auto")
-      .toString();
+    return toCssClasses(this.cssClasses.tooltip, this.tooltipVisibility === "auto" && this.cssClasses.tooltipOnHoverMode);
   }
 
   public getLabelCss = (locText: LocalizableString): string => {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.labelLongMod, locText.renderedHtml.length > 10)
-      .toString();
+    return toCssClasses(this.cssClasses.label, locText.renderedHtml.length > 10 && this.cssClasses.labelLongMod);
   };
 
   public getLabelMaxWidth = (item: ItemValue): string => {

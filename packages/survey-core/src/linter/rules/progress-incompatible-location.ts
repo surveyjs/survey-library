@@ -46,10 +46,9 @@ export const progressIncompatibleLocationRule: ILintRule = {
       ? json.headerView : "advanced";
     ctx.report({
       message: "\"" + location.path + "\" is " + JSON.stringify(location.value) +
-        ", which is incompatible with an advanced header when progressBarType is " +
-        JSON.stringify(json.progressBarType) + ". Question progress (answered questions, " +
-        "answered required questions, or correct answers) renders incorrectly below an " +
-        "advanced header. Use another location, the \"pages\" progress type, or a basic header.",
+        ", which is not recommended with an advanced header when progressBarType is " +
+        JSON.stringify(json.progressBarType) + ". For question progress (answered questions, " +
+        "answered required questions, or correct answers), use \"aboveheader\".",
       path: location.path,
       reason: reasons.belowHeader,
       messageData: {

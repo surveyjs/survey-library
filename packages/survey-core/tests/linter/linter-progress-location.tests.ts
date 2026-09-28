@@ -24,7 +24,7 @@ describe("progress/incompatible-location", () => {
     expect(findings[0].messageData.headerView).toBe("advanced");
     expect(findings[0].fix).toBeUndefined();
   });
-  test("a missing headerView counts as the advanced default", () => {
+  test("an undefined headerView is the advanced default", () => {
     const findings = byRule({
       ...question,
       showProgressBar: true,

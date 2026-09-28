@@ -143,7 +143,7 @@ export {
   HorizontalAlignment,
   VerticalAlignment,
   DataIssueType,
-  IValueChecks,
+  IDataVerificationOptions,
   IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";

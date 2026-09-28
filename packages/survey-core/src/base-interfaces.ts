@@ -32,7 +32,7 @@ export type {
   ISurveyValidatorOwner,
   ISurveyValidation,
   DataIssueType,
-  IValueChecks,
+  IDataVerificationOptions,
   IDataIssue,
 } from "./interfaces/validation-interfaces";
 

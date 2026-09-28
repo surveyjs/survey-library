@@ -30,7 +30,7 @@ import {
   ISaveToJSONOptions,
   IScrollElementToTopOptions,
   IDataIssue,
-  IValueChecks
+  IDataVerificationOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -4710,7 +4710,7 @@ export class SurveyModel extends SurveyElementCore
   // survey.data after loading and reports every difference, see collectExpressionResultMismatches().
   // With null or undefined the response is compared with {}, so every default the model adds is
   // reported.
-  public setData(data: any, options?: IValueChecks): Array<IDataIssue> {
+  public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
     const hasData = data !== undefined && data !== null;
     // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model
     // change the caller's object and the snapshot alike.

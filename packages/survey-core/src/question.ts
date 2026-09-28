@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IValueChecks, IDataIssue, DataIssueType } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
@@ -191,7 +191,7 @@ export interface IValidationContextParams {
 }
 
 // Everything on: the value checks run all three unless the caller turns one off.
-const allValueChecks: IValueChecks = { valueTypes: true, choiceValues: true, unknownProperties: true };
+const allValueChecks: IDataVerificationOptions = { valueTypes: true, choiceValues: true, unknownProperties: true };
 
 // Renders a location for reading: the segments joined with ".", a number as "[n]" without a dot
 // before it. A string segment is written as is, so the result is ambiguous for a key that contains
@@ -215,7 +215,7 @@ export function renderDataPath(segments: Array<string | number>): string {
 // is state of the walk and not something a question computes by climbing its parents.
 export interface IVerifyDataContext {
   // Fully resolved: every member is a boolean.
-  checks: IValueChecks;
+  checks: IDataVerificationOptions;
   issues: Array<IDataIssue>;
   // Internal callers only, isValueCorrect() and clearIncorrectValues(): the walk may stop as soon
   // as something is found. setData() never sets it.
@@ -242,7 +242,7 @@ class VerifyDataContext implements IVerifyDataContext {
   // The segments of every issue, parallel to issues. The public issue has the rendered path only,
   // which is ambiguous; deduplication needs the unambiguous form.
   private issueSegments: Array<Array<string | number>> = [];
-  constructor(public checks: IValueChecks) {
+  constructor(public checks: IDataVerificationOptions) {
   }
   public get hasIssues(): boolean { return this.issues.length > 0; }
   public get issueCount(): number { return this.issues.length; }
@@ -269,8 +269,8 @@ class VerifyDataContext implements IVerifyDataContext {
 }
 
 // The three value checks are on unless a member is set to false.
-export function createVerifyDataContext(options: IValueChecks): IVerifyDataContext {
-  const checks: IValueChecks = {
+export function createVerifyDataContext(options: IDataVerificationOptions): IVerifyDataContext {
+  const checks: IDataVerificationOptions = {
     valueTypes: options?.valueTypes !== false,
     choiceValues: options?.choiceValues !== false,
     unknownProperties: options?.unknownProperties !== false
@@ -2924,12 +2924,12 @@ export class Question extends SurveyElement<Question>
   // with the same defaults: the three checks are on unless a member is set to false,
   // keepIncorrectValues is ignored.
   // It never modifies the value or the survey data; clearIncorrectValues() removes what it reports.
-  public isValueCorrect(checks?: IValueChecks): boolean {
+  public isValueCorrect(checks?: IDataVerificationOptions): boolean {
     return !this.hasIncorrectValue(checks);
   }
   // clearIncorrectValues() removes what any check reports, an unknown property included, and keeps
   // an unknown choice when keepIncorrectValues asks for it.
-  protected getClearIncorrectValuesChecks(): IValueChecks {
+  protected getClearIncorrectValuesChecks(): IDataVerificationOptions {
     return { ...allValueChecks, choiceValues: !this.isKeepIncorrectValues };
   }
   // keepIncorrectValues is not a JSON property of the form, so setData() and isValueCorrect()
@@ -2937,7 +2937,7 @@ export class Question extends SurveyElement<Question>
   protected get isKeepIncorrectValues(): boolean {
     return !!this.survey?.keepIncorrectValues;
   }
-  private hasIncorrectValue(checks: IValueChecks): boolean {
+  private hasIncorrectValue(checks: IDataVerificationOptions): boolean {
     const context = createVerifyDataContext(checks);
     context.stopOnFirst = true;
     context.pushSegment(this.getValueName());

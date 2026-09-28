@@ -19,7 +19,7 @@ export interface ISurveyValidation {
   getValidateVisitedEmptyFields(): boolean;
 }
 
-// The kind of a finding SurveyModel.setData() reports. Each one is named by a member of IValueChecks,
+// The kind of a finding SurveyModel.setData() reports. Each one is named by a member of IDataVerificationOptions,
 // and IncorrectValueError.check names one of the first three. expressionResultMismatch is not a value
 // check: it is the diagnostic that compares the response with survey.data after loading.
 export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidChoiceValue" | "expressionResultMismatch";
@@ -28,7 +28,7 @@ export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidCho
 // is set to false, and clearIncorrectValues() removes what they report, keeping an unknown choice when
 // keepIncorrectValues asks for it. validate() runs none of them: it is the respondent-facing validation
 // and its behavior does not depend on these.
-export interface IValueChecks {
+export interface IDataVerificationOptions {
   // A key of the data that no question, valueName, comment / totals suffix or calculated value
   // with includeIntoResult owns. Root keys and keys inside a container value alike.
   unknownProperties?: boolean;

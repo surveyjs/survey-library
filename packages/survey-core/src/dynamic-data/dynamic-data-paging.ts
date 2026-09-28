@@ -414,6 +414,8 @@ export class DynamicDataPagingController {
   private pushControlFilter(): void {
     const combined = this.getCombinedControlFilter();
     if (this.pushedControlFilter === combined) return;
+    // A new filter replaces the page from code, as filterExpression does.
+    this.cancelPendingPageMove();
     this.pushedControlFilter = combined;
     this.list.controlFilter = combined;
   }

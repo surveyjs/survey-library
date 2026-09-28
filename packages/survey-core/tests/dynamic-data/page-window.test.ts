@@ -479,6 +479,18 @@ describe("Page window: asynchronous validators and the survey's settings", () =>
     question.dispose();
     expect(() => results.forEach(setResult => setResult(0)), "#7: dispose").not.toThrow();
   });
+  test("(i) cancellation: a control filter drops the pending move as the authored one does", () => {
+    register();
+    const question = createPanel({ panelsPerPage: 5, templateElements: asyncTemplate }, records(20));
+    question.nextPage();
+    expect(question.isPageMovePending, "#1").toBe(true);
+    question.setControlFilter("control", "{id} >= 5");
+    expect(question.isPageMovePending, "#2: a control filter drops it").toBe(false);
+    expect(question.pageIndex, "#3: the new view starts on its first page").toBe(0);
+    results.forEach(setResult => setResult(1));
+    expect(question.pageIndex, "#4: the dropped move did not happen").toBe(0);
+    expect(question.panels[0].getQuestionByName("id").value, "#5: and the page is the filtered one").toBe(5);
+  });
   const requiredTemplate = [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }, { type: "text", name: "note" }];
   const setupInvalid = (checkErrorsMode: string, allowSwitchPages: boolean, json: any): { survey: SurveyModel, question: QuestionPanelDynamicModel } => {
     const data = records(20);

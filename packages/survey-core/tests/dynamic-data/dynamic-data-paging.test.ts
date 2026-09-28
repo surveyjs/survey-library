@@ -56,6 +56,10 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
   }
+  public cancelPendingPageMoveCount: number = 0;
+  public cancelPendingPageMove(): void {
+    this.cancelPendingPageMoveCount++;
+  }
   // No survey behind the fake: the string name and the arguments are enough to tell texts apart.
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
     return strName + ": " + args.join(", ");
@@ -468,5 +472,24 @@ describe("DynamicDataPagingController: the control filter entrance", () => {
     owner.paging.syncState();
     expect(owner.errors.length, "#3: the list cleared its slot, the controller does not re-hand it")
       .toBe(1);
+  });
+  // A control filter replaces the page from code, as filterExpression does: a move that waits for
+  // the validators of the page it leaves is dropped.
+  test("a control filter that changes the view drops a pending page move", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.cancelPendingPageMoveCount = 0;
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.cancelPendingPageMoveCount, "#1").toBe(1);
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.cancelPendingPageMoveCount, "#2: the same filter again changes nothing").toBe(1);
+    owner.paging.setControlFilter("control", "");
+    expect(owner.cancelPendingPageMoveCount, "#3: clearing it is a change too").toBe(2);
+  });
+  test("a control filter written while loading does not drop a pending page move", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isLoadingFromJson = true;
+    owner.paging.setControlFilter("control", "{c1} = 'a'");
+    expect(owner.cancelPendingPageMoveCount, "#1: nothing is on a page yet").toBe(0);
   });
 });

@@ -21901,6 +21901,41 @@ describe("Survey", () => {
     expect(options.rootElement).toBeUndefined();
     settings.confirmActionAsync = oldSettingsFunc;
   });
+  test("belowheader is hidden for question progress in an advanced header", () => {
+    const prop = Serializer.findProperty("survey", "progressBarLocation");
+    const all = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+    const withoutBelowHeader = ["auto", "aboveheader", "bottom", "topbottom"];
+    expect(prop.getChoices(null)).toEqual(all);
+
+    const survey = new SurveyModel({ showProgressBar: true });
+    expect(survey.headerView).toBe("advanced");
+    expect(survey.progressBarType).toBe("pages");
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "requiredQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "correctQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+
+    survey.headerView = "basic";
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.headerView = "advanced";
+    survey.progressBarType = "pages";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    const stored = new SurveyModel({
+      headerView: "advanced",
+      showProgressBar: true,
+      progressBarType: "questions",
+      progressBarLocation: "belowheader",
+    });
+    expect(stored.progressBarLocation).toBe("belowheader");
+    expect(prop.getChoices(stored)).toEqual(withoutBelowHeader);
+  });
 });
 
 describe("Survey: Object.prototype member names and the __proto__ key", () => {

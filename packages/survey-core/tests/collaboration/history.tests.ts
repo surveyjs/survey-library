@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from "vitest";
-import { SurveyModel } from "survey-core";
+import { ComponentCollection, SurveyModel } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { IPresencePeerEntry } from "../../src/plugins/collaboration/presence/presence-envelope";
 import { MAX_HISTORY_TEXT } from "../../src/plugins/collaboration/history/history-entry";
@@ -171,7 +171,7 @@ describe("history: keeping the log usable", () => {
     expect(plugin.history.entries.map((e) => e.questionName)).toEqual(["q2", "q3"]);
   });
 
-  test("a file answer is described by its name, never by its content", () => {
+  test("a file answer reads as changed, never as its content", () => {
     const { plugin } = make({ elements: [{ type: "file", name: "q1" }] });
     join(plugin);
     const content = "data:image/png;base64," + "A".repeat(5000);
@@ -181,7 +181,7 @@ describe("history: keeping the log usable", () => {
     } as any);
 
     const entry = plugin.history.entries[0];
-    expect(entry.text).toBe("plan.png");
+    expect(entry.text).toBe("changed");
     expect(entry.text.length).toBeLessThanOrEqual(MAX_HISTORY_TEXT);
   });
 
@@ -196,9 +196,73 @@ describe("history: keeping the log usable", () => {
   test("clearing an answer reads as cleared rather than as a blank entry", () => {
     const { plugin } = make(threeQuestions);
     join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: "a" } as any);
     plugin.apply({ type: "value", from: "p1", key: "q1", value: "" } as any);
 
+    expect(plugin.history.entries).toHaveLength(1);
     expect(plugin.history.entries[0].text).toBe("cleared");
+  });
+});
+
+// The log describes what changed in THIS survey, not what travelled: a message that
+// changes nothing here - a value we already hold, a row that carries no answer - leaves
+// no entry.
+describe("history: only what actually changed", () => {
+  const matrixJson = {
+    elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }]
+  };
+
+  test("a peer value we already hold leaves no entry", () => {
+    const { survey, plugin } = make(threeQuestions);
+    join(plugin);
+    survey.setValue("q1", "mine");
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: "mine" } as any);
+
+    expect(plugin.history.entries.map((e) => e.clientId)).toEqual([null]);
+  });
+
+  test("the same value from a second peer leaves no second entry", () => {
+    const { plugin } = make(threeQuestions);
+    join(plugin);
+    plugin.apply({ type: "peer", peer: { clientId: "p2", name: "Bob", colorIndex: 4, state: { page: null, focus: null } } } as any);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: "a" } as any);
+    plugin.apply({ type: "value", from: "p2", key: "q1", value: "a" } as any);
+
+    expect(plugin.history.entries.map((e) => e.name)).toEqual(["Ann"]);
+  });
+
+  test("adding an empty row leaves no entry", () => {
+    // No merge window, so a second entry could not hide inside the first one.
+    const { survey, plugin } = make(matrixJson, { historyMergeMs: -1 });
+    survey.setValue("m", [{ a: "1" }]);
+    expect(plugin.history.entries).toHaveLength(1);
+
+    (survey.getQuestionByName("m") as any).addRow();
+    expect(plugin.history.entries).toHaveLength(1);
+  });
+
+  test("a peer's row that holds no answer leaves no entry", () => {
+    const { plugin } = make(matrixJson);
+    join(plugin);
+    plugin.apply({ type: "init", values: { m: [{ a: "1" }] }, peers: [] });
+    plugin.apply({ type: "value", from: "p1", key: "m", value: [{ a: "1" }, {}] } as any);
+    expect(plugin.history.entries).toHaveLength(0);
+  });
+
+  test("empty rows arriving in an empty matrix leave no entry", () => {
+    const { plugin } = make(matrixJson);
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "m", value: [{}, {}] } as any);
+    expect(plugin.history.entries).toHaveLength(0);
+  });
+
+  test("a comment is recorded under its question", () => {
+    const { survey, plugin } = make({ elements: [{ type: "dropdown", name: "q1", choices: ["a"], showOtherItem: true }] });
+    survey.commentSuffix = "-SOMETHING-ELSE";
+    survey.setComment("q1", "note");
+
+    const entry = plugin.history.entries[0];
+    expect([entry.questionName, entry.isComment, entry.text]).toEqual(["q1", true, "note"]);
   });
 });
 
@@ -403,5 +467,231 @@ describe("history: the panel stays put while the form scrolls", () => {
 
     plugin.toggleHistory();
     expect((plugin.historyPanel as any).sizeObserver).toBeUndefined();
+  });
+});
+
+// A matrix, a dynamic panel, multiple text and a composite have an OBJECT for a display
+// value, or an array of them. The entry spells it out instead of printing
+// "[object Object]".
+describe("history: answers that are objects", () => {
+  test("a matrix reads as its rows and columns", () => {
+    const { plugin } = make({
+      elements: [{
+        type: "matrix", name: "q1",
+        columns: [{ value: "c1", text: "Good" }, { value: "c2", text: "Bad" }],
+        rows: [{ value: "r1", text: "Quality" }, { value: "r2", text: "Price" }],
+      }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: { r1: "c1", r2: "c2" } } as any);
+
+    expect(plugin.history.entries[0].text).toBe("Quality: Good, Price: Bad");
+  });
+
+  test("a dropdown matrix brackets each row's cells", () => {
+    const { plugin } = make({
+      elements: [{
+        type: "matrixdropdown", name: "q1",
+        columns: [{ name: "a", title: "A", cellType: "text" }, { name: "b", title: "B", cellType: "text" }],
+        rows: [{ value: "row1", text: "Row 1" }, { value: "row2", text: "Row 2" }],
+      }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: { row1: { a: "1" }, row2: { a: "2", b: "3" } } } as any);
+
+    expect(plugin.history.entries[0].text).toBe("Row 1: (A: 1), Row 2: (A: 2, B: 3)");
+  });
+
+  test("a dynamic matrix lists its rows, separated by semicolons", () => {
+    const { plugin } = make({
+      elements: [{
+        type: "matrixdynamic", name: "q1", rowCount: 2,
+        columns: [{ name: "a", title: "A", cellType: "text" }, { name: "b", title: "B", cellType: "text" }],
+      }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [{ a: "1", b: "2" }, { a: "3" }] } as any);
+
+    expect(plugin.history.entries[0].text).toBe("A: 1, B: 2; A: 3");
+  });
+
+  test("a dynamic panel lists its panels and skips the empty ones", () => {
+    const { plugin } = make({
+      elements: [{ type: "paneldynamic", name: "q1", panelCount: 3, templateElements: [{ type: "text", name: "t", title: "T" }] }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [{ t: "hi" }, {}, { t: "yo" }] } as any);
+
+    expect(plugin.history.entries[0].text).toBe("T: hi; T: yo");
+  });
+
+  test("multiple text reads as its items", () => {
+    const { plugin } = make({
+      elements: [{ type: "multipletext", name: "q1", items: [{ name: "first", title: "First" }, { name: "last", title: "Last" }] }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: { first: "Ann", last: "Lee" } } as any);
+
+    expect(plugin.history.entries[0].text).toBe("First: Ann, Last: Lee");
+  });
+
+  function registerAddress(): void {
+    ComponentCollection.Instance.add({
+      name: "collabhistoryaddress",
+      elementsJSON: [
+        { type: "text", name: "street", title: "Street" },
+        { type: "matrixdynamic", name: "items", title: "Items", columns: [{ name: "sku", title: "SKU", cellType: "text" }] },
+      ],
+    });
+  }
+
+  test("a composite reads as its fields, with a nested matrix in brackets", () => {
+    registerAddress();
+    const { survey, plugin } = make({ elements: [{ type: "collabhistoryaddress", name: "q1" }] });
+    attach(survey);
+    join(plugin);
+    plugin.apply({
+      type: "value", from: "p1", key: "q1",
+      value: { street: "Main 5", items: [{ sku: "X1" }, { sku: "Y2" }] },
+    } as any);
+    plugin.toggleHistory();
+
+    expect(plugin.history.entries[0].text).toBe("Street: Main 5, Items: (SKU: X1; SKU: Y2)");
+    // What the panel shows, which is where "[object Object]" was seen.
+    expect(textOf(rows()[0], "value")).toBe("Street: Main 5, Items: (SKU: X1; SKU: Y2)");
+  });
+
+  test("our own edit of a composite field reads as the whole composite", () => {
+    registerAddress();
+    const { survey, plugin } = make({ elements: [{ type: "collabhistoryaddress", name: "q1" }] });
+    (survey.getQuestionByName("q1") as any).contentPanel.getQuestionByName("street").value = "Main 5";
+
+    const entry = plugin.history.entries[0];
+    expect([entry.clientId, entry.text]).toEqual([null, "Street: Main 5"]);
+  });
+
+  test("a value with no question behind it is spelled out, not serialized", () => {
+    const { plugin } = make(threeQuestions);
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "nosuch", value: { a: "1", b: ["x", "y"] } } as any);
+
+    expect(plugin.history.entries[0].text).toBe("a: 1, b: (x, y)");
+  });
+
+  test("a matrix whose rows are left holding nothing reads as cleared", () => {
+    const { plugin } = make({
+      elements: [{ type: "matrixdynamic", name: "q1", rowCount: 2, columns: [{ name: "a", title: "A", cellType: "text" }] }]
+    });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [{ a: "1" }, {}] } as any);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [{}, {}] } as any);
+
+    expect(plugin.history.entries).toHaveLength(1);
+    expect(plugin.history.entries[0].text).toBe("cleared");
+  });
+});
+
+// A file or a signature is data, not an answer anyone can read in a log - whether it
+// travels as base64 (storeDataAsText) or as a storage URL. The entry says only that it
+// changed, and says it for any question that holds one, however deep.
+describe("history: files and signatures", () => {
+  const png = "data:image/png;base64," + "A".repeat(5000);
+
+  function textAfter(json: any, value: any): string {
+    const { plugin } = make(json);
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value } as any);
+    return plugin.history.entries[0].text;
+  }
+
+  test("a file stored as a URL reads as changed", () => {
+    expect(textAfter(
+      { elements: [{ type: "file", name: "q1", storeDataAsText: false }] },
+      [{ name: "plan.png", type: "image/png", content: "/api/rooms/r1/files/0f3c" }]
+    )).toBe("changed");
+  });
+
+  test("a signature reads as changed in both storage modes", () => {
+    expect(textAfter({ elements: [{ type: "signaturepad", name: "q1" }] }, png)).toBe("changed");
+    expect(textAfter(
+      { elements: [{ type: "signaturepad", name: "q1", storeDataAsText: false }] },
+      "/api/rooms/r1/files/77ab"
+    )).toBe("changed");
+  });
+
+  test("a composite holding a file reads as changed, even for an edit of its text", () => {
+    ComponentCollection.Instance.add({
+      name: "collabhistorydocs",
+      elementsJSON: [
+        { type: "text", name: "title", title: "Title" },
+        { type: "panel", name: "inner", elements: [{ type: "file", name: "doc", title: "Doc" }] },
+      ],
+    });
+    const { survey, plugin } = make({ elements: [{ type: "collabhistorydocs", name: "q1" }] });
+    (survey.getQuestionByName("q1") as any).contentPanel.getQuestionByName("title").value = "Plan";
+
+    expect(plugin.history.entries[0].text).toBe("changed");
+  });
+
+  test("a dynamic panel whose template holds a signature reads as changed", () => {
+    expect(textAfter(
+      { elements: [{ type: "paneldynamic", name: "q1", panelCount: 0, templateElements: [{ type: "signaturepad", name: "sig" }, { type: "text", name: "t" }] }] },
+      [{ sig: png, t: "Ann" }]
+    )).toBe("changed");
+  });
+
+  test("a single-question component over a file or a signature reads as changed", () => {
+    ComponentCollection.Instance.add({ name: "collabhistoryonefile", questionJSON: { type: "file" } });
+    ComponentCollection.Instance.add({ name: "collabhistoryonesig", questionJSON: { type: "signaturepad" } });
+
+    expect(textAfter({ elements: [{ type: "collabhistoryonefile", name: "q1" }] },
+      [{ name: "plan.png", type: "image/png", content: png }])).toBe("changed");
+    expect(textAfter({ elements: [{ type: "collabhistoryonesig", name: "q1" }] }, png)).toBe("changed");
+  });
+
+  // A dynamic panel builds its panels only once its page is rendered, so on a page this
+  // participant has not opened yet its nested questions are not there to be asked.
+  test("a dynamic panel on a page not opened yet still reads as changed", () => {
+    const pages = (panel: any) => ({ pages: [{ elements: [{ type: "text", name: "q0" }] }, { elements: [panel] }] });
+    const withSignature = { type: "paneldynamic", name: "q1", templateElements: [{ type: "signaturepad", name: "sig" }, { type: "text", name: "t" }] };
+    const withFile = { type: "paneldynamic", name: "q1", templateElements: [{ type: "file", name: "f" }] };
+
+    expect(textAfter(pages(withSignature), [{ sig: "/api/rooms/r1/files/77ab", t: "Ann" }])).toBe("changed");
+    expect(textAfter(pages(withSignature), [{ sig: png, t: "Ann" }, { sig: png, t: "Bob" }])).toBe("changed");
+    expect(textAfter(pages(withFile), [{ f: [{ name: "plan.png", type: "image/png", content: png }] }])).toBe("changed");
+  });
+
+  test("a composite holding such a dynamic panel on a page not opened yet reads as changed", () => {
+    ComponentCollection.Instance.add({
+      name: "collabhistorypeople",
+      elementsJSON: [
+        { type: "text", name: "title", title: "Title" },
+        { type: "paneldynamic", name: "people", templateElements: [{ type: "signaturepad", name: "sig" }] },
+      ],
+    });
+    const json = { pages: [{ elements: [{ type: "text", name: "q0" }] }, { elements: [{ type: "collabhistorypeople", name: "q1" }] }] };
+
+    expect(textAfter(json, { title: "Plan", people: [{ sig: "/api/rooms/r1/files/77ab" }] })).toBe("changed");
+  });
+
+  test("our own value for such a dynamic panel reads as changed too", () => {
+    const { survey, plugin } = make({
+      pages: [
+        { elements: [{ type: "text", name: "q0" }] },
+        { elements: [{ type: "paneldynamic", name: "q1", templateElements: [{ type: "signaturepad", name: "sig" }] }] },
+      ]
+    });
+    survey.setValue("q1", [{ sig: png }]);
+
+    expect(plugin.history.entries[0].text).toBe("changed");
+  });
+
+  test("clearing a file still reads as cleared", () => {
+    const { plugin } = make({ elements: [{ type: "file", name: "q1" }] });
+    join(plugin);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [{ name: "plan.png", type: "image/png", content: png }] } as any);
+    plugin.apply({ type: "value", from: "p1", key: "q1", value: [] } as any);
+
+    expect(plugin.history.entries[0].text).toBe("cleared");
   });
 });

@@ -7,16 +7,6 @@
 // error. The separator is a character no question name can contain.
 export const COMMENT_KEY_SUFFIX = "\u0000comment";
 
-// Ceiling on one serialized answer.
-//
-// A relay usually enforces its own frame limit, and exceeding THAT is not a
-// recoverable error - the connection is closed and the form silently stops syncing.
-// Refusing the value here keeps the connection alive and puts a message on the
-// question instead. Measured in UTF-16 units rather than bytes: exact for the base64
-// and ASCII payloads that actually approach the limit, and cheap enough to run on
-// every keystroke.
-export const MAX_VALUE_CHARS = 16 * 1024 * 1024;
-
 export function encodeValueKey(name: string, isComment: boolean): string {
   return isComment ? name + COMMENT_KEY_SUFFIX : name;
 }
@@ -32,4 +22,12 @@ export function decodeValueKey(key: string): IDecodedKey {
     return { name: key.substring(0, key.length - COMMENT_KEY_SUFFIX.length), isComment: true };
   }
   return { name: key, isComment: false };
+}
+
+// A name as survey-core's own events and survey.data spell it: a comment there carries
+// the LOCAL survey.commentSuffix, which the wire key must not (see COMMENT_KEY_SUFFIX).
+export function decodeSurveyName(name: string, commentSuffix: string): IDecodedKey {
+  const isComment = !!commentSuffix && name.length > commentSuffix.length &&
+    name.substring(name.length - commentSuffix.length) === commentSuffix;
+  return { name: isComment ? name.substring(0, name.length - commentSuffix.length) : name, isComment: isComment };
 }

@@ -168,15 +168,11 @@ export default function SurveyComponent() {
 }
 ```
 
-The lack of SSR support may cause hydration errors if a SurveyJS component is pre-rendered on the server. To ensure against those errors, use dynamic imports with `ssr: false` for React components that render SurveyJS components. The following code shows how to do this in Next.js:
+Render the form directly in the page. The following code shows how to do that in a Next.js application: 
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (
@@ -224,11 +220,7 @@ export default function SurveyComponent() {
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (
@@ -358,11 +350,7 @@ export default function SurveyComponent() {
 
 ```js
 // survey/page.tsx
-import dynamic from 'next/dynamic';
-
-const SurveyComponent = dynamic(() => import("@/components/Survey"), {
-  ssr: false
-});
+import SurveyComponent from '@/components/Survey';
 
 export default function Survey() {
   return (

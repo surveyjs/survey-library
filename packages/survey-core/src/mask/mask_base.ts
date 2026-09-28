@@ -155,6 +155,9 @@ export class InputMaskBase extends Base implements IInputMask {
 
   public getUnmaskedValue(src: string): any { return src; }
   public getMaskedValue(src: any): string { return src; }
+  // A finished entry that the mask can parse but rejects (a number outside min/max). It is not
+  // an entry in progress: the question drops it rather than keeping the text as incomplete.
+  public isValueOutOfRange(src: string): boolean { return false; }
   // Returns the string to display in the input for a stored model value.
   // When saveMaskedValue is enabled the stored value is already masked, so it is returned as is.
   // An empty value has no masked text of its own: both save modes display the empty mask.

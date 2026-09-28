@@ -13,7 +13,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./utils/animation";
@@ -442,7 +442,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       propertyNames: [this.getCommentPropertyValue(item)],
       cssClasses: () => {
         return {
-          root: this.cssClasses.comment,
+          root: toCssClasses(this.cssClasses.comment, this.isItemCommentOnError(item) && this.cssClasses.commentOnError),
           control: this.cssClasses.commentControl,
           grip: this.cssClasses.commentGrip,
           gripIconId: this.cssClasses.commentGripIconId
@@ -455,6 +455,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       autoGrow: () => this.survey && this.survey.autoGrowComment,
       ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
+      ariaInvalid: () => this.isItemCommentOnError(item) ? "true" : null,
+      ariaDescribedBy: () => this.isItemCommentOnError(item) ? this.renderedId + "_errors" : null,
       getTextValue: () => { return this.getCommentValueCore(item); },
       onTextAreaChange: (e) => { this.onOtherValueChange(item, e); },
       onTextAreaInput: (e) => { this.onOtherValueInput(item, e); },
@@ -1990,12 +1992,40 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   private hasEmptyComments(): boolean {
+    return !!this.getFirstEmptyRequiredComment();
+  }
+  private getFirstEmptyRequiredComment(): ItemValue {
     const choices = this.visibleChoices;
     for (let i = 0; i < choices.length; i++) {
-      const choice = choices[i];
-      if (choice.isCommentRequired && this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
+      if (this.isEmptyRequiredComment(choices[i])) return choices[i];
     }
-    return false;
+    return null;
+  }
+  private isEmptyRequiredComment(item: ItemValue): boolean {
+    return (<ChoiceItem>item).isCommentRequired && this.isCommentShowing(item) && !this.getCommentValue(item);
+  }
+  // An empty required comment (including "Other") is reported as OtherEmptyError. It belongs to the
+  // comment area, so it highlights that area and must not paint the choice items as erroneous.
+  private isOtherEmptyError(error: SurveyError): boolean {
+    return error instanceof OtherEmptyError;
+  }
+  private hasVisibleOtherEmptyError(): boolean {
+    return this.errors.some(er => er.visible && er.isError && this.isOtherEmptyError(er));
+  }
+  private isItemCommentOnError(item: ItemValue): boolean {
+    return this.isEmptyRequiredComment(item) && this.hasVisibleOtherEmptyError();
+  }
+  protected hasItemsCssError(): boolean {
+    if (!this.hasCssError()) return false;
+    if (this.hasCssErrorCallback()) return true;
+    return this.errors.some(er => er.visible && er.isError && !this.isOtherEmptyError(er));
+  }
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
+    if (!this.hasItemsCssError() && this.hasVisibleOtherEmptyError()) {
+      const item = this.getFirstEmptyRequiredComment();
+      if (!!item) return this.getItemCommentId(item);
+    }
+    return super.getFirstErrorInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoicesValue = true;
@@ -2440,10 +2470,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return !this.isOtherSelected;
   }
   getColumnClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.column)
-      .append("sv-q-column-" + this.colCount, this.hasColumns)
-      .toString();
+    return toCssClasses(this.cssClasses.column, this.hasColumns && "sv-q-column-" + this.colCount);
   }
   getItemIndex(item: any): number {
     return this.visibleChoices.indexOf(item);
@@ -2461,12 +2488,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.colCount;
   }
   protected getItemClassCore(item: any, options: any): string {
-    const builder = new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
-      .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
-      .append(this.cssClasses.itemOnError, this.hasCssError());
-
     const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
@@ -2477,27 +2498,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     options.isChecked = isChecked;
     options.isNone = isNone;
 
-    return builder
-      .append(this.cssClasses.itemDisabled, isDisabled)
-      .append(this.cssClasses.itemReadOnly, isReadOnly)
-      .append(this.cssClasses.itemPreview, this.isPreviewStyle)
-      .append(this.cssClasses.itemChecked, isChecked)
-      .append(this.cssClasses.itemHover, allowHover)
-      .append(this.cssClasses.itemNone, isNone)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.item,
+      !this.hasColumns && this.colCount === 0 && this.cssClasses.itemInline,
+      !this.hasColumns && this.colCount !== 0 && "sv-q-col-" + this.getCurrentColCount(),
+      this.hasItemsCssError() && this.cssClasses.itemOnError,
+      isDisabled && this.cssClasses.itemDisabled,
+      isReadOnly && this.cssClasses.itemReadOnly,
+      this.isPreviewStyle && this.cssClasses.itemPreview,
+      isChecked && this.cssClasses.itemChecked,
+      allowHover && this.cssClasses.itemHover,
+      isNone && this.cssClasses.itemNone
+    );
   }
 
   getLabelClass(item: ItemValue): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.label)
-      .append(this.cssClasses.labelChecked, this.isItemSelected(item))
-      .toString();
+    return toCssClasses(this.cssClasses.label, this.isItemSelected(item) && this.cssClasses.labelChecked);
   }
   getControlLabelClass(item: ItemValue): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.controlLabel)
-      .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
-      .toString() || undefined;
+    return toCssClasses(this.cssClasses.controlLabel, this.isItemSelected(item) && this.cssClasses.controlLabelChecked) || undefined;
   }
 
   @propertyArray() _renderedChoices: Array<ItemValue> = [];
@@ -2723,10 +2742,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.cssClasses.itemSvgIconId;
   }
   public getSelectBaseRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.getQuestionRootCss())
-      .append(this.cssClasses.rootRow, this.rowLayout)
-      .toString();
+    return toCssClasses(this.getQuestionRootCss(), this.rowLayout && this.cssClasses.rootRow);
   }
   protected allowMobileInDesignMode(): boolean {
     return true;

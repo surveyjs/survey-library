@@ -6,7 +6,7 @@ import { QuestionValueType } from "./question";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
 
@@ -281,12 +281,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public getSelectBaseRootCss(): string {
     const isResponsive = this.isResponsive;
-    return new CssClassBuilder()
-      .append(super.getSelectBaseRootCss())
-      .append(this.cssClasses.rootResponsive, isResponsive)
-      .append(this.cssClasses.rootStatic, !isResponsive)
-      .append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1)
-      .toString();
+    return toCssClasses(
+      super.getSelectBaseRootCss(),
+      isResponsive && this.cssClasses.rootResponsive,
+      !isResponsive && this.cssClasses.rootStatic,
+      this.getCurrentColCount() == 1 && this.cssClasses.rootColumn
+    );
   }
 
   //responsive mode

@@ -281,6 +281,14 @@ Default value: `"|"`
 
 **Related APIs:** [`settings.choicesSeparator`](https://surveyjs.io/form-library/documentation/api-reference/settings#choicesSeparator)
 
+### `keyboardInputTimeout`
+
+**Type**: `number`
+
+Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
+
+Default value: 400
+
 ### `lazyRender`
 
 **Type**: `{ enabled: boolean; firstBatchSize: number; }`

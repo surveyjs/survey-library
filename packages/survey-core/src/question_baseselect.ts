@@ -302,30 +302,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       question: this,
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
-<<<<<<< HEAD
-      className: () => this.cssClasses.comment,
-||||||| parent of 4e0254064 ([backport:V2] fix #11902, Validation for a required comment on a choice incorrectly highlights the other choices instead of the comment box (#11905))
-      cssClasses: () => {
-        return {
-          root: this.cssClasses.comment,
-          control: this.cssClasses.commentControl,
-          grip: this.cssClasses.commentGrip,
-          gripIconId: this.cssClasses.commentGripIconId
-        };
-      },
-=======
-      cssClasses: () => {
-        return {
-          root: new CssClassBuilder()
-            .append(this.cssClasses.comment)
-            .append(this.cssClasses.commentOnError, this.isItemCommentOnError(item))
-            .toString(),
-          control: this.cssClasses.commentControl,
-          grip: this.cssClasses.commentGrip,
-          gripIconId: this.cssClasses.commentGripIconId
-        };
-      },
->>>>>>> 4e0254064 ([backport:V2] fix #11902, Validation for a required comment on a choice incorrectly highlights the other choices instead of the comment box (#11905))
+      className: () => new CssClassBuilder()
+        .append(this.cssClasses.comment)
+        .append(this.cssClasses.commentOnError, this.isItemCommentOnError(item))
+        .toString(),
       placeholder: () => this.getCommentPlaceholder(item),
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,
@@ -1836,7 +1816,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.hasCssErrorCallback()) return true;
     return this.errors.some(er => er.visible && er.isError && !this.isOtherEmptyError(er));
   }
-  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
+  protected getFirstErrorInputElementId(): string {
     if (!this.hasItemsCssError() && this.hasVisibleOtherEmptyError()) {
       const item = this.getFirstEmptyRequiredComment();
       if (!!item) return this.getItemCommentId(item);

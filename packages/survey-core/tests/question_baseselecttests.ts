@@ -3579,19 +3579,19 @@ describe("baseselect", () => {
     q2.visibleChoices.forEach((item, index) => {
       expect(q2.getItemClass(item).indexOf(itemError), "q2 choice #" + index + " is not on error").toBe(-1);
     });
-    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError) > -1, "q1 item2 comment is on error").toBe(true);
+    expect(q1.getCommentTextAreaModel(item2).className.indexOf(commentError) > -1, "q1 item2 comment is on error").toBe(true);
     expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid").toBe("true");
     expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby").toBe(q1.renderedId + "_errors");
-    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError) > -1, "q2 other comment is on error").toBe(true);
+    expect(q2.getCommentTextAreaModel(q2.otherItem).className.indexOf(commentError) > -1, "q2 other comment is on error").toBe(true);
 
     q1.setCommentValue(item2, "text");
     q2.otherValue = "text";
     expect(q1.errors.length, "q1 error is gone").toBe(0);
     expect(q2.errors.length, "q2 error is gone").toBe(0);
-    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError), "q1 item2 comment is not on error").toBe(-1);
+    expect(q1.getCommentTextAreaModel(item2).className.indexOf(commentError), "q1 item2 comment is not on error").toBe(-1);
     expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid, #2").toBeNull();
     expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby, #2").toBeNull();
-    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError), "q2 other comment is not on error").toBe(-1);
+    expect(q2.getCommentTextAreaModel(q2.otherItem).className.indexOf(commentError), "q2 other comment is not on error").toBe(-1);
   });
   test("Only the empty required comment is on error, other comments are not, Bug#11902", () => {
     const survey = new SurveyModel({
@@ -3609,7 +3609,7 @@ describe("baseselect", () => {
     survey.css = defaultCss;
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const commentError = defaultCss.question.commentOnError;
-    const isCommentOnError = (index: number): boolean => q1.getCommentTextAreaModel(q1.choices[index]).getCssClasses().root.indexOf(commentError) > -1;
+    const isCommentOnError = (index: number): boolean => q1.getCommentTextAreaModel(q1.choices[index]).className.indexOf(commentError) > -1;
     q1.renderedValue = ["item1", "item2", "item3"];
     q1.setCommentValue(q1.choices[0], "text");
     expect(q1.validate(true), "q1 is invalid").toBe(false);
@@ -3637,7 +3637,7 @@ describe("baseselect", () => {
     expect(q1.validate(true), "one choice with an empty comment is invalid").toBe(false);
     expect(q1.errors.map(er => er.getErrorType()).sort(), "two errors").toEqual(["custom", "otherempty"]);
     expect(q1.getItemClass(q1.choices[0]).indexOf(itemError) > -1, "minSelectedChoices error: choices are on error").toBe(true);
-    expect(q1.getCommentTextAreaModel(q1.choices[1]).getCssClasses().root.indexOf(commentError) > -1, "the comment is on error as well").toBe(true);
+    expect(q1.getCommentTextAreaModel(q1.choices[1]).className.indexOf(commentError) > -1, "the comment is on error as well").toBe(true);
   });
   test("Focus on error goes to the empty required comment, Bug#11902", () => {
     const survey = new SurveyModel({

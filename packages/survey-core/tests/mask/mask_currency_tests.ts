@@ -2,6 +2,7 @@ import { JsonObject } from "../../src/jsonobject";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { ITextInputParams } from "../../src/mask/mask_utils";
 import { QuestionTextModel } from "../../src/question_text";
+import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
 describe("Currency mask", () => {
@@ -543,5 +544,34 @@ describe("Currency mask", () => {
     result = maskInstance.processInput({ insertedChars: "", selectionStart: 3, selectionEnd: 4, prevValue: "$ -1", inputDirection: "forward" });
     expect(result.value, "remove 1").toBe("$ -");
     expect(result.caretPosition, "remove 1").toBe(3);
+  });
+});
+
+describe("Currency mask: displayValue with saveMaskedValue", () => {
+  test.each([
+    { prefix: "", suffix: "" },
+    { prefix: "$ ", suffix: "" },
+    { prefix: "", suffix: " EUR" }
+  ])("A comma decimal separator keeps the stored text, Bug#11910: %j", ({ prefix, suffix }) => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "text", name: "q1", maskType: "currency",
+        maskSettings: { decimalSeparator: ",", thousandsSeparator: ".", precision: 2, saveMaskedValue: true, prefix, suffix }
+      }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    q.inputValue = prefix + "1.234,56" + suffix;
+    expect(q.value, "value #1").toBe(prefix + "1.234,56" + suffix);
+    expect(q.displayValue, "displayValue #1").toBe(prefix + "1.234,56" + suffix);
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue #1").toBe(prefix + "1.234,56" + suffix);
+
+    q.inputValue = prefix + "234,56" + suffix;
+    expect(q.value, "value #2").toBe(prefix + "234,56" + suffix);
+    expect(q.displayValue, "displayValue #2").toBe(prefix + "234,56" + suffix);
+
+    survey.data = { q1: prefix + "9.876.543,21" + suffix };
+    expect(q.displayValue, "displayValue from data").toBe(prefix + "9.876.543,21" + suffix);
+    expect(q.inputValue, "inputValue from data").toBe(prefix + "9.876.543,21" + suffix);
   });
 });

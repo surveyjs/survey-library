@@ -4768,17 +4768,19 @@ export class SurveyModel extends SurveyElementCore
   private collectExpressionResultMismatchesCore(oldVal: any, newVal: any, context: IVerifyDataContext, rootKey: string): void {
     if (Helpers.isValueObject(oldVal, true) && Helpers.isValueObject(newVal, true) &&
       !Array.isArray(oldVal) && !Array.isArray(newVal)) {
-      for (const key in oldVal) {
+      // Own keys only: a data key named "constructor" or "toString" is data, not an inherited member.
+      const hasOwn = (obj: any, key: string): boolean => Object.prototype.hasOwnProperty.call(obj, key);
+      Object.keys(oldVal).forEach(key => {
         context.pushSegment(key);
-        this.collectExpressionResultMismatchesCore(oldVal[key], newVal[key], context, rootKey !== undefined ? rootKey : key);
+        this.collectExpressionResultMismatchesCore(oldVal[key], hasOwn(newVal, key) ? newVal[key] : undefined, context, rootKey !== undefined ? rootKey : key);
         context.popSegment();
-      }
-      for (const key in newVal) {
-        if (key in oldVal) continue;
+      });
+      Object.keys(newVal).forEach(key => {
+        if (hasOwn(oldVal, key)) return;
         context.pushSegment(key);
         this.collectExpressionResultMismatchesCore(undefined, newVal[key], context, rootKey !== undefined ? rootKey : key);
         context.popSegment();
-      }
+      });
       return;
     }
     if (Array.isArray(oldVal) && Array.isArray(newVal)) {

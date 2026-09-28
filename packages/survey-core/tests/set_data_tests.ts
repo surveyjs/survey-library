@@ -642,6 +642,21 @@ describe("setData: the expressionResultMismatch diagnostic", () => {
     expect(issues[1].expressionResult, "and added the trimmed one").toBe("x");
     expect(issues[1].question).toBe(survey.getQuestionByName("q1"));
   });
+  test("A key named as an Object.prototype member is compared as data", () => {
+    const survey = createSurvey({
+      calculatedValues: [{ name: "toString", expression: "1+1", includeIntoResult: true }],
+      elements: [{ type: "text", name: "constructor" }]
+    });
+    const issues = survey.setData({ " constructor": "x" }, mismatches);
+    expect(shortIssues(issues)).toEqual([
+      { type: "expressionResultMismatch", path: " constructor", value: "x" },
+      { type: "expressionResultMismatch", path: "constructor", value: undefined },
+      { type: "expressionResultMismatch", path: "toString", value: undefined }
+    ]);
+    expect(issues[0].expressionResult, "the model dropped the key").toBeUndefined();
+    expect(issues[1].expressionResult, "and added the trimmed one").toBe("x");
+    expect(issues[2].expressionResult, "the calculated value").toBe(2);
+  });
   test("A value the model keeps as it is, a number text given a string included, is not a difference", () => {
     const survey = createSurvey({
       elements: [

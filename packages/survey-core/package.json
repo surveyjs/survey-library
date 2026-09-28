@@ -14,7 +14,7 @@
     "watch:dev": "rollup -c rollup.config.mjs -w",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:types",
     "test:types": "tsc -p tests/typings/tsconfig.json",
     "test:watch": "vitest --no-isolate",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",

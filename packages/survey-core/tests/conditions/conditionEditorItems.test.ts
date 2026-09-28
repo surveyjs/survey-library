@@ -221,4 +221,10 @@ describe("ConditionEditorItemsBuilder.itemsToExpression", () => {
     const text = "{a} = 1 or {b} <> 'x' and {c} empty and {d} anyof [1, 2]";
     expect(ConditionEditorItemsBuilder.itemsToExpression(new ConditionEditorItemsBuilder().build(text))).toBe(text);
   });
+  test("a constant on the left comes back on the left", () => {
+    const roundTrip = (text: string): string => ConditionEditorItemsBuilder.itemsToExpression(new ConditionEditorItemsBuilder().build(text));
+    ["1 < {q1}", "1 >= {q1}", "'abc' = {q1}", "[1, 2] = {q1}", "{a} = 1 and 2 < {q1} or {b} empty"]
+      .forEach((text: string): void => { expect(roundTrip(text), text).toBe(text); });
+    expect(roundTrip("1 != {q1}"), "the operator is written the editor's way").toBe("1 <> {q1}");
+  });
 });

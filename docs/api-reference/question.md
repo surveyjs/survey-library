@@ -394,25 +394,27 @@ The following table illustrates how the value type depends on the question type:
 
 | Question type | Value type(s) |
 | ------------- | ------------- |
-| Checkboxes | <code>Array&lt;string &#124; number&gt;</code> |
-| Dropdown | `string` \| `number` |
+| Checkboxes | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
+| Dropdown | `string` \| `number` \| `boolean` |
 | Dynamic Matrix | `Array<object>` |
 | Dynamic Panel | `Array<object>` |
-| Expression | `string` \| `number` \| `boolean` |
+| Expression | `string` |
 | File Upload | `File` \| `Array<File>` |
-| Image Picker | <code>Array&lt;string &#124; number&gt;</code> |
+| Image Picker | `string` \| `Array<string>` |
 | Long Text | `string` |
-| Multi-Select Dropdown | <code>Array&lt;string &#124; number&gt;</code> |
+| Multi-Select Dropdown | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
 | Multi-Select Matrix | `object` |
-| Multiple Textboxes | `Array<string>` |
-| Radio Button Group | `string` \| `number` |
-| Ranking | <code>Array&lt;string &#124; number&gt;</code> |
-| Rating Scale | `number` \| `string` |
-| Slider | <code>Array&lt;string &#124; number&gt;</code> |
-| Signature | `string` (base64-encoded image) |
+| Multiple Textboxes | `object` |
+| Radio Button Group | `string` \| `number` \| `boolean` |
+| Ranking | <code>Array&lt;string &#124; number &#124; boolean&gt;</code> |
+| Rating Scale | `number` \| `string` \| `boolean` |
+| Slider | `number` \| `Array<number>` |
+| Signature | `string` |
 | Single-Line Input | `string` \| `number` \| `Date` |
 | Single-Select Matrix | `object` |
-| Yes/No (Boolean) | `boolean` \| `string` |
+| Yes/No (Boolean) | `boolean` \| `string` \| `number` |
+
+**Related APIs:** [`getValueType`](#getValueType)
 
 ### `valueName`
 
@@ -577,6 +579,36 @@ Possible values:
 - [*"signaturepad"*](https://surveyjs.io/Documentation/Library?id=questionsignaturepadmodel)
 - [*"text"*](https://surveyjs.io/Documentation/Library?id=questiontextmodel)
 
+### `getValueType()`
+
+**Return value:** `QuestionValueType`
+
+Returns the expected type of an answer to this question.
+
+The following table illustrates how the return value depends on the question type:
+
+| Question type | Value type(s) |
+| ------------- | ------------- |
+| Checkboxes | `"array"` |
+| Dropdown | `"string"` \| `"number"` \| `"boolean"` |
+| Dynamic Matrix | `"array"` |
+| Dynamic Panel | `"array"` |
+| Expression | `"string"` |
+| File Upload | `"array"` |
+| Image Picker | `"string"` \| `"array"` |
+| Long Text | `"string"` |
+| Multi-Select Dropdown | `"array"` |
+| Multi-Select Matrix | `"object"` |
+| Multiple Textboxes | `"object"` |
+| Radio Button Group | `"string"` \| `"number"` \| `"boolean"` |
+| Ranking | `"array"` |
+| Rating Scale | `"number"` \| `"string"` \| `"boolean"` |
+| Slider | `"number"` \| `"array"` |
+| Signature | `"string"` |
+| Single-Line Input | `"string"` \| `"number"` \| `"date"` |
+| Single-Select Matrix | `"object"` |
+| Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
+
 ### `isAnswerCorrect()`
 
 **Return value:** `boolean`
@@ -592,6 +624,25 @@ Returns `true` if a question answer matches the [`correctAnswer`](#correctAnswer
 **Return value:** `boolean`
 
 Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.
+
+### `isSelectQuestion()`
+
+**Return value:** `boolean`
+
+Returns `true` if the question exposes a collection of choice items that define its possible values.
+
+The following question types return `true`:
+
+- Checkboxes
+- Dropdown
+- Image Picker
+- Multi-Select Dropdown
+- Radio Button Group
+- Ranking
+- Rating Scale
+- Yes/No (Boolean)
+
+[Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
 
 ### `validate()`
 

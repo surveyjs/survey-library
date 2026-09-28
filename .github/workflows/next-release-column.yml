@@ -1,0 +1,335 @@
+name: Add release column to project board
+
+# ---------------------------------------------------------------------------
+# Automates the creation of a new "Status" column on the
+# "Current sprint progress" GitHub Project (v2) board whenever a new
+# release is published.
+#
+# The new column is named after the *next* patch version relative to
+# the released tag. For example, publishing release "v3.1.1" (or "3.1.1")
+# creates a column titled "v3.1.2". The column is inserted immediately
+# after the existing "Waiting for..." column.
+#
+# The workflow can also be triggered manually via workflow_dispatch,
+# in which case the tag name must be supplied as an input.
+# ---------------------------------------------------------------------------
+
+on:
+  # Auto-run whenever a GitHub Release is published.
+  release:
+    types: [published]
+
+  # Allow manual runs from the Actions tab with configurable overrides.
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Released version tag (e.g. v3.1.1). The new column will be the next patch (v3.1.2).'
+        required: true
+        type: string
+      project_title:
+        description: 'Title of the target GitHub Project'
+        required: false
+        type: string
+        default: 'Current sprint progress'
+      after_column:
+        description: 'Name of the existing column to insert the new column after'
+        required: false
+        type: string
+        default: 'Waiting for...'
+
+permissions:
+  # This workflow does not need to read repo contents; it only talks to the
+  # GraphQL Projects API using the PAT below.
+  contents: read
+
+jobs:
+  add-column:
+    runs-on: ubuntu-latest
+    env:
+      # A PAT with `project` scope is required because the default
+      # GITHUB_TOKEN cannot mutate organization/user-owned Projects (v2).
+      GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+
+      # Owner of the repo running the workflow — used to locate the project.
+      ORG: ${{ github.repository_owner }}
+
+      # The released tag. Comes from the release event payload when triggered
+      # automatically, or from the manual input when triggered by hand.
+      RELEASED_TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
+
+      # Project and anchor column names, with the requested defaults.
+      PROJECT_TITLE: ${{ inputs.project_title || 'Current sprint progress' }}
+      AFTER_COLUMN: ${{ inputs.after_column || 'Waiting for...' }}
+
+    steps:
+      # -------------------------------------------------------------------
+      # Step 1: sanity-check the inputs before doing any API work.
+      # -------------------------------------------------------------------
+      - name: Validate inputs
+        run: |
+          if [ -z "$RELEASED_TAG" ]; then
+            echo "::error::No release tag available. Provide 'tag_name' when running manually."
+            exit 1
+          fi
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Secret PROJECTS_TOKEN is not configured. It must have 'project' scope."
+            exit 1
+          fi
+          echo "Released tag: $RELEASED_TAG"
+          echo "Project:      $PROJECT_TITLE"
+          echo "After column: $AFTER_COLUMN"
+
+      # -------------------------------------------------------------------
+      # Step 2: derive the *next* patch version from the released tag.
+      #   e.g. "v3.1.1"  -> "v3.1.2"
+      #        "3.1.1"   -> "v3.1.2"
+      #        "v3.1"    -> "v3.1.1"   (missing patch is treated as 0, then +1)
+      # The result is exposed as the step output `column_name`.
+      # -------------------------------------------------------------------
+      - name: Compute next patch version
+        id: next
+        run: |
+          set -euo pipefail
+
+          # Strip an optional leading "v" so we can operate on pure numbers.
+          RAW="${RELEASED_TAG#v}"
+
+          # Split "MAJOR.MINOR.PATCH" (patch defaults to 0 if omitted).
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$RAW"
+          PATCH="${PATCH:-0}"
+
+          # Validate the parts are numeric; abort early if the tag isn't semver-ish.
+          if ! [[ "$MAJOR" =~ ^[0-9]+$ && "$MINOR" =~ ^[0-9]+$ && "$PATCH" =~ ^[0-9]+$ ]]; then
+            echo "::error::Released tag '$RELEASED_TAG' is not a semantic version (expected vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+
+          # Bump patch and rebuild the "v"-prefixed column name.
+          NEXT_PATCH=$((PATCH + 1))
+          COLUMN_NAME="v${MAJOR}.${MINOR}.${NEXT_PATCH}"
+
+          echo "Released: $RELEASED_TAG  ->  New column: $COLUMN_NAME"
+          echo "column_name=$COLUMN_NAME" >> "$GITHUB_OUTPUT"
+
+      # -------------------------------------------------------------------
+      # Step 3: resolve the ProjectV2 id and the id of its "Status" field.
+      # We try organization-owned projects first (typical for surveyjs) and
+      # fall back to user-owned projects so the workflow also works on forks.
+      # -------------------------------------------------------------------
+      - name: Look up project id and Status field
+        id: lookup
+        run: |
+          set -euo pipefail
+
+          # Helper that queries either `organization(login:)` or `user(login:)`
+          # for the first 50 ProjectsV2 owned by that account.
+          query_projects() {
+            local owner_type=$1
+            gh api graphql -f query="
+              query(\$login: String!) {
+                $owner_type(login: \$login) {
+                  projectsV2(first: 50) {
+                    nodes { id title }
+                  }
+                }
+              }" -f login="$ORG"
+          }
+
+          # Try org first; if the owner isn't an org GitHub returns an error,
+          # in which case we fall back to querying it as a user account.
+          RESPONSE=$(query_projects organization 2>/dev/null || query_projects user)
+
+          # Extract the id of the project whose title matches PROJECT_TITLE.
+          PROJECT_ID=$(echo "$RESPONSE" | jq -r --arg t "$PROJECT_TITLE" \
+            '.. | .nodes? // empty | .[]? | select(.title==$t) | .id' | head -n1)
+
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "::error::Project '$PROJECT_TITLE' not found for owner '$ORG'."
+            exit 1
+          fi
+          echo "Found project id: $PROJECT_ID"
+
+          # Fetch every single-select field on the project along with its
+          # current options so we can (a) find the "Status" field id, and
+          # (b) know the current option order for the splice step below.
+          FIELDS=$(gh api graphql -f query='
+            query($projectId: ID!) {
+              node(id: $projectId) {
+                ... on ProjectV2 {
+                  fields(first: 50) {
+                    nodes {
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options { id name }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f projectId="$PROJECT_ID")
+
+          # The "Status" field is the built-in single-select that renders
+          # as columns on the board view.
+          FIELD_ID=$(echo "$FIELDS" | jq -r \
+            '.data.node.fields.nodes[] | select(.name=="Status") | .id')
+
+          if [ -z "$FIELD_ID" ] || [ "$FIELD_ID" = "null" ]; then
+            echo "::error::Status field not found on project '$PROJECT_TITLE'."
+            exit 1
+          fi
+
+          # Persist the current options list to a tmp file for the next step.
+          echo "$FIELDS" | jq '.data.node.fields.nodes[] | select(.name=="Status") | .options' \
+            > /tmp/options.json
+
+          echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+          echo "field_id=$FIELD_ID"     >> "$GITHUB_OUTPUT"
+
+      # -------------------------------------------------------------------
+      # Step 4: splice the new column in after AFTER_COLUMN and write the
+      # full option list back with a single updateProjectV2Field mutation.
+      # This mutation is currently the only way to control option ordering
+      # in the ProjectsV2 API — individual add/reorder mutations don't exist.
+      # -------------------------------------------------------------------
+      - name: Add new column after "$AFTER_COLUMN"
+        run: |
+          set -euo pipefail
+
+          PROJECT_ID='${{ steps.lookup.outputs.project_id }}'
+          FIELD_ID='${{ steps.lookup.outputs.field_id }}'
+          COLUMN_NAME='${{ steps.next.outputs.column_name }}'
+
+          # Idempotency guard.
+          if jq -e --arg n "$COLUMN_NAME" 'any(.name == $n)' /tmp/options.json > /dev/null; then
+            echo "Column '$COLUMN_NAME' already exists. Nothing to do."
+            exit 0
+          fi
+
+          # Build the new option list, PRESERVING existing option ids so
+          # items assigned to those columns keep their Status. Only the new
+          # column has no id (it will be created).
+          NEW_OPTIONS=$(jq --arg after "$AFTER_COLUMN" --arg name "$COLUMN_NAME" '
+            (map(.name) | index($after)) as $i
+            | ($i // (length - 1)) as $pos
+            | .[0:($pos + 1)]
+              + [{name: $name, color: "GREEN", description: "Release \($name)"}]
+              + .[($pos + 1):]
+            | map(
+                if .id then
+                  {id: .id, name: .name, color: (.color // "GRAY"), description: (.description // "")}
+                else
+                  {name: .name, color: (.color // "GRAY"), description: (.description // "")}
+                end
+              )
+          ' /tmp/options.json)
+
+          echo "New option order:"
+          echo "$NEW_OPTIONS" | jq -r '.[].name' | nl
+
+          # Send the mutation with a hand-built JSON body so options is a
+          # real JSON array (gh api graphql's -F flag mangles complex types).
+          BODY=$(jq -n --arg fieldId "$FIELD_ID" --argjson options "$NEW_OPTIONS" '{
+            query: "mutation($fieldId: ID!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) { updateProjectV2Field(input: { fieldId: $fieldId, singleSelectOptions: $options }) { projectV2Field { ... on ProjectV2SingleSelectField { options { name } } } } }",
+            variables: { fieldId: $fieldId, options: $options }
+          }')
+
+          gh api graphql --input - <<< "$BODY"
+
+          echo "::notice::Added column '$COLUMN_NAME' after '$AFTER_COLUMN' in project '$PROJECT_TITLE'."
+
+      # -------------------------------------------------------------------
+      # Step 5: repoint the built-in "Item closed" Project workflow at the
+      # newly created column, so from now on any closed issue/PR whose card
+      # is on the board will be moved to the new v* column.
+      #
+      # Built-in Project workflows live inside the Project itself (they are
+      # not Actions .yml files). We locate the one named "Item closed" and
+      # update its actions so that its Status assignment points at the new
+      # single-select option id.
+      # -------------------------------------------------------------------
+      - name: Point "Item closed" project workflow at the new column
+        run: |
+          set -euo pipefail
+
+          PROJECT_ID='${{ steps.lookup.outputs.project_id }}'
+          FIELD_ID='${{ steps.lookup.outputs.field_id }}'
+          COLUMN_NAME='${{ steps.next.outputs.column_name }}'
+
+          # Re-fetch the Status options — we need the *id* of the option we
+          # just added, and updateProjectV2Field doesn't return ids for new
+          # options in a stable way.
+          OPTION_ID=$(gh api graphql -f query='
+            query($p: ID!) {
+              node(id: $p) {
+                ... on ProjectV2 {
+                  fields(first: 50) {
+                    nodes {
+                      ... on ProjectV2SingleSelectField {
+                        name
+                        options { id name }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f p="$PROJECT_ID" \
+            | jq -r --arg n "$COLUMN_NAME" \
+                '.data.node.fields.nodes[]
+                 | select(.name=="Status")
+                 | .options[]
+                 | select(.name==$n)
+                 | .id')
+
+          if [ -z "$OPTION_ID" ] || [ "$OPTION_ID" = "null" ]; then
+            echo "::error::New option '$COLUMN_NAME' not found on the Status field."
+            exit 1
+          fi
+          echo "New option id: $OPTION_ID"
+
+          # List the project's built-in workflows and find the one named
+          # "Item closed" (this is the exact name shown in the Project UI).
+          WORKFLOWS=$(gh api graphql -f query='
+            query($p: ID!) {
+              node(id: $p) {
+                ... on ProjectV2 {
+                  workflows(first: 50) {
+                    nodes { id name enabled }
+                  }
+                }
+              }
+            }' -f p="$PROJECT_ID")
+
+          WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r \
+            '.data.node.workflows.nodes[] | select(.name=="Item closed") | .id')
+
+          if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
+            echo "::error::'Item closed' built-in workflow not found on project."
+            exit 1
+          fi
+          echo "Item closed workflow id: $WORKFLOW_ID"
+
+          # Update the workflow so its Status action targets the new option.
+          # The API mutation is updateProjectV2Workflow; we pass the new
+          # option id inside a "singleSelectOptionId" field on the Status
+          # field action.
+          gh api graphql -f query='
+            mutation($workflow: ID!, $field: ID!, $option: String!) {
+              updateProjectV2Workflow(input: {
+                workflowId: $workflow,
+                enabled: true,
+                actions: [{
+                  setFieldValue: {
+                    fieldId: $field,
+                    singleSelectOptionId: $option
+                  }
+                }]
+              }) {
+                projectV2Workflow { id name enabled }
+              }
+            }' \
+            -f workflow="$WORKFLOW_ID" \
+            -f field="$FIELD_ID" \
+            -f option="$OPTION_ID"
+
+          echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."

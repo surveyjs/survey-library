@@ -973,6 +973,8 @@ Those survey-wide settings can in turn be overridden by settings in an individua
 
 `SurveyModel.locale` &rarr; `regionalFormat.locale` &rarr; Overrides in `regionalFormat` &rarr; Overrides in `maskSettings`
 
+Available since: v3.1.0
+
 ### `requiredMark`
 
 **Type**: `string`

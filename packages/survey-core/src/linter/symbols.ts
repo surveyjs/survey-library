@@ -139,6 +139,12 @@ export interface ElementRecord {
   scopeValueRecords?: CIMap<ElementRecord>;
 }
 
+// A path into the linted JSON, the way every finding addresses it. The survey itself has the
+// empty path, so a key of it stands on its own.
+export function joinPath(base: string, key: string): string {
+  return base ? base + "." + key : key;
+}
+
 // The type to dispatch question-kind logic on: a matrix column answers as its cell type,
 // every other record as its own type.
 export function getEffectiveType(record: { type: string, effectiveType?: string }): string {
@@ -202,11 +208,21 @@ export interface ExpressionSite {
   subSites?: Array<ExpressionSite>;
 }
 
+// A string the analysis carved out of another one: an inArray filter, and a condition
+// synthesized from a legacy trigger's name/operator/value. The document holds the string it was
+// carved from and no property of its own for it, so a fix has nowhere to write.
+export function isCarvedOutSite(site: ExpressionSite): boolean {
+  return !!site.inArrayOf || !!site.synthesized;
+}
+
 export type NameRefKind = "choicesByUrlVariable" | "binding" | "textPiping";
 
 export interface NameRef {
   name: string;
   path: string;
+  // the string the reference was read out of, for the kinds that carry one (a piped text, a
+  // choicesByUrl url). A binding holds the bare name, so its whole value is the reference.
+  text?: string;
   // the property the reference was written in; the other kinds name it through their kind
   prop?: string;
   owner?: ElementRecord;
@@ -256,8 +272,14 @@ export interface Namespace {
 
 export interface SurveyIndex {
   json: any;
+  // the elements a bare {name} resolves to: survey-level pages, panels and questions. A question
+  // inside a dynamic-panel template or a matrix row is reached through its scope instead.
   byName: CIMultiMap<ElementRecord>;
   byValueName: CIMultiMap<ElementRecord>;
+  // every page, panel and question by name, scopes included: element names are unique across the
+  // whole survey - a template or a detail panel is no namespace of its own - and this is the map
+  // name/duplicate reads
+  elementNames: CIMultiMap<ElementRecord>;
   calculatedValues: CIMap<CalculatedValueRecord>;
   // every calculated value in declaration order, duplicates included: the map keeps only
   // the first of a repeated name, which is the defect name/duplicate reports

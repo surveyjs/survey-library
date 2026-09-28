@@ -2,9 +2,11 @@ import { ILintRule, LintContext } from "../rule";
 import { forEachValidator } from "../validator-utils";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["validator/unknown-type"];
+const fixReasons = SurveyLintFixReasons["validator/unknown-type"];
 
 export const validatorUnknownTypeRule: ILintRule = {
   id: "validator/unknown-type",
@@ -26,6 +28,7 @@ export const validatorUnknownTypeRule: ILintRule = {
         elementName: entry.owner.name,
         elementType: entry.owner.type,
         suggestion: suggestion,
+        fix: setFix(fixReasons.setType, entry.path + ".type", suggestion),
       });
     });
   },

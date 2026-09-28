@@ -8,8 +8,8 @@ import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./e
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow,
-  ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
+  ExpressionSiteKind, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
 
@@ -25,12 +25,17 @@ interface WalkState {
   componentFields: Map<IComponentDef, CIMap<boolean>>;
 }
 
-function joinPath(base: string, key: string): string {
-  return base ? base + "." + key : key;
-}
-
 function isNonEmptyString(value: any): boolean {
   return typeof value === "string" && value.trim() !== "";
+}
+
+// The name the index goes by. The runtime rejects a number or a boolean written for a name -
+// property/required reports it - but the linter must not stop on it, and its spelling is the key
+// a reference would resolve to. Anything else written there is no name at all.
+function nameOf(value: any): string {
+  if (typeof value === "string") return value;
+  if (!!value && (typeof value === "number" || typeof value === "boolean")) return String(value);
+  return "";
 }
 
 function itemValueFrame(owner: ElementRecord): ScopeFrameItemValue {
@@ -117,6 +122,7 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   state.index.allElements.push(record);
   const frame = getCapturingFrame(record.scope);
   if (record.name) {
+    state.index.elementNames.add(record.name, record);
     if (frame) {
       const map = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
       map.add(record.name, record);
@@ -200,10 +206,19 @@ function guardLeave(state: WalkState): void {
   state.depth--;
 }
 
+// The deserializer wraps a single object written where an array belongs into a one-item array
+// (property/not-an-array reports the spelling), so the element exists and is walked as [0].
+function asElementArray(value: any): Array<any> | undefined {
+  if (Array.isArray(value)) return value;
+  if (!!value && typeof value === "object") return [value];
+  return undefined;
+}
+
 function getArrayByKeys(json: any, keys: Array<string>): { key: string, elements: Array<any> } | undefined {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (Array.isArray(json[key])) return { key: key, elements: json[key] };
+    const elements = asElementArray(json[key]);
+    if (elements) return { key: key, elements: elements };
   }
   return undefined;
 }
@@ -230,7 +245,7 @@ function walkPanel(state: WalkState, json: any, path: string, parent: ElementRec
   scope: Array<ScopeFrame>, ancestorPanels: Array<ElementRecord>): ElementRecord {
   if (!guardEnter(state, json)) return undefined;
   const record: ElementRecord = {
-    name: json.name || "", type: (json.type || "").toLowerCase(), kind: "panel",
+    name: nameOf(json.name), type: (json.type || "").toLowerCase(), kind: "panel",
     path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: false, valueType: { shape: "none" },
     panelDescendantNames: new CIMap<ElementRecord>(),
@@ -270,7 +285,7 @@ function walkMatrixColumns(state: WalkState, json: any, path: string, record: El
       const effectiveCellType = cellType === "default" ? defaultCellType : cellType;
       const columnJson = column;
       const columnRecord: ElementRecord = {
-        name: column.name || "", type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
+        name: nameOf(column.name), type: "matrixdropdowncolumn", effectiveType: effectiveCellType, kind: "column",
         path: columnPath, json: columnJson, parent: record, scope: rowScope.slice(),
         isUnknownType: false,
         valueType: getValueTypeInfo(effectiveCellType, columnJson),
@@ -307,18 +322,26 @@ function walkMultipleTextItems(state: WalkState, json: any, path: string, record
   scope: Array<ScopeFrame>): void {
   record.multipleTextItems = new CIMap<ElementRecord>();
   if (!Array.isArray(json.items)) return;
+  // item names are unique per question, the way matrix column names are per matrix
+  const itemNames = new CIMultiMap<ElementRecord>();
+  state.index.namespaces.push({
+    label: "multiple text \"" + (record.name || record.path) + "\"", map: itemNames,
+  });
   const itemProps = state.metadata.getItemExpressionProps("multipletext", "items");
   const locProps = state.metadata.getLocalizableProps("multipletextitem");
   json.items.forEach((item: any, i: number) => {
     if (!item || typeof item !== "object") return;
     const itemPath = path + ".items[" + i + "]";
     const itemRecord: ElementRecord = {
-      name: item.name || "", type: "multipletextitem", kind: "multipletextitem",
+      name: nameOf(item.name), type: "multipletextitem", kind: "multipletextitem",
       path: itemPath, json: item, parent: record, scope: scope.slice(),
       isUnknownType: false, valueType: getValueTypeInfo("text", item),
     };
     state.index.allElements.push(itemRecord);
-    if (itemRecord.name) record.multipleTextItems.set(itemRecord.name, itemRecord);
+    if (itemRecord.name) {
+      record.multipleTextItems.set(itemRecord.name, itemRecord);
+      itemNames.add(itemRecord.name, itemRecord);
+    }
     addSitesFromProps(state, item, itemPath, itemProps, itemRecord, scope);
     addTextRefsFromProps(state, item, itemPath, locProps, itemRecord, scope);
     addValidatorSites(state, item, itemPath, itemRecord, scope);
@@ -334,7 +357,7 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
   const componentDef = components && Object.prototype.hasOwnProperty.call(components, type)
     ? components[type] : undefined;
   const record: ElementRecord = {
-    name: json.name || "", valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
+    name: nameOf(json.name), valueName: isNonEmptyString(json.valueName) ? json.valueName : undefined,
     type: type, kind: "question", path: path, json: json, parent: parent, scope: scope.slice(),
     isUnknownType: !state.metadata.isKnownElementType(type) && !componentDef,
     componentDef: componentDef,
@@ -356,9 +379,6 @@ function walkQuestion(state: WalkState, json: any, path: string, parent: Element
     };
     record.templateNames = frame.templateNames;
     templateScope = scope.concat([frame]);
-    state.index.namespaces.push({
-      label: "dynamic panel \"" + (record.name || record.path) + "\"", map: frame.templateNames,
-    });
   }
 
   addSitesFromProps(state, json, path, state.metadata.getElementExpressionProps(type, "question"),
@@ -460,6 +480,7 @@ function collectTextRefs(state: WalkState, text: string, path: string, prop: str
     if (/^[0-9]+$/.test(name)) return;
     state.index.nameRefs.push({
       name: name, path: path, prop: prop, owner: owner, scope: scope.slice(), kind: kind,
+      text: text,
     });
   });
 }
@@ -495,7 +516,7 @@ function addTextRefsFromProps(state: WalkState, json: any, basePath: string, pro
 function walkPage(state: WalkState, json: any, path: string): void {
   if (!guardEnter(state, json)) return;
   const record: ElementRecord = {
-    name: json.name || "", type: "page", kind: "page", path: path, json: json,
+    name: nameOf(json.name), type: "page", kind: "page", path: path, json: json,
     scope: [], isUnknownType: false, valueType: { shape: "none" },
   };
   registerRecord(state, record, []);
@@ -584,6 +605,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
     json: json,
     byName: new CIMultiMap<ElementRecord>(),
     byValueName: new CIMultiMap<ElementRecord>(),
+    elementNames: new CIMultiMap<ElementRecord>(),
     calculatedValues: new CIMap(),
     calculatedValueList: [],
     triggers: [],
@@ -603,14 +625,17 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   if (!!variablePresets) {
     variablePresets.getVariableNames().forEach(name => index.definitionVariables.set(name, name));
   }
-  index.namespaces.push({ label: "", map: index.byName });
+  // one namespace for every page, panel and question - a dynamic-panel template shares it, the
+  // way the Creator's designer keeps element names unique across the whole survey
+  index.namespaces.push({ label: "", map: index.elementNames });
   const state: WalkState = {
     index: index, options: options, metadata: metadata, visited: new WeakSet(), depth: 0,
     componentFields: new Map<IComponentDef, CIMap<boolean>>(),
   };
 
-  if (Array.isArray(json.pages)) {
-    json.pages.forEach((page: any, i: number) => {
+  const pages = asElementArray(json.pages);
+  if (pages) {
+    pages.forEach((page: any, i: number) => {
       if (page && typeof page === "object") walkPage(state, page, "pages[" + i + "]");
     });
   } else {
@@ -631,20 +656,22 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   if (Array.isArray(json.calculatedValues)) {
     json.calculatedValues.forEach((cv: any, i: number) => {
-      if (!cv || typeof cv !== "object" || typeof cv.name !== "string" || !cv.name) return;
+      if (!cv || typeof cv !== "object") return;
+      const name = nameOf(cv.name);
+      if (!name) return;
       const path = "calculatedValues[" + i + "]";
-      const record: CalculatedValueRecord = { name: cv.name, path: path };
+      const record: CalculatedValueRecord = { name: name, path: path };
       // the list records every declaration, the map only the first of a repeated name;
       // a name that is only whitespace addresses nothing, so it gets neither a site nor
       // a place in the map - name/duplicate still sees it in the list
       index.calculatedValueList.push(record);
-      if (!isNonEmptyString(cv.name)) return;
+      if (!isNonEmptyString(name)) return;
       record.expression = isNonEmptyString(cv.expression) ? cv.expression : undefined;
       if (record.expression) {
         record.site = addSite(state, record.expression, "expression",
           joinPath(path, "expression"), "expression", undefined, []);
       }
-      index.calculatedValues.set(cv.name, record);
+      index.calculatedValues.set(name, record);
     });
   }
 

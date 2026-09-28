@@ -162,6 +162,115 @@ describe("Input mask", () => {
     testInput.remove();
   });
 
+  test("InputElementAdapter renders the trailing zeros of a numeric value", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const inputMask = new InputMaskNumeric();
+    inputMask.showTrailingZeros = true;
+
+    const adapter = new InputElementAdapter(inputMask, testInput, 1234.5);
+    expect(testInput.value, "a value with one fractional digit").toBe("1,234.50");
+
+    adapter.updateInputElementValue(12);
+    expect(testInput.value, "an integer").toBe("12.00");
+
+    adapter.updateInputElementValue(12.5);
+    inputMask.showTrailingZeros = false;
+    expect(testInput.value, "the property change rerenders the element").toBe("12.5");
+
+    inputMask.showTrailingZeros = true;
+    adapter.updateInputElementValue("");
+    expect(testInput.value, "an empty value").toBe("");
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("InputElementAdapter shows the trailing zeros as the digits are typed", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const inputMask = new InputMaskNumeric();
+    inputMask.showTrailingZeros = true;
+    const adapter = new InputElementAdapter(inputMask, testInput, "");
+    const type = (ch: string) => adapter.beforeInputHandler({ data: ch, inputType: "insertText", target: testInput, preventDefault: (): void => {} });
+
+    testInput.focus();
+    testInput.setSelectionRange(0, 0);
+
+    type("1");
+    expect(testInput.value, "the first digit").toBe("1.00");
+    expect(testInput.selectionStart, "the caret is after the typed digit").toBe(1);
+
+    type("2");
+    expect(testInput.value, "a second integral digit").toBe("12.00");
+    expect(testInput.selectionStart, "a second integral digit").toBe(2);
+
+    type(".");
+    expect(testInput.value, "the separator is already displayed").toBe("12.00");
+    expect(testInput.selectionStart, "the separator keystroke moves the caret over it").toBe(3);
+
+    type("5");
+    expect(testInput.value, "a fractional digit").toBe("12.50");
+    expect(testInput.selectionStart, "a fractional digit").toBe(4);
+
+    expect(inputMask.getUnmaskedValue(testInput.value), "the value the entry carries").toBe(12.5);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("InputElementAdapter keeps the trailing zeros while the entry is deleted", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const inputMask = new InputMaskNumeric();
+    inputMask.showTrailingZeros = true;
+    const adapter = new InputElementAdapter(inputMask, testInput, 1.5);
+    const backspace = () => adapter.beforeInputHandler({ data: null, inputType: "deleteContentBackward", target: testInput, preventDefault: (): void => {} });
+
+    expect(testInput.value, "the stored value").toBe("1.50");
+    testInput.focus();
+    testInput.setSelectionRange(4, 4);
+
+    backspace();
+    expect(testInput.value, "the generated zero is kept").toBe("1.50");
+    expect(testInput.selectionStart, "the caret steps over the generated zero").toBe(3);
+
+    backspace();
+    expect(testInput.value, "the typed fractional digit is deleted").toBe("1.00");
+    expect(testInput.selectionStart, "the typed fractional digit is deleted").toBe(2);
+
+    backspace();
+    expect(testInput.value, "the separator is kept as well").toBe("1.00");
+    expect(testInput.selectionStart, "the caret steps over the separator").toBe(1);
+
+    backspace();
+    expect(testInput.value, "the last typed digit empties the input").toBe("");
+    expect(testInput.selectionStart, "the last typed digit empties the input").toBe(0);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
+  test("InputElementAdapter renders the trailing zeros of a currency value inside the affixes", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+    const inputMask = new InputMaskCurrency();
+    inputMask.prefix = "$ ";
+    inputMask.suffix = " USD";
+    inputMask.showTrailingZeros = true;
+    const adapter = new InputElementAdapter(inputMask, testInput, 1234.5);
+    expect(testInput.value, "the stored value").toBe("$ 1,234.50 USD");
+
+    testInput.focus();
+    testInput.setSelectionRange(9, 9);
+    adapter.beforeInputHandler({ data: "7", inputType: "insertText", target: testInput, preventDefault: (): void => {} });
+    expect(testInput.value, "a fractional digit replaces the generated zero").toBe("$ 1,234.57 USD");
+    expect(testInput.selectionStart, "the caret is after the typed digit").toBe(10);
+
+    adapter.dispose();
+    testInput.remove();
+  });
+
   test("InputElementAdapter renders the empty mask when saveMaskedValue is set", () => {
     const testInput = document.createElement("input");
     const inputMask = new InputMaskDateTime();

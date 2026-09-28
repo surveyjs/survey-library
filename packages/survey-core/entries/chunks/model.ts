@@ -179,6 +179,14 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
+export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
+export {
+  isConditionOperatorEnabled,
+  isQuestionTypeInList,
+  isQuestionClassContains,
+  getConditionOperatorNames,
+  getConditionDefaultOperator
+} from "../../src/conditions/conditionOperators";
 export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,

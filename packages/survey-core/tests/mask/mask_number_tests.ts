@@ -1,6 +1,7 @@
 import { JsonObject } from "../../src/jsonobject";
 import { splitString, InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { QuestionTextModel } from "../../src/question_text";
+import { SurveyModel } from "../../src/survey";
 
 import { describe, test, expect } from "vitest";
 describe("Numeric mask", () => {

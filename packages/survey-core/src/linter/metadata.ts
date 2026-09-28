@@ -1,4 +1,4 @@
-import { ComponentCollection, JsonObjectProperty, Serializer } from "survey-core";
+import { ComponentCollection, Helpers, JsonObjectProperty, Serializer } from "survey-core";
 import { PROP_KIND_OVERRIDES, TRIGGER_TARGET_KINDS } from "./catalog";
 import { ExpressionSiteKind, TriggerTargetRef } from "./symbols";
 
@@ -196,6 +196,7 @@ export class LintMetadata {
   private maskTypes: Array<string>;
   private knownKeys = new Map<string, KnownKeys | undefined>();
   private columnKnownKeys = new Map<string, KnownKeys>();
+  private requiredProps = new Map<string, Array<JsonObjectProperty>>();
   private classNameParts = new Map<string, string>();
   private elementsKeys: Array<string>;
   private templateElementsKeys: Array<string>;
@@ -255,6 +256,18 @@ export class LintMetadata {
       this.columnKnownKeys.set(key, buildKnownKeys(own.concat(dynamic)));
     }
     return this.columnKnownKeys.get(key);
+  }
+
+  // The properties the deserializer demands of an object of the class (JsonObject.getRequiredError):
+  // the ones marked required whose default value is empty. Empty for an unknown class.
+  public getRequiredProperties(className: string): Array<JsonObjectProperty> {
+    const key = (className || "").toLowerCase();
+    if (!this.requiredProps.has(key)) {
+      const metaClass = findMetaClass(key);
+      const props = metaClass ? metaClass.getRequiredProperties() : [];
+      this.requiredProps.set(key, props.filter(prop => Helpers.isValueEmpty(prop.defaultValue)));
+    }
+    return this.requiredProps.get(key);
   }
 
   public isComponentType(type: string): boolean {

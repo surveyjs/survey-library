@@ -367,6 +367,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
     // minus sign - so it is removed as boundary text instead of being left to the number parser
     return super.getUnmaskedValue(this.unwrapText(src));
   }
+  public isValueOutOfRange(src: string): boolean {
+    return super.isValueOutOfRange(this.unwrapText(src));
+  }
 }
 
 Serializer.addClass(

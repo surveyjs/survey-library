@@ -3,10 +3,13 @@ import { ElementRecord, getEffectiveType } from "../symbols";
 import { getInputType } from "../value-types";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
-import { POSITION_KEY } from "../property-walk";
-import { SurveyLintReasons } from "../reasons";
+import { userKeys } from "../property-walk";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
+import { ILintFix } from "../types";
 
 const reasons = SurveyLintReasons["mask/mismatch"];
+const fixReasons = SurveyLintFixReasons["mask/mismatch"];
 
 // maskTypeIsEmpty (question_text.ts): a mask reaches the input only for these two.
 const MASK_INPUT_TYPES = ["text", "tel"];
@@ -28,7 +31,7 @@ function getSettings(json: any): any {
 }
 
 function report(ctx: LintContext, record: ElementRecord, message: string, reason: string,
-  path: string, messageData: { [key: string]: any }, suggestion?: string): void {
+  path: string, messageData: { [key: string]: any }, suggestion?: string, fix?: ILintFix): void {
   ctx.report({
     message: message,
     path: path,
@@ -37,6 +40,7 @@ function report(ctx: LintContext, record: ElementRecord, message: string, reason
     elementName: record.name,
     elementType: record.type,
     suggestion: suggestion,
+    fix: fix,
   });
 }
 
@@ -47,8 +51,8 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
   maskClass: string, settings: any): void {
   const known = ctx.metadata.getKnownKeys(maskClass);
   if (!known) return;
-  Object.keys(settings).forEach(key => {
-    if (key === POSITION_KEY || known.byKey.has(key)) return;
+  userKeys(settings).forEach(key => {
+    if (known.byKey.has(key)) return;
     report(ctx, record,
       "The maskSettings of \"" + record.name + "\" set \"" + key + "\", which is not a property of the \"" +
       maskType + "\" mask - the runtime drops it silently." +
@@ -62,7 +66,7 @@ function checkSettingsKeys(ctx: LintContext, record: ElementRecord, maskType: st
 
 // Without a maskType the settings resolve to the bare base class, which carries one property.
 function checkSettingsWithoutMask(ctx: LintContext, record: ElementRecord, settings: any): void {
-  const keys = Object.keys(settings).filter(key => key !== BASE_MASK_KEY && key !== POSITION_KEY);
+  const keys = userKeys(settings).filter(key => key !== BASE_MASK_KEY);
   if (keys.length === 0) return;
   report(ctx, record,
     "The maskSettings of \"" + record.name + "\" are set without a maskType - the runtime keeps " +
@@ -104,13 +108,15 @@ function checkRecord(ctx: LintContext, record: ElementRecord): void {
   const maskClass = ctx.metadata.resolveMaskClass(maskType);
   if (!maskClass) {
     const known = ctx.metadata.getMaskTypes();
+    const suggestion = closestMatch(maskType, known);
     report(ctx, record,
       "The maskType \"" + maskType + "\" of \"" + record.name + "\" is not a known mask - the " +
-      "runtime falls back to no mask at all." + didYouMean(closestMatch(maskType, known)),
+      "runtime falls back to no mask at all." + didYouMean(suggestion),
       reasons.unknownMaskType,
       record.path + ".maskType",
       { maskType: maskType, known: known },
-      closestMatch(maskType, known));
+      suggestion,
+      setFix(fixReasons.setMaskType, record.path + ".maskType", suggestion));
     return;
   }
   const hasMask = maskClass !== BASE_MASK_CLASS;

@@ -16,6 +16,8 @@ Set [`locale`](#locale) to select default formats independently of the survey's 
 
 Settings in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object take precedence over these survey-wide settings.
 
+Available since: v3.1.0
+
 ## Inheritance
 
 [`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `RegionalFormat`
@@ -46,6 +48,8 @@ An explicit [`currencyPattern`](/form-library/documentation/api-reference/inputm
 
 Default value: `undefined` (uses the [format locale](#locale)'s currency pattern)
 
+Available since: v3.1.0
+
 ### `currencySymbol`
 
 **Type**: `string`
@@ -57,6 +61,8 @@ The symbol's position is specified by the `@` token in [`currencyPattern`](#curr
 An explicit [`currencySymbol`](/form-library/documentation/api-reference/inputmaskcurrency#currencySymbol) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
 
 Default value: `undefined` (uses the [format locale](#locale)'s currency symbol)
+
+Available since: v3.1.0
 
 ### `datePattern`
 
@@ -79,6 +85,8 @@ An explicit [`pattern`](/form-library/documentation/api-reference/inputmaskdatet
 
 Default value: `undefined` (uses the [format locale](#locale)'s date pattern)
 
+Available since: v3.1.0
+
 **Related APIs:** [`timePattern`](#timePattern)
 
 ### `decimalSeparator`
@@ -90,6 +98,8 @@ A symbol that separates the integer and fractional parts of a displayed number i
 An explicit [`decimalSeparator`](/form-library/documentation/api-reference/inputmasknumeric#decimalSeparator) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
 
 Default value: `undefined` (uses the [format locale](#locale)'s decimal separator)
+
+Available since: v3.1.0
 
 **Related APIs:** [`thousandsSeparator`](#thousandsSeparator)
 
@@ -105,6 +115,8 @@ Use a BCP 47 language tag, such as `"de"`, `"en-GB"`, or `"pt-BR"`. If a format 
 
 Default value: `undefined` (uses the survey's locale)
 
+Available since: v3.1.0
+
 ### `thousandsSeparator`
 
 **Type**: `string`
@@ -116,6 +128,8 @@ Set this property to an empty string to disable grouping. Grouping is also disab
 An explicit [`thousandsSeparator`](/form-library/documentation/api-reference/inputmasknumeric#thousandsSeparator) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
 
 Default value: `undefined` (uses the [format locale](#locale)'s thousands separator)
+
+Available since: v3.1.0
 
 ### `timePattern`
 
@@ -139,5 +153,7 @@ Examples: `"HH:MM"`, `"HH:MM:ss"`, `"hh:MM TT"`
 An explicit [`pattern`](/form-library/documentation/api-reference/inputmaskdatetime#pattern) value in an individual question's [`maskSettings`](/form-library/documentation/api-reference/text-entry-question-model#maskSettings) object overrides this setting.
 
 Default value: `undefined` (uses the [format locale](#locale)'s time pattern)
+
+Available since: v3.1.0
 
 **Related APIs:** [`datePattern`](#datePattern)

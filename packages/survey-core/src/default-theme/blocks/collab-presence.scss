@@ -1,0 +1,48 @@
+@use "../variables.scss" as *;
+
+// Remote presence is drawn NATIVELY where it can be: the overlay stamps a
+// `data-collab-focus` attribute plus an inline `--collab-peer-color` onto the real
+// question node, and the ring below is an outset box-shadow - so it scrolls, clips
+// and layers exactly like the survey's own decorations, with no element of ours in
+// the middle. Attributes and inline styles survive a framework re-render; a
+// re-CREATED node loses them and the overlay's observer re-applies on the next tick.
+//
+// The class names are shared with survey-creator's collaboration plugin on purpose
+// (`collab-` is the feature's namespace, not a package's) - one contract, one
+// implementation of the overlay.
+[data-collab-focus="on"] {
+  box-shadow: 0 0 0 var(--sjs2-border-width-x200, 2px) var(--collab-peer-color, #808080);
+  border-radius: var(--sjs2-corner-radius-x100, 4px);
+}
+
+// Only the things that cannot be expressed as a decoration of an existing node -
+// mouse cursors and the name badges - live in this layer. It is fixed and
+// pointer-transparent, so it never intercepts a click meant for the form.
+.collab-presence-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.collab-presence-cursor,
+.collab-presence-cursor-name,
+.collab-presence-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.collab-presence-cursor-name,
+.collab-presence-badge {
+  padding: 2px 6px;
+  border-radius: var(--sjs2-corner-radius-x100, 4px);
+  background: var(--collab-peer-color, #808080);
+  color: var(--collab-peer-fg, #fff);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}

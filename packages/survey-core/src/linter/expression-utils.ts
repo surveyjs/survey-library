@@ -183,6 +183,20 @@ function isFoldableRange(segments: Array<ParsedRefSegment>, start: number, end: 
 
 // The name closest to what the reference tried to address. A typo inside a dotted name
 // ({address.cty}) is closest to the full registered name, so the whole path is tried first.
+// A dotted name with one segment respelled. A reference and a trigger target both name a
+// container and something inside it, so only the segment that did not resolve is rewritten and
+// the rest stays as the author wrote it. Nothing to respell - or a spelling that changes
+// nothing - answers undefined, which is no repair.
+export function respellSegment(name: string, index: number,
+  suggestion: string): string | undefined {
+  if (!name || !suggestion) return undefined;
+  const parts = name.split(".");
+  if (index < 0 || index >= parts.length) return undefined;
+  parts[index] = suggestion;
+  const res = parts.join(".");
+  return res === name ? undefined : res;
+}
+
 export function suggestForRef(ref: ParsedRef, pool: Array<string>): string | undefined {
   if (ref.segments.length > 1 && isFoldableRange(ref.segments, 0, ref.segments.length)) {
     const joined = closestMatch(ref.segments.map(seg => seg.name).join("."), pool);

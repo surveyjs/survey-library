@@ -1,9 +1,11 @@
 import { ILintRule, LintContext } from "../rule";
 import { CalculatedValueRecord } from "../symbols";
 import { ILintRelated } from "../types";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["name/duplicate"];
+const fixReasons = SurveyLintFixReasons["name/duplicate"];
 
 export const nameDuplicateRule: ILintRule = {
   id: "name/duplicate",
@@ -13,19 +15,24 @@ export const nameDuplicateRule: ILintRule = {
       namespace.map.forEach((records, name) => {
         if (records.length < 2) return;
         const related: Array<ILintRelated> = records.map(rec => ({ path: rec.path, elementName: rec.name }));
-        const kinds = records.map(rec => rec.kind);
         for (let i = 1; i < records.length; i++) {
           const rec = records[i];
           const scopeText = namespace.label ? " inside " + namespace.label : "";
+          // neither how many elements share the name nor of which kinds they are tells the reader
+          // of one duplicate anything: "related" carries every occurrence for a host that wants
+          // to count them or walk them
           ctx.report({
-            message: "The name \"" + name + "\" is used by " + records.length + " elements" + scopeText +
-              " (" + kinds.join(", ") + ") - element names must be unique.",
+            message: "The name \"" + name + "\" is duplicated" + scopeText + ".",
             path: rec.path,
             reason: reasons.elementNames,
-            messageData: { name: name, kinds: kinds, count: records.length, scope: namespace.label },
+            messageData: { name: name, scope: namespace.label },
             elementName: rec.name,
             elementType: rec.type,
             related: related,
+            // only the later twin is renamed: the first keeps the name every reference to it
+            // already spells. A duplicate calculated value gets none - nothing says which of the
+            // two a reference meant.
+            fix: setFix(fixReasons.renameElement, rec.path + ".name", ctx.newElementName(rec.kind)),
           });
         }
       });
@@ -41,7 +48,7 @@ export const nameDuplicateRule: ILintRule = {
           message: "The calculated value name \"" + cv.name + "\" is already used by another calculated value.",
           path: cv.path,
           reason: reasons.calculatedValueNames,
-          messageData: { name: cv.name, kinds: ["calculatedvalue", "calculatedvalue"], count: 2 },
+          messageData: { name: cv.name },
           elementName: cv.name,
           elementType: "calculatedvalue",
           related: [{ path: prev.path, elementName: prev.name }, { path: cv.path, elementName: cv.name }],
@@ -56,7 +63,7 @@ export const nameDuplicateRule: ILintRule = {
             " - both are referenced as {" + cv.name + "}, so one of them shadows the other.",
           path: cv.path,
           reason: reasons.calculatedValueShadowsElement,
-          messageData: { name: cv.name, kinds: ["calculatedvalue"].concat(elements.map(el => el.kind)), count: elements.length + 1 },
+          messageData: { name: cv.name },
           elementName: cv.name,
           elementType: "calculatedvalue",
           related: elements.map(el => ({ path: el.path, elementName: el.name })),

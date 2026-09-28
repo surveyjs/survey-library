@@ -4121,4 +4121,48 @@ describe("custom questions", () => {
 
     ComponentCollection.Instance.clear();
   });
+  test("Composite question keeps a panel frame in a panelless theme, Bug#11895", () => {
+    ComponentCollection.Instance.add({
+      name: "fullname_frame",
+      elementsJSON: [
+        { type: "text", name: "first" },
+        { type: "text", name: "last" }
+      ]
+    });
+    const json = {
+      elements: [
+        { type: "text", name: "email" },
+        { type: "fullname_frame", name: "name" },
+        {
+          type: "panel",
+          name: "namePanel",
+          elements: [
+            { type: "text", name: "panelFirst" },
+            { type: "fullname_frame", name: "nestedName" }
+          ]
+        }
+      ]
+    };
+    const framedSurvey = new SurveyModel(json);
+    const framed = <QuestionCompositeModel>framedSurvey.getQuestionByName("name");
+    expect(framed.cssRoot.indexOf("sd-question--with-frame") > -1, "default theme frames the composite").toBe(true);
+    expect(framed.cssRoot.indexOf("sd-element--compact") > -1, "default theme is not compact").toBe(false);
+
+    const survey = new SurveyModel(json);
+    survey.isCompact = true;
+    const email = survey.getQuestionByName("email");
+    const composite = <QuestionCompositeModel>survey.getQuestionByName("name");
+    const nested = <QuestionCompositeModel>survey.getQuestionByName("nestedName");
+    const panel = survey.getPanelByName("namePanel");
+
+    expect(email.cssRoot.indexOf("sd-question--with-frame") > -1, "plain question stays frameless").toBe(false);
+    expect(composite.cssRoot.indexOf("sd-question--with-frame") > -1, "composite keeps the panel frame").toBe(true);
+    expect(composite.cssRoot.indexOf("sd-element--compact") > -1, "composite uses the compact frame").toBe(true);
+    expect(composite.cssRoot.indexOf("sd-composite") > -1, "composite marker").toBe(true);
+    expect(panel.getContainerCss().indexOf("sd-panel--with-frame") > -1, "panel keeps its frame").toBe(true);
+    expect(nested.cssRoot.indexOf("sd-question--nested") > -1, "nested composite stays nested").toBe(true);
+    expect(nested.cssRoot.indexOf("sd-question--with-frame") > -1, "nested composite does not get the outer frame").toBe(false);
+
+    ComponentCollection.Instance.remove("fullname_frame");
+  });
 });

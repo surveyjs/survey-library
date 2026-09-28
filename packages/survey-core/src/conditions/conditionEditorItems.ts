@@ -14,6 +14,9 @@ export class ConditionEditorItem {
   public questionName: string;
   public operator: string = getConditionDefaultOperator();
   public value: any;
+  /* The text had the value on the left: "1 < {q1}". operator still reads with the question first
+     ("greater"), the way the row shows it. */
+  public isValueFirst: boolean = false;
   public getOperatorText(): string {
     const op = this.operator;
     if (op == "equal") return "=";
@@ -156,6 +159,7 @@ export class ConditionEditorItemsBuilder {
     const item = new ConditionEditorItem();
     item.questionName = variableOperand.variable;
     item.operator = operator;
+    item.isValueFirst = op.leftOperand !== variableOperand;
     if (!!arrayValue) {
       item.value = arrayValue;
     }

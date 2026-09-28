@@ -137,6 +137,14 @@ describe("ConditionEditorItemsBuilder: text to rows", () => {
       "['a', 'x'] noneof {q1}", "{a} = 1 and 'x' contains {q1}"]
       .forEach((text: string): void => { expect(build(text), text).toEqual([]); });
   });
+  test("a row taken from a constant on the left remembers that the value came first", () => {
+    const isValueFirst = (text: string): boolean => new ConditionEditorItemsBuilder().build(text)[0].isValueFirst;
+    ["1 < {q1}", "1 >= {q1}", "1 = {q1}", "1 != {q1}", "1 > {q1}", "1 <= {q1}", "'a' = {q1}", "[1, 2] = {q1}"]
+      .forEach((text: string): void => { expect(isValueFirst(text), text).toBe(true); });
+    expect(isValueFirst("{q1} < 1"), "the question on the left").toBe(false);
+    expect(isValueFirst("{q1} empty"), "a unary operator").toBe(false);
+    expect(new ConditionEditorItem().isValueFirst, "a new row").toBe(false);
+  });
   test("arrays of constants are values, empty and notempty take none", () => {
     expect(build("{q3} = [1, 2]")[0].value, "#1").toEqual([1, 2]);
     expect(build("{q3} anyof ['a', 'b']")[0], "#2")

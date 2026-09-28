@@ -2,6 +2,7 @@ import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionDropdownModel } from "../../src/question_dropdown";
 import { Question } from "../../src/question";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
@@ -904,6 +905,43 @@ describe("Page window: carousel, tab and design mode", () => {
     question["_renderedPanels"] = [first];
     animation.sync(running);
     expect(first.isDisposed, "#4: disposed when the animation ended").toBe(true);
+  });
+  test("(m) while a UI renders the question, the panel Next replaced is disposed after the next rerender", () => {
+    const survey = createPanelSurvey({ displayMode: "carousel",
+      templateElements: [{ type: "text", name: "id" }, { type: "dropdown", name: "kind", choices: ["a", "b"] }] }, records(5));
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    // What a UI does when it renders the question: an asynchronous one (Angular) checks the old
+    // panel's components once more before it drops them.
+    question.enableOnElementRerenderedEvent();
+    const first = question.currentPanel;
+    const dropdown = <QuestionDropdownModel>first.getQuestionByName("kind");
+    expect(question.goToNextPanel(), "#1").toBe(true);
+    expect(question.renderedPanels.indexOf(first), "#2: not rendered any more").toBe(-1);
+    expect(first.isDisposed, "#3: not disposed before the UI rerendered").toBe(false);
+    expect(!!dropdown.dropdownListModel, "#4: a component check still finds its model").toBe(true);
+    question.afterRerender();
+    expect(first.isDisposed, "#5: disposed after the rerender").toBe(true);
+    const second = question.currentPanel;
+    question.goToNextPanel();
+    expect(second.isDisposed, "#6: waits for the UI again").toBe(false);
+    question.disableOnElementRerenderedEvent();
+    expect(second.isDisposed, "#7: the UI that stops rendering the question releases it").toBe(true);
+  });
+  test("(m) while a UI renders the matrix, the rows a page move replaced are disposed after the next rerender", () => {
+    const matrix = createMatrix({ rowsPerPage: 3,
+      columns: [{ name: "id", cellType: "text" }, { name: "kind", cellType: "dropdown", choices: ["a", "b"] }] }, records(10));
+    const oldCell = <QuestionDropdownModel>matrix.visibleRows[0].getQuestionByName("kind");
+    matrix.enableOnElementRerenderedEvent();
+    matrix.nextPage();
+    expect(rowIds(matrix), "#1").toEqual([3, 4, 5]);
+    expect(oldCell.isDisposed, "#2: not disposed before the UI rerendered").toBe(false);
+    expect(!!oldCell.dropdownListModel, "#3: a component check still finds its model").toBe(true);
+    matrix.afterRerender();
+    expect(oldCell.isDisposed, "#4: disposed after the rerender").toBe(true);
+    const cell = matrix.visibleRows[0].getQuestionByName("kind");
+    matrix.nextPage();
+    matrix.dispose();
+    expect(cell.isDisposed, "#5: disposing the matrix releases the rows that wait").toBe(true);
   });
   test("(m) tab mode: an error Complete finds in the 4th panel of page 3 makes currentIndex 18", () => {
     const data = records(20);

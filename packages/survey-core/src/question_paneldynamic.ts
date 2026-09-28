@@ -922,11 +922,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.panelsToDispose = this.panelsToDispose.filter((panel: PanelModel): boolean => rendered.indexOf(panel) > -1);
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
   }
+  private disposePanelObject(panel: PanelModel): void {
+    if (panel.isDisposed) return;
+    // A panel that left renderedPanels can still be on screen until the UI rerenders the question.
+    this.disposeAfterRerender(panel, (): void => this.disposePanelObjectCore(panel));
+  }
   /* The panel was never announced to the survey as added - it is built before it has one - so its
      questions are not announced as removed either: the guard an element moved between pages uses.
      Without it every page visit would fire onQuestionRemoved and recompute the survey's visible
      indexes once per question. */
-  private disposePanelObject(panel: PanelModel): void {
+  private disposePanelObjectCore(panel: PanelModel): void {
     if (panel.isDisposed) return;
     const survey = this.survey;
     const markElements = (container: PanelModel): void => {

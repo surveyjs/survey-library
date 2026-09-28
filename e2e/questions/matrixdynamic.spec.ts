@@ -500,6 +500,55 @@ frameworks.forEach((framework) => {
       expect(await matrixRowSelector.count()).toBe(5);
     });
 
+    test("page move keeps rendering the rows it replaced until they are dropped", async ({ page }) => {
+      // The rows a page move replaces are disposed. A UI that renders asynchronously (Angular) checks
+      // their cells once more before it drops them: a disposed dropdown cell made that check throw.
+      const defaultValue: Array<any> = [];
+      for (let i = 0; i < 5; i++) defaultValue.push({ id: i, kind: "a", tags: ["x"] });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            rowsPerPage: 2,
+            defaultValue: defaultValue,
+            columns: [
+              { name: "id", cellType: "text" },
+              { name: "kind", cellType: "dropdown", choices: ["a", "b", "c"] },
+              { name: "tags", cellType: "tagbox", choices: ["x", "y"] },
+            ],
+          },
+        ],
+      });
+      const firstId = page.locator("td[title='id'] input").first();
+      const firstKind = page.locator("td[title='kind'] .sd-dropdown").first();
+      const goToPage = async (next: boolean) => {
+        await page.evaluate((next) => {
+          const matrix = (window as any).survey.getQuestionByName("matrix");
+          next ? matrix.nextPage() : matrix.prevPage();
+        }, next);
+      };
+
+      await expect(firstId).toHaveValue("0");
+      await firstKind.click();
+      await getVisibleSelectListItemByText(page, "b").click();
+      await page.locator("body").click({ position: { x: 1, y: 1 } });
+      await expect(firstKind.locator(".sv-string-viewer")).toHaveText("b");
+
+      await goToPage(true);
+      await expect(firstId).toHaveValue("2");
+      await firstKind.click();
+      await getVisibleSelectListItemByText(page, "c").click();
+      // The dropdown that has the focus leaves the page.
+      await goToPage(false);
+      await page.locator("body").click({ position: { x: 1, y: 1 } });
+      await expect(firstId).toHaveValue("0");
+      await expect(firstKind.locator(".sv-string-viewer")).toHaveText("b");
+
+      const data = await getData(page);
+      expect(data.matrix.map((row: any) => row.kind)).toEqual(["b", "a", "c", "a", "a"]);
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [

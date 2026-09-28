@@ -1374,8 +1374,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
     if (!this.generatedVisibleRows) return;
+    // A row that is replaced - a page move, a new value - can still be on screen until the UI rerenders the matrix.
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      this.generatedVisibleRows[i].dispose();
+      this.disposeAfterRerender(this.generatedVisibleRows[i]);
     }
     super.clearGeneratedRows();
   }

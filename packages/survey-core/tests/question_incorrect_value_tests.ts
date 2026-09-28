@@ -280,7 +280,7 @@ describe("Question.isValueCorrect", () => {
   });
   test("choiceValues: false does not report an unknown choice", () => {
     const survey = createSurvey({ type: "dropdown", choices: ["a", "b"] });
-    expect(survey.setData({ q: "z" }, { reportInvalidChoiceValues: false }), "not reported by setData()").toEqual([]);
+    expect(survey.setData({ q: "z" }, { choiceValues: false }), "not reported by setData()").toEqual([]);
     expect(survey.getQuestionByName("q").isValueCorrect(), "reported by default").toBe(false);
     expect(survey.getQuestionByName("q").isValueCorrect({ choiceValues: false }), "isValueCorrect").toBe(true);
   });

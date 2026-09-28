@@ -9,7 +9,7 @@ import { QuestionTextModel } from "../../src/question_text";
 import { PanelModel } from "../../src/panel";
 import { PageModel } from "../../src/page";
 import { SurveyModel } from "../../src/survey";
-import { IDataIssue, IDataVerificationOptions } from "../../src/base-interfaces";
+import { IDataIssue, IValueChecks } from "../../src/base-interfaces";
 
 // The full positional signature.
 export class QuestionWithFullOverride extends QuestionTextModel {
@@ -70,12 +70,12 @@ export function callValidateAndSetData(): Array<boolean> {
   const path: string = issues.length > 0 ? issues[0].path : "";
   const expressionResult: any = issues.length > 0 ? issues[0].expressionResult : undefined;
   res.push(path === "" && expressionResult === undefined);
-  const options: IDataVerificationOptions = { reportUnknownProperties: false };
+  const options: IValueChecks = { unknownProperties: false };
   const withOptions: Array<IDataIssue> = survey.setData({}, options);
   res.push(withOptions.length === 0);
-  res.push(survey.setData({}, { reportInvalidValueTypes: false }).length === 0);
-  res.push(survey.setData({}, { reportInvalidChoiceValues: false }).length === 0);
-  res.push(survey.setData({}, { reportExpressionResultMismatches: true }).length === 0);
+  res.push(survey.setData({}, { valueTypes: false }).length === 0);
+  res.push(survey.setData({}, { choiceValues: false }).length === 0);
+  res.push(survey.setData({}, { expressionResultMismatches: true }).length === 0);
   res.push(survey.setData(null).length === 0);
 
   // @ts-expect-error an unknown option member is not accepted, so this fixture is really type-checked

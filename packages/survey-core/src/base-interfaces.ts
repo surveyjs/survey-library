@@ -33,7 +33,6 @@ export type {
   ISurveyValidation,
   DataIssueType,
   IValueChecks,
-  IDataVerificationOptions,
   IDataIssue,
 } from "./interfaces/validation-interfaces";
 

@@ -29,7 +29,6 @@ import {
   ISurveyWebProvider,
   ISaveToJSONOptions,
   IScrollElementToTopOptions,
-  IDataVerificationOptions,
   IDataIssue,
   IValueChecks
 } from "./base-interfaces";
@@ -4707,32 +4706,23 @@ export class SurveyModel extends SurveyElementCore
   // instance or a File is not checked. The questions inside the panels of choice items (a checkbox
   // or radiogroup whose choices have elements) are not reached yet either; promts/misc/nested-walk.md
   // is the task that adds them. validate() is the method for a form being filled in.
-  // reportExpressionResultMismatches is off unless it is set to true. It compares the response with
+  // expressionResultMismatches is off unless it is set to true. It compares the response with
   // survey.data after loading and reports every difference, see collectExpressionResultMismatches().
   // With null or undefined the response is compared with {}, so every default the model adds is
   // reported.
-  public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
+  public setData(data: any, options?: IValueChecks): Array<IDataIssue> {
     const hasData = data !== undefined && data !== null;
     // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model
     // change the caller's object and the snapshot alike.
     const snapshot = hasData ? Helpers.getUnbindValue(data) : {};
     this.assignData(hasData ? Helpers.getUnbindValue(data) : data);
-    const context = createVerifyDataContext(this.getValueChecksFromOptions(options));
+    const context = createVerifyDataContext(options);
     this.initializeForVerification();
     this.verifyDataCore(context);
-    if (options?.reportExpressionResultMismatches === true) {
+    if (options?.expressionResultMismatches === true) {
       this.collectExpressionResultMismatches(snapshot, this.data, context);
     }
     return context.issues;
-  }
-  // The public options name the checks from the caller's side; the walk and isValueCorrect() share
-  // IValueChecks. An absent member stays absent, so createVerifyDataContext() turns it on.
-  private getValueChecksFromOptions(options: IDataVerificationOptions): IValueChecks {
-    return {
-      unknownProperties: options?.reportUnknownProperties,
-      valueTypes: options?.reportInvalidValueTypes,
-      choiceValues: options?.reportInvalidChoiceValues
-    };
   }
   private initializeForVerification(): void {
     this.pages.forEach(page => page.initializeForVerification());

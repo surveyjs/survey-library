@@ -19,16 +19,15 @@ export interface ISurveyValidation {
   getValidateVisitedEmptyFields(): boolean;
 }
 
-// The kind of a finding SurveyModel.setData() reports. The first three are also the vocabulary of
-// the value checks: IValueChecks names the same three checks and IncorrectValueError.check names one
-// of them. expressionResultMismatch is not a value check: it is the diagnostic that compares the
-// response with survey.data after loading.
+// The kind of a finding SurveyModel.setData() reports. Each one is named by a member of IValueChecks,
+// and IncorrectValueError.check names one of the first three. expressionResultMismatch is not a value
+// check: it is the diagnostic that compares the response with survey.data after loading.
 export type DataIssueType = "unknownProperty" | "invalidValueType" | "invalidChoiceValue" | "expressionResultMismatch";
-// The value checks that run on a question value. Every member is optional: isValueCorrect() and the
-// walk behind setData() run all three unless a member is set to false, and clearIncorrectValues()
-// removes what they report, keeping an unknown choice when keepIncorrectValues asks for it. validate()
-// runs none of them: it is the respondent-facing validation and its behavior does not depend on these.
-// setData() takes IDataVerificationOptions and maps its report* members onto these.
+// The checks that run on a question value, and the options of SurveyModel.setData(). Every member is
+// optional: isValueCorrect() and the walk behind setData() run the three value checks unless a member
+// is set to false, and clearIncorrectValues() removes what they report, keeping an unknown choice when
+// keepIncorrectValues asks for it. validate() runs none of them: it is the respondent-facing validation
+// and its behavior does not depend on these.
 export interface IValueChecks {
   // A key of the data that no question, valueName, comment / totals suffix or calculated value
   // with includeIntoResult owns. Root keys and keys inside a container value alike.
@@ -38,20 +37,14 @@ export interface IValueChecks {
   valueTypes?: boolean;
   // The value refers to an existing choice, matrix column, row or rate value.
   choiceValues?: boolean;
-}
-// The options of SurveyModel.setData(). A separate vocabulary from IValueChecks: setData() maps its
-// three report* value checks onto IValueChecks. They are on unless a member is set to false; the
-// mismatch diagnostic is off unless it is set to true.
-export interface IDataVerificationOptions {
-  reportUnknownProperties?: boolean;
-  reportInvalidValueTypes?: boolean;
-  reportInvalidChoiceValues?: boolean;
-  // Reports every place where survey.data after loading differs from the response. Despite the
-  // name, the mismatch is not limited to expressions: it is anything the model added, changed or
-  // dropped, a defaultValue, a normalization, a value set by a trigger or cleared by a condition.
-  // A diagnostic about what the model did to the input, not a verdict on it. Off by default: a
-  // valid partial response receives defaults, so the report would never be empty for legitimate input.
-  reportExpressionResultMismatches?: boolean;
+  // setData() only: a question value check ignores it. Unlike the members above it is off unless it
+  // is set to true. Reports every place where survey.data after loading differs from the response.
+  // Despite the name, the mismatch is not limited to expressions: it is anything the model added,
+  // changed or dropped, a defaultValue, a normalization, a value set by a trigger or cleared by a
+  // condition. A diagnostic about what the model did to the input, not a verdict on it. Off by
+  // default: a valid partial response receives defaults, so the report would never be empty for
+  // legitimate input.
+  expressionResultMismatches?: boolean;
 }
 // One finding of SurveyModel.setData(). It carries no text: the consumer is a developer, and type,
 // path, value, expressionResult and question identify the issue. A consumer that shows issues to

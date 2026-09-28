@@ -226,7 +226,20 @@ export var defaultCss = {
     number: "sd-element__num",
     description: "sd-description sd-question__description",
     descriptionUnderInput: "sd-question__description--under-input",
+<<<<<<< HEAD
     comment: "sd-input sd-comment",
+||||||| parent of 4e0254064 ([backport:V2] fix #11902, Validation for a required comment on a choice incorrectly highlights the other choices instead of the comment box (#11905))
+    comment: "sd-formbox sd-comment",
+    commentControl: "sd-formbox__input sd-comment__input",
+    commentGrip: "sd-comment__grip",
+    commentGripIconId: "icon-grip",
+=======
+    comment: "sd-formbox sd-comment",
+    commentControl: "sd-formbox__input sd-comment__input",
+    commentOnError: "sd-formbox--error",
+    commentGrip: "sd-comment__grip",
+    commentGripIconId: "icon-grip",
+>>>>>>> 4e0254064 ([backport:V2] fix #11902, Validation for a required comment on a choice incorrectly highlights the other choices instead of the comment box (#11905))
     required: "sd-question--required",
     titleRequired: "sd-question__title--required",
     indent: 20,

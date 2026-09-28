@@ -227,6 +227,7 @@ export var defaultCss = {
     description: "sd-description sd-question__description",
     descriptionUnderInput: "sd-question__description--under-input",
     comment: "sd-input sd-comment",
+    commentOnError: "sd-input--error",
     required: "sd-question--required",
     titleRequired: "sd-question__title--required",
     indent: 20,

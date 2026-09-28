@@ -2,7 +2,7 @@
   <div
     :class="vueSurvey.getRootCss()"
     :style="vueSurvey.themeVariables"
-    :lang="vueSurvey.locale || 'en'"
+    :lang="vueSurvey.rootLang"
     :dir="vueSurvey.localeDir"
     ref="root"
   >

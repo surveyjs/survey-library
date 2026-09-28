@@ -66,7 +66,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);
-    const itemLabel = !this.hideCaption ? <span className={controlLabelClass}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const itemLabel = !this.hideCaption ? <span className={controlLabelClass} id={this.question.getItemLabelId(this.item)} aria-hidden="true">{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
     return (
       <div
         className={itemClass}
@@ -87,10 +87,11 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             onChange={this.handleOnChange}
             onKeyDown={this.handleOnKeyDown}
             aria-label={this.ariaLabel}
+            aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
           />
           {
             this.cssClasses.materialDecorator ?
-              <span className={this.cssClasses.materialDecorator}>
+              <span className={this.cssClasses.materialDecorator} aria-hidden="true">
                 {this.question.itemSvgIcon ?
                   <svg
                     className={this.cssClasses.itemDecorator}

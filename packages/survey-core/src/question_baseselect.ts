@@ -2735,6 +2735,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
   }
+  public getItemLabelId(item: ItemValue): string {
+    return this.getItemId(item) + "_label";
+  }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }

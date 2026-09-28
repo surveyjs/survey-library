@@ -9067,7 +9067,19 @@ Serializer.addClass("survey", [
   {
     name: "progressBarLocation",
     default: "auto",
-    choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    choices: (obj: any) => {
+      const choices = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+      if (!obj) return choices;
+      const headerView = obj.headerView;
+      const isAdvanced = headerView === undefined || headerView === null || headerView === ""
+        || isStrCiEqual(String(headerView), "advanced");
+      const type = typeof obj.progressBarType === "string" ? obj.progressBarType.toLowerCase() : "";
+      const isQuestionProgress = type === "questions"
+        || type === "requiredquestions" || type === "requiredquestion"
+        || type === "correctquestions" || type === "correctquestion";
+      if (isAdvanced && isQuestionProgress) return choices.filter(item => item !== "belowheader");
+      return choices;
+    },
     visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
@@ -9254,3 +9266,7 @@ Serializer.addClass("survey", [
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);
+const progressBarLocationProp = Serializer.findProperty("survey", "progressBarLocation");
+progressBarLocationProp.dependsOn = ["progressBarType", "headerView"];
+Serializer.findProperty("survey", "progressBarType").addDependedProperty("progressBarLocation");
+Serializer.findProperty("survey", "headerView").addDependedProperty("progressBarLocation");

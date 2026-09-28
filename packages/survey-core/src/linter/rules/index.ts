@@ -32,7 +32,6 @@ import { elementCountContradictionRule } from "./count-contradiction";
 import { elementNeverVisibleRule } from "./element-never-visible";
 import { maskMismatchRule } from "./mask-mismatch";
 import { pageEmptyRule } from "./page-empty";
-import { progressIncompatibleLocationRule } from "./progress-incompatible-location";
 
 // The run order, which the findings are sorted out of anyway (by path, then rule id): a rule
 // never reads what another one reported, so the order is a reading order, not a dependency.
@@ -72,5 +71,4 @@ export const allRules: Array<ILintRule> = [
   elementNeverVisibleRule,
   maskMismatchRule,
   pageEmptyRule,
-  progressIncompatibleLocationRule,
 ];

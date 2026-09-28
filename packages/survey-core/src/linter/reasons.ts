@@ -229,9 +229,6 @@ export const SurveyLintReasons = Object.freeze({
     // detailElements while detailPanelMode stays "none" (the default) - never rendered
     detailElementsHidden: "detailElementsHidden",
   }),
-  "progress/incompatible-location": Object.freeze({
-    belowHeader: "belowHeader",
-  }),
 });
 
 // The hint reference/unknown appends when a scoped prefix or a bare name is used outside the

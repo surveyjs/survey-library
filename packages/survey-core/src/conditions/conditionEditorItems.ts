@@ -5,8 +5,45 @@ import { ConditionsParser } from "./conditionsParser";
 import { getConditionDefaultOperator } from "./conditionOperators";
 import { Operand, UnaryOperand, BinaryOperand, Variable, Const, ArrayOperand } from "../expressions/expressions";
 
-/* One row of a condition: "{questionName} operator value", joined to the row before it by
-   conjunction. Moved from survey-creator-core, where it backs the condition editor; the Filter Control
+// The operator "const op {question}" turns into once the sides are swapped - a row names the question
+// first - or undefined when no operator says the same thing that way. The swap is its own inverse, so a
+// value-first row is written back with it too. Equality reads the same both ways and an ordering
+// operator is mirrored. contains, notcontains and allof have no mirror, and
+// anyof / noneof read an empty value differently on each side ("['a'] anyof {q1}" is true for an
+// empty q1, "{q1} anyof ['a']" is false), so such a text stays text, as does any operator added to
+// the language later. The swap keeps the meaning for strings, numbers, booleans and arrays. A Date
+// value with a time part compared to a date string is the known exception: convertValForDateCompare
+// trims a Date to the string's precision only when the Date is on the left.
+function getSwappedOperator(operator: string): string {
+  switch(operator) {
+    case "equal":
+    case "notequal":
+      return operator;
+    case "less":
+      return "greater";
+    case "greater":
+      return "less";
+    case "lessorequal":
+      return "greaterorequal";
+    case "greaterorequal":
+      return "lessorequal";
+    default:
+      return undefined;
+  }
+}
+
+function operatorToText(op: string): string {
+  if (op == "equal") return "=";
+  if (op == "notequal") return "<>";
+  if (op == "greater") return ">";
+  if (op == "less") return "<";
+  if (op == "greaterorequal") return ">=";
+  if (op == "lessorequal") return "<=";
+  return op;
+}
+
+/* One row of a condition: "{questionName} operator value" (or "value operator {questionName}" for a
+   value-first row), joined to the row before it by conjunction. Moved from survey-creator-core, where it backs the condition editor; the Filter Control
    edits its items with the same rows. Writing a row back to text keeps the editor's historical rules
    (valToText): Creator's tests pin them. */
 export class ConditionEditorItem {
@@ -18,14 +55,7 @@ export class ConditionEditorItem {
      ("greater"), the way the row shows it. */
   public isValueFirst: boolean = false;
   public getOperatorText(): string {
-    const op = this.operator;
-    if (op == "equal") return "=";
-    if (op == "notequal") return "<>";
-    if (op == "greater") return ">";
-    if (op == "less") return "<";
-    if (op == "greaterorequal") return ">=";
-    if (op == "lessorequal") return "<=";
-    return op;
+    return operatorToText(this.operator);
   }
   public getValueText(): string {
     const val = this.value;
@@ -47,7 +77,11 @@ export class ConditionEditorItem {
   }
   public toExpression(): string {
     const delimiters = settings.expressionVariableDelimiters;
-    let text = delimiters.start + this.getVariableName() + delimiters.end + " " + this.getOperatorText();
+    const variable = delimiters.start + this.getVariableName() + delimiters.end;
+    // An operator with no mirror - the user picked contains, say - is written with the question first.
+    const valueFirstOperator = this.isValueFirst ? getSwappedOperator(this.operator) : undefined;
+    if (!!valueFirstOperator) return this.getValueText() + " " + operatorToText(valueFirstOperator) + " " + variable;
+    let text = variable + " " + this.getOperatorText();
     if (this.isValueRequired) {
       text += " " + this.getValueText();
     }
@@ -153,7 +187,7 @@ export class ConditionEditorItemsBuilder {
     const arrayValue = this.getArrayValueFromOperand(op);
     const constOperand = !arrayValue ? <Const>this.getOperandByType(op, "const") : null;
     if (!variableOperand || (!constOperand && !arrayValue && this.canShowValueByOperator(op.operator))) return false;
-    const operator = op.leftOperand !== variableOperand ? this.getSwappedOperator(op.operator) : op.operator;
+    const operator = op.leftOperand !== variableOperand ? getSwappedOperator(op.operator) : op.operator;
     if (!operator) return false;
     if (!this.isVariableInSurvey(variableOperand.variable)) return false;
     const item = new ConditionEditorItem();
@@ -199,31 +233,6 @@ export class ConditionEditorItemsBuilder {
     item.operator = operator;
     res.push(item);
     return true;
-  }
-  // The operator "const op {question}" turns into once the sides are swapped - a row names the question
-  // first - or undefined when no operator says the same thing that way. Equality reads the same both
-  // ways and an ordering operator is mirrored. contains, notcontains and allof have no mirror, and
-  // anyof / noneof read an empty value differently on each side ("['a'] anyof {q1}" is true for an
-  // empty q1, "{q1} anyof ['a']" is false), so such a text stays text, as does any operator added to
-  // the language later. The swap keeps the meaning for strings, numbers, booleans and arrays. A Date
-  // value with a time part compared to a date string is the known exception: convertValForDateCompare
-  // trims a Date to the string's precision only when the Date is on the left.
-  private getSwappedOperator(operator: string): string {
-    switch(operator) {
-      case "equal":
-      case "notequal":
-        return operator;
-      case "less":
-        return "greater";
-      case "greater":
-        return "less";
-      case "lessorequal":
-        return "greaterorequal";
-      case "greaterorequal":
-        return "lessorequal";
-      default:
-        return undefined;
-    }
   }
   private getOperandByType(op: BinaryOperand, opType: string): Operand {
     // Either side is null for a "null" literal; the Creator original checked the right side only.

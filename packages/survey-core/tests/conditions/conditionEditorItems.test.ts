@@ -87,6 +87,37 @@ describe("ConditionEditorItem: rows to text", () => {
     item.questionName = "nosuchquestion";
     expect(item.toExpression(), "#3: an unknown name goes as it is").toBe("{nosuchquestion} = 1");
   });
+  test("a value-first row is written with the value on the left and the operator mirrored", () => {
+    const valueFirst = (operator: string, value: any): string => {
+      const item = createItem("q1", operator, value);
+      item.isValueFirst = true;
+      return item.toExpression();
+    };
+    expect(valueFirst("greater", 1), "#1").toBe("1 < {q1}");
+    expect(valueFirst("less", 1), "#2").toBe("1 > {q1}");
+    expect(valueFirst("greaterorequal", 1), "#3").toBe("1 <= {q1}");
+    expect(valueFirst("lessorequal", 1), "#4").toBe("1 >= {q1}");
+    expect(valueFirst("equal", 1), "#5").toBe("1 = {q1}");
+    expect(valueFirst("notequal", 1), "#6").toBe("1 <> {q1}");
+    expect(valueFirst("equal", "abc"), "#7: the value keeps its quoting").toBe("'abc' = {q1}");
+    expect(valueFirst("equal", [1, "a"]), "#8").toBe("[1, 'a'] = {q1}");
+    withDoubleBraces((): void => {
+      expect(valueFirst("equal", 5), "#9").toBe("5 = {{q1}}");
+    });
+    // The user picked an operator that cannot be written the other way round.
+    expect(valueFirst("contains", "a"), "#10").toBe("{q1} contains 'a'");
+    expect(valueFirst("anyof", ["a"]), "#11").toBe("{q1} anyof ['a']");
+    expect(valueFirst("notempty", undefined), "#12").toBe("{q1} notempty");
+  });
+  test("a value-first survey row names the question by its valueName", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", valueName: "val1" }] });
+    const item = new SurveyConditionEditorItem(survey);
+    item.questionName = "q1";
+    item.operator = "greater";
+    item.value = 1;
+    item.isValueFirst = true;
+    expect(item.toExpression()).toBe("1 < {val1}");
+  });
 });
 
 const build = (text: string): Array<any> => new ConditionEditorItemsBuilder().build(text)

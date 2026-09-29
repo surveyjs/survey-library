@@ -1,9 +1,13 @@
 import { getLocaleString } from "../surveyStrings";
 import { ItemValue } from "../itemvalue";
+import { QuestionValueType } from "../question";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+import { IFilterCondition } from "../interfaces/ui-interfaces";
 import {
   getConditionDefaultOperator, getConditionOperatorNames, isConditionOperatorEnabled, isQuestionClassContains
 } from "../conditions/conditionOperators";
+import { ConditionEditorItem, ConditionEditorItemsBuilder } from "../conditions/conditionEditorItems";
+import { toExpressionConst } from "./filter-expression";
 
 // The label a condition editor shows for one operator, e.g. "equal" -> "Equals". Written out as
 // literal keys (not "conditionOperator" + operator, capitalized) so survey-utils check-strings -
@@ -140,4 +144,82 @@ export function getFilterValueEditorJson(field: IDynamicDataFilterField, operato
   }
   cleanConditionJson(json);
   return json;
+}
+
+// A field's own valueName is the key its condition is authored under and the variable its
+// expression names it by, but two fields can share one (a nested bound field named the same as a
+// standalone one - filter-control-integration.test.ts:158). The first field with a given valueName
+// owns it: later duplicates are unreachable, the same rule getFieldByName's dotted-path lookup
+// already applies one level up. Exported so the condition editor (a later task) can hide the
+// duplicates instead of showing an unreachable one.
+export function getFieldsByValueName(fields: Array<IDynamicDataFilterField>): { [valueName: string]: IDynamicDataFilterField } {
+  const res: { [valueName: string]: IDynamicDataFilterField } = {};
+  (fields || []).forEach((field: IDynamicDataFilterField): void => {
+    if (!Object.prototype.hasOwnProperty.call(res, field.valueName)) res[field.valueName] = field;
+  });
+  return res;
+}
+
+// Whether val reads as a JSON number literal, the same rule ConditionEditorItem.valToText applies
+// when it decides not to quote a value: a leading zero (except "0x...") keeps a string a string,
+// so a stored code like "007" is not turned into the number 7.
+function isNumericLiteral(val: any): boolean {
+  if (typeof val !== "string") return false;
+  if (val.length > 1 && val[0] === "0" && val[1] !== "x") return false;
+  return val !== "" && !isNaN(<any>val);
+}
+// A condition's value is authored as whatever the value editor produced - a text question for a
+// typeless field always answers a string - so it is coerced to the field's real type here, once,
+// at the point the condition becomes an expression. Kept deliberately simple: only the two
+// mismatches a typeless field can produce (a numeric string, "true"/"false") are handled, and the
+// same coercion is applied whatever the field's fieldType is - a typed text field whose valueType
+// happens to be "number" benefits from it too, not just a typeless one.
+function coerceConditionValue(valueType: QuestionValueType, value: any): any {
+  if (Array.isArray(value)) return value.map((v: any): any => coerceConditionValue(valueType, v));
+  if (valueType === "number" && isNumericLiteral(value)) return parseFloat(value);
+  if (valueType === "boolean" && (value === "true" || value === "false")) return value === "true";
+  return value;
+}
+
+// One IFilterCondition as a row ConditionEditorItemsBuilder.itemsToExpression can write out. The
+// variable is the condition's field (a valueName, possibly dotted - "mt.city"), which is already
+// exactly what ConditionEditorItem.questionName is read back as text, so no getVariableName
+// override is needed the way SurveyConditionEditorItem needs one for a differing name/valueName.
+// getValueText is overridden because the base class's valToText only ever sees text-editor input
+// (a number is typed in, so a numeric string is never quoted) - a filter condition's value can
+// already be a real number, boolean or array from a structured value editor, and valToText would
+// mishandle those (e.g. it would quote an array's own bracket text). toExpressionConst is exact
+// for any already-typed value instead.
+export class FilterConditionItem extends ConditionEditorItem {
+  constructor(field: IDynamicDataFilterField, condition: IFilterCondition) {
+    super();
+    this.questionName = condition.field;
+    this.operator = condition.operator;
+    this.value = coerceConditionValue(field.valueType, condition.value);
+  }
+  public getValueText(): string {
+    const val = this.value;
+    if (Array.isArray(val)) return "[" + val.map((v: any): string => toExpressionConst(v)).join(", ") + "]";
+    return toExpressionConst(val);
+  }
+}
+
+// A control's own conditions (as opposed to a preset's stored expression text) to one expression,
+// joined by "and" - conditions are always "and": only a preset's own text can hold an "or". A
+// condition on a field the current field list no longer has is dropped rather than kept as dead
+// text, and so is a condition that is not ready yet (no value where its operator needs one) - not
+// left for ConditionEditorItemsBuilder.itemsToExpression's own rule of stopping at the first one
+// that is not ready, which would otherwise hide every ready condition that happens to follow an
+// unready one.
+export function conditionsToExpression(conditions: Array<IFilterCondition>, fields: Array<IDynamicDataFilterField>): string {
+  const fieldsByValueName = getFieldsByValueName(fields);
+  const items: Array<ConditionEditorItem> = [];
+  (conditions || []).forEach((condition: IFilterCondition): void => {
+    const field = fieldsByValueName[condition.field];
+    if (!field) return;
+    const item = new FilterConditionItem(field, condition);
+    if (!item.isReady) return;
+    items.push(item);
+  });
+  return ConditionEditorItemsBuilder.itemsToExpression(items);
 }

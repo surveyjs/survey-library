@@ -12,6 +12,14 @@ export interface IScrollElementToTopOptions {
   onScolledCallback?: () => void;
 }
 
+// One row of a Filter Control's own conditions (as opposed to a preset FilterItem's expression
+// text): a field, an operator and the value the operator needs. field is the field's valueName,
+// the same key the built expression names the field by ({valueName} operator value).
+export interface IFilterCondition {
+  field: string;
+  operator: string;
+  value?: any;
+}
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
 export interface IFilterElementUIState {

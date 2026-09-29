@@ -1,15 +1,27 @@
 import { describe, test, expect } from "vitest";
 import {
-  getConditionOperatorTitle, getFilterFieldOperators, getFilterFieldDefaultOperator, getFilterValueEditorJson
+  getConditionOperatorTitle, getFilterFieldOperators, getFilterFieldDefaultOperator, getFilterValueEditorJson,
+  FilterConditionItem, conditionsToExpression
 } from "../../src/filter/filter-conditions";
 import { FilterField } from "../../src/filter/filter-field";
 import { ItemValue } from "../../src/itemvalue";
+import { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-fields";
+import { IFilterCondition } from "../../src/interfaces/ui-interfaces";
+import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import "../../src/question_text";
 import "../../src/question_dropdown";
 import "../../src/question_checkbox";
 import "../../src/question_tagbox";
 import "../../src/question_radiogroup";
 import "../../src/question_expression";
+
+// A plain field descriptor, no FilterField/templateQuestion needed: conditionsToExpression only
+// reads name/valueName/valueType off it.
+function field(valueName: string, valueType: string = "string"): IDynamicDataFilterField {
+  return { name: valueName, valueName: valueName, locTitle: undefined, valueType: <any>valueType,
+    fieldType: "text", templateQuestion: undefined };
+}
+const runs = (record: any, expression: string): boolean => new ConditionRunner(expression).runValues(record);
 
 describe("getConditionOperatorTitle", () => {
   test("returns the English title for each condition operator", () => {
@@ -128,5 +140,63 @@ describe("getFilterValueEditorJson", () => {
     descriptor.choices = choices;
     const json = getFilterValueEditorJson(descriptor, "equal");
     expect(json.choices).toEqual(ItemValue.getData(choices));
+  });
+});
+
+describe("conditionsToExpression", () => {
+  const fields = [field("age", "number"), field("name", "string"), field("active", "boolean"), field("mt.city", "string")];
+  test("a simple comparison", () => {
+    expect(conditionsToExpression([{ field: "age", operator: "greater", value: 18 }], fields)).toBe("{age} > 18");
+  });
+  test("an apostrophe in the value is escaped", () => {
+    const text = conditionsToExpression([{ field: "name", operator: "contains", value: "O'Brien" }], fields);
+    expect(text).toBe("{name} contains 'O\\'Brien'");
+    expect(runs({ name: "Mr O'Brien" }, text), "the built text still runs").toBe(true);
+  });
+  test("an anyof value is written as an array", () => {
+    expect(conditionsToExpression([{ field: "name", operator: "anyof", value: ["a", "b"] }], fields))
+      .toBe("{name} anyof ['a', 'b']");
+  });
+  test("empty/notempty carry no value", () => {
+    expect(conditionsToExpression([{ field: "name", operator: "empty" }], fields)).toBe("{name} empty");
+    expect(conditionsToExpression([{ field: "name", operator: "notempty" }], fields)).toBe("{name} notempty");
+  });
+  test("a numeric string is coerced to a number for a number field", () => {
+    expect(conditionsToExpression([{ field: "age", operator: "equal", value: "18" }], fields)).toBe("{age} = 18");
+  });
+  test("\"true\"/\"false\" are coerced to booleans for a boolean field", () => {
+    expect(conditionsToExpression([{ field: "active", operator: "equal", value: "true" }], fields))
+      .toBe("{active} = true");
+  });
+  test("a condition on an unknown field is dropped", () => {
+    expect(conditionsToExpression(
+      [{ field: "nosuchfield", operator: "equal", value: 1 }, { field: "age", operator: "equal", value: 20 }], fields))
+      .toBe("{age} = 20");
+  });
+  test("an unready first condition does not hide the ones after it", () => {
+    const conditions: Array<IFilterCondition> = [
+      { field: "name", operator: "equal", value: undefined }, { field: "age", operator: "equal", value: 20 }];
+    expect(conditionsToExpression(conditions, fields)).toBe("{age} = 20");
+  });
+  test("a dotted valueName is written as one variable", () => {
+    expect(conditionsToExpression([{ field: "mt.city", operator: "equal", value: "Berlin" }], fields))
+      .toBe("{mt.city} = 'Berlin'");
+  });
+  test("the built expression runs through ConditionRunner", () => {
+    const text = conditionsToExpression(
+      [{ field: "age", operator: "greater", value: "18" }, { field: "active", operator: "equal", value: "true" }],
+      fields);
+    expect(text).toBe("{age} > 18 and {active} = true");
+    expect(runs({ age: 20, active: true }, text), "#1").toBe(true);
+    expect(runs({ age: 10, active: true }, text), "#2").toBe(false);
+  });
+});
+
+describe("FilterConditionItem", () => {
+  test("getValueText uses toExpressionConst, not the legacy valToText", () => {
+    const item = new FilterConditionItem(field("name"), { field: "name", operator: "equal", value: "true" });
+    // valToText would leave the string "true" unquoted; toExpressionConst quotes a string value
+    // whatever it looks like, and only a real boolean is written bare.
+    expect(item.getValueText()).toBe("'true'");
   });
 });

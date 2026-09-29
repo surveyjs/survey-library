@@ -2,10 +2,11 @@ import { Base } from "../base";
 import { Serializer } from "../jsonobject";
 import { LocalizableString } from "../localizablestring";
 
-// One saved filter a Filter Control offers the end user. type names which editor authored the
-// expression - "row" (a single field/operator/value row), "builder" (a full condition builder) or
-// "ai" (a natural-language prompt) - but no such editor exists yet: whichever type an item carries,
-// its expression is applied identically as a filter expression string. type and prompt are storage
+// A preset: one saved filter the survey author defines in JSON, that the end user applies to the
+// data with a single click by picking it in the Filter Control. type names which editor authored
+// the expression - "fields" (built from field/operator/value conditions) or "ai" (a
+// natural-language prompt) - but no such editor exists yet: whichever type an item carries, its
+// expression is applied identically as a filter expression string. type and prompt are storage
 // only until a future task wires an editor to them.
 export class FilterItem extends Base {
   constructor(name: string) {
@@ -59,7 +60,7 @@ export class FilterItem extends Base {
 Serializer.addClass("filteritem", [
   { name: "!name", isUnique: true },
   { name: "title:text", serializationProperty: "locTitle", dependsOn: "name", visible: false },
-  { name: "type", default: "row", choices: ["row", "builder", "ai"], visible: false },
+  { name: "type", default: "fields", choices: ["fields", "ai"], visible: false },
   // A plain string and not ":condition": ":condition" makes JsonObjectProperty.isExpression true and
   // everything that discovers expressions by type - Base.validateExpressions(), the linter - would
   // read it with the survey as the variable context, while its variables are record fields.

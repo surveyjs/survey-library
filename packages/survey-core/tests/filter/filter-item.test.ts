@@ -16,8 +16,8 @@ describe("FilterItem", () => {
     expect(item.prompt, "#2").toBe("orders from Germany");
     expect(item.expression, "#3").toBe("{country} = 'de'");
   });
-  test("type defaults to row", () => {
-    expect(new FilterItem("a").type).toBe("row");
+  test("type defaults to fields", () => {
+    expect(new FilterItem("a").type).toBe("fields");
   });
   test("the allow flags default to true and round-trip", () => {
     const item = new FilterItem("a");

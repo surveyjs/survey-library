@@ -315,6 +315,12 @@ function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: 
 
 function initDefaultCssVariables(convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
   if (isPanelless) {
+    const panellessCssVariables = DefaultLightPanelless.cssVariables;
+    Object.keys(panellessCssVariables).forEach((key) => {
+      if (convertedCssVariable[key] === undefined) {
+        convertedCssVariable[key] = panellessCssVariables[key];
+      }
+    });
     convertedCssVariable["--sjs2-color-component-panel-default-bg"] = "transparent";
   }
 }
@@ -322,14 +328,6 @@ function initDefaultCssVariables(convertedCssVariable: { [index: string]: string
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
   const inputKeys = new Set(Object.keys(newCssVariable));
-  if (isPanelless) {
-    const panellessCssVariables = DefaultLightPanelless.cssVariables;
-    Object.keys(panellessCssVariables).forEach((key) => {
-      if (newCssVariable[key] === undefined) {
-        newCssVariable[key] = panellessCssVariables[key];
-      }
-    });
-  }
   const convertedCssVariable: { [index: string]: string } = {};
   patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
   initDefaultCssVariables(convertedCssVariable, isPanelless);

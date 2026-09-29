@@ -57,6 +57,9 @@ export class FilterConditionsEditor {
   // Set while the editor changes its own questions (a value question recreated for a new
   // operator): those are not the respondent's changes and are not reported one by one.
   private isUpdating: boolean = false;
+  // Whether the respondent has changed anything - a field or the search box - since the editor
+  // opened or was last applied. See apply().
+  private isModifiedValue: boolean = false;
 
   constructor(private owner: IFilterConditionsEditorOwner, names: Array<string>, private options: IFilterConditionsEditorOptions = {}) {
     this.names = (names || []).filter((name: string): boolean => !!owner.getFieldByName(name));
@@ -76,6 +79,7 @@ export class FilterConditionsEditor {
   public get isRawExpression(): boolean { return this.owner.isRawExpression; }
   public get isDisposed(): boolean { return this.isDisposedValue; }
   public get hasSearch(): boolean { return !!this.options.showSearch; }
+  public get isModified(): boolean { return this.isModifiedValue; }
   // The condition the editor holds for the field now, or undefined when it holds none. A multi-
   // value answer comes in the field's choice order - see normalizeValue().
   public getCondition(name: string): IFilterCondition {
@@ -84,15 +88,22 @@ export class FilterConditionsEditor {
   }
   // Hands everything the editor holds to onApply at once. A field with no condition (no value where
   // the operator needs one) is left out, and the owner drops its condition. Nothing to do for a
-  // read-only or a disposed editor, or for a mode that writes every change as it is made.
+  // read-only or a disposed editor, or for a mode that writes every change as it is made. Nor for
+  // an editor nobody has changed: what it holds is only the prefill, which can be lossy (a preset
+  // that does not decompose opens empty and would be replaced by nothing) or stale (the control
+  // moved on to another preset or search while the editor was open), and writing it back would
+  // undo a state the respondent never touched here.
   public apply(): void {
     const onApply = this.options.onApply;
-    if (this.isReadOnly || this.isDisposedValue || !onApply) return;
+    if (this.isReadOnly || this.isDisposedValue || !onApply || !this.isModifiedValue) return;
     const conditions: Array<IFilterCondition> = [];
     this.names.forEach((_: string, index: number): void => {
       const condition = this.getConditionAt(index);
       if (!!condition) conditions.push(condition);
     });
+    // Reset first: once applied, the control holds what the editor does, so applying again with no
+    // new change has nothing to write.
+    this.isModifiedValue = false;
     onApply(conditions, this.hasSearch ? (this.getSearchQuestion().value || "") : undefined);
   }
   // Writes nothing and disposes the editor: a cancelled edit has nothing left to show, and an
@@ -147,6 +158,7 @@ export class FilterConditionsEditor {
   }
   private onValueChanged(questionName: string): void {
     if (this.isUpdating || this.isDisposedValue) return;
+    this.isModifiedValue = true;
     for (let i = 0; i < this.names.length; i++) {
       const isOperator = questionName === this.getOperatorName(i);
       if (!isOperator && questionName !== this.getValueName(i)) continue;

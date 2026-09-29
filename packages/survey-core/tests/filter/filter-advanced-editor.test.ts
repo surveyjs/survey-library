@@ -274,6 +274,110 @@ describe("Advanced mode editor: presets", () => {
   });
 });
 
+describe("Advanced mode editor: an untouched editor applies nothing", () => {
+  test("a preset that does not decompose survives an untouched apply", () => {
+    const q = createControl({ defaultItem: "edges" });
+    const events = trackEvents(q);
+    const editor = q.createAdvancedModeEditor();
+    expect(editor.isModified, "#1").toBe(false);
+    editor.apply();
+    expect(q.ownConditions, "#2").toBe(undefined);
+    expect(q.filterExpression, "#3").toBe("{age} < 18 or {age} > 35");
+    expect(events, "#4").toEqual({ filter: 0, uiState: 0 });
+    editor.dispose();
+  });
+  test("an anyof preset in another order than the choices is not modified by an untouched apply", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} anyof ['fr', 'de']" }], defaultItem: "eu" });
+    const editor = q.createAdvancedModeEditor();
+    editor.apply();
+    expect(q.ownConditions, "#1").toBe(undefined);
+    expect(q.isActiveItemModified, "#2").toBe(false);
+    editor.dispose();
+  });
+  test("a stale editor does not undo a preset and a search changed while it was open", () => {
+    const q = createControl();
+    const editor = q.createAdvancedModeEditor();
+    q.toggleItem("kids");
+    q.searchString = "zz";
+    const expression = q.filterExpression;
+    editor.apply();
+    expect(q.activeItemName, "#1").toBe("kids");
+    expect(q.ownConditions, "#2").toBe(undefined);
+    expect(q.searchString, "#3").toBe("zz");
+    expect(q.filterExpression, "#4").toBe(expression);
+    editor.dispose();
+  });
+  test("a change of the search box alone makes the editor modified; apply() resets it", () => {
+    const q = createControl();
+    const events = trackEvents(q);
+    const editor = q.createAdvancedModeEditor();
+    searchQ(editor).value = "an";
+    expect(editor.isModified, "#1").toBe(true);
+    editor.apply();
+    expect(editor.isModified, "#2").toBe(false);
+    expect(events, "#3").toEqual({ filter: 1, uiState: 1 });
+    q.searchString = "zz";
+    editor.apply();
+    expect(q.searchString, "#4: a second untouched apply writes nothing").toBe("zz");
+    editor.dispose();
+  });
+  test("a value question rebuilt for a new operator is the respondent's change, not the editor's own", () => {
+    const q = createControl();
+    const editor = q.createAdvancedModeEditor();
+    operatorQ(editor, "country").value = "empty";
+    expect(editor.isModified, "#1").toBe(true);
+    editor.apply();
+    expect(q.getFieldCondition("country"), "#2").toEqual({ field: "country", operator: "empty", value: undefined });
+    editor.dispose();
+  });
+});
+
+describe("Advanced mode editor: multi-value values compare as sets", () => {
+  test("changing and restoring an anyof preset's selection leaves it not modified", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} anyof ['fr', 'de']" }], defaultItem: "eu" });
+    const editor = q.createAdvancedModeEditor();
+    expect(valueQ(editor, "country").value, "#1").toEqual(["fr", "de"]);
+    valueQ(editor, "country").value = ["de"];
+    editor.apply();
+    expect(q.isActiveItemModified, "#2").toBe(true);
+    valueQ(editor, "country").value = ["de", "fr"];
+    editor.apply();
+    expect(q.ownConditions, "#3: written in the choices' order").toEqual([{ field: "country", operator: "anyof", value: ["de", "fr"] }]);
+    expect(q.isActiveItemModified, "#4").toBe(false);
+    expect(q.canSaveActiveItem, "#5").toBe(false);
+    editor.dispose();
+  });
+  test("changing and restoring the selection on an untouched preset writes nothing", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} anyof ['fr', 'de']" }], defaultItem: "eu" });
+    const editor = q.createAdvancedModeEditor();
+    valueQ(editor, "country").value = ["de"];
+    valueQ(editor, "country").value = ["de", "fr"];
+    editor.apply();
+    expect(q.ownConditions, "#1: the same set as the preset is no edit").toBe(undefined);
+    expect(q.isActiveItemModified, "#2").toBe(false);
+    editor.dispose();
+  });
+  test("noneof and allof compare as sets too; the elements and everything else stay exact", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} noneof ['fr', 'de']" }], defaultItem: "eu" });
+    q.setFieldCondition("country", "noneof", ["de", "fr"]);
+    expect(q.isActiveItemModified, "#1").toBe(false);
+    q.setFieldCondition("country", "noneof", ["de", "FR"]);
+    expect(q.isActiveItemModified, "#2: element comparison is case-sensitive").toBe(true);
+    q.setFieldCondition("country", "noneof", ["de"]);
+    expect(q.isActiveItemModified, "#3: a subset is a change").toBe(true);
+    q.setFieldCondition("country", "anyof", ["de", "fr"]);
+    expect(q.isActiveItemModified, "#4: the operator still counts").toBe(true);
+    const q2 = createControl({ fields: [{ name: "tags", fieldType: "checkbox", choices: ["a", "b"] }],
+      items: [{ name: "all", expression: "{tags} allof ['b', 'a']" }], defaultItem: "all" });
+    expect(q2.getFieldCondition("tags"), "#5a: the preset decomposes").toEqual({ field: "tags", operator: "allof", value: ["b", "a"] });
+    q2.setFieldCondition("tags", "allof", ["a", "b"]);
+    expect(q2.isActiveItemModified, "#5").toBe(false);
+    const q3 = createControl({ items: [{ name: "n", expression: "{name} = 'Bob'" }], defaultItem: "n" });
+    q3.setFieldCondition("name", "equal", "bob");
+    expect(q3.isActiveItemModified, "#6: a single value is still exact").toBe(true);
+  });
+});
+
 describe("Advanced mode editor: read-only", () => {
   test("an ai preset: display-only, and apply() writes nothing", () => {
     const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });

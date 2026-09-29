@@ -16,6 +16,9 @@ import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
+// The operators whose value is a set of values - see isSameConditionSet().
+const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
+
 // The Filter Control. It descends from QuestionNonValue because it is a control and not an answer:
 // it never assigns this.value, so it stays out of survey.data, out of the condition editor and out
 // of validation. What the end user does with it is UI state, not survey data.
@@ -517,10 +520,17 @@ export class QuestionFilterModel extends QuestionNonValue {
   // type-lenient (18 equals "18", true equals "true"), and each of those pairs composes into a
   // different expression on a text field - a "no change" reported that way would let a real edit
   // go unnoticed as unmodified. Sorted JSON keys make the comparison order-insensitive: both sides
-  // are a set, not a sequence.
+  // are a set, not a sequence. So is the value of a multi-value operator (anyof, noneof, allof):
+  // ['fr', 'de'] and ['de', 'fr'] filter the same, and a preset authored in another order than the
+  // editor gives it back in (the field's choice order) must not read as edited once the respondent
+  // restores the selection. Its elements are still compared by exact JSON.
   private isSameConditionSet(a: Array<IFilterCondition>, b: Array<IFilterCondition>): boolean {
     if (a.length !== b.length) return false;
-    const toKey = (c: IFilterCondition): string => JSON.stringify(c);
+    const toKey = (c: IFilterCondition): string => {
+      if (!multiValueOperators[c.operator] || !Array.isArray(c.value)) return JSON.stringify(c);
+      const value = c.value.map((v: any): string => JSON.stringify(v)).sort();
+      return JSON.stringify({ field: c.field, operator: c.operator, value: value });
+    };
     const as = a.map(toKey).sort();
     const bs = b.map(toKey).sort();
     for (let i = 0; i < as.length; i++) {

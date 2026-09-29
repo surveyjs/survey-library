@@ -105,7 +105,7 @@ export class FilterConditionsEditor {
     const condition = this.owner.getFieldCondition(name);
     const operator = !!condition ? condition.operator : getFilterFieldDefaultOperator(this.owner.getFieldByName(name));
     this.getOperatorQuestion(index).value = operator;
-    const question = this.createValueQuestion(name, index, operator);
+    const question = this.createValueQuestion(index, operator, this.owner.getValueEditorJson(name, operator));
     if (!!condition && isFilterConditionValueRequired(operator)) {
       question.value = condition.value;
     }
@@ -142,13 +142,13 @@ export class FilterConditionsEditor {
       old.dispose();
     }
     this.surveyValue.clearValue(this.getValueName(index));
-    const question = this.createValueQuestion(name, index, operator);
+    const question = this.createValueQuestion(index, operator, json);
     if (!Helpers.isValueEmpty(value)) {
       question.value = value;
     }
   }
-  private createValueQuestion(name: string, index: number, operator: string): Question {
-    const json = Object.assign({}, this.owner.getValueEditorJson(name, operator) || {});
+  private createValueQuestion(index: number, operator: string, editorJson: any): Question {
+    const json = Object.assign({}, editorJson || {});
     json.name = this.getValueName(index);
     json.titleLocation = "hidden";
     json.visible = isFilterConditionValueRequired(operator);

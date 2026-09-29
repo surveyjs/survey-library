@@ -363,9 +363,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // editable and changes nothing is worse than one that says so. A change that leaves the field with
   // no condition where it had none writes nothing: clearing it would still be the first edit, which
   // replaces the preset's text by its conditions (and over a preset that does not decompose, by
-  // none at all). The caller owns the editor and disposes it.
+  // none at all). The caller owns the editor and disposes it. A field fast mode does not show
+  // (showInFastMode: false, or a duplicate valueName collapsed into its first field) gets none:
+  // its condition is changed in advanced mode only.
   public createFastModeEditor(name: string): FilterConditionsEditor {
-    if (!this.getFieldByName(name)) return undefined;
+    if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
     return new FilterConditionsEditor(this, [name], {
       readOnly: !this.canEditConditions,
       onConditionChanged: (fieldName: string, condition: IFilterCondition): void => {
@@ -376,6 +378,13 @@ export class QuestionFilterModel extends QuestionNonValue {
         }
       }
     });
+  }
+  // By name and valueName and not by object: a standalone field's descriptor is rebuilt on every
+  // getFilterFields() call, so the two lists never share an object.
+  private isFastModeField(field: IDynamicDataFilterField): boolean {
+    if (!field) return false;
+    return this.getFastModeFields().some((f: IDynamicDataFilterField): boolean =>
+      f.name === field.name && f.valueName === field.valueName);
   }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);

@@ -39,8 +39,22 @@ describe("FilterConditionsEditor: the editor survey", () => {
   });
   test("an unknown field name gives no editor", () => {
     const q = createControl();
-    expect(q.createFastModeEditor("unknown"), "#1").toBe(undefined);
-    expect(q.createFastModeEditor(""), "#2").toBe(undefined);
+    expect(q.createFastModeEditor("unknown") === undefined, "#1").toBe(true);
+    expect(q.createFastModeEditor("") === undefined, "#2").toBe(true);
+  });
+  test("a field hidden from fast mode gives no fast mode editor", () => {
+    const q = createFilter({ fields: [{ name: "name" }, { name: "country", showInFastMode: false }] });
+    expect(q.createFastModeEditor("country") === undefined, "#1").toBe(true);
+    const editor = q.createFastModeEditor("name");
+    expect(!!editor, "#2: a shown field still gets one").toBe(true);
+    editor.dispose();
+  });
+  test("the second field of a duplicate valueName gives no fast mode editor", () => {
+    const q = createFilter({ fields: [{ name: "country" }, { name: "country2", valueName: "country" }] });
+    expect(q.createFastModeEditor("country2") === undefined, "#1").toBe(true);
+    const editor = q.createFastModeEditor("country");
+    expect(!!editor, "#2: the first one does").toBe(true);
+    editor.dispose();
   });
   test("operator titles are the English labels in the operators' order", () => {
     const q = createControl();
@@ -210,10 +224,15 @@ describe("FilterConditionsEditor: dispose", () => {
     const q = createFilter();
     const editor = q.createFastModeEditor("age");
     const s = editor.survey;
+    const operator = operatorQ(editor);
+    const value = valueQ(editor);
     editor.dispose();
     expect(s.isDisposed, "#1").toBe(true);
     expect(editor.isDisposed, "#2").toBe(true);
-    expect(q.filterExpression, "#3").toBe("");
+    operator.value = "greater";
+    value.value = 21;
+    expect(q.ownConditions, "#3: a disposed editor writes nothing").toBe(undefined);
+    expect(q.filterExpression, "#4").toBe("");
     editor.dispose();
   });
 });

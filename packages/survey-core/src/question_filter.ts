@@ -6,6 +6,7 @@ import { ISurveyImpl } from "./base-interfaces";
 import { IElementUIState, IFilterCondition, IFilterElementUIState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
+import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
   conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
@@ -356,6 +357,25 @@ export class QuestionFilterModel extends QuestionNonValue {
     // same - raises neither call twice nor at all.
     this.updateFilterExpression();
     this.raiseUIStateChanged();
+  }
+  // Fast mode: one field, and every change the respondent makes is the filter at once. Read-only
+  // where conditions cannot be edited - the edits would be refused anyway, and an editor that looks
+  // editable and changes nothing is worse than one that says so. A change that leaves the field with
+  // no condition where it had none writes nothing: clearing it would still be the first edit, which
+  // replaces the preset's text by its conditions (and over a preset that does not decompose, by
+  // none at all). The caller owns the editor and disposes it.
+  public createFastModeEditor(name: string): FilterConditionsEditor {
+    if (!this.getFieldByName(name)) return undefined;
+    return new FilterConditionsEditor(this, [name], {
+      readOnly: !this.canEditConditions,
+      onConditionChanged: (fieldName: string, condition: IFilterCondition): void => {
+        if (!!condition) {
+          this.setFieldCondition(fieldName, condition.operator, condition.value);
+        } else if (!!this.getFieldCondition(fieldName)) {
+          this.clearFieldCondition(fieldName);
+        }
+      }
+    });
   }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);

@@ -264,6 +264,7 @@ export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionFilterModel } from "../../src/question_filter";
 export { FilterField, IFilterFieldOwner } from "../../src/filter/filter-field";
 export { FilterItem } from "../../src/filter/filter-item";
+export { FilterConditionsEditor, IFilterConditionsEditorOwner, IFilterConditionsEditorOptions } from "../../src/filter/filter-conditions-editor";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";

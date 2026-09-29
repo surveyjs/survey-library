@@ -30,6 +30,15 @@ const OPERATOR_TITLE_KEYS: { [operator: string]: string } = {
   lessorequal: "conditionOperatorLessorequal"
 };
 
+// Whether a condition with this operator needs a value to mean anything ("empty"/"notempty" do
+// not). Asked of ConditionEditorItem, which writes the condition out, so an editor that hides its
+// value question and the composition that drops an unready condition never disagree.
+export function isFilterConditionValueRequired(operator: string): boolean {
+  const item = new ConditionEditorItem();
+  item.operator = operator;
+  return item.isValueRequired;
+}
+
 // A locale that has not translated a key falls back to English, the way getLocaleString always
 // does. An operator the table does not know (a future operator, a typo) has no key to look up, so
 // the operator name itself is the best title there is.

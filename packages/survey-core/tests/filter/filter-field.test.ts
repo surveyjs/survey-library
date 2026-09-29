@@ -89,6 +89,31 @@ describe("FilterField: fieldType", () => {
     expect(field.getDynamicType(), "#2: and it still borrows no properties").toBe("");
     expect(new JsonObject().toJsonObject(field), "#3: nothing of it is authored").toEqual({ name: "age" });
   });
+  test("a typeless field's descriptor also reports isTypeless", () => {
+    const field = new FilterField("age");
+    expect(field.getFilterField().isTypeless, "#1: no fieldType is authored").toBe(true);
+  });
+  test("an authored fieldType is not typeless although it resolves to the same text question", () => {
+    const field = new FilterField("age");
+    field.fieldType = "text";
+    expect(field.getFilterField().isTypeless, "#1: text was authored, not defaulted").toBeFalsy();
+  });
+  test("showInFastMode defaults to true and is not serialized", () => {
+    const field = new FilterField("age");
+    expect(field.showInFastMode, "#1").toBe(true);
+    expect(field.getFilterField().showInFastMode, "#2").toBe(true);
+    expect(new JsonObject().toJsonObject(field), "#3").toEqual({ name: "age" });
+  });
+  test("showInFastMode false round-trips through JSON", () => {
+    const field = new FilterField("age");
+    field.showInFastMode = false;
+    const json = new JsonObject().toJsonObject(field);
+    expect(json, "#1").toEqual({ name: "age", showInFastMode: false });
+    const loaded = new FilterField("");
+    new JsonObject().toObject(json, loaded);
+    expect(loaded.showInFastMode, "#2").toBe(false);
+    expect(loaded.getFilterField().showInFastMode, "#3").toBe(false);
+  });
   test("fieldType is read before the type-specific keys whatever the JSON order", () => {
     const field = new FilterField("");
     new JsonObject().toObject({ choices: [1, 2], name: "country", fieldType: "dropdown" }, field);

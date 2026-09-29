@@ -48,6 +48,13 @@ export interface IDynamicDataFilterField {
   // select column with no choices shows the matrix's in its cells, and only the cells receive them.
   // undefined = the template question's visibleChoices.
   choices?: Array<ItemValue>;
+  // True when the field authored no fieldType/cellType of its own and runs on the fallback text
+  // question: fieldType still names the resolved editor ("text"), so operator narrowing needs its
+  // own signal to tell "authored text" from "defaulted to text". undefined = not typeless.
+  isTypeless?: boolean;
+  // Whether the field appears in the Filter Control's fast (single-field) mode. undefined = shown,
+  // the same as true; only a standalone FilterField ever sets it, a bound field never opts out.
+  showInFastMode?: boolean;
 }
 // The fields a Filter Control offers for a set of questions. A question whose value is a record of
 // its own - Multiple Textboxes, a composite question - is not a field: its children are, under the

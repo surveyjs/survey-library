@@ -92,6 +92,11 @@ export class FilterField extends Base implements ILocalizableOwner {
   // no fieldType exposes none of the fallback text question's properties.
   getDynamicType(): string { return this.fieldType || ""; }
 
+  // Whether this field appears in the Filter Control's fast mode. A bound field (collectFilterFields)
+  // never gets a say - its descriptor leaves showInFastMode undefined, which means "shown" too.
+  public get showInFastMode(): boolean { return this.getPropertyValue("showInFastMode"); }
+  public set showInFastMode(val: boolean) { this.setPropertyValue("showInFastMode", val); }
+
   public get fieldType(): string { return this.getPropertyValue("fieldType"); }
   public set fieldType(val: string) {
     val = !val ? "" : val.toLocaleLowerCase();
@@ -120,7 +125,10 @@ export class FilterField extends Base implements ILocalizableOwner {
     const q = this.templateQuestion;
     return {
       name: this.name, valueName: this.getValueName(), locTitle: this.locTitle,
-      valueType: this.valueType, fieldType: this.fieldType || q.getType(), templateQuestion: q
+      valueType: this.valueType, fieldType: this.fieldType || q.getType(), templateQuestion: q,
+      // Typeless only when no fieldType was authored - a fieldType that happens to resolve to the
+      // same question type ("text") was still a deliberate choice and keeps its full operator set.
+      isTypeless: !this.fieldType, showInFastMode: this.showInFastMode
     };
   }
 
@@ -218,4 +226,5 @@ Serializer.addClass("filterfield", [
     name: "fieldType", default: "", visible: false,
     choices: () => { const res = QuestionFactory.Instance.getAllTypes(); res.splice(0, 0, ""); return res; }
   },
+  { name: "showInFastMode:boolean", default: true, visible: false },
 ], () => new FilterField(""));

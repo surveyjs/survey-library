@@ -51,10 +51,12 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
     const md = <QuestionMatrixDynamicModel>this.question;
     if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
     if (index > -1) {
-      const rows = md.allRows;
-      if (index >= 0 && index < rows.length) {
+      // {matrix[2].col1} names a record of the value, and so does the index a bound question passes:
+      // the row that holds it, or - when the record has no row - the record.
+      const item = md.getExpressionItem(index);
+      if (!!item) {
         params.isRoot = false;
-        return rows[index].getValueGetterContext().getValue(params);
+        return item.getValueGetterContext().getValue(params);
       }
       return { isFound: false, value: undefined, context: this };
     }
@@ -576,6 +578,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
       (item: DynamicRecordItem): IValueGetterContext => new MatrixRowGetterContext(<any>item));
+  }
+  // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
+  // filtered out, off the page or not built - is read as a value.
+  public getExpressionItem(index: number): DynamicItemModelBase {
+    // Reading allRows builds the rows, so that a record that has a row is answered by the row.
+    const rows = this.allRows;
+    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
+    const item = this.getItemByRecordIndex(index);
+    if (!!item) return item;
+    return index < this.dataList.loadedCount ? this.createRecordItem(index) : null;
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {

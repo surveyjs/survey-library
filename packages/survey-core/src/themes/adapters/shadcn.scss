@@ -411,10 +411,9 @@
   --sjs2-layout-component-panel-footer-gap: var(--sjs2-shadcn-card-action-gap);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs2-shadcn-card-action-gap);
 
-  /* A top-level question keeps its frame class. The default look matches default-light-panelless
-     (transparent question chrome, no content padding) without setting isCompact. */
-  --sjs2-color-component-panel-simple-default-bg: transparent;
-  --sjs2-color-component-panel-simple-default-border: transparent;
+  /* a framed question is a <Card> with a <CardContent> only, so the card's py lands there */
+  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
   --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
   --sjs2-border-effect-component-panel-simple-default:
     var(--sjs2-shadcn-card-ring) var(--sjs2-color-component-panel-simple-default-border), var(--sjs2-shadcn-card-shadow);
@@ -423,15 +422,17 @@
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
-  --sjs2-layout-component-panel-simple-box-gap-vertical: var(--sjs2-spacing-medium-vertical);
+  --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-spacing-x000);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-spacing-x000);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(
     --sjs2-layout-component-panel-content-area-gap-vertical
   );
-  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(
+    --sjs2-layout-component-panel-content-area-gap-horizontal
+  );
   --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal: var(--sjs2-spacing-x500);
 
   /* a nested panel is a <Card> that keeps a bordered <CardHeader>: [.border-b]:pb-6 restores the
@@ -528,7 +529,7 @@
   --sjs2-layout-component-question-header-gap-vertical: calc(var(--spacing) * 1.5);
 
   --sjs2-color-utility-body: transparent;
-  --sjs2-color-utility-surface-survey: var(--sjs2-color-component-panel-default-bg);
+  --sjs2-color-utility-surface-survey: transparent;
   --sjs2-layout-component-page-content-area-gap-horizontal: var(--sjs2-spacing-large-horizontal);
   --sjs2-layout-component-page-content-area-gap-vertical: var(--sjs2-spacing-large-vertical);
 }

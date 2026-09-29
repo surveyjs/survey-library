@@ -211,12 +211,14 @@ export class QuestionFilterModel extends QuestionNonValue {
   // "Clear the filter": no preset and no edits of the respondent's own. It resets the edits even
   // when no preset is active - the activeItemName setter would see no change there and keep them -
   // and in single mode, where the preset cannot be taken off and its text becomes the filter again.
+  // Restored conditions still waiting for a bound source are edits too and go with them
+  // (setOwnConditions drops them); restored saved presets are not edits and stay.
   public clearActiveItem(): void {
     if (!!this.activeItemName) {
       this.activeItemName = "";
       return;
     }
-    if (this.ownConditions === undefined) return;
+    if (this.ownConditions === undefined && this.pendingConditions === undefined) return;
     this.setOwnConditions(undefined);
     this.updateFilterExpression();
     this.raiseUIStateChanged();
@@ -566,11 +568,11 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     return conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
   }
-  // Only presets that still exist: a removed one would be ignored on restore anyway.
+  // Only presets that still exist and may still be edited: restoreItems() would ignore any other.
   private getUIStateItems(): { [name: string]: { conditions: Array<IFilterCondition> } } {
     let res: { [name: string]: { conditions: Array<IFilterCondition> } } = undefined;
     const add = (name: string, conditions: Array<IFilterCondition>): void => {
-      if (!this.getItemByName(name) || !Array.isArray(conditions)) return;
+      if (!this.canRestoreSavedItem(name) || !Array.isArray(conditions)) return;
       res = res || {};
       res[name] = { conditions: conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
     };
@@ -595,7 +597,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       const isReady = this.isFieldListReady;
       const items = !!filter.items && typeof filter.items === "object" ? filter.items : undefined;
       // A newer restore replaces whatever an earlier one left waiting for the source.
-      this.pendingItems = isReady ? undefined : items;
+      this.pendingItems = isReady ? undefined : this.copySavedItems(items);
       if (isReady) {
         this.restoreItems(items);
       }
@@ -611,7 +613,7 @@ export class QuestionFilterModel extends QuestionNonValue {
           this.restoreConditions(conditions);
         }
       } else {
-        this.pendingConditions = !!conditions ? conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) : undefined;
+        this.pendingConditions = !!conditions ? this.copyConditionList(conditions) : undefined;
       }
       if (filter.searchString !== undefined) {
         this.searchString = filter.searchString;
@@ -623,18 +625,47 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // A saved preset's expression is rebuilt from its conditions and not parsed back: that is what
   // saveActiveItem() wrote, and it is what the preset will be saved as again. A name that no longer
-  // resolves to a preset is ignored - the author removed or renamed it.
+  // resolves to a preset is ignored - the author removed or renamed it - and so is a preset the
+  // author has since made read-only (allowEdit: false): the respondent could not save into it now,
+  // and the author's text must win. A saved list that had conditions and has none left once they
+  // are checked (every field gone, every operator no longer offered) is ignored too: rewriting the
+  // author's expression to "" would turn the preset into "no filter", which nobody saved.
   private restoreItems(items: { [name: string]: { conditions: Array<IFilterCondition> } }): void {
     if (!items) return;
     const fields = this.getFilterFields();
     Object.keys(items).forEach((name: string): void => {
-      const item = this.getItemByName(name);
       const entry = items[name];
-      if (!item || !entry || !Array.isArray(entry.conditions)) return;
+      if (!this.canRestoreSavedItem(name) || !entry || !Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
-      item.expression = conditionsToExpression(conditions, fields);
+      if (conditions.length === 0 && entry.conditions.length > 0) return;
+      this.getItemByName(name).expression = conditionsToExpression(conditions, fields);
       this.savedItemConditions[name] = conditions;
     });
+  }
+  private canRestoreSavedItem(name: string): boolean {
+    const item = this.getItemByName(name);
+    return !!item && item.allowEdit;
+  }
+  // Pending saved presets are held for later: the caller's state object must not be able to change
+  // them in the meantime.
+  private copySavedItems(items: { [name: string]: { conditions: Array<IFilterCondition> } }): { [name: string]: { conditions: Array<IFilterCondition> } } {
+    if (!items) return undefined;
+    const res: { [name: string]: { conditions: Array<IFilterCondition> } } = {};
+    Object.keys(items).forEach((name: string): void => {
+      const entry = items[name];
+      if (!entry || !Array.isArray(entry.conditions)) return;
+      const conditions = this.copyConditionList(entry.conditions);
+      // Nothing usable left of a non-empty list: see restoreItems(), which would skip it too.
+      if (conditions.length === 0 && entry.conditions.length > 0) return;
+      res[name] = { conditions: conditions };
+    });
+    return res;
+  }
+  // A restored list is not trusted to hold only objects; normalizeFilterConditions() would drop
+  // anything else later anyway, so it is dropped here, before copyCondition() would trip on it.
+  private copyConditionList(conditions: Array<IFilterCondition>): Array<IFilterCondition> {
+    return conditions.filter((c: IFilterCondition): boolean => !!c && typeof c === "object")
+      .map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
   }
   // Not over a preset that cannot be edited (an "ai" one) or in the designer: an edit could not have
   // produced these there either.

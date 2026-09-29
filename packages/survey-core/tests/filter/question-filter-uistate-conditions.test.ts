@@ -171,6 +171,76 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     expect(events.filter.length, "#3").toBe(1);
     expect(events.uiState, "#4").toBe(1);
   });
+  test("a saved preset the author has since made read-only is not restored", () => {
+    const survey = create();
+    const q = control(survey);
+    q.toggleItem("kids");
+    q.setFieldCondition("age", "less", 10);
+    q.saveActiveItem();
+    const state = survey.uiState;
+    expect(state.questions["f1"].filter.items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
+    const readOnly = presets.map(p => p.name === "kids" ? Object.assign({}, p, { allowEdit: false }) : p);
+    const restored = create({ items: readOnly });
+    restored.uiState = state;
+    const q2 = control(restored);
+    expect(q2.getItemByName("kids").expression, "#2: the author's text wins").toBe("{age} <= 18");
+    expect(q2.filterExpression, "#3").toBe("{age} <= 18");
+    expect(filterState(restored), "#4: and nothing is saved back for it").toEqual({ activeItemName: "kids" });
+  });
+  test("a read-only preset is not passed through while it waits for the bound source", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "m",
+        items: [{ name: "de", expression: "{country} = 'de'", allowEdit: false }] }] });
+    survey.uiState = { questions: { f1: { filter: {
+      items: { de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } } } } } };
+    expect(survey.uiState.questions).toBe(undefined);
+  });
+  test("a saved preset whose conditions are all dropped keeps the author's expression", () => {
+    const restored = create();
+    restored.uiState = { questions: { f1: { filter: { items: { kids: { conditions: [
+      { field: "nosuchfield", operator: "equal", value: 1 },
+      { field: "country", operator: "contains", value: "de" }] } } } } } };
+    const q = control(restored);
+    expect(q.getItemByName("kids").expression, "#1").toBe("{age} <= 18");
+    expect(restored.uiState.questions, "#2: and it is not recorded as saved").toBe(undefined);
+  });
+  test("a saved preset with an empty condition list is restored as empty", () => {
+    const restored = create();
+    restored.uiState = { questions: { f1: { filter: { items: { kids: { conditions: [] } } } } } };
+    expect(control(restored).getItemByName("kids").expression).toBe("");
+  });
+  test("clearActiveItem drops restored conditions still waiting for the bound source, and keeps saved presets", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "m",
+        items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    survey.uiState = { questions: { f1: { filter: {
+      items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } },
+      conditions: [{ field: "country", operator: "equal", value: "fr" }] } } } };
+    const q = control(survey);
+    const events = trackEvents(survey);
+    q.clearActiveItem();
+    expect(events.uiState, "#1: the saved state changed").toBe(1);
+    expect(filterState(survey), "#2").toEqual({ items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } } });
+    const matrix = <QuestionMatrixDynamicModel>survey.pages[0].addNewQuestion("matrixdynamic", "m");
+    matrix.columns = <any>[];
+    matrix.addColumn("country");
+    survey.setValue("somethingelse", 1);
+    expect(q.ownConditions, "#3: the dropped edits are not applied").toBe(undefined);
+    expect(q.filterExpression, "#4").toBe("");
+    expect(q.getItemByName("de").expression, "#5: the saved preset is").toBe("{country} = 'gb'");
+  });
+  test("pending saved presets are copied, not shared with the caller's state", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "m", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    const conditions = [{ field: "country", operator: "equal", value: "gb" }];
+    survey.uiState = { questions: { f1: { filter: { items: { de: { conditions: conditions } } } } } };
+    conditions[0].value = "xx";
+    const matrix = <QuestionMatrixDynamicModel>survey.pages[0].addNewQuestion("matrixdynamic", "m");
+    matrix.columns = <any>[];
+    matrix.addColumn("country");
+    survey.setValue("somethingelse", 1);
+    expect(control(survey).getItemByName("de").expression).toBe("{country} = 'gb'");
+  });
   test("an untouched control writes no conditions or items keys", () => {
     const survey = create();
     const q = control(survey);

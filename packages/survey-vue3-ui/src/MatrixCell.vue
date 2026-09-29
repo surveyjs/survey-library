@@ -20,7 +20,7 @@
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
-    <span :class="question.cssMaterialDecorator">
+    <span :class="question.cssMaterialDecorator" aria-hidden="true">
       <svg
         v-if="itemSvgIcon"
         :class="question.cssItemDecorator"

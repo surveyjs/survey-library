@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -12,6 +12,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
+import { isAnimationEnabled as areSurveyAnimationsEnabled } from "./utils/reduced-motion";
 import { SurveyElement } from "./survey-element";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -95,7 +96,7 @@ export class ChoiceItem extends ItemValue {
             onAfterRunAnimation: cleanHtmlElementAfterAnimation };
         },
         isAnimationEnabled: () => {
-          return settings.animationEnabled;
+          return areSurveyAnimationsEnabled();
         },
         getRerenderEvent: ()=> {
           return this.onElementRerendered;
@@ -167,7 +168,7 @@ export class ChoiceItem extends ItemValue {
             onAfterRunAnimation: cleanHtmlElementAfterAnimation };
         },
         isAnimationEnabled: () => {
-          return settings.animationEnabled;
+          return areSurveyAnimationsEnabled();
         },
         getRerenderEvent: ()=> {
           return this.onElementRerendered;
@@ -2370,7 +2371,40 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private get hasChoicesUrl(): boolean {
     return !!this.choicesByUrlValue?.url;
   }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (context.checks.reportInvalidValueTypes && !this.isValueShapeCorrect(val)) {
+      context.addIssue("invalidValueType", undefined, val, this);
+      return false;
+    }
+    if (!context.checks.reportInvalidChoiceValues) return true;
+    // The guards below are about the definition and not about the value: a choicesByUrl that has
+    // not loaded, a question that allows custom choices, a valueName shared by several questions.
+    // The choices of such a question are not known here, so nothing is reported.
+    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return true;
+    if (!this.canClearValueAnUnknown(val)) return true;
+    if (!Array.isArray(val)) {
+      context.addIssue("invalidChoiceValue", undefined, val, this);
+      return true;
+    }
+    // One finding per offending item, addressed by its index in the value.
+    val.forEach((item, index) => {
+      if (!this.hasUnknownValue(item, true, true, true)) return;
+      context.addIssue("invalidChoiceValue", index, item, this);
+    });
+    return true;
+  }
+  // A single-select question does not store an array and a multi-select question stores nothing else.
+  private isValueShapeCorrect(val: any): boolean {
+    return Array.isArray(val) === (this.getValueType() === "array");
+  }
   public clearIncorrectValues(): void {
+    if (!this.isEmpty() && !this.isValueShapeCorrect(this.value)) {
+      this.clearValue(true);
+      return;
+    }
+    // keepIncorrectValues is read here, not in the check code: setData() ignores it.
+    if (this.isKeepIncorrectValues) return;
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
@@ -2392,8 +2426,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return false;
   }
   protected hasValueToClearIncorrectValues(): boolean {
-    if (!!this.survey && this.survey.keepIncorrectValues) return false;
-    return !this.keepIncorrectValues && !this.isEmpty();
+    return !this.isEmpty();
+  }
+  // A select question has its own keepIncorrectValues next to the survey one.
+  protected get isKeepIncorrectValues(): boolean {
+    return super.isKeepIncorrectValues || !!this.keepIncorrectValues;
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
@@ -2734,6 +2771,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
+  }
+  public getItemLabelId(item: ItemValue): string {
+    return this.getItemId(item) + "_label";
+  }
+  // In design mode the item text is rendered as a focusable inline editor, so it must stay in the accessibility tree
+  public get isItemLabelAriaHidden(): boolean {
+    return !this.isDesignMode;
   }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;

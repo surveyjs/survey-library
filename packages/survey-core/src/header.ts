@@ -291,6 +291,14 @@ export class Cover extends Base implements ILayoutElementModel {
   //   return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
   // }
 
+  // % is the width of one grid cell. Each extra cell also crosses one column-gap.
+  private getSpanMaxWidth(span: number): string {
+    if (span <= 1) {
+      return "100%";
+    }
+    return `calc(${span * 100}% + ${span - 1} * var(--sd-header-column-gap))`;
+  }
+
   public getContentMaxWidth(cell: CoverCell): string {
     if (cell.isEmpty || cell.showLogo) {
       return undefined;
@@ -300,7 +308,7 @@ export class Cover extends Base implements ILayoutElementModel {
     const colIndex = cellIndex % 3;
     if (colIndex == 1) {
       if (!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
-        return "100%";
+        return this.getSpanMaxWidth(1);
       }
     } else if (colIndex == 0) {
       let rightFreeCells = 0;
@@ -311,7 +319,7 @@ export class Cover extends Base implements ILayoutElementModel {
         }
         index++;
       }
-      return (100 * (rightFreeCells + 1)) + "%";
+      return this.getSpanMaxWidth(rightFreeCells + 1);
     } else if (colIndex == 2) {
       let leftFreeCells = 0;
       let index = colIndex - 1;
@@ -321,7 +329,7 @@ export class Cover extends Base implements ILayoutElementModel {
         }
         index--;
       }
-      return (100 * (leftFreeCells + 1)) + "%";
+      return this.getSpanMaxWidth(leftFreeCells + 1);
     }
     return undefined;
   }

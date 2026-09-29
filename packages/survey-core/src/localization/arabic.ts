@@ -55,6 +55,10 @@ export var arabicSurveyStrings = {
   value: "القيمة",
   // "Response required."
   requiredError: ".يرجى الإجابة على السؤال",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "القيمة غير صحيحة.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "القيمة تحتوي على مفاتيح مجهولة: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
   // "Response required: answer questions in all rows."

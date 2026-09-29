@@ -191,7 +191,7 @@ describe("header", () => {
       "alignItems": "flex-start",
       "justifyContent": "flex-end",
       "textAlign": "start",
-      "maxWidth": "300%",
+      "maxWidth": "calc(300% + 2 * var(--sd-header-column-gap))",
     });
   });
 
@@ -281,7 +281,7 @@ describe("header", () => {
     cover.descriptionPositionX = "left";
     cover.descriptionPositionY = "middle";
 
-    expect(cover.cells[3].contentStyle["maxWidth"], "title + description #1").toBe("200%");
+    expect(cover.cells[3].contentStyle["maxWidth"], "title + description #1").toBe("calc(200% + 1 * var(--sd-header-column-gap))");
     expect(cover.cells[5].contentStyle["maxWidth"], "logo #1").toBeUndefined();
 
     cover.descriptionPositionX = "center";
@@ -297,7 +297,7 @@ describe("header", () => {
     cover.descriptionPositionY = "bottom";
 
     expect(cover.cells[2].contentStyle["maxWidth"], "logo #3").toBeUndefined();
-    expect(cover.cells[3].contentStyle["maxWidth"], "title #3").toBe("300%");
+    expect(cover.cells[3].contentStyle["maxWidth"], "title #3").toBe("calc(300% + 2 * var(--sd-header-column-gap))");
     expect(cover.cells[7].contentStyle["maxWidth"], "description #3").toBeUndefined();
   });
 

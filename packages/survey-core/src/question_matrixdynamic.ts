@@ -913,8 +913,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
-  protected isNewValueCorrect(val: any): boolean {
-    return Array.isArray(val);
+  protected isDataValueCorrect(val: any): boolean {
+    // Every row is a plain object; an empty one may be null.
+    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   protected setDefaultValue() {
     DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
@@ -2174,6 +2175,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const position = positions[i] !== undefined ? positions[i] : -1;
       const row = position > -1 && position < rows.length ? rows[position] : undefined;
       if (!!row) {
+        if (!row.isVisible) continue;
         res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
       } else {
         const record = this.getListRecordAt(i, defaultRecord);
@@ -2266,6 +2268,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   getItemRecordIndex(item: ISurveyData): number {
     return this.getRecordIndexOf(item);
+  }
+  // A row position is not a record index under paging, filtering or sorting: a location names the record.
+  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
+    if (!this.hasDataListView) return index;
+    const res = this.getRecordIndexOf(row);
+    return res > -1 ? res : index;
   }
   getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
     const position = this.dataList.indexToMaterializedIndex(recordIndex);

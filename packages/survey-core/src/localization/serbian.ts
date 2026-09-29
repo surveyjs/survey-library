@@ -55,6 +55,10 @@ export var serbianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Molimo odgovorite na ovo pitanje.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vrednost je netačna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vrednost sadrži nepoznate ključeve: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
   // "Response required: answer questions in all rows."

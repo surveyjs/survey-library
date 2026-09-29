@@ -55,6 +55,10 @@ export var norwegianSurveyStrings = {
   value: "verdi",
   // "Response required."
   requiredError: "Vennligst svar på spørsmålet.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Verdien er feil.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Verdien inneholder ukjente nøkler: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
   // "Response required: answer questions in all rows."

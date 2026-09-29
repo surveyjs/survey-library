@@ -12920,6 +12920,38 @@ describe("Survey", () => {
     expect(focusedQuestionId, "do not focus any question").toBeFalsy();
     SurveyElement.FocusElement = oldFunc;
   });
+  test("Do not focus the first invalid question on next page when autoFocusFirstError is false", () => {
+    const focusedQuestionIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionIds.push(elId);
+      return true;
+    };
+    const json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1", isRequired: true }],
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2", isRequired: true }],
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.nextPage();
+    expect(survey.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(focusedQuestionIds, "focus the required question by default").toEqual([survey.getQuestionByName("question1").inputId]);
+
+    const surveyNoFocus = new SurveyModel({ autoFocusFirstError: false, ...json });
+    focusedQuestionIds.length = 0;
+    surveyNoFocus.nextPage();
+    expect(surveyNoFocus.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(surveyNoFocus.getQuestionByName("question1").errors.length, "the error is still shown").toBeGreaterThan(0);
+    expect(focusedQuestionIds, "do not focus when autoFocusFirstError is false").toEqual([]);
+    SurveyElement.FocusElement = oldFunc;
+  });
   test("onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546", () => {
     var survey = new SurveyModel({
       pages: [

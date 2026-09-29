@@ -34,8 +34,9 @@ import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationContext } from "./question";
+import { ValidationContext, IVerifyDataContext } from "./question";
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -986,6 +987,17 @@ export class PanelModelBase extends SurveyElement<Question>
     this.validateCore(context);
     context.finish();
     return context.runningResult;
+  }
+  // The walk behind SurveyModel.setData(), see Question.initializeForVerification(). On a page or a
+  // panel it covers that subtree only: the unknown root keys of the survey data are a survey-level
+  // finding.
+  public initializeForVerification(): void {
+    this.elements.forEach(element => (<any>element).initializeForVerification());
+  }
+  // A page and a panel own no data key of their own, a dynamic panel item included: the index of
+  // the item is pushed by the dynamic panel that walks into it.
+  public verifyDataCore(context: IVerifyDataContext): void {
+    this.elements.forEach(element => (<any>element).verifyDataCore(context));
   }
   public validateContainerOnly(): void {
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
@@ -2505,7 +2517,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: getScrollBehavior() } });
           }
         }, elementIsRendered ? 0 : 15);
       }

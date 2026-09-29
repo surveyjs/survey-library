@@ -3546,7 +3546,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
        its display values from its panel's questions; under paging a record without a panel reads them
        through the template's questions (Andrew's decision 2026-09-25, OPEN 57). This is a live path -
        text piping and displayValue() call it - so nothing is built for it. */
-    const positions = this.hasDataListView ? this.getMaterializedPositions() : undefined;
+    const positions = this.hasDataListView ? this.dataList.getMaterializedPositions() : undefined;
     const useTemplate = this.isPagingActive;
     for (var i = 0; i < values.length; i++) {
       var val = values[i];
@@ -3559,12 +3559,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       }
     }
     return values;
-  }
-  // record index -> position in panelsCore, for the records that have a panel.
-  private getMaterializedPositions(): { [index: number]: number } {
-    const res: { [index: number]: number } = {};
-    this.dataList.getMaterializedIndexes().forEach((index: number, pos: number): void => { res[index] = pos; });
-    return res;
   }
   /* The same text the panel would give when the choices do not depend on the panel: the template
      question formats the value. Choices that depend on {panel.x}, and a choicesByUrl whose answer is
@@ -3636,7 +3630,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const res: Array<any> = [];
     if (!this.keyName || !this.hasDataListView) return res;
     const list = this.dataList;
-    const positions = this.getMaterializedPositions();
+    const positions = this.dataList.getMaterializedPositions();
     // The records that are loaded: a duplicate on a page the question has not read is the server's
     // business, and a key constraint over a whole remote table cannot be checked here. An owner-hidden
     // record does not take part, as it does not without paging, where its hidden panel is skipped.

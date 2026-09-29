@@ -628,8 +628,25 @@ export class DynamicDataList {
   }
   public indexToMaterializedIndex(index: number): number {
     if (this._pageSize <= 0) return this.indexToCreatedIndex(index);
-    return this.getPageIndexes().indexOf(index);
+    const position = this.getMaterializedPositions()[index];
+    return position !== undefined ? position : -1;
   }
+  /* record index -> position among the materialized records, for the records that have an object.
+     Memoized on the identity of the materialized array: the list never changes a view array in
+     place, it replaces it, so a new array is the only way the map can go stale. A content change of
+     the same length is seen through invalidateViews(), the limit the arrays themselves have. */
+  public getMaterializedPositions(): { [index: number]: number } {
+    const indexes = this.getMaterializedIndexes();
+    if (this.materializedPositionsSource !== indexes) {
+      const res: { [index: number]: number } = {};
+      indexes.forEach((index: number, pos: number): void => { res[index] = pos; });
+      this.materializedPositionsSource = indexes;
+      this.materializedPositions = res;
+    }
+    return this.materializedPositions;
+  }
+  private materializedPositionsSource: Array<number>;
+  private materializedPositions: { [index: number]: number };
   /* The owner-visibility of many records at once, decided without an object per record. One view
      reset and one page clamp for the whole run instead of one per record: setRecordVisible
      recomputes the views on the clamp, which over every record would be quadratic. Returns whether a

@@ -1938,7 +1938,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      Choices that depend on {row.x}, and a choicesByUrl whose answer is not cached, give the value. */
   private getPagedDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
     const rows = this.generatedVisibleRows || [];
-    const positions = this.getMaterializedPositions();
+    const positions = this.dataList.getMaterializedPositions();
     for (let i = 0; i < values.length; i++) {
       const val = values[i];
       if (!val) continue;
@@ -2159,7 +2159,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getPagedFilteredData(): any {
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
-    const positions = this.getMaterializedPositions();
+    const positions = this.dataList.getMaterializedPositions();
     const res: any = [];
     list.getVisibleIndexes().forEach((index: number): void => {
       const row = positions[index] !== undefined ? rows[positions[index]] : undefined;
@@ -2179,7 +2179,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.hasDataListView) return super.getDataWithoutInvisibleRows();
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
-    const positions = this.getMaterializedPositions();
+    const positions = this.dataList.getMaterializedPositions();
     const res: any = [];
     // loadedCount, not count: with a data source that pages, count is the server total and only the
     // records of the loaded window can be looked at. Equal for every local source.
@@ -2194,18 +2194,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  // record index -> position in generatedVisibleRows, for the records that have a row.
-  private getMaterializedPositions(): { [index: number]: number } {
-    const res: { [index: number]: number } = {};
-    this.dataList.getMaterializedIndexes().forEach((index: number, pos: number): void => { res[index] = pos; });
-    return res;
-  }
   protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
     if (!this.hasDataListView) return super.getDuplicationEntries(columnName);
     const list = this.dataList;
     const rows = this.generatedVisibleRows || [];
     const res = new Array<IMatrixDuplicationEntry>();
-    const positions = this.getMaterializedPositions();
+    const positions = this.dataList.getMaterializedPositions();
     // Only read, never stored: every padded record can share one default record.
     const defaultRecord = this.getDefaultRowValue(false) || {};
     // The records that are loaded: a duplicate on a page the matrix has not read is the server's

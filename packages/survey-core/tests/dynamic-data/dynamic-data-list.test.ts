@@ -508,6 +508,21 @@ describe("DynamicDataList: index conversions", () => {
     expect(list.getVisibleIndexes()).not.toBe(visible);
     expect(list.getVisibleIndexes()).toEqual([1, 2]);
   });
+  test("the materialized positions are cached with the page they describe", () => {
+    const list = createList(createRecords(5));
+    list.pageSize = 2;
+    const positions = list.getMaterializedPositions();
+    expect(list.getMaterializedPositions()).toBe(positions);
+    expect(positions).toEqual({ 0: 0, 1: 1 });
+    expect(list.indexToMaterializedIndex(1)).toBe(1);
+    expect(list.indexToMaterializedIndex(2)).toBe(-1);
+    list.pageIndex = 1;
+    const nextPositions = list.getMaterializedPositions();
+    expect(nextPositions).not.toBe(positions);
+    expect(nextPositions).toEqual({ 2: 0, 3: 1 });
+    expect(list.indexToMaterializedIndex(3)).toBe(1);
+    expect(list.indexToMaterializedIndex(0)).toBe(-1);
+  });
 });
 
 describe("DynamicDataList: local filter, sort and paging", () => {

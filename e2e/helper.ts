@@ -14,6 +14,17 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+// Serves a choicesByUrl request from the test itself, so no real web service is contacted.
+// Call it before initSurvey. The url does not have to exist: the request never leaves the browser.
+export async function mockChoicesByUrl(page: Page, requestUrl: string, response: any): Promise<void> {
+  await page.route(requestUrl, route => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: JSON.stringify(response)
+  }));
+}
+
 export async function compareScreenshot(
   page: Page,
   elementSelector: string | Locator | undefined,

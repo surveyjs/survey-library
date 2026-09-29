@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, mockChoicesByUrl } from "../helper";
 import { QuestionCheckbox, QuestionText, QuestionRating, QuestionDropdown, QuestionComment } from "../questionHelper";
 import { Survey } from "../surveyHelper";
 
@@ -131,6 +131,8 @@ frameworks.forEach((framework) => {
       await new Survey(page).checkData({ car: ["Audi", "Ford"], carInfo: { Audi: { years: 3, design: 3, quality: 3 }, Ford: { years: 4, design: 4, quality: 4 } } });
     });
     test("Panel Dynamic", async ({ page }) => {
+      const countriesUrl = "http://127.0.0.1:8080/mock-api/countries";
+      await mockChoicesByUrl(page, countriesUrl, [{ name: "France" }, { name: "Germany" }, { name: "Italy" }, { name: "Spain" }]);
       await initSurvey(page, framework, {
         "title": "Open ended list like with https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/reactjs",
         "pages": [
@@ -149,7 +151,7 @@ frameworks.forEach((framework) => {
                     "isRequired": true,
                     "defaultDisplayValue": "[not selected]",
                     "choicesByUrl": {
-                      "url": "https://surveyjs.io/api/CountriesExample",
+                      "url": countriesUrl,
                       "valueName": "name"
                     }
                   },

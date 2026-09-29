@@ -768,9 +768,11 @@ export var settings = {
   */
   animationEnabled: true,
 
-  // When true, the OS "prefers-reduced-motion: reduce" preference turns animations and smooth scrolling off
-  // even if animationEnabled is true.
-  respectReducedMotion: true,
+  animation: {
+    // When true, the OS "prefers-reduced-motion: reduce" preference turns animations and smooth scrolling off
+    // even if animationEnabled is true.
+    respectReducedMotion: true,
+  },
 
   /**
    * An object that specifies HTML tags to use when rendering survey, page, panel, and question titles.

@@ -1998,15 +1998,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return res.length === rows.length ? rows : res;
   }
   private updateValueOnRowsGeneration(rows: Array<MatrixDropdownRowModelBase>) {
+    /* The rows were built from the value and usually hold it already. The two copies of the whole
+       value are made only when a row has a value to write back: a matrix that pages builds one page
+       on every visit, and the copies would cost the record count each time. */
+    const changedRows: Array<MatrixDropdownRowModelBase> = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row.editingObj && !this.isTwoValueEquals(this.getRowValue(i), row.value)) {
+        changedRows.push(row);
+      }
+    }
+    if (changedRows.length === 0) return;
     var oldValue = this.createNewValue(true);
     var newValue = this.createNewValue();
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      if (!!row.editingObj) continue;
-      var rowValue = this.getRowValue(i);
-      var rValue = row.value;
-      if (this.isTwoValueEquals(rowValue, rValue)) continue;
-      newValue = this.getNewValueOnRowChanged(row, "", rValue, false, newValue)
+    for (var i = 0; i < changedRows.length; i++) {
+      newValue = this.getNewValueOnRowChanged(changedRows[i], "", changedRows[i].value, false, newValue)
         .value;
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;

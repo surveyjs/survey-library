@@ -243,12 +243,21 @@ export class DynamicDataList {
   private endWrite(): void {
     if (this.writeDepth > 0)this.writeDepth--;
   }
+  // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
+    this.retryPage = undefined;
     return this.startRead(false);
   }
   public refresh(): void | Promise<void> {
+    this.retryPage = undefined;
     return this.startRead(true);
   }
+  /* The page a read that was not committed asks for next (see commitRead): an empty page past the
+     end. It is kept apart from the committed state - the page index, the total and what is known
+     about it describe the window in force until the retry commits its own window, and a retry that
+     fails leaves them as they were. total and discoveredTotalFilter are what the empty answer
+     proved about the end; the commit of the retry takes them together with its window. */
+  private retryPage: { pageIndex: number, total: number, discoveredTotalFilter: string } = undefined;
   public get isLoading(): boolean {
     return this._isLoading;
   }
@@ -738,6 +747,7 @@ export class DynamicDataList {
     this.records = [];
     this.hiddenFlags = [];
     this.pendingInserts = [];
+    this.retryPage = undefined;
     this.filterRunner = undefined;
     this.resetMembership();
     this.resetViews();
@@ -922,6 +932,7 @@ export class DynamicDataList {
     this.hiddenFlags = [];
     // The inserts of the source that was replaced: their answers belong to a window that is gone.
     this.pendingInserts = [];
+    this.retryPage = undefined;
     this._total = undefined;
     this._isCountKnown = true;
     this._hasMore = false;
@@ -1019,9 +1030,14 @@ export class DynamicDataList {
     if (this.isDisposed || !this._source) return;
     const requestId = ++this.readRequestId;
     const useReadRange = this.hasReadRange;
-    const skip = useReadRange
-      ? (useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize)
-      : 0;
+    let skip = 0;
+    if (useReadRange) {
+      if (!!this.retryPage) {
+        skip = this.retryPage.pageIndex * this._pageSize;
+      } else {
+        skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
+      }
+    }
     const take = this._pageSize;
     let res: any;
     try {
@@ -1029,6 +1045,7 @@ export class DynamicDataList {
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
       this.inFlightRead = undefined;
+      this.retryPage = undefined;
       this.setIsLoading(false);
       this.raiseError(e, "read");
       return;
@@ -1049,22 +1066,24 @@ export class DynamicDataList {
           // loading state, as a superseding read does.
           return this.startRead(useWindowOffset);
         }
-        /* A page past the end: the read of the page it stepped back to takes this one's place, and
-           it is returned, so that a caller awaiting load()/refresh() waits for the window that is
-           committed and not for the answer that was discarded. It inherits the loading state, as a
-           superseding read does. */
-        if (!this.commitRead(data, skip, take, useReadRange)) return this.load();
+        /* A page past the end: the read of the page it stepped back to (retryPage) takes this one's
+           place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
+           that is committed and not for the answer that was discarded. It inherits the loading
+           state, as a superseding read does. */
+        if (!this.commitRead(data, skip, take, useReadRange)) return this.startRead(false);
         this.setIsLoading(false);
       }, (error: any): void => {
         if (this.isDisposed || requestId !== this.readRequestId) return;
         this.inFlightRead = undefined;
+        // The previous window stays in force, and so does the page it was read for: a retry that
+        // failed has changed nothing.
+        this.retryPage = undefined;
         this.setIsLoading(false);
-        // The previous window stays in force.
         this.raiseError(error, "read");
       });
     }
     this.inFlightRead = undefined;
-    if (!this.commitRead(res, skip, take, useReadRange)) return this.load();
+    if (!this.commitRead(res, skip, take, useReadRange)) return this.startRead(false);
     // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
     // read of the same source; the flag that read set is this one's to clear.
     this.setIsLoading(false);
@@ -1087,20 +1106,34 @@ export class DynamicDataList {
          one page back and reads that one, and again if it is empty too (bounded by pageIndex).
          The empty answer is not thrown away: nothing exists at skip or behind it, so the storage
          holds at most that many records. The window the step back commits then confirms that bound
-         or lowers it, and the pager stops offering the page that answered empty. */
-      if (records.length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && this._pageIndex > 0) {
-        this._total = skip;
-        this._isCountKnown = true;
-        this.discoveredTotalFilter = this._filter;
-        this._pageIndex--;
-        this.pageIndexes = undefined;
+         or lowers it, and the pager stops offering the page that answered empty.
+         Both steps below go to retryPage and not to the committed state (review finding 2): the
+         window in force, its page index and its total stay together until the retry commits, and a
+         retry that fails leaves them as they were. */
+      const pageIndex = !!this.retryPage ? this.retryPage.pageIndex : this._pageIndex;
+      if (records.length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && pageIndex > 0) {
+        this.retryPage = { pageIndex: pageIndex - 1, total: skip, discoveredTotalFilter: this._filter };
         return false;
       }
+      /* A page past a total the source reported: the storage shrank under the page the respondent is
+         on. The empty window is not committed either - the page would be empty and nothing would
+         read it again. The total says where the end is, so the retry goes straight to the last page
+         of it. It terminates: the retry reads in front of the total, and a source that shrank again
+         answers with a smaller one. No pageChanged here: until the retry commits, the question shows
+         the window in force together with the page it was read for. */
+      if (records.length === 0 && skip > 0 && this._pageSize > 0 && typeof result.total === "number" && skip >= result.total) {
+        this.retryPage = {
+          pageIndex: Math.max(0, Math.ceil(result.total / this._pageSize) - 1), total: result.total, discoveredTotalFilter: undefined
+        };
+        return false;
+      }
+      this.applyRetryPage();
       this.records = records;
       this.commitCount(result, skip, take, records.length);
       this._windowOffset = skip;
       this.maxSeenCount = Math.max(this.maxSeenCount, skip + records.length);
     } else {
+      this.retryPage = undefined;
       this.records = Array.isArray(data) ? data : [];
       this._total = undefined;
       // read() answers with the whole storage, so its length IS the count.
@@ -1116,6 +1149,19 @@ export class DynamicDataList {
     this.clampPageIndex();
     this.raiseChanged({ type: "reset" });
     return true;
+  }
+  /* The retry commits: the page it was read for and what the empty answer proved about the end
+     become the committed state, before commitCount - which keeps a discovered end the window
+     confirms and lowers one it contradicts. */
+  private applyRetryPage(): void {
+    const retry = this.retryPage;
+    if (!retry) return;
+    this.retryPage = undefined;
+    this._pageIndex = retry.pageIndex;
+    this._total = retry.total;
+    this._isCountKnown = true;
+    this.discoveredTotalFilter = retry.discoveredTotalFilter;
+    this.pageIndexes = undefined;
   }
   /* Does this answer reach the end of the storage? The source says so with hasMore; otherwise a
      window shorter than the take it asked for is the end, and so is any window answering a take of
@@ -1145,8 +1191,12 @@ export class DynamicDataList {
     /* A total the list worked out itself is kept while the window fits inside it: this is a page in
        front of an end that has already been found, and forgetting it would offer a page behind the
        end again and cost two reads to discover the same end. A window that reaches past it is a
-       storage that has grown, and the end has to be found again. */
-    if (this._total !== undefined && this.discoveredTotalFilter === this._filter && skip + length <= this._total) {
+       storage that has grown, and the end has to be found again. So is an explicit hasMore: true at
+       the known end - the source says there are records behind a window the total says is the last
+       one. A full window without hasMore at that end is only inferred to have more, and keeps it. */
+    const end = skip + length;
+    const isInFront = result.hasMore === true ? end < this._total : end <= this._total;
+    if (this._total !== undefined && this.discoveredTotalFilter === this._filter && isInFront) {
       this._isCountKnown = true;
       this._hasMore = skip + length < this._total;
       return;

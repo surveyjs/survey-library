@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
@@ -319,5 +320,155 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     pd1.value[6].nested.x = "mutated";
     expect(pd2.value[6].nested.x, "#5: the other way round").toBe(6);
     expect(received[6].nested.x, "#6: the handler's value").toBe(6);
+  });
+});
+
+/* Step 18 (prompts/dynamic-data-list/18-read-source-paging-and-totals.md), part E: a read() source is
+   paged by the list, and it is the kind of source whose storage may be large - the server hands over
+   everything once. A page visit, an edit and a validation must cost the page, not the record count.
+   The whole-list calculations (progress, display value) are correct at O(records) and are tested for
+   their result in question-source-contract.test.ts, not here. */
+describe("E: a read() source paged by the list costs the page", () => {
+  class BigReadSource {
+    public calls: number = 0;
+    constructor(public data: Array<any>) { }
+    public read(): Array<any> {
+      this.calls++;
+      return this.data.map(r => Object.assign({}, r));
+    }
+    public update(key: any, record: any): void {
+      this.calls++;
+      this.data[key] = Object.assign({}, record);
+    }
+  }
+  interface IBigQuestion {
+    survey: SurveyModel;
+    question: any;
+    source: BigReadSource;
+    items: () => Array<any>;
+    input: (position: number, name: string) => Question;
+    createSpy: () => { calls: Array<any> };
+  }
+  function createBig(type: string, count: number): IBigQuestion {
+    const json: any = type === "matrix"
+      ? { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 20,
+        columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", isRequired: true }] }
+      : { type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: 20,
+        templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", isRequired: true }] };
+    const survey = new SurveyModel({ elements: [json] });
+    const question: any = survey.getQuestionByName("q");
+    const source = new BigReadSource(records(count, i => ({ a: "a" + i, b: "b" + i })));
+    question.dataSource = source;
+    const items = (): Array<any> => type === "matrix" ? question.visibleRows : question.panels;
+    expect(items().length, "the first page is built").toBe(20);
+    return {
+      survey: survey, question: question, source: source, items: items,
+      input: (position: number, name: string): Question => items()[position].getQuestionByName(name),
+      createSpy: () => (type === "matrix"
+        ? vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow")
+        : vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel")).mock
+    };
+  }
+  // Records, not calls: one call on a whole array unbinds every record of it.
+  function countUnboundRecords(spy: { calls: Array<Array<any>> }): number {
+    let res = 0;
+    spy.calls.forEach((call: Array<any>): void => {
+      const value = call[0];
+      if (!!value && typeof value === "object" && !Array.isArray(value)) res++;
+    });
+    return res;
+  }
+  function measurePageVisit(type: string, count: number): { created: number, sourceCalls: number, unbound: number } {
+    const big = createBig(type, count);
+    const created = big.createSpy();
+    const copies = vi.spyOn(Helpers, "getUnbindValue");
+    const callsBefore = big.source.calls;
+    big.question.pageIndex = 3;
+    expect(big.input(0, "a").value, type + " " + count + ": the page holds records 60-79").toBe("a60");
+    const res = { created: created.calls.length, sourceCalls: big.source.calls - callsBefore, unbound: countUnboundRecords(copies.mock) };
+    vi.restoreAllMocks();
+    return res;
+  }
+  /* Review finding 3: a column default must not send a page visit through the whole-value copy.
+     The records are populated - every one holds the default already - so nothing is written back. */
+  function measureDefaultsPageVisit(count: number, hasSource: boolean): { created: number, unbound: number, writes: number } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: hasSource ? 0 : count, rowsPerPage: 20,
+      columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", defaultValue: "def" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    const data = records(count, i => ({ a: "a" + i, b: "b" + i }));
+    if (hasSource) {
+      question.dataSource = new BigReadSource(data);
+    } else {
+      survey.data = { q: data };
+    }
+    expect(question.visibleRows.length, "the first page is built").toBe(20);
+    const created = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow");
+    const copies = vi.spyOn(Helpers, "getUnbindValue");
+    const writes = vi.spyOn(SurveyModel.prototype, "setValue");
+    question.pageIndex = 3;
+    expect(question.visibleRows[0].getQuestionByName("b").value, count + ": the stored value, not the default").toBe("b60");
+    const res = { created: created.mock.calls.length, unbound: countUnboundRecords(copies.mock), writes: writes.mock.calls.length };
+    vi.restoreAllMocks();
+    return res;
+  }
+  [false, true].forEach((hasSource: boolean): void => {
+    test("(1a) matrix with a column default, " + (hasSource ? "a read() source" : "question.value") + ": a page visit copies what does not grow with the record count", () => {
+      const small = measureDefaultsPageVisit(1000, hasSource);
+      const large = measureDefaultsPageVisit(10000, hasSource);
+      expect(small.created, "#1").toBe(20);
+      expect(large.created, "#2").toBe(20);
+      expect(large.unbound, "#3: the copies of a visit: " + small.unbound + " at 1,000, " + large.unbound + " at 10,000").toBe(small.unbound);
+      expect(large.unbound <= 2 * 20, "#4: at most two copies per record on the page").toBe(true);
+      expect(large.writes, "#5: nothing is written back").toBe(0);
+    });
+  });
+  test("(1b) matrix with a column default: records the value does not hold yet still get the default", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 3,
+      columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", defaultValue: "def" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    survey.data = { q: [{ a: "x", b: "y" }] };
+    question.rowCount = 3;
+    expect(question.visibleRows.length, "#1").toBe(3);
+    expect(question.value, "#2: the padded records are written with the default").toEqual([{ a: "x", b: "y" }, { b: "def" }, { b: "def" }]);
+  });
+  ["matrix", "panel"].forEach((type: string): void => {
+    test("(1) " + type + ": one page visit builds the page, calls the source 0 times, copies what does not grow with the record count", () => {
+      const small = measurePageVisit(type, 1000);
+      const large = measurePageVisit(type, 10000);
+      expect(small.created, "#1: 1,000 records").toBe(20);
+      expect(large.created, "#2: 10,000 records").toBe(20);
+      expect(small.sourceCalls, "#3").toBe(0);
+      expect(large.sourceCalls, "#4").toBe(0);
+      expect(large.unbound, "#5: the copies of a visit: " + small.unbound + " at 1,000, " + large.unbound + " at 10,000").toBe(small.unbound);
+      expect(large.unbound <= 2 * 20, "#6: at most two copies per record on the page").toBe(true);
+    });
+    test("(2) " + type + ": one cell edit creates no object and reads nothing", () => {
+      [1000, 10000].forEach((count: number): void => {
+        const big = createBig(type, count);
+        big.question.pageIndex = 3;
+        const before = [].concat(big.items());
+        const created = big.createSpy();
+        const callsBefore = big.source.calls;
+        big.input(0, "a").value = "edited";
+        expect(created.calls.length, "#1: " + count + ", no object created").toBe(0);
+        expect(big.source.calls - callsBefore, "#2: " + count + ", the update and no read").toBe(1);
+        expect(big.source.data[60].a, "#3: " + count).toBe("edited");
+        expect(big.items().every((item: any, i: number): boolean => item === before[i]), "#4: " + count + ", the page keeps its objects").toBe(true);
+        vi.restoreAllMocks();
+      });
+    });
+    test("(3) " + type + ": tryComplete after one edit on page 0 and a move to page 3 visits one page", () => {
+      [1000, 10000].forEach((count: number): void => {
+        const big = createBig(type, count);
+        big.input(1, "a").value = "edited";
+        big.question.pageIndex = 3;
+        const visits = vi.spyOn(<any>(type === "matrix" ? QuestionMatrixDynamicModel.prototype : QuestionPanelDynamicModel.prototype), "validatePageObjects");
+        const callsBefore = big.source.calls;
+        expect(big.survey.tryComplete(), "#1: " + count + ", every record is valid").toBe(true);
+        expect(visits.mock.calls.length, "#2: " + count + ", the edited page only").toBe(1);
+        expect(big.source.calls, "#3: " + count + ", nothing is read").toBe(callsBefore);
+        vi.restoreAllMocks();
+      });
+    });
   });
 });

@@ -62,6 +62,10 @@ export class DynamicDataRemoteController {
   public get isRemote(): boolean {
     return !!this.sourceValue;
   }
+  // The record field the source names its records by, undefined for a source without one.
+  public get keyField(): string {
+    return !!this.sourceValue ? this.sourceValue.keyField : undefined;
+  }
   // A capability is declared by the presence of the matching method, the same rule the list follows.
   public hasCapability(operation: DynamicDataOperation): boolean {
     const source: any = this.sourceValue;

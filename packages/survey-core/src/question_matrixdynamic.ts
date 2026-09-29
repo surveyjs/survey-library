@@ -32,7 +32,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
@@ -188,6 +188,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.remote.dataSource;
   }
   public set dataSource(val: IDynamicDataSource) {
+    // Another storage: the records layer 2 tracks and the states kept for them name records of the
+    // old one. Dropped before the swap, whose first read may commit inside it.
+    if (!!this.pageValidationValue && (val || undefined) !== this.remote.dataSource) {
+      this.pageValidationValue.cancelPendingMove();
+      this.pageValidationValue.clearRecords();
+    }
     this.remote.dataSource = val;
     // The capabilities of the new source decide whether the cells are editable and whether the
     // add/remove buttons are shown: the cells read isMatrixReadOnly() through their readOnlyCallback
@@ -203,9 +209,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get isDynamicDataRunning(): boolean {
     return !!this.remoteValue && this.remoteValue.isRunning;
   }
-  /* "the records are owned by a data source", the one condition every remote branch of this class
-     asks. It is deliberately not "the list pages itself": a source that returns everything in one
-     read is still a source, and its records are still not the question's to grow or truncate. */
+  /* "the records are owned by a data source": the survey hash, the write routing, the capabilities
+     and the count setters ask it. It is deliberately not "the list pages itself": a source that
+     returns everything in one read is still a source, and its records are still not the question's
+     to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
+     isPagedByList. */
   private get isRemoteData(): boolean {
     return !!this.remoteValue && this.remoteValue.isRemote;
   }
@@ -246,8 +254,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      survey hash is not written and no trigger, condition or navigation runs - and then the rows are
      rebuilt for the records the window holds. Nothing else may assign the value on a load. */
   private setLoadedRecords(): void {
+    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
+    const oldValue = this.getPropertyValueWithoutDefault("value");
+    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     this.storeLoadedRecords();
+    this.followReloadedRecords(oldRecords);
     this.rebuildRowsFromDataList();
+  }
+  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
+     index - and a read that commits again (refresh(), a filter the source answers again) may bring
+     them back at other indexes: another writer moved, added or removed records. The edited set
+     follows its records into the new window, by key when the source names its records and by
+     content otherwise (getReplacedRecordsRemap), so that an edited record is still validated
+     wherever it is now. Replacing the source starts over (see the dataSource setter). */
+  private followReloadedRecords(oldRecords: any): void {
+    const validation = this.pageValidationValue;
+    if (!validation || !validation.hasRecords || !this.isPagedByList) return;
+    validation.cancelPendingMove();
+    const newRecords = this.getPropertyValueWithoutDefault("value");
+    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
+    const newArray = Array.isArray(newRecords) ? newRecords : [];
+    validation.onRecordsReplaced(oldArray, newArray, getReplacedRecordsRemap(oldArray, newArray, this.remote.keyField));
   }
   /* The storage half alone: used after every write the list pushed to the source. The row the
      respondent is typing in already holds the new value, and a rebuild would dispose it under the
@@ -295,9 +322,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (change.type === "pageChanged") {
       if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
       this.syncPagingState();
-      /* The rows that exist are the page (prompt 15): a page of an in-memory list is rebuilt at once,
-         through the path a remote read takes. A remote page is rebuilt when its read commits. */
-      if (!this.isRemoteData && this.isPagingActive) {
+      /* The rows that exist are the page (prompt 15): a page the list cuts - from question.value or
+         from everything a read() source answered with - is rebuilt at once, through the path a
+         remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
+      if (this.isPagedByList) {
         this.rebuildRowsFromDataList();
       } else {
         this.resetRenderedTable();
@@ -350,7 +378,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The edited set of layer 2 names records by index: it follows the list's own inserts and removes.
   private followRecordChange(change: IDynamicDataListChange): void {
-    const validation = this.isPagedInMemory ? this.pageValidation : this.pageValidationValue;
+    const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
     const shift = (func: (index: number) => number): void => {
       (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
         const dynamicRow = <MatrixDynamicRowModel>row;
@@ -396,7 +424,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     super.setQuestionValue(newValue);
     this.invalidateDataListViews();
     this.rebuildRowsIfViewChanged(created);
-    if (isFromOutside && this.isPagedInMemory) {
+    if (isFromOutside && this.isPagedByList) {
       this.onRecordsReplaced(oldRecords);
     }
   }
@@ -488,9 +516,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isDesignMode) return false;
     return !!this.dataListValue && this.dataListValue.pageSize > 0;
   }
-  // An in-memory list that pages: the only kind whose edited records layer 2 tracks.
-  private get isPagedInMemory(): boolean {
-    return this.isPagingActive && !this.isRemoteData;
+  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
+     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
+     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
+     and the records of the other pages are on the server. */
+  private get isPagedByList(): boolean {
+    return this.isPagingActive && !this.dataListValue.isPagedBySource;
   }
   // Single-input mode is its own paging: it walks every row and lists them in its summary.
   public get listPageSize(): number {
@@ -512,7 +543,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get pageStartVisibleIndex(): number {
     const list = this.dataListValue;
     if (!list) return 0;
-    if (this.isRemoteData) return list.windowOffset;
+    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
+    if (list.isPagedBySource) return list.windowOffset;
     return this.isPagingActive ? list.pageIndex * list.pageSize : 0;
   }
   protected getFirstRowVisibleIndex(): number {
@@ -650,7 +682,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
   }
   canTrackEditedRecords(): boolean {
-    return this.isPagedInMemory;
+    return this.isPagedByList;
   }
   // Rows that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
@@ -666,7 +698,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      page validates every row anyway. The matrix itself keeps no state for questions nested in its
      rows: a paged question in a detail panel starts over when its row is rebuilt. */
   public getPageState(): IDynamicDataPageState {
-    if (!this.isPagedInMemory) return undefined;
+    if (!this.isPagedByList) return undefined;
     return this.pageValidation.getState(this.pageIndex);
   }
   public setPageState(state: IDynamicDataPageState): void {
@@ -681,7 +713,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      records are off the page. Either moves to the page that holds the error. */
   protected validateElementCore(context: ValidationContext): boolean {
     let res = super.validateElementCore(context);
-    if (res && this.isPagedInMemory && context.fireCallback && !context.isOnValueChanged) {
+    if (res && this.isPagedByList && context.fireCallback && !context.isOnValueChanged) {
       res = this.pageValidation.validateEditedRecords(context, this.getOffPageDuplicatePages());
     }
     return res;
@@ -965,7 +997,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public addRowByIndex(rowData: any, toIndex: number):void {
     if (this.isRemoteData) {
       // One source.insert at the position the caller named; no count setter and no move.
-      this.addRecordRemote(rowData, toIndex);
+      if (this.isPagedByList) {
+        this.addRecordPagedByList(rowData, this.getRecordIndexAtPagePosition(toIndex));
+      } else {
+        this.addRecordRemote(rowData, toIndex);
+      }
       this.onRowsChanged();
       return;
     }
@@ -999,7 +1035,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         rows.splice(position, 1);
       }
       // One source.remove; question.value and rowCount follow through the recordRemoved notification.
+      const pageIndex = list.pageIndex;
       list.remove(index);
+      // The page came up one record short: the first record of the next page belongs on it now.
+      if (this.isPagedByList && list.pageIndex === pageIndex) {
+        this.rebuildRowsFromDataList();
+      }
       this.onRowsChanged();
       return;
     }
@@ -1408,7 +1449,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // An added record is appended: it lands on the page after the last visible record.
   private isAddLeavingPage(): boolean {
-    if (!this.isPagedInMemory || !this.canAddRow) return false;
+    if (!this.isPagedByList || !this.canAddRow) return false;
     const list = this.dataList;
     return this.paging.getPageOfVisibleIndex(list.visibleCount) !== list.pageIndex;
   }
@@ -1416,8 +1457,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      added. A move from code - the add itself was validated - and before onMatrixRowAdded, so that the
      event gets the new row. */
   private showPageOfAddedRecord(): void {
+    this.showPageOfRecord(this.getLastRowRecordIndex());
+  }
+  private showPageOfRecord(recordIndex: number): void {
     const list = this.dataList;
-    const recordIndex = this.getLastRowRecordIndex();
     if (recordIndex < 0) return;
     this.pageValidation.markEdited(recordIndex);
     const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
@@ -1490,21 +1533,65 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* The remote counterpart of addRowCore. The local path grows rowCount first and writes the
      defaults afterwards, which over a data source is a throwing count setter followed by up to three
      server calls for one gesture. Here the complete record is built first - the column defaults, the
-     defaultRowValue and then the copy from the last entry IN THE WINDOW - and handed to the list
-     once: one source.insert, no move, no follow-up update. question.value and rowCount follow the
-     window through the recordAdded notification. */
+     defaultRowValue and then the copy from the last entry (getLastEntryRecord) - and handed to the
+     list once: one source.insert, no move, no follow-up update. question.value and rowCount follow
+     the window through the recordAdded notification. */
   private addRowCoreRemote(): void {
     const defaultValue = this.getDefaultRowValue(true);
-    const createdCount = this.dataList.getMaterializedIndexes().length;
-    this.addRecordRemote(this.isValueEmpty(defaultValue) ? {} : defaultValue, createdCount);
+    const record = this.isValueEmpty(defaultValue) ? {} : defaultValue;
+    let newRow: MatrixDropdownRowModelBase = undefined;
+    if (this.isPagedByList) {
+      // Appended to the storage, as the local path appends to question.value.
+      newRow = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(this.addRecordPagedByList(record, this.dataList.loadedCount));
+    } else {
+      this.addRecordRemote(record, this.dataList.getMaterializedIndexes().length);
+    }
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
     }
     const rows = this.generatedVisibleRows;
-    if (this.survey && Array.isArray(rows) && rows.length > 0) {
-      this.matrixCallbacks.matrixRowAdded(this, rows[rows.length - 1]);
+    if (!newRow && Array.isArray(rows) && rows.length > 0) {
+      newRow = rows[rows.length - 1];
+    }
+    if (this.survey && !!newRow) {
+      this.matrixCallbacks.matrixRowAdded(this, newRow);
     }
     this.onRowsChanged();
+  }
+  /* A read() source the list pages: every record is in the window, so a new record goes where the
+     local path would put it - at the record index, which is a storage position - and the question
+     shows its page, as showPageOfAddedRecord does for question.value; that page change rebuilds the
+     rows. A record that lands on the page in force gets a row of its own when it is the last one on
+     it; inserted in front of other rows it moves them onto other records, so the page is rebuilt.
+     Returns the record index. */
+  private addRecordPagedByList(record: any, recordIndex: number): number {
+    const list = this.dataList;
+    const at = list.add(record, recordIndex);
+    const pageIndex = list.pageIndex;
+    this.showPageOfRecord(at);
+    const rows = this.generatedVisibleRows;
+    if (list.pageIndex !== pageIndex || !Array.isArray(rows)) return at;
+    const position = list.indexToMaterializedIndex(at);
+    if (position < 0) return at;
+    if (position < rows.length) {
+      this.rebuildRowsFromDataList();
+      return at;
+    }
+    const newRow = this.createMatrixRow(list.getRecord(at));
+    newRow.builtRecordIndex = at;
+    rows.push(newRow);
+    this.onMatrixRowCreated(newRow);
+    return at;
+  }
+  /* The record a row position on the page inserts before; past the last row of the page, the first
+     record of the next page - the rule the dynamic panel's getInsertTarget follows - and past the
+     last visible record, the end of the storage. */
+  private getRecordIndexAtPagePosition(position: number): number {
+    const list = this.dataList;
+    const visible = list.getVisibleIndexes();
+    const pageLength = list.getMaterializedIndexes().length;
+    const visibleIndex = this.pageStartVisibleIndex + Math.max(0, Math.min(position, pageLength));
+    return visibleIndex < visible.length ? visible[visibleIndex] : list.loadedCount;
   }
   /* One record into the loaded window at a created position. A record appended to the window gets a
      row of its own and the rows that exist keep their state; a record inserted in front of them
@@ -1551,7 +1638,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         }
       }
     }
-    if (this.isPagedInMemory && prevRowCount + 1 == this.rowCount) {
+    if (this.isPagedByList && prevRowCount + 1 == this.rowCount) {
       this.showPageOfAddedRecord();
     }
     if (this.survey) {
@@ -1588,12 +1675,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   /* The record copyDefaultValueFromLastEntry copies from. The local path runs after rowCount was
-     already grown, so the last entry is the record before the new one; the remote path builds the
-     record before the insert, so it is the last record of the loaded window - the record beyond it
-     is on the server. */
+     already grown, so the last entry is the record before the new one. The remote path builds the
+     record before the insert: a read() source holds the whole storage, so it is the last record of
+     it, as for question.value; a source that pages itself holds one window, so it is the last
+     record of the window - the record beyond it is on the server. */
   private getLastEntryRecord(): any {
     if (this.isRemoteData) {
       const list = this.dataList;
+      if (!list.isPagedBySource) return list.getRecord(list.loadedCount - 1);
       const created = list.getMaterializedIndexes();
       return created.length > 0 ? list.getRecord(created[created.length - 1]) : undefined;
     }
@@ -1736,7 +1825,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     /* The page came up one record short, and the first record of the next page belongs on it now: the
        page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
        last page moved the page back, and that page change rebuilt it already. */
-    if (this.isPagedInMemory && this.dataList.pageIndex === pageIndex) {
+    if (this.isPagedByList && this.dataList.pageIndex === pageIndex) {
       this.rebuildRowsFromDataList();
     }
     this.onRowsChanged();
@@ -1843,7 +1932,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!value || !Array.isArray(value)) return value;
     var values = this.getUnbindValue(value);
     var rows = this.visibleRows;
-    if (this.isPagingActive && !this.isRemoteData) return this.getPagedDisplayValue(keysAsText, values);
+    if (this.isPagedByList) return this.getPagedDisplayValue(keysAsText, values);
     for (var i = 0; i < rows.length && i < values.length; i++) {
       var val = values[i];
       if (!val) continue;
@@ -1925,17 +2014,41 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected generateRows(): Array<MatrixDynamicRowModel> {
     var result = new Array<MatrixDynamicRowModel>();
     if (this.rowCount === 0) return result;
-    var val = this.createNewValue();
     const indexes = this.getRecordIndexesForRows();
+    /* The default write-back needs the whole padded value, and a live-object value is not copied at
+       all. Every other build copies the records that get a row and nothing else: a page visit of a
+       matrix that pages costs the page, not the record count. Without paging the indexes are
+       0 ... rowCount-1 and the copies are the ones createNewValue() makes, record for record. */
+    const isWritingDefaults = this.isDefaultWriteBackNeeded();
+    const val = isWritingDefaults || this.isEditingObjectValue ? this.createNewValue() : undefined;
     for (var i = 0; i < indexes.length; i++) {
-      const row = this.createMatrixRow(this.getRowValueByIndex(val, indexes[i]));
+      const rowValue = !!val ? this.getRowValueByIndex(val, indexes[i]) : this.getNewRowValue(indexes[i]);
+      const row = this.createMatrixRow(rowValue);
       row.builtRecordIndex = indexes[i];
       result.push(row);
     }
-    if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
+    if (isWritingDefaults) {
       this.value = val;
     }
     return result;
+  }
+  /* The defaults reach question.value when rows are built for records it does not hold yet: the
+     value is shorter than rowCount (the padded records get the defaults) or longer (it is truncated).
+     A value that already holds rowCount records is what createNewValue() would compose, so writing
+     it back changes nothing - and a data source's window is never padded or truncated. */
+  private isDefaultWriteBackNeeded(): boolean {
+    if (this.isRemoteData || this.isValueEmpty(this.getDefaultRowValue(false))) return false;
+    const val = this.value;
+    return !Array.isArray(val) || val.length !== this.rowCount;
+  }
+  // One record of createNewValue() without copying the others: the window of a data source as it is,
+  // question.value truncated and padded to rowCount.
+  private getNewRowValue(index: number): any {
+    const isRemote = this.isRemoteData;
+    if (index < 0 || !isRemote && index >= this.rowCount) return null;
+    const val = this.value;
+    if (Array.isArray(val) && index < val.length) return this.getUnbindValue(val[index]);
+    return isRemote ? null : this.getUnbindValue(this.getDefaultRowValue(false) || {});
   }
   /* One row per record in the view. Without a filter and a sort that is one row per record, in
      record order, which is what createNewValue() composed the value for. The live-object value
@@ -2038,7 +2151,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      list filter excluded has no row and is not part of it - the same answer a source that filters on
      its own side gives, and what makes a total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
-    if (this.isPagingActive && !this.isRemoteData) return this.getPagedFilteredData();
+    if (this.isPagedByList) return this.getPagedFilteredData();
     const res: any = [];
     this.generatedVisibleRows.forEach(row => {
       if (row.isVisible && !row.isEmpty) {
@@ -2281,10 +2394,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private hasRecordVisibilityFlags: boolean;
   private recordVisibilityRunner: ConditionRunner;
-  /* Under in-memory paging the progress is counted from the records - every visible record, every
-     input column - as it is before the rows exist: the rows are one page. */
+  /* When the list pages the progress is counted from the records - every visible record, every
+     input column - as it is before the rows exist: the rows are one page. A source that pages itself
+     counts its window: the other pages are on the server. */
   public getProgressInfo(): IProgressInfo {
-    if (!this.isPagingActive || this.isRemoteData) return super.getProgressInfo();
+    if (!this.isPagedByList) return super.getProgressInfo();
     const res = Base.createProgressInfo();
     this.dataList.getVisibleIndexes().forEach((index: number): void => {
       this.updateProgressInfoByRow(res, this.getListRecordAt(index) || {});

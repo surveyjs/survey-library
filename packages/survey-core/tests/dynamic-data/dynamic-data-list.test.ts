@@ -2118,15 +2118,18 @@ describe("DynamicDataList: a page past the end", () => {
     expect(list.pageCount, "#3").toBe(1);
     expect(source.requests.length, "#4: nothing to step back to").toBe(1);
   });
-  test("a known total clamps instead of stepping back", () => {
+  test("a page past a reported total reads the last page", () => {
     const source = new FakeRangeSource(createRecords(25));
     const list = new DynamicDataList(source);
     list.pageSize = 10;
     list.pageIndex = 5;
-    // The total came with the answer, so the page index is clamped by the read that brought it and
-    // no second read is made. Unchanged by this step.
-    expect(list.pageIndex, "#1: the clamp of the committed read").toBe(2);
-    expect(source.rangeCalls.map((c: any): number => c.skip), "#2: one read, past the end").toEqual([50]);
+    // The total came with the empty answer: it says where the end is, so the list goes straight to
+    // the last page of it and reads that one (step 18) - an empty window is never committed.
+    expect(list.pageIndex, "#1: the last page of the total").toBe(2);
+    expect(source.rangeCalls.map((c: any): number => c.skip), "#2: the page past the end, then the last one").toEqual([50, 20]);
+    expect(list.getRecord(0).id, "#3: the window holds records 20-24").toBe(20);
+    expect(list.loadedCount, "#3a").toBe(5);
+    expect(list.windowOffset, "#4").toBe(20);
   });
 });
 
@@ -2272,5 +2275,195 @@ describe("DynamicDataList: the end of a source that cannot count", () => {
     expect(list.pageIndex, "#3: it stepped back").toBe(0);
     expect(list.loadedCount, "#4: and the window it committed is the one that is readable").toBe(10);
     expect(list.getRecord(0).id, "#5").toBe(0);
+  });
+});
+
+/* Step 18 (prompts/dynamic-data-list/18-read-source-paging-and-totals.md), parts B and C: a total
+   that changes under the pager. */
+describe("DynamicDataList: a reported total that shrinks", () => {
+  test("the page past the new total is not committed empty: the last page of it is read", () => {
+    const source = new FakeRangeSource(createRecords(25));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    list.pageIndex = 2;
+    expect(list.windowOffset, "#1: the third page").toBe(20);
+    source.records = createRecords(15);
+    source.rangeCalls = [];
+    const changes = recordChanges(list);
+    list.refresh();
+    expect(list.pageIndex, "#2: the last page of 15 records").toBe(1);
+    expect(list.windowOffset, "#3").toBe(10);
+    expect(list.loadedCount, "#4: records 10-14").toBe(5);
+    expect(list.getRecord(0).id, "#5").toBe(10);
+    expect(list.getRecord(4).id, "#6").toBe(14);
+    expect(list.count, "#7").toBe(15);
+    expect(list.pageCount, "#8").toBe(2);
+    expect(source.rangeCalls.map((c: any): number => c.skip), "#9: the empty page, then the last one").toEqual([20, 10]);
+    expect(changes, "#10: one reset, for the window that was committed").toEqual(["reset"]);
+  });
+  test("a total that shrinks to 0 reads the first page once and commits it empty", () => {
+    const source = new FakeRangeSource(createRecords(25));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    list.pageIndex = 2;
+    source.records = [];
+    source.rangeCalls = [];
+    list.refresh();
+    expect(list.pageIndex, "#1").toBe(0);
+    expect(list.windowOffset, "#2").toBe(0);
+    expect(list.loadedCount, "#3").toBe(0);
+    expect(list.count, "#4").toBe(0);
+    expect(source.rangeCalls.map((c: any): number => c.skip), "#5: one retry at skip 0, no third read").toEqual([20, 0]);
+  });
+  test("an asynchronous retry: the window in force stays until the last page commits, and refresh() waits for it", async () => {
+    const records = createRecords(25);
+    const skips: Array<number> = [];
+    const source: IDynamicDataSource = {
+      read: (): Array<any> => records,
+      readRange: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
+        skips.push(request.skip);
+        const current = records.slice();
+        return Promise.resolve({ records: current.slice(request.skip, request.skip + request.take), total: current.length });
+      }
+    };
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    await list.load();
+    list.pageIndex = 2;
+    await flush();
+    records.splice(15);
+    await list.refresh();
+    expect(list.isLoading, "#1: the promise waited for the retry").toBe(false);
+    expect(list.pageIndex, "#2").toBe(1);
+    expect(list.getRecord(0).id, "#3").toBe(10);
+    expect(skips.slice(-2), "#4").toEqual([20, 10]);
+  });
+});
+
+/* A source without a total that always says whether there is something behind the window. */
+class ExplicitHasMoreSource extends NoTotalSource {
+  public readRange(request: IDynamicDataReadRequest): any {
+    this.requests.push(request);
+    const size = request.take > 0 ? request.take : this.records.length;
+    return {
+      records: this.records.slice(request.skip, request.skip + size),
+      hasMore: request.skip + size < this.records.length
+    };
+  }
+}
+describe("DynamicDataList: a discovered total and a source that grew", () => {
+  function createDiscoveredList(): { list: DynamicDataList, source: ExplicitHasMoreSource } {
+    const source = new ExplicitHasMoreSource(createRecords(20));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    list.pageIndex = 1;
+    expect(list.isCountKnown, "the second page answered hasMore false: the end is found").toBe(true);
+    expect(list.count, "the discovered total").toBe(20);
+    source.records = createRecords(30);
+    return { list: list, source: source };
+  }
+  test("hasMore true at the discovered end drops the end: the pages behind it can be reached", () => {
+    const { list, source } = createDiscoveredList();
+    list.refresh();
+    expect(list.hasMore, "#1: the source says there is more").toBe(true);
+    expect(list.isCountKnown, "#2").toBe(false);
+    expect(list.pageCount, "#3: one more page is known to exist").toBe(3);
+    source.requests = [];
+    list.pageIndex = 2;
+    expect(source.skips, "#4").toEqual([20]);
+    expect(list.pageIndex, "#5").toBe(2);
+    expect(list.hasMore, "#6").toBe(false);
+    expect(list.count, "#7: the new end").toBe(30);
+    expect(list.isCountKnown, "#8").toBe(true);
+  });
+  test("hasMore true on a page in front of the discovered end keeps it: no contradiction", () => {
+    const { list } = createDiscoveredList();
+    list.pageIndex = 0;
+    list.refresh();
+    expect(list.isCountKnown, "#1").toBe(true);
+    expect(list.count, "#2").toBe(20);
+    expect(list.hasMore, "#3").toBe(true);
+    expect(list.pageCount, "#4").toBe(2);
+  });
+});
+
+/* Review finding 2 on step 18: the page a retry reads is not committed before its window is. */
+describe("DynamicDataList: a retry that fails changes nothing", () => {
+  function createFailingSource(count: number): { source: IDynamicDataSource, records: Array<any>, skips: Array<number>, failAt: Array<number> } {
+    const records = createRecords(count);
+    const skips: Array<number> = [];
+    const failAt: Array<number> = [];
+    const source: IDynamicDataSource = {
+      read: (): Array<any> => records,
+      readRange: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
+        skips.push(request.skip);
+        if (failAt.indexOf(request.skip) > -1) return Promise.reject(new Error("the retry failed"));
+        const current = records.slice();
+        return Promise.resolve({ records: current.slice(request.skip, request.skip + request.take), total: current.length });
+      }
+    };
+    return { source: source, records: records, skips: skips, failAt: failAt };
+  }
+  test("a reported total: the window in force keeps its page, total and count, and the previous page is read", async () => {
+    const { source, records, skips, failAt } = createFailingSource(25);
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    list.pageSize = 10;
+    await list.load();
+    list.pageIndex = 2;
+    await flush();
+    records.splice(15);
+    failAt.push(10);
+    skips.length = 0;
+    await list.refresh();
+    await flush();
+    expect(skips, "#1: the empty page and the retry").toEqual([20, 10]);
+    expect(errors, "#2").toEqual(["read"]);
+    expect(list.isLoading, "#3").toBe(false);
+    expect(list.pageIndex, "#4: the page of the window in force").toBe(2);
+    expect(list.windowOffset, "#5").toBe(20);
+    expect(list.getRecord(0).id, "#6").toBe(20);
+    expect(list.count, "#7: the total of the window in force").toBe(25);
+    expect(list.pageCount, "#8").toBe(3);
+    failAt.length = 0;
+    skips.length = 0;
+    list.pageIndex = 1;
+    await flush();
+    expect(skips, "#9: the previous page is a real page change").toEqual([10]);
+    expect(list.pageIndex, "#10").toBe(1);
+    expect(list.getRecord(0).id, "#11").toBe(10);
+    expect(list.count, "#12").toBe(15);
+  });
+  test("an unknown total: the step back that fails keeps the page and the end unproven", async () => {
+    const source = new NoTotalSource(createRecords(20));
+    source.delay = 0;
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    list.pageSize = 10;
+    await list.load();
+    list.pageIndex = 1;
+    await settleTimers();
+    source.records = source.records.slice(0, 10);
+    const readRange = source.readRange.bind(source);
+    let failed = 0;
+    source.readRange = (request: IDynamicDataReadRequest): any => {
+      if (request.skip !== 0) return readRange(request);
+      failed++;
+      return Promise.reject(new Error("failed"));
+    };
+    await list.refresh();
+    await settleTimers();
+    expect(source.skips.slice(-1), "#1: the empty page").toEqual([10]);
+    expect(failed, "#1a: and the step back").toBe(1);
+    expect(errors, "#2").toEqual(["read"]);
+    expect(list.pageIndex, "#3: the page of the window in force").toBe(1);
+    expect(list.windowOffset, "#4").toBe(10);
+    expect(list.isCountKnown, "#5: the end the empty answer proved went with the retry").toBe(false);
+    expect(list.hasMore, "#6").toBe(true);
   });
 });

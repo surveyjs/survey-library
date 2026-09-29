@@ -7,8 +7,32 @@ import { DynamicDataList } from "./dynamic-data-list";
    changed a single record changed in place keeps its index, removed records map to -1, and a record
    moved from one end of that part to the other follows it. Anything else maps to undefined: the
    caller treats every record of the changed part as its own (a superset is safe - it only costs a
-   validation more). */
-export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
+   validation more).
+   keyField: the records name themselves (a keyed data source). A record then maps to wherever its
+   key is now, whatever else moved, and to -1 when its key is gone; a record without a key maps to
+   undefined. When the new records cannot be looked up by key - one has none, or two share one - the
+   content comparison above decides instead. */
+export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Array<any>, keyField?: string): (index: number) => number {
+  const byKey = !!keyField ? getRecordsRemapByKey(oldRecords, newRecords, keyField) : undefined;
+  return byKey || getRecordsRemapByContent(oldRecords, newRecords);
+}
+function getRecordsRemapByKey(oldRecords: Array<any>, newRecords: Array<any>, keyField: string): (index: number) => number {
+  const getKey = (record: any): any => !!record && typeof record === "object" ? record[keyField] : undefined;
+  // A Map and not a plain object: the keys are data, and "__proto__" in an object is the prototype.
+  const positions = new Map<any, number>();
+  for (let i = 0; i < newRecords.length; i++) {
+    const key = getKey(newRecords[i]);
+    if (key === undefined || key === null || positions.has(key)) return undefined;
+    positions.set(key, i);
+  }
+  const res = oldRecords.map((record: any): number => {
+    const key = getKey(record);
+    if (key === undefined || key === null) return undefined;
+    return positions.has(key) ? positions.get(key) : -1;
+  });
+  return (index: number): number => index >= 0 && index < res.length ? res[index] : undefined;
+}
+function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
   const oldLen = oldRecords.length;
   const newLen = newRecords.length;
   const isSame = (a: any, b: any): boolean => !DynamicDataList.isValueChanged(a, b);
@@ -166,6 +190,10 @@ export class DynamicDataPageValidation {
   public get editedRecords(): Array<number> {
     return this.edited;
   }
+  // Holds anything a record index names: edited records or the states of nested paged questions.
+  public get hasRecords(): boolean {
+    return this.edited.length > 0 || Object.keys(this.nested).length > 0;
+  }
   public markEdited(index: number): void {
     if (index < 0 || !this.owner.canTrackEditedRecords()) return;
     const at = this.findPosition(index);
@@ -186,9 +214,13 @@ export class DynamicDataPageValidation {
   /* The records were assigned from outside the list - a sibling on the same valueName wrote them.
      The edited set and the nested states follow the records they name (getReplacedRecordsRemap); a
      change the remap cannot place marks every record of the changed part as edited. */
-  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>): void {
-    if (this.edited.length === 0 && Object.keys(this.nested).length === 0) return;
-    const remap = getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
+  /* remap: the caller's own, when it has to move record indexes of its own with the same mapping (the
+     dynamic panel's builtRecordIndex). */
+  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap?: (index: number) => number): void {
+    if (!this.hasRecords) return;
+    if (!remap) {
+      remap = getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
+    }
     const edited: Array<number> = [];
     let isUnplaced = false;
     const add = (index: number): void => { if (index > -1 && edited.indexOf(index) < 0) edited.push(index); };

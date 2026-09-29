@@ -38,7 +38,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -387,7 +387,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private get pageStartVisibleIndex(): number {
     const list = this.dataListValue;
     if (!list) return 0;
-    if (this.isRemoteData) return list.windowOffset;
+    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
+    if (list.isPagedBySource) return list.windowOffset;
     return this.isPagingActive ? list.pageIndex * list.pageSize : 0;
   }
   // IDynamicItemModelData: the window offset of a data source that pages itself, see getIndex.
@@ -469,6 +470,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.remote.dataSource;
   }
   public set dataSource(val: IDynamicDataSource) {
+    // Another storage: the records layer 2 tracks and the states kept for them name records of the
+    // old one. Dropped before the swap, whose first read may commit inside it.
+    if (!!this.pageValidationValue && (val || undefined) !== this.remote.dataSource) {
+      this.pageValidationValue.cancelPendingMove();
+      this.pageValidationValue.clearRecords();
+    }
     this.remote.dataSource = val;
     // The capabilities of the new source decide whether the panels are editable and whether the
     // add/remove buttons are shown.
@@ -483,9 +490,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public get isDynamicDataRunning(): boolean {
     return !!this.remoteValue && this.remoteValue.isRunning;
   }
-  // "the records are owned by a data source", the one condition every remote branch of this class
-  // asks. It is deliberately not "the list pages itself": a source that returns everything in one
-  // read is still a source, and its records are still not the question's to grow or truncate.
+  // "the records are owned by a data source": the survey hash, the write routing, the capabilities
+  // and the count setters ask it. It is deliberately not "the list pages itself": a source that
+  // returns everything in one read is still a source, and its records are still not the question's
+  // to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
+  // isPagedByList.
   private get isRemoteData(): boolean {
     return !!this.remoteValue && this.remoteValue.isRemote;
   }
@@ -531,8 +540,46 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      survey hash is not written and no trigger, condition or navigation runs - and then the panels
      are rebuilt for the records the window holds. Nothing else may assign the value on a load. */
   private setLoadedRecords(): void {
+    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
+    const oldValue = this.getPropertyValueWithoutDefault("value");
+    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     this.storeLoadedRecords();
+    this.followReloadedRecords(oldRecords);
     this.rebuildPanelsFromDataList();
+  }
+  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
+     index - and a read that commits again (refresh(), a filter the source answers again) may bring
+     them back at other indexes: another writer moved, added or removed records. The edited set and
+     the states of nested paged questions follow their records into the new window, by key when the
+     source names its records and by content otherwise (getReplacedRecordsRemap). The panels' own
+     record indexes move with them before the rebuild, which keeps the nested states under those
+     indexes. Replacing the source starts over (see the dataSource setter). */
+  private followReloadedRecords(oldRecords: any): void {
+    if (!this.isPagedByList) return;
+    const validation = this.pageValidationValue;
+    const hasRecords = !!validation && validation.hasRecords;
+    // Carousel and tab mode keep showing the current record across a rebuild: it moves too.
+    const hasCurrentRecord = !this.isRenderModeList && this.currentPanelRecordIndex > -1;
+    if (!hasRecords && !hasCurrentRecord && !this.hasNestedPagedQuestions(this.panelsCore)) return;
+    const newRecords = this.getPropertyValueWithoutDefault("value");
+    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
+    const newArray = Array.isArray(newRecords) ? newRecords : [];
+    const remap = getReplacedRecordsRemap(oldArray, newArray, this.remote.keyField);
+    if (hasRecords) {
+      validation.cancelPendingMove();
+      validation.onRecordsReplaced(oldArray, newArray, remap);
+    }
+    this.panelsCore.forEach((panel: PanelModel): void => {
+      const item = <QuestionPanelDynamicItem>panel.data;
+      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
+        const to = remap(item.builtRecordIndex);
+        item.builtRecordIndex = to === undefined ? -1 : to;
+      }
+    });
+    if (hasCurrentRecord) {
+      const to = remap(this.currentPanelRecordIndex);
+      this.currentPanelRecordIndex = to === undefined ? -1 : to;
+    }
   }
   // The storage half alone: used after every write the list pushed to the source. The panel the
   // respondent is typing in already holds the new value, and a rebuild would dispose it under the
@@ -574,9 +621,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (change.type === "pageChanged") {
       if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
       this.syncPagingState();
-      /* The panels that exist are the page (prompt 15): a page of an in-memory list is rebuilt at
-         once, through the path a remote read takes. A remote page is rebuilt when its read commits. */
-      if (!this.isRemoteData && this.isPagingActive) {
+      /* The panels that exist are the page (prompt 15): a page the list cuts - from question.value
+         or from everything a read() source answered with - is rebuilt at once, through the path a
+         remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
+      if (this.isPagedByList) {
         this.rebuildPanelsFromDataList(true);
       } else {
         this.updateRenderedPanels();
@@ -610,7 +658,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   /* The record indexes the question keeps - the panels' records, the edited set of layer 2 - name a
      record only until something is inserted or removed in front of it. */
   private followRecordChange(change: IDynamicDataListChange): void {
-    const validation = this.isPagedInMemory ? this.pageValidation : this.pageValidationValue;
+    const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
     const shift = (func: (index: number) => number): void => {
       this.panelsCore.forEach((panel: PanelModel): void => {
         const item = <QuestionPanelDynamicItem>panel.data;
@@ -695,9 +743,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.isDesignMode) return false;
     return !!this.dataListValue && this.dataListValue.pageSize > 0;
   }
-  // An in-memory list that pages: the only kind whose edited records layer 2 tracks.
-  private get isPagedInMemory(): boolean {
-    return this.isPagingActive && !this.isRemoteData;
+  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
+     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
+     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
+     and the records of the other pages are on the server. */
+  private get isPagedByList(): boolean {
+    return this.isPagingActive && !this.dataListValue.isPagedBySource;
   }
   /* The page size the list gets. A carousel shows one panel and pages one record at a time, always
      (Andrew's decision 2026-09-25): panelsPerPage keeps its value and its JSON and is ignored.
@@ -789,7 +840,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
   }
   canTrackEditedRecords(): boolean {
-    return this.isPagedInMemory;
+    return this.isPagedByList;
   }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
@@ -851,7 +902,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const currentRecord = isPageMove ? -1 : this.getCurrentPanelRecordIndex();
     /* Carousel and tab mode show one record: a rebuild that is not a page move - records replaced, a
        record hidden or shown ahead of it, a sort - keeps showing it, on whatever page it is now. */
-    if (currentRecord > -1 && this.pendingCurrentVisibleIndex === undefined && !this.isRenderModeList && this.isPagedInMemory) {
+    if (currentRecord > -1 && this.pendingCurrentVisibleIndex === undefined && !this.isRenderModeList && this.isPagedByList) {
       const visibleIndex = list.getVisibleIndexes().indexOf(currentRecord);
       const page = visibleIndex < 0 ? -1 : this.paging.getPageOfVisibleIndex(visibleIndex);
       if (page > -1 && page !== list.pageIndex) {
@@ -1027,7 +1078,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // internal: what this question keeps for its records when an ancestor rebuilds the object holding
   // it - undefined when it does not page, since a question that does not page validates every panel.
   public getPageState(): IDynamicDataPageState {
-    if (!this.isPagedInMemory) return undefined;
+    if (!this.isPagedByList) return undefined;
     return this.pageValidation.getState(this.pageIndex);
   }
   public setPageState(state: IDynamicDataPageState): void {
@@ -1346,8 +1397,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     this.pendingCurrentVisibleIndex = visibleIndex;
     this.paging.pageIndex = Math.floor(visibleIndex / pageSize);
-    // The page did not move - clamped to the page in force - so no rebuild takes the position.
-    if (this.pendingCurrentVisibleIndex !== undefined && !this.isRemoteData) {
+    // The page did not move - clamped to the page in force - so no rebuild takes the position. A
+    // source that pages itself takes it when the read of the page commits.
+    if (this.pendingCurrentVisibleIndex !== undefined && !list.isPagedBySource) {
       this.restoreCurrentPanelByRecord(-1);
     }
   }
@@ -1853,7 +1905,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public get visiblePanelCount(): number {
     const panels = this.visiblePanels;
     const list = this.dataListValue;
-    if (this.isRemoteData && !!list) return list.knownCount;
+    // A read() source is counted like question.value: its hidden and filtered records are in memory.
+    if (!!list && list.isPagedBySource) return list.knownCount;
     return this.isPagingActive ? list.visibleCount : panels.length;
   }
   // Next is available on the last record the list knows of while the source says there are more.
@@ -2429,12 +2482,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     return true;
   }
-  /* Under in-memory paging the progress is counted from the records - every visible record, every
-     input question of the template - as the matrix counts it before its rows exist: the panels are
-     one page. A question that is empty in a record and has a visibleIf is not counted, since whether
-     it would be shown is not known without its panel. A remote question counts its window. */
+  /* When the list pages the progress is counted from the records - every visible record, every input
+     question of the template - as the matrix counts it before its rows exist: the panels are one
+     page. A question that is empty in a record and has a visibleIf is not counted, since whether it
+     would be shown is not known without its panel. A source that pages itself counts its window. */
   public getProgressInfo(): IProgressInfo {
-    if (!this.isPagedInMemory) {
+    if (!this.isPagedByList) {
       return SurveyElement.getProgressInfoByElements(this.visiblePanelsCore, this.isRequired);
     }
     const res = Base.createProgressInfo();
@@ -2546,7 +2599,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   // Does the record an add creates land on another page than the one shown?
   private isAddLeavingPage(index: number): boolean {
-    if (!this.isPagedInMemory) return false;
+    if (!this.isPagedByList) return false;
     const target = this.getInsertTarget(index);
     return this.paging.getPageOfVisibleIndex(target.visibleIndex) !== this.dataList.pageIndex;
   }
@@ -2572,7 +2625,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return { at: visible[visibleIndex], visibleIndex: visibleIndex, prevIndex: visibleIndex > 0 ? visible[visibleIndex - 1] : -1 };
   }
   private addPanelCore(index: number): PanelModel {
-    if (this.isPagedInMemory) return this.addPanelInPage(index);
+    if (this.isPagedByList) return this.addPanelInPage(index);
     const curIndex = this.currentIndex;
     // A page-local position: the current panel's position in panelsCore.
     const curPos = curIndex < 0 ? -1 : curIndex - this.pageStartVisibleIndex;
@@ -2868,7 +2921,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     /* The page came up one record short, and the first record of the next page belongs on it now: the
        page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
        last page moved the page back and that page change rebuilt it already. */
-    if (this.isPagedInMemory && list.pageIndex === pageIndex) {
+    if (this.isPagedByList && list.pageIndex === pageIndex) {
       this.rebuildPanelsFromDataList();
     }
     this.disposePanels([panel]);
@@ -3370,7 +3423,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       /* A question that pages validates the page that exists - Complete included - and then what the
          page cannot show: the edited records on other pages (layer 2) and a key pair both of whose
          records are off the page. Either moves to the page that holds the error. */
-      if (res && this.isPagedInMemory && context.fireCallback && !context.isOnValueChanged) {
+      if (res && this.isPagedByList && context.fireCallback && !context.isOnValueChanged) {
         res = this.pageValidation.validateEditedRecords(context, this.getOffPageKeyDuplicatePages());
       }
     }
@@ -3795,7 +3848,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.setQuestionValue(newValue, false);
     this.invalidateDataListViews();
     this.rebuildPanelsIfViewChanged(created);
-    if (isFromOutside && this.isPagedInMemory) {
+    if (isFromOutside && this.isPagedByList) {
       this.onRecordsReplaced(oldRecords);
     }
     this.setPanelCountBasedOnValue();

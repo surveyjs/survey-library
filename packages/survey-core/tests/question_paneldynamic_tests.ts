@@ -121,6 +121,22 @@ describe("Survey_QuestionPanelDynamic", () => {
     ]);
   });
 
+  test("Dynamic Panel, clearIncorrectValues, keep suffixed values of questions whose names contain the suffix", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "a-Comment");
+    question.template.addNewQuestion("text", "b-total");
+
+    question.value = [
+      { "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1" },
+      { "a-Comment-x": "c2", "abcdefg": "short" },
+    ];
+    question.clearIncorrectValues();
+    expect(question.value, "Keep the suffixed values, remove the keys without a question").toEqual([
+      { "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1" },
+      {},
+    ]);
+  });
+
   test("By pass values from question.value into panel values and vice versa", () => {
     var question = new QuestionPanelDynamicModel("q");
     question.template.addNewQuestion("text", "q1");

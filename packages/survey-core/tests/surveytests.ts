@@ -5441,6 +5441,23 @@ describe("Survey", () => {
     expect(survey.data, "Remove q3 and val3 keys").toEqual({ q1: "v1", q2: "v2" });
   });
 
+  test("survey.clearIncorrectValues(true), keep suffixed values of questions whose names contain the suffix", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a-Comment" },
+        { type: "text", name: "b-total" },
+      ],
+    });
+    survey.data = {
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1",
+      "a-Comment-x": "c2", "abcdefg": "short"
+    };
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "Keep the suffixed values, remove the keys without a question").toEqual({
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1"
+    });
+  });
+
   test("Create questions from elements array - issue #395", () => {
     var survey = new SurveyModel({
       elements: [

@@ -2977,9 +2977,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     key: string,
     postPrefix: string
   ): boolean {
-    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
-      return false;
-    return !!panel.getQuestionByName(key.substring(0, key.indexOf(postPrefix)));
+    if (!key.endsWith(postPrefix)) return false;
+    return !!panel.getQuestionByName(key.substring(0, key.length - postPrefix.length));
   }
   // recordIndex, not a panel position: the other question may hold its panels for another set of
   // records or in another order.

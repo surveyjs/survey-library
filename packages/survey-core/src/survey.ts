@@ -2130,11 +2130,8 @@ export class SurveyModel extends SurveyElementCore
     key: string,
     postPrefix: string
   ): boolean {
-    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
-      return false;
-    return !!this.getQuestionByValueName(
-      key.substring(0, key.indexOf(postPrefix))
-    );
+    if (!key.endsWith(postPrefix)) return false;
+    return !!this.getQuestionByValueName(key.substring(0, key.length - postPrefix.length));
   }
   /**
    * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.

@@ -1,12 +1,4 @@
 <input type="radio" [name]="question.questionName" [attr.name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-errormessage]="question.ariaErrormessage" [class]="question.cssClasses.itemControl"
-<<<<<<< HEAD
-  [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [(ngModel)]="renderedValue" [attr.value]="model.value" [value]="model.value" [attr.aria-label]="ariaLabel"
-||||||| parent of ac75142fa (Merge pull request #11915 from surveyjs/bug/11898-a11y-voiceover)
-  [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [(ngModel)]="renderedValue" [attr.value]="model.value" [value]="model.value" [attr.aria-label]="ariaLabel"
-  (keydown)="question.onKeyDown($event)"
-=======
   [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [(ngModel)]="renderedValue" [attr.value]="model.value" [value]="model.value" [attr.aria-label]="ariaLabel" [attr.aria-labelledby]="!ariaLabel && !model.hideCaption ? question.getItemLabelId(model) : null"
-  (keydown)="question.onKeyDown($event)"
->>>>>>> ac75142fa (Merge pull request #11915 from surveyjs/bug/11898-a11y-voiceover)
 />
 <ng-content></ng-content>

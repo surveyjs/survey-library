@@ -8,8 +8,8 @@ import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
-  conditionsToExpression, getFilterFieldOperators, getFilterValueEditorJson, normalizeFilterConditions,
-  parseFilterExpression
+  conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
+  normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -94,6 +94,27 @@ export class QuestionFilterModel extends QuestionNonValue {
 
   public get allowChangeSearchFields(): boolean { return this.getPropertyValue("allowChangeSearchFields"); }
   public set allowChangeSearchFields(val: boolean) { this.setPropertyValue("allowChangeSearchFields", val); }
+
+  public get allowFastMode(): boolean { return this.getPropertyValue("allowFastMode"); }
+  public set allowFastMode(val: boolean) { this.setPropertyValue("allowFastMode", val); }
+
+  public get allowAdvancedMode(): boolean { return this.getPropertyValue("allowAdvancedMode"); }
+  public set allowAdvancedMode(val: boolean) { this.setPropertyValue("allowAdvancedMode", val); }
+
+  // At least one mode is always available: turning allowFastMode off does not leave the control
+  // with none to fall back to, so it holds fast mode open whenever advanced mode is off too.
+  public get isFastModeAvailable(): boolean { return this.allowFastMode || !this.allowAdvancedMode; }
+  public get isAdvancedModeAvailable(): boolean { return this.allowAdvancedMode; }
+  // Fast mode's field list: every field the control offers, minus a standalone one that opted
+  // itself out (showInFastMode: false - a bound field never does), and with a duplicate valueName
+  // collapsed to its first field, the same one getFieldByName's dotted-path lookup would reach -
+  // so both modes edit the same field, never two different ones that happen to share a name.
+  public getFastModeFields(): Array<IDynamicDataFilterField> {
+    const fields = this.getFilterFields().filter(
+      (field: IDynamicDataFilterField): boolean => field.showInFastMode !== false);
+    const firstByValueName = getFieldsByValueName(fields);
+    return fields.filter((field: IDynamicDataFilterField): boolean => firstByValueName[field.valueName] === field);
+  }
 
   // What the end user typed into the quick search box. Not registered in the serializer: it is
   // runtime state and never authored. It is not named searchText because Base.searchText(text,
@@ -863,5 +884,7 @@ Serializer.addClass("filter", [
   { name: "showSearch:boolean", default: false, visible: false },
   { name: "searchFields:string[]", visible: false },
   { name: "allowChangeSearchFields:boolean", default: true, visible: false },
+  { name: "allowFastMode:boolean", default: true, visible: false },
+  { name: "allowAdvancedMode:boolean", default: true, visible: false },
 ], () => new QuestionFilterModel(""), "nonvalue");
 QuestionFactory.Instance.registerQuestion("filter", (name) => new QuestionFilterModel(name));

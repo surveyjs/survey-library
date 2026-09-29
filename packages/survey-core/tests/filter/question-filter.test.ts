@@ -33,7 +33,8 @@ describe("QuestionFilterModel", () => {
   });
   test("the new properties are registered but invisible in the property grid", () => {
     ["source", "fields", "items", "defaultItem", "allowMultipleItems", "allowAddItems",
-      "allowReorderItems", "showSearch", "searchFields", "allowChangeSearchFields"].forEach((name) => {
+      "allowReorderItems", "showSearch", "searchFields", "allowChangeSearchFields",
+      "allowFastMode", "allowAdvancedMode"].forEach((name) => {
       const prop = Serializer.findProperty("filter", name);
       expect(prop, name).toBeTruthy();
       expect(prop.visible, name).toBe(false);

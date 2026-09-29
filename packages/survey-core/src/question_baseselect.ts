@@ -2755,6 +2755,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
   }
+  public getItemLabelId(item: ItemValue): string {
+    return this.getItemId(item) + "_label";
+  }
+  // In design mode the item text is rendered as a focusable inline editor, so it must stay in the accessibility tree
+  public get isItemLabelAriaHidden(): boolean {
+    return !this.isDesignMode;
+  }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }

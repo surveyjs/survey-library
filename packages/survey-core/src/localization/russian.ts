@@ -55,6 +55,10 @@ export var russianSurveyStrings = {
   value: "значение",
   // "Response required."
   requiredError: "Пожалуйста, ответьте на вопрос.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Значение неверное.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Значение содержит неизвестные ключи: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Пожалуйста, ответьте по крайней мере на один вопрос.",
   // "Response required: answer questions in all rows."

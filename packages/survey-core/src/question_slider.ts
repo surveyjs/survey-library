@@ -6,7 +6,7 @@ import { ItemValue } from "./itemvalue";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Question, QuestionValueType } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
@@ -306,6 +306,16 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
   public getValueType(): QuestionValueType {
     return this.sliderType === "range" ? "array" : "number";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes) return true;
+    // A single slider holds a number, a range slider an array of numbers.
+    const isCorrect = this.sliderType === "range" ?
+      Array.isArray(val) && val.every(item => Helpers.isNumber(item)) : this.isValueOfValueType(val);
+    if (isCorrect) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   public get isNewA11yStructure(): boolean {
     return true;

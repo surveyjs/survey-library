@@ -2547,6 +2547,78 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
   });
 });
 
+/* Step 21: the pending retry is dropped by a read asked for from outside, and survives the reissue
+   of a retry that a write overtook. Each read answers when the test says so, with the server as it
+   is by then. */
+describe("DynamicDataList: the pending retry", () => {
+  class HeldRangeSource implements IDynamicDataSource {
+    public skips: Array<number> = [];
+    public held: Array<() => void> = [];
+    constructor(public records: Array<any>) { }
+    public read(): Array<any> {
+      return this.records;
+    }
+    public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+      this.skips.push(request.skip);
+      const deferred = new Deferred();
+      this.held.push((): void => deferred.resolve());
+      return deferred.promise.then((): IDynamicDataReadResult =>
+        ({ records: this.records.slice(request.skip, request.skip + request.take), total: this.records.length }));
+    }
+    public insert(record: any, sourceIndex: number): any {
+      this.records.splice(sourceIndex, 0, record);
+      return record;
+    }
+    public async answerNext(): Promise<void> {
+      this.held.shift()();
+      await flush();
+    }
+  }
+  async function createOnLastPage(): Promise<{ list: DynamicDataList, source: HeldRangeSource }> {
+    const source = new HeldRangeSource(createRecords(25));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    await source.answerNext();
+    list.pageIndex = 2;
+    await source.answerNext();
+    expect(list.windowOffset, "the third page is loaded").toBe(20);
+    source.skips = [];
+    // The storage shrinks: the refresh of the third page answers empty, and the retry of the last
+    // page of 15 records is left in flight.
+    source.records.splice(15);
+    list.refresh();
+    await source.answerNext();
+    expect(source.skips, "the empty page and the retry in flight").toEqual([20, 10]);
+    expect(list.pageIndex, "the retry is not committed yet").toBe(2);
+    return { list: list, source: source };
+  }
+  test("a page change while a retry is pending drops the retry: its page is not applied to the page read instead", async () => {
+    const { list, source } = await createOnLastPage();
+    list.pageIndex = 0;
+    expect(source.skips, "#1: the first page is read, superseding the retry").toEqual([20, 10, 0]);
+    await source.answerNext();
+    await source.answerNext();
+    expect(list.pageIndex, "#2: the page that was asked for, not the retry's").toBe(0);
+    expect(list.windowOffset, "#3").toBe(0);
+    expect(list.getRecord(0).id, "#4").toBe(0);
+    expect(list.count, "#5").toBe(15);
+    expect(list.isLoading, "#6").toBe(false);
+  });
+  test("a retry that a write overtook is issued again for the same page", async () => {
+    const { list, source } = await createOnLastPage();
+    // An insert overtakes every read in flight.
+    list.add({ id: 100, name: "new" });
+    await source.answerNext();
+    expect(source.skips, "#1: the retry is read again, not the page past the end").toEqual([20, 10, 10]);
+    await source.answerNext();
+    expect(list.pageIndex, "#2: the retry's page").toBe(1);
+    expect(list.windowOffset, "#3").toBe(10);
+    expect(list.count, "#4: 15 records and the one inserted").toBe(16);
+    expect(list.isLoading, "#5").toBe(false);
+  });
+});
+
 describe("DynamicDataList: a new record's identity", () => {
   function createKeyedList(): { list: DynamicDataList, source: FakeKeyedSource, errors: Array<string> } {
     const source = new FakeKeyedSource([{ id: 1, name: "a" }]);

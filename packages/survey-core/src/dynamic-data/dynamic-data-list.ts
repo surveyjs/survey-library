@@ -5,6 +5,7 @@ import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
   IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data-interfaces";
+import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
 
@@ -78,18 +79,9 @@ export class DynamicDataList {
   private windowRecords: Array<any> = [];
   private hiddenFlags: Array<boolean> = [];
   private _windowOffset: number = 0;
-  private _total: number = undefined;
-  /* Committed together with the window (see commitRead). A source that cannot count its records
-     cheaply answers without a total: the list then knows only what it has seen, and hasMore is what
-     tells it that there is a page behind the one it holds. Both are true/false by default, which is
-     what every source that is not a paging one answers: read() returns the whole storage. */
-  private _isCountKnown: boolean = true;
-  private _hasMore: boolean = false;
-  /* The filter a total the list worked out ITSELF belongs to (see commitCount). Such a total
-     outlives the read that found it - a walk back to the first page must not send the pager looking
-     for the end all over again - but it describes one set of records, and another filter is another
-     set. undefined = the total is the source's own answer, or there is none. */
-  private discoveredTotalFilter: string = undefined;
+  // The total, what is known about it and the pending retry of a page past the end: committed
+  // together with the window (see commitRead).
+  private storageCount: DynamicDataCount = new DynamicDataCount();
   private _isLoading: boolean = false;
   private _filter: string = "";
   private filterRunner: ConditionRunner = undefined;
@@ -279,19 +271,13 @@ export class DynamicDataList {
   }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
-    this.retryPage = undefined;
+    this.storageCount.cancelRetry();
     return this.startRead(false);
   }
   public refresh(): void | Promise<void> {
-    this.retryPage = undefined;
+    this.storageCount.cancelRetry();
     return this.startRead(true);
   }
-  /* The page a read that was not committed asks for next (see commitRead): an empty page past the
-     end. It is kept apart from the committed state - the page index, the total and what is known
-     about it describe the window in force until the retry commits its own window, and a retry that
-     fails leaves them as they were. total and discoveredTotalFilter are what the empty answer
-     proved about the end; the commit of the retry takes them together with its window. */
-  private retryPage: { pageIndex: number, total: number, discoveredTotalFilter: string } = undefined;
   public get isLoading(): boolean {
     return this._isLoading;
   }
@@ -307,30 +293,23 @@ export class DynamicDataList {
     return this._windowOffset;
   }
 
-  /* The storage count. With an unknown total (isCountKnown false) it is the count of the records
-     known to exist - the ones that have been seen, a lower bound - and never NaN or -1: a source
-     that cannot count its records still has at least the ones it has handed over. */
+  // The storage count; with an unknown total, the records known to exist (a lower bound).
   public get count(): number {
-    return this._total !== undefined ? this._total : this._windowOffset + this.recordCount;
+    return this.storageCount.getCount(this._windowOffset, this.recordCount);
   }
   // False while the source answers without a total: count is a lower bound and pageCount is the
   // number of pages known to exist.
   public get isCountKnown(): boolean {
-    return this._isCountKnown;
+    return this.storageCount.isCountKnown;
   }
   // Are there records behind the loaded window? It is what a pager's "next" is built from.
   public get hasMore(): boolean {
-    return this._hasMore;
+    return this.storageCount.hasMore;
   }
-  /* The most records the list knows to exist: the total when there is one, otherwise the furthest
-     any window has reached. count is the lower bound of the window in force, so a walk back to the
-     first page of a source without a total would make it forget the pages it has already seen;
-     this does not. It is what a "Panel N of M" counts against. */
+  // The most records the list knows to exist. It is what a "Panel N of M" counts against.
   public get knownCount(): number {
-    if (this._total !== undefined) return this._total;
-    return Math.max(this._windowOffset + this.recordCount, this.maxSeenCount);
+    return this.storageCount.getKnownCount(this._windowOffset, this.recordCount);
   }
-  private maxSeenCount: number = 0;
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
   }
@@ -431,9 +410,7 @@ export class DynamicDataList {
     this.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
       this.hiddenFlags.splice(at, 0, false);
-      if (this._total !== undefined)this._total++;
-      if (this.maxSeenCount > 0)this.maxSeenCount++;
-      this.updateHasMoreFromTotal(countAfter);
+      this.storageCount.onRecordInserted(this._windowOffset, countAfter);
       this.insertIntoMembership(at, createdPosition, countAfter);
       this.resetViews();
       const sourceIndex = this._windowOffset + at;
@@ -466,9 +443,7 @@ export class DynamicDataList {
     this.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
       this.hiddenFlags.splice(index, 1);
-      if (this._total !== undefined)this._total--;
-      if (this.maxSeenCount > 0)this.maxSeenCount--;
-      this.updateHasMoreFromTotal(countAfter);
+      this.storageCount.onRecordRemoved(this._windowOffset, countAfter);
       this.removeFromMembership(index, countAfter);
       this.resetViews();
       this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
@@ -492,15 +467,9 @@ export class DynamicDataList {
     if (!this.hasReadRange || !this.isLoaded || this._pageSize <= 0) return;
     // hasMore and not "windowOffset + length < count": with an unknown total the count is the
     // records seen so far and would never say that the source has more. With a known total the two
-    // are the same value - updateHasMoreFromTotal recomputed the flag when the remove decremented it.
-    if (this.recordCount >= this._pageSize || !this._hasMore) return;
+    // are the same value - the count recomputed the flag when the remove decremented it.
+    if (this.recordCount >= this._pageSize || !this.hasMore) return;
     this.refresh();
-  }
-  // The committed hasMore follows a total the list changed itself; with an unknown total the flag
-  // stays as the source left it - a record the list removed cannot tell it what is behind the window.
-  private updateHasMoreFromTotal(recordCount: number): void {
-    if (this._total === undefined) return;
-    this._hasMore = this._windowOffset + recordCount < this._total;
   }
   public move(fromIndex: number, toIndex: number): void {
     const length = this.recordCount;
@@ -717,7 +686,7 @@ export class DynamicDataList {
     /* An unknown total: the pages known to exist - the one that is loaded, the ones before it, and
        one more when the source said there is something behind the window. The pager then offers
        "next" one page at a time, which is exactly what the source has told the list. */
-    if (!this._isCountKnown) return this._pageIndex + 1 + (this._hasMore ? 1 : 0);
+    if (!this.isCountKnown) return this._pageIndex + 1 + (this.hasMore ? 1 : 0);
     return Math.max(1, Math.ceil(this.count / this._pageSize));
   }
   public getPageIndexes(): Array<number> {
@@ -759,7 +728,7 @@ export class DynamicDataList {
     if (isFilterChanged) {
       this._pageIndex = 0;
       // Another filter is another set of records: what the old one reached says nothing about it.
-      this.maxSeenCount = 0;
+      this.storageCount.forgetReach();
       this.filterRunner = undefined;
       this.updateFilterRunner();
     }
@@ -807,7 +776,7 @@ export class DynamicDataList {
     this.records = [];
     this.hiddenFlags = [];
     this.pendingInserts = [];
-    this.retryPage = undefined;
+    this.storageCount.cancelRetry();
     this.filterRunner = undefined;
     this.resetMembership();
     this.resetViews();
@@ -1011,13 +980,8 @@ export class DynamicDataList {
     this.hiddenFlags = [];
     // The inserts of the source that was replaced: their answers belong to a window that is gone.
     this.pendingInserts = [];
-    this.retryPage = undefined;
-    this._total = undefined;
-    this._isCountKnown = true;
-    this._hasMore = false;
-    this.discoveredTotalFilter = undefined;
+    this.storageCount.reset();
     this._windowOffset = 0;
-    this.maxSeenCount = 0;
     this.isLoaded = false;
     this.resetMembership();
     this.resetViews();
@@ -1051,7 +1015,7 @@ export class DynamicDataList {
   // nothing behind it. An unknown total makes "count > loadedCount" unusable - the count IS the
   // window then - so the two committed facts answer it instead.
   private checkWindowIsWholeStorage(operation: string): void {
-    if (this.hasReadRange && (this._windowOffset > 0 || this._hasMore)) {
+    if (this.hasReadRange && (this._windowOffset > 0 || this.hasMore)) {
       throw new Error("DynamicDataList." + operation + " requires the whole storage to be loaded.");
     }
   }
@@ -1111,8 +1075,9 @@ export class DynamicDataList {
     const useReadRange = this.hasReadRange;
     let skip = 0;
     if (useReadRange) {
-      if (!!this.retryPage) {
-        skip = this.retryPage.pageIndex * this._pageSize;
+      const retryPageIndex = this.storageCount.retryPageIndex;
+      if (retryPageIndex !== undefined) {
+        skip = retryPageIndex * this._pageSize;
       } else {
         skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
       }
@@ -1124,7 +1089,7 @@ export class DynamicDataList {
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
       this.inFlightRead = undefined;
-      this.retryPage = undefined;
+      this.storageCount.cancelRetry();
       this.setIsLoading(false);
       this.raiseError(e, "read");
       return;
@@ -1145,7 +1110,7 @@ export class DynamicDataList {
           // loading state, as a superseding read does.
           return this.startRead(useWindowOffset);
         }
-        /* A page past the end: the read of the page it stepped back to (retryPage) takes this one's
+        /* A page past the end: the read of the page it stepped back to (the retry) takes this one's
            place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
            that is committed and not for the answer that was discarded. It inherits the loading
            state, as a superseding read does. */
@@ -1156,7 +1121,7 @@ export class DynamicDataList {
         this.inFlightRead = undefined;
         // The previous window stays in force, and so does the page it was read for: a retry that
         // failed has changed nothing.
-        this.retryPage = undefined;
+        this.storageCount.cancelRetry();
         this.setIsLoading(false);
         this.raiseError(error, "read");
       });
@@ -1179,45 +1144,20 @@ export class DynamicDataList {
     if (useReadRange) {
       const result = data || {};
       const records = Array.isArray(result.records) ? result.records : [];
-      /* A page past the end. With an unknown total nothing stops a pageIndex the source has no
-         records for, and an empty answer at an offset is what says so: the page does not exist. It
-         is not announced - the owner would see a table that is empty for a moment - the list steps
-         one page back and reads that one, and again if it is empty too (bounded by pageIndex).
-         The empty answer is not thrown away: nothing exists at skip or behind it, so the storage
-         holds at most that many records. The window the step back commits then confirms that bound
-         or lowers it, and the pager stops offering the page that answered empty.
-         Both steps below go to retryPage and not to the committed state (review finding 2): the
-         window in force, its page index and its total stay together until the retry commits, and a
-         retry that fails leaves them as they were. */
-      const pageIndex = !!this.retryPage ? this.retryPage.pageIndex : this._pageIndex;
-      if (records.length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && pageIndex > 0) {
-        this.retryPage = { pageIndex: pageIndex - 1, total: skip, discoveredTotalFilter: this._filter };
-        return false;
+      /* A page past the end is not committed: the count records the retry and the list reads that
+         page instead (doRead takes its skip from it). No pageChanged here: until the retry commits,
+         the question shows the window in force together with the page it was read for. */
+      if (this.storageCount.stepBackPastEnd(result, skip, take, records.length, this._pageIndex, this._pageSize, this._filter)) return false;
+      const retryPageIndex = this.storageCount.commitWindow(result, skip, take, records.length, this._filter);
+      if (retryPageIndex !== undefined) {
+        this._pageIndex = retryPageIndex;
+        this.pageIndexes = undefined;
       }
-      /* A page past a total the source reported: the storage shrank under the page the respondent is
-         on. The empty window is not committed either - the page would be empty and nothing would
-         read it again. The total says where the end is, so the retry goes straight to the last page
-         of it. It terminates: the retry reads in front of the total, and a source that shrank again
-         answers with a smaller one. No pageChanged here: until the retry commits, the question shows
-         the window in force together with the page it was read for. */
-      if (records.length === 0 && skip > 0 && this._pageSize > 0 && typeof result.total === "number" && skip >= result.total) {
-        this.retryPage = {
-          pageIndex: Math.max(0, Math.ceil(result.total / this._pageSize) - 1), total: result.total, discoveredTotalFilter: undefined
-        };
-        return false;
-      }
-      this.applyRetryPage();
       this.records = records;
-      this.commitCount(result, skip, take, records.length);
       this._windowOffset = skip;
-      this.maxSeenCount = Math.max(this.maxSeenCount, skip + records.length);
     } else {
-      this.retryPage = undefined;
+      this.storageCount.commitWholeStorage();
       this.records = Array.isArray(data) ? data : [];
-      this._total = undefined;
-      // read() answers with the whole storage, so its length IS the count.
-      this._isCountKnown = true;
-      this._hasMore = false;
       this._windowOffset = 0;
     }
     this.isLoaded = true;
@@ -1228,63 +1168,6 @@ export class DynamicDataList {
     this.clampPageIndex();
     this.raiseChanged({ type: "reset" });
     return true;
-  }
-  /* The retry commits: the page it was read for and what the empty answer proved about the end
-     become the committed state, before commitCount - which keeps a discovered end the window
-     confirms and lowers one it contradicts. */
-  private applyRetryPage(): void {
-    const retry = this.retryPage;
-    if (!retry) return;
-    this.retryPage = undefined;
-    this._pageIndex = retry.pageIndex;
-    this._total = retry.total;
-    this._isCountKnown = true;
-    this.discoveredTotalFilter = retry.discoveredTotalFilter;
-    this.pageIndexes = undefined;
-  }
-  /* Does this answer reach the end of the storage? The source says so with hasMore; otherwise a
-     window shorter than the take it asked for is the end, and so is any window answering a take of
-     0 - that request was for everything from skip. */
-  private isEndOfStorage(result: any, take: number, length: number): boolean {
-    if (typeof result.hasMore === "boolean") return !result.hasMore;
-    return take <= 0 || length < take;
-  }
-  private commitCount(result: any, skip: number, take: number, length: number): void {
-    if (typeof result.total === "number") {
-      this._total = result.total;
-      this._isCountKnown = true;
-      this.discoveredTotalFilter = undefined;
-      this._hasMore = skip + length < this._total;
-      return;
-    }
-    /* An answer that reaches the end settles the count as well: there is nothing behind the last
-       record, so the storage holds exactly the records up to it. A source that cannot count in
-       advance is therefore counted once, by walking to its end. */
-    if (this.isEndOfStorage(result, take, length)) {
-      this._total = skip + length;
-      this._isCountKnown = true;
-      this.discoveredTotalFilter = this._filter;
-      this._hasMore = false;
-      return;
-    }
-    /* A total the list worked out itself is kept while the window fits inside it: this is a page in
-       front of an end that has already been found, and forgetting it would offer a page behind the
-       end again and cost two reads to discover the same end. A window that reaches past it is a
-       storage that has grown, and the end has to be found again. So is an explicit hasMore: true at
-       the known end - the source says there are records behind a window the total says is the last
-       one. A full window without hasMore at that end is only inferred to have more, and keeps it. */
-    const end = skip + length;
-    const isInFront = result.hasMore === true ? end < this._total : end <= this._total;
-    if (this._total !== undefined && this.discoveredTotalFilter === this._filter && isInFront) {
-      this._isCountKnown = true;
-      this._hasMore = skip + length < this._total;
-      return;
-    }
-    this._total = undefined;
-    this._isCountKnown = false;
-    this.discoveredTotalFilter = undefined;
-    // Not the end, so there is at least one record behind this window.
-    this._hasMore = true;
   }
 
   /* The source is captured here, when the write is enqueued, and never read again from the field:

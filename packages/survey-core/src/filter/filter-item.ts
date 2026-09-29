@@ -3,11 +3,13 @@ import { Serializer } from "../jsonobject";
 import { LocalizableString } from "../localizablestring";
 
 // A preset: one saved filter the survey author defines in JSON, that the end user applies to the
-// data with a single click by picking it in the Filter Control. type names which editor authored
-// the expression - "fields" (built from field/operator/value conditions) or "ai" (a
-// natural-language prompt) - but no such editor exists yet: whichever type an item carries, its
-// expression is applied identically as a filter expression string. type and prompt are storage
-// only until a future task wires an editor to them.
+// data with a single click by picking it in the Filter Control, and can then edit over (see
+// ownConditions/saveActiveItem in question_filter.ts). type names which editor authored the
+// expression - "fields" (built from field/operator/value conditions, edited through the control's
+// own condition API and its fast/advanced mode editors) or "ai" (a natural-language prompt, with
+// no editor yet - it can only be authored in JSON and canEditConditions refuses it). Whichever
+// type an item carries, its expression is applied identically as a filter expression string;
+// prompt is storage only until a future task wires an "ai" editor to it.
 export class FilterItem extends Base {
   constructor(name: string) {
     super();

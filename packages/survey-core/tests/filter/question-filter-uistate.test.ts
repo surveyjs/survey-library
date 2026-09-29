@@ -126,15 +126,6 @@ describe("QuestionFilterModel: uiState", () => {
     // The page raises its own "shown" while loading; only "filter" is this control's business.
     expect(reasons.filter((r: string) => r === "filter"), "#2").toEqual([]);
   });
-  test("updateActiveItem bakes the search into the item and clears the search box", () => {
-    const survey = createSurvey();
-    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
-    q.setSearchFields(["country"]);
-    q.searchString = "ger";
-    q.updateActiveItem();
-    expect(q.items[0].expression, "#1").toBe("({age} > 18) and ({country} anyof ['de'])");
-    expect(q.searchString, "#2").toBe("");
-  });
   test("assigning the same searchFields, or assigning any in the designer, fires nothing", () => {
     const survey = createSurvey({ searchFields: ["name"] });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");

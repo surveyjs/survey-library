@@ -3,17 +3,6 @@ import { createFilter, records } from "./filter-test-helpers";
 import { applyFilter } from "../../src/dynamic-data/dynamic-data-filter";
 import { FilterItem } from "../../src/filter/filter-item";
 import { FilterField } from "../../src/filter/filter-field";
-import { SurveyModel } from "../../src/survey";
-import { QuestionFilterModel } from "../../src/question_filter";
-
-function createDesignFilter(over: any = {}): QuestionFilterModel {
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({ elements: [Object.assign({ type: "filter", name: "f1",
-    fields: [{ name: "name" }, { name: "age" }],
-    items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" }, over)] });
-  return <QuestionFilterModel>survey.getQuestionByName("f1");
-}
 
 describe("QuestionFilterModel: quick search", () => {
   test("a string field searches with contains", () => {
@@ -136,52 +125,6 @@ describe("QuestionFilterModel: quick search", () => {
     q.searchString = "an";
     expect(q.filterExpression, "#1").toBe("({age} < 18 or {age} > 35) and ({name} contains 'an')");
     expect(applyFilter(records, q.filterExpression), "#2: Frank is 30 and drops out").toEqual([2]);
-  });
-});
-
-describe("QuestionFilterModel: update item", () => {
-  test("the search becomes part of the item and the search box is cleared", () => {
-    const q = createFilter({ showSearch: true, searchFields: ["name"],
-      items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" });
-    q.searchString = "an";
-    expect(q.canUpdateActiveItem, "#1").toBe(true);
-    q.updateActiveItem();
-    expect(q.activeItem.expression, "#2").toBe("({age} > 18) and ({name} contains 'an')");
-    expect(q.searchString, "#3").toBe("");
-    expect(q.filterExpression, "#4").toBe("({age} > 18) and ({name} contains 'an')");
-  });
-  test("there is nothing to update without a search text", () => {
-    const q = createFilter({ showSearch: true, searchFields: ["name"],
-      items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" });
-    expect(q.canUpdateActiveItem, "#1").toBe(false);
-    q.updateActiveItem();
-    expect(q.activeItem.expression, "#2").toBe("{age} > 18");
-  });
-  test("an item that refuses editing is not updated", () => {
-    const q = createFilter({ showSearch: true, searchFields: ["name"],
-      items: [{ name: "adults", expression: "{age} > 18", allowEdit: false }], defaultItem: "adults" });
-    q.searchString = "an";
-    expect(q.canUpdateActiveItem, "#1").toBe(false);
-    q.updateActiveItem();
-    expect(q.activeItem.expression, "#2").toBe("{age} > 18");
-    expect(q.searchString, "#3").toBe("an");
-  });
-  // filterExpression is never composed in design mode, so it is "" there: updating the item from
-  // it would overwrite the authored expression with nothing, and expression is serialized.
-  test("an item is not updated in design mode", () => {
-    const q = createDesignFilter({ showSearch: true, searchFields: ["name"] });
-    q.searchString = "an";
-    expect(q.filterExpression, "#1").toBe("");
-    expect(q.canUpdateActiveItem, "#2").toBe(false);
-    q.updateActiveItem();
-    expect(q.activeItem.expression, "#3").toBe("{age} > 18");
-  });
-  test("there is nothing to update without an active item", () => {
-    const q = createFilter({ showSearch: true, searchFields: ["name"] });
-    q.searchString = "an";
-    expect(q.canUpdateActiveItem, "#1").toBe(false);
-    q.updateActiveItem();
-    expect(q.filterExpression, "#2").toBe("{name} contains 'an'");
   });
 });
 

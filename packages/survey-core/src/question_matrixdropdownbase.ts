@@ -211,11 +211,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   constructor(protected row: MatrixDropdownRowModelBase) {
     super(row);
   }
-  // The position among the visible records of the whole list when the matrix knows it (a matrix
-  // that pages), else the position in visibleRows.
-  protected get visibleIndex(): number {
-    const data: any = this.row.data;
-    if (!!data && typeof data.getItemVisibleIndex === "function") return data.getItemVisibleIndex(this.row);
+  // A matrix that does not know the positions in the whole list (matrixdropdown): visibleRows.
+  protected getVisibleIndexWithoutOwner(): number {
     const rows = this.getQuestionData().visibleRows;
     return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
@@ -225,11 +222,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   protected getPrevName(): string {
     return settings.expressionVariables.prevRow;
   }
-  protected getVisibleItem(index: number): DynamicItemModelBase {
-    const data: any = this.row.data;
-    if (!!data && typeof data.getItemByVisibleIndex === "function") return data.getItemByVisibleIndex(index);
-    const matrix = this.getQuestionData();
-    const rows = matrix.visibleRows;
+  protected getVisibleItemWithoutOwner(index: number): DynamicItemModelBase {
+    const rows = this.getQuestionData().visibleRows;
     if (!rows || index < 0 || index >= rows.length) return null;
     return rows[index];
   }
@@ -265,10 +259,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     name = name.toLocaleLowerCase();
     if (name === setVar.rowIndex.toLocaleLowerCase()) {
       // A record without a row: its record number, 1-based, in the whole list.
-      if (!(this.row instanceof MatrixDropdownRowModelBase)) {
-        const record: DynamicItemModelBase = this.row;
-        return record.getIndex() + 1 + DynamicItemModelBase.getRecordNumberOffset(record.data);
-      }
+      if (!(this.row instanceof MatrixDropdownRowModelBase)) return this.getRecordNumber() + 1;
       return this.row.rowIndex;
     }
     if (name === setVar.visibleRowIndex.toLocaleLowerCase()) {

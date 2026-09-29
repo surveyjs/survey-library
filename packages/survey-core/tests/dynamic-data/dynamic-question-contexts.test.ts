@@ -4,8 +4,13 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { IValueGetterInfo } from "../../src/conditions/conditionProcessValue";
+import { vi } from "vitest";
+import { FunctionFactory } from "../../src/functionsfactory";
+import { IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 export * from "../../src/question_text";
+export * from "../../src/question_expression";
+export * from "../../src/question_matrixdropdown";
 
 /* matrixdynamic and paneldynamic behave the same (step 22,
    promts/dynamic-data-list/22-same-behaviour-matrix-panel.md). Every scenario runs for both questions
@@ -270,6 +275,196 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         expect(counter, "#1").toBeGreaterThan(0);
         expect(getQuestion(survey).getDataList().visibleCount, "#2: every record is shown").toBe(4);
       });
+    });
+  });
+});
+
+/* Step 23 (promts/dynamic-data-list/23-dedupe-dynamic-questions.md) moves the code these rows run
+   through into shared helpers without changing what they answer. The row ids are the prompt's. */
+async function flush(times: number = 30): Promise<void> {
+  for (let i = 0; i < times; i++) {
+    await Promise.resolve();
+  }
+}
+// A source that pages itself (the shape of page-window.test.ts's PagedSource): one read per page.
+class PagedSource implements IDynamicDataSource {
+  constructor(public data: Array<any>) { }
+  public read(): Array<any> { return this.data; }
+  public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+    const take = request.take > 0 ? request.take : this.data.length;
+    return Promise.resolve({ records: this.data.slice(request.skip, request.skip + take).map(r => Object.assign({}, r)), total: this.data.length });
+  }
+}
+function ids(count: number): Array<any> {
+  const res: Array<any> = [];
+  for (let i = 0; i < count; i++) res.push({ id: i });
+  return res;
+}
+function readPath(question: Question, index: number, path: Array<string>): IValueGetterInfo {
+  return question.getValueGetterContext().getValue({ path: path.map(name => ({ name: name })), index: index, isRoot: false });
+}
+function createDesignSurvey(): SurveyModel {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "col1", cellType: "text" }] },
+    { type: "paneldynamic", name: "panel", panelCount: 2, templateElements: [{ type: "text", name: "q1" }] }
+  ] });
+  return survey;
+}
+
+describe("Step 23 pinning: the question-level value getter context", () => {
+  test("V1 matrix, design mode: the design row answers any index, past the last row too", () => {
+    const matrix = createDesignSurvey().getQuestionByName("matrix");
+    const res = readPath(matrix, 5, ["col1"]);
+    expect(res.isFound, "#1: design mode wins over the index range").toBe(true);
+    expect(res.context.getQuestion().name, "#2: the design row's cell").toBe("col1");
+    expect(readPath(matrix, 5, []), "#3: an empty path is the design row's answer too, not the record branch's").toBeUndefined();
+    expect(readPath(matrix, 5, ["unknown"]), "#4: an unknown name as well").toBeUndefined();
+  });
+  test("V2 panel, design mode: a template question answers, an unknown name is not found", () => {
+    const panel = createDesignSurvey().getQuestionByName("panel");
+    expect(readPath(panel, 5, ["q1"]), "#1").toEqual({ isFound: true });
+    expect(readPath(panel, 5, ["unknown"]), "#2").toEqual({ isFound: false });
+  });
+  test("V3 panel, design mode, an empty path: the design branch is skipped and the record branch answers", () => {
+    const panel = createDesignSurvey().getQuestionByName("panel");
+    const context = panel.getValueGetterContext();
+    const res = context.getValue({ path: [], index: 5, isRoot: false });
+    expect(res.isFound, "#1").toBe(false);
+    expect(res.context === context, "#2: the record branch's not found").toBe(true);
+    expect(readPath(panel, 0, []), "#3: record 0 has a panel, and a panel answers an empty path with nothing").toBeUndefined();
+  });
+  kinds.forEach((kind: IDynamicKind) => {
+    test("V8 " + kind.name + ": an index past the last record is not found, in the question's own context", () => {
+      const question = getQuestion(createSurvey(kind, records("a", "b")));
+      const context = question.getValueGetterContext();
+      const res = context.getValue({ path: [{ name: "x" }], index: 2, isRoot: false });
+      expect(res.isFound, "#1").toBe(false);
+      expect(res.value, "#2").toBeUndefined();
+      expect(res.context === context, "#3").toBe(true);
+    });
+    test("V9 " + kind.name + ": an empty question without an index", () => {
+      const question = getQuestion(createSurvey(kind, []));
+      expect(question.isEmpty(), "#0").toBe(true);
+      const context = question.getValueGetterContext();
+      expect(context.getValue({ path: [], index: -1, isRoot: true }), "#1").toEqual({ isFound: true, value: undefined });
+      expect(context.getValue({ path: [{ name: "x" }], index: -1, isRoot: true }), "#2").toEqual({ isFound: false, value: undefined });
+      const created = context.getValue({ path: [], index: -1, isRoot: true, createObjects: true });
+      expect(created.isFound, "#3: createObjects falls through to QuestionValueGetterContext").toBe(true);
+      expect(created.context === context, "#4").toBe(true);
+      expect(context.getValue({ path: [{ name: "x" }], index: -1, isRoot: true, createObjects: true }), "#5").toBeUndefined();
+    });
+  });
+});
+
+describe("Step 23 pinning: the item getter contexts", () => {
+  test("I2 paneldynamic and matrixdynamic, page 2: {prev*} and {next*} at both page edges read the records off the page", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "id" },
+        { type: "expression", name: "prev", expression: "{prevPanel.id}" }, { type: "expression", name: "next", expression: "{nextPanel.id}" }] },
+      { type: "matrixdynamic", name: "m", rowsPerPage: 2, columns: [{ name: "id", cellType: "text" },
+        { name: "prev", cellType: "expression", expression: "{prevRow.id}" }, { name: "next", cellType: "expression", expression: "{nextRow.id}" }] }
+    ] });
+    survey.data = { p: ids(6), m: ids(6) };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    panel.pageIndex = 1;
+    matrix.pageIndex = 1;
+    const neighbours = (item: any): Array<any> => [item.getQuestionByName("prev").value, item.getQuestionByName("next").value];
+    expect(panel.panels.map(neighbours), "#1: records 1 and 4 have no panel").toEqual([[1, 3], [2, 4]]);
+    expect(matrix.visibleRows.map(neighbours), "#2: records 1 and 4 have no row").toEqual([[1, 3], [2, 4]]);
+  });
+  test("I4 matrixdropdown: {prevRow}, {nextRow} and {visibleRowIndex} come from visibleRows", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", rows: ["a", "b", "c"], columns: [
+      { name: "c1", cellType: "text" }, { name: "prev", cellType: "expression", expression: "{prevRow.c1}" },
+      { name: "vis", cellType: "expression", expression: "{visibleRowIndex}" }, { name: "next", cellType: "expression", expression: "{nextRow.c1}" }] }] });
+    survey.data = { d: { a: { c1: 1 }, b: { c1: 2 }, c: { c1: 3 } } };
+    const matrix: any = survey.getQuestionByName("d");
+    expect(typeof matrix.getItemVisibleIndex, "#0: the fallback path").toBe("undefined");
+    const values = matrix.visibleRows.map((row: any) => ["prev", "vis", "next"].map(name => row.getQuestionByName(name).value));
+    expect(values, "#1").toEqual([[undefined, 1, 2], [1, 2, 3], [2, 3, undefined]]);
+  });
+  test("I5 matrixdynamic: a record item's {rowIndex} is 1-based plus the remote window offset", async () => {
+    const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2 });
+    const matrix = getQuestion(survey);
+    expect(isAnsweredByQuestion(readPath(matrix, 3, ["x"])), "#1: record 3 is off the page").toBe(false);
+    expect(readPath(matrix, 3, ["rowIndex"]).value, "#2: 1-based").toBe(4);
+    const remote = <QuestionMatrixDynamicModel>new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5,
+      rowsVisibleIf: "{rowIndex} != 12", columns: [{ name: "id", cellType: "text" }] }] }).getQuestionByName("m");
+    remote.dataSource = new PagedSource(ids(20));
+    await flush();
+    remote.nextPage();
+    await flush();
+    remote.nextPage();
+    await flush();
+    expect(remote.getDataList().windowOffset, "#3").toBe(10);
+    expect(remote.visibleRows.map(row => row.getQuestionByName("id").value), "#4: record 11 is row 12 of the whole list").toEqual([10, 12, 13, 14]);
+  });
+  test("I6 paneldynamic: {panelIndex} is 0-based plus the window offset in the value, +1 in text", async () => {
+    const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateTitle: "N {panelIndex}",
+      templateElements: [{ type: "text", name: "x" }, { type: "expression", name: "no", expression: "{panelIndex}" }] });
+    const panel = <QuestionPanelDynamicModel>getQuestion(survey);
+    panel.pageIndex = 1;
+    expect(panel.panels.map(p => p.getQuestionByName("no").value), "#1: the value").toEqual([2, 3]);
+    expect(panel.panels.map(p => p.locTitle.renderedHtml), "#2: the text").toEqual(["N 3", "N 4"]);
+    expect(readPath(panel, 0, ["panelIndex"]).value, "#3: a record item").toBe(0);
+    const remote = <QuestionPanelDynamicModel>new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0, panelsPerPage: 5,
+      templateVisibleIf: "{panelIndex} != 11", templateElements: [{ type: "text", name: "id" }] }] }).getQuestionByName("p");
+    remote.panels;
+    remote.dataSource = new PagedSource(ids(20));
+    await flush();
+    remote.nextPage();
+    await flush();
+    remote.nextPage();
+    await flush();
+    expect(remote.panels.map(p => p.getQuestionByName("id").value), "#4: a record item's value is 0-based plus the offset").toEqual([10, 12, 13, 14]);
+  });
+});
+
+describe("Step 23 pinning: the record-visibility pass under paging", () => {
+  test("R1 matrixdynamic: the padded records are evaluated as the default row value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, rowsPerPage: 2,
+      defaultRowValue: { x: "d" }, rowsVisibleIf: "{row.x} != 'd'", columns: [{ name: "x", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ x: "a" }, { x: "b" }];
+    expect(matrix.rowCount, "#1").toBe(4);
+    expect(matrix.getDataList().visibleCount, "#2: records 2 and 3 are padded with x = 'd'").toBe(2);
+    expect(matrix.pageCount, "#3").toBe(1);
+  });
+  test("R3 paneldynamic: a function the templateVisibleIf calls sees the record item as this.panel", () => {
+    FunctionFactory.Instance.register("step23RecordX", function (this: any): any {
+      return !!this.panel ? this.panel.getValue("x") : undefined;
+    });
+    try {
+      const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateVisibleIf: "step23RecordX() != 'a'" });
+      const question = getQuestion(survey);
+      expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+      expect(readItem(question, 1, "x").value, "#2").toBe("b");
+    } finally {
+      FunctionFactory.Instance.unregister("step23RecordX");
+    }
+  });
+  kinds.forEach((kind: IDynamicKind) => {
+    test("R4 " + kind.name + ": showInvisibleElements clears the flags once and restores them when it is turned off", () => {
+      const extra: any = {};
+      extra[kind.pageSize] = 2;
+      extra[kind.visibleIf] = "{" + kind.variable + ".x} != 'a'";
+      const survey = createSurvey(kind, records("a", "b", "c", "d"), extra);
+      const question = getQuestion(survey);
+      const list = question.getDataList();
+      expect(list.visibleCount, "#1").toBe(3);
+      survey.showInvisibleElements = true;
+      expect(list.visibleCount, "#2: every record is visible").toBe(4);
+      const setVisible = vi.spyOn(list, "setRecordsVisible");
+      const sync = vi.spyOn(<any>question, "syncPagingState");
+      survey.setValue("other", 1);
+      expect(setVisible.mock.calls.length, "#3: a second run with the setting on writes no flag").toBe(0);
+      expect(sync.mock.calls.length, "#4: and does not sync paging").toBe(0);
+      setVisible.mockRestore();
+      sync.mockRestore();
+      survey.showInvisibleElements = false;
+      expect(list.visibleCount, "#5: the flags return").toBe(3);
     });
   });
 });

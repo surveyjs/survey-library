@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -36,10 +36,9 @@ import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IA
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
-import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { ConditionRunner } from "./conditions/conditionRunner";
+import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
-import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -47,23 +46,14 @@ import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fi
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
-  constructor(protected item: DynamicItemModelBase) {
-    super(item);
-  }
   protected getNextName(): string {
     return settings.expressionVariables.nextPanel;
   }
   protected getPrevName(): string {
     return settings.expressionVariables.prevPanel;
-  }
-  /* The neighbour comes from the view, not from the panels that exist: the first panel of a page has
-     a previous record, it just has no panel. The owner answers with the panel's item or with the
-     record read as a value. */
-  protected getVisibleItem(index: number): DynamicItemModelBase {
-    const data = this.item.data;
-    return !!data && typeof data.getItemByVisibleIndex === "function" ? data.getItemByVisibleIndex(index) : null;
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
@@ -95,56 +85,27 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
-      return this.panelIndex;
+      return this.getRecordNumber();
     }
     if (name == this.visIndexVar) {
       return this.visibleIndex;
     }
     return undefined;
   }
-  /* The RECORD index, so that a stored {panelIndex} expression keeps meaning the same panel when a
-     filter or a sort changes which panels exist - and in the whole list, so that "Participant 23" is
-     record 23 on every page of a data source that pages itself. item.getIndex() is the window-local
-     index the storage is addressed by; the offset turns it into the number the respondent sees. */
-  private get panelIndex(): number {
-    return this.item.getIndex() + DynamicItemModelBase.getRecordNumberOffset(this.item.data);
-  }
-  // The position among the visible records of the whole list, not among the panels of the page.
-  protected get visibleIndex(): number {
-    const data = this.item.data;
-    return !!data && typeof data.getItemVisibleIndex === "function" ? data.getItemVisibleIndex(this.item) : -1;
-  }
 }
 
-export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
-  constructor (protected question: Question) {
-    super(question);
+export class PanelDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
+  // An empty path goes on to the record the index names.
+  protected hasDesignValue(params: IValueGetterContextGetValueParams): boolean {
+    return params.path.length > 0;
   }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+  // A template question answers the rest of the path.
+  protected getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    const pd = <QuestionPanelDynamicModel>this.question;
-    const index = params.index;
-    if (index > -1 && pd.isDesignMode && path.length > 0) {
-      const name = path[0].name;
-      const q = pd.template.getQuestionByName(name);
-      if (!!q) {
-        path.shift();
-        return path.length === 0 ? { isFound: true } : q.getValueGetterContext().getValue(params);
-      }
-      return { isFound: false };
-    }
-    if (index > -1) {
-      // {panel[2].q1} names a record of the value, and so does the index a bound question passes:
-      // the panel that holds it, or - when the question pages and the record has none - the record.
-      const item = pd.getExpressionItem(index);
-      if (!!item) {
-        params.isRoot = false;
-        return item.getValueGetterContext().getValue(params);
-      }
-      return { isFound: false, value: undefined, context: this };
-    }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
-    return super.getValue(params);
+    const q = (<QuestionPanelDynamicModel>this.question).template.getQuestionByName(path[0].name);
+    if (!q) return { isFound: false };
+    path.shift();
+    return path.length === 0 ? { isFound: true } : q.getValueGetterContext().getValue(params);
   }
 }
 
@@ -382,19 +343,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
   }
   /* Three indexes (prompt 15): the record index names the record, visibleIndex is its position among
-     the visible records of the whole list (what the respondent navigates by), pageVisibleIndex its
-     position in visiblePanels. visibleIndex = pageStartVisibleIndex + pageVisibleIndex; the two are
-     the same number for a question that does not page. */
+     the visible records of the whole list (the list's globalVisibleIndex; what the respondent
+     navigates by), pageVisibleIndex its position in visiblePanels. */
   private get pageStartVisibleIndex(): number {
-    const list = this.dataListValue;
-    if (!list) return 0;
-    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
-    if (list.isPagedBySource) return list.windowOffset;
-    return this.isPagingActive ? list.pageIndex * list.pageSize : 0;
+    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex(this.isPagingActive) : 0;
   }
   // IDynamicItemModelData: the window offset of a data source that pages itself, see getIndex.
   getRecordNumberOffset(): number {
-    return this.isRemoteData && !!this.dataListValue ? this.dataListValue.windowOffset : 0;
+    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset(this.isRemoteData) : 0;
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) {
@@ -402,8 +358,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
     if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    const pos = this.dataListValue.getVisibleIndexes().indexOf(item.getIndex());
-    return pos < 0 ? -1 : pos + (this.isRemoteData ? this.dataListValue.windowOffset : 0);
+    return this.dataListValue.getGlobalVisibleIndex(item.getIndex(), this.isRemoteData);
   }
   getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
     if (visibleIndex < 0) return null;
@@ -411,12 +366,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
     if (!this.isPagingActive) return null;
-    // Off the page: the record is read as a value. A remote window holds nothing beyond itself.
-    const list = this.dataList;
-    const at = visibleIndex - (this.isRemoteData ? list.windowOffset : 0);
-    const visible = list.getVisibleIndexes();
-    if (at < 0 || at >= visible.length) return null;
-    return this.createRecordItem(visible[at]);
+    // Off the page: the record is read as a value.
+    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex, this.isRemoteData);
+    return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
   }
   private createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.dataList.getRecord(recordIndex), settings.expressionVariables.panel,
@@ -613,6 +565,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
      raises while it is being constructed - before dataListValue is assigned - out of here. */
   private hasMaterializedView: boolean = false;
+  // Keep in step with QuestionMatrixDynamicModel.onDataListChanged.
   onDataListChanged(change: IDynamicDataListChange): void {
     if (!this.dataListValue) return;
     if (change.type === "loading") {
@@ -659,21 +612,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   /* The record indexes the question keeps - the panels' records, the edited set of layer 2 - name a
      record only until something is inserted or removed in front of it. */
   private followRecordChange(change: IDynamicDataListChange): void {
-    const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
-    if (change.type === "recordChanged") {
-      if (!!validation) validation.markEdited(change.index);
-      return;
-    }
-    const remap = getRecordRemap(change);
-    if (!remap) return;
-    // A panel whose record was removed keeps -1: it is being disposed.
-    this.panelsCore.forEach((panel: PanelModel): void => {
-      const item = <QuestionPanelDynamicItem>panel.data;
-      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
-        item.builtRecordIndex = remap(item.builtRecordIndex);
-      }
+    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue, (remap: (index: number) => number): void => {
+      // A panel whose record was removed keeps -1: it is being disposed.
+      this.panelsCore.forEach((panel: PanelModel): void => {
+        const item = <QuestionPanelDynamicItem>panel.data;
+        if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
+          item.builtRecordIndex = remap(item.builtRecordIndex);
+        }
+      });
     });
-    if (!!validation) validation.onRecordRemap(remap);
   }
   /* A remote window is a view of its own: the panels are built for the records the list holds, not
      for 0 ... panelCount-1, because panelCount is the server total. A question that pages builds its
@@ -3275,31 +3222,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     // survey.onExpressionRunning may rewrite or cancel it, as it does rowsVisibleIf; it is asked
     // before the areInvisibleElementsShowing check, so the event fires in that mode too.
     const expression = this.getExpressionFromSurvey("templateVisibleIf");
-    if (!expression || this.areInvisibleElementsShowing) {
-      if (!this.hasRecordVisibilityFlags) return false;
-      this.hasRecordVisibilityFlags = false;
-      return this.setRecordsVisibleAndSync((): boolean => true);
+    const isChanged = list.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
+      (index: number): any => list.getRecord(index), (): IDynamicDataRecordScope => {
+        const item = this.createRecordItem(-1);
+        const newProps = Helpers.createCopy(properties);
+        newProps[settings.expressionVariables.panel] = item;
+        return { item: item, properties: newProps };
+      });
+    if (isChanged) {
+      this.syncPagingState();
     }
-    this.hasRecordVisibilityFlags = true;
-    if (!this.recordVisibilityRunner || this.recordVisibilityRunner.expression !== expression) {
-      this.recordVisibilityRunner = new ConditionRunner(expression);
-    }
-    const runner = this.recordVisibilityRunner;
-    const item = this.createRecordItem(-1);
-    const newProps = Helpers.createCopy(properties);
-    newProps[settings.expressionVariables.panel] = item;
-    return this.setRecordsVisibleAndSync((index: number): boolean => {
-      item.reset(index, list.getRecord(index));
-      return runner.runContext(item.getValueGetterContext(), newProps) === true;
-    });
+    return isChanged;
   }
-  private setRecordsVisibleAndSync(isVisible: (index: number) => boolean): boolean {
-    if (!this.dataList.setRecordsVisible(isVisible)) return false;
-    this.syncPagingState();
-    return true;
-  }
-  private hasRecordVisibilityFlags: boolean;
-  private recordVisibilityRunner: ConditionRunner;
   // The panels hold other records than the page names: a record became hidden or visible ahead of
   // them, or the page moved under them.
   private isPageStale(): boolean {

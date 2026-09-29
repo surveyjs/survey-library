@@ -2781,3 +2781,41 @@ describe("a throwing callback does not leave a guard behind", () => {
     expect(list.loadedCount, "#3: the first record was added").toBe(1);
   });
 });
+
+describe("DynamicDataList: the owner's globalVisibleIndex", () => {
+  test("an array source: the page starts at pageIndex * pageSize while paging is active, the offset is 0", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(createRecords(6)));
+    list.pageSize = 2;
+    list.load();
+    list.pageIndex = 1;
+    list.setRecordVisible(1, false);
+    expect(list.isPagedBySource, "#0").toBe(false);
+    expect(list.getPageStartGlobalVisibleIndex(true), "#1").toBe(2);
+    expect(list.getPageStartGlobalVisibleIndex(false), "#2: paging is not active").toBe(0);
+    expect(list.getRecordNumberOffset(true), "#3: the window of an array source starts at 0").toBe(0);
+    expect(list.getGlobalVisibleIndex(2, false), "#4: record 1 is hidden").toBe(1);
+    expect(list.getGlobalVisibleIndex(1, false), "#5: a hidden record").toBe(-1);
+    expect(list.getIndexAtGlobalVisibleIndex(1, false), "#6").toBe(2);
+    expect(list.getIndexAtGlobalVisibleIndex(4, false), "#7: the last visible record").toBe(5);
+    expect(list.getIndexAtGlobalVisibleIndex(5, false), "#8: past the last").toBe(-1);
+    expect(list.getIndexAtGlobalVisibleIndex(-1, false), "#9: before the first").toBe(-1);
+  });
+  test("a source that pages itself: the page starts at the window offset, and a remote owner adds it", () => {
+    const list = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    list.pageSize = 3;
+    list.load();
+    list.pageIndex = 1;
+    expect(list.isPagedBySource, "#0").toBe(true);
+    expect(list.windowOffset, "#1").toBe(3);
+    expect(list.getPageStartGlobalVisibleIndex(true), "#2").toBe(3);
+    expect(list.getPageStartGlobalVisibleIndex(false), "#3: the window offset whatever the paging flag says").toBe(3);
+    expect(list.getRecordNumberOffset(true), "#4").toBe(3);
+    expect(list.getRecordNumberOffset(false), "#5: not remote").toBe(0);
+    expect(list.getGlobalVisibleIndex(1, true), "#6: window record 1 is record 4 of the whole list").toBe(4);
+    expect(list.getGlobalVisibleIndex(1, false), "#7").toBe(1);
+    expect(list.getIndexAtGlobalVisibleIndex(4, true), "#8").toBe(1);
+    expect(list.getIndexAtGlobalVisibleIndex(2, true), "#9: before the window").toBe(-1);
+    expect(list.getIndexAtGlobalVisibleIndex(6, true), "#10: past the window").toBe(-1);
+    expect(list.getIndexAtGlobalVisibleIndex(1, false), "#11").toBe(1);
+  });
+});

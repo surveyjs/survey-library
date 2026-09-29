@@ -2,7 +2,7 @@ import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { Helpers } from "./helpers";
-import { Question, QuestionItemValueGetterContext } from "./question";
+import { Question, QuestionItemValueGetterContext, QuestionValueGetterContext } from "./question";
 import { settings } from "./settings";
 import { TextContextProcessor } from "./textPreProcessor";
 
@@ -32,6 +32,36 @@ export interface IDynamicItemModelData {
     getBindedQuestions(): IQuestion[];
     getSharedQuestionFromArray(name: string, index: number): Question;
     updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): any;
+}
+
+export interface IDynamicExpressionItemOwner {
+  getExpressionItem(index: number): DynamicItemModelBase;
+}
+
+// The question-level context of matrixdynamic and paneldynamic: {matrix[2].col1}, {panel[2].q1}.
+export abstract class DynamicQuestionValueGetterContext extends QuestionValueGetterContext {
+  /* Design mode with an index: whether the design-time answer applies. When it does, its result is
+     returned as it is - undefined included. */
+  protected hasDesignValue(params: IValueGetterContextGetValueParams): boolean {
+    return true;
+  }
+  protected abstract getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const index = params.index;
+    if (index > -1 && this.question.isDesignMode && this.hasDesignValue(params)) return this.getDesignValue(params);
+    if (index > -1) {
+      // The index names a record of the value, and so does the index a bound question passes: the
+      // row or panel that holds it, or - when the record has none - the record read as a value.
+      const item = (<IDynamicExpressionItemOwner><any>this.question).getExpressionItem(index);
+      if (!!item) {
+        params.isRoot = false;
+        return item.getValueGetterContext().getValue(params);
+      }
+      return { isFound: false, value: undefined, context: this };
+    }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: params.path.length === 0, value: undefined };
+    return super.getValue(params);
+  }
 }
 
 export abstract class DynamicItemGetterContext extends QuestionItemValueGetterContext {
@@ -106,8 +136,32 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
       res.context = qs[0].getValueGetterContext();
     }
   }
-  protected abstract getVisibleItem(idx: number): DynamicItemModelBase;
-  protected abstract get visibleIndex(): number;
+  /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a
+     page has a previous record, it just has no object. The owner answers with the object's item or
+     with the record read as a value. */
+  protected getVisibleItem(index: number): DynamicItemModelBase {
+    const data = this.item.data;
+    return !!data && typeof data.getItemByVisibleIndex === "function" ? data.getItemByVisibleIndex(index) : this.getVisibleItemWithoutOwner(index);
+  }
+  protected getVisibleItemWithoutOwner(index: number): DynamicItemModelBase {
+    return null;
+  }
+  // The position among the visible records of the whole list, not among the objects of the page.
+  protected get visibleIndex(): number {
+    const data = this.item.data;
+    return !!data && typeof data.getItemVisibleIndex === "function" ? data.getItemVisibleIndex(this.item) : this.getVisibleIndexWithoutOwner();
+  }
+  protected getVisibleIndexWithoutOwner(): number {
+    return -1;
+  }
+  /* The RECORD index, so that a stored {panelIndex} / {rowIndex} expression keeps meaning the same
+     record when a filter or a sort changes which objects exist - and in the whole list, so that
+     "Participant 23" is record 23 on every page of a data source that pages itself. item.getIndex()
+     is the window-local index the storage is addressed by; the offset turns it into the number the
+     respondent sees. 0-based: the callers add 1 where the variable is 1-based. */
+  protected getRecordNumber(): number {
+    return this.item.getIndex() + DynamicItemModelBase.getRecordNumberOffset(this.item.data);
+  }
   protected getItemVariableNames(): Array<string> {
     return [];
   }

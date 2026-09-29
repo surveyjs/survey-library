@@ -12,6 +12,7 @@ import {
 import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
+import { DynamicDataRecordVisibility, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
 
 // Index vocabulary - binding for every method and parameter name in this file:
 //
@@ -25,6 +26,9 @@ import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap
 // |                  | owner-hidden, in sort order, UNPAGED.                             |                       |
 // | pageLocalIndex   | position on the current page, i.e. in getPageIndexes()            | 0 ... page length-1   |
 // |                  | (= visibleIndex - pageIndex * pageSize).                          |                       |
+// | globalVisible-   | the owner's visibleIndex ({visiblePanelIndex}, row.visibleIndex):  | 0 ... visible records |
+// | Index            | windowOffset + visibleIndex for an owner of a remote source, else | of the whole list - 1 |
+// |                  | visibleIndex.                                                     |                       |
 //
 // The counts follow the same split: "count" is the STORAGE count (total for a paged source, else the
 // window length) and a filter never changes it; "visibleCount" is what passes the filter minus the
@@ -41,6 +45,7 @@ export class DynamicDataList {
   private _isLoading: boolean = false;
   private _filter: string = "";
   private filterRunner: ConditionRunner = undefined;
+  private recordVisibility: DynamicDataRecordVisibility;
   private _sort: Array<IDynamicDataSort> = [];
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
@@ -509,6 +514,28 @@ export class DynamicDataList {
     this.ensureViews();
     return this.visibleIndexes;
   }
+  /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. isRemote: the
+     owner reads a remote source - only then does windowOffset move its numbers. */
+  public getPageStartGlobalVisibleIndex(isPagingActive: boolean): number {
+    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
+    if (this.isPagedBySource) return this.windowOffset;
+    return isPagingActive ? this.pageIndex * this.pageSize : 0;
+  }
+  // Record index + this = the record number the respondent sees ({panelIndex}, {rowIndex}).
+  public getRecordNumberOffset(isRemote: boolean): number {
+    return isRemote ? this.windowOffset : 0;
+  }
+  // -1 when the record is not visible.
+  public getGlobalVisibleIndex(index: number, isRemote: boolean): number {
+    const pos = this.getVisibleIndexes().indexOf(index);
+    return pos < 0 ? -1 : pos + this.getRecordNumberOffset(isRemote);
+  }
+  // -1 when there is none: a remote window holds nothing beyond itself.
+  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number, isRemote: boolean): number {
+    const at = globalVisibleIndex - this.getRecordNumberOffset(isRemote);
+    const visible = this.getVisibleIndexes();
+    return at < 0 || at >= visible.length ? -1 : visible[at];
+  }
   /* The records an owner materializes an object for, in object order. The view answers every DATA
      question (which records are in it, their order, the totals, the neighbours); this answers every
      OBJECT question (which record a panel or a row holds). Without paging they are the created
@@ -564,6 +591,16 @@ export class DynamicDataList {
     this.resetViews();
     this.clampPageIndexAfterChange();
     return true;
+  }
+  /* The owner-visibility decided by an expression over every record - rowsVisibleIf /
+     templateVisibleIf of a question that pages (see DynamicDataRecordVisibility). The owner reads
+     the expression, the record and the context; the list keeps the runner and whether the flags are
+     the expression's. Returns whether a flag changed. */
+  public updateRecordsVisibility(expression: string, readRecord: (index: number) => any, createScope: () => IDynamicDataRecordScope): boolean {
+    if (!this.recordVisibility) {
+      this.recordVisibility = new DynamicDataRecordVisibility();
+    }
+    return this.recordVisibility.update(this, expression, readRecord, createScope);
   }
 
   public get pageSize(): number {
@@ -693,6 +730,7 @@ export class DynamicDataList {
     this.channel.clearPendingInserts();
     this.storageCount.cancelRetry();
     this.filterRunner = undefined;
+    this.recordVisibility = undefined;
     this.resetMembership();
     this.resetViews();
   }

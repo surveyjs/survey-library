@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { Question, QuestionValueGetterContext, QuestionValueType } from "./question";
+import { Question, QuestionValueType } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -29,39 +29,22 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
+import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
-import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
-import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
-export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
-  constructor (protected question: Question) {
-    super(question);
-  }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
-    const path = params.path;
-    const index = params.index;
-    const md = <QuestionMatrixDynamicModel>this.question;
-    if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
-    if (index > -1) {
-      // {matrix[2].col1} names a record of the value, and so does the index a bound question passes:
-      // the row that holds it, or - when the record has no row - the record.
-      const item = md.getExpressionItem(index);
-      if (!!item) {
-        params.isRoot = false;
-        return item.getValueGetterContext().getValue(params);
-      }
-      return { isFound: false, value: undefined, context: this };
-    }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
-    return super.getValue(params);
+export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
+  // The design row answers any path; isRoot is left as it is.
+  protected getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    return (<QuestionMatrixDynamicModel>this.question).getDesignRowContext().getValue(params);
   }
 }
 
@@ -316,6 +299,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
      raises while it is being constructed - before dataListValue is assigned - out of here. */
   private hasMaterializedView: boolean = false;
+  // Keep in step with QuestionPanelDynamicModel.onDataListChanged.
   onDataListChanged(change: IDynamicDataListChange): void {
     if (!this.dataListValue) return;
     if (change.type === "loading") {
@@ -381,19 +365,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The edited set of layer 2 names records by index: it follows the list's own inserts and removes.
   private followRecordChange(change: IDynamicDataListChange): void {
-    const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
-    if (change.type === "recordChanged") {
-      if (!!validation) validation.markEdited(change.index);
-      return;
-    }
-    const remap = getRecordRemap(change);
-    if (!remap) return;
-    // A row whose record was removed keeps -1: it is being disposed.
-    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
-      const dynamicRow = <MatrixDynamicRowModel>row;
-      if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
+    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue, (remap: (index: number) => number): void => {
+      // A row whose record was removed keeps -1: it is being disposed.
+      (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
+        const dynamicRow = <MatrixDynamicRowModel>row;
+        if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
+      });
     });
-    if (!!validation) validation.onRecordRemap(remap);
   }
   /* A remote window is a view of its own: the rows are built for the records the list holds, not for
      0 ... rowCount-1, because rowCount is the server total. A matrix that pages builds its rows for
@@ -533,21 +511,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   /* Three indexes (prompt 15): the record index names the record, visibleIndex is its position among
-     the visible records of the whole list, pageVisibleIndex its position in visibleRows;
-     visibleIndex = pageStartVisibleIndex + pageVisibleIndex. */
+     the visible records of the whole list (the list's globalVisibleIndex), pageVisibleIndex its
+     position in visibleRows; visibleIndex = pageStartVisibleIndex + pageVisibleIndex. */
   private get pageStartVisibleIndex(): number {
-    const list = this.dataListValue;
-    if (!list) return 0;
-    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
-    if (list.isPagedBySource) return list.windowOffset;
-    return this.isPagingActive ? list.pageIndex * list.pageSize : 0;
+    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex(this.isPagingActive) : 0;
   }
   protected getFirstRowVisibleIndex(): number {
     return this.pageStartVisibleIndex;
   }
   // IDynamicItemModelData: the window offset of a data source that pages itself (see rowIndex).
   getRecordNumberOffset(): number {
-    return this.isRemoteData && !!this.dataListValue ? this.dataListValue.windowOffset : 0;
+    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset(this.isRemoteData) : 0;
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
@@ -557,8 +531,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
     if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    const pos = this.dataListValue.getVisibleIndexes().indexOf(item.getIndex());
-    return pos < 0 ? -1 : pos + (this.isRemoteData ? this.dataListValue.windowOffset : 0);
+    return this.dataListValue.getGlobalVisibleIndex(item.getIndex(), this.isRemoteData);
   }
   /* The neighbour comes from the view: the row when the record has one, the record read as a value
      when the matrix pages and it has none. */
@@ -569,11 +542,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < rows.length) return rows[pos];
     if (!this.isPagingActive) return null;
-    const list = this.dataList;
-    const at = visibleIndex - (this.isRemoteData ? list.windowOffset : 0);
-    const visible = list.getVisibleIndexes();
-    if (at < 0 || at >= visible.length) return null;
-    return this.createRecordItem(visible[at]);
+    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex, this.isRemoteData);
+    return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
   }
   private createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
@@ -2358,31 +2328,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private updateRecordsVisibilityByExpression(properties: HashTable<any>): boolean {
     if (!this.isPagingActive || this.isDesignMode || this.isLoadingFromJson) return false;
     const list = this.dataList;
+    // Asked before the areInvisibleElementsShowing check: survey.onExpressionRunning fires in that mode too.
     const expression = this.getExpressionFromSurvey("rowsVisibleIf");
-    let isChanged = false;
-    if (!expression || this.areInvisibleElementsShowing) {
-      if (!this.hasRecordVisibilityFlags) return false;
-      this.hasRecordVisibilityFlags = false;
-      isChanged = list.setRecordsVisible((): boolean => true);
-    } else {
-      this.hasRecordVisibilityFlags = true;
-      if (!this.recordVisibilityRunner || this.recordVisibilityRunner.expression !== expression) {
-        this.recordVisibilityRunner = new ConditionRunner(expression);
-      }
-      const runner = this.recordVisibilityRunner;
-      const item = this.createRecordItem(-1);
-      isChanged = list.setRecordsVisible((index: number): boolean => {
-        item.reset(index, this.getListRecordAt(index));
-        return runner.runContext(item.getValueGetterContext(), properties) === true;
-      });
-    }
+    const isChanged = list.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
+      (index: number): any => this.getListRecordAt(index),
+      (): IDynamicDataRecordScope => ({ item: this.createRecordItem(-1), properties: properties }));
     if (isChanged) {
       this.syncPagingState();
     }
     return isChanged;
   }
-  private hasRecordVisibilityFlags: boolean;
-  private recordVisibilityRunner: ConditionRunner;
   /* When the list pages the progress is counted from the records - every visible record, every
      input column - as it is before the rows exist: the rows are one page. A source that pages itself
      counts its window: the other pages are on the server. */

@@ -715,6 +715,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
         window["Survey"].settings.animationEnabled = true;
+        window["Survey"].settings.respectReducedMotion = false;
       });
       await expect(page.locator("input[type=text]")).toHaveCount(0);
       await page.locator(".sd-item__control-label").getByText("apple").click();

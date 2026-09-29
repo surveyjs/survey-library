@@ -143,7 +143,10 @@ async function runFixture(page: Page, framework: string, options: IFixtureOption
   await setHostSize(page, options);
   await expect(page.locator(".sd-question[data-name='matrix']")).toBeVisible();
   if (options.animation) {
-    await page.evaluate(() => { (window as any).Survey.settings.animationEnabled = true; });
+    await page.evaluate(() => {
+      (window as any).Survey.settings.animationEnabled = true;
+      (window as any).Survey.settings.respectReducedMotion = false;
+    });
   }
   await preScroll(page, options);
   const before = await getGeometry(page, options);

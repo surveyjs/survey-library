@@ -7,6 +7,7 @@ import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
 import { normalizeTextForSearch } from "./helpers";
 import { IsTouch } from "./utils/devices";
+import { getScrollBehavior } from "./utils/reduced-motion";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -127,7 +128,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       const item = this.listContainerHtmlElement.querySelector(classesToSelector(classes));
       if (item) {
         setTimeout(() => {
-          item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+          item.scrollIntoView({ behavior: getScrollBehavior(), block: "nearest", inline: "start" });
         }, ms);
       }
     }, ms);

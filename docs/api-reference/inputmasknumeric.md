@@ -53,7 +53,7 @@ Specify this property to override the survey-wide decimal separator.
 
 Default value: `undefined` (the mask inherits [`regionalFormat.decimalSeparator`](/form-library/documentation/api-reference/regionalformat#decimalSeparator) or the separator used by the [format locale](/form-library/documentation/api-reference/regionalformat#locale) (`"."` in English))
 
-**Related APIs:** [`precision`](#precision), [`thousandsSeparator`](#thousandsSeparator)
+**Related APIs:** [`precision`](#precision), [`showTrailingZeros`](#showTrailingZeros), [`thousandsSeparator`](#thousandsSeparator)
 
 ### `max`
 
@@ -79,9 +79,19 @@ Limits how many digits to retain after the decimal point for a displayed number.
 
 Default value: 2
 
-[View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+[Demo: Masked Input Fields](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
-**Related APIs:** [`decimalSeparator`](#decimalSeparator)
+**Related APIs:** [`decimalSeparator`](#decimalSeparator), [`showTrailingZeros`](#showTrailingZeros)
+
+### `showTrailingZeros`
+
+**Type**: `boolean`
+
+Specifies whether to add trailing zeros to the fractional part of a displayed number to match the specified [`precision`](#precision).
+
+When this property is `true`, trailing zeros appear immediately as respondents enter a value, without waiting for the input field to lose focus. For example, with `precision` set to 2, entering 1 displays "1.00", and entering 1.5 displays "1.50".
+
+Default value: `false`
 
 ### `thousandsSeparator`
 

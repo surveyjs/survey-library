@@ -34,8 +34,16 @@ export interface IFilterConditionsEditorOptions {
   // Called after every change the respondent makes to one field: with the condition the field
   // edits now, or with undefined when it edits none (no value where the operator needs one). The
   // name is the one the field was given to the editor by. A mode that writes every change at once
-  // (fast mode) listens here; one that writes on its own command reads getCondition() instead.
+  // (fast mode) listens here; one that writes on its own command listens to onApply instead.
   onConditionChanged?: (name: string, condition: IFilterCondition) => void;
+  // A search box on top of the fields, prefilled with searchString. Its text is not a condition:
+  // it is only ever handed to onApply.
+  showSearch?: boolean;
+  searchString?: string;
+  // Called by apply() with every condition the editor holds, in the order of its fields, and with
+  // the search text - undefined when there is no search box. A mode that writes on its own command
+  // (advanced mode) listens here; without it apply() has nothing to do.
+  onApply?: (conditions: Array<IFilterCondition>, searchString?: string) => void;
 }
 
 // A SurveyModel-backed editor of field conditions: one panel per field, titled by it, with an
@@ -55,6 +63,9 @@ export class FilterConditionsEditor {
     this.surveyValue = this.createSurvey();
     // Prefilled before the survey is listened to: what the editor opens with is not a change.
     this.names.forEach((name: string, index: number): void => { this.prefill(name, index); });
+    if (this.hasSearch) {
+      this.getSearchQuestion().value = this.options.searchString || "";
+    }
     this.surveyValue.onValueChanged.add((_: SurveyModel, opt: any): void => { this.onValueChanged(opt.name); });
   }
   public get survey(): SurveyModel { return this.surveyValue; }
@@ -64,11 +75,31 @@ export class FilterConditionsEditor {
   // the first edit starts from nothing. Read live: once an edit is written, it is no longer so.
   public get isRawExpression(): boolean { return this.owner.isRawExpression; }
   public get isDisposed(): boolean { return this.isDisposedValue; }
+  public get hasSearch(): boolean { return !!this.options.showSearch; }
   // The condition the editor holds for the field now, or undefined when it holds none. A multi-
   // value answer comes in the field's choice order - see normalizeValue().
   public getCondition(name: string): IFilterCondition {
     const index = this.names.indexOf(name);
     return index > -1 ? this.getConditionAt(index) : undefined;
+  }
+  // Hands everything the editor holds to onApply at once. A field with no condition (no value where
+  // the operator needs one) is left out, and the owner drops its condition. Nothing to do for a
+  // read-only or a disposed editor, or for a mode that writes every change as it is made.
+  public apply(): void {
+    const onApply = this.options.onApply;
+    if (this.isReadOnly || this.isDisposedValue || !onApply) return;
+    const conditions: Array<IFilterCondition> = [];
+    this.names.forEach((_: string, index: number): void => {
+      const condition = this.getConditionAt(index);
+      if (!!condition) conditions.push(condition);
+    });
+    onApply(conditions, this.hasSearch ? (this.getSearchQuestion().value || "") : undefined);
+  }
+  // Writes nothing and disposes the editor: a cancelled edit has nothing left to show, and an
+  // editor left alive could still be applied by mistake. apply() does not dispose - a renderer may
+  // keep the editor open after applying it - so after apply() the caller disposes it.
+  public cancel(): void {
+    this.dispose();
   }
   public dispose(): void {
     if (this.isDisposedValue) return;
@@ -77,10 +108,14 @@ export class FilterConditionsEditor {
   }
 
   private createSurvey(): SurveyModel {
+    const elements: Array<any> = this.names.map((name: string, index: number): any => this.createPanelJson(name, index));
+    if (this.hasSearch) {
+      elements.unshift({ type: "text", name: this.getSearchName(), titleLocation: "hidden", textUpdateMode: "onTyping" });
+    }
     const survey = new SurveyModel({
       showNavigationButtons: false,
       showQuestionNumbers: "off",
-      elements: this.names.map((name: string, index: number): any => this.createPanelJson(name, index))
+      elements: elements
     });
     survey.locale = this.owner.getLocale();
     if (this.isReadOnly) {
@@ -197,6 +232,9 @@ export class FilterConditionsEditor {
       this.isUpdating = false;
     }
   }
+  // Not f-prefixed like the field questions, so it never collides with one of them.
+  private getSearchName(): string { return "search"; }
+  private getSearchQuestion(): Question { return this.surveyValue.getQuestionByName(this.getSearchName()); }
   private getPanelName(index: number): string { return "f" + index; }
   private getOperatorName(index: number): string { return "f" + index + "_operator"; }
   private getValueName(index: number): string { return "f" + index + "_value"; }

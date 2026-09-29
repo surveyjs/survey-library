@@ -111,8 +111,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // collapsed to its first field, the same one getFieldByName's dotted-path lookup would reach -
   // so both modes edit the same field, never two different ones that happen to share a name.
   public getFastModeFields(): Array<IDynamicDataFilterField> {
-    const fields = this.getFilterFields().filter(
-      (field: IDynamicDataFilterField): boolean => field.showInFastMode !== false);
+    return this.collapseDuplicateValueNames(this.getFilterFields().filter(
+      (field: IDynamicDataFilterField): boolean => field.showInFastMode !== false));
+  }
+  private collapseDuplicateValueNames(fields: Array<IDynamicDataFilterField>): Array<IDynamicDataFilterField> {
     const firstByValueName = getFieldsByValueName(fields);
     return fields.filter((field: IDynamicDataFilterField): boolean => firstByValueName[field.valueName] === field);
   }
@@ -385,6 +387,75 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!field) return false;
     return this.getFastModeFields().some((f: IDynamicDataFilterField): boolean =>
       f.name === field.name && f.valueName === field.valueName);
+  }
+  // Advanced mode: every field - those fast mode hides too, a duplicate valueName still collapsed
+  // to its first field - and the search box on top when there is one. Nothing is written while it
+  // is edited; apply() writes all of it as one change, cancel() writes nothing. Read-only where
+  // conditions cannot be edited, as in fast mode. An editor is given even when
+  // isAdvancedModeAvailable is false: that flag tells a renderer whether to offer the mode, it is
+  // not a permission the model enforces. The caller owns the editor and disposes it.
+  public createAdvancedModeEditor(): FilterConditionsEditor {
+    const all = this.getFilterFields();
+    const names: Array<string> = [];
+    this.collapseDuplicateValueNames(all).forEach((field: IDynamicDataFilterField): void => {
+      const key = this.getFieldKey(all, field);
+      if (!!key) names.push(key);
+    });
+    return new FilterConditionsEditor(this, names, {
+      readOnly: !this.canEditConditions,
+      showSearch: this.showSearch,
+      searchString: this.searchString,
+      onApply: (conditions: Array<IFilterCondition>, searchString?: string): void => {
+        this.applyEditorState(conditions, searchString);
+      }
+    });
+  }
+  // The name the editor reaches the field back by through getFieldByName(): its own name, unless
+  // an earlier field holds that name (a bound nested field is named by its leaf, and two leaves can
+  // match), then its valueName, which is unique once duplicates are collapsed. Undefined when
+  // neither leads back to it.
+  private getFieldKey(fields: Array<IDynamicDataFilterField>, field: IDynamicDataFilterField): string {
+    const isSame = (f: IDynamicDataFilterField): boolean => !!f && f.name === field.name && f.valueName === field.valueName;
+    if (isSame(this.findFieldInList(fields, field.name))) return field.name;
+    if (isSame(this.findFieldInList(fields, field.valueName))) return field.valueName;
+    return undefined;
+  }
+  // Advanced mode's apply(): the editor's conditions replace the own ones and its search text
+  // replaces searchString, as one change - one write into the source, one onFilterChanged and one
+  // onUIStateChanged, none of them when nothing changed. Not over conditions that cannot be edited:
+  // the editor is read-only there and never calls this, but the rule belongs to the control.
+  private applyEditorState(conditions: Array<IFilterCondition>, searchString?: string): void {
+    if (!this.canEditConditions) return;
+    this.runBatch((): void => {
+      this.replaceConditions(conditions);
+      if (searchString !== undefined) {
+        this.searchString = searchString;
+      }
+    }, true);
+  }
+  // A condition the filter holds now keeps its place and a new one goes to the end, as with
+  // setFieldCondition(); one the editor no longer holds is dropped. Conditions that are, as a set,
+  // what applies now are no edit - over an untouched preset that keeps ownConditions undefined, so
+  // the preset is still "not modified" and its own text still applies verbatim. Over a preset that
+  // does not decompose nothing applies as conditions, so applying is always a first edit there and
+  // replaces the preset's text by what the editor holds.
+  private replaceConditions(conditions: Array<IFilterCondition>): void {
+    const old = this.ownConditions;
+    const preset = old === undefined ? this.parseActiveItemConditions() : null;
+    const current = old !== undefined ? old : (preset || []);
+    const byField: HashTable<IFilterCondition> = {};
+    conditions.forEach((c: IFilterCondition): void => { byField[c.field] = this.copyCondition(c); });
+    const res: Array<IFilterCondition> = [];
+    const take = (valueName: string): void => {
+      if (!Object.prototype.hasOwnProperty.call(byField, valueName)) return;
+      res.push(byField[valueName]);
+      delete byField[valueName];
+    };
+    current.forEach((c: IFilterCondition): void => { take(c.field); });
+    conditions.forEach((c: IFilterCondition): void => { take(c.field); });
+    const isRawPreset = old === undefined && !!this.activeItem && preset === null;
+    if (!isRawPreset && this.isSameConditionSet(res, current)) return;
+    this.editConditions((): Array<IFilterCondition> => res);
   }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);

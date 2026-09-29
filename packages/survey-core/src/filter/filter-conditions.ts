@@ -160,13 +160,18 @@ export function getFieldsByValueName(fields: Array<IDynamicDataFilterField>): { 
   return res;
 }
 
-// Whether val reads as a JSON number literal, the same rule ConditionEditorItem.valToText applies
-// when it decides not to quote a value: a leading zero (except "0x...") keeps a string a string,
-// so a stored code like "007" is not turned into the number 7.
-function isNumericLiteral(val: any): boolean {
-  if (typeof val !== "string") return false;
-  if (val.length > 1 && val[0] === "0" && val[1] !== "x") return false;
-  return val !== "" && !isNaN(<any>val);
+// Whether val is a string that reads as a real number: Number(), not parseFloat() - parseFloat
+// stops at the first character it cannot read and turns "0x1A" into 0 rather than 26, and a
+// blank/whitespace-only string into NaN rather than "not a number". Number("") and Number("  ")
+// are both 0, which is exactly the false positive a blank value must not become, so blankness is
+// rejected before Number() ever runs. Number("0x1A") is 26 - a deliberate choice to read a hex
+// literal correctly rather than to reproduce ConditionEditorItem.valToText's text-authoring rule
+// (which keeps a leading zero a string so a code like "007" is not misread as 7): a value editor's
+// input is not that text-authoring context, and Number is otherwise the more correct reader here.
+function coerceToNumber(val: any): number {
+  if (typeof val !== "string" || val.trim() === "") return undefined;
+  const num = Number(val);
+  return isFinite(num) ? num : undefined;
 }
 // A condition's value is authored as whatever the value editor produced - a text question for a
 // typeless field always answers a string - so it is coerced to the field's real type here, once,
@@ -176,7 +181,10 @@ function isNumericLiteral(val: any): boolean {
 // happens to be "number" benefits from it too, not just a typeless one.
 function coerceConditionValue(valueType: QuestionValueType, value: any): any {
   if (Array.isArray(value)) return value.map((v: any): any => coerceConditionValue(valueType, v));
-  if (valueType === "number" && isNumericLiteral(value)) return parseFloat(value);
+  if (valueType === "number") {
+    const num = coerceToNumber(value);
+    if (num !== undefined) return num;
+  }
   if (valueType === "boolean" && (value === "true" || value === "false")) return value === "true";
   return value;
 }
@@ -262,7 +270,12 @@ export function parseFilterExpression(text: string, fields: Array<IDynamicDataFi
     const field = fieldsByValueName[valueName];
     if (!field) return null;
     if (getFilterFieldOperators(field).indexOf(item.operator) === -1) return null;
-    res.push({ field: valueName, operator: item.operator, value: item.value });
+    // item.value is read straight off the cached, module-wide parse (buildFilterExpressionItems):
+    // an array value must be copied out, or a caller that mutates its own condition's value (T7/T8
+    // keep parse results as their own conditions) would corrupt every later parse of this same text,
+    // in every control that happens to share it.
+    const value = Array.isArray(item.value) ? item.value.slice() : item.value;
+    res.push({ field: valueName, operator: item.operator, value });
   }
   return res;
 }

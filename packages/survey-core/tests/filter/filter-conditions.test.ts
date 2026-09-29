@@ -170,6 +170,16 @@ describe("conditionsToExpression", () => {
   test("a numeric string is coerced to a number for a number field", () => {
     expect(conditionsToExpression([{ field: "age", operator: "equal", value: "18" }], fields)).toBe("{age} = 18");
   });
+  test("a blank string on a number field is not coerced to NaN", () => {
+    // Number("  ") is 0, and the old parseFloat-based check turned it into NaN either way - both
+    // would be wrong: a blank value is not a number at all, so it is left as the string it was.
+    expect(conditionsToExpression([{ field: "age", operator: "equal", value: "  " }], fields)).toBe("{age} = '  '");
+  });
+  test("a hex string on a number field is read as a real number, not truncated", () => {
+    // parseFloat("0x1A") reads only up to the "x" and gives 0; Number("0x1A") reads the whole
+    // literal and gives 26, which is what the coercion now uses.
+    expect(conditionsToExpression([{ field: "age", operator: "equal", value: "0x1A" }], fields)).toBe("{age} = 26");
+  });
   test("\"true\"/\"false\" are coerced to booleans for a boolean field", () => {
     expect(conditionsToExpression([{ field: "active", operator: "equal", value: "true" }], fields))
       .toBe("{active} = true");
@@ -245,6 +255,18 @@ describe("parseFilterExpression", () => {
     expect(parseFilterExpression(text, fewerFields), "#2: name is unknown now, same cached text").toBeNull();
     expect(parseFilterExpression(text, fields), "#3: back to the full field set").toEqual([
       { field: "age", operator: "equal", value: 1 }, { field: "name", operator: "equal", value: "x" }]);
+  });
+  test("an array value is copied out of the cache, not shared with it", () => {
+    const dropdownField = new FilterField("choice");
+    dropdownField.fieldType = "dropdown";
+    const dropdownFields = [dropdownField.getFilterField()];
+    const text = "{choice} anyof ['a', 'b']";
+    const first = parseFilterExpression(text, dropdownFields);
+    first[0].value.push("x");
+    // The same text is parsed again: if the first result's array were the cached parse's own
+    // array, the mutation above would leak into this second, unrelated call.
+    const second = parseFilterExpression(text, dropdownFields);
+    expect(second[0].value).toEqual(["a", "b"]);
   });
   test("a condition is keyed by valueName, not by the field's name", () => {
     const boundField: IDynamicDataFilterField = { name: "city", valueName: "mt.city", locTitle: undefined,

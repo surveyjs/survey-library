@@ -33,6 +33,7 @@ import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase"
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
@@ -379,26 +380,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // The edited set of layer 2 names records by index: it follows the list's own inserts and removes.
   private followRecordChange(change: IDynamicDataListChange): void {
     const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
-    const shift = (func: (index: number) => number): void => {
-      (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
-        const dynamicRow = <MatrixDynamicRowModel>row;
-        if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = func(dynamicRow.builtRecordIndex);
-      });
-    };
     if (change.type === "recordChanged") {
       if (!!validation) validation.markEdited(change.index);
-    } else if (change.type === "recordAdded") {
-      shift((i: number): number => i >= change.index ? i + 1 : i);
-      if (!!validation) validation.onRecordAdded(change.index);
-    } else if (change.type === "recordRemoved") {
-      shift((i: number): number => i === change.index ? -1 : (i > change.index ? i - 1 : i));
-      if (!!validation) validation.onRecordRemoved(change.index);
-    } else if (change.type === "recordMoved") {
-      const from = change.from;
-      const to = change.to;
-      shift((i: number): number => i === from ? to : (from < i && i <= to ? i - 1 : (to <= i && i < from ? i + 1 : i)));
-      if (!!validation) validation.onRecordMoved(from, to);
+      return;
     }
+    const remap = getRecordRemap(change);
+    if (!remap) return;
+    // A row whose record was removed keeps -1: it is being disposed.
+    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
+      const dynamicRow = <MatrixDynamicRowModel>row;
+      if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
+    });
+    if (!!validation) validation.onRecordRemap(remap);
   }
   /* A remote window is a view of its own: the rows are built for the records the list holds, not for
      0 ... rowCount-1, because rowCount is the server total. A matrix that pages builds its rows for

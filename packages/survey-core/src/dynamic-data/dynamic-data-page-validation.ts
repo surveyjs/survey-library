@@ -249,28 +249,16 @@ export class DynamicDataPageValidation {
       return to === undefined ? -1 : to;
     });
   }
-  // The same bookkeeping the frozen membership of the list does: a record index names a record only
-  // as long as nothing is inserted or removed in front of it.
-  public onRecordAdded(index: number): void {
-    this.edited = this.edited.map((i: number): number => i >= index ? i + 1 : i);
-    this.nested = this.remapNested((i: number): number => i >= index ? i + 1 : i);
-  }
-  public onRecordRemoved(index: number): void {
+  /* The list inserted, removed or moved one of its own records (getRecordRemap): the same bookkeeping
+     its frozen membership does. The removed record leaves the set; only a move can break the order,
+     the sort is harmless for the other two. */
+  public onRecordRemap(remap: (index: number) => number): void {
     const res: Array<number> = [];
     this.edited.forEach((i: number): void => {
-      if (i !== index) res.push(i > index ? i - 1 : i);
+      const to = remap(i);
+      if (to > -1) res.push(to);
     });
-    this.edited = res;
-    this.nested = this.remapNested((i: number): number => i === index ? -1 : (i > index ? i - 1 : i));
-  }
-  public onRecordMoved(from: number, to: number): void {
-    const remap = (i: number): number => {
-      if (i === from) return to;
-      if (from < i && i <= to) return i - 1;
-      if (to <= i && i < from) return i + 1;
-      return i;
-    };
-    this.edited = this.edited.map(remap).sort((a: number, b: number): number => a - b);
+    this.edited = res.sort((a: number, b: number): number => a - b);
     this.nested = this.remapNested(remap);
   }
   private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } {

@@ -39,6 +39,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -659,28 +660,20 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      record only until something is inserted or removed in front of it. */
   private followRecordChange(change: IDynamicDataListChange): void {
     const validation = this.isPagedByList ? this.pageValidation : this.pageValidationValue;
-    const shift = (func: (index: number) => number): void => {
-      this.panelsCore.forEach((panel: PanelModel): void => {
-        const item = <QuestionPanelDynamicItem>panel.data;
-        if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
-          item.builtRecordIndex = func(item.builtRecordIndex);
-        }
-      });
-    };
     if (change.type === "recordChanged") {
       if (!!validation) validation.markEdited(change.index);
-    } else if (change.type === "recordAdded") {
-      shift((i: number): number => i >= change.index ? i + 1 : i);
-      if (!!validation) validation.onRecordAdded(change.index);
-    } else if (change.type === "recordRemoved") {
-      shift((i: number): number => i === change.index ? -1 : (i > change.index ? i - 1 : i));
-      if (!!validation) validation.onRecordRemoved(change.index);
-    } else if (change.type === "recordMoved") {
-      const from = change.from;
-      const to = change.to;
-      shift((i: number): number => i === from ? to : (from < i && i <= to ? i - 1 : (to <= i && i < from ? i + 1 : i)));
-      if (!!validation) validation.onRecordMoved(from, to);
+      return;
     }
+    const remap = getRecordRemap(change);
+    if (!remap) return;
+    // A panel whose record was removed keeps -1: it is being disposed.
+    this.panelsCore.forEach((panel: PanelModel): void => {
+      const item = <QuestionPanelDynamicItem>panel.data;
+      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
+        item.builtRecordIndex = remap(item.builtRecordIndex);
+      }
+    });
+    if (!!validation) validation.onRecordRemap(remap);
   }
   /* A remote window is a view of its own: the panels are built for the records the list holds, not
      for 0 ... panelCount-1, because panelCount is the server total. A question that pages builds its

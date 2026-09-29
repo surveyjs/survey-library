@@ -6,6 +6,7 @@ import {
   IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
+import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
 
 // Index vocabulary - binding for every method and parameter name in this file:
 //
@@ -945,7 +946,7 @@ export class DynamicDataList {
   }
   private insertIntoMembership(at: number, createdPosition: number, newRecordCount: number): void {
     if (!this.frozenCreatedIndexes) return;
-    const created = this.frozenCreatedIndexes.map((index: number): number => index >= at ? index + 1 : index);
+    const created = this.frozenCreatedIndexes.map(insertRemap(at));
     let position = createdPosition;
     if (position === undefined) {
       // The record that was pushed aside keeps its place; the new object takes the position in
@@ -959,12 +960,7 @@ export class DynamicDataList {
   }
   private removeFromMembership(index: number, newRecordCount: number): void {
     if (!this.frozenCreatedIndexes) return;
-    const created: Array<number> = [];
-    this.frozenCreatedIndexes.forEach((i: number): void => {
-      if (i === index) return;
-      created.push(i > index ? i - 1 : i);
-    });
-    this.frozenCreatedIndexes = created;
+    this.frozenCreatedIndexes = this.frozenCreatedIndexes.map(removeRemap(index)).filter((i: number): boolean => i > -1);
     this.frozenRecordCount = newRecordCount;
   }
   private moveInMembership(fromIndex: number, toIndex: number): void {
@@ -972,12 +968,7 @@ export class DynamicDataList {
     const fromPosition = this.frozenCreatedIndexes.indexOf(fromIndex);
     const toPosition = this.frozenCreatedIndexes.indexOf(toIndex);
     // The records renumber; the objects keep their own order except for the one that moved.
-    const created = this.frozenCreatedIndexes.map((index: number): number => {
-      if (index === fromIndex) return toIndex;
-      if (fromIndex < index && index <= toIndex) return index - 1;
-      if (toIndex <= index && index < fromIndex) return index + 1;
-      return index;
-    });
+    const created = this.frozenCreatedIndexes.map(moveRemap(fromIndex, toIndex));
     if (fromPosition > -1 && toPosition > -1) {
       const moved = created[fromPosition];
       created.splice(fromPosition, 1);

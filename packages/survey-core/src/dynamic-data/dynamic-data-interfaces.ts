@@ -46,11 +46,12 @@
 // That is what the in-memory sources use, and it is exact for a source only this list writes to.
 // sourceIndex, where it is passed on its own, is always that position.
 //
-// Limitation of a keyed source: until the list knows the key of a new record it cannot address it.
-// Return the stored record from insert so that the key arrives as early as possible; an edit made
-// before that answer lands is still not delivered - it stays in the window, onDynamicDataError
-// reports it, and either a later edit of the same record carries it (an update sends the whole
-// record) or the next read reconciles.
+// A keyed source and a new record: the list addresses a record by the key the source assigned, so
+// return the stored record from insert. The edits, removes and moves made to the new record before
+// that answer lands are queued behind the insert and sent, in order, with the key once it arrives;
+// an update sent then carries the fields the source filled in as well. What is still lost is a write
+// to a record whose insert failed or answered without the key: it stays in the window,
+// onDynamicDataError reports it for its own operation, and the next read reconciles.
 //
 // keyField has nothing to do with question.keyName (the uniqueness validator of the matrix and the
 // dynamic panel): one names a record for the source, the other forbids duplicate answers.
@@ -118,8 +119,11 @@ export interface IDynamicDataSource {
   // Present -> edits are pushed to the source (write-through); absent -> the source is read-only
   // for that operation and the edit stays in the loaded window.
   // The position is where the record goes; the source assigns the key. Return the stored record (or
-  // a promise of it) so that the list learns the key: until it does, writes made to the new record
-  // cannot be delivered.
+  // a promise of it) so that the list learns the key: the writes made to the new record meanwhile
+  // wait for it, and without it they cannot be delivered. The record never carries the key field -
+  // the list takes out a key copied from another record or put on a default value - and the key of
+  // the answer is the one the list keeps. A source that wants client-generated keys generates them
+  // here, where it sees the record.
   insert?(record: any, sourceIndex: number): any | Promise<any>;
   update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(key: any): void | Promise<void>;

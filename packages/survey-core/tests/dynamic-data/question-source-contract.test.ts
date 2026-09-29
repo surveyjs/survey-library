@@ -36,6 +36,8 @@ class ContractSource implements IDynamicDataSource {
   /* true -> insert answers with a promise the test settles through releaseInserts(): a keyed insert
      whose key is not known yet (step 19 adds its scenarios to this file). */
   public holdInserts: boolean = false;
+  // A copy of every record insert received, before the key is assigned (step 19).
+  public insertPayloads: Array<any> = [];
   private heldInserts: Array<() => void> = [];
   private nextKey: number = 1000;
   constructor(public records: Array<any>, private options: IContractSourceOptions) {
@@ -61,6 +63,7 @@ class ContractSource implements IDynamicDataSource {
   }
   public insert(record: any, sourceIndex: number): any {
     this.ops.push("insert@" + sourceIndex);
+    this.insertPayloads.push(copy(record));
     const stored = copy(record);
     if (!!this.keyField) stored[this.keyField] = this.nextKey++;
     const run = (): any => {
@@ -539,5 +542,95 @@ describe.each(namedAdapters)("Question source contract, read(): a read that comm
     question.dataSource = new ContractSource(namedRecords(6), { kind: "read" });
     expect(adapter.ids(question), "#1: the page index is kept, the records are the new source's").toEqual([102, 103]);
     expect(survey.tryComplete(), "#2: record 0 of the new source was never edited").toBe(true);
+  });
+});
+
+/* Step 19: a new record's identity. The source assigns the key: a key the new record carries - copied
+   from the last entry, or put on a default value - never reaches insert, never survives the answer,
+   and never addresses a write while the insert is in flight. Records 100, 101 ("n1") and 102 ("n2"),
+   one page; the new item is at position 3. */
+describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_name: string, adapter: IQuestionAdapter) => {
+  function create(json?: any): { survey: SurveyModel, question: any, source: ContractSource, errors: Array<string> } {
+    const source = new ContractSource(contractRecords(3), { kind: "readRange", keyed: true });
+    const { survey, question } = adapter.create(source, 5, json);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation + ":" + options.error.message); });
+    return { survey: survey, question: question, source: source, errors: errors };
+  }
+  const noKeyYet = (operation: string): string => operation + ":DynamicDataList: the record has no key yet";
+  test("copyDefaultValueFromLastEntry does not copy the key", () => {
+    const { question, source } = create({ copyDefaultValueFromLastEntry: true });
+    adapter.add(question);
+    expect(source.insertPayloads.length, "#1").toBe(1);
+    expect("id" in source.insertPayloads[0], "#2: the payload has no key").toBe(false);
+    expect(source.insertPayloads[0].name, "#3: the rest is copied").toBe("n2");
+    expect(source.records[3].id, "#4: the stored record has the assigned key").toBe(1000);
+    expect(question.getDataList().getRecord(3).id, "#5: and so has the window").toBe(1000);
+    adapter.edit(question, 3, "name", "edited");
+    expect(source.ops, "#6: the edit addresses the new record").toEqual(["insert@3", "update@1000"]);
+    expect(source.records[2], "#7: the record whose key was copied is unchanged").toEqual({ id: 102, name: "n2" });
+    expect(source.records[3].name, "#8").toBe("edited");
+  });
+  test("an edit before the answer does not address the copied record", async () => {
+    const { question, source, errors } = create({ copyDefaultValueFromLastEntry: true });
+    source.holdInserts = true;
+    adapter.add(question);
+    adapter.edit(question, 3, "name", "typed");
+    source.releaseInserts();
+    await flush();
+    expect(source.ops.indexOf("update@102"), "#1: never the copied key").toBe(-1);
+    expect(source.ops, "#2: the edit waited for the key").toEqual(["insert@3", "update@1000"]);
+    expect(errors, "#3").toEqual([]);
+    expect(source.records[2], "#4").toEqual({ id: 102, name: "n2" });
+    expect(source.records[3], "#5: the typed value under the assigned key").toEqual({ id: 1000, name: "typed" });
+  });
+  test("a key in the default value does not reach insert", () => {
+    const json = adapter.name === "matrix"
+      ? { defaultRowValue: { id: 5, name: "x" } } : { defaultPanelValue: { id: 5, name: "x" } };
+    const { question, source } = create(json);
+    adapter.add(question);
+    expect("id" in source.insertPayloads[0], "#1").toBe(false);
+    expect(source.records[3], "#2: the assigned key, not 5").toEqual({ id: 1000, name: "x" });
+  });
+  test("a field cleared before the insert answers stays cleared", async () => {
+    const { question, source } = create({ copyDefaultValueFromLastEntry: true });
+    source.holdInserts = true;
+    adapter.add(question);
+    expect(question.getDataList().getRecord(3).name, "#1: copied").toBe("n2");
+    adapter.edit(question, 3, "name", "");
+    source.releaseInserts();
+    await flush();
+    const record = question.getDataList().getRecord(3);
+    expect(record.id, "#2: the key landed").toBe(1000);
+    expect("name" in record, "#3: the cleared field did not come back").toBe(false);
+    expect("name" in source.records[3], "#4: nor in the record the queued update stored").toBe(false);
+  });
+  test("a key written into a pending item is not used as its key", async () => {
+    const { question, source, errors } = create();
+    source.holdInserts = true;
+    adapter.add(question);
+    adapter.edit(question, 3, "id", 101);
+    adapter.edit(question, 3, "name", "typed");
+    adapter.remove(question, 3);
+    source.releaseInserts();
+    await flush();
+    expect(source.ops.filter(op => op.indexOf("@101") > -1), "#1: nothing addressed the injected key").toEqual([]);
+    expect(source.records[1], "#2: the record that owns it is unchanged").toEqual({ id: 101, name: "n1" });
+    expect(errors, "#3").toEqual([]);
+    expect(source.ops, "#4: every write waited for the assigned key")
+      .toEqual(["insert@3", "update@1000", "update@1000", "remove@1000"]);
+    expect(source.ids, "#5: the new record is gone").toEqual([100, 101, 102]);
+  });
+  test("two edits before the answer are both sent, in order", async () => {
+    const { question, source, errors } = create();
+    source.holdInserts = true;
+    adapter.add(question);
+    adapter.edit(question, 3, "name", "a");
+    adapter.edit(question, 3, "name", "b");
+    source.releaseInserts();
+    await flush();
+    expect(source.ops, "#1").toEqual(["insert@3", "update@1000", "update@1000"]);
+    expect(source.records[3], "#2").toEqual({ id: 1000, name: "b" });
+    expect(errors, "#3").toEqual([]);
   });
 });

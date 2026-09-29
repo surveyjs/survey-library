@@ -82,6 +82,8 @@ class FakeServerSource implements IDynamicDataSource {
   // false -> insert answers with nothing, which is what a source that ignores the return contract
   // does: the list then never learns the key of the new record.
   public insertAnswersRecord: boolean = true;
+  // Fields the server fills in on insert where the payload does not carry them (step 19).
+  public insertDefaults: any = undefined;
   private nextKey: number = 1000;
   public insert?: (record: any, sourceIndex: number) => Promise<any>;
   public update?: (key: any, record: any, changedFields: Array<string>) => Promise<void>;
@@ -113,7 +115,7 @@ class FakeServerSource implements IDynamicDataSource {
       // assigned back to the list.
       this.insert = (record: any, sourceIndex: number): Promise<any> =>
         this.call("insert", [this.copy(record), sourceIndex], (): any => {
-          const stored = this.copy(record);
+          const stored = Object.assign({}, this.insertDefaults, record);
           if (!!this.keyField) {
             stored[this.keyField] = this.nextKey++;
           }
@@ -1689,19 +1691,22 @@ describe("Remote data source: a record without a key", () => {
     source.reset();
     question.addRow();
     question.visibleRows[3].getQuestionByName("col1").value = "typed";
-    expect(source.callsOf("update").length, "#1: undeliverable, so it was not pushed").toBe(0);
-    expect(errors, "#2: and it says why").toEqual([
-      { operation: "update", message: "DynamicDataList: the record has no key yet" }
-    ]);
-    expect(question.value[3].col1, "#3: the respondent still sees it").toBe("typed");
+    expect(source.callsOf("update").length, "#1: no update before the answer").toBe(0);
+    expect(question.value[3].col1, "#2: the respondent sees it").toBe("typed");
+    source.auto = true;
     source.settleAll();
     await flush();
+    expect(source.argsOf("update").length, "#3: queued behind the insert, sent once").toBe(1);
+    expect(source.argsOf("update")[0][0], "#3a: with the assigned key").toBe(1000);
+    expect(source.argsOf("update")[0][1].col1, "#3b").toBe("typed");
+    expect(errors, "#3c: no error").toEqual([]);
+    expect(recordWithKey(source, 1000).col1, "#3d: the server has it").toBe("typed");
     expect(question.value[3], "#4: the key landed, the client value won")
       .toEqual({ id: 1000, col1: "typed" });
     question.visibleRows[3].getQuestionByName("col2").value = 42;
     await flush();
-    expect(source.argsOf("update")[0][0], "#5: an edit made now is delivered").toBe(1000);
-    expect(errors.length, "#6: no second error").toBe(1);
+    expect(source.argsOf("update")[1][0], "#5: an edit made now is delivered").toBe(1000);
+    expect(errors.length, "#6: no error").toBe(0);
   });
   test("an insert that answers with nothing leaves the record keyless", async () => {
     const source = keyedSource(3);
@@ -1732,7 +1737,7 @@ describe("Remote data source: a record without a key", () => {
     expect(rowValues(question), "#1: the server value, not the undelivered edit")
       .toEqual(["v100", "v101", "v102", undefined]);
   });
-  test("a remove of a record that has no key yet is reported and kept local", async () => {
+  test("a remove before the insert answers is sent after it", async () => {
     const source = keyedSource(3);
     const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
     const errors: Array<any> = [];
@@ -1743,8 +1748,145 @@ describe("Remote data source: a record without a key", () => {
     source.reset();
     question.addRow();
     question.removeRow(3);
-    expect(source.callsOf("remove").length, "#1").toBe(0);
-    expect(errors, "#2").toEqual(["remove:DynamicDataList: the record has no key yet"]);
-    expect(question.rowCount, "#3: the row is gone locally").toBe(3);
+    expect(source.callsOf("remove").length, "#1: not before the answer").toBe(0);
+    expect(question.rowCount, "#2: the row is gone locally").toBe(3);
+    source.auto = true;
+    source.settleAll();
+    await flush();
+    expect(source.argsOf("remove"), "#3: sent with the assigned key").toEqual([[1000]]);
+    expect(errors, "#4: no error").toEqual([]);
+    expect(recordWithKey(source, 1000), "#5: the server no longer has the record").toBe(undefined);
+    expect(source.records.length, "#6").toBe(3);
+  });
+  /* Step 19, part B: a write made before the insert answers waits for the key behind it. Drained as
+     the prompt says: auto from now on, settle the held insert, and let the chain run the rest. */
+  async function drain(source: FakeServerSource): Promise<void> {
+    source.auto = true;
+    source.settleAll();
+    await flush();
+  }
+  test("a move before the insert answers is sent after it", async () => {
+    const source = keyedSource(3);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+    source.auto = false;
+    source.reset();
+    question.addRow();
+    question.moveRowByIndex(3, 0);
+    expect(source.callsOf("move").length, "#1: not before the answer").toBe(0);
+    await drain(source);
+    expect(source.argsOf("move"), "#2: the assigned key and the target").toEqual([[1000, 0]]);
+    expect(source.records.map((r: any): any => r.id), "#3: the server order matches the window")
+      .toEqual(question.value.map((r: any): any => r.id));
+    expect(question.value.map((r: any): any => r.id), "#4").toEqual([1000, 100, 101, 102]);
+    expect(errors, "#5").toEqual([]);
+  });
+  ["matrix", "panel"].forEach((type: string): void => {
+    test(type + ": a queued update carries the server-filled fields", async () => {
+      const source = keyedSource(3);
+      source.insertDefaults = { createdBy: "server" };
+      source.auto = false;
+      if (type === "matrix") {
+        const { question } = await createMatrix(source, { rowsPerPage: 0 });
+        source.settleAll();
+        await flush();
+        source.reset();
+        question.addRow();
+        question.visibleRows[3].getQuestionByName("col1").value = "typed";
+      } else {
+        const { question } = await createPanel(source, { panelsPerPage: 0 });
+        source.settleAll();
+        await flush();
+        source.reset();
+        question.addPanel();
+        question.panels[3].getQuestionByName("col1").value = "typed";
+      }
+      await drain(source);
+      const updates = source.argsOf("update");
+      expect(updates.length, "#1").toBe(1);
+      expect(updates[0][0], "#2: the assigned key").toBe(1000);
+      expect(updates[0][1], "#3: the answer's fields, the client's, and the key")
+        .toEqual({ id: 1000, createdBy: "server", col1: "typed" });
+      expect(recordWithKey(source, 1000).createdBy, "#4: not blanked by the whole-record update").toBe("server");
+    });
+  });
+  test("a later queued update that fails leaves the server-filled field of the earlier one in place", async () => {
+    const source = keyedSource(3);
+    source.insertDefaults = { col2: 7 };
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+    source.auto = false;
+    source.reset();
+    question.addRow();
+    question.visibleRows[3].getQuestionByName("col1").value = "typed";
+    question.visibleRows[3].getQuestionByName("col2").value = 42;
+    // One link of the chain at a time: the insert, the first update, then the second one fails.
+    source.settleAll();
+    await flush();
+    expect(source.argsOf("update")[0][1], "#1: the first update owns col1 only")
+      .toEqual({ id: 1000, col1: "typed", col2: 7 });
+    source.settleAll();
+    await flush();
+    source.pending[0].fail(new Error("boom"));
+    await flush();
+    expect(errors, "#2").toEqual(["update"]);
+    expect(recordWithKey(source, 1000), "#3: the server default survived the failed update")
+      .toEqual({ id: 1000, col1: "typed", col2: 7 });
+  });
+  test("the writes behind a rejected insert are reported one by one", async () => {
+    const source = keyedSource(3);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation + ":" + options.error.message); });
+    source.auto = false;
+    source.reset();
+    question.addRow();
+    question.visibleRows[3].getQuestionByName("col1").value = "typed";
+    expect(question.value[3].col1, "#1: the local value stays").toBe("typed");
+    question.removeRow(3);
+    expect(source.pending.map((call: any): string => call.op), "#2: only the insert was called").toEqual(["insert"]);
+    source.pending[0].fail(new Error("boom"));
+    await flush();
+    expect(errors, "#3: the insert's own error, then each write that could not be delivered").toEqual([
+      "insert:boom",
+      "update:DynamicDataList: the record has no key yet",
+      "remove:DynamicDataList: the record has no key yet"
+    ]);
+    expect(source.callsOf("update").length, "#4").toBe(0);
+    expect(source.callsOf("remove").length, "#5").toBe(0);
+    expect(question.rowCount, "#6: removed locally").toBe(3);
+  });
+  const swapTargets: Array<[string, () => FakeServerSource]> = [
+    ["a keyed source", () => keyedSource(3)],
+    ["a source keyed by another field", () => new FakeServerSource(serverRecords(3, 200).map((r: any): any => Object.assign({ uuid: "u" + r.id }, r)), undefined, "uuid")],
+    ["a positional source", () => new FakeServerSource(serverRecords(3, 300))]
+  ];
+  swapTargets.forEach(([name, createTarget]: [string, () => FakeServerSource]): void => {
+    test("a source swap while the insert is pending delivers the queued write to the old source: " + name, async () => {
+      const source = keyedSource(3);
+      const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+      const errors: Array<string> = [];
+      survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+      source.auto = false;
+      source.reset();
+      question.addRow();
+      question.visibleRows[3].getQuestionByName("col1").value = "typed";
+      const target = createTarget();
+      question.dataSource = target;
+      await flush();
+      const window = question.value.map((r: any): any => Object.assign({}, r));
+      await drain(source);
+      expect(source.argsOf("update").map((args: Array<any>): Array<any> => [args[0], args[1]]), "#1: the old source, the assigned key")
+        .toEqual([[1000, { id: 1000, col1: "typed" }]]);
+      expect(recordWithKey(source, 1000).col1, "#2").toBe("typed");
+      ["insert", "update", "remove", "move"].forEach((op: string): void => {
+        expect(target.callsOf(op).length, "#3: no " + op + " reached the new source").toBe(0);
+      });
+      expect(question.value, "#4: the answer did not touch the new window").toEqual(window);
+      expect(question.value.length, "#5: the new source's records").toBe(3);
+      expect(errors, "#6").toEqual([]);
+    });
   });
 });

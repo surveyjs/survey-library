@@ -28,14 +28,35 @@ function isPromiseLike(value: any): boolean {
   // Never instanceof Promise: a source may return any thenable.
   return !!value && typeof value.then === "function";
 }
+/* Keyed source only: an insert that has not answered yet. record is the window object of the new
+   record - what the answer is matched by, re-pointed by every write (see replaceRecord). clientFields
+   are the fields the client owns: the ones the insert sent and every one a write changed since,
+   deleted fields included. The answer's other fields are the ones the server filled in.
+   The entry is also the record's identity until the key is known: a write made to the record while
+   the insert is in flight is queued with the entry and reads key when it runs, which the chain
+   orders after the insert has settled (applyInsertAnswer). keyField is the field of the source the
+   insert was sent to - the list's own getter follows whatever source it holds by then. */
+interface IPendingInsert {
+  record: any;
+  clientFields: Array<string>;
+  keyField: string;
+  key: any;
+  answer: any;
+  isSettled: boolean;
+}
 /* What a write tells pushToSource about the record it addresses, beyond the call itself: the key it
    was enqueued with, the position an update was made at (which is what the range check of a read in
-   flight compares for a source without a key), and for an insert the window object of the new
-   record, which its answer is matched by. */
+   flight compares for a source without a key), for an insert the window object of the new record,
+   which its answer is matched by, and for a write to a record whose insert is in flight the pending
+   entry that stands for its key. */
 interface IDynamicDataPushInfo {
   sourceIndex?: number;
   key?: any;
   insertedRecord?: any;
+  pendingInsert?: IPendingInsert;
+}
+function createNoKeyError(): Error {
+  return new Error("DynamicDataList: the record has no key yet");
 }
 function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
   const res: Array<string> = [];
@@ -85,7 +106,7 @@ export class DynamicDataList {
      the new record. The object is what the answer is matched by - a key the record does not have yet
      cannot be - and every write replaces that object, so replaceRecord re-points the entry instead
      of the entry holding the object add created, which one keystroke would already have discarded. */
-  private pendingInserts: Array<{ record: any }> = [];
+  private pendingInserts: Array<IPendingInsert> = [];
   /* The asynchronous read in flight: the range it asked for, and whether a write enqueued since it
      was issued made its answer stale (see startRead). */
   private inFlightRead: {
@@ -344,13 +365,15 @@ export class DynamicDataList {
     // The key of the record that is being replaced, resolved before the replacement: that record is
     // the one the respondent edited, and the copy made on write is not in the window yet.
     const key = this.getRecordKey(index);
+    const pending = this.findPendingInsert(index);
     this.writeDepth++;
     this.replaceRecord(index, newRecord);
+    const ownedFields = this.getOwnedFields(pending);
     // The push comes before the notification: with a read-through source the push IS the local write,
     // so the owner must not be notified of a change it cannot read yet.
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(key, newRecord, [field]),
-      { sourceIndex: sourceIndex, key: key });
+      (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, newRecord, ownedFields), [field]),
+      { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
@@ -366,20 +389,24 @@ export class DynamicDataList {
     const sourceIndex = this._windowOffset + index;
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
+    const pending = this.findPendingInsert(index);
     this.writeDepth++;
     this.replaceRecord(index, record);
+    const ownedFields = this.getOwnedFields(pending);
     this.pushToSource("update",
-      (source: IDynamicDataSource): any => source.update(key, record, changedFields),
-      { sourceIndex: sourceIndex, key: key });
+      (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, record, ownedFields), changedFields),
+      { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
   /* createdPosition (internal) is the position the new object takes among the created ones. It is
      omitted for an ordinary add: the record pushed aside keeps its place and the new one takes the
-     position in front of it, which for an append is the end. */
+     position in front of it, which for an append is the end.
+     The source assigns the key: with a keyField, a key the record carries - copied from the last
+     entry, or put on a default value - is taken out before anything else sees the record. */
   public add(record?: any, index?: number, createdPosition?: number): number {
-    const newRecord = record === undefined ? {} : record;
+    const newRecord = this.removeKeyField(record === undefined ? {} : record);
     // The count the write produces. It is taken before the write: with a read-through source the
     // records only change when the push assigns the owner storage, and the membership has to carry
     // the count it will have then, not the one it still has.
@@ -420,6 +447,7 @@ export class DynamicDataList {
     /* Before the splice: afterwards this slot holds the record that moved up into it, and the last
        record of the window has no slot at all. */
     const key = this.getRecordKey(index);
+    const pending = this.findPendingInsert(index);
     const countAfter = this.recordCount - 1;
     this.alignHiddenFlags();
     this.writeDepth++;
@@ -430,7 +458,8 @@ export class DynamicDataList {
     this.updateHasMoreFromTotal(countAfter);
     this.removeFromMembership(index, countAfter);
     this.resetViews();
-    this.pushToSource("remove", (source: IDynamicDataSource): any => source.remove(key), { key: key });
+    this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
+      { key: key, pendingInsert: pending });
     this.endWrite();
     this.raiseChanged({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
@@ -466,6 +495,7 @@ export class DynamicDataList {
     if (fromIndex === toIndex) return;
     // Before the splice, for the same reason as in remove.
     const key = this.getRecordKey(fromIndex);
+    const pending = this.findPendingInsert(fromIndex);
     this.alignHiddenFlags();
     this.writeDepth++;
     this.editWindow((records: Array<any>): void => {
@@ -480,8 +510,8 @@ export class DynamicDataList {
     this.moveInMembership(fromIndex, toIndex);
     this.resetViews();
     const toSourceIndex = this._windowOffset + toIndex;
-    this.pushToSource("move", (source: IDynamicDataSource): any => source.move(key, toSourceIndex),
-      { key: key });
+    this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
+      { key: key, pendingInsert: pending });
     this.endWrite();
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
@@ -770,19 +800,43 @@ export class DynamicDataList {
   private copyRecord(record: any): any {
     return Object.assign({}, record);
   }
+  // A copy without the key field, and the caller's object itself when it has none: an add keeps
+  // the identity of the object it was given whenever it can.
+  private removeKeyField(record: any): any {
+    const field = this.keyField;
+    if (!field || !record || typeof record !== "object" || !Object.prototype.hasOwnProperty.call(record, field)) return record;
+    const res = this.copyRecord(record);
+    delete res[field];
+    return res;
+  }
   /* The name a write gives the record it addresses. A source that declares keyField is told WHICH
      record changed, a source that does not is told WHERE it is - the source index, exactly as
      before, and for such a source the key and the position are the same number. Every write resolves
      it at enqueue time and before its own splice: the window already reflects every earlier write,
-     so the record at index is the record the respondent acted on. */
+     so the record at index is the record the respondent acted on. The one exception is a record whose
+     insert is in flight: it has no key here, and its writes carry the pending entry instead, whose
+     key they read when they run (pushToSource). */
   private get keyField(): string {
     return !!this._source ? this._source.keyField : undefined;
   }
   private getRecordKey(index: number): any {
     const field = this.keyField;
     if (!field) return this._windowOffset + index;
+    // A record whose insert is in flight has no key of its own, whatever its key field holds: a
+    // value a write put there names another record of the source.
+    if (!!this.findPendingInsert(index)) return undefined;
     const record = this.getRecord(index);
     return !!record ? record[field] : undefined;
+  }
+  // The pending insert of the record at index. The list is empty unless an insert is in flight.
+  private findPendingInsert(index: number): IPendingInsert {
+    if (this.pendingInserts.length === 0) return undefined;
+    const record = this.getRecord(index);
+    if (record === undefined) return undefined;
+    for (let i = 0; i < this.pendingInserts.length; i++) {
+      if (this.pendingInserts[i].record === record) return this.pendingInserts[i];
+    }
+    return undefined;
   }
   private replaceRecord(index: number, record: any): void {
     if (this.pendingInserts.length > 0)this.repointPendingInsert(this.records[index], record);
@@ -797,12 +851,17 @@ export class DynamicDataList {
       this.clampPageIndexAfterChange();
     }
   }
-  // An insert that has not answered yet is matched by the window object of its record, and every
-  // write replaces that object: the entry follows the record across the replacements.
+  /* An insert that has not answered yet is matched by the window object of its record, and every
+     write replaces that object: the entry follows the record across the replacements. Every write
+     reaches the window here, so this is also where the fields it changed become the client's. */
   private repointPendingInsert(oldRecord: any, newRecord: any): void {
     if (oldRecord === undefined || oldRecord === newRecord) return;
-    this.pendingInserts.forEach((entry: { record: any }): void => {
-      if (entry.record === oldRecord) entry.record = newRecord;
+    this.pendingInserts.forEach((entry: IPendingInsert): void => {
+      if (entry.record !== oldRecord) return;
+      entry.record = newRecord;
+      getChangedFields(oldRecord, newRecord).forEach((field: string): void => {
+        if (entry.clientFields.indexOf(field) < 0) entry.clientFields.push(field);
+      });
     });
   }
   private get hasLocalViews(): boolean {
@@ -1212,23 +1271,36 @@ export class DynamicDataList {
      a deferred push belongs to the source the edit was made against, not to whatever the list holds
      when the push finally runs. The capability check follows the same rule - the operation names are
      the source method names. */
-  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource) => any,
+  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
     info?: IDynamicDataPushInfo): void {
     const source = this._source;
     if (this.isDisposed || !source || !(<any>source)[operation]) return;
     const push = info || {};
-    /* A keyed source cannot be told about a record it has not named yet - the insert of a record
-       added a moment ago is still in flight. The write is kept: it is in the window, so the
-       respondent sees it, the error says why it was not delivered, and the next read reconciles. */
-    if (operation !== "insert" && !!this.keyField && push.key === undefined) {
-      this.raiseError(new Error("DynamicDataList: the record has no key yet"), operation);
+    const pending = push.pendingInsert;
+    /* A keyed source cannot be told about a record it has not named and never will: its insert
+       answered without the key, or the source has no insert. The write is kept: it is in the window,
+       so the respondent sees it, the error says why it was not delivered, and the next read
+       reconciles. A record whose insert is still in flight is not such a record - see the action. */
+    if (operation !== "insert" && !!this.keyField && push.key === undefined && !pending) {
+      this.raiseError(createNoKeyError(), operation);
       return;
     }
     this.markInFlightReadOvertaken(operation, push);
     const epoch = this.sourceEpoch;
     const entry = this.registerPendingInsert(operation, push);
     const onAnswer = !!entry ? (answer: any): void => this.applyInsertAnswer(entry, answer, epoch) : undefined;
-    const action = (): any => method(source);
+    /* The key of a write queued behind the insert of its record is read when the write runs: the
+       chain runs it after that insert has settled, so the answer has brought the key by then - or
+       it never will (the insert failed or answered without it), and the write is reported for its
+       own operation instead of being sent, which is the keep-and-report rule above, only later. */
+    const action = (): any => {
+      if (!pending) return method(source, push.key);
+      if (!pending.isSettled || pending.key === undefined) {
+        this.raiseError(createNoKeyError(), operation);
+        return undefined;
+      }
+      return method(source, pending.key);
+    };
     if (!this.pushChain) {
       const res = this.runPush(operation, action, onAnswer);
       if (!res) {
@@ -1245,32 +1317,77 @@ export class DynamicDataList {
       return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
     });
   }
-  private registerPendingInsert(operation: DynamicDataOperation, push: IDynamicDataPushInfo): { record: any } {
+  private registerPendingInsert(operation: DynamicDataOperation, push: IDynamicDataPushInfo): IPendingInsert {
     if (operation !== "insert" || !this.keyField || push.insertedRecord === undefined) return undefined;
-    const entry = { record: push.insertedRecord };
+    // The payload the insert sends, without the key (see add): the fields the client owns from the start.
+    const entry: IPendingInsert = {
+      record: push.insertedRecord, clientFields: Object.keys(push.insertedRecord || {}),
+      keyField: this.keyField, key: undefined, answer: undefined, isSettled: false
+    };
     this.pendingInserts.push(entry);
     return entry;
   }
   /* The answer of an insert is the stored record: it carries the key the source assigned, and
-     whatever else the source filled in. The client fields win over it - a value typed while the
-     insert was in flight is the newer one - and the merged record replaces the one in the window, so
-     that every later write finds the key on it. The record is found through the pending entry and
-     never by indexOf of the object add created: a write copies the record, and that lookup would
-     miss it. */
-  private applyInsertAnswer(entry: { record: any }, answer: any, epoch: number): void {
+     whatever else the source filled in. The merged record (mergeInsertAnswer) replaces the one in
+     the window, so that every later write finds the key on it. The record is found through the
+     pending entry and never by indexOf of the object add created: a write copies the record, and
+     that lookup would miss it.
+     The entry learns the key first, before the epoch check and the lookup: the writes queued behind
+     the insert read it when they run, and they still have to run with it when the source was
+     replaced meanwhile (the detached chain runs to its end against its own source) or the record
+     was removed while the insert was in flight (its queued remove needs the key). */
+  private applyInsertAnswer(entry: IPendingInsert, answer: any, epoch: number): void {
+    entry.isSettled = true;
+    const field = entry.keyField;
+    if (!!answer && typeof answer === "object" && !Helpers.isValueEmpty(answer[field])) {
+      entry.key = answer[field];
+      entry.answer = answer;
+    }
     const at = this.pendingInserts.indexOf(entry);
     if (at > -1)this.pendingInserts.splice(at, 1);
-    const field = this.keyField;
-    if (this.isDisposed || epoch !== this.sourceEpoch || !field) return;
-    if (!answer || typeof answer !== "object" || Helpers.isValueEmpty(answer[field])) return;
+    if (this.isDisposed || epoch !== this.sourceEpoch || entry.key === undefined) return;
     // Gone from the window: it was removed, or a read replaced the window - and that read brought
     // the key itself.
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
     this.writeDepth++;
-    this.replaceRecord(index, Object.assign({}, answer, entry.record));
+    this.replaceRecord(index, this.mergeInsertAnswer(entry, entry.record));
     this.endWrite();
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
+  }
+  /* The client owns the fields it sent or changed while the insert was in flight, the server owns
+     the rest, and the key belongs to the server. So the answer contributes only the fields outside
+     clientFields - a field the client cleared is missing from its record and must stay missing, not
+     come back as the value the insert sent - and its key is applied last, over anything the client
+     record holds in the key field: that is the one field the client never overrules. The window
+     merge and the payload of an update queued behind the insert are both made here, so that they
+     cannot drift apart. clientFields is the ownership the client record goes with: the window merge
+     takes everything the client has owned so far (the entry's), a queued update the fields owned
+     when it was made (getOwnedFields). Called only once the entry has the key (and the answer). */
+  private mergeInsertAnswer(entry: IPendingInsert, clientRecord: any, clientFields: Array<string> = entry.clientFields): any {
+    const res: any = {};
+    const answer = entry.answer;
+    Object.keys(answer).forEach((field: string): void => {
+      if (clientFields.indexOf(field) < 0) res[field] = answer[field];
+    });
+    Object.assign(res, clientRecord);
+    res[entry.keyField] = entry.key;
+    return res;
+  }
+  /* The fields the client owns as of the write being made, taken right after it reached the window.
+     A later write widens entry.clientFields, and must not change what an earlier queued update
+     sends: that update's snapshot does not hold the later field, so the wider set would drop the
+     server's value of it from the payload - blanking a server-filled field until the later update
+     lands, and for good when that one fails. */
+  private getOwnedFields(pending: IPendingInsert): Array<string> {
+    return !!pending ? pending.clientFields.slice() : undefined;
+  }
+  /* The record an update sends. A write that resolved its key normally sends the record as it is.
+     One queued behind the insert of its record sends it merged with the insert's answer: a
+     whole-record update of the snapshot alone would blank the fields the server filled in, and it
+     would carry no key. Called when the update runs, so the answer is known. */
+  private getUpdatePayload(pending: IPendingInsert, record: any, ownedFields: Array<string>): any {
+    return !!pending ? this.mergeInsertAnswer(pending, record, ownedFields) : record;
   }
   /* Does this write make the answer of the read in flight stale? An insert or a remove shifts the
      records and changes the total, and a move shifts the records between its two ends, so each of
@@ -1284,7 +1401,8 @@ export class DynamicDataList {
          writer may have moved it between the pages while the read was running - so the answer is
          checked for that record when it arrives instead of the range being compared. */
       if (!!this.keyField) {
-        read.updatedKeys.push(push.key);
+        // No key yet (a write behind a pending insert): that insert has already overtaken the read.
+        if (push.key !== undefined) read.updatedKeys.push(push.key);
         return;
       }
       if (push.sourceIndex < read.skip || push.sourceIndex >= read.skip + read.take) return;

@@ -174,6 +174,70 @@ class FakeServerViewSource implements IDynamicDataSource {
     return this.requests.length;
   }
 }
+/* A source that names its records by "id" and assigns the key of a new record, as a server does
+   (step 19). Reads and writes are synchronous; with holdInserts an insert answers through a promise
+   that releaseInserts() settles. Every write records its operation in ops and what it received in
+   payloads. */
+class FakeKeyedSource implements IDynamicDataSource {
+  public keyField: string = "id";
+  public ops: Array<string> = [];
+  public payloads: Array<any> = [];
+  // Fields the server fills in where the insert payload does not carry them.
+  public insertDefaults: any = undefined;
+  public holdInserts: boolean = false;
+  private heldInserts: Array<() => void> = [];
+  private nextKey: number = 1000;
+  constructor(public records: Array<any>) { }
+  public read(): Array<any> {
+    return this.records.map((record: any): any => Object.assign({}, record));
+  }
+  public insert(record: any, sourceIndex: number): any {
+    this.ops.push("insert:" + sourceIndex);
+    this.payloads.push(Object.assign({}, record));
+    const stored = Object.assign({}, this.insertDefaults, record);
+    stored.id = this.nextKey++;
+    const run = (): any => {
+      this.records.splice(sourceIndex, 0, stored);
+      return Object.assign({}, stored);
+    };
+    if (!this.holdInserts) return run();
+    return new Promise((resolve: (value: any) => void): void => {
+      this.heldInserts.push((): void => resolve(run()));
+    });
+  }
+  public releaseInserts(): void {
+    const held = this.heldInserts;
+    this.heldInserts = [];
+    held.forEach((release: () => void): void => release());
+  }
+  public update(key: any, record: any): void {
+    this.ops.push("update:" + key);
+    this.payloads.push(Object.assign({}, record));
+    const at = this.indexOfKey(key);
+    if (at > -1)this.records[at] = Object.assign({}, record);
+  }
+  public remove(key: any): void {
+    this.ops.push("remove:" + key);
+    this.payloads.push(key);
+    const at = this.indexOfKey(key);
+    if (at > -1)this.records.splice(at, 1);
+  }
+  public move(key: any, toSourceIndex: number): void {
+    this.ops.push("move:" + key + ">" + toSourceIndex);
+    this.payloads.push([key, toSourceIndex]);
+    const at = this.indexOfKey(key);
+    if (at < 0) return;
+    const record = this.records[at];
+    this.records.splice(at, 1);
+    this.records.splice(toSourceIndex, 0, record);
+  }
+  private indexOfKey(key: any): number {
+    for (let i = 0; i < this.records.length; i++) {
+      if (this.records[i].id === key) return i;
+    }
+    return -1;
+  }
+}
 class TestOwner implements IDynamicDataOwner {
   public changes: Array<string> = [];
   constructor(public fields: Array<IDynamicDataField> = []) { }
@@ -2465,5 +2529,73 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
     expect(list.windowOffset, "#4").toBe(10);
     expect(list.isCountKnown, "#5: the end the empty answer proved went with the retry").toBe(false);
     expect(list.hasMore, "#6").toBe(true);
+  });
+});
+
+describe("DynamicDataList: a new record's identity", () => {
+  function createKeyedList(): { list: DynamicDataList, source: FakeKeyedSource, errors: Array<string> } {
+    const source = new FakeKeyedSource([{ id: 1, name: "a" }]);
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    list.load();
+    return { list: list, source: source, errors: errors };
+  }
+  test("add takes the key out of the record, on a copy", () => {
+    const { list, source } = createKeyedList();
+    const record = { id: 5, name: "x" };
+    list.add(record);
+    expect(source.payloads[0], "#1: the payload has no key").toEqual({ name: "x" });
+    expect(record, "#2: the caller's object is not mutated").toEqual({ id: 5, name: "x" });
+    expect(list.getRecord(1), "#3: the assigned key").toEqual({ id: 1000, name: "x" });
+    source.holdInserts = true;
+    const plain = { name: "y" };
+    list.add(plain);
+    expect(list.getRecord(2), "#4: a record without the key field keeps its identity").toBe(plain);
+  });
+  test("the answer's key wins over a key the window record carries", async () => {
+    const { list, source, errors } = createKeyedList();
+    source.holdInserts = true;
+    list.add({ name: "x" });
+    list.setRecord(1, { id: 1, name: "x" });
+    expect(list.getRecord(1).id, "#1: the injected key is in the window").toBe(1);
+    source.releaseInserts();
+    await flush();
+    expect(list.getRecord(1).id, "#2: the answer's key").toBe(1000);
+    expect(errors, "#3").toEqual([]);
+    expect(source.ops, "#4: the setRecord waited for the key").toEqual(["insert:1", "update:1000"]);
+    expect(source.payloads[1].id, "#5: its payload names the assigned key, not the injected one").toBe(1000);
+    expect(source.records[0], "#6: the record that owns the injected key is unchanged").toEqual({ id: 1, name: "a" });
+  });
+  test("a field the client wrote and cleared while the insert was held stays cleared", async () => {
+    const { list, source } = createKeyedList();
+    source.insertDefaults = { col3: "default", createdBy: "server" };
+    source.holdInserts = true;
+    list.add({ name: "x" });
+    list.setValue(1, "col3", "mine");
+    list.setValue(1, "col3", undefined);
+    source.releaseInserts();
+    await flush();
+    const record = list.getRecord(1);
+    expect("col3" in record, "#1: not the server default of a field the client cleared").toBe(false);
+    expect(record.createdBy, "#2: a field the client never touched arrives").toBe("server");
+    expect(record.id, "#3").toBe(1000);
+    expect(record.name, "#4").toBe("x");
+  });
+  test("a later edit does not change what an earlier queued update sends", async () => {
+    const { list, source } = createKeyedList();
+    source.insertDefaults = { status: "server-default" };
+    source.holdInserts = true;
+    list.add({});
+    list.setValue(1, "name", "first");
+    list.setValue(1, "status", "edited");
+    source.releaseInserts();
+    await flush();
+    expect(source.ops, "#1").toEqual(["insert:1", "update:1000", "update:1000"]);
+    expect(source.payloads[1], "#2: the first update owns name only - the server's status stays")
+      .toEqual({ id: 1000, name: "first", status: "server-default" });
+    expect(source.payloads[2], "#3: the second one owns status").toEqual({ id: 1000, name: "first", status: "edited" });
+    expect(list.getRecord(1), "#4: the window merge takes every field the client owns")
+      .toEqual({ id: 1000, name: "first", status: "edited" });
   });
 });

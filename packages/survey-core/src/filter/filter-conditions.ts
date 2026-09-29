@@ -223,3 +223,46 @@ export function conditionsToExpression(conditions: Array<IFilterCondition>, fiel
   });
   return ConditionEditorItemsBuilder.itemsToExpression(items);
 }
+
+// The structural half of parsing a preset's expression - whether the text decomposes into rows at
+// all - depends only on the text: build() with no hasValue turns away nothing by name, so the same
+// text always parses to the same rows whatever fields exist at the moment. A bound control's field
+// list can change under it with no notification (a matrix row added or removed), so this is the
+// only part of parseFilterExpression safe to remember between calls; which of those rows still
+// name a real field, and whether their operators are still allowed, is checked fresh every time.
+const filterExpressionParseCache: Map<string, Array<ConditionEditorItem>> = new Map<string, Array<ConditionEditorItem>>();
+function buildFilterExpressionItems(text: string): Array<ConditionEditorItem> {
+  const cached = filterExpressionParseCache.get(text);
+  if (!!cached) return cached;
+  const items = new ConditionEditorItemsBuilder().build(text);
+  filterExpressionParseCache.set(text, items);
+  return items;
+}
+
+// A preset's expression as the conditions it edits with, or null when it is not that kind of text:
+// an "or", a comparison of two fields, a function call, a condition naming a field the control does
+// not have, two conditions on the same field, or a condition whose operator that field does not
+// offer. null (not []) tells the caller the text is raw and has to stay raw - a "" text is the one
+// case that legitimately means "no conditions", so it is answered before the parser ever runs.
+export function parseFilterExpression(text: string, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> | null {
+  if (!text) return [];
+  const items = buildFilterExpressionItems(text);
+  // build() also answers [] for a non-empty text it cannot decompose (an "or", a function call) -
+  // text is non-empty here, so an empty result can only be that case.
+  if (items.length === 0) return null;
+  const fieldsByValueName = getFieldsByValueName(fields);
+  const seenValueNames: { [valueName: string]: boolean } = {};
+  const res: Array<IFilterCondition> = [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (i > 0 && item.conjunction !== "and") return null;
+    const valueName = item.questionName;
+    if (Object.prototype.hasOwnProperty.call(seenValueNames, valueName)) return null;
+    seenValueNames[valueName] = true;
+    const field = fieldsByValueName[valueName];
+    if (!field) return null;
+    if (getFilterFieldOperators(field).indexOf(item.operator) === -1) return null;
+    res.push({ field: valueName, operator: item.operator, value: item.value });
+  }
+  return res;
+}

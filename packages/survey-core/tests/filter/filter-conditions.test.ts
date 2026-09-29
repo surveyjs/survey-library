@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import {
   getConditionOperatorTitle, getFilterFieldOperators, getFilterFieldDefaultOperator, getFilterValueEditorJson,
-  FilterConditionItem, conditionsToExpression
+  FilterConditionItem, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";
 import { FilterField } from "../../src/filter/filter-field";
 import { ItemValue } from "../../src/itemvalue";
@@ -20,6 +20,12 @@ import "../../src/question_expression";
 function field(valueName: string, valueType: string = "string"): IDynamicDataFilterField {
   return { name: valueName, valueName: valueName, locTitle: undefined, valueType: <any>valueType,
     fieldType: "text", templateQuestion: undefined };
+}
+// A typeless field descriptor: getFilterFieldOperators/getFilterValueEditorJson never touch
+// templateQuestion for a typeless field, so undefined is safe here too - useful for
+// parseFilterExpression tests, which do call getFilterFieldOperators to check the operator.
+function typelessField(valueName: string, valueType: string): IDynamicDataFilterField {
+  return { ...field(valueName, valueType), isTypeless: true };
 }
 const runs = (record: any, expression: string): boolean => new ConditionRunner(expression).runValues(record);
 
@@ -198,5 +204,59 @@ describe("FilterConditionItem", () => {
     // valToText would leave the string "true" unquoted; toExpressionConst quotes a string value
     // whatever it looks like, and only a real boolean is written bare.
     expect(item.getValueText()).toBe("'true'");
+  });
+});
+
+describe("parseFilterExpression", () => {
+  const fields = [typelessField("age", "number"), typelessField("name", "string"), typelessField("active", "boolean")];
+  test("an empty expression parses to no conditions", () => {
+    expect(parseFilterExpression("", fields)).toEqual([]);
+  });
+  test("an and-chain parses to one condition per field", () => {
+    expect(parseFilterExpression("{age} > 18 and {name} = 'Bob'", fields)).toEqual([
+      { field: "age", operator: "greater", value: 18 },
+      { field: "name", operator: "equal", value: "Bob" }
+    ]);
+  });
+  test("an or chain cannot be decomposed", () => {
+    expect(parseFilterExpression("{age} > 18 or {age} < 5", fields)).toBeNull();
+  });
+  test("a mix of and/or cannot be decomposed", () => {
+    expect(parseFilterExpression("{age} > 18 and ({name} = 'a' or {name} = 'b')", fields)).toBeNull();
+  });
+  test("two conditions on the same field cannot be decomposed", () => {
+    expect(parseFilterExpression("{age} > 5 and {age} < 18", fields)).toBeNull();
+  });
+  test("a condition on an unknown field cannot be decomposed", () => {
+    expect(parseFilterExpression("{nosuchfield} = 1", fields)).toBeNull();
+  });
+  test("a forbidden operator cannot be decomposed", () => {
+    // "contains" is not among the operators a typeless boolean field offers.
+    expect(parseFilterExpression("{active} contains 'x'", fields)).toBeNull();
+  });
+  test("a constant on the left is read with the mirrored operator", () => {
+    expect(parseFilterExpression("18 < {age}", fields)).toEqual([{ field: "age", operator: "greater", value: 18 }]);
+  });
+  test("the cache is correct after the field set changes", () => {
+    const text = "{age} = 1 and {name} = 'x'";
+    expect(parseFilterExpression(text, fields), "#1: both fields known").toEqual([
+      { field: "age", operator: "equal", value: 1 }, { field: "name", operator: "equal", value: "x" }]);
+    const fewerFields = [typelessField("age", "number")];
+    expect(parseFilterExpression(text, fewerFields), "#2: name is unknown now, same cached text").toBeNull();
+    expect(parseFilterExpression(text, fields), "#3: back to the full field set").toEqual([
+      { field: "age", operator: "equal", value: 1 }, { field: "name", operator: "equal", value: "x" }]);
+  });
+  test("a condition is keyed by valueName, not by the field's name", () => {
+    const boundField: IDynamicDataFilterField = { name: "city", valueName: "mt.city", locTitle: undefined,
+      valueType: "string", fieldType: "text", templateQuestion: undefined, isTypeless: true };
+    expect(parseFilterExpression("{mt.city} = 'Berlin'", [boundField]))
+      .toEqual([{ field: "mt.city", operator: "equal", value: "Berlin" }]);
+  });
+  test("a duplicate valueName: the first field with it owns the condition, including its operator set", () => {
+    // A boolean field's operators narrow away "greater"; a number field's do not. If the second,
+    // more permissive field secretly decided validity, this would parse instead of failing.
+    const first = typelessField("age", "boolean");
+    const second = typelessField("age", "number");
+    expect(parseFilterExpression("{age} > 5", [first, second]), "the first field's operators decide").toBeNull();
   });
 });

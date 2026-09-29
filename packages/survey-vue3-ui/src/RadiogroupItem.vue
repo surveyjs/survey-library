@@ -17,9 +17,11 @@
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
         :aria-label="ariaLabel"
+        :aria-labelledby="!ariaLabel && !hideLabel ? question.getItemLabelId(item) : undefined"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"
+        aria-hidden="true"
       >
         <svg
           v-if="question.itemSvgIcon"
@@ -27,7 +29,12 @@
         >
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
-      ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
+      ><span
+        v-if="!hideLabel"
+        :class="getControlLabelClass(item)"
+        :id="question.getItemLabelId(item)"
+        :aria-hidden="question.isItemLabelAriaHidden ? 'true' : undefined"
+      >
         <SvComponent :is="'survey-string'" :locString="item.locText" />
       </span>
     </label>

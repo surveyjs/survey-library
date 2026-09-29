@@ -51,7 +51,7 @@
     inset 0 0 0 1px var(--bs-border-color), 0 1px 2px rgba(0, 0, 0, 0.05);
 
   /* $headings-color: primary */
-  --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-panel-default-bg: transparent;
 
   /* $enable-shadows -> .card carries a soft shadow on top of its border, and Zephyr widens the
      card ($card-spacer-x: 1.5rem, $card-cap-padding: 1rem 1.5rem) */

@@ -135,7 +135,7 @@
   /* recessed panels: Morph's .card is borderless ($border-width: 0) and pressed into the body with
      a neumorphic inset pair instead. It is also roomier ($card-spacer: 1.5rem,
      $card-cap-padding-y: 0.75rem). */
-  --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-panel-default-bg: transparent;
   --sjs-bs-card-shadow:
     inset 2px 2px 6px rgba(109, 114, 121, 0.2), inset -3px -2px 4px rgba(255, 255, 255, 0.2);
   --sjs-bs-card-spacer-y: var(--bs-card-spacer-y, 1.5rem);
@@ -144,7 +144,7 @@
   --sjs-bs-card-cap-padding-x: var(--bs-card-cap-padding-x, 1.5rem);
 
   &:is([data-bs-theme="dark"] *) {
-    --sjs2-color-component-panel-default-bg: #202428;
+    --sjs2-color-component-panel-default-bg: transparent;
     --sjs-bs-card-shadow:
       inset 2px 2px 6px rgba(17, 19, 21, 0.2), inset -3px -2px 4px rgba(255, 255, 255, 0.05);
   }

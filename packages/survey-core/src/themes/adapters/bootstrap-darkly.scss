@@ -35,8 +35,7 @@
   --sjs2-color-component-tagbox-item-action-default-icon: currentColor;
   --sjs2-color-component-tagbox-item-action-hovered-icon: currentColor;
 
-  /* cards / panels sit on gray-800, a touch lighter than the gray-900 body */
-  --sjs2-color-component-panel-default-bg: var(--bs-card-bg, #303030);
+  --sjs2-color-component-panel-default-bg: transparent;
   --sjs2-color-bg-basic-primary-dim: #303030;
 
   /* dark themes read better with a slightly stronger contrast on secondary text */

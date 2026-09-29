@@ -126,6 +126,19 @@ export var englishStrings = {
   toc: "Table of contents",
   progressbar: "Progress bar",
   progressbarPage: "Page {0}",
+  conditionOperatorEmpty: "Empty",
+  conditionOperatorNotempty: "Not empty",
+  conditionOperatorEqual: "Equals",
+  conditionOperatorNotequal: "Does not equal",
+  conditionOperatorContains: "Contains",
+  conditionOperatorNotcontains: "Does not contain",
+  conditionOperatorAnyof: "Any of",
+  conditionOperatorNoneof: "None of",
+  conditionOperatorAllof: "All of",
+  conditionOperatorGreater: "Greater than",
+  conditionOperatorLess: "Less than",
+  conditionOperatorGreaterorequal: "Greater than or equal to",
+  conditionOperatorLessorequal: "Less than or equal to",
   maskPlaceholderDay: "d", // [Do not translate]
   maskPlaceholderMonth: "m", // [Do not translate]
   maskPlaceholderYear: "y", // [Do not translate]

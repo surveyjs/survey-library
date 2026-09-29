@@ -22,4 +22,9 @@ describe("getConditionOperatorTitle", () => {
   test("a locale without a translation falls back to English", () => {
     expect(getConditionOperatorTitle("equal", "de")).toBe("Equals");
   });
+  // An operator the table does not know (a future operator, a typo) has no title to look up, so the
+  // best it can do is echo the operator name back rather than return undefined.
+  test("an unknown operator falls back to its own name", () => {
+    expect(getConditionOperatorTitle("regex")).toBe("regex");
+  });
 });

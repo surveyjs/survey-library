@@ -8,7 +8,7 @@ describe("FilterItem", () => {
     expect(item.title).toBe("recent");
     expect(new JsonObject().toJsonObject(item)).toEqual({ name: "recent" });
   });
-  test("the three editing modes are storage only", () => {
+  test("the ai preset kind is storage only", () => {
     const item = new FilterItem("");
     new JsonObject().toObject({ name: "ai1", type: "ai", prompt: "orders from Germany",
       expression: "{country} = 'de'" }, item);

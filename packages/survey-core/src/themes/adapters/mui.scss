@@ -237,7 +237,7 @@
   --sjs2-color-fg-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-fg-basic-secondary: var(--mui-palette-text-secondary);
 
-  --sjs2-color-component-panel-default-bg: transparent;
+  --sjs2-color-component-panel-default-bg: var(--mui-palette-background-paper);
 
   --sjs2-color-project-brand-600: var(--mui-palette-primary-main);
   --sjs2-color-bg-brand-primary: var(--mui-palette-primary-main);
@@ -390,25 +390,27 @@
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
 
-  /* a framed question is a card with a <CardContent> only */
-  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
-  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default:
-    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-simple-default-border),
-    var(--sjs-mui-card-shadow);
+  /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
+     themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
+     the page the way a native form does. Real panels (nested / dynamic) stay cards. */
+  --sjs2-is-panelless: true;
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-color-component-panel-simple-default-separator: transparent;
+  --sjs2-border-effect-component-panel-simple-default: none;
   --sjs2-radius-component-panel-simple: var(--sjs2-radius-x000);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  /* the error box is offset by its own margin-top (FormHelperText), not by the container gap */
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-simple-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-mui-field-gap);
-  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs2-spacing-x500);
   --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal: var(--sjs2-spacing-x500);
 
   /* a nested panel is an outlined card whose <CardHeader> keeps a divider above the content */

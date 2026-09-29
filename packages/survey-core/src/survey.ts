@@ -4007,7 +4007,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
-      if (!page.validate(true, true)) return false;
+      if (!page.validate(true, this.autoFocusFirstError)) return false;
       page.passed = true;
     }
     return true;
@@ -4652,7 +4652,7 @@ export class SurveyModel extends SurveyElementCore
       page = this.activePage;
     }
     if (!page) return true;
-    return this.validatePageCore(page, true, onAsyncValidation);
+    return this.validatePageCore(page, this.autoFocusFirstError, onAsyncValidation);
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     const res = this.validate(fireCallback, focusOnFirstError, onAsyncValidation);
@@ -5580,7 +5580,7 @@ export class SurveyModel extends SurveyElementCore
   public start(): boolean {
     if (!this.firstPageIsStartPage) return false;
     this.isCurrentPageRendering = true;
-    if (!this.validatePageCore(this.startPage, true)) return false;
+    if (!this.validatePageCore(this.startPage, this.autoFocusFirstError)) return false;
     this.isStartedState = false;
     this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();

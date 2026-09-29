@@ -3272,7 +3272,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private updateRecordsVisibility(properties: HashTable<any>): boolean {
     if (!this.isPagingActive || this.isDesignMode || this.isLoadingFromJson) return false;
     const list = this.dataList;
-    const expression = this.templateVisibleIf;
+    // survey.onExpressionRunning may rewrite or cancel it, as it does rowsVisibleIf; it is asked
+    // before the areInvisibleElementsShowing check, so the event fires in that mode too.
+    const expression = this.getExpressionFromSurvey("templateVisibleIf");
     if (!expression || this.areInvisibleElementsShowing) {
       if (!this.hasRecordVisibilityFlags) return false;
       this.hasRecordVisibilityFlags = false;

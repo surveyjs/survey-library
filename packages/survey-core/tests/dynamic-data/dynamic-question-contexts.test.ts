@@ -201,3 +201,75 @@ describe("F1: {q[i]} names a record for both questions", () => {
     expect(visibility, "#2: panel 1 reads record 1's y through the matrix, not record 2's").toEqual([false, true, false]);
   });
 });
+
+describe("F2: the record visibility under paging goes through onExpressionRunning", () => {
+  kinds.forEach((kind: IDynamicKind) => {
+    describe(kind.name, () => {
+      function createPaged(expression: string, onRunning?: (options: any) => void, showInvisible?: boolean): SurveyModel {
+        const extra: any = {};
+        extra[kind.pageSize] = 2;
+        extra[kind.visibleIf] = expression;
+        const props = Object.assign({}, extra);
+        props[kind.itemCount] = 4;
+        const survey = new SurveyModel({ elements: [kind.json(props)] });
+        if (showInvisible) survey.showInvisibleElements = true;
+        if (onRunning) {
+          survey.onExpressionRunning.add((_: SurveyModel, options: any) => {
+            if ((<any>options.element).name === "q" && options.propertyName === kind.visibleIf) {
+              onRunning(options);
+            }
+          });
+        }
+        survey.data = { q: records("a", "b", "c", "d") };
+        return survey;
+      }
+      function pageXs(question: DynamicQuestion): Array<any> {
+        if (question instanceof QuestionMatrixDynamicModel) {
+          return question.rowsOnPage.map(r => r.getQuestionByName("x").value);
+        }
+        return question.panelsOnPage.map(p => p.getQuestionByName("x").value);
+      }
+      const v = kind.variable;
+      test("F2.1 a handler that rewrites the expression hides the record, and the page follows", () => {
+        const survey = createPaged("{" + v + ".x} != 'zzz'", (options: any) => {
+          options.expression = "{" + v + ".x} != 'a'";
+        });
+        const question = getQuestion(survey);
+        expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+        expect(question.pageCount, "#2").toBe(2);
+        expect(pageXs(question), "#3").toEqual(["b", "c"]);
+      });
+      test("F2.2 allow = false: every record is visible", () => {
+        const survey = createPaged("{" + v + ".x} != 'a'", (options: any) => {
+          options.allow = false;
+        });
+        const question = getQuestion(survey);
+        expect(question.getDataList().visibleCount, "#1").toBe(4);
+        expect(question.pageCount, "#2").toBe(2);
+        expect(pageXs(question), "#3").toEqual(["a", "b"]);
+      });
+      test("F2.3 the handler is called, and a value change the expression reads calls it again", () => {
+        let counter = 0;
+        const survey = createPaged("{" + v + ".x} != {hidden}", () => { counter++; });
+        expect(counter, "#1").toBeGreaterThan(0);
+        const before = counter;
+        survey.setValue("hidden", "b");
+        expect(counter, "#2").toBeGreaterThan(before);
+        expect(getQuestion(survey).getDataList().visibleCount, "#3").toBe(3);
+      });
+      test("F2.4 no handler: the expression runs as authored", () => {
+        const survey = createPaged("{" + v + ".x} != 'a'");
+        const question = getQuestion(survey);
+        expect(question.getDataList().visibleCount, "#1").toBe(3);
+        expect(question.pageCount, "#2").toBe(2);
+        expect(pageXs(question), "#3").toEqual(["b", "c"]);
+      });
+      test("F2.5 the handler is called while invisible elements are shown", () => {
+        let counter = 0;
+        const survey = createPaged("{" + v + ".x} != 'a'", () => { counter++; }, true);
+        expect(counter, "#1").toBeGreaterThan(0);
+        expect(getQuestion(survey).getDataList().visibleCount, "#2: every record is shown").toBe(4);
+      });
+    });
+  });
+});

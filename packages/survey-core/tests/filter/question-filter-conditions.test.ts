@@ -265,6 +265,109 @@ describe("QuestionFilterModel: bound and single mode", () => {
   });
 });
 
+describe("QuestionFilterModel: saving edits into the active preset", () => {
+  test("editing the active preset marks it modified, and reverting the edit clears it again", () => {
+    const q = createControl();
+    expect(q.isActiveItemModified, "#1: no edits yet").toBe(false);
+    q.setFieldCondition("age", "greater", 21);
+    expect(q.isActiveItemModified, "#2").toBe(true);
+    q.setFieldCondition("age", "greater", 18);
+    expect(q.isActiveItemModified, "#3: back to the preset's own condition").toBe(false);
+  });
+  test("saveActiveItem recomposes item.expression, resets the edits, and the preset is not modified afterwards", () => {
+    const q = createControl();
+    q.setFieldCondition("age", "greater", 21);
+    expect(q.canSaveActiveItem, "#1").toBe(true);
+    q.saveActiveItem();
+    const item = q.getItemByName("adults");
+    expect(item.expression, "#2").toBe("{age} > 21 and {country} = 'de'");
+    expect(q.ownConditions, "#3: edits reset").toBe(undefined);
+    expect(q.isActiveItemModified, "#4").toBe(false);
+    expect(q.canSaveActiveItem, "#5").toBe(false);
+    expect(q.filterExpression, "#6").toBe("{age} > 21 and {country} = 'de'");
+  });
+  test("saveActiveItem raises no onFilterChanged when the composed text already matches, and one onUIStateChanged", () => {
+    const survey = createSurvey({ items: presets });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.setFieldCondition("age", "greater", 21);
+    const events = trackEvents(survey);
+    q.saveActiveItem();
+    expect(events).toEqual({ filter: 0, uiState: 1 });
+  });
+  test("allowEdit false refuses the save even when modified", () => {
+    const withoutEdit = presets.map((p) => p.name === "adults" ? Object.assign({}, p, { allowEdit: false }) : p);
+    const q = createControl({ items: withoutEdit });
+    q.setFieldCondition("age", "greater", 21);
+    expect(q.isActiveItemModified, "#1").toBe(true);
+    expect(q.canSaveActiveItem, "#2").toBe(false);
+    const item = q.getItemByName("adults");
+    const expression = item.expression;
+    q.saveActiveItem();
+    expect(item.expression, "#3: unchanged").toBe(expression);
+    expect(q.ownConditions, "#4: nothing was saved, the edits stay").not.toBe(undefined);
+  });
+  test("the search is not carried into the saved preset", () => {
+    const q = createControl({ searchFields: ["name"] });
+    q.setFieldCondition("age", "greater", 21);
+    q.searchString = "an";
+    q.saveActiveItem();
+    const item = q.getItemByName("adults");
+    expect(item.expression, "#1").toBe("{age} > 21 and {country} = 'de'");
+    expect(q.filterExpression, "#2: the search still applies on top")
+      .toBe("({age} > 21 and {country} = 'de') and ({name} contains 'an')");
+  });
+  test("design mode refuses the save", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1",
+      fields: [{ name: "age", fieldType: "text", inputType: "number" }, { name: "country" }],
+      items: presets, defaultItem: "adults" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(q.canSaveActiveItem, "#1").toBe(false);
+    q.saveActiveItem();
+    expect(q.getItemByName("adults").expression, "#2").toBe("{age} > 18 and {country} = 'de'");
+  });
+  test("a non-decomposable preset plus any edit is modified, and saving replaces its text with the composed conditions", () => {
+    const q = createControl();
+    q.toggleItem("edges");
+    expect(q.isActiveItemModified, "#1: no edits yet").toBe(false);
+    q.setFieldCondition("age", "greater", 40);
+    expect(q.isActiveItemModified, "#2").toBe(true);
+    expect(q.canSaveActiveItem, "#3").toBe(true);
+    q.saveActiveItem();
+    const item = q.getItemByName("edges");
+    expect(item.expression, "#4").toBe("{age} > 40");
+    expect(q.ownConditions, "#5").toBe(undefined);
+    expect(q.isActiveItemModified, "#6").toBe(false);
+  });
+  test("no active preset: isActiveItemModified and canSaveActiveItem stay false even with edits", () => {
+    const q = createControl({ defaultItem: "" });
+    q.setFieldCondition("country", "equal", "fr");
+    expect(q.ownConditions, "#1").not.toBe(undefined);
+    expect(q.isActiveItemModified, "#2").toBe(false);
+    expect(q.canSaveActiveItem, "#3").toBe(false);
+  });
+  test("single mode: saveActiveItem saves into the active preset (defaultItem)", () => {
+    const q = createControl({ allowMultipleItems: false, defaultItem: "kids" });
+    q.setFieldCondition("age", "less", 10);
+    expect(q.canSaveActiveItem, "#1").toBe(true);
+    q.saveActiveItem();
+    const item = q.getItemByName("kids");
+    expect(item.expression, "#2").toBe("{age} < 10");
+    expect(q.ownConditions, "#3").toBe(undefined);
+    expect(q.activeItem.name, "#4").toBe("kids");
+    expect(q.filterExpression, "#5").toBe("{age} < 10");
+  });
+  test("single mode with no applicable defaultItem: saveActiveItem saves into items[0]", () => {
+    const q = createControl({ allowMultipleItems: false, defaultItem: "" });
+    expect(q.activeItem.name, "#1").toBe("adults");
+    q.setFieldCondition("age", "less", 5);
+    q.saveActiveItem();
+    expect(q.items[0].name, "#2").toBe("adults");
+    expect(q.items[0].expression, "#3").toBe("{age} < 5 and {country} = 'de'");
+  });
+});
+
 describe("QuestionFilterModel: field operators and value editors", () => {
   test("getFieldOperators and getValueEditorJson resolve the field by name", () => {
     const q = createControl();

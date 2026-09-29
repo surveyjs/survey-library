@@ -278,6 +278,55 @@ export class QuestionFilterModel extends QuestionNonValue {
   public clearConditions(): void {
     this.editConditions((): Array<IFilterCondition> => []);
   }
+  // Whether the respondent's edits are a real change to the active preset's own conditions, and
+  // not merely the absence of any edit yet (ownConditions undefined). Compared as a set and not by
+  // position: setFieldCondition can leave a condition at a different index than the preset held it
+  // at (a new field is appended, not inserted where the preset would show it), and that reordering
+  // is not a change of what the preset means. A preset that does not decompose
+  // (parseActiveItemConditions() === null, an "or", a function, a comparison of two fields) can
+  // never equal any own conditions, so any edit over it - even [] - is a real change. No active
+  // preset reports false here even with edits of its own: there is nothing to save them into.
+  public get isActiveItemModified(): boolean {
+    const item = this.activeItem;
+    if (!item || this.ownConditions === undefined) return false;
+    const preset = this.parseActiveItemConditions();
+    if (preset === null) return true;
+    return !this.isSameConditionSet(this.ownConditions, preset);
+  }
+  // allowEdit is the preset's own permission; design mode never composes an expression, so nothing
+  // saved there could be seen or filtered by anyway.
+  public get canSaveActiveItem(): boolean {
+    if (this.isDesignMode) return false;
+    const item = this.activeItem;
+    return !!item && item.allowEdit && this.isActiveItemModified;
+  }
+  // Writes the respondent's edits back into the preset's own expression and forgets them as edits:
+  // from here on the preset's text IS what was asked for, so ownConditions goes back to undefined
+  // and isActiveItemModified reports false again. The search box is never part of it: conditions
+  // only ever compose from ownConditions, never from calcSearchExpression(). item.expression is set
+  // through its own property (registered, serializable) and not through some parallel "saved text"
+  // slot - a runtime change to an existing serializable property, not a new one, so nothing new
+  // reaches survey JSON beyond what item.expression already was free to hold. savedItemConditions
+  // is a copy kept for T9: it will serialize this map as uiState items.<name>.conditions so a
+  // restored session carries the saved conditions themselves and does not have to re-decompose
+  // item.expression, which a lossy round trip (an "or" preset saved from a raw start, or a value
+  // coercion) might not reproduce.
+  public saveActiveItem(): void {
+    if (!this.canSaveActiveItem) return;
+    const item = this.activeItem;
+    const conditions = this.ownConditions;
+    item.expression = conditionsToExpression(conditions, this.getFilterFields());
+    this.savedItemConditions[item.name] = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
+    this.setOwnConditions(undefined);
+    // item.expression's own onItemPropertyChanged already recomposed the expression once; this
+    // second call is only a no-op safety net for the (should not happen) case where resetting
+    // ownConditions changes what calcConditionsExpression reads. updateFilterExpression() itself
+    // only applies to the source and reports onFilterChanged when the composed text actually
+    // differs from what is already there, so a normal save - where the two compositions read the
+    // same - raises neither call twice nor at all.
+    this.updateFilterExpression();
+    this.raiseUIStateChanged();
+  }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);
     return !!field ? getFilterFieldOperators(field) : [];
@@ -329,6 +378,32 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (conditions[i].field === valueName) return i;
     }
     return -1;
+  }
+  // Element equality is exact JSON, not Helpers.isTwoValueEquals: that comparison is case- and
+  // type-lenient (18 equals "18", true equals "true"), and each of those pairs composes into a
+  // different expression on a text field - a "no change" reported that way would let a real edit
+  // go unnoticed as unmodified. Sorted JSON keys make the comparison order-insensitive: both sides
+  // are a set, not a sequence.
+  private isSameConditionSet(a: Array<IFilterCondition>, b: Array<IFilterCondition>): boolean {
+    if (a.length !== b.length) return false;
+    const toKey = (c: IFilterCondition): string => JSON.stringify(c);
+    const as = a.map(toKey).sort();
+    const bs = b.map(toKey).sort();
+    for (let i = 0; i < as.length; i++) {
+      if (as[i] !== bs[i]) return false;
+    }
+    return true;
+  }
+  // The runtime record of which presets the respondent has saved edits into, and what those edits
+  // were - name -> a copy of the conditions saveActiveItem() composed item.expression from. Not
+  // registered in the serializer: it is derived from an edit-and-save action, not an authored or
+  // reactive property, and T9 is the only reader, through getSavedItemConditions() below - it
+  // serializes this map as uiState items.<name>.conditions. A preset that is later removed just
+  // leaves a stale, harmless entry here; nothing iterates this map by walking items.
+  private savedItemConditions: HashTable<Array<IFilterCondition>> = {};
+  // Internal accessor for T9's uiState serialization; deliberately not public API for this class.
+  private getSavedItemConditions(name: string): Array<IFilterCondition> {
+    return this.savedItemConditions[name];
   }
   // An array value is copied both ways: the caller's array must not be able to change the filter
   // behind the control's back, and neither must the one it is given back.

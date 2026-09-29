@@ -2262,6 +2262,44 @@ describe("DynamicDataList: the operation of a failed read", () => {
     list.filter = "{id} > 1";
     expect(operations, "#1").toEqual(["read"]);
   });
+  /* The request is built inside the read's error handling: a sort array whose copy throws (a proxy,
+     an accessor) is a failed read, and the read it superseded leaves no loading state behind. A
+     source without readRange is never sent a request, so it never copies the sort at all. */
+  function createThrowingSort(): { sort: Array<any>, arm: () => void } {
+    let isArmed = false;
+    const sort = new Proxy([{ field: "id", direction: "asc" }], {
+      get: (target: any, prop: any): any => {
+        if (isArmed && prop === "slice") throw new Error("the sort cannot be copied");
+        return target[prop];
+      }
+    });
+    return { sort: sort, arm: (): void => { isArmed = true; } };
+  }
+  test("a request that cannot be built is a failed read", () => {
+    const source = new FakeAsyncRangeSource(createRecords(4));
+    const list = new DynamicDataList(source);
+    const operations: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { operations.push(operation); };
+    const { sort, arm } = createThrowingSort();
+    list.sort = sort;
+    expect(list.isLoading, "#1: the read of the view is in flight").toBe(true);
+    arm();
+    expect(() => list.refresh(), "#2").not.toThrow();
+    expect(operations, "#3").toEqual(["read"]);
+    expect(list.isLoading, "#4: the superseded read left no loading state").toBe(false);
+    expect(list.hasPendingRead, "#5").toBe(false);
+  });
+  test("a source without readRange is not sent a request", () => {
+    const list = createList(createRecords(4));
+    const operations: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { operations.push(operation); };
+    const { sort, arm } = createThrowingSort();
+    list.sort = sort;
+    arm();
+    expect(() => list.load(), "#1").not.toThrow();
+    expect(operations, "#2").toEqual([]);
+    expect(list.loadedCount, "#3").toBe(4);
+  });
   test("a filter the list cannot run locally is a failed read too", () => {
     const list = createList(createRecords(4));
     const operations: Array<string> = [];

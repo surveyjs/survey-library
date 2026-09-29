@@ -8,7 +8,8 @@ import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
-  conditionsToExpression, getFilterFieldOperators, getFilterValueEditorJson, parseFilterExpression
+  conditionsToExpression, getFilterFieldOperators, getFilterValueEditorJson, normalizeFilterConditions,
+  parseFilterExpression
 } from "./filter/filter-conditions";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -22,11 +23,17 @@ export class QuestionFilterModel extends QuestionNonValue {
   // only when they differ from it, so an authored value is not duplicated into the saved state and
   // no extra serializable "dirty" property is needed.
   private authoredSearchFields: Array<string>;
-  // Restoring is not a new change: it must not raise onUIStateChanged, or a host that saves on every
-  // change would save immediately after every restore. It also holds back the write into the source
-  // and onFilterChanged with it, so the three restored keys land as one filter and not as three -
-  // see setUIState().
-  private isSettingUIState: boolean = false;
+  // How many runBatch()/holdChanges() calls are in progress. While one is, a recomposed expression
+  // is not written into the source, onFilterChanged is not raised and onUIStateChanged is only
+  // noted (uiStateChangedInBatch) - see runBatch().
+  private batchLevel: number = 0;
+  private uiStateChangedInBatch: boolean = false;
+  // The part of a restored uiState that has to be checked against the fields - conditions and saved
+  // presets - when it arrives before the bound source does: with no source there is nothing to
+  // check it against, and checking it against nothing would drop all of it. Applied as the source
+  // attaches, in the same write - see updateFilterSource().
+  private pendingConditions: Array<IFilterCondition>;
+  private pendingItems: { [name: string]: { conditions: Array<IFilterCondition> } };
   private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
   };
@@ -307,10 +314,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // through its own property (registered, serializable) and not through some parallel "saved text"
   // slot - a runtime change to an existing serializable property, not a new one, so nothing new
   // reaches survey JSON beyond what item.expression already was free to hold. savedItemConditions
-  // is a copy kept for T9: it will serialize this map as uiState items.<name>.conditions so a
-  // restored session carries the saved conditions themselves and does not have to re-decompose
-  // item.expression, which a lossy round trip (an "or" preset saved from a raw start, or a value
-  // coercion) might not reproduce.
+  // keeps a copy for uiState, which stores it as items.<name>.conditions so a restored session
+  // carries the saved conditions themselves and does not have to re-decompose item.expression,
+  // which a lossy round trip (an "or" preset saved from a raw start, or a value coercion) might not
+  // reproduce.
   public saveActiveItem(): void {
     if (!this.canSaveActiveItem) return;
     const item = this.activeItem;
@@ -368,6 +375,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   // would break this slot: the array the previous edit left behind would change under whoever
   // holds it, and [] ("conditions cleared") could never go back to undefined ("no edits").
   private setOwnConditions(val: Array<IFilterCondition>): void {
+    // Whatever decides the conditions now - an edit, another preset, a save, a clear - supersedes
+    // restored conditions still waiting for their source: they were edits over the state this
+    // replaces.
+    this.pendingConditions = undefined;
     const oldValue = this.ownConditions;
     if (val === oldValue) return;
     this.setPropertyValueDirectly("ownConditions", val);
@@ -397,11 +408,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // The runtime record of which presets the respondent has saved edits into, and what those edits
   // were - name -> a copy of the conditions saveActiveItem() composed item.expression from. Not
   // registered in the serializer: it is derived from an edit-and-save action, not an authored or
-  // reactive property, and T9 is the only reader, through getSavedItemConditions() below - it
-  // serializes this map as uiState items.<name>.conditions. A preset that is later removed just
-  // leaves a stale, harmless entry here; nothing iterates this map by walking items.
+  // reactive property, and uiState is the only reader - getUIState() stores this map as
+  // items.<name>.conditions and setUIState() fills it back. A preset that is later removed just
+  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves.
   private savedItemConditions: HashTable<Array<IFilterCondition>> = {};
-  // Internal accessor for T9's uiState serialization; deliberately not public API for this class.
+  // Internal accessor for the uiState serialization; deliberately not public API for this class.
   private getSavedItemConditions(name: string): Array<IFilterCondition> {
     return this.savedItemConditions[name];
   }
@@ -471,6 +482,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     this.detachFromSource();
     const oldExpression = this.filterExpression;
+    if (!!source) {
+      this.restorePendingState();
+    }
     // The expression is recomposed against the new source BEFORE anything is written: the search
     // fragments quote the fields of the source they were built from, so the text composed for the
     // previous one names fields the new one may not have. Recomposing it silently - the control is
@@ -506,6 +520,9 @@ export class QuestionFilterModel extends QuestionNonValue {
       survey.filterChanged(this, this.filterExpression, source);
     }
   }
+  // A bound control whose source is not there (yet) has no fields to check restored conditions
+  // against: getFilterFields() falls back to the standalone list, which a bound control rarely has.
+  private get isFieldListReady(): boolean { return !this.source || !!this.filterSource; }
   protected getUIState(): IElementUIState {
     let res = super.getUIState();
     const state: IFilterElementUIState = {};
@@ -526,27 +543,75 @@ export class QuestionFilterModel extends QuestionNonValue {
       state.searchFields = [].concat(this.searchFields || []);
       isEmpty = false;
     }
+    const conditions = this.getUIStateConditions();
+    if (!!conditions) { state.conditions = conditions; isEmpty = false; }
+    const items = this.getUIStateItems();
+    if (!!items) { state.items = items; isEmpty = false; }
     if (isEmpty) return res;
     res = res || {};
     res.filter = state;
     return res;
   }
+  // Unsaved edits, and only when they are a change: over an active preset an edit that leaves its
+  // conditions as they were is nothing to restore, while [] over it is (its conditions were
+  // cleared). With no preset, [] and "no edits" filter the same - by nothing - so neither is stored.
+  // Conditions restored before the source attached were never checked; they are passed on as they
+  // came, or saving the state again before the source appears would lose them.
+  private getUIStateConditions(): Array<IFilterCondition> {
+    let conditions = this.pendingConditions;
+    if (conditions === undefined) {
+      conditions = this.ownConditions;
+      if (conditions === undefined) return undefined;
+      if (!!this.activeItem ? !this.isActiveItemModified : conditions.length === 0) return undefined;
+    }
+    return conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
+  }
+  // Only presets that still exist: a removed one would be ignored on restore anyway.
+  private getUIStateItems(): { [name: string]: { conditions: Array<IFilterCondition> } } {
+    let res: { [name: string]: { conditions: Array<IFilterCondition> } } = undefined;
+    const add = (name: string, conditions: Array<IFilterCondition>): void => {
+      if (!this.getItemByName(name) || !Array.isArray(conditions)) return;
+      res = res || {};
+      res[name] = { conditions: conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
+    };
+    const pending = this.pendingItems || {};
+    Object.keys(pending).forEach((name: string): void => { add(name, !!pending[name] ? pending[name].conditions : undefined); });
+    // A preset saved in this session wins over one still waiting for its source: it is newer.
+    Object.keys(this.savedItemConditions).forEach((name: string): void => { add(name, this.getSavedItemConditions(name)); });
+    return res;
+  }
+  // The order is load-bearing. Saved presets first: activeItemName may name one of them, and its
+  // expression has to be the saved one before it is composed. activeItemName before conditions: its
+  // setter resets the edits, which would otherwise wipe the restored ones. The search last - it is
+  // independent of the rest. The whole restore is one batch: one write into the source, one
+  // onFilterChanged (none if the expression did not change) and no onUIStateChanged - restoring is
+  // not a new change, and a host that saves on every change would otherwise save right after every
+  // restore.
   protected setUIState(state: IElementUIState): void {
     super.setUIState(state);
     const filter = !!state ? state.filter : undefined;
     if (!filter) return;
-    // Each of the three keys recomposes the expression on its own, and only the last composition is
-    // the filter that is actually in effect. The flag holds the write into the source and
-    // onFilterChanged back until all three have landed: without it a restore would report - and
-    // make a host that mirrors the filter query - two intermediate expressions nothing was ever
-    // filtered by, and would rebuild the bound question's rows three times.
-    const oldExpression = this.filterExpression;
-    this.isSettingUIState = true;
-    try {
+    this.runBatch((): void => {
+      const isReady = this.isFieldListReady;
+      const items = !!filter.items && typeof filter.items === "object" ? filter.items : undefined;
+      // A newer restore replaces whatever an earlier one left waiting for the source.
+      this.pendingItems = isReady ? undefined : items;
+      if (isReady) {
+        this.restoreItems(items);
+      }
       // A key that is not there was not changed by the respondent, EXCEPT activeItemName, whose ""
       // means "switched off" and must survive.
       if (filter.activeItemName !== undefined) {
         this.activeItemName = filter.activeItemName;
+      }
+      const conditions = Array.isArray(filter.conditions) ? filter.conditions : undefined;
+      if (isReady) {
+        this.pendingConditions = undefined;
+        if (!!conditions) {
+          this.restoreConditions(conditions);
+        }
+      } else {
+        this.pendingConditions = !!conditions ? conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) : undefined;
       }
       if (filter.searchString !== undefined) {
         this.searchString = filter.searchString;
@@ -554,20 +619,87 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (Array.isArray(filter.searchFields)) {
         this.searchFields = [].concat(filter.searchFields);
       }
-    } finally {
-      // A throw in any of the three must not leave the control silent for the rest of the session.
-      this.isSettingUIState = false;
+    });
+  }
+  // A saved preset's expression is rebuilt from its conditions and not parsed back: that is what
+  // saveActiveItem() wrote, and it is what the preset will be saved as again. A name that no longer
+  // resolves to a preset is ignored - the author removed or renamed it.
+  private restoreItems(items: { [name: string]: { conditions: Array<IFilterCondition> } }): void {
+    if (!items) return;
+    const fields = this.getFilterFields();
+    Object.keys(items).forEach((name: string): void => {
+      const item = this.getItemByName(name);
+      const entry = items[name];
+      if (!item || !entry || !Array.isArray(entry.conditions)) return;
+      const conditions = normalizeFilterConditions(entry.conditions, fields);
+      item.expression = conditionsToExpression(conditions, fields);
+      this.savedItemConditions[name] = conditions;
+    });
+  }
+  // Not over a preset that cannot be edited (an "ai" one) or in the designer: an edit could not have
+  // produced these there either.
+  private restoreConditions(conditions: Array<IFilterCondition>): void {
+    if (!this.canEditConditions) return;
+    this.setOwnConditions(normalizeFilterConditions(conditions, this.getFilterFields()));
+  }
+  // Called by updateFilterSource() for the source that is being attached, before it recomposes the
+  // expression and writes it: the restored part lands in that same single write. Held so neither
+  // the preset expressions it rebuilds nor the conditions it sets write or raise on their own.
+  private restorePendingState(): void {
+    const items = this.pendingItems;
+    const conditions = this.pendingConditions;
+    if (!items && !conditions) return;
+    this.pendingItems = undefined;
+    this.pendingConditions = undefined;
+    this.holdChanges((): void => {
+      this.restoreItems(items);
+      if (!!conditions) {
+        this.restoreConditions(conditions);
+      }
+    });
+  }
+  // Several changes that are one change for whoever listens: while fn runs nothing is written into
+  // the source, onFilterChanged is not raised and onUIStateChanged is only noted. After it, the
+  // expression is composed once and, if it differs from what it was before fn, written once and
+  // reported once; with raiseUIState, onUIStateChanged is raised once if anything in fn would have
+  // raised it. A restore passes no raiseUIState; an editor that applies several edits as one does.
+  // A nested call runs inside the outer batch and leaves the single write to it.
+  private runBatch(fn: () => void, raiseUIState?: boolean): void {
+    if (this.batchLevel > 0) {
+      fn();
+      return;
     }
+    const oldExpression = this.filterExpression;
+    this.uiStateChangedInBatch = false;
+    // A throw in fn propagates from here: holdChanges() has already released the hold, so the
+    // control is not left silent for the rest of the session.
+    this.holdChanges(fn);
+    const isUIStateChanged = this.uiStateChangedInBatch;
+    this.uiStateChangedInBatch = false;
     this.updateFilterExpression();
-    // The one write and the one event of the whole restore. Nothing changed = nothing to report.
     if (this.filterExpression !== oldExpression) {
       this.applyToSource();
+    }
+    if (raiseUIState && isUIStateChanged) {
+      this.raiseUIStateChanged();
+    }
+  }
+  private holdChanges(fn: () => void): void {
+    this.batchLevel++;
+    try {
+      fn();
+    } finally {
+      this.batchLevel--;
     }
   }
   // The survey is reached duck-typed so a host that is not a SurveyModel does not crash on it. The
   // designer has no respondent, so nothing done to the control there is respondent state.
   private raiseUIStateChanged(): void {
-    if (this.isLoadingFromJson || this.isSettingUIState || this.isDesignMode || !this.survey) return;
+    if (this.isLoadingFromJson || this.isDesignMode || !this.survey) return;
+    if (this.batchLevel > 0) {
+      this.uiStateChangedInBatch = true;
+      return;
+    }
     const survey: any = this.survey;
     if (!!survey.filterStateChanged) survey.filterStateChanged(this);
   }
@@ -673,8 +805,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     return !!item ? (item.expression || "").trim() : "";
   }
   // skipApply is for the caller that is in the middle of moving the control between two sources: it
-  // does the single write-and-raise itself, once the new source is attached. A uiState restore is
-  // in the same position for the length of its three assignments and says so through the flag.
+  // does the single write-and-raise itself, once the new source is attached. A batch (runBatch) is
+  // in the same position for the length of its changes and says so through batchLevel.
   private updateFilterExpression(skipApply?: boolean): void {
     // Nothing is filtered while the JSON is still being read - onSurveyLoad() composes the
     // expression once it is whole - and nothing is filtered in the designer either.
@@ -682,7 +814,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const newValue = this.calcFilterExpression();
     if (newValue === this.filterExpression) return;
     this.setPropertyValue("filterExpression", newValue);
-    if (!skipApply && !this.isSettingUIState) {
+    if (!skipApply && this.batchLevel === 0) {
       this.applyToSource();
     }
   }

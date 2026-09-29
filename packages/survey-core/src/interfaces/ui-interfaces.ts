@@ -28,6 +28,13 @@ export interface IFilterElementUIState {
   activeItemName?: string;
   searchString?: string;
   searchFields?: Array<string>;
+  // The respondent's unsaved edits - the full set, not a diff against the preset. Stored only when
+  // there are any: over an active preset only when they change it ([] = its conditions were
+  // cleared), with no preset only when not empty.
+  conditions?: Array<IFilterCondition>;
+  // Presets the respondent saved edits into, by name. Kept as conditions and not as expression
+  // text: the preset's expression is rebuilt from them on restore, with nothing to parse back.
+  items?: { [name: string]: { conditions: Array<IFilterCondition> } };
 }
 export interface IElementUIState {
   collapsed?: boolean;

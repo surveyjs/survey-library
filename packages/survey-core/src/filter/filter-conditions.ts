@@ -232,6 +232,31 @@ export function conditionsToExpression(conditions: Array<IFilterCondition>, fiel
   return ConditionEditorItemsBuilder.itemsToExpression(items);
 }
 
+// Conditions that come from outside the control - a saved uiState - checked against the fields it
+// has now, with the same rules the control's own edits and parseFilterExpression follow: a field
+// that is no longer there, a second condition on a field that already has one, or an operator that
+// field does not offer is dropped (not the whole list: the rest is still what the respondent asked
+// for). The value is coerced here once, by the same coerceConditionValue composition uses, so the
+// restored condition holds what the edit would have held and not the raw text a JSON round trip or
+// a hand-written state carries. An array value comes out as a new array.
+export function normalizeFilterConditions(conditions: Array<IFilterCondition>, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> {
+  const fieldsByValueName = getFieldsByValueName(fields);
+  const seenValueNames: { [valueName: string]: boolean } = {};
+  const res: Array<IFilterCondition> = [];
+  (Array.isArray(conditions) ? conditions : []).forEach((condition: IFilterCondition): void => {
+    if (!condition || typeof condition !== "object") return;
+    const valueName = condition.field;
+    if (!Object.prototype.hasOwnProperty.call(fieldsByValueName, valueName)) return;
+    if (Object.prototype.hasOwnProperty.call(seenValueNames, valueName)) return;
+    const field = fieldsByValueName[valueName];
+    if (getFilterFieldOperators(field).indexOf(condition.operator) === -1) return;
+    seenValueNames[valueName] = true;
+    // coerceConditionValue maps an array into a new one, so the caller's array is never shared.
+    res.push({ field: valueName, operator: condition.operator, value: coerceConditionValue(field.valueType, condition.value) });
+  });
+  return res;
+}
+
 // The structural half of parsing a preset's expression - whether the text decomposes into rows at
 // all - depends only on the text: build() with no hasValue turns away nothing by name, so the same
 // text always parses to the same rows whatever fields exist at the moment. A bound control's field

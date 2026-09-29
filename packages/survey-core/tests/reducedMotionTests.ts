@@ -16,7 +16,7 @@ function setReducedMotion(matches: boolean): void {
 describe("prefers-reduced-motion", () => {
   test("isAnimationEnabled follows animationEnabled and the media query", () => {
     settings.animationEnabled = false;
-    settings.respectReducedMotion = true;
+    settings.animation.respectReducedMotion = true;
     setReducedMotion(false);
     expect(isAnimationEnabled()).toBe(false);
     expect(getScrollBehavior()).toBe("auto");
@@ -31,7 +31,7 @@ describe("prefers-reduced-motion", () => {
     expect(isAnimationEnabled()).toBe(false);
     expect(getScrollBehavior()).toBe("auto");
 
-    settings.respectReducedMotion = false;
+    settings.animation.respectReducedMotion = false;
     expect(isReducedMotionPreferred()).toBe(false);
     expect(isAnimationEnabled()).toBe(true);
     expect(getScrollBehavior()).toBe("smooth");
@@ -42,19 +42,19 @@ describe("prefers-reduced-motion", () => {
     const question = survey.getAllQuestions()[0];
     question.supportOnElementRerenderedEvent = false;
     settings.animationEnabled = true;
-    settings.respectReducedMotion = true;
+    settings.animation.respectReducedMotion = true;
     setReducedMotion(false);
     expect(question.animationAllowed).toBe(true);
     setReducedMotion(true);
     expect(question.animationAllowed).toBe(false);
-    settings.respectReducedMotion = false;
+    settings.animation.respectReducedMotion = false;
     expect(question.animationAllowed).toBe(true);
     survey.dispose();
   });
 
   test("root css tracks the media query while the survey is rendered", () => {
     settings.animationEnabled = true;
-    settings.respectReducedMotion = true;
+    settings.animation.respectReducedMotion = true;
     setReducedMotion(true);
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const disabledClass = survey.css.rootAnimationDisabled;

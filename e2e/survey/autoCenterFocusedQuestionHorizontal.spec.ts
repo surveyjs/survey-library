@@ -145,7 +145,7 @@ async function runFixture(page: Page, framework: string, options: IFixtureOption
   if (options.animation) {
     await page.evaluate(() => {
       (window as any).Survey.settings.animationEnabled = true;
-      (window as any).Survey.settings.respectReducedMotion = false;
+      (window as any).Survey.settings.animation.respectReducedMotion = false;
     });
   }
   await preScroll(page, options);

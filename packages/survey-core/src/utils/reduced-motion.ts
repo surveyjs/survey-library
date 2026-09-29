@@ -24,7 +24,7 @@ function getReducedMotionMedia(): IReducedMotionMedia | null {
 }
 
 export function isReducedMotionPreferred(): boolean {
-  if (!settings.respectReducedMotion) return false;
+  if (!settings.animation.respectReducedMotion) return false;
   const media = getReducedMotionMedia();
   return !!media && !!media.matches;
 }

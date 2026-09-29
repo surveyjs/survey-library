@@ -14,7 +14,7 @@ async function enableAnimations(page: Page, options: { respectReducedMotion: boo
   await page.evaluate(({ respectReducedMotion }) => {
     const settings = (window as any).Survey.settings;
     settings.animationEnabled = true;
-    settings.respectReducedMotion = respectReducedMotion;
+    settings.animation.respectReducedMotion = respectReducedMotion;
   }, options);
 }
 

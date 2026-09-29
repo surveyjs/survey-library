@@ -650,7 +650,7 @@ afterEach(() => {
   surveyLocalization.defaultLocale = __defaultLocale;
   // settings: re-apply our test defaults in case a test mutated them
   settings.animationEnabled = false;
-  settings.respectReducedMotion = true;
+  settings.animation.respectReducedMotion = true;
   settings.dropdownSearchDelay = 0;
   if (typeof (globalThis as any).__setMatchMedia === "function") {
     (globalThis as any).__setMatchMedia(reducedMotionMediaQuery, false);

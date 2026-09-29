@@ -136,6 +136,28 @@ describe("QuestionFilterModel: switching presets resets the edits", () => {
     expect(q.ownConditions, "#3").toBe(undefined);
     expect(q.filterExpression, "#4").toBe("");
   });
+  test("clearActiveItem drops the edits even with no preset active", () => {
+    const survey = createSurvey({ items: presets, defaultItem: "" });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.setFieldCondition("country", "equal", "fr");
+    expect(q.filterExpression, "#1").toBe("{country} = 'fr'");
+    const events = trackEvents(survey);
+    q.clearActiveItem();
+    expect(q.ownConditions, "#2").toBe(undefined);
+    expect(q.filterExpression, "#3").toBe("");
+    expect(events, "#4: one of each").toEqual({ filter: 1, uiState: 1 });
+    q.clearActiveItem();
+    expect(events, "#5: nothing left to clear").toEqual({ filter: 1, uiState: 1 });
+  });
+  test("single mode: clearActiveItem drops the edits and the default preset's text is the filter again", () => {
+    const q = createControl({ allowMultipleItems: false, defaultItem: "kids" });
+    q.setFieldCondition("age", "less", 10);
+    expect(q.filterExpression, "#1").toBe("{age} < 10");
+    q.clearActiveItem();
+    expect(q.ownConditions, "#2").toBe(undefined);
+    expect(q.activeItem.name, "#3: the preset cannot be taken off in single mode").toBe("kids");
+    expect(q.filterExpression, "#4").toBe("{age} <= 18");
+  });
   test("assigning activeItemName or activeItem drops the edits", () => {
     const q = createControl();
     q.setFieldCondition("age", "greater", 21);

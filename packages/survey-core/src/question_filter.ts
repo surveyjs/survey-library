@@ -201,7 +201,19 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!name) return;
     this.activeItemName = name === this.activeItemName ? "" : name;
   }
-  public clearActiveItem(): void { this.activeItemName = ""; }
+  // "Clear the filter": no preset and no edits of the respondent's own. It resets the edits even
+  // when no preset is active - the activeItemName setter would see no change there and keep them -
+  // and in single mode, where the preset cannot be taken off and its text becomes the filter again.
+  public clearActiveItem(): void {
+    if (!!this.activeItemName) {
+      this.activeItemName = "";
+      return;
+    }
+    if (this.ownConditions === undefined) return;
+    this.setOwnConditions(undefined);
+    this.updateFilterExpression();
+    this.raiseUIStateChanged();
+  }
   // The list a renderer shows. Single mode has no list.
   public get visibleItems(): Array<FilterItem> { return this.allowMultipleItems ? this.items : []; }
   public get canAddItems(): boolean { return this.allowMultipleItems && this.allowAddItems; }

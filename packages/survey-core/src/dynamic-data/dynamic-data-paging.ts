@@ -219,25 +219,32 @@ export class DynamicDataPagingController {
        takes what the list ended up with. In design mode the text is never parsed at all, so the
        Creator keeps a filter that does not run. */
     this.isViewPending = false;
-    this.isPushingView = true;
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.sortOrder;
     // One setView and not the two setters: with a paging source each of them is a read of its own,
     // and the authored view has to cost one request.
     if (list.filter !== filter || !Helpers.isTwoValueEquals(list.sort, sort)) {
-      list.setView(filter, sort);
+      this.runViewPush((): void => { list.setView(filter, sort); });
     }
-    this.isPushingView = false;
     this.mirrorListView();
   }
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
     if (!list.filter && list.sort.length === 0) return;
+    this.runViewPush((): void => { list.setView("", []); });
+  }
+  /* setView runs user code - onError for a filter it cannot run, the owner's rebuild on the reset -
+     and a flag that a throw left set would make every later syncState skip the view: the hash would
+     stop mirroring the list for good. */
+  private runViewPush(func: () => void): void {
     this.isPushingView = true;
-    list.setView("", []);
-    this.isPushingView = false;
+    try {
+      func();
+    } finally {
+      this.isPushingView = false;
+    }
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
      nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty

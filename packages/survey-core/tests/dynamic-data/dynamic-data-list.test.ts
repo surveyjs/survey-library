@@ -2614,3 +2614,60 @@ describe("DynamicDataList: a new record's identity", () => {
       .toEqual({ id: 1000, name: "first", status: "edited" });
   });
 });
+
+describe("a throwing callback does not leave a guard behind", () => {
+  // Throws the first time only: the calls after it are the ones the tests look at.
+  function throwOnce(): () => void {
+    let isThrown = false;
+    return (): void => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
+  }
+  test("setValue: a page clamp that throws inside the write", () => {
+    // A bare list: its membership is not frozen on edit, so an edit that leaves the filter clamps.
+    const list = createList(createRecords(3));
+    list.filter = "{name} notempty";
+    list.pageSize = 1;
+    list.pageIndex = 2;
+    const throwIt = throwOnce();
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (change.type === "pageChanged") throwIt();
+    };
+    expect(() => list.setValue(2, "name", ""), "#1: the clamp raised pageChanged inside the write").toThrow();
+    expect(list.pageIndex, "#2").toBe(1);
+    expect(list.isWriting, "#3").toBe(false);
+    // A same-length content change the list cannot see: invalidateViews is how it learns about it.
+    list.getRecord(0).name = "";
+    list.invalidateViews();
+    expect(list.getVisibleIndexes(), "#4: the view was re-decided").toEqual([1]);
+    expect(list.pageIndex, "#5").toBe(0);
+  });
+  test("add: onError throws for a push the source rejected synchronously", () => {
+    // Not an array source: that one re-reads its storage after a synchronous push.
+    const source: IDynamicDataSource = {
+      read: (): Array<any> => createRecords(1),
+      insert: (): any => { throw new Error("rejected"); }
+    };
+    const list = new DynamicDataList(source);
+    list.load();
+    list.onError = throwOnce();
+    expect(() => list.add({ id: 1 }), "#1").toThrow();
+    expect(list.isWriting, "#2").toBe(false);
+    expect(list.loadedCount, "#3: the local change is kept").toBe(2);
+    expect(list.add({ id: 2 }), "#4: the next add works").toBe(2);
+    expect(list.isWriting, "#5").toBe(false);
+    expect(list.loadedCount, "#6").toBe(3);
+  });
+  test("ensureCount: createRecord throws on the second record", () => {
+    const list = createList([]);
+    const throwIt = throwOnce();
+    expect(() => list.ensureCount(3, (i: number): any => {
+      if (i === 1) throwIt();
+      return { id: i };
+    }), "#1").toThrow();
+    expect(list.isWriting, "#2").toBe(false);
+    expect(list.loadedCount, "#3: the first record was added").toBe(1);
+  });
+});

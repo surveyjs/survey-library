@@ -1786,15 +1786,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.syncDataListRecordCount();
     } else if (this.value) {
       this.isRowChanging = true;
-      if (this.isEditingObjectValue) {
-        // The live array is spliced in place: that is what removes the row from the edited object.
-        const val = this.createValueCopy();
-        val.splice(index, 1);
-        this.value = val;
-      } else if (recordIndex > -1) {
-        this.dataList.remove(recordIndex);
+      try {
+        if (this.isEditingObjectValue) {
+          // The live array is spliced in place: that is what removes the row from the edited object.
+          const val = this.createValueCopy();
+          val.splice(index, 1);
+          this.value = val;
+        } else if (recordIndex > -1) {
+          this.dataList.remove(recordIndex);
+        }
+      } finally {
+        this.isRowChanging = false;
       }
-      this.isRowChanging = false;
     }
     /* The page came up one record short, and the first record of the next page belongs on it now: the
        page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
@@ -2297,9 +2300,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // The merge is the base's; the record it works on is a copy of the one the list holds.
     const rowValue = Object.assign({}, oldRecord);
     this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
+    // The list's callbacks run in between: a flag a throw left set would make onSetQuestionValue
+    // return early for good.
+    let isChanged = false;
     this.isRowChanging = true;
-    const isChanged = list.setRecord(index, rowValue);
-    this.isRowChanging = false;
+    try {
+      isChanged = list.setRecord(index, rowValue);
+    } finally {
+      this.isRowChanging = false;
+    }
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {

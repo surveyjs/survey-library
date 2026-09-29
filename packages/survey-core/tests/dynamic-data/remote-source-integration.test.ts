@@ -1890,3 +1890,26 @@ describe("Remote data source: a record without a key", () => {
     });
   });
 });
+
+describe("a throwing callback does not leave a guard behind", () => {
+  test("a throwing onDynamicPanelRemoved inside removePanel leaves the value flag clear", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "q" }] }]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    question.value = [{ q: "a" }, { q: "b" }, { q: "c" }];
+    expect(question.panels.length, "#1").toBe(3);
+    let isThrown = false;
+    survey.onDynamicPanelRemoved.add(() => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    });
+    expect(() => question.removePanel(1), "#2").toThrow();
+    expect(question.value, "#3: the record was removed").toEqual([{ q: "a" }, { q: "c" }]);
+    question.value = [{ q: "x" }, { q: "y" }, { q: "z" }, { q: "w" }];
+    expect(question.panelCount, "#4: an assignment from outside rebuilds the panels").toBe(4);
+    expect(question.panels.map((panel) => panel.getQuestionByName("q").value), "#5")
+      .toEqual(["x", "y", "z", "w"]);
+  });
+});

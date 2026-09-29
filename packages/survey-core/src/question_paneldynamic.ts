@@ -1474,15 +1474,19 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
        the page itself - every panel it creates asks for a render. */
     if (this.wasNotRenderedInSurvey) return;
     let panels: Array<PanelModel> = [];
+    // onFirstRendering runs in between: a flag a throw left set would stop every later paging render.
     this.isUpdatingRenderedPanels = true;
-    if (this.isRenderModeList) {
-      panels = [].concat(this.panelsOnPage);
-    } else if (this.currentPanel) {
-      panels = [this.currentPanel];
+    try {
+      if (this.isRenderModeList) {
+        panels = [].concat(this.panelsOnPage);
+      } else if (this.currentPanel) {
+        panels = [this.currentPanel];
+      }
+      panels.forEach(panel => this.panelOnFirstRendering(panel));
+      this.renderedPanels = panels;
+    } finally {
+      this.isUpdatingRenderedPanels = false;
     }
-    panels.forEach(panel => this.panelOnFirstRendering(panel));
-    this.renderedPanels = panels;
-    this.isUpdatingRenderedPanels = false;
   }
   private panelOnFirstRendering(panel: PanelModel) {
     if (panel) {
@@ -1977,16 +1981,19 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const panelCount = this.panelCount;
     if (list.count === panelCount) return;
     this.isValueChangingInternally = true;
-    list.batch((): void => {
-      list.ensureCount(panelCount, (i: number): any => {
-        // A record past the page has no panel to take its value from.
-        const panel = this.panels[i];
-        const panelValue = !!panel ? panel.getValue() : this.createNewRecord();
-        return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+    try {
+      list.batch((): void => {
+        list.ensureCount(panelCount, (i: number): any => {
+          // A record past the page has no panel to take its value from.
+          const panel = this.panels[i];
+          const panelValue = !!panel ? panel.getValue() : this.createNewRecord();
+          return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+        });
+        list.truncate(panelCount);
       });
-      list.truncate(panelCount);
-    });
-    this.isValueChangingInternally = false;
+    } finally {
+      this.isValueChangingInternally = false;
+    }
   }
   /**
    * An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
@@ -2904,12 +2911,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (recordIndex < 0 || recordIndex >= list.count) {
       this.updateFooterActions();
     } else {
+      // The list's callbacks and onDynamicPanelRemoved run in between: user code.
       this.isValueChangingInternally = true;
-      list.remove(recordIndex);
-      this.updateFooterActions();
-      this.fireCallback(this.panelCountChangedCallback);
-      this.notifyOnPanelAddedRemoved(false, index, panel);
-      this.isValueChangingInternally = false;
+      try {
+        list.remove(recordIndex);
+        this.updateFooterActions();
+        this.fireCallback(this.panelCountChangedCallback);
+        this.notifyOnPanelAddedRemoved(false, index, panel);
+      } finally {
+        this.isValueChangingInternally = false;
+      }
     }
     /* The page came up one record short, and the first record of the next page belongs on it now: the
        page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
@@ -3336,8 +3347,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       }
     } finally {
       this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
+      this.isValueChangingInternally = prevIsValueChangingInternally;
     }
-    this.isValueChangingInternally = prevIsValueChangingInternally;
     if (!this.isPagingSyncSuspended) {
       this.runDeferredPagingSync();
     }

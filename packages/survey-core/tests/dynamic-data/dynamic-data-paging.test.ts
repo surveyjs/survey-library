@@ -407,3 +407,49 @@ describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
     expect(owner.sortByChanges, "#2").toEqual([]);
   });
 });
+
+describe("a throwing callback does not leave a guard behind", () => {
+  test("an exception out of the authored-view push does not stop the next one", () => {
+    const owner = new FakePagingOwner(abc());
+    const list = owner.getDataList();
+    let isThrown = false;
+    // The filter cannot be parsed: the list reports it through onError, and this onError throws.
+    list.onError = (): void => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} = ";
+    owner.isLoadingFromJson = false;
+    expect(() => owner.paging.flushAuthoredView(), "#1").toThrow();
+    expect(list.filter, "#2: the list refused the filter").toBe("");
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} != 'a'";
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(list.filter, "#3: the second authored flush reached the list").toBe("{c1} != 'a'");
+    expect(owner.view, "#4").toEqual(["c", "b"]);
+    expect(owner.paging.filterExpression, "#5: the hash mirrors the list").toBe("{c1} != 'a'");
+  });
+  test("an exception out of the design-mode clear does not stop the next push", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    const list = owner.getDataList();
+    let isThrown = false;
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (change.type !== "reset" || isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
+    owner.isDesignMode = true;
+    expect(() => owner.paging.syncState(), "#1: the clear raised reset").toThrow();
+    expect(list.sort, "#2: the list was cleared").toEqual([]);
+    // The design-mode sync the throw cut short, then the switch back.
+    owner.paging.syncState();
+    owner.isDesignMode = false;
+    owner.paging.syncState();
+    expect(list.sort, "#3: the authored sort reached the list").toEqual(asc);
+    expect(owner.view, "#4").toEqual(["a", "b", "c"]);
+  });
+});

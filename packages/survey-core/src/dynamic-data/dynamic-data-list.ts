@@ -246,21 +246,33 @@ export class DynamicDataList {
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
     const source: any = this._source;
-    this.writeDepth++;
-    try {
+    this.runWrite((): void => {
       if (!!source && typeof source.batch === "function") {
         source.batch(func);
       } else {
         func();
       }
-    } finally {
-      this.endWrite();
-    }
+    });
   }
   // True while the list applies a write of its own: the owner uses it to tell an assignment it
   // caused itself from one made outside (survey.data, a trigger, clearValue).
   public get isWriting(): boolean {
     return this.writeDepth > 0;
+  }
+  /* Every write of the list runs here. The code inside runs user code - the owner's createRecord,
+     the notifications of a nested write or a clamp, onError, a read-through source's setter and the
+     survey handlers behind it - and a write scope that a throw left open would make isWriting true
+     for good: invalidateViews would ignore every later assignment and the owners would take every
+     assignment from outside for their own. The nesting and the timing of the notifications are
+     unchanged: each method notifies after its own scope, so a write nested in ensureCount, truncate
+     or batch still notifies with the outer scope open. */
+  private runWrite<T>(func: () => T): T {
+    this.writeDepth++;
+    try {
+      return func();
+    } finally {
+      this.endWrite();
+    }
   }
   private endWrite(): void {
     if (this.writeDepth > 0)this.writeDepth--;
@@ -327,19 +339,19 @@ export class DynamicDataList {
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
     this.checkWindowIsWholeStorage("ensureCount");
-    this.writeDepth++;
-    for (let i = this.loadedCount; i < n; i++) {
-      this.add(!!createRecord ? createRecord(i) : {});
-    }
-    this.endWrite();
+    this.runWrite((): void => {
+      for (let i = this.loadedCount; i < n; i++) {
+        this.add(!!createRecord ? createRecord(i) : {});
+      }
+    });
   }
   public truncate(n: number): void {
     this.checkWindowIsWholeStorage("truncate");
-    this.writeDepth++;
-    for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
-      this.remove(i);
-    }
-    this.endWrite();
+    this.runWrite((): void => {
+      for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
+        this.remove(i);
+      }
+    });
   }
 
   public getRecord(index: number): any {
@@ -367,15 +379,15 @@ export class DynamicDataList {
     // the one the respondent edited, and the copy made on write is not in the window yet.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
-    this.writeDepth++;
-    this.replaceRecord(index, newRecord);
-    const ownedFields = this.getOwnedFields(pending);
-    // The push comes before the notification: with a read-through source the push IS the local write,
-    // so the owner must not be notified of a change it cannot read yet.
-    this.pushToSource("update",
-      (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, newRecord, ownedFields), [field]),
-      { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
-    this.endWrite();
+    this.runWrite((): void => {
+      this.replaceRecord(index, newRecord);
+      const ownedFields = this.getOwnedFields(pending);
+      // The push comes before the notification: with a read-through source the push IS the local
+      // write, so the owner must not be notified of a change it cannot read yet.
+      this.pushToSource("update",
+        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, newRecord, ownedFields), [field]),
+        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+    });
     this.raiseChanged({ type: "recordChanged", index: index, field: field });
     return true;
   }
@@ -391,13 +403,13 @@ export class DynamicDataList {
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
-    this.writeDepth++;
-    this.replaceRecord(index, record);
-    const ownedFields = this.getOwnedFields(pending);
-    this.pushToSource("update",
-      (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, record, ownedFields), changedFields),
-      { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
-    this.endWrite();
+    this.runWrite((): void => {
+      this.replaceRecord(index, record);
+      const ownedFields = this.getOwnedFields(pending);
+      this.pushToSource("update",
+        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, this.getUpdatePayload(pending, record, ownedFields), changedFields),
+        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+    });
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
@@ -416,20 +428,20 @@ export class DynamicDataList {
       ? this.recordCount
       : Math.max(0, Math.min(index, this.recordCount));
     this.alignHiddenFlags();
-    this.writeDepth++;
-    this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
-    this.hiddenFlags.splice(at, 0, false);
-    if (this._total !== undefined)this._total++;
-    if (this.maxSeenCount > 0)this.maxSeenCount++;
-    this.updateHasMoreFromTotal(countAfter);
-    this.insertIntoMembership(at, createdPosition, countAfter);
-    this.resetViews();
-    const sourceIndex = this._windowOffset + at;
-    /* An added record has no key yet: the position says where it goes and the source assigns the
-       key, which the answer of insert brings back (applyInsertAnswer). */
-    this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
-      { insertedRecord: newRecord });
-    this.endWrite();
+    this.runWrite((): void => {
+      this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
+      this.hiddenFlags.splice(at, 0, false);
+      if (this._total !== undefined)this._total++;
+      if (this.maxSeenCount > 0)this.maxSeenCount++;
+      this.updateHasMoreFromTotal(countAfter);
+      this.insertIntoMembership(at, createdPosition, countAfter);
+      this.resetViews();
+      const sourceIndex = this._windowOffset + at;
+      /* An added record has no key yet: the position says where it goes and the source assigns the
+         key, which the answer of insert brings back (applyInsertAnswer). */
+      this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
+        { insertedRecord: newRecord });
+    });
     this.raiseChanged({ type: "recordAdded", index: at });
     return at;
   }
@@ -451,17 +463,17 @@ export class DynamicDataList {
     const pending = this.findPendingInsert(index);
     const countAfter = this.recordCount - 1;
     this.alignHiddenFlags();
-    this.writeDepth++;
-    this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
-    this.hiddenFlags.splice(index, 1);
-    if (this._total !== undefined)this._total--;
-    if (this.maxSeenCount > 0)this.maxSeenCount--;
-    this.updateHasMoreFromTotal(countAfter);
-    this.removeFromMembership(index, countAfter);
-    this.resetViews();
-    this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
-      { key: key, pendingInsert: pending });
-    this.endWrite();
+    this.runWrite((): void => {
+      this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
+      this.hiddenFlags.splice(index, 1);
+      if (this._total !== undefined)this._total--;
+      if (this.maxSeenCount > 0)this.maxSeenCount--;
+      this.updateHasMoreFromTotal(countAfter);
+      this.removeFromMembership(index, countAfter);
+      this.resetViews();
+      this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
+        { key: key, pendingInsert: pending });
+    });
     this.raiseChanged({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
     if (!this.clampPageIndexAfterChange()) {
@@ -498,22 +510,22 @@ export class DynamicDataList {
     const key = this.getRecordKey(fromIndex);
     const pending = this.findPendingInsert(fromIndex);
     this.alignHiddenFlags();
-    this.writeDepth++;
-    this.editWindow((records: Array<any>): void => {
-      const record = records[fromIndex];
-      records.splice(fromIndex, 1);
-      records.splice(toIndex, 0, record);
+    this.runWrite((): void => {
+      this.editWindow((records: Array<any>): void => {
+        const record = records[fromIndex];
+        records.splice(fromIndex, 1);
+        records.splice(toIndex, 0, record);
+      });
+      // A visibility flag belongs to a record, not to a slot: it travels with it.
+      const flag = this.hiddenFlags[fromIndex];
+      this.hiddenFlags.splice(fromIndex, 1);
+      this.hiddenFlags.splice(toIndex, 0, flag);
+      this.moveInMembership(fromIndex, toIndex);
+      this.resetViews();
+      const toSourceIndex = this._windowOffset + toIndex;
+      this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
+        { key: key, pendingInsert: pending });
     });
-    // A visibility flag belongs to a record, not to a slot: it travels with it.
-    const flag = this.hiddenFlags[fromIndex];
-    this.hiddenFlags.splice(fromIndex, 1);
-    this.hiddenFlags.splice(toIndex, 0, flag);
-    this.moveInMembership(fromIndex, toIndex);
-    this.resetViews();
-    const toSourceIndex = this._windowOffset + toIndex;
-    this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
-      { key: key, pendingInsert: pending });
-    this.endWrite();
     this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
@@ -1358,9 +1370,7 @@ export class DynamicDataList {
     // the key itself.
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
-    this.writeDepth++;
-    this.replaceRecord(index, this.mergeInsertAnswer(entry, entry.record));
-    this.endWrite();
+    this.runWrite((): void => { this.replaceRecord(index, this.mergeInsertAnswer(entry, entry.record)); });
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
   }
   /* The client owns the fields it sent or changed while the insert was in flight, the server owns

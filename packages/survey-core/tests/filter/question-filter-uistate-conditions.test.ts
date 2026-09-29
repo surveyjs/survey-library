@@ -3,6 +3,7 @@ import { createSurvey } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { FilterItem } from "../../src/filter/filter-item";
 
 const presets = [
   { name: "adults", expression: "{age} > 18 and {country} = 'de'", allowEdit: true },
@@ -300,5 +301,78 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
       .toBe("{country} = 'de' and {price} > 100");
     expect(events.filter, "#6").toEqual(["{country} = 'de' and {price} > 100"]);
     expect(events.uiState, "#7").toBe(0);
+  });
+});
+
+describe("QuestionFilterModel: uiState of normalized edits", () => {
+  const typeless = { fields: [{ name: "age", valueType: "number" }], items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" };
+  test("a typed edit over a typeless number field round-trips as modified", () => {
+    const survey = create(typeless);
+    const q = control(survey);
+    q.setFieldCondition("age", "greater", "20");
+    expect(q.isActiveItemModified, "#1").toBe(true);
+    const state = filterState(survey);
+    expect(state, "#2").toEqual({ conditions: [{ field: "age", operator: "greater", value: 20 }] });
+    const restored = create(typeless);
+    restored.uiState = survey.uiState;
+    const q2 = control(restored);
+    expect(q2.isActiveItemModified, "#3").toBe(true);
+    expect(q2.filterExpression, "#4").toBe(q.filterExpression);
+    expect(filterState(restored), "#5: and it is saved again the same").toEqual(state);
+  });
+  test("a typed edit reverted to the preset's value stores nothing", () => {
+    const survey = create(typeless);
+    const q = control(survey);
+    q.setFieldCondition("age", "greater", "20");
+    q.setFieldCondition("age", "greater", "18");
+    expect(q.isActiveItemModified, "#1").toBe(false);
+    expect(survey.uiState.questions, "#2").toBe(undefined);
+  });
+});
+
+describe("QuestionFilterModel: saved presets after the host replaces items", () => {
+  test("a replaced items array drops the saved presets it replaced", () => {
+    const survey = create();
+    const q = control(survey);
+    q.toggleItem("kids");
+    q.setFieldCondition("age", "less", 10);
+    q.saveActiveItem();
+    expect(filterState(survey).items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
+    const kids = new FilterItem("kids");
+    kids.expression = "{age} < 3";
+    q.items = [kids];
+    expect(q.activeItem === kids, "#2").toBe(true);
+    expect(q.filterExpression, "#3").toBe("{age} < 3");
+    expect(filterState(survey), "#4: the new preset was never saved").toEqual({ activeItemName: "kids" });
+  });
+  test("a saved preset that stays in the replaced array keeps its saved state, and a push keeps it too", () => {
+    const survey = create();
+    const q = control(survey);
+    q.toggleItem("kids");
+    q.setFieldCondition("age", "less", 10);
+    q.saveActiveItem();
+    const saved = { kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } };
+    q.items = [q.getItemByName("kids"), q.getItemByName("adults")];
+    expect(filterState(survey).items, "#1: the same object, reordered").toEqual(saved);
+    const extra = new FilterItem("extra");
+    extra.expression = "{age} > 60";
+    q.items.push(extra);
+    expect(filterState(survey).items, "#2").toEqual(saved);
+  });
+  test("pending saved presets of a replaced preset are dropped too", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "filter", name: "f1", source: "m", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    survey.uiState = { questions: { f1: { filter: {
+      items: { de: { conditions: [{ field: "country", operator: "equal", value: "gb" }] } } } } } };
+    const q = control(survey);
+    const de = new FilterItem("de");
+    de.expression = "{country} = 'fr'";
+    q.items = [de];
+    expect(survey.uiState.questions, "#1").toBe(undefined);
+    const matrix = <QuestionMatrixDynamicModel>survey.pages[0].addNewQuestion("matrixdynamic", "m");
+    matrix.columns = <any>[];
+    matrix.addColumn("country");
+    survey.setValue("somethingelse", 1);
+    expect(q.getItemByName("de").expression, "#2: the new preset keeps its own text").toBe("{country} = 'fr'");
   });
 });

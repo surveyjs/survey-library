@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import {
   getConditionOperatorTitle, getFilterFieldOperators, getFilterFieldDefaultOperator, getFilterValueEditorJson,
-  FilterConditionItem, conditionsToExpression, parseFilterExpression
+  FilterConditionItem, conditionsToExpression, parseFilterExpression, normalizeFilterCondition
 } from "../../src/filter/filter-conditions";
 import { FilterField } from "../../src/filter/filter-field";
 import { ItemValue } from "../../src/itemvalue";
@@ -280,5 +280,28 @@ describe("parseFilterExpression", () => {
     const first = typelessField("age", "boolean");
     const second = typelessField("age", "number");
     expect(parseFilterExpression("{age} > 5", [first, second]), "the first field's operators decide").toBeNull();
+  });
+});
+
+describe("normalizeFilterCondition", () => {
+  test("coerces the value to the field's type and names the field by its valueName", () => {
+    const age = { ...typelessField("age", "number"), name: "Age" };
+    expect(normalizeFilterCondition(age, { field: "Age", operator: "greater", value: "18" }), "#1")
+      .toEqual({ field: "age", operator: "greater", value: 18 });
+    expect(normalizeFilterCondition(typelessField("vip", "boolean"), { field: "vip", operator: "equal", value: "false" }), "#2")
+      .toEqual({ field: "vip", operator: "equal", value: false });
+  });
+  test("refuses a disallowed operator and a condition that is not ready", () => {
+    const age = typelessField("age", "number");
+    expect(normalizeFilterCondition(age, { field: "age", operator: "contains", value: "1" }) === undefined, "#1").toBe(true);
+    expect(normalizeFilterCondition(age, { field: "age", operator: "equal" }) === undefined, "#2").toBe(true);
+    expect(normalizeFilterCondition(age, { field: "age", operator: "equal", value: "" }) === undefined, "#3").toBe(true);
+    expect(normalizeFilterCondition(age, { field: "age", operator: "anyof", value: [] }) === undefined, "#4").toBe(true);
+    expect(normalizeFilterCondition(age, <any>null) === undefined, "#5").toBe(true);
+  });
+  test("an operator that takes no value keeps none", () => {
+    const res = normalizeFilterCondition(typelessField("age", "number"), { field: "age", operator: "notempty", value: 5 });
+    expect(res, "#1").toEqual({ field: "age", operator: "notempty", value: undefined });
+    expect(res.value === undefined, "#2").toBe(true);
   });
 });

@@ -10,7 +10,7 @@ import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
   conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
-  normalizeFilterConditions, parseFilterExpression
+  normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -290,11 +290,17 @@ export class QuestionFilterModel extends QuestionNonValue {
     return !!condition ? this.copyCondition(condition) : undefined;
   }
   // One condition per field: an edit of a field that already has one replaces it where it stands,
-  // so the badges a renderer shows do not jump around; a new one goes to the end.
+  // so the badges a renderer shows do not jump around; a new one goes to the end. The condition is
+  // normalized as it is written (normalizeFilterCondition): its value coerced the way a restore
+  // coerces it, so a typed "18" over a preset's 18 is not an edit that survives a uiState round
+  // trip only as something else. One the field cannot hold - an operator it does not offer, no value
+  // where the operator needs one - is refused and changes nothing: it would compose into nothing,
+  // yet stored it would still count as an edit and could be saved into the preset.
   public setFieldCondition(name: string, operator: string, value?: any): void {
     const field = this.getFieldByName(name);
     if (!field) return;
-    const condition = this.copyCondition({ field: field.valueName, operator: operator, value: value });
+    const condition = normalizeFilterCondition(field, { field: field.valueName, operator: operator, value: value });
+    if (!condition) return;
     this.editConditions((conditions: Array<IFilterCondition>): Array<IFilterCondition> => {
       const index = this.indexOfCondition(conditions, field.valueName);
       if (index < 0) return conditions.concat([condition]);
@@ -346,12 +352,18 @@ export class QuestionFilterModel extends QuestionNonValue {
   // keeps a copy for uiState, which stores it as items.<name>.conditions so a restored session
   // carries the saved conditions themselves and does not have to re-decompose item.expression,
   // which a lossy round trip (an "or" preset saved from a raw start, or a value coercion) might not
-  // reproduce.
+  // reproduce. The edits are checked against the fields the control has now, which may not be the
+  // ones they were made over (a bound control re-pointed at another source): a condition on a field
+  // that is gone is not saved - it composes into nothing anyway - and when none is left of edits that
+  // had some, nothing is saved at all, by the same rule restoreItems() follows: rewriting the preset
+  // to "" would turn it into "no filter", which nobody asked for.
   public saveActiveItem(): void {
     if (!this.canSaveActiveItem) return;
     const item = this.activeItem;
-    const conditions = this.ownConditions;
-    item.expression = conditionsToExpression(conditions, this.getFilterFields());
+    const fields = this.getFilterFields();
+    const conditions = normalizeFilterConditions(this.ownConditions, fields);
+    if (conditions.length === 0 && this.ownConditions.length > 0) return;
+    item.expression = conditionsToExpression(conditions, fields);
     this.savedItemConditions[item.name] = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
     this.setOwnConditions(undefined);
     // item.expression's own onItemPropertyChanged already recomposed the expression once; this
@@ -427,10 +439,16 @@ export class QuestionFilterModel extends QuestionNonValue {
   // replaces searchString, as one change - one write into the source, one onFilterChanged and one
   // onUIStateChanged, none of them when nothing changed. Not over conditions that cannot be edited:
   // the editor is read-only there and never calls this, but the rule belongs to the control.
+  // conditions is undefined when the respondent changed no field, only the search box: the editor
+  // opened with the conditions the filter has now and still holds them, so there is nothing to
+  // replace - and over a preset that does not decompose, "replacing" them with the editor's empty
+  // fields would wipe the preset's text for a change that never touched it.
   private applyEditorState(conditions: Array<IFilterCondition>, searchString?: string): void {
     if (!this.canEditConditions) return;
     this.runBatch((): void => {
-      this.replaceConditions(conditions);
+      if (conditions !== undefined) {
+        this.replaceConditions(conditions);
+      }
       if (searchString !== undefined) {
         this.searchString = searchString;
       }
@@ -441,13 +459,16 @@ export class QuestionFilterModel extends QuestionNonValue {
   // what applies now are no edit - over an untouched preset that keeps ownConditions undefined, so
   // the preset is still "not modified" and its own text still applies verbatim. Over a preset that
   // does not decompose nothing applies as conditions, so applying is always a first edit there and
-  // replaces the preset's text by what the editor holds.
-  private replaceConditions(conditions: Array<IFilterCondition>): void {
+  // replaces the preset's text by what the editor holds. The editor's conditions are normalized as
+  // setFieldCondition() normalizes one (normalizeFilterConditions), so they compare with the
+  // preset's and restore from uiState the same way.
+  private replaceConditions(editorConditions: Array<IFilterCondition>): void {
     const old = this.ownConditions;
     const preset = old === undefined ? this.parseActiveItemConditions() : null;
     const current = old !== undefined ? old : (preset || []);
+    const conditions = normalizeFilterConditions(editorConditions, this.getFilterFields());
     const byField: HashTable<IFilterCondition> = {};
-    conditions.forEach((c: IFilterCondition): void => { byField[c.field] = this.copyCondition(c); });
+    conditions.forEach((c: IFilterCondition): void => { byField[c.field] = c; });
     const res: Array<IFilterCondition> = [];
     const take = (valueName: string): void => {
       if (!Object.prototype.hasOwnProperty.call(byField, valueName)) return;
@@ -543,7 +564,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // registered in the serializer: it is derived from an edit-and-save action, not an authored or
   // reactive property, and uiState is the only reader - getUIState() stores this map as
   // items.<name>.conditions and setUIState() fills it back. A preset that is later removed just
-  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves.
+  // leaves a stale, harmless entry here: getUIState() skips a name that no longer resolves. An items
+  // array the host assigns anew drops the entries of the presets it replaced - see
+  // dropReplacedSavedItems().
   private savedItemConditions: HashTable<Array<IFilterCondition>> = {};
   // Internal accessor for the uiState serialization; deliberately not public API for this class.
   private getSavedItemConditions(name: string): Array<IFilterCondition> {
@@ -885,9 +908,34 @@ export class QuestionFilterModel extends QuestionNonValue {
     // and an empty new array pushes nothing either, so the property change is the only report of
     // it. Without them the control would keep quoting a deleted item or searching a deleted field.
     // "defaultItem" is here because single mode's active preset is the default itself.
+    // Only an assignment passes two different arrays: push/splice report the array they changed as
+    // both values.
+    if (name === "items" && oldValue !== newValue) {
+      this.dropReplacedSavedItems(oldValue, newValue);
+    }
     if (name === "allowMultipleItems" || name === "defaultItem" || name === "items" || name === "fields" ||
       name === "searchString" || name === "searchFields" || name === "showSearch") {
       this.updateFilterExpression();
+    }
+  }
+  // A host that assigns a new items array replaces the presets the respondent saved into: a new
+  // preset that merely has the same name was never saved, and getUIState() - which goes by name -
+  // would otherwise store the old one's conditions for it, and a restore would rewrite it with them.
+  // Restored saved presets still waiting for a bound source go the same way. A preset that is still
+  // there as the same object (a reordered array) keeps what was saved into it.
+  private dropReplacedSavedItems(oldItems: Array<FilterItem>, newItems: Array<FilterItem>): void {
+    const olds = Array.isArray(oldItems) ? oldItems : [];
+    const news = Array.isArray(newItems) ? newItems : [];
+    const isKept = (name: string): boolean => olds.some((item: FilterItem): boolean =>
+      !!item && item.name === name && news.indexOf(item) > -1);
+    Object.keys(this.savedItemConditions).forEach((name: string): void => {
+      if (!isKept(name)) delete this.savedItemConditions[name];
+    });
+    const pending = this.pendingItems;
+    if (!!pending) {
+      Object.keys(pending).forEach((name: string): void => {
+        if (!isKept(name)) delete pending[name];
+      });
     }
   }
   private applyDefaultItem(): void {

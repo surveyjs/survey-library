@@ -404,3 +404,39 @@ describe("Advanced mode editor: read-only", () => {
     editor.dispose();
   });
 });
+
+describe("Advanced mode editor: a search-only change leaves the conditions alone", () => {
+  test("a preset that does not decompose keeps its text under a search-only apply", () => {
+    const q = createControl({ defaultItem: "edges", searchFields: ["name"] });
+    const events = trackEvents(q);
+    const editor = q.createAdvancedModeEditor();
+    searchQ(editor).value = "bo";
+    editor.apply();
+    expect(q.ownConditions === undefined, "#1: no edit").toBe(true);
+    expect(q.searchString, "#2").toBe("bo");
+    expect(q.filterExpression, "#3").toBe("({age} < 18 or {age} > 35) and ({name} contains 'bo')");
+    expect(q.isActiveItemModified, "#4").toBe(false);
+    expect(q.canSaveActiveItem, "#5").toBe(false);
+    expect(events, "#6").toEqual({ filter: 1, uiState: 1 });
+    editor.dispose();
+  });
+  test("onApply is given no conditions when no field was changed, and the conditions once one was", () => {
+    const q = createControl({ defaultItem: "edges" });
+    const calls: Array<any> = [];
+    const editor = new FilterConditionsEditor(q, ["age"], { showSearch: true,
+      onApply: (conditions, searchString) => { calls.push({ conditions, searchString }); } });
+    searchQ(editor).value = "bo";
+    editor.apply();
+    expect(calls.length, "#1").toBe(1);
+    expect(calls[0].conditions === undefined, "#2: no field was touched").toBe(true);
+    expect(calls[0].searchString, "#3").toBe("bo");
+    operatorQ(editor, "age").value = "less";
+    valueQ(editor, "age").value = 5;
+    editor.apply();
+    expect(calls[1].conditions, "#4").toEqual([{ field: "age", operator: "less", value: 5 }]);
+    searchQ(editor).value = "b";
+    editor.apply();
+    expect(calls[2].conditions === undefined, "#5: touched fields were applied already").toBe(true);
+    editor.dispose();
+  });
+});

@@ -379,3 +379,89 @@ describe("QuestionFilterModel: field operators and value editors", () => {
     expect(q.getValueEditorJson("nosuchfield", "equal"), "#5").toBe(undefined);
   });
 });
+
+describe("QuestionFilterModel: an edit is normalized as it is written", () => {
+  const typeless = { fields: [{ name: "age", valueType: "number" }, { name: "vip", valueType: "boolean" }, { name: "name" }],
+    items: [{ name: "adults", expression: "{age} > 18" }, { name: "vips", expression: "{vip} = true" }], defaultItem: "adults" };
+  test("a typeless number field: a typed edit reverted to the preset's value is not modified", () => {
+    const q = createControl(typeless);
+    q.setFieldCondition("age", "greater", "20");
+    expect(q.ownConditions, "#1: stored coerced").toEqual([{ field: "age", operator: "greater", value: 20 }]);
+    expect(q.isActiveItemModified, "#2").toBe(true);
+    q.setFieldCondition("age", "greater", "18");
+    expect(q.ownConditions, "#3").toEqual([{ field: "age", operator: "greater", value: 18 }]);
+    expect(q.filterExpression, "#4").toBe("{age} > 18");
+    expect(q.isActiveItemModified, "#5: back to the preset").toBe(false);
+    expect(q.canSaveActiveItem, "#6").toBe(false);
+  });
+  test("a typeless boolean field: the same", () => {
+    const q = createControl(typeless);
+    q.toggleItem("vips");
+    q.setFieldCondition("vip", "equal", "false");
+    expect(q.ownConditions, "#1").toEqual([{ field: "vip", operator: "equal", value: false }]);
+    expect(q.isActiveItemModified, "#2").toBe(true);
+    q.setFieldCondition("vip", "equal", "true");
+    expect(q.ownConditions, "#3").toEqual([{ field: "vip", operator: "equal", value: true }]);
+    expect(q.isActiveItemModified, "#4").toBe(false);
+    expect(q.canSaveActiveItem, "#5").toBe(false);
+  });
+  test("a condition that is not ready or whose operator the field does not offer is refused", () => {
+    const survey = createSurvey({ items: presets });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const events = trackEvents(survey);
+    q.setFieldCondition("name", "equal", undefined);
+    q.setFieldCondition("name", "equal", "");
+    q.setFieldCondition("country", "anyof", []);
+    q.setFieldCondition("country", "contains", "de");
+    q.setFieldCondition("age", "nosuchoperator", 1);
+    expect(q.ownConditions === undefined, "#1: no edit").toBe(true);
+    expect(q.isActiveItemModified, "#2").toBe(false);
+    expect(q.canSaveActiveItem, "#3").toBe(false);
+    expect(events, "#4: nothing raised").toEqual({ filter: 0, uiState: 0 });
+    q.setFieldCondition("age", "greater", 21);
+    q.setFieldCondition("age", "greater", undefined);
+    expect(q.ownConditions, "#5: an unready edit does not replace a ready condition")
+      .toEqual([{ field: "age", operator: "greater", value: 21 }, { field: "country", operator: "equal", value: "de" }]);
+  });
+  test("an operator that takes no value keeps no value", () => {
+    const q = createControl({ items: [{ name: "e", expression: "{country} empty" }], defaultItem: "e" });
+    q.setFieldCondition("country", "empty", "x");
+    expect(q.ownConditions, "#1").toEqual([{ field: "country", operator: "empty", value: undefined }]);
+    expect(q.ownConditions[0].value === undefined, "#2").toBe(true);
+    expect(q.isActiveItemModified, "#3").toBe(false);
+  });
+});
+
+describe("QuestionFilterModel: saving after the field list changed", () => {
+  function createTwoMatrices(): SurveyModel {
+    return new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }] },
+      { type: "matrixdynamic", name: "m2", columns: [{ name: "city" }] },
+      { type: "matrixdynamic", name: "m3", columns: [{ name: "country" }] },
+      { type: "filter", name: "f1", source: "m", defaultItem: "de", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+  }
+  test("a save whose edited fields are all gone is refused and keeps the preset's text", () => {
+    const survey = createTwoMatrices();
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.setFieldCondition("price", "greater", 100);
+    q.source = "m2";
+    const events = trackEvents(survey);
+    q.saveActiveItem();
+    expect(q.getItemByName("de").expression, "#1: not rewritten to \"\"").toBe("{country} = 'de'");
+    expect(q.ownConditions, "#2: the edits stay").toEqual([
+      { field: "country", operator: "equal", value: "de" }, { field: "price", operator: "greater", value: 100 }]);
+    expect(events, "#3").toEqual({ filter: 0, uiState: 0 });
+  });
+  test("a save whose edited fields are partly gone saves what is left", () => {
+    const survey = createTwoMatrices();
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    q.setFieldCondition("country", "equal", "fr");
+    q.setFieldCondition("price", "greater", 100);
+    q.source = "m3";
+    q.saveActiveItem();
+    expect(q.getItemByName("de").expression, "#1").toBe("{country} = 'fr'");
+    expect(q.ownConditions === undefined, "#2").toBe(true);
+    expect(survey.uiState.questions["f1"].filter.items, "#3: the saved conditions are the ones that were saved")
+      .toEqual({ de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } });
+  });
+});

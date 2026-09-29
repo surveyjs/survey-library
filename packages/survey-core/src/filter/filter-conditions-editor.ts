@@ -40,10 +40,12 @@ export interface IFilterConditionsEditorOptions {
   // it is only ever handed to onApply.
   showSearch?: boolean;
   searchString?: string;
-  // Called by apply() with every condition the editor holds, in the order of its fields, and with
-  // the search text - undefined when there is no search box. A mode that writes on its own command
-  // (advanced mode) listens here; without it apply() has nothing to do.
-  onApply?: (conditions: Array<IFilterCondition>, searchString?: string) => void;
+  // Called by apply() with every condition the editor holds, in the order of its fields - or with
+  // undefined when no field was changed since the editor opened or was last applied, only the
+  // search box: the fields then hold only their prefill, which the owner must not write back - and
+  // with the search text, undefined when there is no search box. A mode that writes on its own
+  // command (advanced mode) listens here; without it apply() has nothing to do.
+  onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
 }
 
 // A SurveyModel-backed editor of field conditions: one panel per field, titled by it, with an
@@ -60,6 +62,9 @@ export class FilterConditionsEditor {
   // Whether the respondent has changed anything - a field or the search box - since the editor
   // opened or was last applied. See apply().
   private isModifiedValue: boolean = false;
+  // The part of it that is a field: a change of the search box alone leaves the fields holding only
+  // their prefill, which apply() must not hand on as the respondent's conditions.
+  private isFieldModified: boolean = false;
 
   constructor(private owner: IFilterConditionsEditorOwner, names: Array<string>, private options: IFilterConditionsEditorOptions = {}) {
     this.names = (names || []).filter((name: string): boolean => !!owner.getFieldByName(name));
@@ -92,18 +97,23 @@ export class FilterConditionsEditor {
   // an editor nobody has changed: what it holds is only the prefill, which can be lossy (a preset
   // that does not decompose opens empty and would be replaced by nothing) or stale (the control
   // moved on to another preset or search while the editor was open), and writing it back would
-  // undo a state the respondent never touched here.
+  // undo a state the respondent never touched here. The same holds for the fields alone when only
+  // the search box was changed: the fields are then given as undefined, not as their prefill.
   public apply(): void {
     const onApply = this.options.onApply;
     if (this.isReadOnly || this.isDisposedValue || !onApply || !this.isModifiedValue) return;
-    const conditions: Array<IFilterCondition> = [];
-    this.names.forEach((_: string, index: number): void => {
-      const condition = this.getConditionAt(index);
-      if (!!condition) conditions.push(condition);
-    });
+    let conditions: Array<IFilterCondition> = undefined;
+    if (this.isFieldModified) {
+      conditions = [];
+      this.names.forEach((_: string, index: number): void => {
+        const condition = this.getConditionAt(index);
+        if (!!condition) conditions.push(condition);
+      });
+    }
     // Reset first: once applied, the control holds what the editor does, so applying again with no
     // new change has nothing to write.
     this.isModifiedValue = false;
+    this.isFieldModified = false;
     onApply(conditions, this.hasSearch ? (this.getSearchQuestion().value || "") : undefined);
   }
   // Writes nothing and disposes the editor: a cancelled edit has nothing left to show, and an
@@ -162,6 +172,7 @@ export class FilterConditionsEditor {
     for (let i = 0; i < this.names.length; i++) {
       const isOperator = questionName === this.getOperatorName(i);
       if (!isOperator && questionName !== this.getValueName(i)) continue;
+      this.isFieldModified = true;
       if (isOperator) {
         this.runUpdate((): void => { this.recreateValueQuestion(i); });
       }

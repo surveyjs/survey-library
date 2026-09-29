@@ -1,5 +1,6 @@
 import { getLocaleString } from "../surveyStrings";
 import { ItemValue } from "../itemvalue";
+import { Helpers } from "../helpers";
 import { QuestionValueType } from "../question";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
@@ -241,13 +242,30 @@ export function conditionsToExpression(conditions: Array<IFilterCondition>, fiel
   return ConditionEditorItemsBuilder.itemsToExpression(items);
 }
 
+// One condition as the control keeps it, or undefined when the field cannot hold it: an operator
+// the field does not offer, or no value where the operator needs one - the readiness rule
+// ConditionEditorItem.isReady applies, by which conditionsToExpression would drop it anyway. The
+// value is coerced by the same coerceConditionValue composition uses, and an operator that takes no
+// value keeps none. Every way a condition gets into the control - an edit, an editor's apply(), a
+// restored uiState - goes through here, so what the control holds at runtime is exactly what a
+// restore of its saved state holds: a typed "18" and a parsed 18 never compare as two different
+// edits. The condition names the field by its valueName; an array value comes out as a new array.
+export function normalizeFilterCondition(field: IDynamicDataFilterField, condition: IFilterCondition): IFilterCondition {
+  if (!field || !condition || typeof condition !== "object") return undefined;
+  const operator = condition.operator;
+  if (getFilterFieldOperators(field).indexOf(operator) === -1) return undefined;
+  if (!isFilterConditionValueRequired(operator)) return { field: field.valueName, operator: operator, value: undefined };
+  // coerceConditionValue maps an array into a new one, so the caller's array is never shared.
+  const value = coerceConditionValue(field.valueType, condition.value);
+  if (Helpers.isValueEmpty(value)) return undefined;
+  return { field: field.valueName, operator: operator, value: value };
+}
+
 // Conditions that come from outside the control - a saved uiState - checked against the fields it
 // has now, with the same rules the control's own edits and parseFilterExpression follow: a field
-// that is no longer there, a second condition on a field that already has one, or an operator that
-// field does not offer is dropped (not the whole list: the rest is still what the respondent asked
-// for). The value is coerced here once, by the same coerceConditionValue composition uses, so the
-// restored condition holds what the edit would have held and not the raw text a JSON round trip or
-// a hand-written state carries. An array value comes out as a new array.
+// that is no longer there, a second condition on a field that already has one, or a condition
+// normalizeFilterCondition refuses is dropped (not the whole list: the rest is still what the
+// respondent asked for).
 export function normalizeFilterConditions(conditions: Array<IFilterCondition>, fields: Array<IDynamicDataFilterField>): Array<IFilterCondition> {
   const fieldsByValueName = getFieldsByValueName(fields);
   const seenValueNames: { [valueName: string]: boolean } = {};
@@ -257,11 +275,10 @@ export function normalizeFilterConditions(conditions: Array<IFilterCondition>, f
     const valueName = condition.field;
     if (!Object.prototype.hasOwnProperty.call(fieldsByValueName, valueName)) return;
     if (Object.prototype.hasOwnProperty.call(seenValueNames, valueName)) return;
-    const field = fieldsByValueName[valueName];
-    if (getFilterFieldOperators(field).indexOf(condition.operator) === -1) return;
+    const normalized = normalizeFilterCondition(fieldsByValueName[valueName], condition);
+    if (!normalized) return;
     seenValueNames[valueName] = true;
-    // coerceConditionValue maps an array into a new one, so the caller's array is never shared.
-    res.push({ field: valueName, operator: condition.operator, value: coerceConditionValue(field.valueType, condition.value) });
+    res.push(normalized);
   });
   return res;
 }

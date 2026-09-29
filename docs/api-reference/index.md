@@ -34,10 +34,10 @@ product: Form Library
 - [`QuestionBooleanModel`](https://surveyjs.io/form-library/documentation/api-reference/questionbooleanmodel.md) — A class that describes the Yes/No (Boolean) question type.
 - [`QuestionExpressionModel`](https://surveyjs.io/form-library/documentation/api-reference/questionexpressionmodel.md) — A class that describes the Expression question type.
 - [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/api-reference/choicesrestful.md) — Configures access to a RESTful service that returns choices for Checkbox, Dropdown, Radiogroup, and other multiple-choice question types.
+- [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric.md) — A class that describes an input mask of the `"numeric"` `maskType`.
 - [`QuestionImageModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagemodel.md) — A class that describes the Image question type.
 - [`QuestionMatrixModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) — A class that describes the Single-Select Matrix question type.
 - [`RegionalFormat`](https://surveyjs.io/form-library/documentation/api-reference/regionalformat.md) — Configures date, time, number, and currency formats for input masks throughout a survey.
-- [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric.md) — A class that describes an input mask of the `"numeric"` `maskType`.
 - [`QuestionMultipleTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmultipletextmodel.md) — A class that describes the Multiple Text question type.
 - [`QuestionRankingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrankingmodel.md) — A class that describes the Ranking question type.
 - [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency.md) — A class that describes an input mask of the `"currency"` `maskType`.
@@ -67,6 +67,7 @@ product: Form Library
 - [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction.md) — An action item.
 - [`IHeader`](https://surveyjs.io/form-library/documentation/api-reference/iheader.md) — A survey header configuration interface.
 - [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme.md) — A theme configuration interface.
+- [`IDataIssue`](https://surveyjs.io/form-library/documentation/api-reference/idataissue.md) — Describes an issue reported by the `SurveyModel.setData()` method.
 - [`IDialogOptions`](https://surveyjs.io/form-library/documentation/api-reference/idialogoptions.md) — An interface used to configure the content and behavior of a modal dialog displayed via the `showDialog()` method.
 - [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/iexpressionvalidationresult.md) — An interface that describes the result returned by the `validateExpressions` method.
 - [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions.md) — An interface with configuration options that control how a `SurveyModel` instance is serialized by the `toJSON()` method.

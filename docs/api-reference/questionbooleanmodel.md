@@ -30,7 +30,7 @@ If you set the `valueTrue` and `valueFalse` properties, the `value` property con
 
 ### `displayMode`
 
-**Type**: `"custom" | "checkbox" | "radio" | "segmented" | "switch"`
+**Type**: `"checkbox" | "custom" | "radio" | "segmented" | "switch"`
 
 Specifies the visual representation of the Yes/No question.
 

@@ -38,7 +38,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
@@ -3424,36 +3424,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   /* The keys of the records are scanned without an object (O(records)) with the membership the
      question has without paging: an owner-hidden record does not take part, a filtered-out one does
-     but never receives the error. The error goes on the later visible record of a pair, on its page.
-     Returns the pages to visit; layer 2 walks them together with its own. The groups are a Map: the
-     keys are respondent input, and "__proto__" in a plain object is the prototype, not a group. */
+     but never receives the error. Keys compare case-sensitively, as the on-page check compares them.
+     The error goes on the later visible record of a pair, on its page. Returns the pages to visit;
+     layer 2 walks them together with its own. */
   private getOffPageKeyDuplicatePages(): Array<number> {
-    const pages: Array<number> = [];
-    if (!this.keyName) return pages;
+    if (!this.keyName) return [];
     const list = this.dataList;
-    const visiblePos: { [index: number]: number } = {};
-    list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
-    const groups = new Map<string, { count: number, target: number }>();
-    for (let i = 0; i < list.loadedCount; i++) {
-      if (!list.isRecordVisible(i)) continue;
-      const val = list.getValue(i, this.keyName);
-      if (this.isValueEmpty(val)) continue;
-      const key = String(val);
-      let group = groups.get(key);
-      if (!group) {
-        group = { count: 0, target: -1 };
-        groups.set(key, group);
-      }
-      group.count++;
-      const pos = visiblePos[i];
-      if (pos !== undefined && pos > group.target) group.target = pos;
-    }
-    groups.forEach((group: { count: number, target: number }): void => {
-      if (group.count < 2 || group.target < 0) return;
-      const page = this.paging.getPageOfVisibleIndex(group.target);
-      if (pages.indexOf(page) < 0) pages.push(page);
-    });
-    return pages;
+    return findDuplicatePages(list, (index: number): any => list.getValue(index, this.keyName),
+      (visibleIndex: number): number => this.paging.getPageOfVisibleIndex(visibleIndex),
+      { caseSensitive: true, includeHidden: false });
   }
   private hasInputInChangedQuestions(): boolean {
     const qs = this.changingValueQuestions;

@@ -32,7 +32,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { getRecordRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -713,39 +713,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /* Every unique column (keyName included) is scanned over the records without a row (O(records)):
      a pair whose records are both off the page has no row the base check could put the error on.
-     Every record takes part, as it does without paging; the error goes on the later visible record
-     of the pair, on its page. Returns the pages to visit; layer 2 walks them together with its own.
-     The groups are a Map: the keys are respondent input, and "__proto__" in a plain object is the
-     prototype, not a group. */
+     Every record takes part, owner-hidden ones included, as it does without paging, and strings
+     compare as the on-page check compares them; the error goes on the later visible record of the
+     pair, on its page. Returns the pages to visit; layer 2 walks them together with its own. */
   private getOffPageDuplicatePages(): Array<number> {
     const pages: Array<number> = [];
-    const names = this.getUniqueColumnsNames();
-    if (names.length === 0) return pages;
     const list = this.dataList;
-    const visiblePos: { [index: number]: number } = {};
-    list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
-    names.forEach((name: string): void => {
-      const groups = new Map<string, { count: number, target: number }>();
-      for (let i = 0; i < list.loadedCount; i++) {
-        const record = this.getListRecordAt(i);
-        let val = !!record ? record[name] : undefined;
-        if (this.isValueEmpty(val)) continue;
-        if (!this.useCaseSensitiveComparison && typeof val === "string") {
-          val = val.toLocaleLowerCase();
-        }
-        const key = String(val);
-        let group = groups.get(key);
-        if (!group) {
-          group = { count: 0, target: -1 };
-          groups.set(key, group);
-        }
-        group.count++;
-        const pos = visiblePos[i];
-        if (pos !== undefined && pos > group.target) group.target = pos;
-      }
-      groups.forEach((group: { count: number, target: number }): void => {
-        if (group.count < 2 || group.target < 0) return;
-        const page = this.paging.getPageOfVisibleIndex(group.target);
+    const pageOfVisibleIndex = (visibleIndex: number): number => this.paging.getPageOfVisibleIndex(visibleIndex);
+    this.getUniqueColumnsNames().forEach((name: string): void => {
+      const readKey = (index: number): any => {
+        const record = this.getListRecordAt(index);
+        return !!record ? record[name] : undefined;
+      };
+      findDuplicatePages(list, readKey, pageOfVisibleIndex,
+        { caseSensitive: this.useCaseSensitiveComparison, includeHidden: true }).forEach((page: number): void => {
         if (pages.indexOf(page) < 0) pages.push(page);
       });
     });

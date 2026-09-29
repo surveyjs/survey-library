@@ -1,3 +1,4 @@
+import { Helpers } from "../helpers";
 import { ValidationContext } from "../question";
 import { DynamicDataList } from "./dynamic-data-list";
 
@@ -67,6 +68,47 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
     if (movedToStart) return index === last ? prefix : index + 1;
     return undefined;
   };
+}
+
+/* The off-page half of a duplicate check (layer 2): the records are scanned without an object
+   (O(records)) and grouped by String(value); a group of two or more gives the page of its latest
+   visible record, which is where the error goes. A group with no visible record gives no page: it
+   has no record to put the error on. Returns the pages, without repeats.
+   The questions differ in which records take part and how values compare, and each call site spells
+   its options out: includeHidden - owner-hidden records take part too (the matrix); caseSensitive -
+   false folds strings with toLocaleLowerCase. Empty means what Base.isValueEmpty means: a
+   whitespace-only string is empty. The groups are a Map: the keys are respondent input, and
+   "__proto__" in a plain object is the prototype, not a group. */
+export function findDuplicatePages(list: DynamicDataList, readKey: (index: number) => any,
+  pageOfVisibleIndex: (visibleIndex: number) => number,
+  options: { caseSensitive: boolean, includeHidden: boolean }): Array<number> {
+  const visiblePos: { [index: number]: number } = {};
+  list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
+  const groups = new Map<string, { count: number, target: number }>();
+  for (let i = 0; i < list.loadedCount; i++) {
+    if (!options.includeHidden && !list.isRecordVisible(i)) continue;
+    let val = readKey(i);
+    if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) continue;
+    if (!options.caseSensitive && typeof val === "string") {
+      val = val.toLocaleLowerCase();
+    }
+    const key = String(val);
+    let group = groups.get(key);
+    if (!group) {
+      group = { count: 0, target: -1 };
+      groups.set(key, group);
+    }
+    group.count++;
+    const pos = visiblePos[i];
+    if (pos !== undefined && pos > group.target) group.target = pos;
+  }
+  const pages: Array<number> = [];
+  groups.forEach((group: { count: number, target: number }): void => {
+    if (group.count < 2 || group.target < 0) return;
+    const page = pageOfVisibleIndex(group.target);
+    if (pages.indexOf(page) < 0) pages.push(page);
+  });
+  return pages;
 }
 
 /* What a paged question hands to the ancestor that rebuilds the object holding it, and gets back

@@ -5,8 +5,8 @@
 // (a badge's text, which preset is on, whether there is anything to clear or save): nothing here
 // computes filter state of its own.
 import * as React from "react";
-import { Base, PopupModel, QuestionFilterModel, FilterConditionsEditor, FilterItem } from "survey-core";
-import type { IDynamicDataFilterField } from "survey-core";
+import { Base, PopupModel, PopupBaseViewModel, QuestionFilterModel, FilterConditionsEditor, FilterItem, settings } from "survey-core";
+import type { IDialogOptions, IDynamicDataFilterField } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyQuestionElementBase } from "../../reactquestion_element";
@@ -72,7 +72,7 @@ ReactElementFactory.Instance.registerElement("sv-filter-conditions-editor",
 
 export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   private fastPopup: PopupModel;
-  private advancedPopup: PopupModel;
+  private advancedDialog: PopupBaseViewModel;
   private fastEditor: FilterConditionsEditor;
   private advancedEditor: FilterConditionsEditor;
   private fastAnchor: HTMLElement;
@@ -85,19 +85,6 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     this.fastPopup.onVisibilityChanged.add((_: any, options: any) => {
       if (!options.isVisible) {
         this.disposeFastEditor();
-      }
-    });
-    this.advancedPopup = new PopupModel("sv-filter-conditions-editor", { editor: undefined },
-      { isModal: true, displayMode: "popup", title: "Filter" });
-    this.advancedPopup.onApply = (): boolean => {
-      if (!!this.advancedEditor) {
-        this.advancedEditor.apply();
-      }
-      return true;
-    };
-    this.advancedPopup.onVisibilityChanged.add((_: any, options: any) => {
-      if (!options.isVisible) {
-        this.disposeAdvancedEditor();
       }
     });
   }
@@ -113,11 +100,12 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   componentWillUnmount(): void {
     super.componentWillUnmount();
     this.fastPopup.hide();
-    this.advancedPopup.hide();
+    if (!!this.advancedDialog) {
+      this.advancedDialog.model.hide();
+    }
     this.disposeFastEditor();
     this.disposeAdvancedEditor();
     this.fastPopup.dispose();
-    this.advancedPopup.dispose();
   }
   private disposeFastEditor(): void {
     if (!!this.fastEditor) {
@@ -144,11 +132,31 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     this.fastPopup.contentComponentData = { editor: editor, creator: this.creator };
     this.fastPopup.show();
   }
+  // A dialog, the way Creator opens its modal property editors: settings.showDialog mounts it
+  // through a portal into the host survey's root element - outside that survey's <form>, still
+  // under its theme variables. Any way it closes (Apply, Cancel, Esc) ends in onHide. With no
+  // PopupModal rendered there is no showDialog, and there is no dialog to open.
   private openAdvancedEditor(): void {
+    if (!settings.showDialog || !!this.advancedDialog) return;
     this.fastPopup.hide();
-    this.advancedEditor = this.question.createAdvancedModeEditor();
-    this.advancedPopup.contentComponentData = { editor: this.advancedEditor, creator: this.creator };
-    this.advancedPopup.show();
+    const editor = this.question.createAdvancedModeEditor();
+    this.advancedEditor = editor;
+    const options: IDialogOptions = {
+      componentName: "sv-filter-conditions-editor",
+      data: { editor: editor, creator: this.creator },
+      onApply: (): boolean => {
+        editor.apply();
+        return true;
+      },
+      onCancel: (): void => { },
+      onHide: (): void => {
+        this.disposeAdvancedEditor();
+        this.advancedDialog = undefined;
+      },
+      title: "Filter",
+      displayMode: "popup"
+    };
+    this.advancedDialog = settings.showDialog(options, this.question.getSurveyRootElement());
   }
 
   private renderSearch(): React.JSX.Element | null {
@@ -210,7 +218,6 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
       {this.renderState()}
       {this.renderFields()}
       <Popup model={this.fastPopup} />
-      <Popup model={this.advancedPopup} />
     </div>;
   }
 }

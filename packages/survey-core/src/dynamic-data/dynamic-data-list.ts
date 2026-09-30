@@ -84,6 +84,48 @@ export class DynamicDataList {
   public static isValueChanged(newValue: any, oldValue: any): boolean {
     return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
   }
+  /* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
+     getter/setter pair, never a captured array, so that every write replaces the array instead of
+     mutating the one the owner currently holds - read through on demand, so that a value assigned
+     outside the list is seen at once. The list keeps the factory and not the instance: a detach
+     builds a fresh source, so that the batch state of the one in use cannot survive a swap. */
+  public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
+    setArray: (arr: Array<any>) => void, getCount?: () => number): DynamicDataList {
+    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, getCount);
+    const list = new DynamicDataList(createSource(), owner);
+    list.createDefaultSource = createSource;
+    list.isReadThrough = true;
+    // The owner materializes one object per record in the view: its membership may not change under
+    // an edit that is being made through one of those objects.
+    list.isViewFrozenOnEdit = true;
+    list.load();
+    return list;
+  }
+  private createDefaultSource: () => IDynamicDataSource;
+  private assignedSourceValue: IDynamicDataSource;
+  // The source the developer assigned (question.dataSource); undefined while the default one is used.
+  public get assignedSource(): IDynamicDataSource {
+    return this.assignedSourceValue;
+  }
+  // A source is remote because it was assigned, never because of its type or because it pages.
+  public get isRemote(): boolean {
+    return !!this.assignedSourceValue;
+  }
+  /* The owner's swap: undefined goes back to the default source. The flag is stored first, then
+     onAssigning runs, then the source is swapped: the owner reads isRemote inside onAssigning and
+     inside the notifications the swap raises. A list without a default source (a standalone one)
+     keeps its source on a detach - there is nothing to go back to - and only the flag changes. */
+  public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
+    const newValue = source || undefined;
+    if (this.assignedSourceValue === newValue) return;
+    this.assignedSourceValue = newValue;
+    if (!!onAssigning) onAssigning();
+    if (!!newValue) {
+      this.source = newValue;
+    } else if (!!this.createDefaultSource) {
+      this.source = this.createDefaultSource();
+    }
+  }
 
   // An owner whose source reads and writes its storage directly - the questions, whose
   // ArrayDynamicDataSource is a getter/setter pair over question.value - sets this flag and the list
@@ -129,6 +171,8 @@ export class DynamicDataList {
   public get source(): IDynamicDataSource {
     return this._source;
   }
+  // The low-level swap, for a standalone list. It leaves assignedSource alone: an owner swaps
+  // through assignSource.
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
     /* A read that is still in flight counts as loaded: the list was asked to fill itself and the
@@ -237,6 +281,17 @@ export class DynamicDataList {
   }
   public get loadedCount(): number {
     return this.recordCount;
+  }
+  /* The loaded window as a new array. It is what question.value becomes after every write the list
+     makes to an assigned source: a new instance, so that the ordinary "did the value change"
+     comparisons of the library see the change, and the records themselves are the ones the list
+     holds. */
+  public getLoadedRecords(): Array<any> {
+    const res = new Array<any>();
+    for (let i = 0; i < this.loadedCount; i++) {
+      res.push(this.getRecord(i));
+    }
+    return res;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
     this.checkWindowIsWholeStorage("ensureCount");
@@ -658,6 +713,12 @@ export class DynamicDataList {
     }
     return this.pageIndexes;
   }
+  // The page that holds a visibleIndex (unpaged, see the vocabulary above); 0 while the list does
+  // not page.
+  public getPageOfVisibleIndex(visibleIndex: number): number {
+    if (this._pageSize <= 0 || visibleIndex < 0) return 0;
+    return Math.floor(visibleIndex / this._pageSize);
+  }
 
   // A survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18". An empty
   // string is no filter.
@@ -725,6 +786,8 @@ export class DynamicDataList {
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
+    // The factory's closures hold the owner.
+    this.createDefaultSource = undefined;
     this.records = [];
     this.hiddenFlags = [];
     this.channel.clearPendingInserts();
@@ -745,6 +808,12 @@ export class DynamicDataList {
   // side but leaves the paging to the list would have the list filter one page.
   private get hasReadRange(): boolean {
     return !!this._source && !!this._source.readRange;
+  }
+  // A capability is declared by the presence of the matching method: the operation names are the
+  // source method names.
+  public hasCapability(operation: DynamicDataOperation): boolean {
+    const source: any = this._source;
+    return !!source && typeof source[operation] === "function";
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
@@ -767,8 +836,9 @@ export class DynamicDataList {
      it at enqueue time and before its own splice: the window already reflects every earlier write,
      so the record at index is the record the respondent acted on. The one exception is a record whose
      insert is in flight: it has no key here, and its writes carry the pending entry instead, whose
-     key they read when they run (pushToSource). */
-  private get keyField(): string {
+     key they read when they run (pushToSource). The owner reads it too, to follow its records
+     across a read by key. */
+  public get keyField(): string {
     return !!this._source ? this._source.keyField : undefined;
   }
   private getRecordKey(index: number): any {
@@ -1068,19 +1138,4 @@ export class DynamicDataList {
     const res = this._source.read();
     this.records = Array.isArray(res) ? res : [];
   }
-}
-
-/* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
-   getter/setter pair, never a captured array, so that every write replaces the array instead of
-   mutating the one the owner currently holds - read through on demand, so that a value assigned
-   outside the list is seen at once. */
-export function createReadThroughDataList(owner: IDynamicDataOwner, getArray: () => Array<any>,
-  setArray: (arr: Array<any>) => void, getCount?: () => number): DynamicDataList {
-  const list = new DynamicDataList(new ArrayDynamicDataSource(getArray, setArray, getCount), owner);
-  list.isReadThrough = true;
-  // The owner materializes one object per record in the view: its membership may not change under
-  // an edit that is being made through one of those objects.
-  list.isViewFrozenOnEdit = true;
-  list.load();
-  return list;
 }

@@ -41,12 +41,11 @@ import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGet
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
-import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
@@ -391,7 +390,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // mutating the one the question currently holds.
   private get dataList(): DynamicDataList {
     if (!this.dataListValue) {
-      this.dataListValue = createReadThroughDataList(this,
+      this.dataListValue = DynamicDataList.createReadThrough(this,
         (): Array<any> => this.value,
         (arr: Array<any>): void => { this.value = arr; });
       this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
@@ -421,12 +420,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @since 3.1.0
    */
   public get dataSource(): IDynamicDataSource {
-    return this.remote.dataSource;
+    return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
   public set dataSource(val: IDynamicDataSource) {
     // Another storage: the records layer 2 tracks and the states kept for them name records of the
     // old one. Dropped before the swap, whose first read may commit inside it.
-    if (!!this.pageValidationValue && (val || undefined) !== this.remote.dataSource) {
+    if (!!this.pageValidationValue && (val || undefined) !== this.dataSource) {
       this.pageValidationValue.cancelPendingMove();
       this.pageValidationValue.clearRecords();
     }
@@ -450,10 +449,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
   // isPagedByList.
   private get isRemoteData(): boolean {
-    return !!this.remoteValue && this.remoteValue.isRemote;
-  }
-  createValueDataSource(): IDynamicDataSource {
-    return new ArrayDynamicDataSource((): Array<any> => this.value, (arr: Array<any>): void => { this.value = arr; });
+    return !!this.dataListValue && this.dataListValue.isRemote;
   }
   clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
@@ -518,7 +514,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const newRecords = this.getPropertyValueWithoutDefault("value");
     const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
     const newArray = Array.isArray(newRecords) ? newRecords : [];
-    const remap = getReplacedRecordsRemap(oldArray, newArray, this.remote.keyField);
+    const remap = getReplacedRecordsRemap(oldArray, newArray, this.dataList.keyField);
     if (hasRecords) {
       validation.cancelPendingMove();
       validation.onRecordsReplaced(oldArray, newArray, remap);
@@ -539,7 +535,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // respondent is typing in already holds the new value, and a rebuild would dispose it under the
   // edit (the frozen-membership rule).
   private storeLoadedRecords(): void {
-    this.storeQuestionValue(this.remote.getWindow());
+    this.storeQuestionValue(this.dataList.getLoadedRecords());
   }
   private isReRunningRemoteConditions: boolean;
   /* With the array source over question.value a record write reaches the survey, and the survey then
@@ -845,7 +841,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
        record hidden or shown ahead of it, a sort - keeps showing it, on whatever page it is now. */
     if (currentRecord > -1 && this.pendingCurrentVisibleIndex === undefined && !this.isRenderModeList && this.isPagedByList) {
       const visibleIndex = list.getVisibleIndexes().indexOf(currentRecord);
-      const page = visibleIndex < 0 ? -1 : this.paging.getPageOfVisibleIndex(visibleIndex);
+      const page = visibleIndex < 0 ? -1 : list.getPageOfVisibleIndex(visibleIndex);
       if (page > -1 && page !== list.pageIndex) {
         this.pendingCurrentVisibleIndex = visibleIndex;
         // Its pageChanged notification rebuilds the page that holds the record.
@@ -2549,7 +2545,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private isAddLeavingPage(index: number): boolean {
     if (!this.isPagedByList) return false;
     const target = this.getInsertTarget(index);
-    return this.paging.getPageOfVisibleIndex(target.visibleIndex) !== this.dataList.pageIndex;
+    return this.dataList.getPageOfVisibleIndex(target.visibleIndex) !== this.dataList.pageIndex;
   }
   /* Where an in-memory paged add puts the new record: the record index it is inserted at and the
      visibleIndex it will have. index is a created position, page-local under paging: it inserts
@@ -2619,7 +2615,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     this.pageValidation.markEdited(at);
     const visibleIndex = list.getVisibleIndexes().indexOf(at);
-    const page = this.paging.getPageOfVisibleIndex(visibleIndex);
+    const page = list.getPageOfVisibleIndex(visibleIndex);
     if (!this.isRenderModeList) {
       this.pendingCurrentVisibleIndex = visibleIndex;
     }
@@ -3081,13 +3077,13 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      application that wants local-only edits over remote reads implements a no-op update. A question
      without a data source has every capability. */
   private get canInsertRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("insert");
+    return !this.isRemoteData || this.dataList.hasCapability("insert");
   }
   private get canRemoveRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("remove");
+    return !this.isRemoteData || this.dataList.hasCapability("remove");
   }
   private get canUpdateRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("update");
+    return !this.isRemoteData || this.dataList.hasCapability("update");
   }
   // One hook for the whole question, not one per nested question.
   private get arePanelsReadOnly(): boolean {
@@ -3403,7 +3399,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.keyName) return [];
     const list = this.dataList;
     return findDuplicatePages(list, (index: number): any => list.getValue(index, this.keyName),
-      (visibleIndex: number): number => this.paging.getPageOfVisibleIndex(visibleIndex),
+      (visibleIndex: number): number => list.getPageOfVisibleIndex(visibleIndex),
       { caseSensitive: true, includeHidden: false });
   }
   private hasInputInChangedQuestions(): boolean {

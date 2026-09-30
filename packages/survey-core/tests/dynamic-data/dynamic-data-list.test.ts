@@ -2819,3 +2819,136 @@ describe("DynamicDataList: the owner's globalVisibleIndex", () => {
     expect(list.getIndexAtGlobalVisibleIndex(1, false), "#11").toBe(1);
   });
 });
+
+describe("DynamicDataList: the assigned source", () => {
+  function createOwnerList(): { list: DynamicDataList, setArray: (arr: Array<any>) => void } {
+    let arr: Array<any> = createRecords(3);
+    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    return { list: list, setArray: (a: Array<any>): void => { arr = a; } };
+  }
+  test("createReadThrough: the default source reads through the owner's storage and nothing is assigned", () => {
+    const { list, setArray } = createOwnerList();
+    expect(list.isRemote, "#1").toBe(false);
+    expect(list.assignedSource === undefined, "#2").toBe(true);
+    expect(list.source instanceof ArrayDynamicDataSource, "#3").toBe(true);
+    expect(list.isReadThrough, "#4").toBe(true);
+    expect(list.isViewFrozenOnEdit, "#5").toBe(true);
+    expect(list.loadedCount, "#6").toBe(3);
+    setArray(createRecords(5));
+    expect(list.loadedCount, "#7: read through, no load()").toBe(5);
+  });
+  test("assignSource: the flag is set first, then onAssigning runs with the old source in place, then the swap", () => {
+    const { list } = createOwnerList();
+    const defaultSource = list.source;
+    const fake = new FakeRangeSource(createRecords(10));
+    const seen: Array<Array<boolean>> = [];
+    list.assignSource(fake, (): void => { seen.push([list.isRemote, list.assignedSource === fake, list.source === defaultSource]); });
+    expect(seen, "#1: isRemote, assignedSource, the old source").toEqual([[true, true, true]]);
+    expect(list.isRemote, "#2").toBe(true);
+    expect(list.assignedSource === fake, "#3").toBe(true);
+    expect(list.source === fake, "#4").toBe(true);
+    expect(fake.rangeCalls.length, "#5: the new source is read").toBe(1);
+  });
+  test("assignSource(undefined): a new default source over the owner's storage on every detach", () => {
+    const { list, setArray } = createOwnerList();
+    const firstDefault = list.source;
+    const fake = new FakeRangeSource(createRecords(10));
+    list.assignSource(fake);
+    const seen: Array<Array<boolean>> = [];
+    list.assignSource(undefined, (): void => { seen.push([list.isRemote, list.source === fake]); });
+    expect(seen, "#1: isRemote, the old source").toEqual([[false, true]]);
+    expect(list.isRemote, "#2").toBe(false);
+    expect(list.assignedSource === undefined, "#3").toBe(true);
+    const secondDefault = list.source;
+    expect(secondDefault instanceof ArrayDynamicDataSource, "#4").toBe(true);
+    expect(secondDefault !== firstDefault, "#5: a new instance").toBe(true);
+    setArray([{ id: 7, name: "outside" }]);
+    expect(list.getRecord(0), "#6: read through, no load()").toEqual({ id: 7, name: "outside" });
+    list.assignSource(new FakeRangeSource(createRecords(2)));
+    list.assignSource(null);
+    expect(list.source instanceof ArrayDynamicDataSource, "#7: null detaches too").toBe(true);
+    expect(list.source !== secondDefault, "#8: another new instance").toBe(true);
+    expect(list.loadedCount, "#9").toBe(1);
+  });
+  test("assignSource with the source that is already assigned does nothing", () => {
+    const { list } = createOwnerList();
+    const fake = new FakeRangeSource(createRecords(10));
+    list.assignSource(fake);
+    let calls = 0;
+    list.assignSource(fake, (): void => { calls++; });
+    expect(calls, "#1").toBe(0);
+    expect(fake.rangeCalls.length, "#2: not read again").toBe(1);
+    list.assignSource(undefined);
+    const defaultSource = list.source;
+    list.assignSource(undefined, (): void => { calls++; });
+    expect(calls, "#3").toBe(0);
+    expect(list.source === defaultSource, "#4").toBe(true);
+  });
+  test("a standalone list keeps its source on a detach, and the source setter does not assign", () => {
+    const own = ArrayDynamicDataSource.fromArray(createRecords(2));
+    const list = new DynamicDataList(own);
+    list.load();
+    list.source = new FakeRangeSource(createRecords(4));
+    expect(list.isRemote, "#1: the setter is the low-level swap").toBe(false);
+    list.source = own;
+    const fake = new FakeRangeSource(createRecords(4));
+    list.assignSource(fake);
+    expect(list.source === fake, "#2").toBe(true);
+    expect(list.isRemote, "#3").toBe(true);
+    list.assignSource(undefined);
+    expect(list.isRemote, "#4").toBe(false);
+    expect(list.source === fake, "#5: there is no default source to go back to").toBe(true);
+  });
+  test("dispose drops the default-source factory", () => {
+    const { list } = createOwnerList();
+    list.dispose();
+    expect((<any>list).createDefaultSource === undefined, "#1").toBe(true);
+  });
+});
+
+describe("DynamicDataList: the source's shape and the loaded window", () => {
+  test("keyField is the source's, undefined for a source without one", () => {
+    const list = createList(createRecords(2));
+    expect(list.keyField, "#1: an array source").toBeUndefined();
+    list.source = new FakeKeyedSource(createRecords(2));
+    expect(list.keyField, "#2").toBe("id");
+  });
+  test("hasCapability: the presence of the matching method on the source in use", () => {
+    const list = createList(createRecords(2));
+    expect(["insert", "update", "remove", "move"].map(op => list.hasCapability(<any>op)), "#1: an array source has all four").toEqual([true, true, true, true]);
+    const source = new FakeRangeSource(createRecords(4));
+    (<any>source).move = undefined;
+    list.source = source;
+    expect(["insert", "update", "remove", "move"].map(op => list.hasCapability(<any>op)), "#2").toEqual([true, true, true, false]);
+    list.source = { read: (): Array<any> => [] };
+    expect(list.hasCapability("insert"), "#3: a read-only source").toBe(false);
+  });
+  test("getLoadedRecords: a new array of the records the list holds, on every call", () => {
+    const records = createRecords(3);
+    const list = createList(records);
+    const first = list.getLoadedRecords();
+    expect(first, "#1").toEqual(records);
+    expect(first !== records, "#2: not the storage array").toBe(true);
+    expect(first[1] === list.getRecord(1), "#3: the records themselves").toBe(true);
+    expect(list.getLoadedRecords() !== first, "#4: a new instance every call").toBe(true);
+  });
+  test("getLoadedRecords: the window of a source that pages itself", () => {
+    const list = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    list.pageSize = 3;
+    list.load();
+    list.pageIndex = 2;
+    expect(list.getLoadedRecords().map(r => r.id), "#1").toEqual([6, 7, 8]);
+  });
+});
+
+describe("DynamicDataList: the page of a visible position", () => {
+  test("getPageOfVisibleIndex: the page that holds an unpaged visibleIndex, 0 without paging", () => {
+    const list = createList(createRecords(7));
+    expect(list.getPageOfVisibleIndex(5), "#1: no paging").toBe(0);
+    list.pageSize = 3;
+    expect([0, 2, 3, 6, 9].map(i => list.getPageOfVisibleIndex(i)), "#2").toEqual([0, 0, 1, 2, 3]);
+    expect(list.getPageOfVisibleIndex(-1), "#3: no position").toBe(0);
+    list.pageIndex = 2;
+    expect(list.getPageOfVisibleIndex(4), "#4: whatever page is shown").toBe(1);
+  });
+});

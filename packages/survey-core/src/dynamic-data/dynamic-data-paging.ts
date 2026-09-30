@@ -151,12 +151,6 @@ export class DynamicDataPagingController {
   private getClampedPage(index: number): number {
     return Math.max(0, Math.min(index, this.owner.pageCount - 1));
   }
-  // The page that holds a position among the visible records - a visibleIndex - of the whole list.
-  public getPageOfVisibleIndex(visibleIndex: number): number {
-    const pageSize = this.list.pageSize;
-    if (pageSize <= 0 || visibleIndex < 0) return 0;
-    return Math.floor(visibleIndex / pageSize);
-  }
   /* The list does not announce every change of the visible count: setRecordVisible and
      invalidateViews raise nothing unless the page index had to be clamped, yet both change
      pageCount. The owner calls this from every point that can change it. */

@@ -33,12 +33,11 @@ import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordI
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
-import { createReadThroughDataList, DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
-import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
@@ -140,7 +139,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      filter is active. */
   private get dataList(): DynamicDataList {
     if (!this.dataListValue) {
-      this.dataListValue = createReadThroughDataList(this,
+      this.dataListValue = DynamicDataList.createReadThrough(this,
         (): Array<any> => this.getListRecords(),
         (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); },
         (): number => this.getListRecordCount());
@@ -171,12 +170,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @since 3.1.0
    */
   public get dataSource(): IDynamicDataSource {
-    return this.remote.dataSource;
+    return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
   public set dataSource(val: IDynamicDataSource) {
     // Another storage: the records layer 2 tracks and the states kept for them name records of the
     // old one. Dropped before the swap, whose first read may commit inside it.
-    if (!!this.pageValidationValue && (val || undefined) !== this.remote.dataSource) {
+    if (!!this.pageValidationValue && (val || undefined) !== this.dataSource) {
       this.pageValidationValue.cancelPendingMove();
       this.pageValidationValue.clearRecords();
     }
@@ -201,12 +200,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
      isPagedByList. */
   private get isRemoteData(): boolean {
-    return !!this.remoteValue && this.remoteValue.isRemote;
-  }
-  createValueDataSource(): IDynamicDataSource {
-    return new ArrayDynamicDataSource((): Array<any> => this.getListRecords(),
-      (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); },
-      (): number => this.getListRecordCount());
+    return !!this.dataListValue && this.dataListValue.isRemote;
   }
   clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
@@ -260,7 +254,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const newRecords = this.getPropertyValueWithoutDefault("value");
     const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
     const newArray = Array.isArray(newRecords) ? newRecords : [];
-    validation.onRecordsReplaced(oldArray, newArray, getReplacedRecordsRemap(oldArray, newArray, this.remote.keyField));
+    validation.onRecordsReplaced(oldArray, newArray, getReplacedRecordsRemap(oldArray, newArray, this.dataList.keyField));
   }
   /* The storage half alone: used after every write the list pushed to the source. The row the
      respondent is typing in already holds the new value, and a rebuild would dispose it under the
@@ -271,7 +265,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      without a total it is the count of the rows known to exist, a lower bound - isRowCountKnown
      says which of the two it is. */
   private storeLoadedRecords(): void {
-    this.storeQuestionValue(this.remote.getWindow());
+    this.storeQuestionValue(this.dataList.getLoadedRecords());
     this.rowCountValue = this.dataList.count;
   }
   getFields(): Array<IDynamicDataField> {
@@ -701,7 +695,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getOffPageDuplicatePages(): Array<number> {
     const pages: Array<number> = [];
     const list = this.dataList;
-    const pageOfVisibleIndex = (visibleIndex: number): number => this.paging.getPageOfVisibleIndex(visibleIndex);
+    const pageOfVisibleIndex = (visibleIndex: number): number => list.getPageOfVisibleIndex(visibleIndex);
     this.getUniqueColumnsNames().forEach((name: string): void => {
       const readKey = (index: number): any => {
         const record = this.getListRecordAt(index);
@@ -1238,16 +1232,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      than a disabled field, and an application that wants local-only edits over remote reads
      implements a no-op update. A matrix without a data source has every capability. */
   private get canInsertRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("insert");
+    return !this.isRemoteData || this.dataList.hasCapability("insert");
   }
   private get canRemoveRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("remove");
+    return !this.isRemoteData || this.dataList.hasCapability("remove");
   }
   private get canUpdateRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("update");
+    return !this.isRemoteData || this.dataList.hasCapability("update");
   }
   private get canMoveRecord(): boolean {
-    return !this.isRemoteData || this.remote.hasCapability("move");
+    return !this.isRemoteData || this.dataList.hasCapability("move");
   }
   // One hook for the whole matrix, not one per cell: the cell questions read it through
   // data.isMatrixReadOnly() (parentIsReadOnly).
@@ -1408,7 +1402,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private isAddLeavingPage(): boolean {
     if (!this.isPagedByList || !this.canAddRow) return false;
     const list = this.dataList;
-    return this.paging.getPageOfVisibleIndex(list.visibleCount) !== list.pageIndex;
+    return list.getPageOfVisibleIndex(list.visibleCount) !== list.pageIndex;
   }
   /* Under paging the added record's page is shown: it is where the respondent must see the row they
      added. A move from code - the add itself was validated - and before onMatrixRowAdded, so that the
@@ -1422,7 +1416,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.pageValidation.markEdited(recordIndex);
     const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
     if (visibleIndex < 0) return;
-    const page = this.paging.getPageOfVisibleIndex(visibleIndex);
+    const page = list.getPageOfVisibleIndex(visibleIndex);
     if (page !== list.pageIndex) {
       this.paging.pageIndex = page;
     }

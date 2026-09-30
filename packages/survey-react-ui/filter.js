@@ -14,14 +14,20 @@ function odataLiteral(value) {
   return "'" + String(value).replace(/'/g, "''") + "'";
 }
 function untranslatable(op) {
-  throw new Error("No OData for: " + op.toString());
+  throw new Error("No OData for: " + (!!op ? op.toString() : "a missing operand"));
+}
+// The right side of a comparison must be a value: a field, an arithmetic or a function there reads
+// as a value too (its name, or null) and would filter by something nobody asked for.
+function constValue(op) {
+  if (!op || op.getType() !== "const") untranslatable(op);
+  return op.correctValue;
 }
 function odataField(op) {
   if (op.getType() !== "variable" || !fieldMap[op.variable]) untranslatable(op);
   return fieldMap[op.variable];
 }
 function constValues(op) {
-  return op.getType() === "array" ? op.values.map(function (v) { return v.correctValue; }) : [op.correctValue];
+  return !!op && op.getType() === "array" ? op.values.map(constValue) : [constValue(op)];
 }
 // Every node the filter control composes has an OData form here; anything else is refused, so a
 // filter is never silently narrowed to the part that happened to translate.
@@ -33,10 +39,10 @@ function toOData(op) {
       return "(" + toOData(op.leftOperand) + " " + name + " " + toOData(op.rightOperand) + ")";
     }
     var field = odataField(op.leftOperand);
-    if (comparisons[name]) return field + " " + comparisons[name] + " " + odataLiteral(op.rightOperand.correctValue);
+    if (comparisons[name]) return field + " " + comparisons[name] + " " + odataLiteral(constValue(op.rightOperand));
     if (name === "contains" || name === "notcontains") {
       // OData contains() is case-sensitive, a survey expression's is not.
-      var text = "contains(tolower(" + field + "), " + odataLiteral(String(op.rightOperand.correctValue).toLowerCase()) + ")";
+      var text = "contains(tolower(" + field + "), " + odataLiteral(String(constValue(op.rightOperand)).toLowerCase()) + ")";
       return name === "contains" ? text : "not " + text;
     }
     if (name === "anyof" || name === "noneof") {
@@ -45,6 +51,8 @@ function toOData(op) {
       return name === "anyof" ? anyOf : "not " + anyOf;
     }
   }
+  // The quick search composes a bare "false" when no field can match what was typed.
+  if (type === "const" && typeof op.correctValue === "boolean") return String(op.correctValue);
   if (type === "unary") {
     if (op.operator === "empty") return odataField(op.expression) + " eq null";
     if (op.operator === "notempty") return odataField(op.expression) + " ne null";
@@ -89,6 +97,7 @@ var productsSource = {
       var url = ODATA + "Products?" + params.join("&");
       console.log("odata", JSON.stringify(request.filter), "->", decodeURIComponent(url));
       return readJson(url).then(function (data) {
+        showDataError("");
         return { total: data["@odata.count"], records: data.value.map(toRecord) };
       });
     } catch (e) {
@@ -97,6 +106,20 @@ var productsSource = {
     }
   }
 };
+
+// A failed read keeps the previous rows on screen, so without this the new filter would look applied.
+function showDataError(message) {
+  var el = document.getElementById("dataError");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "dataError";
+    el.style.cssText = "position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 3000; padding: 8px 12px; " +
+      "background: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4; border-radius: 4px; font: 14px sans-serif;";
+    document.body.appendChild(el);
+  }
+  el.textContent = !!message ? "The filter was not applied: " + message : "";
+  el.style.display = !!message ? "block" : "none";
+}
 
 function renderSurvey(categories) {
   var json = { elements: [
@@ -121,7 +144,10 @@ function renderSurvey(categories) {
   ] };
   var model = new Survey.Model(json);
   model.getQuestionByName("products").dataSource = productsSource;
-  model.onDynamicDataError.add(function (_, options) { console.error("data source", options.operation, String(options.error)); });
+  model.onDynamicDataError.add(function (_, options) {
+    console.error("data source", options.operation, String(options.error));
+    showDataError(String(options.error && options.error.message || options.error));
+  });
   model.onFilterChanged.add(function (_, options) { console.log("filter", options.question.name, options.filterExpression); });
   model.onUIStateChanged.add(function () { console.log("uiState", JSON.stringify(model.uiState)); });
   window.survey = model;

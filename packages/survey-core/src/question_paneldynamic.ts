@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -33,6 +33,7 @@ import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { getScrollBehavior } from "./utils/reduced-motion";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
@@ -735,7 +736,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
           onBeforeRunAnimation: (el) => {
             if (this.focusNewPanelCallback) {
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
-              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
+              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: getScrollBehavior() });
             }
             if (!this.isRenderModeList && el.parentElement) {
               setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });
@@ -1829,7 +1830,39 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       panels[i].randomSeedChanged();
     }
   }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportUnknownProperties || !Array.isArray(val)) return true;
+    const panels = this.panels;
+    for (let i = 0; i < panels.length && i < val.length; i++) {
+      if (!Helpers.isValueObject(val[i], true)) continue;
+      context.pushSegment(i);
+      for (const key in val[i]) {
+        if (!this.isUnknownValueKey(panels[i], key, i)) continue;
+        context.addIssue("unknownProperty", key, val[i][key], this);
+      }
+      context.popSegment();
+    }
+    return true;
+  }
+  public initializeForVerification(): void {
+    this.panels.forEach(panel => panel.initializeForVerification());
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    const panels = this.panels;
+    for (let i = 0; i < panels.length; i++) {
+      context.pushSegment(i);
+      panels[i].verifyDataCore(context);
+      context.popSegment();
+    }
+  }
+  private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
+    if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;
+    return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&
+      !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+  }
   public clearIncorrectValues() {
+    this.clearIncorrectValueInData();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
     }
@@ -1852,18 +1885,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (this.getSharedQuestionFromArray(key, index)) continue;
-      var q = panel.getQuestionByValueName(key);
-      if (!!q) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(
-          panel,
-          key,
-          settings.matrix.totalsSuffix
-        )
-      )
-        continue;
+      if (!this.isUnknownValueKey(panel, key, index)) continue;
       delete values[key];
       isChanged = true;
     }
@@ -2434,8 +2456,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.rebuildPanels();
     }
   }
-  protected isNewValueCorrect(val: any): boolean {
-    return Array.isArray(val);
+  protected isDataValueCorrect(val: any): boolean {
+    // Every row is a plain object; an empty one may be null.
+    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;

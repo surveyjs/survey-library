@@ -55,6 +55,10 @@ export var czechSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Odpovězte prosím na otázku.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Hodnota je nesprávná.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Hodnota obsahuje neznámé klíče: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Odpovězte prosím alespoň jednu otázku.",
   // "Response required: answer questions in all rows."

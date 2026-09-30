@@ -383,7 +383,8 @@ describe("imagemap", () => {
           type: "imagemap",
           name: "q1",
           minSelectedAreas: 2,
-          maxSelectedAreas: 3
+          maxSelectedAreas: 3,
+          areas: [{ value: "val1" }, { value: "val2" }, { value: "val3" }, { value: "val4" }]
         }
       ]
     });

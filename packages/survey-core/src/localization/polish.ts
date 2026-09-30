@@ -55,6 +55,10 @@ export var polishSurveyStrings = {
   value: "Wartość",
   // "Response required."
   requiredError: "Proszę odpowiedzieć na to pytanie.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Wartość jest nieprawidłowa.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Wartość zawiera nieznane klucze: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Proszę odpowiedzieć na co najmniej jedno pytanie.",
   // "Response required: answer questions in all rows."

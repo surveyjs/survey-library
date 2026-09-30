@@ -55,6 +55,10 @@ export var basqueSurveyStrings = {
   value: "balioa",
   // "Response required."
   requiredError: "Mesedez, galdera erantzun.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Balioa okerra da.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Balioak gako ezezagunak ditu: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",
   // "Response required: answer questions in all rows."

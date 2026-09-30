@@ -55,6 +55,10 @@ export var urduSurveyStrings = {
   value: "قدر",
   // "Response required."
   requiredError: "براہ کرم سوال کا جواب دیں۔",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "ویلیو غلط ہے۔",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "اس قدر میں نامعلوم کیز شامل ہیں: {0}۔",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
   // "Response required: answer questions in all rows."

@@ -55,6 +55,10 @@ export var japaneseSurveyStrings = {
   value: "値",
   // "Response required."
   requiredError: "回答が必要です",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "値が誤っています。",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "この値には未知の鍵が含まれています:{0}。",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "回答が必要です：少なくとも1つの質問に答えてください。",
   // "Response required: answer questions in all rows."

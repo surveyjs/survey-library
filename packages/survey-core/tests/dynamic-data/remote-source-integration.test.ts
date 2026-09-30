@@ -8,6 +8,7 @@ import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
+import { FunctionFactory } from "../../src/functionsfactory";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -2612,6 +2613,331 @@ describe("Remote data source: a record without a key", () => {
       expect(question.value.length, "#5: the new source's records").toBe(3);
       expect(errors, "#6").toEqual([]);
     });
+  });
+});
+
+/* Step 26 (promts/dynamic-data-list/26-shared-question-controller.md): the coordination between a
+   question and its list moves into one controller. These tests pin what that move can break and no
+   earlier test covers; the T numbers are the prompt's. */
+describe("Step 26 pinning", () => {
+  const results: Array<(res: any) => void> = [];
+  function asyncStep26Func(params: any): any {
+    results.push(this.returnResult);
+    return false;
+  }
+  beforeEach(() => {
+    results.length = 0;
+    FunctionFactory.Instance.register("asyncStep26Func", asyncStep26Func, true);
+  });
+  afterEach(() => {
+    FunctionFactory.Instance.unregister("asyncStep26Func");
+  });
+  const asyncValidators = [{ type: "expression", expression: "asyncStep26Func() = 1" }];
+  const asyncColumns = [{ name: "col1", cellType: "text", validators: asyncValidators }, { name: "col2", cellType: "text" }];
+  const asyncTemplate = [{ type: "text", name: "col1", validators: asyncValidators }, { type: "text", name: "col2" }];
+  // A read() source: it hands over every record and the list cuts the page.
+  const readSource = (count: number, offset: number = 0): FakeServerSource =>
+    new FakeServerSource(serverRecords(count, offset), ["insert", "update", "remove", "move"]);
+  function recordValues(question: Question): Array<any> {
+    const res: Array<any> = [];
+    question.registerPropertyChangedHandlers(["value"], (newValue: any): void => {
+      res.push(Array.isArray(newValue) ? newValue.map((r: any): any => !!r ? r.col1 : r) : newValue);
+    }, "step26");
+    return res;
+  }
+
+  test("T1 matrix: the same source assigned again keeps the pending page move and reads nothing", async () => {
+    const source = readSource(12);
+    const { survey, question } = await createMatrix(source, { columns: asyncColumns });
+    expect(rowValues(question), "#1: the page").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+    const table = question.renderedTable;
+    expect(question.nextPage(), "#2").toBe(true);
+    expect(question.isPageMovePending, "#3: the move waits for its validators").toBe(true);
+    source.reset();
+    const changes: Array<string> = [];
+    survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
+    const values = recordValues(question);
+    question.dataSource = source;
+    await flush();
+    expect(source.calls.length, "#4: no read").toBe(0);
+    expect(changes, "#5: no survey change").toEqual([]);
+    expect(values, "#6: no value change").toEqual([]);
+    expect(question.isPageMovePending, "#7: the move is still pending").toBe(true);
+    expect(question.renderedTable !== table, "#8: the question's own refresh ran").toBe(true);
+    results.forEach(setResult => setResult(1));
+    expect(question.isPageMovePending, "#9").toBe(false);
+    expect(question.pageIndex, "#10: the late result moves the page").toBe(1);
+    expect(rowValues(question), "#11").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("T1 panel: the same source assigned again keeps the pending page move and reads nothing", async () => {
+    const source = readSource(12);
+    const { survey, question } = await createPanel(source, { templateElements: asyncTemplate });
+    expect(panelValues(question), "#1: the page").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+    expect(question.nextPage(), "#2").toBe(true);
+    expect(question.isPageMovePending, "#3: the move waits for its validators").toBe(true);
+    source.reset();
+    const changes: Array<string> = [];
+    survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
+    const values = recordValues(question);
+    question.dataSource = source;
+    await flush();
+    expect(source.calls.length, "#4: no read").toBe(0);
+    expect(changes, "#5: no survey change").toEqual([]);
+    expect(values, "#6: no value change").toEqual([]);
+    expect(question.isPageMovePending, "#7: the move is still pending").toBe(true);
+    results.forEach(setResult => setResult(1));
+    expect(question.isPageMovePending, "#8").toBe(false);
+    expect(question.pageIndex, "#9: the late result moves the page").toBe(1);
+    expect(panelValues(question), "#10").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("T2 matrix: another source drops the pending page move and the edited records", async () => {
+    const { question } = await createMatrix(readSource(12), { columns: asyncColumns });
+    question.visibleRows[0].getQuestionByName("col2").value = "edited";
+    question.pageIndex = 1;
+    expect(question.getPageState().edited, "#1: an edited record on a page that is not shown").toEqual([0]);
+    expect(question.nextPage(), "#2").toBe(true);
+    expect(question.isPageMovePending, "#3").toBe(true);
+    question.dataSource = readSource(12, 100);
+    expect(question.isPageMovePending, "#4: dropped by the assignment, before the first read answers").toBe(false);
+    expect(question.getPageState().edited, "#5: the edited set named records of the old source").toEqual([]);
+    await flush();
+    const pageIndex = question.pageIndex;
+    const rows = rowValues(question);
+    results.forEach(setResult => setResult(1));
+    expect(question.pageIndex, "#6: the late result moves nothing").toBe(pageIndex);
+    expect(rowValues(question), "#7").toEqual(rows);
+    expect(question.getPageState().edited, "#8").toEqual([]);
+  });
+  test("T2 panel: another source drops the pending page move and the edited records", async () => {
+    const { question } = await createPanel(readSource(12), { templateElements: asyncTemplate });
+    question.panels[0].getQuestionByName("col2").value = "edited";
+    question.pageIndex = 1;
+    expect(question.getPageState().edited, "#1: an edited record on a page that is not shown").toEqual([0]);
+    expect(question.nextPage(), "#2").toBe(true);
+    expect(question.isPageMovePending, "#3").toBe(true);
+    question.dataSource = readSource(12, 100);
+    expect(question.isPageMovePending, "#4: dropped by the assignment, before the first read answers").toBe(false);
+    expect(question.getPageState().edited, "#5: the edited set named records of the old source").toEqual([]);
+    await flush();
+    const pageIndex = question.pageIndex;
+    const panels = panelValues(question);
+    results.forEach(setResult => setResult(1));
+    expect(question.pageIndex, "#6: the late result moves nothing").toBe(pageIndex);
+    expect(panelValues(question), "#7").toEqual(panels);
+    expect(question.getPageState().edited, "#8").toEqual([]);
+  });
+  test("T3 matrix: reading the source members and disposing creates no list", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "col1" }] }]
+    });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(question.dataSource, "#1").toBe(undefined);
+    expect(question.isDynamicDataRunning, "#2").toBe(false);
+    expect(question.isReady, "#3").toBe(true);
+    expect(!!(<any>question).dataListValue, "#4: the reads created nothing").toBe(false);
+    question.dispose();
+    expect(!!(<any>question).dataListValue, "#5: nor did dispose").toBe(false);
+  });
+  test("T3 panel: reading the source members and disposing creates no list", () => {
+    const question = new QuestionPanelDynamicModel("panel");
+    question.template.addNewQuestion("text", "col1");
+    expect(question.dataSource, "#1").toBe(undefined);
+    expect(question.isDynamicDataRunning, "#2").toBe(false);
+    expect(question.isReady, "#3").toBe(true);
+    expect(!!(<any>question).dataListValue, "#4: the reads created nothing").toBe(false);
+    question.dispose();
+    expect(!!(<any>question).dataListValue, "#5: nor did dispose").toBe(false);
+  });
+
+  /* The order of what a list change does to the question, as it can be seen from outside: every
+     change of isDataLoading, pageIndex, pageCount and value, and whether the first object was already
+     replaced when the change was raised ("old" / "new"). */
+  function trace(question: Question, firstObject: () => any): () => Array<string> {
+    const res: Array<string> = [];
+    const first = firstObject();
+    const names = ["isDataLoading", "pageIndex", "pageCount", "value"];
+    const format = (name: string, val: any): string => {
+      if (name !== "value") return String(val);
+      if (!Array.isArray(val)) return String(val);
+      return val.length + (val.length > 0 ? ":" + val[0].col1 + "," + val[0].col2 + "," + val[0].col3 : "");
+    };
+    question.onPropertyChanged.add((sender: any, options: any): void => {
+      if (names.indexOf(options.name) < 0) return;
+      res.push(options.name + "=" + format(options.name, options.newValue) + " " + (firstObject() === first ? "old" : "new"));
+    });
+    return (): Array<string> => res.concat(["done " + (firstObject() === first ? "old" : "new")]);
+  }
+  const expressionColumns = [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" },
+    { name: "col3", cellType: "expression", expression: "{row.col2} + 1" }];
+  const expressionTemplate = [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
+    { type: "expression", name: "col3", expression: "{panel.col2} + 1" }];
+  test("T4 matrix: the order of a page change, of a remote edit and of a filter", async () => {
+    // (a) a page change of a readRange source: the rows are rebuilt when the read commits.
+    const ranged = await createMatrix(new FakeServerSource(serverRecords(12)));
+    expect(ranged.question.visibleRows.length, "#a0").toBe(5);
+    const rangedTrace = trace(ranged.question, (): any => ranged.question.visibleRows[0]);
+    ranged.question.nextPage();
+    await flush();
+    expect(rangedTrace(), "#a").toEqual(["pageIndex=1 old", "isDataLoading=true old", "value=5:v5,5,undefined old", "isDataLoading=false new", "done new"]);
+    // (b) a page change of a read() source the list pages: the paging state, then the rebuild.
+    const paged = await createMatrix(readSource(12));
+    expect(paged.question.visibleRows.length, "#b0").toBe(5);
+    const pagedTrace = trace(paged.question, (): any => paged.question.visibleRows[0]);
+    paged.question.nextPage();
+    await flush();
+    expect(pagedTrace(), "#b").toEqual(["pageIndex=1 old", "done new"]);
+    // (c) a cell edit on a readRange source: the window is stored before the conditions run.
+    const edited = await createMatrix(new FakeServerSource(serverRecords(12)), { columns: expressionColumns });
+    expect(edited.question.visibleRows.length, "#c0").toBe(5);
+    const editedTrace = trace(edited.question, (): any => edited.question.visibleRows[0]);
+    edited.question.visibleRows[0].getQuestionByName("col2").value = 10;
+    await flush();
+    expect(editedTrace(), "#c").toEqual(["value=5:v0,10,1 old", "value=5:v0,10,11 old", "done old"]);
+    // (d) a filter assigned on the default source.
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }, { name: "col2" }] }]
+    });
+    survey.data = { matrix: serverRecords(12) };
+    const local = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(local.visibleRows.length, "#d0").toBe(5);
+    const localTrace = trace(local, (): any => local.visibleRows[0]);
+    local.filterExpression = "{col2} > 8";
+    expect(localTrace(), "#d").toEqual(["pageCount=1 old", "done new"]);
+    expect(rowValues(local), "#d1").toEqual(["v9", "v10", "v11"]);
+  });
+  test("T4 panel: the order of a page change, of a remote edit and of a filter", async () => {
+    const ranged = await createPanel(new FakeServerSource(serverRecords(12)));
+    expect(ranged.question.panels.length, "#a0").toBe(5);
+    const rangedTrace = trace(ranged.question, (): any => ranged.question.panels[0]);
+    ranged.question.nextPage();
+    await flush();
+    expect(rangedTrace(), "#a").toEqual(["pageIndex=1 old", "isDataLoading=true old", "value=5:v5,5,undefined old", "isDataLoading=false new", "done new"]);
+    const paged = await createPanel(readSource(12));
+    expect(paged.question.panels.length, "#b0").toBe(5);
+    const pagedTrace = trace(paged.question, (): any => paged.question.panels[0]);
+    paged.question.nextPage();
+    await flush();
+    expect(pagedTrace(), "#b").toEqual(["pageIndex=1 old", "done new"]);
+    const edited = await createPanel(new FakeServerSource(serverRecords(12)), { templateElements: expressionTemplate });
+    expect(edited.question.panels.length, "#c0").toBe(5);
+    const editedTrace = trace(edited.question, (): any => edited.question.panels[0]);
+    edited.question.panels[0].getQuestionByName("col2").value = 10;
+    await flush();
+    expect(editedTrace(), "#c").toEqual(["value=5:v0,10,1 old", "value=5:v0,10,11 old", "done old"]);
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,
+        templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }]
+    });
+    survey.data = { panel: serverRecords(12) };
+    const local = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(local.panels.length, "#d0").toBe(5);
+    const localTrace = trace(local, (): any => local.panels[0]);
+    local.filterExpression = "{col2} > 8";
+    expect(localTrace(), "#d").toEqual(["pageCount=1 old", "done new"]);
+    expect(panelValues(local), "#d1").toEqual(["v9", "v10", "v11"]);
+  });
+
+  describe("T6: a rejected refill drops the focus position it kept", () => {
+    let focusSpy: any;
+    let addButtonSpy: any;
+    beforeEach(() => {
+      vi.useFakeTimers();
+      focusSpy = vi.spyOn(QuestionMatrixDropdownRenderedTable.prototype, "focusActionCell").mockImplementation(() => { });
+      addButtonSpy = vi.spyOn(QuestionMatrixDynamicModel.prototype, "focusAddBUtton").mockImplementation(() => { });
+    });
+    afterEach(() => {
+      focusSpy.mockRestore();
+      addButtonSpy.mockRestore();
+      vi.useRealTimers();
+    });
+    test("matrix: one read error, and the next committed read does not focus the position", async () => {
+      const source = new FakeServerSource(serverRecords(30));
+      const { survey, question } = await createMatrix(source, { rowsPerPage: 10 });
+      const errors: Array<string> = [];
+      survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+      source.auto = false;
+      question.removeRowUI(question.visibleRows[0]);
+      vi.advanceTimersByTime(10);
+      expect(focusSpy.mock.calls.length, "#1: focused at once").toBe(1);
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(source.pending.length, "#2: the refill is in flight").toBe(1);
+      source.pending[0].fail(new Error("boom"));
+      await flush(REFILL_TURNS);
+      expect(errors, "#3").toEqual(["read"]);
+      source.auto = true;
+      question.refreshView();
+      await flush(REFILL_TURNS);
+      vi.advanceTimersByTime(100);
+      expect(question.visibleRows.length, "#4: the later read committed").toBe(10);
+      expect(focusSpy.mock.calls.length, "#5: and focused nothing").toBe(1);
+      expect(errors, "#6").toEqual(["read"]);
+    });
+    test("panel: one read error, and the next committed read does not focus the position", async () => {
+      const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
+      try {
+        const source = new FakeServerSource(serverRecords(30));
+        const { survey, question } = await createPanel(source, { panelsPerPage: 10 });
+        const errors: Array<string> = [];
+        survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
+        source.auto = false;
+        question.removePanelUI(question.panels[0]);
+        expect(focusElementSpy.mock.calls.length, "#1: focused at once").toBe(1);
+        source.settleAll();
+        await flush(REFILL_TURNS);
+        expect(source.pending.length, "#2: the refill is in flight").toBe(1);
+        source.pending[0].fail(new Error("boom"));
+        await flush(REFILL_TURNS);
+        expect(errors, "#3").toEqual(["read"]);
+        source.auto = true;
+        question.refreshView();
+        await flush(REFILL_TURNS);
+        expect(question.panels.length, "#4: the later read committed").toBe(10);
+        expect(focusElementSpy.mock.calls.length, "#5: and focused nothing").toBe(1);
+        expect(errors, "#6").toEqual(["read"]);
+      } finally {
+        focusElementSpy.mockRestore();
+      }
+    });
+  });
+
+  test("T7 matrix: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
+    const source = new FakeServerSource(serverRecords(30));
+    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const list = question.getDataList();
+    expect(question.isDynamicDataRunning, "#1: nothing is running").toBe(false);
+    source.auto = false;
+    question.removeRow(0);
+    expect(list.hasPendingRead, "#2: the refill is requested").toBe(true);
+    expect(list.isLoading, "#3: and waits for the remove").toBe(false);
+    expect(question.isDynamicDataRunning, "#4").toBe(true);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["readRange"]);
+    expect(question.isDynamicDataRunning, "#6").toBe(true);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(question.visibleRows.length, "#7: committed").toBe(10);
+    expect(question.isDynamicDataRunning, "#8").toBe(false);
+  });
+  test("T7 panel: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
+    const source = new FakeServerSource(serverRecords(30));
+    const { question } = await createPanel(source, { panelsPerPage: 10 });
+    const list = question.getDataList();
+    expect(question.isDynamicDataRunning, "#1: nothing is running").toBe(false);
+    source.auto = false;
+    question.removePanel(0);
+    expect(list.hasPendingRead, "#2: the refill is requested").toBe(true);
+    expect(list.isLoading, "#3: and waits for the remove").toBe(false);
+    expect(question.isDynamicDataRunning, "#4").toBe(true);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["readRange"]);
+    expect(question.isDynamicDataRunning, "#6").toBe(true);
+    source.settleAll();
+    await flush(REFILL_TURNS);
+    expect(question.panels.length, "#7: committed").toBe(10);
+    expect(question.isDynamicDataRunning, "#8").toBe(false);
   });
 });
 

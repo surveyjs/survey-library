@@ -1,3 +1,5 @@
+import { ISurveyData } from "../base-interfaces";
+import { DynamicRecordItem } from "../dynamicItemModelBase";
 import { Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
@@ -38,6 +40,9 @@ export interface IDynamicDataQuestionHooks {
   setLoadedRecords(): void;
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
   validatePageObjects(context: ValidationContext): boolean;
+  // A record without an object, read as a value: the record reader, the variable name and the
+  // context class are the question's.
+  createRecordItem(recordIndex: number): DynamicRecordItem;
 }
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks;
 
@@ -46,9 +51,10 @@ export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDyn
    composition. The list computes (dynamic-data-list.ts), the question builds and renders its own
    rows or panels - its objects - and this class is what sits between the two: it creates and
    disposes the list and the question-side helpers, it is the owner of the list and of the page
-   validation and answers the changes of the list, and it holds the question side of a caller-provided data source - the survey-data side of a
-   source swap, the running state and the focus kept across a refill. The source itself, its
-   capabilities and the loaded window belong to the list.
+   validation and answers the changes of the list, and it holds the question side of a
+   caller-provided data source - the survey-data side of a source swap, the running state and the
+   focus kept across a refill. The source itself, its capabilities and the loaded window belong to
+   the list.
    It is created with the question. The list and the helpers are created on first use, and the
    ...Value getters never create.
 
@@ -221,6 +227,19 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public syncListPageSize(): boolean {
     if (!this._list || this.owner.isLoadingFromJson) return false;
     return this.paging.updatePageSizeIfChanged();
+  }
+
+  /* The record-item halves of IDynamicItemModelData.getItemVisibleIndex and getItemByVisibleIndex.
+     A record the page does not show has no object: its position among the visible records of the
+     whole list, and the record at such a position, are the list's to answer. */
+  public getRecordItemVisibleIndex(item: ISurveyData): number {
+    if (!(item instanceof DynamicRecordItem) || !this._list) return -1;
+    return this._list.getGlobalVisibleIndex(item.getIndex());
+  }
+  public getRecordItemByVisibleIndex(visibleIndex: number): DynamicRecordItem {
+    if (!this.isPagingActive) return null;
+    const recordIndex = this._list.getIndexAtGlobalVisibleIndex(visibleIndex);
+    return recordIndex < 0 ? null : this.owner.createRecordItem(recordIndex);
   }
 
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.

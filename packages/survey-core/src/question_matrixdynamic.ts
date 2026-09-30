@@ -210,7 +210,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      them back at other indexes: another writer moved, added or removed records. The edited set
      follows its records into the new window, by key when the source names its records and by
      content otherwise (getReplacedRecordsRemap), so that an edited record is still validated
-     wherever it is now. Replacing the source starts over (see the dataSource setter). */
+     wherever it is now. Replacing the source starts over (see the controller's assignSource). */
   private followReloadedRecords(oldRecords: any): void {
     const validation = this.pageValidationValue;
     if (!validation || !validation.hasRecords || !this.isPagedByList) return;
@@ -444,8 +444,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const pos = rows.indexOf(item);
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
-    if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
+    return this.dynamicData.getRecordItemVisibleIndex(item);
   }
   /* The neighbour comes from the view: the row when the record has one, the record read as a value
      when the matrix pages and it has none. */
@@ -455,11 +454,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!rows) return null;
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < rows.length) return rows[pos];
-    if (!this.isPagingActive) return null;
-    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
-    return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
+    return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
   }
-  private createRecordItem(recordIndex: number): DynamicRecordItem {
+  createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
       (item: DynamicRecordItem): IValueGetterContext => new MatrixRowGetterContext(<any>item));
   }

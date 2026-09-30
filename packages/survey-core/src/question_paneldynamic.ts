@@ -352,20 +352,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       const pos = this.visiblePanelsCore.indexOf(item.panel);
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
-    if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
+    return this.dynamicData.getRecordItemVisibleIndex(item);
   }
   getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
     if (visibleIndex < 0) return null;
     const panels = this.visiblePanels;
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
-    if (!this.isPagingActive) return null;
-    // Off the page: the record is read as a value.
-    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
-    return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
+    return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
   }
-  private createRecordItem(recordIndex: number): DynamicRecordItem {
+  createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.dataList.getRecord(recordIndex), settings.expressionVariables.panel,
       (item: DynamicRecordItem): IValueGetterContext => new PanelDynamicItemGetterContext(item));
   }
@@ -470,7 +466,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      the states of nested paged questions follow their records into the new window, by key when the
      source names its records and by content otherwise (getReplacedRecordsRemap). The panels' own
      record indexes move with them before the rebuild, which keeps the nested states under those
-     indexes. Replacing the source starts over (see the dataSource setter). */
+     indexes. Replacing the source starts over (see the controller's assignSource). */
   private followReloadedRecords(oldRecords: any): void {
     if (!this.isPagedByList) return;
     const validation = this.pageValidationValue;

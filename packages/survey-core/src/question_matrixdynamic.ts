@@ -809,10 +809,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       // One source.remove; question.value and rowCount follow through the recordRemoved notification.
       const pageIndex = list.pageIndex;
       list.remove(index);
-      // The page came up one record short: the first record of the next page belongs on it now.
-      if (this.isPagedByList && list.pageIndex === pageIndex) {
-        this.rebuildRowsFromDataList();
-      }
+      this.dynamicData.refillPageAfterRemove(pageIndex);
       this.onRowsChanged();
       return;
     }
@@ -1041,29 +1038,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get isRowsDragAndDrop(): boolean {
     // Under a sort the row order is the sort's: dragging a row would say nothing about where the
     // record goes. A data source without a move method cannot be told about a reorder either.
-    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.canMoveRecord;
-  }
-  /* The capabilities of a data source are declared by the presence of its optional methods: a source
-     without insert gets no add button, one without remove no delete button, one without move no drag
-     handles, and one without update makes every cell read-only - a silently unsaved edit is worse
-     than a disabled field, and an application that wants local-only edits over remote reads
-     implements a no-op update. A matrix without a data source has every capability. */
-  private get canInsertRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("insert");
-  }
-  private get canRemoveRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("remove");
-  }
-  private get canUpdateRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("update");
-  }
-  private get canMoveRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("move");
+    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.dynamicData.canWrite("move");
   }
   // One hook for the whole matrix, not one per cell: the cell questions read it through
   // data.isMatrixReadOnly() (parentIsReadOnly).
   public isMatrixReadOnly(): boolean {
-    return super.isMatrixReadOnly() || !this.canUpdateRecord;
+    return super.isMatrixReadOnly() || !this.dynamicData.canWrite("update");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
   /* Enables the header-click sort the UI series will add; a column opts out with
@@ -1170,7 +1150,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get canAddRow(): boolean {
     return (
       this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
-      this.canInsertRecord && this.rowCount < this.rowCountLimit
+      this.dynamicData.canWrite("insert") && this.rowCount < this.rowCountLimit
     );
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
@@ -1193,7 +1173,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.allowRemoveRows &&
       !this.isReadOnly &&
       !this.hasRowCountExpression &&
-      this.canRemoveRecord &&
+      this.dynamicData.canWrite("remove") &&
       this.rowCount > this.minRowCount;
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
@@ -1590,12 +1570,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.isRowChanging = false;
       }
     }
-    /* The page came up one record short, and the first record of the next page belongs on it now: the
-       page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
-       last page moved the page back, and that page change rebuilt it already. */
-    if (this.isPagedByList && this.dataList.pageIndex === pageIndex) {
-      this.rebuildRowsFromDataList();
-    }
+    this.dynamicData.refillPageAfterRemove(pageIndex);
     this.onRowsChanged();
     if (this.survey) {
       this.matrixCallbacks.matrixRowRemoved(this, index, row);

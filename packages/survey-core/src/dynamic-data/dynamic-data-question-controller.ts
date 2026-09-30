@@ -397,6 +397,26 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     return this.isPagedByList && context.fireCallback && !context.isOnValueChanged;
   }
 
+  /* The capabilities of a data source are declared by the presence of its optional methods: a source
+     without insert gets no add button, one without remove no delete button, one without move no drag
+     handles, and one without update makes every object read-only - a silently unsaved edit is worse
+     than a disabled field, and an application that wants local-only edits over remote reads
+     implements a no-op update. A question without a data source has every capability. The list is
+     not created for the answer. */
+  public canWrite(operation: DynamicDataOperation): boolean {
+    const list = this._list;
+    return !list || !list.isRemote || list.hasCapability(operation);
+  }
+  /* A remove on a page the list cuts leaves it one record short, and the first record of the next
+     page belongs on it now: the page is refilled, as a data source's remove refill does (step 08). A
+     remove that emptied the last page moved the page back, and that page change rebuilt it already.
+     pageIndexBefore: the page index the list had before the remove. */
+  public refillPageAfterRemove(pageIndexBefore: number): void {
+    if (this.isPagedByList && this._list.pageIndex === pageIndexBefore) {
+      this.owner.rebuildFromDataList(false);
+    }
+  }
+
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.
   public getDataList(): DynamicDataList {
     return this.list;

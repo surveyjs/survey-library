@@ -2127,7 +2127,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression || !this.canInsertRecord) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.dynamicData.canWrite("insert")) return false;
     if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
@@ -2153,7 +2153,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
-    if (this.isDesignMode || this.hasPanelCountExpression || !this.canRemoveRecord) return false;
+    if (this.isDesignMode || this.hasPanelCountExpression || !this.dynamicData.canWrite("remove")) return false;
     return (
       this.allowRemovePanel &&
       !this.isReadOnly &&
@@ -2671,12 +2671,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         this.isValueChangingInternally = false;
       }
     }
-    /* The page came up one record short, and the first record of the next page belongs on it now: the
-       page is refilled, as a data source's remove refill does (step 08). A remove that emptied the
-       last page moved the page back and that page change rebuilt it already. */
-    if (this.isPagedByList && list.pageIndex === pageIndex) {
-      this.rebuildPanelsFromDataList();
-    }
+    this.dynamicData.refillPageAfterRemove(pageIndex);
     this.disposePanels([panel]);
   }
   private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
@@ -2876,23 +2871,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!question) return null;
     return question.getConditionJson(operator, path);
   }
-  /* The capabilities of a data source are declared by the presence of its optional methods: a source
-     without insert gets no add button, one without remove no delete button, and one without update
-     makes every panel read-only - a silently unsaved edit is worse than a disabled field, and an
-     application that wants local-only edits over remote reads implements a no-op update. A question
-     without a data source has every capability. */
-  private get canInsertRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("insert");
-  }
-  private get canRemoveRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("remove");
-  }
-  private get canUpdateRecord(): boolean {
-    return !this.isRemoteData || this.dataList.hasCapability("update");
-  }
   // One hook for the whole question, not one per nested question.
   private get arePanelsReadOnly(): boolean {
-    return this.isReadOnly || !this.canUpdateRecord;
+    return this.isReadOnly || !this.dynamicData.canWrite("update");
   }
   private updatePanelsReadOnly(): void {
     const readOnly = this.arePanelsReadOnly;
@@ -2999,7 +2980,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       settings.expressionVariables.panel
     );
   }
-  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression && this.canInsertRecord; }
+  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly && !this.hasPanelCountExpression && this.dynamicData.canWrite("insert"); }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;
   }

@@ -1,7 +1,8 @@
 // Filter control prototype (#11890) over a real server: the products of the public OData Northwind
 // service. The matrix reads them through a data source with readRange, so the filter, the sort and
 // the page all run on the server: the filter arrives as a survey expression and is translated into
-// $filter here, the way dynamic-data-interfaces.ts describes.
+// $filter here, the way dynamic-data-interfaces.ts describes. The buttons at the top right keep
+// survey.uiState (the filter's preset, search and edits) in localStorage across reloads.
 var ODATA = "https://services.odata.org/V4/Northwind/Northwind.svc/";
 // Record field -> OData property. The record is flat; Category is a navigation property.
 var fieldMap = { name: "ProductName", category: "Category/CategoryName", quantity: "QuantityPerUnit",
@@ -121,6 +122,50 @@ function showDataError(message) {
   el.style.display = !!message ? "block" : "none";
 }
 
+var UI_STATE_KEY = "surveyjs-filter-demo-uiState";
+var toolbarStyle = { position: "fixed", top: "8px", right: "16px", zIndex: 3000, display: "flex", gap: "8px",
+  alignItems: "center", font: "14px sans-serif" };
+var toolbarButtonStyle = { padding: "2px 8px", border: "1px solid #ccc", borderRadius: "3px", background: "#fff",
+  cursor: "pointer", lineHeight: "20px" };
+// A class and not hooks: the page loads React 16.5, and hooks came in 16.8. Every localStorage call
+// is guarded - a private window or blocked site data throws on access.
+class UiStateToolbar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { status: "" };
+    this.save = this.save.bind(this);
+    this.restore = this.restore.bind(this);
+  }
+  save() {
+    try {
+      localStorage.setItem(UI_STATE_KEY, JSON.stringify(this.props.model.uiState));
+      this.setState({ status: "Saved " + new Date().toLocaleTimeString() });
+    } catch (e) {
+      this.setState({ status: "Could not save: " + e.message });
+    }
+  }
+  restore() {
+    try {
+      var text = localStorage.getItem(UI_STATE_KEY);
+      if (!text) {
+        this.setState({ status: "Nothing saved yet" });
+        return;
+      }
+      this.props.model.uiState = JSON.parse(text);
+      this.setState({ status: "Restored" });
+    } catch (e) {
+      this.setState({ status: "Could not restore: " + e.message });
+    }
+  }
+  render() {
+    return <div style={toolbarStyle}>
+      <button type="button" style={toolbarButtonStyle} onClick={this.save}>Save uiState</button>
+      <button type="button" style={toolbarButtonStyle} onClick={this.restore}>Restore uiState</button>
+      <span id="uiStateStatus">{this.state.status}</span>
+    </div>;
+  }
+}
+
 function renderSurvey(categories) {
   var json = { elements: [
     { type: "filter", name: "products-filter", title: "Filter products", source: "products", showSearch: true,
@@ -152,6 +197,11 @@ function renderSurvey(categories) {
   model.onUIStateChanged.add(function () { console.log("uiState", JSON.stringify(model.uiState)); });
   window.survey = model;
   ReactDOM.render(<SurveyReact.Survey model={model} />, document.getElementById("surveyElement"));
+  // A container of its own: #surveyElement is a fixed full-screen box the survey scrolls inside, and
+  // anything rendered next to the survey there would take that height away from it.
+  var toolbarElement = document.createElement("div");
+  document.body.appendChild(toolbarElement);
+  ReactDOM.render(<UiStateToolbar model={model} />, toolbarElement);
 }
 
 readJson(ODATA + "Categories?$select=CategoryName").then(function (data) {

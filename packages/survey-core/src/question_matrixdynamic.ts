@@ -314,37 +314,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get hasDataListView(): boolean {
     return this.dynamicData.hasView;
   }
-  /* Every value assignment of this question passes through setQuestionValue, and rowCount changes
-     the padded records the list reads. The list sees the records themselves at once - it reads them
-     through the value - but the views it cached over them it cannot: they are dropped here. The list
-     is not created just to be invalidated.
-     An assignment made outside the list - survey.data, a trigger, clearValue, a default value - also
-     re-decides the membership, and when it changes which records have a row the rows are rebuilt;
-     when it does not, the base refreshes their values by position, as it always has. An assignment
-     the list itself is making is not a change from outside: invalidateViews ignores it and the
-     snapshot is not taken. */
+  /* The list side of an assignment is the controller's (beginValueAssignment). The records the list
+     reads are question.value padded up to rowCount, and an assignment from outside that leaves the
+     rows on their records has the base refresh their values by position, as it always has. */
   protected setQuestionValue(newValue: any): void {
-    const created = this.dynamicData.getCreatedIndexesSnapshot();
-    const isFromOutside = !!this.dataListValue && !this.dataListValue.isWriting;
+    const assignment = this.dynamicData.beginValueAssignment();
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = this.getPropertyValueWithoutDefault("value");
+    const oldValue = this.getStoredRecords();
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : [];
     super.setQuestionValue(newValue);
-    this.dynamicData.invalidateViews();
-    this.dynamicData.rebuildIfViewChanged(created);
-    if (isFromOutside && this.isPagedByList) {
-      this.onRecordsReplaced(oldRecords);
-    }
+    this.dynamicData.endValueAssignment(assignment, oldRecords);
   }
-  /* The records were assigned from outside the list (survey.data, a trigger, a sibling with the same
-     valueName): the edited set follows the records it names across the insert, remove or move the
-     assignment made, and a move that waits for its validators is dropped. The page is rebuilt when
-     it names other records than its rows hold. */
-  private onRecordsReplaced(oldRecords: Array<any>): void {
-    this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
-    if (this.dynamicData.isPageStale()) {
-      this.rebuildRowsFromDataList();
-    }
+  getStoredRecords(): any {
+    return this.getPropertyValueWithoutDefault("value");
   }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the

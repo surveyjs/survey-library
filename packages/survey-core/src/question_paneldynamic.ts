@@ -495,6 +495,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
   }
+  getStoredRecords(): any {
+    return this.getPropertyValueWithoutDefault("value");
+  }
   private isReRunningRemoteConditions: boolean;
   /* With the array source over question.value a record write reaches the survey, and the survey then
      re-runs the conditions of every question - which is what recalculates an expression question and
@@ -3605,29 +3608,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.panelCount = newPanelCount;
     this.settingPanelCountBasedOnValue = false;
   }
-  /* The records were assigned from outside the list (survey.data, a trigger, a sibling with the same
-     valueName). The edited set follows the records it names across the insert, remove or move the
-     assignment made (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its
-     validators is dropped. The panels of the page are rebuilt when the page names other records now. */
-  private onRecordsReplaced(oldRecords: any): void {
-    this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
-    if (this.dynamicData.isPageStale()) {
-      this.rebuildPanelsFromDataList();
-    }
-  }
+  // The list side of an assignment is the controller's (beginValueAssignment).
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
-    const created = this.dynamicData.getCreatedIndexesSnapshot();
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = this.getPropertyValueWithoutDefault("value");
+    const assignment = this.dynamicData.beginValueAssignment();
+    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly). A value that is not
+    // an array is kept as it is: isPanelRecordChanged reads it as "every panel changed".
+    const oldValue = this.getStoredRecords();
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
-    const isFromOutside = !!this.dataListValue && !this.dataListValue.isWriting;
     super.setQuestionValue(newValue, false);
-    this.dynamicData.invalidateViews();
-    this.dynamicData.rebuildIfViewChanged(created);
-    if (isFromOutside && this.isPagedByList) {
-      this.onRecordsReplaced(oldRecords);
-    }
+    this.dynamicData.endValueAssignment(assignment, oldRecords);
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
     // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted

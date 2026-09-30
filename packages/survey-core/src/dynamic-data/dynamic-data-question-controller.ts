@@ -36,6 +36,8 @@ export interface IDynamicDataQuestionHooks {
   // A move does not carry the objects: they keep their positions and take the records of their
   // positions. Absent -> the objects follow their records.
   followRecordMove?(): void;
+  // The stored value, not the default: the records an assignment or a read replaces.
+  getStoredRecords(): any;
   // The loaded window becomes the question value; nothing is rebuilt.
   storeLoadedRecords(): void;
   // After a write to a data source was stored: what a write to the survey would have re-run.
@@ -51,6 +53,11 @@ export interface IDynamicDataQuestionHooks {
 // The objects are read through the owner's IDynamicItemModelData.getItem, by created position.
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
   & Pick<IDynamicItemModelData, "getItem">;
+// What a value assignment takes before the value is stored and hands back after it (see
+// DynamicDataQuestionController.beginValueAssignment).
+export interface IDynamicDataValueAssignment {
+  created: Array<number>;
+}
 
 /* The coordination between a dynamic question and its list. Both dynamic questions need the same
    one and neither of them descends from the other, so it lives here and each question holds it by
@@ -230,32 +237,45 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   }
 
   /* The list side of a value assignment. Every assignment of the question's value - by the survey,
-     a trigger, a default value or one of its own objects - passes through its setQuestionValue. The
-     list reads the records through the value, so it sees them at once, but the views it cached over
-     them it cannot: invalidateViews drops them. An assignment made outside the list also re-decides
-     the membership: the created indexes are taken before it and compared after it, and the objects
-     are rebuilt when it changed which records have one. An assignment the list itself is making is
-     not a change from outside: no snapshot is taken. The list is not created for any of this. */
-  public getCreatedIndexesSnapshot(): Array<number> {
+     a trigger, a default value or one of its own objects - passes through its setQuestionValue, which
+     calls beginValueAssignment before it stores the value and endValueAssignment after. The list
+     reads the records through the value, so it sees them at once, but the views it cached over them
+     it cannot: they are dropped. An assignment made outside the list also re-decides the membership:
+     the created indexes are taken before it and compared after it, and the objects are rebuilt when
+     it changed which records have one. An assignment the list itself is making is not a change from
+     outside: begin answers nothing for it and nothing is allocated. The list is not created for any
+     of this.
+     The state goes back to the question and is handed in again, never kept here: an assignment made
+     from inside another one - a valueChangedCallback that writes through the list - runs both halves
+     of its own in between. */
+  public beginValueAssignment(): IDynamicDataValueAssignment {
     const list = this._list;
-    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
+    if (!list || list.isWriting) return undefined;
+    return { created: list.hasView ? list.getCreatedIndexes() : undefined };
   }
-  public rebuildIfViewChanged(created: Array<number>): void {
-    if (!created || !this._list) return;
-    if (Helpers.isTwoValueEquals(created, this._list.getCreatedIndexes())) return;
-    this.owner.rebuildFromDataList(false);
-  }
-  public invalidateViews(): void {
-    if (!!this._list) {
-      this._list.invalidateViews();
-      this.owner.syncPagingState();
+  /* oldRecords: the question's copy of the value it replaced. The new records are read here and not
+     passed in: the rebuild of a changed membership can write the value. */
+  public endValueAssignment(assignment: IDynamicDataValueAssignment, oldRecords: any): void {
+    const list = this._list;
+    if (!list) return;
+    list.invalidateViews();
+    this.owner.syncPagingState();
+    if (!assignment) return;
+    if (!!assignment.created && !Helpers.isTwoValueEquals(assignment.created, list.getCreatedIndexes())) {
+      this.owner.rebuildFromDataList(false);
+    }
+    if (!this.isPagedByList) return;
+    this.onRecordsReplaced(oldRecords, this.owner.getStoredRecords());
+    // The page is rebuilt when it names other records than its objects hold now.
+    if (this.isPageStale()) {
+      this.owner.rebuildFromDataList(false);
     }
   }
-  /* The validation half of such an assignment, for a list that pages in memory: the edited set
-     follows the records it names across the insert, remove or move the assignment made
+  /* The validation half of an assignment from outside, for a list that pages in memory: the edited
+     set follows the records it names across the insert, remove or move the assignment made
      (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its validators is
-     dropped. Whether the page is stale now is the question's to decide. */
-  public onRecordsReplaced(oldRecords: any, newRecords: any): void {
+     dropped. */
+  private onRecordsReplaced(oldRecords: any, newRecords: any): void {
     const validation = this._pageValidation;
     if (!validation) return;
     validation.cancelPendingMove();

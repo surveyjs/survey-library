@@ -27,8 +27,7 @@ import { DynamicDataRecordVisibility, IDynamicDataRecordScope } from "./dynamic-
 // | pageLocalIndex   | position on the current page, i.e. in getPageIndexes()            | 0 ... page length-1   |
 // |                  | (= visibleIndex - pageIndex * pageSize).                          |                       |
 // | globalVisible-   | the owner's visibleIndex ({visiblePanelIndex}, row.visibleIndex):  | 0 ... visible records |
-// | Index            | windowOffset + visibleIndex for an owner of a remote source, else | of the whole list - 1 |
-// |                  | visibleIndex.                                                     |                       |
+// | Index            | windowOffset + visibleIndex.                                      | of the whole list - 1 |
 //
 // The counts follow the same split: "count" is the STORAGE count (total for a paged source, else the
 // window length) and a filter never changes it; "visibleCount" is what passes the filter minus the
@@ -569,25 +568,27 @@ export class DynamicDataList {
     this.ensureViews();
     return this.visibleIndexes;
   }
-  /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. isRemote: the
-     owner reads a remote source - only then does windowOffset move its numbers. */
-  public getPageStartGlobalVisibleIndex(isPagingActive: boolean): number {
+  /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. The list answers
+     from its own state: the offset is windowOffset, which only a readRange read moves - and a
+     question reads a readRange source only when it was assigned - and paging is a page size above 0,
+     which the paging controller sets to 0 in design mode on its next sync. */
+  public getPageStartGlobalVisibleIndex(): number {
     // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
     if (this.isPagedBySource) return this.windowOffset;
-    return isPagingActive ? this.pageIndex * this.pageSize : 0;
+    return this._pageSize > 0 ? this.pageIndex * this._pageSize : 0;
   }
   // Record index + this = the record number the respondent sees ({panelIndex}, {rowIndex}).
-  public getRecordNumberOffset(isRemote: boolean): number {
-    return isRemote ? this.windowOffset : 0;
+  public getRecordNumberOffset(): number {
+    return this.windowOffset;
   }
   // -1 when the record is not visible.
-  public getGlobalVisibleIndex(index: number, isRemote: boolean): number {
+  public getGlobalVisibleIndex(index: number): number {
     const pos = this.getVisibleIndexes().indexOf(index);
-    return pos < 0 ? -1 : pos + this.getRecordNumberOffset(isRemote);
+    return pos < 0 ? -1 : pos + this.getRecordNumberOffset();
   }
   // -1 when there is none: a remote window holds nothing beyond itself.
-  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number, isRemote: boolean): number {
-    const at = globalVisibleIndex - this.getRecordNumberOffset(isRemote);
+  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number {
+    const at = globalVisibleIndex - this.getRecordNumberOffset();
     const visible = this.getVisibleIndexes();
     return at < 0 || at >= visible.length ? -1 : visible[at];
   }

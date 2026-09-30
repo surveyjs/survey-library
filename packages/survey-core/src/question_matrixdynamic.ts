@@ -508,14 +508,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      the visible records of the whole list (the list's globalVisibleIndex), pageVisibleIndex its
      position in visibleRows; visibleIndex = pageStartVisibleIndex + pageVisibleIndex. */
   private get pageStartVisibleIndex(): number {
-    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex(this.isPagingActive) : 0;
+    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
   }
   protected getFirstRowVisibleIndex(): number {
     return this.pageStartVisibleIndex;
   }
   // IDynamicItemModelData: the window offset of a data source that pages itself (see rowIndex).
   getRecordNumberOffset(): number {
-    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset(this.isRemoteData) : 0;
+    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
@@ -525,7 +525,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
     if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    return this.dataListValue.getGlobalVisibleIndex(item.getIndex(), this.isRemoteData);
+    return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
   }
   /* The neighbour comes from the view: the row when the record has one, the record read as a value
      when the matrix pages and it has none. */
@@ -536,7 +536,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < rows.length) return rows[pos];
     if (!this.isPagingActive) return null;
-    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex, this.isRemoteData);
+    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
     return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
   }
   private createRecordItem(recordIndex: number): DynamicRecordItem {

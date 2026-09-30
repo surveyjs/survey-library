@@ -1194,8 +1194,8 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
     expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#3").toEqual([1, 2, 3, 4, 5, 6]);
   });
   /* setDesignMode notifies no question, so the list keeps the page size and the page it had until the
-     next paging sync; the question stops paging because isPagingActive reads the mode. Step 24 found
-     this and did not change the index methods over it (its step D). */
+     next paging sync; the question stops paging because isPagingActive reads the mode. The positions
+     come from the list alone (step 24, step D), so they stay the ones the page had. */
   test("P10 matrix: design mode set on a question that pages, on its second page", () => {
     const survey = new SurveyModel({ elements: [matrixJson] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -1206,8 +1206,8 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
     const rows = question.visibleRows;
     expect(question.getDataList().pageSize, "#2: the list still pages").toBe(2);
     expect(question.getDataList().pageIndex, "#3: on the page it was on").toBe(1);
-    expect(rows.map(row => question.getItemVisibleIndex(<any>row)), "#4: the rows of that page, numbered from 0").toEqual([0, 1]);
-    expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#5").toEqual([1, 2]);
+    expect(rows.map(row => question.getItemVisibleIndex(<any>row)), "#4: the rows of that page, numbered as on that page").toEqual([2, 3]);
+    expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#5").toEqual([3, 4]);
   });
   test("P10 panel: design mode set before the JSON", () => {
     const survey = new SurveyModel();
@@ -1229,8 +1229,8 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
     const panels = question.panels;
     expect(question.getDataList().pageSize, "#2: the list still pages").toBe(2);
     expect(question.getDataList().pageIndex, "#3: on the page it was on").toBe(1);
-    expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#4: the panels of that page, numbered from 0").toEqual([0, 1]);
-    expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#5").toEqual([0, 1]);
+    expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#4: the panels of that page, numbered as on that page").toEqual([2, 3]);
+    expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#5").toEqual([2, 3]);
   });
 });
 

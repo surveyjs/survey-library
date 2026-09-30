@@ -346,11 +346,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      the visible records of the whole list (the list's globalVisibleIndex; what the respondent
      navigates by), pageVisibleIndex its position in visiblePanels. */
   private get pageStartVisibleIndex(): number {
-    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex(this.isPagingActive) : 0;
+    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
   }
   // IDynamicItemModelData: the window offset of a data source that pages itself, see getIndex.
   getRecordNumberOffset(): number {
-    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset(this.isRemoteData) : 0;
+    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) {
@@ -358,7 +358,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
     if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
-    return this.dataListValue.getGlobalVisibleIndex(item.getIndex(), this.isRemoteData);
+    return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
   }
   getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
     if (visibleIndex < 0) return null;
@@ -367,7 +367,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
     if (!this.isPagingActive) return null;
     // Off the page: the record is read as a value.
-    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex, this.isRemoteData);
+    const recordIndex = this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
     return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
   }
   private createRecordItem(recordIndex: number): DynamicRecordItem {

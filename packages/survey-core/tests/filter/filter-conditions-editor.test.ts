@@ -256,3 +256,40 @@ describe("FilterConditionsEditor: rendering the rebuilt value question", () => {
     }
   });
 });
+describe("FilterConditionsEditor: the editor survey inside another survey", () => {
+  test("renders compact: no frames of its own", () => {
+    const editor = createControl().createFastModeEditor("age");
+    expect(editor.survey.isCompact, "#1").toBe(true);
+    editor.dispose();
+  });
+  test("its popups measure the space of the survey the control is in", () => {
+    const q = createControl();
+    const root = document.createElement("div");
+    (<any>q.survey).rootElement = root;
+    const editor = q.createFastModeEditor("country");
+    const popup = (<any>valueQ(editor)).dropdownListModel.popupModel;
+    popup.isVisible = true;
+    expect(popup.getAreaCallback, "#1").toBeTruthy();
+    expect(popup.getAreaCallback(document.createElement("div")), "#2").toBe(root);
+    editor.dispose();
+  });
+  test("a popup's own area callback is kept", () => {
+    const q = createControl();
+    (<any>q.survey).rootElement = document.createElement("div");
+    const editor = q.createFastModeEditor("country");
+    const own = document.createElement("div");
+    const popup = (<any>valueQ(editor)).dropdownListModel.popupModel;
+    popup.getAreaCallback = () => own;
+    popup.isVisible = true;
+    expect(popup.getAreaCallback(document.createElement("div")), "#1").toBe(own);
+    editor.dispose();
+  });
+  test("with no rendered survey the area is left to the popup", () => {
+    const q = createControl();
+    const editor = q.createFastModeEditor("country");
+    const popup = (<any>valueQ(editor)).dropdownListModel.popupModel;
+    popup.isVisible = true;
+    expect(popup.getAreaCallback(document.createElement("div")), "#1").toBe(undefined);
+    editor.dispose();
+  });
+});

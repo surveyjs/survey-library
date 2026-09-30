@@ -26,6 +26,8 @@ export interface IFilterConditionsEditorOwner {
   getFieldOperators(name: string): Array<string>;
   getValueEditorJson(name: string, operator: string): any;
   getLocale(): string;
+  // Where the survey the control is in rendered; undefined while it is not rendered.
+  getSurveyRootElement(): HTMLElement;
   isRawExpression: boolean;
 }
 export interface IFilterConditionsEditorOptions {
@@ -139,6 +141,15 @@ export class FilterConditionsEditor {
       elements: elements
     });
     survey.locale = this.owner.getLocale();
+    // The editor shows inside another survey, the way Creator embeds its editor surveys: no frames
+    // of its own, and the lists its dropdowns open measure the space of that survey, not of the
+    // popup the editor itself may sit in. A popup that already knows its area keeps it.
+    survey.isCompact = true;
+    survey.onPopupVisibleChanged.add((_: SurveyModel, options: any): void => {
+      if (!options.popup.getAreaCallback) {
+        options.popup.getAreaCallback = (): HTMLElement => this.owner.getSurveyRootElement();
+      }
+    });
     if (this.isReadOnly) {
       survey.mode = "display";
     }

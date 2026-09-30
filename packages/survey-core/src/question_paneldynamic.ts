@@ -45,6 +45,7 @@ import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -205,7 +206,8 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner {
+export class QuestionPanelDynamicModel extends Question
+  implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -279,11 +281,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public dispose(): void {
     this.cancelPendingPageMove();
     super.dispose();
-    /* The list goes with the question: it drops its pending-request counter, so a page or a push that
-       is still in flight cannot write into a question that is gone. */
-    if (!!this.dataListValue) {
-      this.dataListValue.dispose();
-    }
+    this.dynamicData.dispose();
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
@@ -383,24 +381,23 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!!item) return item;
     return index < this.dataList.loadedCount ? this.createRecordItem(index) : null;
   }
-  private dataListValue: DynamicDataList;
+  private dynamicData = new DynamicDataQuestionController(this);
+  // A peek: it never creates the list. A base constructor runs before the field above is set.
+  private get dataListValue(): DynamicDataList {
+    return !!this.dynamicData ? this.dynamicData.listValue : undefined;
+  }
   // Every record-level read and write of this question goes through this list. Its source is a
   // getter/setter pair over question.value - never a captured array - so that the batched creation
   // overrides (getValueCore/setValueCore) are honoured and every write replaces the array instead of
   // mutating the one the question currently holds.
   private get dataList(): DynamicDataList {
-    if (!this.dataListValue) {
-      this.dataListValue = DynamicDataList.createReadThrough(this,
-        (): Array<any> => this.value,
-        (arr: Array<any>): void => { this.value = arr; });
-      this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
-        this.onDataSourceError(error, operation);
-      };
-      // The list is created on demand, so a panelsPerPage that came from JSON has to be pushed here
-      // and not only from its setter.
-      this.paging.updatePageSize();
-    }
-    return this.dataListValue;
+    return this.dynamicData.list;
+  }
+  getListRecords(): Array<any> {
+    return this.value;
+  }
+  setListRecords(records: Array<any>): void {
+    this.value = records;
   }
   // internal, for tests and renderers
   public getDataList(): DynamicDataList {
@@ -646,12 +643,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.syncPagingState();
     }
   }
-  private pagingValue: DynamicDataPagingController;
   private get paging(): DynamicDataPagingController {
-    if (!this.pagingValue) {
-      this.pagingValue = new DynamicDataPagingController(this);
-    }
-    return this.pagingValue;
+    return this.dynamicData.paging;
   }
   // The list announces a page index it had to clamp, but not a page count that changed because a
   // panel became hidden or because the records were replaced: those points call this.
@@ -755,12 +748,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public refreshView(): void { this.paging.refreshView(); }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  private pageValidationValue: DynamicDataPageValidation;
+  private get pageValidationValue(): DynamicDataPageValidation {
+    return !!this.dynamicData ? this.dynamicData.pageValidationValue : undefined;
+  }
   private get pageValidation(): DynamicDataPageValidation {
-    if (!this.pageValidationValue) {
-      this.pageValidationValue = new DynamicDataPageValidation(this);
-    }
-    return this.pageValidationValue;
+    return this.dynamicData.pageValidation;
   }
   // IDynamicDataPagingOwner
   leavePage(isForward: boolean, move: () => void): boolean {

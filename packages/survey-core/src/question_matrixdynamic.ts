@@ -37,6 +37,7 @@ import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
 import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -95,7 +96,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner {
+  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -126,7 +127,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.resetRenderedTable();
     }
   }
-  private dataListValue: DynamicDataList;
+  private dynamicData = new DynamicDataQuestionController(this);
+  // A peek: it never creates the list. A base constructor runs before the field above is set.
+  private get dataListValue(): DynamicDataList {
+    return !!this.dynamicData ? this.dynamicData.listValue : undefined;
+  }
   /* Every record-level read and write of this question goes through this list. Its source is a
      getter/setter pair over question.value - never a captured array - so that every write replaces
      the array instead of mutating the one the question currently holds.
@@ -138,19 +143,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      sort never reorders it. rowCount is the record count; it stops being the row count while a
      filter is active. */
   private get dataList(): DynamicDataList {
-    if (!this.dataListValue) {
-      this.dataListValue = DynamicDataList.createReadThrough(this,
-        (): Array<any> => this.getListRecords(),
-        (arr: Array<any>): void => { this.setNewValue(this.normalizeRecords(arr)); },
-        (): number => this.getListRecordCount());
-      this.dataListValue.onError = (error: any, operation: DynamicDataOperation): void => {
-        this.onDataSourceError(error, operation);
-      };
-      // The list is created on demand, so a rowsPerPage that came from JSON has to be pushed here
-      // and not only from its setter.
-      this.paging.updatePageSize();
-    }
-    return this.dataListValue;
+    return this.dynamicData.list;
   }
   // internal, for tests and renderers
   public getDataList(): DynamicDataList {
@@ -489,12 +482,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.syncPagingState();
     }
   }
-  private pagingValue: DynamicDataPagingController;
   private get paging(): DynamicDataPagingController {
-    if (!this.pagingValue) {
-      this.pagingValue = new DynamicDataPagingController(this);
-    }
-    return this.pagingValue;
+    return this.dynamicData.paging;
   }
   // The list announces a page index it had to clamp, but not a page count that changed because a
   // row became hidden or because the records were replaced: those points call this.
@@ -658,12 +647,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  private pageValidationValue: DynamicDataPageValidation;
+  private get pageValidationValue(): DynamicDataPageValidation {
+    return !!this.dynamicData ? this.dynamicData.pageValidationValue : undefined;
+  }
   private get pageValidation(): DynamicDataPageValidation {
-    if (!this.pageValidationValue) {
-      this.pageValidationValue = new DynamicDataPageValidation(this);
-    }
-    return this.pageValidationValue;
+    return this.dynamicData.pageValidation;
   }
   // IDynamicDataPagingOwner
   leavePage(isForward: boolean, move: () => void): boolean {
@@ -750,13 +738,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
      materializes it - and the array is never truncated here: the rowCount setter needs the records
      beyond the new rowCount in order to remove them through the list. */
-  private getListRecords(): Array<any> {
+  getListRecords(): Array<any> {
     const val = this.value;
     if (Array.isArray(val) && val.length >= this.rowCount) return val;
     return this.padRecords(Array.isArray(val) ? val.slice() : []);
   }
+  setListRecords(records: Array<any>): void {
+    this.setNewValue(this.normalizeRecords(records));
+  }
   // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
-  private getListRecordCount(): number {
+  getListRecordCount(): number {
     const val = this.value;
     const len = Array.isArray(val) ? val.length : 0;
     return Math.max(len, this.rowCount);
@@ -1047,11 +1038,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public dispose(): void {
     this.cancelPendingPageMove();
     super.dispose();
-    /* The list goes with the question: it drops its pending-request counter, so a page or a push that
-       is still in flight cannot write into a question that is gone. */
-    if (!!this.dataListValue) {
-      this.dataListValue.dispose();
-    }
+    this.dynamicData.dispose();
   }
   public clearOnDrop(): void {
     if (!this.isEditingSurveyElement) {

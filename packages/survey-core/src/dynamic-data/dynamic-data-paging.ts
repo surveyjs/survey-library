@@ -22,7 +22,6 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    for as long as the question is in design mode - the hash is the truth and the list is the one
    that lags behind. isViewPending says which direction the next sync runs in. */
 export interface IDynamicDataPagingOwner {
-  getDataList(): DynamicDataList;
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
@@ -53,9 +52,10 @@ export interface IDynamicDataPagingOwner {
 }
 
 export class DynamicDataPagingController {
-  constructor(private owner: IDynamicDataPagingOwner) { }
+  // getList: whoever holds the list hands it over; it may create the list when it is asked.
+  constructor(private owner: IDynamicDataPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
-    return this.owner.getDataList();
+    return this.getList();
   }
   /* In design mode nothing is paged: the authored rowsPerPage/panelsPerPage keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and

@@ -22,7 +22,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   private source: IDynamicDataSource;
   constructor(records: Array<any>) {
     this.source = ArrayDynamicDataSource.fromArray(records);
-    this.paging = new DynamicDataPagingController(this);
+    this.paging = new DynamicDataPagingController(this, (): DynamicDataList => this.getDataList());
   }
   public get hasList(): boolean { return !!this.listValue; }
   public getDataList(): DynamicDataList {

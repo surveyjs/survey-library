@@ -42,11 +42,10 @@ import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValid
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
-import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
@@ -207,7 +206,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
 export class QuestionPanelDynamicModel extends Question
-  implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+  implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -403,13 +402,6 @@ export class QuestionPanelDynamicModel extends Question
   public getDataList(): DynamicDataList {
     return this.dataList;
   }
-  private remoteValue: DynamicDataRemoteController;
-  private get remote(): DynamicDataRemoteController {
-    if (!this.remoteValue) {
-      this.remoteValue = new DynamicDataRemoteController(this);
-    }
-    return this.remoteValue;
-  }
   /**
    * A data source that supplies the panel records. Assign an object that implements `IDynamicDataSource` to read the records from a server: the question then shows one loaded page at a time and pushes every edit, insertion and deletion to the source.
    *
@@ -420,13 +412,7 @@ export class QuestionPanelDynamicModel extends Question
     return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
   public set dataSource(val: IDynamicDataSource) {
-    // Another storage: the records layer 2 tracks and the states kept for them name records of the
-    // old one. Dropped before the swap, whose first read may commit inside it.
-    if (!!this.pageValidationValue && (val || undefined) !== this.dataSource) {
-      this.pageValidationValue.cancelPendingMove();
-      this.pageValidationValue.clearRecords();
-    }
-    this.remote.dataSource = val;
+    this.dynamicData.assignSource(val);
     // The capabilities of the new source decide whether the panels are editable and whether the
     // add/remove buttons are shown.
     this.updatePanelsReadOnly();
@@ -438,7 +424,7 @@ export class QuestionPanelDynamicModel extends Question
   // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
   // source has not acknowledged is an asynchronous operation the survey has started.
   public get isDynamicDataRunning(): boolean {
-    return !!this.remoteValue && this.remoteValue.isRunning;
+    return this.dynamicData.isRunning;
   }
   // "the records are owned by a data source": the survey hash, the write routing, the capabilities
   // and the count setters ask it. It is deliberately not "the list pages itself": a source that
@@ -448,21 +434,8 @@ export class QuestionPanelDynamicModel extends Question
   private get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
   }
-  clearValueInSurveyData(): void {
-    if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
-    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
-  }
-  restoreValueFromSurveyData(): void {
-    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
-  }
   onDataLoadingChanged(isLoading: boolean): void {
     this.isDataLoading = isLoading;
-  }
-  onDataSourceError(error: any, operation: DynamicDataOperation): void {
-    if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
-    if (!!this.survey) {
-      this.survey.dynamicDataError(this, operation, error);
-    }
   }
   protected getIsQuestionReady(): boolean {
     return !this.isDataLoading && super.getIsQuestionReady();
@@ -567,7 +540,7 @@ export class QuestionPanelDynamicModel extends Question
       return;
     }
     if (change.type === "pageChanged") {
-      if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
+      this.dynamicData.forgetFocusIndex();
       this.syncPagingState();
       /* The panels that exist are the page (prompt 15): a page the list cuts - from question.value
          or from everything a read() source answered with - is rebuilt at once, through the path a
@@ -2793,7 +2766,7 @@ export class QuestionPanelDynamicModel extends Question
         this.focusAfterPanelRemoved(visIndex);
         // A remote page that is read again after the removal rebuilds every panel when the read
         // commits: the position is focused once more after that rebuild.
-        if (!!this.remoteValue)this.remoteValue.keepFocusIndexForRead(visIndex);
+        this.dynamicData.keepFocusIndexForRead(visIndex);
       };
       if (confirmDelete) {
         confirmActionAsync({
@@ -2820,8 +2793,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
   private focusAfterRead(): void {
-    if (!this.remoteValue) return;
-    const index = this.remoteValue.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
+    const index = this.dynamicData.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
     if (index > -1) {
       this.focusAfterPanelRemoved(index);
     }

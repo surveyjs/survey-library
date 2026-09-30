@@ -1,7 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
-import { DynamicDataRemoteController } from "../../src/dynamic-data/dynamic-data-remote";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
   IDynamicDataReadResult, IDynamicDataSource
@@ -1853,35 +1852,23 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = new DynamicDataList(new FakeTableSource([]));
     list.pageSize = 10;
-    const remote = new DynamicDataRemoteController({
-      getDataList: (): DynamicDataList => list,
-      createValueDataSource: (): IDynamicDataSource => undefined,
-      clearValueInSurveyData: (): void => { },
-      restoreValueFromSurveyData: (): void => { },
-      onDataLoadingChanged: (): void => { },
-      onDataSourceError: (): void => { }
-    });
-    remote.dataSource = source;
+    list.assignSource(source);
     list.load();
     source.settleFirst("readRange");
     await flush(SETTLE_TURNS);
     expect(list.loadedCount, "#1: loaded").toBe(10);
     expect(list.hasPendingRead, "#2: nothing pending").toBe(false);
-    expect(remote.isRunning, "#3").toBe(false);
     list.remove(0);
     expect(list.hasPendingRead, "#4: requested").toBe(true);
     expect(list.isLoading, "#5: not started yet").toBe(false);
-    expect(remote.isRunning, "#6").toBe(true);
     source.settleFirst("remove");
     await flush(SETTLE_TURNS);
     expect(list.hasPendingRead, "#7: in flight").toBe(true);
     expect(list.isLoading, "#8").toBe(true);
-    expect(remote.isRunning, "#9").toBe(true);
     source.settleFirst("readRange");
     await flush(SETTLE_TURNS);
     expect(list.hasPendingRead, "#10: committed").toBe(false);
     expect(list.isLoading, "#11").toBe(false);
-    expect(remote.isRunning, "#12").toBe(false);
   });
   test("[P] a source change while a refill is queued: the queued read dies with the chain", async () => {
     const oldSource = new FakeTableSource(tableRecords(30));

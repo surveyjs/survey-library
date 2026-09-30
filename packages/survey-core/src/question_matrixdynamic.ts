@@ -34,11 +34,10 @@ import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
-import { DynamicDataRemoteController, IDynamicDataRemoteOwner } from "./dynamic-data/dynamic-data-remote";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
@@ -96,7 +95,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataRemoteOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -149,13 +148,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getDataList(): DynamicDataList {
     return this.dataList;
   }
-  private remoteValue: DynamicDataRemoteController;
-  private get remote(): DynamicDataRemoteController {
-    if (!this.remoteValue) {
-      this.remoteValue = new DynamicDataRemoteController(this);
-    }
-    return this.remoteValue;
-  }
   /**
    * A data source that supplies the matrix records. Assign an object that implements `IDynamicDataSource` to read the rows from a server: the matrix then shows one loaded page at a time and pushes every cell edit, row insertion and row deletion to the source.
    *
@@ -166,13 +158,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
   public set dataSource(val: IDynamicDataSource) {
-    // Another storage: the records layer 2 tracks and the states kept for them name records of the
-    // old one. Dropped before the swap, whose first read may commit inside it.
-    if (!!this.pageValidationValue && (val || undefined) !== this.dataSource) {
-      this.pageValidationValue.cancelPendingMove();
-      this.pageValidationValue.clearRecords();
-    }
-    this.remote.dataSource = val;
+    this.dynamicData.assignSource(val);
     // The capabilities of the new source decide whether the cells are editable and whether the
     // add/remove buttons are shown: the cells read isMatrixReadOnly() through their readOnlyCallback
     // and need the reactive refresh that an ordinary read-only change would give them.
@@ -185,7 +171,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
   // source has not acknowledged is an asynchronous operation the survey has started.
   public get isDynamicDataRunning(): boolean {
-    return !!this.remoteValue && this.remoteValue.isRunning;
+    return this.dynamicData.isRunning;
   }
   /* "the records are owned by a data source": the survey hash, the write routing, the capabilities
      and the count setters ask it. It is deliberately not "the list pages itself": a source that
@@ -195,21 +181,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
   }
-  clearValueInSurveyData(): void {
-    if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
-    this.data.setValue(this.getValueName(), undefined, false, true, this.name);
-  }
-  restoreValueFromSurveyData(): void {
-    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
-  }
   onDataLoadingChanged(isLoading: boolean): void {
     this.isDataLoading = isLoading;
-  }
-  onDataSourceError(error: any, operation: DynamicDataOperation): void {
-    if (operation === "read" && !!this.remoteValue)this.remoteValue.forgetFocusIndex();
-    if (!!this.survey) {
-      this.survey.dynamicDataError(this, operation, error);
-    }
   }
   protected getIsQuestionReady(): boolean {
     return !this.isDataLoading && super.getIsQuestionReady();
@@ -294,7 +267,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     if (change.type === "pageChanged") {
-      if (!!this.remoteValue)this.remoteValue.forgetFocusIndex();
+      this.dynamicData.forgetFocusIndex();
       this.syncPagingState();
       /* The rows that exist are the page (prompt 15): a page the list cuts - from question.value or
          from everything a read() source answered with - is rebuilt at once, through the path a
@@ -1684,7 +1657,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
          row focused above goes with it: the position is focused once more after that rebuild. A
          refill that completed inside the removal needs nothing - the rows above are already the
          rebuilt ones. */
-      if (!!this.remoteValue)this.remoteValue.keepFocusIndexForRead(value);
+      this.dynamicData.keepFocusIndexForRead(value);
     });
   }
   private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
@@ -1697,8 +1670,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // After the rows were rebuilt from a committed read; through the same timeout as removeRowUI: the
   // rows have to be rendered before they can be focused.
   private focusActionCellAfterRead(): void {
-    if (!this.remoteValue) return;
-    const index = this.remoteValue.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
+    const index = this.dynamicData.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
     if (index < 0) return;
     setTimeout(() => {
       if (this.isDisposed) return;

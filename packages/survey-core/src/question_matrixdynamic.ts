@@ -31,7 +31,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
@@ -94,7 +94,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+  implements IMatrixDropdownData, IDynamicDataQuestionHooks {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -588,22 +588,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.pageValidationValue.cancelPendingMove();
     }
   }
-  // IDynamicDataPageValidationOwner
-  isPageLeaveValidated(): boolean {
-    if (this.isDesignMode) return false;
-    return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
-  }
-  canTrackEditedRecords(): boolean {
-    return this.isPagedByList;
-  }
   // Rows that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
   validatePageObjects(context: ValidationContext): boolean {
     if (!this.generatedVisibleRows) return true;
     return this.validateRowObjects(context);
-  }
-  goToPageFromCode(pageIndex: number): void {
-    this.paging.pageIndex = pageIndex;
   }
   /* internal: what this matrix keeps for its records when an ancestor (a dynamic panel that pages)
      rebuilds the panel holding it - undefined when it does not page, since a matrix that does not

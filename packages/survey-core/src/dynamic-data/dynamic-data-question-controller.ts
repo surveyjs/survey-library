@@ -1,4 +1,4 @@
-import { Question } from "../question";
+import { Question, ValidationContext } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
@@ -35,16 +35,17 @@ export interface IDynamicDataQuestionHooks {
   afterRemoteWrite(change: IDynamicDataListChange): void;
   // A read committed: the window becomes the value, the objects are rebuilt, the focus is restored.
   setLoadedRecords(): void;
+  // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
+  validatePageObjects(context: ValidationContext): boolean;
 }
-export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks &
-  IDynamicDataPageValidationOwner;
+export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks;
 
 /* The coordination between a dynamic question and its list. Both dynamic questions need the same
    one and neither of them descends from the other, so it lives here and each question holds it by
    composition. The list computes (dynamic-data-list.ts), the question builds and renders its own
    rows or panels - its objects - and this class is what sits between the two: it creates and
-   disposes the list and the question-side helpers, it is the list's owner and answers its changes,
-   and it holds the question side of a caller-provided data source - the survey-data side of a
+   disposes the list and the question-side helpers, it is the owner of the list and of the page
+   validation and answers the changes of the list, and it holds the question side of a caller-provided data source - the survey-data side of a
    source swap, the running state and the focus kept across a refill. The source itself, its
    capabilities and the loaded window belong to the list.
    It is created with the question. The list and the helpers are created on first use, and the
@@ -54,7 +55,7 @@ export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDyn
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
    it does change is who owns them - see canSetValueToSurvey on the two questions. */
-export class DynamicDataQuestionController implements IDynamicDataOwner {
+export class DynamicDataQuestionController implements IDynamicDataOwner, IDynamicDataPageValidationOwner {
   private _list: DynamicDataList;
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
@@ -93,7 +94,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner {
   }
   public get pageValidation(): DynamicDataPageValidation {
     if (!this._pageValidation) {
-      this._pageValidation = new DynamicDataPageValidation(this.owner);
+      this._pageValidation = new DynamicDataPageValidation(this);
     }
     return this._pageValidation;
   }
@@ -179,6 +180,31 @@ export class DynamicDataQuestionController implements IDynamicDataOwner {
   public get hasView(): boolean {
     const list = this._list;
     return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
+  }
+
+  // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.
+  public getDataList(): DynamicDataList {
+    return this.list;
+  }
+  public isPageLeaveValidated(): boolean {
+    const owner = this.owner;
+    if (owner.isDesignMode) return false;
+    return !owner.survey || !owner.validationCallbacks.canLeavePageWithErrors;
+  }
+  public canTrackEditedRecords(): boolean {
+    return this.isPagedByList;
+  }
+  public goToPageFromCode(pageIndex: number): void {
+    this.paging.pageIndex = pageIndex;
+  }
+  public validatePageObjects(context: ValidationContext): boolean {
+    return this.owner.validatePageObjects(context);
+  }
+  public setPropertyValue(name: string, val: any): void {
+    this.owner.setPropertyValue(name, val);
+  }
+  public get isDisposed(): boolean {
+    return this.owner.isDisposed;
   }
 
   // The survey-data side of the swap. The list keeps the assigned source (assignedSource), so there

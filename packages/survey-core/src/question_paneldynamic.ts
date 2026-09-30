@@ -38,7 +38,7 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -204,8 +204,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question
-  implements IDynamicItemModelData, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataQuestionHooks {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -687,22 +686,11 @@ export class QuestionPanelDynamicModel extends Question
       this.pageValidationValue.cancelPendingMove();
     }
   }
-  // IDynamicDataPageValidationOwner
-  isPageLeaveValidated(): boolean {
-    if (this.isDesignMode) return false;
-    return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
-  }
-  canTrackEditedRecords(): boolean {
-    return this.isPagedByList;
-  }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
   validatePageObjects(context: ValidationContext): boolean {
     if (!this.hasPanelBuildFirstTime) return true;
     return this.validateInPanels(context);
-  }
-  goToPageFromCode(pageIndex: number): void {
-    this.paging.pageIndex = pageIndex;
   }
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {

@@ -2939,6 +2939,76 @@ describe("Step 26 pinning", () => {
     expect(question.panels.length, "#7: committed").toBe(10);
     expect(question.isDynamicDataRunning, "#8").toBe(false);
   });
+
+  // Step D4: the two rules of the page validation that both questions answered the same way.
+  test("D4 matrix: a forward page move is validated unless the survey lets a page be left with errors", () => {
+    const setupInvalid = (checkErrorsMode: string, allowSwitchPages: boolean): QuestionMatrixDynamicModel => {
+      const data = serverRecords(12);
+      delete data[2].col1;
+      const survey = new SurveyModel({
+        elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+          columns: [{ name: "col1", cellType: "text", isRequired: true }, { name: "col2", cellType: "text" }] }]
+      });
+      if (!!checkErrorsMode) survey.checkErrorsMode = <any>checkErrorsMode;
+      survey.validationAllowSwitchPages = allowSwitchPages;
+      survey.data = { matrix: data };
+      const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      expect(question.visibleRows.length, "the page is built").toBe(5);
+      return question;
+    };
+    const onComplete = setupInvalid("onComplete", false);
+    expect(onComplete.nextPage(), "#1").toBe(true);
+    expect(onComplete.pageIndex, "#2: moved with the error").toBe(1);
+    const allowSwitch = setupInvalid("", true);
+    expect(allowSwitch.nextPage(), "#3").toBe(true);
+    expect(allowSwitch.pageIndex, "#4").toBe(1);
+    const byDefault = setupInvalid("", false);
+    expect(byDefault.nextPage(), "#5: the default blocks").toBe(false);
+    expect(byDefault.pageIndex, "#6").toBe(0);
+  });
+  // In design mode a carousel shows its template: there is nothing to move to, and nothing to
+  // validate either. The answer is the one a move that was let through gives.
+  test("D4 panel: a carousel Next in design mode is not validated", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 3, displayMode: "carousel",
+        templateElements: [{ type: "text", name: "col1", isRequired: true }] }]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.currentIndex, "#1").toBe(0);
+    expect(question.goToNextPanel(), "#2: not stopped by the empty required question of the template").toBe(true);
+    expect(question.template.getQuestionByName("col1").errors.length, "#3: and no error is shown").toBe(0);
+  });
+  test("D4 matrix: an edit made while the list does not page is not tracked", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0,
+        columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }] }]
+    });
+    survey.data = { matrix: serverRecords(12) };
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(question.getPageState(), "#1: it does not page").toBe(undefined);
+    // A sort the respondent makes is a page leave: the page-validation helper exists from here on.
+    expect(question.toggleSort("col2"), "#2").toBe(true);
+    question.visibleRows[3].getQuestionByName("col1").value = "edited";
+    question.clearSort();
+    question.rowsPerPage = 5;
+    expect(question.getPageState().edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
+  });
+  test("D4 panel: an edit made while the list does not page is not tracked", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0,
+        templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }]
+    });
+    survey.data = { panel: serverRecords(12) };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.getPageState(), "#1: it does not page").toBe(undefined);
+    expect(question.toggleSort("col2"), "#2").toBe(true);
+    question.panels[3].getQuestionByName("col1").value = "edited";
+    question.clearSort();
+    question.panelsPerPage = 5;
+    expect(question.getPageState().edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
+  });
 });
 
 describe("a throwing callback does not leave a guard behind", () => {

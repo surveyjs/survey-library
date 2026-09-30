@@ -3011,6 +3011,238 @@ describe("Step 26 pinning", () => {
   });
 });
 
+// A read() source: it hands over every record and the list cuts the page.
+function readAllSource(count: number, keyField?: string): FakeServerSource {
+  return new FakeServerSource(serverRecords(count), ["insert", "update", "remove", "move"], keyField);
+}
+// Another writer inserts a record into the table the question has read.
+function insertBehindTheGrid(source: FakeServerSource, at: number, id: number): void {
+  source.records.splice(at, 0, { id: id, col1: "v" + id, col2: id });
+}
+
+/* refresh() reads a read() source again, and another writer may have inserted or moved records
+   meanwhile. What the question keeps by record index follows its records into the new window; the
+   rows the read replaces keep the records they were built for until the rebuild disposes them. */
+describe("Remote data source: a read that commits again", () => {
+  [undefined, "id"].forEach((keyField: string): void => {
+    const kind = !!keyField ? "a keyed source" : "a source without keys";
+    test("panel, " + kind + ": the current tab follows its record", async () => {
+      const source = readAllSource(12, keyField);
+      const { question } = await createPanel(source, { displayMode: "tab" });
+      question.currentIndex = 6;
+      expect(question.pageIndex, "#1: the record is on page 1").toBe(1);
+      expect(question.currentPanel.getQuestionByName("col1").value, "#2").toBe("v6");
+      insertBehindTheGrid(source, 0, 100);
+      question.getDataList().refresh();
+      await flush();
+      expect(question.panelCount, "#3: the read committed").toBe(13);
+      expect(question.currentPanel.getQuestionByName("col1").value, "#4: the same record").toBe("v6");
+      expect(question.currentIndex, "#5: one position further").toBe(7);
+    });
+    test("panel, " + kind + ": the state of a nested paged matrix follows its outer record", async () => {
+      const outerRecords: Array<any> = [0, 1, 2, 3].map((i: number): any =>
+        ({ id: i, items: [0, 1, 2, 3, 4, 5].map((j: number): any => ({ a: "a" + i + j })) }));
+      const source = new FakeServerSource(outerRecords, ["insert", "update", "remove", "move"], keyField);
+      const { question } = await createPanel(source, {
+        panelsPerPage: 2,
+        templateElements: [{ type: "text", name: "id" }, {
+          type: "matrixdynamic", name: "items", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }]
+        }]
+      });
+      const matrixOf = (id: number): QuestionMatrixDynamicModel => {
+        const panel = question.panels.filter(p => p.getQuestionByName("id").value === id)[0];
+        return <QuestionMatrixDynamicModel>panel.getQuestionByName("items");
+      };
+      const matrix = matrixOf(0);
+      matrix.pageIndex = 1;
+      matrix.visibleRows[0].getQuestionByName("a").value = "edited";
+      matrix.pageIndex = 0;
+      await flush();
+      expect(matrix.getPageState().edited, "#1: an edited inner record off the inner page").toEqual([2]);
+      expect(matrixOf(1).getPageState().edited, "#2").toEqual([]);
+      source.moveRecordBehindTheGrid(0, 1);
+      question.getDataList().refresh();
+      await flush();
+      expect(panelValues(question, "id"), "#3: the outer records changed places").toEqual([1, 0]);
+      expect(matrixOf(0) === matrix, "#4: the panels were rebuilt").toBe(false);
+      expect(matrixOf(0).getPageState().edited, "#5: the state is in the panel that holds the outer record now").toEqual([2]);
+      expect(matrixOf(1).getPageState().edited, "#6").toEqual([]);
+    });
+  });
+
+  test("matrix: the rows the read replaces keep the record they were built for", async () => {
+    const source = readAllSource(12, "id");
+    const { survey, question } = await createMatrix(source, { rowsVisibleIf: "{row.col2} >= 0" });
+    const row: any = question.visibleRows[0];
+    row.getQuestionByName("col1").value = "edited";
+    await flush();
+    expect(question.getPageState().edited, "#1: the reload has an edited set to follow").toEqual([0]);
+    expect(row.builtRecordIndex, "#2").toBe(0);
+    const seen: Array<number> = [];
+    // The rebuild decides the visibility of the records before it clears the rows it replaces.
+    survey.onExpressionRunning.add((_: SurveyModel, options: any): void => {
+      if (options.propertyName === "rowsVisibleIf") seen.push(row.builtRecordIndex);
+    });
+    insertBehindTheGrid(source, 0, 100);
+    question.getDataList().refresh();
+    await flush();
+    expect(question.rowCount, "#3: the read committed").toBe(13);
+    expect(question.getPageState().edited, "#4: the edited set followed its record").toEqual([1]);
+    expect(seen.length > 0, "#5: the handler ran").toBe(true);
+    expect(seen[0], "#6: while the old rows still exist, row 0 names the record it was built for").toBe(0);
+    expect(row.builtRecordIndex, "#7: and after the read committed").toBe(0);
+    expect(question.visibleRows[0] === row, "#8: the rebuilt row 0 is another object").toBe(false);
+    expect((<any>question.visibleRows[1]).builtRecordIndex, "#9: which names the record that moved").toBe(1);
+    expect(rowValues(question)[1], "#10").toBe("edited");
+  });
+});
+
+/* A remote write never reaches the survey, so the question runs the conditions a survey write would
+   have run: the expressions and the totals. An expression writes its result back, and that write is
+   a remote write again. */
+describe("Remote data source: the conditions a remote edit runs", () => {
+  const expressionColumns = [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", totalType: "sum" },
+    { name: "col3", cellType: "expression", expression: "{row.col2} + 1" }];
+  const expressionTemplate = [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
+    { type: "expression", name: "col3", expression: "{panel.col2} + 1" }];
+  /* The evaluations are counted through a function: a nested run would change no value, so the
+     number of updates cannot tell whether it ran. */
+  describe("once for one edit", () => {
+    let evaluations = 0;
+    beforeEach(() => {
+      evaluations = 0;
+      FunctionFactory.Instance.register("remoteEditPlus", (params: Array<any>): any => {
+        evaluations++;
+        return params[0] + 1;
+      });
+    });
+    afterEach(() => {
+      FunctionFactory.Instance.unregister("remoteEditPlus");
+    });
+    test("matrix: the expression cell and the total follow the edit", async () => {
+      const source = new FakeServerSource(serverRecords(12));
+      const { question } = await createMatrix(source, {
+        columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", totalType: "sum" },
+          { name: "col3", cellType: "expression", expression: "remoteEditPlus({row.col2})" }]
+      });
+      await flush();
+      expect(rowValues(question, "col3"), "#1: the page was calculated").toEqual([1, 2, 3, 4, 5]);
+      source.reset();
+      evaluations = 0;
+      question.visibleRows[0].getQuestionByName("col2").value = 10;
+      await flush();
+      expect(question.visibleRows[0].getQuestionByName("col3").value, "#2: the expression cell").toBe(11);
+      expect(question.visibleTotalRow.cells[1].question.value, "#3: the total of the window").toBe(20);
+      expect(source.callsOf("update").length, "#4: the edit, then the expression result").toBe(2);
+      expect(evaluations, "#5: one evaluation for each row of the page").toBe(5);
+    });
+    test("panel: the expression question follows the edit", async () => {
+      const source = new FakeServerSource(serverRecords(12));
+      const { question } = await createPanel(source, {
+        templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
+          { type: "expression", name: "col3", expression: "remoteEditPlus({panel.col2})" }]
+      });
+      await flush();
+      expect(panelValues(question, "col3"), "#1: the page was calculated").toEqual([1, 2, 3, 4, 5]);
+      source.reset();
+      evaluations = 0;
+      question.panels[0].getQuestionByName("col2").value = 10;
+      await flush();
+      expect(question.panels[0].getQuestionByName("col3").value, "#2: the expression question").toBe(11);
+      expect(source.callsOf("update").length, "#3: the edit, then the expression result").toBe(2);
+      expect(evaluations, "#4: one evaluation for each panel of the page").toBe(5);
+    });
+  });
+  test("matrix: a throw from the conditions reaches the caller, and the next edit runs them again", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { survey, question } = await createMatrix(source, { columns: expressionColumns });
+    await flush();
+    let isThrown = false;
+    // Raised for the expression cell before it is evaluated, from inside the run of the conditions.
+    survey.onExpressionRunning.add((_: SurveyModel, options: any): void => {
+      if (options.propertyName !== "expression" || isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    });
+    expect(() => { question.visibleRows[0].getQuestionByName("col2").value = 10; }, "#1").toThrow("user code");
+    await flush();
+    question.visibleRows[0].getQuestionByName("col2").value = 20;
+    await flush();
+    expect(question.visibleRows[0].getQuestionByName("col3").value, "#2: the expression cell follows the second edit").toBe(21);
+    expect(question.visibleTotalRow.cells[1].question.value, "#3: and so does the total").toBe(30);
+  });
+  test("panel: a throw from the conditions reaches the caller, and the next edit runs them again", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { survey, question } = await createPanel(source, { templateElements: expressionTemplate });
+    await flush();
+    let isThrown = false;
+    survey.onExpressionRunning.add((_: SurveyModel, options: any): void => {
+      if (options.propertyName !== "expression" || isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    });
+    expect(() => { question.panels[0].getQuestionByName("col2").value = 10; }, "#1").toThrow("user code");
+    await flush();
+    question.panels[0].getQuestionByName("col2").value = 20;
+    await flush();
+    expect(question.panels[0].getQuestionByName("col3").value, "#2: the expression question follows the second edit").toBe(21);
+  });
+});
+
+describe("Remote data source: removeRowByIndex on a page the list cuts", () => {
+  test("matrix: the page is refilled, and rebuilt once when it moves back", async () => {
+    const refilled = await createMatrix(readAllSource(11));
+    expect(rowValues(refilled.question), "#1: page 0 of 3").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+    expect(refilled.question.pageCount, "#2").toBe(3);
+    refilled.question.removeRowByIndex(1);
+    await flush();
+    expect(rowValues(refilled.question), "#3: the first record of the old page 1 is the last row").toEqual(["v0", "v2", "v3", "v4", "v5"]);
+    expect(refilled.question.pageIndex, "#4").toBe(0);
+
+    const moved = await createMatrix(readAllSource(11));
+    moved.question.pageIndex = 2;
+    expect(rowValues(moved.question), "#5: one row on the last page").toEqual(["v10"]);
+    let cells = 0;
+    moved.survey.onMatrixCellCreated.add((): void => { cells++; });
+    moved.question.removeRowByIndex(0);
+    await flush();
+    expect(moved.question.pageIndex, "#6: the page moved back").toBe(1);
+    expect(rowValues(moved.question), "#7").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+    expect(cells, "#8: five rows of two cells, built once").toBe(10);
+  });
+});
+
+/* The panel counts its panels when it asks for the focus, not when the focus runs: the last position
+   of a page shows whether they were counted after the rebuild. */
+describe("Remote data source: the focus after the last panel of a refilled page is removed", () => {
+  test("panel: the remove button of the panel the rebuild created at that position", async () => {
+    const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
+    const removeActionSpy = vi.spyOn(QuestionPanelDynamicModel.prototype, "getRemovePanelAction");
+    try {
+      const source = new FakeServerSource(serverRecords(30));
+      const { question } = await createPanel(source, { panelsPerPage: 10 });
+      source.auto = false;
+      question.removePanelUI(question.panels[9]);
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(source.pending.length, "#1: the refill is in flight").toBe(1);
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(question.panels.length, "#2").toBe(10);
+      expect(focusElementSpy.mock.calls.length, "#3: focused again after the rebuild").toBe(2);
+      removeActionSpy.mockClear();
+      (<any>focusElementSpy.mock.calls[1][0])();
+      expect(removeActionSpy.mock.calls.length, "#4").toBe(1);
+      const panel = removeActionSpy.mock.calls[0][0];
+      expect(panel === question.visiblePanels[9], "#5: position 9 is filled again").toBe(true);
+      expect(panel.getQuestionByName("col1").value, "#6").toBe("v10");
+    } finally {
+      removeActionSpy.mockRestore();
+      focusElementSpy.mockRestore();
+    }
+  });
+});
+
 describe("a throwing callback does not leave a guard behind", () => {
   test("a throwing onDynamicPanelRemoved inside removePanel leaves the value flag clear", () => {
     const survey = new SurveyModel({

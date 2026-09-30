@@ -1309,3 +1309,177 @@ describe("Page window: review round 1", () => {
     expect(survey.tryComplete(), "#1").toBe(false);
   });
 });
+
+/* An assignment from outside - survey.setValue, a sibling on the same valueName - has the edited set
+   follow its records. valueChangedCallback fires inside the assignment, and a write through the list
+   made there is an assignment of its own: the outer one still follows its records afterwards. */
+describe("Page window: an assignment made while another one is running", () => {
+  test("panel: the outer assignment still moves the edited set along", () => {
+    const survey = createPanelSurvey({ panelsPerPage: 2, templateElements: [{ type: "text", name: "id" }, { type: "text", name: "a" }] },
+      records(6, (i: number) => ({ id: "r" + i })));
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    question.pageIndex = 1;
+    question.panels[1].getQuestionByName("a").value = "x";
+    question.pageIndex = 0;
+    expect(question.getPageState().edited, "#1: record 3 is edited and off the page").toEqual([3]);
+    let calls = 0;
+    // Fired inside Question.setQuestionValue: the write through the list is an assignment of its own.
+    question.valueChangedCallback = (): void => {
+      calls++;
+      if (calls === 1) question.getDataList().setValue(0, "a", "zz");
+    };
+    const data = [].concat(survey.getValue("pd"));
+    data.splice(1, 1);
+    survey.setValue("pd", data);
+    expect(calls, "#2: the outer assignment and the nested one").toBe(2);
+    expect(question.getPageState().edited, "#3: the edited record is record 2 now; record 0 was written").toEqual([0, 2]);
+  });
+  test("matrix: the outer assignment still moves the edited set along", () => {
+    const survey = createMatrixSurvey({ rowsPerPage: 2, columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text" }] },
+      records(6, (i: number) => ({ id: "r" + i })));
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+    question.pageIndex = 1;
+    question.visibleRows[1].getQuestionByName("a").value = "x";
+    question.pageIndex = 0;
+    expect(question.getPageState().edited, "#1: record 3 is edited and off the page").toEqual([3]);
+    let calls = 0;
+    question.valueChangedCallback = (): void => {
+      calls++;
+      if (calls === 1) question.getDataList().setValue(5, "a", "zz");
+    };
+    // Records 2 and 3 change places; the count stays.
+    const data = [].concat(survey.getValue("md"));
+    data.splice(2, 2, data[3], data[2]);
+    survey.setValue("md", data);
+    expect(calls, "#2: the outer assignment and the nested one").toBe(2);
+    /* Wider than the panel's: the nested write changed a record of the part the content remap
+       compares, so the change cannot be placed and the whole changed part is marked. */
+    expect(question.getPageState().edited, "#3").toEqual([2, 3, 4, 5]);
+    expect(question.getPageState().edited.indexOf(2) > -1, "#4: the index the edited record has now").toBe(true);
+  });
+});
+
+// A question without a data source has every capability, and asking it does not create its list.
+describe("Page window: the capabilities of a question without a list", () => {
+  test("matrix: canAddRow, canRemoveRows and isMatrixReadOnly create no list", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "col1" }] }]
+    });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    expect(question.canAddRow, "#1").toBe(true);
+    expect(question.canRemoveRows, "#2").toBe(true);
+    expect(question.isMatrixReadOnly(), "#3").toBe(false);
+    expect(!!(<any>question).dataListValue, "#4: the reads created nothing").toBe(false);
+  });
+  test("panel: canAddPanel and canRemovePanel create no list", () => {
+    const question = new QuestionPanelDynamicModel("panel");
+    question.template.addNewQuestion("text", "col1");
+    expect(question.canAddPanel, "#1").toBe(true);
+    expect(question.canRemovePanel, "#2: there is no panel to remove").toBe(false);
+    expect(!!(<any>question).dataListValue, "#3: the reads created nothing").toBe(false);
+  });
+});
+
+/* Only a full validation that fires its callbacks visits the pages that hold edited records (layer
+   2); a validation on a value change and a quiet one stay on the page. */
+describe("Page window: which validation visits the pages of the edited records", () => {
+  [false, true].forEach((isMatrix: boolean): void => {
+    const kind = isMatrix ? "matrix" : "panel";
+    const setup = (checkErrorsMode?: string): { survey: SurveyModel, question: any, editOnPage: () => void } => {
+      const data = records(12);
+      const json = { templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }, { type: "text", name: "note" }],
+        columns: [{ name: "id", cellType: "text" }, { name: "name", cellType: "text", isRequired: true }, { name: "note", cellType: "text" }] };
+      const survey = isMatrix ? createMatrixSurvey(Object.assign({ rowsPerPage: 5 }, { columns: json.columns }), data)
+        : createPanelSurvey(Object.assign({ panelsPerPage: 5 }, { templateElements: json.templateElements }), data);
+      if (!!checkErrorsMode) survey.checkErrorsMode = <any>checkErrorsMode;
+      const question: any = survey.getQuestionByName(isMatrix ? "md" : "pd");
+      const objects = (): Array<any> => isMatrix ? question.visibleRows : question.panels;
+      question.pageIndex = 1;
+      objects()[1].getQuestionByName("name").value = "";
+      question.pageIndex = 0;
+      expect(question.getPageState().edited, "an invalid edited record off the page").toEqual([6]);
+      return { survey: survey, question: question, editOnPage: (): void => { objects()[0].getQuestionByName("note").value = "typed"; } };
+    };
+    test(kind + ": a validation on a value change stays on the page", () => {
+      const { question, editOnPage } = setup("onValueChanged");
+      editOnPage();
+      expect(question.pageIndex, "#1: an edit on the page, the page stays").toBe(0);
+      expect(question.getPageState().edited, "#2").toEqual([0, 6]);
+      const value = question.value.map((record: any): any => Object.assign({}, record));
+      value[1].note = "assigned";
+      question.value = value;
+      expect(question.pageIndex, "#3: an assignment of the value, the page stays").toBe(0);
+      expect(question.getPageState().edited, "#4").toEqual([0, 6]);
+    });
+    test(kind + ": a validation that fires no callback stays on the page", () => {
+      const { question } = setup();
+      expect(question.validate(false), "#1: the page has no error").toBe(true);
+      expect(question.pageIndex, "#2: the page stays").toBe(0);
+      expect(question.validate(true), "#3: a full validation finds the edited record").toBe(false);
+      expect(question.pageIndex, "#4: on its page").toBe(1);
+    });
+  });
+});
+
+/* A paged matrix nested in a paged dynamic panel hands its page and its edited set to the outer
+   question when the outer panel is rebuilt, and gets them back in the new panel. */
+describe("Page window: the page state of a nested paged matrix", () => {
+  const nestedJson = {
+    elements: [{
+      type: "paneldynamic", name: "outer", panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "id" }, {
+        type: "matrixdynamic", name: "items", rowCount: 0, rowsPerPage: 4,
+        columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }]
+      }]
+    }]
+  };
+  test("the matrix comes back on its page with its edited set, and one on page 0 stays there", () => {
+    const survey = new SurveyModel(nestedJson);
+    survey.data = { outer: records(6, (i: number) => ({ id: i, items: records(12, (j: number) => ({ a: "a" + j })) })) };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrixOf = (id: number): QuestionMatrixDynamicModel => {
+      const panel = outer.panels.filter(p => p.getQuestionByName("id").value === id)[0];
+      return <QuestionMatrixDynamicModel>panel.getQuestionByName("items");
+    };
+    const matrix = matrixOf(1);
+    const other = matrixOf(0);
+    matrix.pageIndex = 2;
+    matrix.visibleRows[1].getQuestionByName("b").value = "x";
+    expect(matrix.getPageState(), "#1").toEqual({ pageIndex: 2, edited: [9], nested: {} });
+    expect(other.getPageState(), "#2").toEqual({ pageIndex: 0, edited: [], nested: {} });
+    outer.pageIndex = 1;
+    outer.pageIndex = 0;
+    expect(matrixOf(1) === matrix, "#3: the matrix was rebuilt").toBe(false);
+    expect(matrixOf(1).pageIndex, "#4: on its page again").toBe(2);
+    expect(matrixOf(1).getPageState(), "#5: with its edited set").toEqual({ pageIndex: 2, edited: [9], nested: {} });
+    expect(matrixOf(1).visibleRows[1].getQuestionByName("b").value, "#6").toBe("x");
+    expect(matrixOf(0) === other, "#7").toBe(false);
+    expect(matrixOf(0).pageIndex, "#8: page 0 stays page 0").toBe(0);
+    expect(matrixOf(0).getPageState(), "#9").toEqual({ pageIndex: 0, edited: [], nested: {} });
+  });
+  test("a state with page 0 leaves the page alone and does not drop a move that waits for its validators", () => {
+    const results: Array<(res: any) => void> = [];
+    FunctionFactory.Instance.register("asyncPageStateFunc", function (): any {
+      results.push(this.returnResult);
+      return false;
+    }, true);
+    try {
+      const question = createMatrix({
+        rowsPerPage: 2,
+        columns: [{ name: "id", cellType: "text", validators: [{ type: "expression", expression: "asyncPageStateFunc() = 1" }] },
+          { name: "name", cellType: "text" }]
+      }, records(6));
+      expect(question.visibleRows.length, "#1: the page is built").toBe(2);
+      expect(question.nextPage(), "#2").toBe(true);
+      expect(question.isPageMovePending, "#3: the move waits for its validators").toBe(true);
+      question.setPageState({ pageIndex: 0, edited: [4], nested: {} });
+      expect(question.isPageMovePending, "#4: still pending").toBe(true);
+      expect(question.getPageState().edited, "#5: the edited set was taken").toEqual([4]);
+      results.splice(0, results.length).forEach(setResult => setResult(1));
+      expect(question.isPageMovePending, "#6").toBe(false);
+      expect(question.pageIndex, "#7: the late result moves the page").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("asyncPageStateFunc");
+    }
+  });
+});

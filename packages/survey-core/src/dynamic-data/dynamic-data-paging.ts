@@ -15,7 +15,8 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    owner's property hash by syncState(), so that React/Vue/Angular re-render through the ordinary
    onPropertyChanged bridge; the accessors read the mirror and never the list. Every change the list
    makes on its own - a clamped page index, a filter it refused to run - reaches the mirror through
-   the owner's onDataListChanged, which calls syncState() for a "reset" and a "pageChanged".
+   DynamicDataQuestionController.onDataListChanged, which has the question call syncState() for a
+   "reset" and a "pageChanged".
 
    The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and

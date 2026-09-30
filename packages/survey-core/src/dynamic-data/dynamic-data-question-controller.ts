@@ -1,11 +1,15 @@
 import { Question } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
-import { DynamicDataOperation, IDynamicDataOwner, IDynamicDataSource } from "./dynamic-data-interfaces";
+import {
+  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
+} from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
+import { applyRecordChange } from "./dynamic-data-record-remap";
 
-/* What a dynamic question supplies to the coordination it shares with the other one. They are
+/* What a dynamic question supplies to the coordination it shares with the other one: where its
+   records are stored, and what differs for rows and panels in the answer to a list change. They are
    methods of the question and not a closure literal, so that the question's own code calls the same
    members. */
 export interface IDynamicDataQuestionHooks {
@@ -14,17 +18,35 @@ export interface IDynamicDataQuestionHooks {
   setListRecords(records: Array<any>): void;
   // Absent -> the record count is the length of getListRecords().
   getListRecordCount?(): number;
+  getFields(): Array<IDynamicDataField>;
+
+  isDataLoading: boolean;
+  // Mirrors the paging state of the list into the question (see DynamicDataPagingController.syncState).
+  syncPagingState(): void;
+  // The objects are re-created for the records the view - under paging, the page - holds now.
+  rebuildFromDataList(isPageMove: boolean): void;
+  // A page of a source that pages itself was asked for: its objects arrive when the read commits.
+  refreshRenderedPage(): void;
+  // The list inserted, removed or moved a record: the record indexes the objects were built for follow.
+  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void;
+  // The loaded window becomes the question value; nothing is rebuilt.
+  storeLoadedRecords(): void;
+  // After a write to a data source was stored: what a write to the survey would have re-run.
+  afterRemoteWrite(change: IDynamicDataListChange): void;
+  // A read committed: the window becomes the value, the objects are rebuilt, the focus is restored.
+  setLoadedRecords(): void;
 }
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks &
-  IDynamicDataOwner & IDynamicDataPageValidationOwner;
+  IDynamicDataPageValidationOwner;
 
 /* The coordination between a dynamic question and its list. Both dynamic questions need the same
    one and neither of them descends from the other, so it lives here and each question holds it by
    composition. The list computes (dynamic-data-list.ts), the question builds and renders its own
-   rows or panels, and this class is what sits between the two: it creates and disposes the list and
-   the question-side helpers, and it holds the question side of a caller-provided data source - the
-   survey-data side of a source swap, the running state and the focus kept across a refill. The
-   source itself, its capabilities and the loaded window belong to the list.
+   rows or panels - its objects - and this class is what sits between the two: it creates and
+   disposes the list and the question-side helpers, it is the list's owner and answers its changes,
+   and it holds the question side of a caller-provided data source - the survey-data side of a
+   source swap, the running state and the focus kept across a refill. The source itself, its
+   capabilities and the loaded window belong to the list.
    It is created with the question. The list and the helpers are created on first use, and the
    ...Value getters never create.
 
@@ -32,7 +54,7 @@ export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDyn
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
    it does change is who owns them - see canSetValueToSurvey on the two questions. */
-export class DynamicDataQuestionController {
+export class DynamicDataQuestionController implements IDynamicDataOwner {
   private _list: DynamicDataList;
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
@@ -43,9 +65,9 @@ export class DynamicDataQuestionController {
   public get list(): DynamicDataList {
     if (!this._list) {
       const owner = this.owner;
-      /* createReadThrough loads the list, which raises a reset before _list is assigned: the owner
-         drops it, because the list it asks for does not exist yet. */
-      this._list = DynamicDataList.createReadThrough(owner,
+      // createReadThrough loads the list, which raises a reset before _list is assigned:
+      // onDataListChanged drops it.
+      this._list = DynamicDataList.createReadThrough(this,
         (): Array<any> => owner.getListRecords(),
         (records: Array<any>): void => { owner.setListRecords(records); },
         typeof owner.getListRecordCount === "function" ? (): number => owner.getListRecordCount() : undefined);
@@ -81,6 +103,82 @@ export class DynamicDataQuestionController {
     if (!!this._list) {
       this._list.dispose();
     }
+  }
+
+  // IDynamicDataOwner: the fields are the question's.
+  public getFields(): Array<IDynamicDataField> {
+    return this.owner.getFields();
+  }
+  /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
+     called. Which records have an object changes with it, so the objects are rebuilt.
+     hasMaterializedView remembers that the objects were last built for a view: clearing the filter
+     leaves hasView false and still has to rebuild. */
+  private hasMaterializedView: boolean = false;
+  public onDataListChanged(change: IDynamicDataListChange): void {
+    const list = this._list;
+    // The reset the list raises while it is being created.
+    if (!list) return;
+    const owner = this.owner;
+    if (change.type === "loading") {
+      owner.isDataLoading = change.isLoading;
+      return;
+    }
+    if (change.type === "pageChanged") {
+      this.forgetFocusIndex();
+      owner.syncPagingState();
+      /* The objects that exist are the page (prompt 15): a page the list cuts - from question.value
+         or from everything a read() source answered with - is rebuilt at once, through the path a
+         remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
+      if (this.isPagedByList) {
+        owner.rebuildFromDataList(true);
+      } else {
+        owner.refreshRenderedPage();
+      }
+      return;
+    }
+    // The record indexes the question keeps - its objects' records, the edited set of layer 2 - name
+    // a record only until something is inserted, removed or moved in front of it. Only a list that
+    // pages in memory creates the edited set here.
+    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue,
+      (remap: (index: number) => number): void => { owner.remapBuiltRecordIndexes(change, remap); });
+    /* A write the list pushed to a data source: with the array source over question.value the push
+       IS the value write, a remote source has no such setter, so the question follows the window
+       itself. The objects are not rebuilt - the one that was edited, added or removed is handled by
+       the path that made the change. */
+    if (list.isRemote && change.type !== "reset") {
+      owner.storeLoadedRecords();
+      owner.afterRemoteWrite(change);
+      return;
+    }
+    if (change.type !== "reset") return;
+    owner.syncPagingState();
+    const isRemote = list.isRemote;
+    const hasView = list.hasView || isRemote || this.isPagingActive;
+    if (!hasView && !this.hasMaterializedView) return;
+    this.hasMaterializedView = hasView;
+    if (isRemote) {
+      // The window the read committed is the new value.
+      owner.setLoadedRecords();
+    } else {
+      owner.rebuildFromDataList(false);
+    }
+  }
+  public get isPagingActive(): boolean {
+    return !this.owner.isDesignMode && !!this._list && this._list.pageSize > 0;
+  }
+  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
+     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
+     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
+     and the records of the other pages are on the server. */
+  public get isPagedByList(): boolean {
+    return this.isPagingActive && !this._list.isPagedBySource;
+  }
+  /* The objects are built for the records the list holds and not for 0 ... count-1. A remote window
+     is a view of its own, because the count is the server total; a question that pages builds its
+     objects for the page, so it takes the view path too. */
+  public get hasView(): boolean {
+    const list = this._list;
+    return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
   }
 
   // The survey-data side of the swap. The list keeps the assigned source (assignedSource), so there
@@ -151,7 +249,7 @@ export class DynamicDataQuestionController {
     const list = this._list;
     this.focusIndexAfterRead = !!list && list.isRemote && list.hasPendingRead && index > -1 ? index : undefined;
   }
-  public forgetFocusIndex(): void {
+  private forgetFocusIndex(): void {
     this.focusIndexAfterRead = undefined;
   }
   // Returns the kept position, or -1 when there is none, the read is not committed yet, or the focus

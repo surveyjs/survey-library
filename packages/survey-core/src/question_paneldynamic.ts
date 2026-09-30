@@ -39,10 +39,9 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
-import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
@@ -206,7 +205,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
 export class QuestionPanelDynamicModel extends Question
-  implements IDynamicItemModelData, IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+  implements IDynamicItemModelData, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -434,9 +433,6 @@ export class QuestionPanelDynamicModel extends Question
   private get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
   }
-  onDataLoadingChanged(isLoading: boolean): void {
-    this.isDataLoading = isLoading;
-  }
   protected getIsQuestionReady(): boolean {
     return !this.isDataLoading && super.getIsQuestionReady();
   }
@@ -458,14 +454,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
      survey hash is not written and no trigger, condition or navigation runs - and then the panels
-     are rebuilt for the records the window holds. Nothing else may assign the value on a load. */
-  private setLoadedRecords(): void {
+     are rebuilt for the records the window holds. Nothing else may assign the value on a load. The
+     position a refill kept is focused last: the panels it names exist now. */
+  setLoadedRecords(): void {
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
     const oldValue = this.getPropertyValueWithoutDefault("value");
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     this.storeLoadedRecords();
     this.followReloadedRecords(oldRecords);
     this.rebuildPanelsFromDataList();
+    this.focusAfterRead();
   }
   /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
      index - and a read that commits again (refresh(), a filter the source answers again) may bring
@@ -504,7 +502,7 @@ export class QuestionPanelDynamicModel extends Question
   // The storage half alone: used after every write the list pushed to the source. The panel the
   // respondent is typing in already holds the new value, and a rebuild would dispose it under the
   // edit (the frozen-membership rule).
-  private storeLoadedRecords(): void {
+  storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
   }
   private isReRunningRemoteConditions: boolean;
@@ -526,67 +524,24 @@ export class QuestionPanelDynamicModel extends Question
   getFields(): Array<IDynamicDataField> {
     return getDynamicDataFieldsForQuestions(this.template.questions);
   }
-  /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
-     called. Which records have a panel changes with it, so the panels are rebuilt.
-     hasMaterializedView remembers that the panels were last built for a view: clearing the filter
-     leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
-     raises while it is being constructed - before dataListValue is assigned - out of here. */
-  private hasMaterializedView: boolean = false;
-  // Keep in step with QuestionMatrixDynamicModel.onDataListChanged.
-  onDataListChanged(change: IDynamicDataListChange): void {
-    if (!this.dataListValue) return;
-    if (change.type === "loading") {
-      this.onDataLoadingChanged(change.isLoading);
-      return;
-    }
-    if (change.type === "pageChanged") {
-      this.dynamicData.forgetFocusIndex();
-      this.syncPagingState();
-      /* The panels that exist are the page (prompt 15): a page the list cuts - from question.value
-         or from everything a read() source answered with - is rebuilt at once, through the path a
-         remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
-      if (this.isPagedByList) {
-        this.rebuildPanelsFromDataList(true);
-      } else {
-        this.updateRenderedPanels();
-      }
-      return;
-    }
-    this.followRecordChange(change);
-    /* A write the list pushed to a data source: with the array source over question.value the push
-       IS the value write, a remote source has no such setter, so the question follows the window
-       itself. The panels are not rebuilt - the one that was edited, added or removed is handled by
-       the path that made the change. */
-    if (this.isRemoteData && change.type !== "reset") {
-      this.storeLoadedRecords();
-      this.reRunConditionsOnRemoteWrite();
-      return;
-    }
-    if (change.type !== "reset") return;
-    this.syncPagingState();
-    const isRemote = this.isRemoteData;
-    const hasView = this.dataListValue.hasView || isRemote || this.isPagingActive;
-    if (!hasView && !this.hasMaterializedView) return;
-    this.hasMaterializedView = hasView;
-    if (isRemote) {
-      // The window the read committed is the new value; setLoadedRecords rebuilds the panels.
-      this.setLoadedRecords();
-      this.focusAfterRead();
-    } else {
-      this.rebuildPanelsFromDataList();
-    }
+  // IDynamicDataQuestionHooks: the panels' side of a list change, see
+  // DynamicDataQuestionController.onDataListChanged.
+  rebuildFromDataList(isPageMove: boolean): void {
+    this.rebuildPanelsFromDataList(isPageMove);
   }
-  /* The record indexes the question keeps - the panels' records, the edited set of layer 2 - name a
-     record only until something is inserted or removed in front of it. */
-  private followRecordChange(change: IDynamicDataListChange): void {
-    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue, (remap: (index: number) => number): void => {
-      // A panel whose record was removed keeps -1: it is being disposed.
-      this.panelsCore.forEach((panel: PanelModel): void => {
-        const item = <QuestionPanelDynamicItem>panel.data;
-        if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
-          item.builtRecordIndex = remap(item.builtRecordIndex);
-        }
-      });
+  refreshRenderedPage(): void {
+    this.updateRenderedPanels();
+  }
+  afterRemoteWrite(): void {
+    this.reRunConditionsOnRemoteWrite();
+  }
+  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void {
+    // A panel whose record was removed keeps -1: it is being disposed.
+    this.panelsCore.forEach((panel: PanelModel): void => {
+      const item = <QuestionPanelDynamicItem>panel.data;
+      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
+        item.builtRecordIndex = remap(item.builtRecordIndex);
+      }
     });
   }
   /* A remote window is a view of its own: the panels are built for the records the list holds, not
@@ -595,7 +550,7 @@ export class QuestionPanelDynamicModel extends Question
      follow them - which is how "the panels are created before the value that holds their records"
      stops being true under paging. */
   private get hasDataListView(): boolean {
-    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView || this.isRemoteData || this.isPagingActive);
+    return !!this.dataListValue && this.dynamicData.hasView;
   }
   /* Takes a created position - the position in panelsCore - and returns the record it holds: the
      materialized set, which under paging is the current page. A position past the last created one
@@ -621,7 +576,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   // The list announces a page index it had to clamp, but not a page count that changed because a
   // panel became hidden or because the records were replaced: those points call this.
-  private syncPagingState(): void {
+  syncPagingState(): void {
     if (!this.dataListValue) return;
     if (this.isPagingSyncSuspended) {
       this.isPagingSyncPending = true;
@@ -643,15 +598,11 @@ export class QuestionPanelDynamicModel extends Question
     return this.visiblePanels;
   }
   private get isPagingActive(): boolean {
-    if (this.isDesignMode) return false;
-    return !!this.dataListValue && this.dataListValue.pageSize > 0;
+    return !!this.dataListValue && this.dynamicData.isPagingActive;
   }
-  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
-     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
-     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
-     and the records of the other pages are on the server. */
+  // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
   private get isPagedByList(): boolean {
-    return this.isPagingActive && !this.dataListValue.isPagedBySource;
+    return !!this.dataListValue && this.dynamicData.isPagedByList;
   }
   /* The page size the list gets. A carousel shows one panel and pages one record at a time, always
      (Andrew's decision 2026-09-25): panelsPerPage keeps its value and its JSON and is ignored.

@@ -32,9 +32,8 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
-import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
@@ -95,7 +94,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
+  implements IMatrixDropdownData, IDynamicDataPageValidationOwner, IDynamicDataQuestionHooks {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -181,9 +180,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
   }
-  onDataLoadingChanged(isLoading: boolean): void {
-    this.isDataLoading = isLoading;
-  }
   protected getIsQuestionReady(): boolean {
     return !this.isDataLoading && super.getIsQuestionReady();
   }
@@ -198,14 +194,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
      survey hash is not written and no trigger, condition or navigation runs - and then the rows are
-     rebuilt for the records the window holds. Nothing else may assign the value on a load. */
-  private setLoadedRecords(): void {
+     rebuilt for the records the window holds. Nothing else may assign the value on a load. The
+     position a refill kept is focused last: the rows it names exist now. */
+  setLoadedRecords(): void {
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
     const oldValue = this.getPropertyValueWithoutDefault("value");
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     this.storeLoadedRecords();
     this.followReloadedRecords(oldRecords);
     this.rebuildRowsFromDataList();
+    this.focusActionCellAfterRead();
   }
   /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
      index - and a read that commits again (refresh(), a filter the source answers again) may bring
@@ -230,7 +228,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      record - none of which applies to a window of a larger table. With a source that answers
      without a total it is the count of the rows known to exist, a lower bound - isRowCountKnown
      says which of the two it is. */
-  private storeLoadedRecords(): void {
+  storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
     this.rowCountValue = this.dataList.count;
   }
@@ -253,56 +251,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
     return res;
   }
-  /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
-     called. Which records have a row changes with it, so the rows are rebuilt.
-     hasMaterializedView remembers that the rows were last built for a view: clearing the filter
-     leaves hasView false and still has to rebuild. The flag is also what keeps the reset the list
-     raises while it is being constructed - before dataListValue is assigned - out of here. */
-  private hasMaterializedView: boolean = false;
-  // Keep in step with QuestionPanelDynamicModel.onDataListChanged.
-  onDataListChanged(change: IDynamicDataListChange): void {
-    if (!this.dataListValue) return;
-    if (change.type === "loading") {
-      this.onDataLoadingChanged(change.isLoading);
-      return;
-    }
-    if (change.type === "pageChanged") {
-      this.dynamicData.forgetFocusIndex();
-      this.syncPagingState();
-      /* The rows that exist are the page (prompt 15): a page the list cuts - from question.value or
-         from everything a read() source answered with - is rebuilt at once, through the path a
-         remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
-      if (this.isPagedByList) {
-        this.rebuildRowsFromDataList();
-      } else {
-        this.resetRenderedTable();
-      }
-      return;
-    }
-    this.followRecordChange(change);
-    /* A write the list pushed to a data source: with the array source over question.value the push
-       IS the value write, a remote source has no such setter, so the question follows the window
-       itself. The rows are not rebuilt - the one that was edited, added or removed is handled by the
-       path that made the change. */
-    if (this.isRemoteData && change.type !== "reset") {
-      this.storeLoadedRecords();
-      if (change.type === "recordMoved")this.updateRowsFromRecords();
-      this.reRunConditionsOnRemoteWrite();
-      return;
-    }
-    if (change.type !== "reset") return;
-    this.syncPagingState();
-    const isRemote = this.isRemoteData;
-    const hasView = this.dataListValue.hasView || isRemote || this.isPagingActive;
-    if (!hasView && !this.hasMaterializedView) return;
-    this.hasMaterializedView = hasView;
-    if (isRemote) {
-      // The window the read committed is the new value; setLoadedRecords rebuilds the rows.
-      this.setLoadedRecords();
-      this.focusActionCellAfterRead();
-    } else {
-      this.rebuildRowsFromDataList();
-    }
+  // IDynamicDataQuestionHooks: the rows' side of a list change, see
+  // DynamicDataQuestionController.onDataListChanged.
+  rebuildFromDataList(): void {
+    this.rebuildRowsFromDataList();
+  }
+  refreshRenderedPage(): void {
+    this.resetRenderedTable();
+  }
+  // A move through a data source hands the rows their records before the conditions run.
+  afterRemoteWrite(change: IDynamicDataListChange): void {
+    if (change.type === "recordMoved")this.updateRowsFromRecords();
+    this.reRunConditionsOnRemoteWrite();
   }
   private isReRunningRemoteConditions: boolean;
   /* With the array source over question.value a record write reaches the survey, and the survey then
@@ -324,26 +284,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isReRunningRemoteConditions = false;
     }
   }
-  // The edited set of layer 2 names records by index: it follows the list's own inserts and removes.
-  private followRecordChange(change: IDynamicDataListChange): void {
-    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue, (remap: (index: number) => number): void => {
-      const rows = this.generatedVisibleRows || [];
-      /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take
-         the reordered records, so each row names the record its position holds now, not the record
-         it held before. */
-      if (change.type === "recordMoved") {
-        const indexes = this.getRecordIndexesForRows();
-        rows.forEach((row: MatrixDropdownRowModelBase, position: number): void => {
-          const dynamicRow = <MatrixDynamicRowModel>row;
-          if (dynamicRow.builtRecordIndex > -1 && position < indexes.length) dynamicRow.builtRecordIndex = indexes[position];
-        });
-        return;
-      }
-      // A row whose record was removed keeps -1: it is being disposed.
-      rows.forEach((row: MatrixDropdownRowModelBase): void => {
+  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void {
+    const rows = this.generatedVisibleRows || [];
+    /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take
+       the reordered records, so each row names the record its position holds now, not the record
+       it held before. */
+    if (change.type === "recordMoved") {
+      const indexes = this.getRecordIndexesForRows();
+      rows.forEach((row: MatrixDropdownRowModelBase, position: number): void => {
         const dynamicRow = <MatrixDynamicRowModel>row;
-        if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
+        if (dynamicRow.builtRecordIndex > -1 && position < indexes.length) dynamicRow.builtRecordIndex = indexes[position];
       });
+      return;
+    }
+    // A row whose record was removed keeps -1: it is being disposed.
+    rows.forEach((row: MatrixDropdownRowModelBase): void => {
+      const dynamicRow = <MatrixDynamicRowModel>row;
+      if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
     });
   }
   /* The values half of a move made through a data source. With the array source over question.value
@@ -366,7 +323,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      0 ... rowCount-1, because rowCount is the server total. A matrix that pages builds its rows for
      the page, so it takes the view path too. */
   private get hasDataListView(): boolean {
-    return !!this.dataListValue && (this.dataListValue.hasView || this.hasMaterializedView || this.isRemoteData || this.isPagingActive);
+    return !!this.dataListValue && this.dynamicData.hasView;
   }
   /* Every value assignment of this question passes through setQuestionValue, and rowCount changes
      the padded records the list reads. The list sees the records themselves at once - it reads them
@@ -460,7 +417,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The list announces a page index it had to clamp, but not a page count that changed because a
   // row became hidden or because the records were replaced: those points call this.
-  private syncPagingState(): void {
+  syncPagingState(): void {
     if (!this.dataListValue) return;
     this.paging.syncState();
   }
@@ -471,15 +428,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.visibleRows;
   }
   protected get isPagingActive(): boolean {
-    if (this.isDesignMode) return false;
-    return !!this.dataListValue && this.dataListValue.pageSize > 0;
+    return !!this.dataListValue && this.dynamicData.isPagingActive;
   }
-  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
-     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
-     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
-     and the records of the other pages are on the server. */
+  // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
   private get isPagedByList(): boolean {
-    return this.isPagingActive && !this.dataListValue.isPagedBySource;
+    return !!this.dataListValue && this.dynamicData.isPagedByList;
   }
   // Single-input mode is its own paging: it walks every row and lists them in its summary.
   public get listPageSize(): number {

@@ -7,7 +7,7 @@ import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
-import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data-record-remap";
 
@@ -42,8 +42,12 @@ export interface IDynamicDataQuestionHooks {
   storeLoadedRecords(): void;
   // After a write to a data source was stored: what a write to the survey would have re-run.
   afterRemoteWrite(change: IDynamicDataListChange): void;
-  // A read committed: the window becomes the value, the objects are rebuilt, the focus is restored.
-  setLoadedRecords(): void;
+  // Record indexes the question keeps besides its objects and the edited set: a read that commits
+  // again renumbers them with its remap. Absent -> the question keeps none.
+  hasKeptRecordIndexes?(): boolean;
+  remapKeptRecordIndexes?(remap: (index: number) => number): void;
+  // The item at a position is focused once the objects of a committed read exist.
+  focusItemAfterRead(index: number): void;
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
   validatePageObjects(context: ValidationContext): boolean;
   // A record without an object, read as a value: the record reader, the variable name and the
@@ -184,10 +188,53 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (!hasView && !this.hasMaterializedView) return;
     this.hasMaterializedView = hasView;
     if (isRemote) {
-      // The window the read committed is the new value.
-      owner.setLoadedRecords();
+      this.commitLoadedRecords();
     } else {
       owner.rebuildFromDataList(false);
+    }
+  }
+  /* A read committed: the loaded window becomes the question value. It is the inbound path - the
+     value is stored, the survey hash is not written and no trigger, condition or navigation runs -
+     and then the objects are rebuilt for the records the window holds. Nothing else may assign the
+     value on a load. The position a refill kept is focused last: the objects it names exist now. */
+  private commitLoadedRecords(): void {
+    const owner = this.owner;
+    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
+    const oldValue = owner.getStoredRecords();
+    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
+    owner.storeLoadedRecords();
+    this.followReloadedRecords(oldRecords);
+    owner.rebuildFromDataList(false);
+    const index = this.takeFocusIndexAfterRead();
+    if (index > -1) {
+      owner.focusItemAfterRead(index);
+    }
+  }
+  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
+     index - and a read that commits again (refresh(), a filter the source answers again) may bring
+     them back at other indexes: another writer moved, added or removed records. The edited set, the
+     states of nested paged questions and what the question keeps besides them follow their records
+     into the new window, by key when the source names its records and by content otherwise
+     (getReplacedRecordsRemap), so that an edited record is still validated wherever it is now. The
+     objects are renumbered only by a question that keeps state under their records (the panel's
+     remapKeptRecordIndexes): the rows a read replaces keep the records they were built for until the
+     rebuild disposes them. Replacing the source starts over (see assignSource). */
+  private followReloadedRecords(oldRecords: any): void {
+    if (!this.isPagedByList) return;
+    const owner = this.owner;
+    const validation = this._pageValidation;
+    const hasRecords = !!validation && validation.hasRecords;
+    if (!hasRecords && !(typeof owner.hasKeptRecordIndexes === "function" && owner.hasKeptRecordIndexes())) return;
+    const newRecords = owner.getStoredRecords();
+    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
+    const newArray = Array.isArray(newRecords) ? newRecords : [];
+    const remap = getReplacedRecordsRemap(oldArray, newArray, this._list.keyField);
+    if (hasRecords) {
+      validation.cancelPendingMove();
+      validation.onRecordsReplaced(oldArray, newArray, remap);
+    }
+    if (typeof owner.remapKeptRecordIndexes === "function") {
+      owner.remapKeptRecordIndexes(remap);
     }
   }
   public get isPagingActive(): boolean {
@@ -387,8 +434,8 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   }
   /* A remove on a page the source reads again (the refill of a source that pages itself) is answered
      by a rebuild of every item on the page, which disposes the one the question has just focused.
-     The position is kept here while that read is pending and taken back by the question from the
-     reset that commits the read, to focus the item that is at that position then. A second remove
+     The position is kept here while that read is pending and taken back when the read commits
+     (commitLoadedRecords), to focus the item that is at that position then. A second remove
      overwrites the position; a page change and a rejected read drop it. */
   private focusIndexAfterRead: number = undefined;
   public keepFocusIndexForRead(index: number): void {
@@ -400,11 +447,11 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   }
   // Returns the kept position, or -1 when there is none, the read is not committed yet, or the focus
   // has moved out of the question by the time the answer arrives.
-  public takeFocusIndexAfterRead(elementId: string, element?: HTMLElement): number {
+  private takeFocusIndexAfterRead(): number {
     const index = this.focusIndexAfterRead;
     const list = this._list;
     if (index === undefined || !list || list.hasPendingRead) return -1;
     this.focusIndexAfterRead = undefined;
-    return isFocusInsideOrIdle(elementId, element) ? index : -1;
+    return isFocusInsideOrIdle(this.owner.id, this.owner.getWrapperElement()) ? index : -1;
   }
 }

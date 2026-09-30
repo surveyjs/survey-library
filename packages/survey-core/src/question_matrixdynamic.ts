@@ -31,7 +31,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
-import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
@@ -187,34 +187,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      question's own validation are unaffected - they read question.value, which is the window. */
   protected canSetValueToSurvey(): boolean {
     return !this.isRemoteData;
-  }
-  /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
-     survey hash is not written and no trigger, condition or navigation runs - and then the rows are
-     rebuilt for the records the window holds. Nothing else may assign the value on a load. The
-     position a refill kept is focused last: the rows it names exist now. */
-  setLoadedRecords(): void {
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = this.getPropertyValueWithoutDefault("value");
-    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
-    this.storeLoadedRecords();
-    this.followReloadedRecords(oldRecords);
-    this.rebuildRowsFromDataList();
-    this.focusActionCellAfterRead();
-  }
-  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
-     index - and a read that commits again (refresh(), a filter the source answers again) may bring
-     them back at other indexes: another writer moved, added or removed records. The edited set
-     follows its records into the new window, by key when the source names its records and by
-     content otherwise (getReplacedRecordsRemap), so that an edited record is still validated
-     wherever it is now. Replacing the source starts over (see the controller's assignSource). */
-  private followReloadedRecords(oldRecords: any): void {
-    const validation = this.pageValidationValue;
-    if (!validation || !validation.hasRecords || !this.isPagedByList) return;
-    validation.cancelPendingMove();
-    const newRecords = this.getPropertyValueWithoutDefault("value");
-    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
-    const newArray = Array.isArray(newRecords) ? newRecords : [];
-    validation.onRecordsReplaced(oldArray, newArray, getReplacedRecordsRemap(oldArray, newArray, this.dataList.keyField));
   }
   /* The storage half alone: used after every write the list pushed to the source. The row the
      respondent is typing in already holds the new value, and a rebuild would dispose it under the
@@ -914,7 +886,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set rowCount(val: number) {
     val = Helpers.getNumber(val);
     /* The data source owns the count: the question never grows or truncates its storage, and the
-       count reaches it the other way round - through setLoadedRecords, from a read that committed.
+       count reaches it the other way round - through storeLoadedRecords, from a read that committed.
        An incoming total above settings.matrix.maxRowCount is accepted there; the clamp below stays
        what it has always been, a limit on what a caller may ask for. */
     if (this.isRemoteData) return;
@@ -1544,9 +1516,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // After the rows were rebuilt from a committed read; through the same timeout as removeRowUI: the
   // rows have to be rendered before they can be focused.
-  private focusActionCellAfterRead(): void {
-    const index = this.dynamicData.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
-    if (index < 0) return;
+  focusItemAfterRead(index: number): void {
     setTimeout(() => {
       if (this.isDisposed) return;
       const rows = this.visibleRows;

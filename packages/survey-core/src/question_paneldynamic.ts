@@ -38,7 +38,7 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -442,49 +442,16 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.isRemoteData) return;
     super.updateValueFromSurvey(newValue, clearData);
   }
-  /* The loaded window becomes the question value. It is the inbound path - the value is stored, the
-     survey hash is not written and no trigger, condition or navigation runs - and then the panels
-     are rebuilt for the records the window holds. Nothing else may assign the value on a load. The
-     position a refill kept is focused last: the panels it names exist now. */
-  setLoadedRecords(): void {
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = this.getPropertyValueWithoutDefault("value");
-    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
-    this.storeLoadedRecords();
-    this.followReloadedRecords(oldRecords);
-    this.rebuildPanelsFromDataList();
-    this.focusAfterRead();
+  /* IDynamicDataQuestionHooks: what a read that commits again renumbers besides the edited set.
+     Carousel and tab mode keep showing the current record across a rebuild, and the paged questions
+     nested in the panels keep their states under the panels' records. */
+  hasKeptRecordIndexes(): boolean {
+    return !this.isRenderModeList && this.currentPanelRecordIndex > -1 || this.hasNestedPagedQuestions(this.panelsCore);
   }
-  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
-     index - and a read that commits again (refresh(), a filter the source answers again) may bring
-     them back at other indexes: another writer moved, added or removed records. The edited set and
-     the states of nested paged questions follow their records into the new window, by key when the
-     source names its records and by content otherwise (getReplacedRecordsRemap). The panels' own
-     record indexes move with them before the rebuild, which keeps the nested states under those
-     indexes. Replacing the source starts over (see the controller's assignSource). */
-  private followReloadedRecords(oldRecords: any): void {
-    if (!this.isPagedByList) return;
-    const validation = this.pageValidationValue;
-    const hasRecords = !!validation && validation.hasRecords;
-    // Carousel and tab mode keep showing the current record across a rebuild: it moves too.
-    const hasCurrentRecord = !this.isRenderModeList && this.currentPanelRecordIndex > -1;
-    if (!hasRecords && !hasCurrentRecord && !this.hasNestedPagedQuestions(this.panelsCore)) return;
-    const newRecords = this.getPropertyValueWithoutDefault("value");
-    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
-    const newArray = Array.isArray(newRecords) ? newRecords : [];
-    const remap = getReplacedRecordsRemap(oldArray, newArray, this.dataList.keyField);
-    if (hasRecords) {
-      validation.cancelPendingMove();
-      validation.onRecordsReplaced(oldArray, newArray, remap);
-    }
-    this.panelsCore.forEach((panel: PanelModel): void => {
-      const item = <QuestionPanelDynamicItem>panel.data;
-      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
-        const to = remap(item.builtRecordIndex);
-        item.builtRecordIndex = to === undefined ? -1 : to;
-      }
-    });
-    if (hasCurrentRecord) {
+  // The panels' own record indexes move before the rebuild, which keeps the nested states under them.
+  remapKeptRecordIndexes(remap: (index: number) => number): void {
+    this.dynamicData.remapBuiltItems(remap);
+    if (!this.isRenderModeList && this.currentPanelRecordIndex > -1) {
       const to = remap(this.currentPanelRecordIndex);
       this.currentPanelRecordIndex = to === undefined ? -1 : to;
     }
@@ -1627,7 +1594,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
     /* The data source owns the count: the question never grows or truncates its storage, and the
        getter reads the loaded total, so there is nothing to store either. The count reaches the
-       question the other way round - through setLoadedRecords, from a read that committed. */
+       question the other way round - through storeLoadedRecords, from a read that committed. */
     if (this.isRemoteData) return;
     if (this.hasDataListView) {
       this.setPanelCountInView(val);
@@ -2691,11 +2658,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
-  private focusAfterRead(): void {
-    const index = this.dynamicData.takeFocusIndexAfterRead(this.id, this.getWrapperElement());
-    if (index > -1) {
-      this.focusAfterPanelRemoved(index);
-    }
+  focusItemAfterRead(index: number): void {
+    this.focusAfterPanelRemoved(index);
   }
   // The visibleIndex of the removed panel and the panel itself: the animation that follows takes its
   // direction from them.

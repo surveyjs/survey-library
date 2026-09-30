@@ -48,7 +48,7 @@ export interface IFilterConditionsEditorOptions {
   onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
 }
 
-// A SurveyModel-backed editor of field conditions: one panel per field, titled by it, with an
+// A SurveyModel-backed editor of field conditions: one untitled panel per field, with an
 // operator dropdown and a value question the operator decides. The questions are named by the
 // field's index (f0_operator, f0_value) and never by the field: the survey keys its data by
 // question name, and a valueName can be a dotted path ("mt.city") that a name must not be.
@@ -149,13 +149,14 @@ export class FilterConditionsEditor {
     }
     return survey;
   }
+  // No title: the panel only groups a field's operator and value; the field is named by what the
+  // editor is opened from (a fast mode badge), not inside the editor.
   private createPanelJson(name: string, index: number): any {
-    const field = this.owner.getFieldByName(name);
     const locale = this.owner.getLocale();
     const operators = this.owner.getFieldOperators(name).map((op: string): any =>
       ({ value: op, text: getConditionOperatorTitle(op, locale) }));
     return {
-      type: "panel", name: this.getPanelName(index), title: field.locTitle.calculatedText,
+      type: "panel", name: this.getPanelName(index),
       elements: [{ type: "dropdown", name: this.getOperatorName(index), titleLocation: "hidden",
         choices: operators, allowClear: false }]
     };

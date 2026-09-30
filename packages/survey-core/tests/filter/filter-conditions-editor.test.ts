@@ -19,7 +19,7 @@ function valueQ(editor: FilterConditionsEditor, index: number = 0): Question {
 }
 
 describe("FilterConditionsEditor: the editor survey", () => {
-  test("one page, no navigation, no numbers, the control's locale; a panel per field titled by it", () => {
+  test("one page, no navigation, no numbers, the control's locale; an untitled panel per field", () => {
     const survey = createSurvey();
     survey.locale = "de";
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
@@ -31,7 +31,7 @@ describe("FilterConditionsEditor: the editor survey", () => {
     expect(s.locale, "#4").toBe("de");
     const panel = <PanelModel>s.getPanelByName("f0");
     expect(!!panel, "#5").toBe(true);
-    expect(panel.locTitle.textOrHtml, "#6").toBe("country");
+    expect(panel.hasTitle, "#6: the editor does not title its fields").toBe(false);
     expect(panel.elements.map((e) => e.name), "#7").toEqual(["f0_operator", "f0_value"]);
     expect(operatorQ(editor).getType(), "#8").toBe("dropdown");
     expect(editor.isRawExpression, "#9").toBe(false);

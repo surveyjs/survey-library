@@ -352,11 +352,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      assignment made, and a move that waits for its validators is dropped. The page is rebuilt when
      it names other records than its rows hold. */
   private onRecordsReplaced(oldRecords: Array<any>): void {
-    if (!!this.pageValidationValue) {
-      this.pageValidationValue.cancelPendingMove();
-      const newRecords = this.getPropertyValueWithoutDefault("value");
-      this.pageValidationValue.onRecordsReplaced(oldRecords, Array.isArray(newRecords) ? newRecords : []);
-    }
+    this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
     if (this.isPageStale()) {
       this.rebuildRowsFromDataList();
     }

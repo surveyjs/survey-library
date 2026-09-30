@@ -1,9 +1,9 @@
+import { Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
 } from "./dynamic-data-interfaces";
-import { Helpers } from "../helpers";
 import { DynamicDataList } from "./dynamic-data-list";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
@@ -204,6 +204,16 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
       this._list.invalidateViews();
       this.owner.syncPagingState();
     }
+  }
+  /* The validation half of such an assignment, for a list that pages in memory: the edited set
+     follows the records it names across the insert, remove or move the assignment made
+     (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its validators is
+     dropped. Whether the page is stale now is the question's to decide. */
+  public onRecordsReplaced(oldRecords: any, newRecords: any): void {
+    const validation = this._pageValidation;
+    if (!validation) return;
+    validation.cancelPendingMove();
+    validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
   }
 
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.

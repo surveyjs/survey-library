@@ -3647,11 +3647,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      assignment made (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its
      validators is dropped. The panels of the page are rebuilt when the page names other records now. */
   private onRecordsReplaced(oldRecords: any): void {
-    if (!!this.pageValidationValue) {
-      this.pageValidationValue.cancelPendingMove();
-      const newRecords = this.getPropertyValueWithoutDefault("value");
-      this.pageValidationValue.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
-    }
+    this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
     if (this.isPageStale()) {
       this.rebuildPanelsFromDataList();
     }

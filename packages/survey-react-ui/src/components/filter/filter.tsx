@@ -10,6 +10,8 @@ import type { IDynamicDataFilterField } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyQuestionElementBase } from "../../reactquestion_element";
+import { ISurveyCreator } from "../../reactquestion";
+import { SurveyPage } from "../../page";
 import { Popup } from "../popup/popup";
 
 const rootStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: "6px", fontSize: "14px" };
@@ -35,15 +37,33 @@ const editorStyle: React.CSSProperties = { minWidth: "320px" };
 const clearGlyph = String.fromCharCode(0x00D7);
 const openGlyph = String.fromCharCode(0x25BE);
 
-// The popup content: the editor's own survey. A separate element and not "survey" itself, so an
-// empty popup (before the first open, after a dispose) renders nothing instead of a survey of nothing.
-export class SurveyFilterConditionsEditor extends React.Component<{ editor: FilterConditionsEditor }, any> {
+// The popup content: the editor survey's page, not a whole survey, the way Creator's embeddedsurvey
+// question shows its editor surveys - a Survey inside another survey's question would put a <form>
+// inside a <form> and bring its own background. creator is the host survey's renderer: titles,
+// errors and question components come from it. An empty popup (before the first open, after a
+// dispose) renders nothing.
+export class SurveyFilterConditionsEditor extends React.Component<{ editor: FilterConditionsEditor, creator: ISurveyCreator }, any> {
+  private rootRef: React.RefObject<HTMLDivElement> = React.createRef();
+  componentDidMount(): void {
+    this.updateRootElement();
+  }
+  componentDidUpdate(): void {
+    this.updateRootElement();
+  }
+  // The Survey component would set this; a page rendered on its own leaves it to its host.
+  private updateRootElement(): void {
+    const editor = this.props.editor;
+    if (!!editor && !editor.isDisposed && !!this.rootRef.current) {
+      editor.survey.rootElement = this.rootRef.current;
+    }
+  }
   render(): React.JSX.Element | null {
     const editor = this.props.editor;
     if (!editor || editor.isDisposed) return null;
-    return <div style={editorStyle}>
+    const survey = editor.survey;
+    return <div style={editorStyle} ref={this.rootRef}>
       {editor.isRawExpression ? <div style={noteStyle}>This preset has no editable conditions: applying starts a new filter.</div> : null}
-      {ReactElementFactory.Instance.createElement("survey", { model: editor.survey })}
+      <SurveyPage survey={survey} page={survey.currentPage} css={survey.css} creator={this.props.creator} />
     </div>;
   }
 }
@@ -59,7 +79,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
 
   constructor(props: any) {
     super(props);
-    this.fastPopup = new PopupModel("sv-filter-conditions-editor", { editor: undefined },
+    this.fastPopup = new PopupModel("sv-filter-conditions-editor", { editor: undefined, creator: undefined },
       { getTargetCallback: () => this.fastAnchor });
     // Whatever hides the popup - a click outside, Esc, another badge - ends the editor with it.
     this.fastPopup.onVisibilityChanged.add((_: any, options: any) => {
@@ -121,13 +141,13 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     if (!editor) return;
     this.fastEditor = editor;
     this.fastAnchor = anchor;
-    this.fastPopup.contentComponentData = { editor: editor };
+    this.fastPopup.contentComponentData = { editor: editor, creator: this.creator };
     this.fastPopup.show();
   }
   private openAdvancedEditor(): void {
     this.fastPopup.hide();
     this.advancedEditor = this.question.createAdvancedModeEditor();
-    this.advancedPopup.contentComponentData = { editor: this.advancedEditor };
+    this.advancedPopup.contentComponentData = { editor: this.advancedEditor, creator: this.creator };
     this.advancedPopup.show();
   }
 

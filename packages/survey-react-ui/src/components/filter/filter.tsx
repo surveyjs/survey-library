@@ -55,7 +55,6 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   private advancedPopup: PopupModel;
   private fastEditor: FilterConditionsEditor;
   private advancedEditor: FilterConditionsEditor;
-  private fastFieldKey: string = "";
   private fastAnchor: HTMLElement;
 
   constructor(props: any) {
@@ -105,7 +104,6 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
       this.fastEditor.dispose();
     }
     this.fastEditor = undefined;
-    this.fastFieldKey = "";
   }
   private disposeAdvancedEditor(): void {
     if (!!this.advancedEditor) {
@@ -113,14 +111,15 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     }
     this.advancedEditor = undefined;
   }
+  // sv-popup closes on a click anywhere outside it, another badge included, and that click never
+  // reaches the badge: an open popup is closed by the first click and the next one opens the badge
+  // clicked. A hide and a show in one tick would be merged by the popup's visibility animation into
+  // no change at all (old position, disposed content), so this never switches an open popup.
   private openFastEditor(key: string, anchor: HTMLElement): void {
-    const isSame = this.fastPopup.isVisible && this.fastFieldKey === key;
-    this.fastPopup.hide();
-    if (isSame) return;
+    if (this.fastPopup.isVisible) return;
     const editor = this.question.createFastModeEditor(key);
     if (!editor) return;
     this.fastEditor = editor;
-    this.fastFieldKey = key;
     this.fastAnchor = anchor;
     this.fastPopup.contentComponentData = { editor: editor };
     this.fastPopup.show();

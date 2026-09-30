@@ -86,6 +86,14 @@ describe("QuestionFilterModel: canClearActiveItem", () => {
     q.clearActiveItem();
     expect(q.canClearActiveItem, "#5").toBe(false);
   });
+  test("no preset and every condition removed: nothing is filtered, so there is nothing to clear", () => {
+    const q = createFilter();
+    q.setFieldCondition("age", "greater", 5);
+    q.clearFieldCondition("age");
+    expect(q.ownConditions, "#1").toEqual([]);
+    expect(q.filterExpression, "#2").toBe("");
+    expect(q.canClearActiveItem, "#3").toBe(false);
+  });
   test("single mode: only edits can be cleared, the preset itself cannot", () => {
     const q = createFilter({ allowMultipleItems: false });
     expect(q.activeItem.name, "#1").toBe("adults");

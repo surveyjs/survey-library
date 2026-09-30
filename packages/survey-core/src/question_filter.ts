@@ -251,9 +251,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.raiseUIStateChanged();
   }
   // Whether clearActiveItem() has anything to clear. It is that method's own guard, so a "Clear"
-  // button shown by it is shown exactly when clicking it does something.
+  // button shown by it is shown exactly when clicking it does something. Cleared conditions ([])
+  // with no preset under them filter nothing - the same as no edits at all - so they are not
+  // something to clear; over a preset (single mode too) they are: clearing brings its text back.
   public get canClearActiveItem(): boolean {
-    return !!this.activeItemName || this.ownConditions !== undefined || this.pendingConditions !== undefined;
+    if (!!this.activeItemName || this.pendingConditions !== undefined) return true;
+    const own = this.ownConditions;
+    return own !== undefined && (own.length > 0 || !!this.activeItem);
   }
   // The list a renderer shows. Single mode has no list.
   public get visibleItems(): Array<FilterItem> { return this.allowMultipleItems ? this.items : []; }

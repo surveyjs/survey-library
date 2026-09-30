@@ -109,8 +109,10 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     super(props);
     // No pointer: sv-popup draws it with a transform on the container, and a transformed container
     // clips the fixed-position lists the editor's own dropdowns open - their lower items go out of reach.
+    // Under the badge, the way a dropdown opens its list: the default "left" places the popup beside
+    // its target at the target's height, over the neighbouring badges, which then cannot be clicked.
     this.fastPopup = new PopupModel("sv-filter-conditions-editor", { slot: this.fastSlot, creator: props.creator },
-      { getTargetCallback: () => this.fastAnchor, showPointer: false });
+      { getTargetCallback: () => this.fastAnchor, showPointer: false, verticalPosition: "bottom", horizontalPosition: "center" });
     // Whatever hides the popup - a click outside, Esc, another badge - ends the editor with it.
     this.fastPopup.onVisibilityChanged.add((_: any, options: any) => {
       if (!options.isVisible) {

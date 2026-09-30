@@ -504,8 +504,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!isRawPreset && this.isSameConditionSet(res, current)) return;
     this.editConditions((): Array<IFilterCondition> => res);
   }
-  // The element the survey this control is in rendered into; the control's editors measure their
-  // popups against it. undefined while that survey is not rendered.
+  // The element the survey this control is in rendered into: a renderer mounts the advanced
+  // editor's dialog there, inside that survey's theme and outside its <form>. undefined while that
+  // survey is not rendered.
   public getSurveyRootElement(): HTMLElement { return !!this.survey ? (<any>this.survey).rootElement : undefined; }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);

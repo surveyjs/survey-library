@@ -3,6 +3,7 @@ import { isFocusInsideOrIdle } from "../utils/focus-utils";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
 } from "./dynamic-data-interfaces";
+import { Helpers } from "../helpers";
 import { DynamicDataList } from "./dynamic-data-list";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
@@ -180,6 +181,29 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public get hasView(): boolean {
     const list = this._list;
     return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
+  }
+
+  /* The list side of a value assignment. Every assignment of the question's value - by the survey,
+     a trigger, a default value or one of its own objects - passes through its setQuestionValue. The
+     list reads the records through the value, so it sees them at once, but the views it cached over
+     them it cannot: invalidateViews drops them. An assignment made outside the list also re-decides
+     the membership: the created indexes are taken before it and compared after it, and the objects
+     are rebuilt when it changed which records have one. An assignment the list itself is making is
+     not a change from outside: no snapshot is taken. The list is not created for any of this. */
+  public getCreatedIndexesSnapshot(): Array<number> {
+    const list = this._list;
+    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
+  }
+  public rebuildIfViewChanged(created: Array<number>): void {
+    if (!created || !this._list) return;
+    if (Helpers.isTwoValueEquals(created, this._list.getCreatedIndexes())) return;
+    this.owner.rebuildFromDataList(false);
+  }
+  public invalidateViews(): void {
+    if (!!this._list) {
+      this._list.invalidateViews();
+      this.owner.syncPagingState();
+    }
   }
 
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.

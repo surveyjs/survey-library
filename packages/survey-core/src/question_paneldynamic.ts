@@ -560,16 +560,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const res = this.dataList.materializedIndexToIndex(index);
     return res >= 0 ? res : this.dataList.count;
   }
-  /* Every value assignment of this question passes through setQuestionValue - a value set by the
-     survey, a trigger, a default value or a panel. The list reads the records through the value, so
-     it sees them at once, but the views it cached over them it cannot: they are dropped here. The
-     list is not created just to be invalidated. */
-  private invalidateDataListViews(): void {
-    if (!!this.dataListValue) {
-      this.dataListValue.invalidateViews();
-      this.syncPagingState();
-    }
-  }
   private get paging(): DynamicDataPagingController {
     return this.dynamicData.paging;
   }
@@ -698,15 +688,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
     }
     return this.pagerActionsValue;
-  }
-  private getCreatedIndexesSnapshot(): Array<number> {
-    const list = this.dataListValue;
-    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
-  }
-  private rebuildPanelsIfViewChanged(created: Array<number>): void {
-    if (!created || !this.dataListValue) return;
-    if (Helpers.isTwoValueEquals(created, this.dataListValue.getCreatedIndexes())) return;
-    this.rebuildPanelsFromDataList();
   }
   /* A full rebuild: the panels are re-created for the records the view - under paging, the page -
      now holds. It costs the per-panel state - collapsed/expanded state, panel errors, question
@@ -3677,14 +3658,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
-    const created = this.getCreatedIndexesSnapshot();
+    const created = this.dynamicData.getCreatedIndexesSnapshot();
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
     const oldValue = this.getPropertyValueWithoutDefault("value");
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
     const isFromOutside = !!this.dataListValue && !this.dataListValue.isWriting;
     super.setQuestionValue(newValue, false);
-    this.invalidateDataListViews();
-    this.rebuildPanelsIfViewChanged(created);
+    this.dynamicData.invalidateViews();
+    this.dynamicData.rebuildIfViewChanged(created);
     if (isFromOutside && this.isPagedByList) {
       this.onRecordsReplaced(oldRecords);
     }

@@ -335,14 +335,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      the list itself is making is not a change from outside: invalidateViews ignores it and the
      snapshot is not taken. */
   protected setQuestionValue(newValue: any): void {
-    const created = this.getCreatedIndexesSnapshot();
+    const created = this.dynamicData.getCreatedIndexesSnapshot();
     const isFromOutside = !!this.dataListValue && !this.dataListValue.isWriting;
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
     const oldValue = this.getPropertyValueWithoutDefault("value");
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : [];
     super.setQuestionValue(newValue);
-    this.invalidateDataListViews();
-    this.rebuildRowsIfViewChanged(created);
+    this.dynamicData.invalidateViews();
+    this.dynamicData.rebuildIfViewChanged(created);
     if (isFromOutside && this.isPagedByList) {
       this.onRecordsReplaced(oldRecords);
     }
@@ -372,15 +372,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return false;
   }
-  private getCreatedIndexesSnapshot(): Array<number> {
-    const list = this.dataListValue;
-    return !!list && list.hasView && !list.isWriting ? list.getCreatedIndexes() : undefined;
-  }
-  private rebuildRowsIfViewChanged(created: Array<number>): void {
-    if (!created || !this.dataListValue) return;
-    if (Helpers.isTwoValueEquals(created, this.dataListValue.getCreatedIndexes())) return;
-    this.rebuildRowsFromDataList();
-  }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
      row-creation callbacks again. It is the same path a remote page change takes, so there is one. */
@@ -404,12 +395,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getVisibleRows();
       }
       this.runTotalsCondition(this.getDataFilteredProperties());
-    }
-  }
-  private invalidateDataListViews(): void {
-    if (!!this.dataListValue) {
-      this.dataListValue.invalidateViews();
-      this.syncPagingState();
     }
   }
   private get paging(): DynamicDataPagingController {

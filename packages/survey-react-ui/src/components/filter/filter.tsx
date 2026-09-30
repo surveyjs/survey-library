@@ -9,7 +9,7 @@ import { Base, PopupModel, PopupBaseViewModel, QuestionFilterModel, FilterCondit
 import type { IDialogOptions, IDynamicDataFilterField } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
-import { SurveyQuestionElementBase } from "../../reactquestion_element";
+import { SurveyElementBase, SurveyQuestionElementBase } from "../../reactquestion_element";
 import { ISurveyCreator } from "../../reactquestion";
 import { SurveyPage } from "../../page";
 import { Popup } from "../popup/popup";
@@ -37,28 +37,44 @@ const editorStyle: React.CSSProperties = { minWidth: "320px" };
 const clearGlyph = String.fromCharCode(0x00D7);
 const openGlyph = String.fromCharCode(0x25BE);
 
+// What a popup's content shows, held as a model of its own. A popup does not re-render its content
+// when the content data changes, so the content watches this slot instead - and the slot can be
+// emptied, unmounting the editor's page, before the editor itself is disposed.
+export class FilterEditorSlot extends Base {
+  public getType(): string { return "filtereditorslot"; }
+  public get editor(): FilterConditionsEditor { return this.getPropertyValue("editor"); }
+  public set editor(val: FilterConditionsEditor) { this.setPropertyValue("editor", val); }
+}
+
 // The popup content: the editor survey's page, not a whole survey, the way Creator's embeddedsurvey
 // question shows its editor surveys - a Survey inside another survey's question would put a <form>
 // inside a <form> and bring its own background. creator is the host survey's renderer: titles,
-// errors and question components come from it. An empty popup (before the first open, after a
-// dispose) renders nothing.
-export class SurveyFilterConditionsEditor extends React.Component<{ editor: FilterConditionsEditor, creator: ISurveyCreator }, any> {
+// errors and question components come from it. An empty slot renders nothing.
+export class SurveyFilterConditionsEditor extends SurveyElementBase<{ slot: FilterEditorSlot, creator: ISurveyCreator }, any> {
   private rootRef: React.RefObject<HTMLDivElement> = React.createRef();
+  protected getStateElement(): Base | null {
+    return this.props.slot || null;
+  }
+  private get editor(): FilterConditionsEditor {
+    return !!this.props.slot ? this.props.slot.editor : undefined;
+  }
   componentDidMount(): void {
+    super.componentDidMount();
     this.updateRootElement();
   }
-  componentDidUpdate(): void {
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
     this.updateRootElement();
   }
   // The Survey component would set this; a page rendered on its own leaves it to its host.
   private updateRootElement(): void {
-    const editor = this.props.editor;
+    const editor = this.editor;
     if (!!editor && !editor.isDisposed && !!this.rootRef.current) {
       editor.survey.rootElement = this.rootRef.current;
     }
   }
-  render(): React.JSX.Element | null {
-    const editor = this.props.editor;
+  protected renderElement(): React.JSX.Element | null {
+    const editor = this.editor;
     if (!editor || editor.isDisposed) return null;
     const survey = editor.survey;
     return <div style={editorStyle} ref={this.rootRef}>
@@ -76,11 +92,15 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   private fastEditor: FilterConditionsEditor;
   private advancedEditor: FilterConditionsEditor;
   private fastAnchor: HTMLElement;
+  private fastSlot: FilterEditorSlot = new FilterEditorSlot();
+  private advancedSlot: FilterEditorSlot;
 
   constructor(props: any) {
     super(props);
-    this.fastPopup = new PopupModel("sv-filter-conditions-editor", { editor: undefined, creator: undefined },
-      { getTargetCallback: () => this.fastAnchor });
+    // No pointer: sv-popup draws it with a transform on the container, and a transformed container
+    // clips the fixed-position lists the editor's own dropdowns open - their lower items go out of reach.
+    this.fastPopup = new PopupModel("sv-filter-conditions-editor", { slot: this.fastSlot, creator: props.creator },
+      { getTargetCallback: () => this.fastAnchor, showPointer: false });
     // Whatever hides the popup - a click outside, Esc, another badge - ends the editor with it.
     this.fastPopup.onVisibilityChanged.add((_: any, options: any) => {
       if (!options.isVisible) {
@@ -107,17 +127,29 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     this.disposeAdvancedEditor();
     this.fastPopup.dispose();
   }
+  // A popup keeps its content rendered after it hides (its container stays mounted), so an editor
+  // is first taken off the content - its page unmounts - and disposed on the next tick, never while
+  // its questions are still mounted: a disposed dropdown that re-renders has no list model left and
+  // takes the whole host survey down with it.
+  private releaseEditor(editor: FilterConditionsEditor): void {
+    if (!editor) return;
+    setTimeout(() => editor.dispose(), 0);
+  }
   private disposeFastEditor(): void {
-    if (!!this.fastEditor) {
-      this.fastEditor.dispose();
-    }
+    const editor = this.fastEditor;
     this.fastEditor = undefined;
+    if (!editor) return;
+    this.fastSlot.editor = undefined;
+    this.releaseEditor(editor);
   }
   private disposeAdvancedEditor(): void {
-    if (!!this.advancedEditor) {
-      this.advancedEditor.dispose();
-    }
+    const editor = this.advancedEditor;
     this.advancedEditor = undefined;
+    if (!editor) return;
+    if (!!this.advancedSlot) {
+      this.advancedSlot.editor = undefined;
+    }
+    this.releaseEditor(editor);
   }
   // sv-popup closes on a click anywhere outside it, another badge included, and that click never
   // reaches the badge: an open popup is closed by the first click and the next one opens the badge
@@ -129,7 +161,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     if (!editor) return;
     this.fastEditor = editor;
     this.fastAnchor = anchor;
-    this.fastPopup.contentComponentData = { editor: editor, creator: this.creator };
+    this.fastSlot.editor = editor;
     this.fastPopup.show();
   }
   // A dialog, the way Creator opens its modal property editors: settings.showDialog mounts it
@@ -141,9 +173,11 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
     this.fastPopup.hide();
     const editor = this.question.createAdvancedModeEditor();
     this.advancedEditor = editor;
+    this.advancedSlot = new FilterEditorSlot();
+    this.advancedSlot.editor = editor;
     const options: IDialogOptions = {
       componentName: "sv-filter-conditions-editor",
-      data: { editor: editor, creator: this.creator },
+      data: { slot: this.advancedSlot, creator: this.creator },
       onApply: (): boolean => {
         editor.apply();
         return true;

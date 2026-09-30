@@ -8,7 +8,7 @@ import {
   getConditionDefaultOperator, getConditionOperatorNames, isConditionOperatorEnabled, isQuestionClassContains
 } from "../conditions/conditionOperators";
 import { ConditionEditorItem, ConditionEditorItemsBuilder } from "../conditions/conditionEditorItems";
-import { toExpressionConst } from "./filter-expression";
+import { getFieldChoiceItems, toExpressionConst } from "./filter-expression";
 
 // The label a condition editor shows for one operator, e.g. "equal" -> "Equals". Written out as
 // literal keys (not "conditionOperator" + operator, capitalized) so survey-utils check-strings -
@@ -46,6 +46,34 @@ export function isFilterConditionValueRequired(operator: string): boolean {
 export function getConditionOperatorTitle(operator: string, locale?: string): string {
   const key = OPERATOR_TITLE_KEYS[operator];
   return !!key ? getLocaleString(key, locale) : operator;
+}
+// What a badge says a value is: the choice's text for a choice field (the same choices the quick
+// search matches on), the template question's display value otherwise - a boolean shows its label,
+// not true/false. A value that is no choice (a preset written by hand) shows as it is: an empty
+// badge would hide that the filter holds something.
+export function getFilterConditionValueText(field: IDynamicDataFilterField, value: any): string {
+  const items = getFieldChoiceItems(field);
+  const q: any = field.templateQuestion;
+  const toText = (v: any): string => {
+    if (items.length > 0) {
+      const item = ItemValue.getItemByValue(items, v);
+      if (!!item) return item.calculatedText;
+    } else if (!!q && typeof q.getDisplayValue === "function") {
+      const res = q.getDisplayValue(false, v);
+      if (res !== undefined && res !== null && res !== "") return res.toString();
+    }
+    return v === undefined || v === null ? "" : v.toString();
+  };
+  return (Array.isArray(value) ? value : [value]).map(toText).join(", ");
+}
+// "Title: Operator value" - the one-line summary a renderer shows for a field's condition.
+export function getFilterConditionText(field: IDynamicDataFilterField, condition: IFilterCondition, locale?: string): string {
+  const title = !!field.locTitle ? field.locTitle.calculatedText : field.name;
+  let res = title + ": " + getConditionOperatorTitle(condition.operator, locale);
+  if (isFilterConditionValueRequired(condition.operator)) {
+    res += " " + getFilterConditionValueText(field, condition.value);
+  }
+  return res;
 }
 
 // The operator a new condition on this field starts with. Same rule Creator's condition editor

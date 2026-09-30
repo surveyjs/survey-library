@@ -9,7 +9,7 @@ import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
-  conditionsToExpression, getFieldsByValueName, getFilterFieldOperators, getFilterValueEditorJson,
+  conditionsToExpression, getFieldsByValueName, getFilterConditionText, getFilterFieldOperators, getFilterValueEditorJson,
   normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
@@ -288,6 +288,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     const conditions = this.ownConditions !== undefined ? this.ownConditions : this.parseActiveItemConditions();
     const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
     return !!condition ? this.copyCondition(condition) : undefined;
+  }
+  // What a renderer writes on a field's badge. Empty where the field has no condition - which is also
+  // every field of a preset that does not decompose (isRawExpression): its text has none to show.
+  public getFieldConditionText(name: string): string {
+    const field = this.getFieldByName(name);
+    const condition = this.getFieldCondition(name);
+    if (!field || !condition) return "";
+    return getFilterConditionText(field, condition, this.getLocale());
   }
   // One condition per field: an edit of a field that already has one replaces it where it stands,
   // so the badges a renderer shows do not jump around; a new one goes to the end. The condition is

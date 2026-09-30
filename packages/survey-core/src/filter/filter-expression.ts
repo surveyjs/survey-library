@@ -50,7 +50,7 @@ function containsText(value: string, text: string): boolean {
 // they are gestures over the value set and not values a record holds, so an anyof over one of them
 // matches nothing, and counting one as a match would also take the "false" answer away from a field
 // whose real choices have nothing to offer.
-function getFieldChoiceItems(field: IDynamicDataFilterField): Array<any> {
+export function getFieldChoiceItems(field: IDynamicDataFilterField): Array<any> {
   const q: any = field.templateQuestion;
   const choices: Array<any> = Array.isArray(field.choices) ? field.choices : (!!q ? q.visibleChoices : undefined);
   if (!Array.isArray(choices)) return [];

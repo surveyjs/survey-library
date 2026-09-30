@@ -386,20 +386,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Reading allRows builds the rows, so that a record that has a row is answered by the row.
     const rows = this.allRows;
     if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
-    const item = this.getItemByRecordIndex(index);
-    if (!!item) return item;
-    return index < this.dataList.loadedCount ? this.createRecordItem(index) : null;
+    return this.dynamicData.getViewExpressionItem(index);
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
     return this.getPropertyValue("rowsPerPage");
   }
   public set rowsPerPage(val: number) {
-    const num = Helpers.getNumber(val);
-    // The clamp is in the setter and not in an onSettingValue hook: the hook is skipped while the
-    // question is loading from JSON.
-    this.setPropertyValue("rowsPerPage", num > 0 ? num : 0);
-    this.paging.updatePageSize();
+    this.paging.setPageSize("rowsPerPage", val);
     this.resetRenderedTable();
   }
   public get pageSize(): number { return this.rowsPerPage; }

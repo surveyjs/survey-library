@@ -73,6 +73,14 @@ export class DynamicDataPagingController {
     this.updateListPageSize();
     this.syncState();
   }
+  /* The setter of the authored page size (propertyName: rowsPerPage / panelsPerPage). The clamp is
+     here and not in an onSettingValue hook: the hook is skipped while the question is loading from
+     JSON. */
+  public setPageSize(propertyName: string, val: any): void {
+    const num = Helpers.getNumber(val);
+    this.owner.setPropertyValue(propertyName, num > 0 ? num : 0);
+    this.updatePageSize();
+  }
   // Returns true when the list pages by another size now: that resets the list.
   public updatePageSizeIfChanged(): boolean {
     if (this.list.pageSize === this.runtimePageSize) return false;

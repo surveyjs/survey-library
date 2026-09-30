@@ -59,9 +59,9 @@ export interface IDynamicDataQuestionHooks {
   // context class are the question's.
   createRecordItem(recordIndex: number): DynamicRecordItem;
 }
-// The objects are read through the owner's IDynamicItemModelData.getItem, by created position.
+// The objects are read through the owner's IDynamicItemModelData: by created position and by record.
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
-  & Pick<IDynamicItemModelData, "getItem">;
+  & Pick<IDynamicItemModelData, "getItem" | "getItemByRecordIndex">;
 // What a value assignment takes before the value is stored and hands back after it (see
 // DynamicDataQuestionController.beginValueAssignment).
 export interface IDynamicDataValueAssignment {
@@ -371,6 +371,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (!this.isPagingActive) return null;
     const recordIndex = this._list.getIndexAtGlobalVisibleIndex(visibleIndex);
     return recordIndex < 0 ? null : this.owner.createRecordItem(recordIndex);
+  }
+  /* The view half of IDynamicExpressionItemOwner.getExpressionItem: index names a record, and a record
+     without an object - filtered out, off the page or not built - is read as a value. */
+  public getViewExpressionItem(index: number): DynamicItemModelBase {
+    const item = this.owner.getItemByRecordIndex(index);
+    if (!!item) return item;
+    return index < this._list.loadedCount ? this.owner.createRecordItem(index) : null;
   }
 
   /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)

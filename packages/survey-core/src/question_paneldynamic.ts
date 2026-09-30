@@ -365,9 +365,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getExpressionItem(index: number): DynamicItemModelBase {
     const panels = this.panels;
     if (!this.hasDataListView) return index < panels.length ? <DynamicItemModelBase>panels[index].data : null;
-    const item = this.getItemByRecordIndex(index);
-    if (!!item) return item;
-    return index < this.dataList.loadedCount ? this.createRecordItem(index) : null;
+    return this.dynamicData.getViewExpressionItem(index);
   }
   private dynamicData = new DynamicDataQuestionController(this);
   // A peek: it never creates the list.
@@ -549,11 +547,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.getPropertyValue("panelsPerPage");
   }
   public set panelsPerPage(val: number) {
-    const num = Helpers.getNumber(val);
-    // The clamp is in the setter and not in an onSettingValue hook: the hook is skipped while the
-    // question is loading from JSON.
-    this.setPropertyValue("panelsPerPage", num > 0 ? num : 0);
-    this.paging.updatePageSize();
+    this.paging.setPageSize("panelsPerPage", val);
     this.updateRenderedPanels();
   }
   public get pageSize(): number { return this.panelsPerPage; }

@@ -35,11 +35,14 @@ export class DynamicDataRemoteController {
     /* The list resets its window and starts the first read. The two flags the questions need are
        already on it: isViewFrozenOnEdit (the membership of a view may not be re-decided by an edit
        made through one of the objects it materialized) is set when the list is created and holds for
-       a remote source unchanged, and isReadThrough stays on - the list reads through an assigned
-       ArrayDynamicDataSource (a SurveyDataDynamicDataSource too) exactly as through its default one,
-       and through no other source. Because of the frozen membership, refreshView() on a source that
-       pages has to be a refresh(): the server decides which records are in the window, so
-       re-deciding the view means re-reading it (see DynamicDataPagingController.refreshView). */
+       a remote source unchanged, and isReadThrough stays on but covers the question's own storage
+       only. An assigned source is read, not read through, whatever its class - an
+       ArrayDynamicDataSource and a SurveyDataDynamicDataSource included: the question is not told
+       when the developer's array changes, so that change is seen after getDataList().refresh() and
+       not at once. The list reads through again after a detach. Because of the frozen membership,
+       refreshView() on a source that pages has to be a refresh(): the server decides which records
+       are in the window, so re-deciding the view means re-reading it (see
+       DynamicDataPagingController.refreshView). */
     list.assignSource(newValue, (): void => {
       if (!!newValue && !wasRemote)this.owner.clearValueInSurveyData();
     });

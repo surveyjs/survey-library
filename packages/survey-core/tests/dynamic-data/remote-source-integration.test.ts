@@ -654,6 +654,46 @@ describe("Remote data source: adding and removing", () => {
     expect(source.argsOf("move")[0], "#1").toEqual([5, 7]);
     expect(rowValues(question), "#2").toEqual(["v6", "v7", "v5", "v8", "v9"]);
   });
+  /* The rows that exist stay where they are across a move and take the reordered records. With the
+     array source over question.value the value assignment of the push does that; a data source has
+     no such assignment. A row left with the record it showed before would write that record over
+     the one at its position with the next edit. */
+  test("matrix: moveRowByIndex with the rows built: the rows take the reordered records", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const { question } = await createMatrix(source);
+    question.goToPage(1);
+    await flush();
+    const rows = question.visibleRows.slice();
+    expect(rowValues(question), "#1").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+    source.reset();
+    question.moveRowByIndex(0, 2);
+    expect(rowValues(question), "#2: at once, before the source answers").toEqual(["v6", "v7", "v5", "v8", "v9"]);
+    expect(rowValues(question, "col2"), "#3: every cell of the row").toEqual([6, 7, 5, 8, 9]);
+    expect(question.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
+    expect(rows.map(row => (<any>row).builtRecordIndex), "#5: each names the record of its position")
+      .toEqual(question.getDataList().getMaterializedIndexes());
+    await flush();
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    await flush();
+    expect(source.argsOf("update")[0].slice(0, 2), "#6: the edit goes to the record the row shows").toEqual([5, { id: 6, col1: "edited", col2: 6 }]);
+    expect(source.records.slice(5, 8).map((r: any): any => r.id), "#7: no record was overwritten").toEqual([6, 7, 5]);
+  });
+  test("matrix: moveRowByIndex with the rows built, a read() source the list pages", async () => {
+    const source = new FakeServerSource(serverRecords(8), ["insert", "update", "remove", "move"]);
+    const { question } = await createMatrix(source, { rowsPerPage: 3 });
+    question.goToPage(1);
+    await flush();
+    const rows = question.visibleRows.slice();
+    expect(rowValues(question), "#1").toEqual(["v3", "v4", "v5"]);
+    source.reset();
+    question.moveRowByIndex(0, 2);
+    await flush();
+    expect(source.argsOf("move"), "#2").toEqual([[3, 5]]);
+    expect(rowValues(question), "#3").toEqual(["v4", "v5", "v3"]);
+    expect(question.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
+    expect(rows.map(row => (<any>row).builtRecordIndex), "#5").toEqual([3, 4, 5]);
+    expect(question.value.map((r: any): any => r.id), "#6").toEqual([0, 1, 2, 4, 5, 3, 6, 7]);
+  });
 });
 
 describe("Remote data source: sorting and filtering", () => {
@@ -979,7 +1019,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
     expect(rowValues(question), "#9").toEqual(["a1", undefined]);
     // The step-25 baseline: the array is replaced outside the list.
     arr = [{ col1: "outside0" }, { col1: "outside1" }];
-    expect(question.getDataList().getRecord(0).col1, "#10: the list record").toBe("outside0");
+    expect(question.getDataList().getRecord(0).col1, "#10: the list record").toBe("a1");
     expect(question.value[0].col1, "#11: question.value").toBe("a1");
     expect(question.visibleRows[0].getQuestionByName("col1").value, "#12: the row").toBe("a1");
     question.getDataList().refresh();
@@ -1012,7 +1052,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
     expect(panelValues(question), "#9").toEqual(["a1", undefined]);
     // The step-25 baseline: the array is replaced outside the list.
     arr = [{ col1: "outside0" }, { col1: "outside1" }];
-    expect(question.getDataList().getRecord(0).col1, "#10: the list record").toBe("outside0");
+    expect(question.getDataList().getRecord(0).col1, "#10: the list record").toBe("a1");
     expect(question.value[0].col1, "#11: question.value").toBe("a1");
     expect(question.panels[0].getQuestionByName("col1").value, "#12: the panel").toBe("a1");
     question.getDataList().refresh();
@@ -1043,7 +1083,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
     expect(survey.data.other.map((r: any): any => r.col1), "#7: remove").toEqual(["a1", undefined]);
     // The step-25 baseline: the value is replaced outside the list.
     survey.setValue("other", [{ col1: "outside0" }, { col1: "outside1" }]);
-    expect(question.getDataList().getRecord(0).col1, "#8: the list record").toBe("outside0");
+    expect(question.getDataList().getRecord(0).col1, "#8: the list record").toBe("a1");
     expect(question.value[0].col1, "#9: question.value").toBe("a1");
     expect(question.visibleRows[0].getQuestionByName("col1").value, "#10: the row").toBe("a1");
     question.getDataList().refresh();
@@ -1074,7 +1114,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
     expect(survey.data.other.map((r: any): any => r.col1), "#7: remove").toEqual(["a1", undefined]);
     // The step-25 baseline: the value is replaced outside the list.
     survey.setValue("other", [{ col1: "outside0" }, { col1: "outside1" }]);
-    expect(question.getDataList().getRecord(0).col1, "#8: the list record").toBe("outside0");
+    expect(question.getDataList().getRecord(0).col1, "#8: the list record").toBe("a1");
     expect(question.value[0].col1, "#9: question.value").toBe("a1");
     expect(question.panels[0].getQuestionByName("col1").value, "#10: the panel").toBe("a1");
     question.getDataList().refresh();
@@ -1231,6 +1271,292 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
     expect(question.getDataList().pageIndex, "#3: on the page it was on").toBe(1);
     expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#4: the panels of that page, numbered as on that page").toEqual([2, 3]);
     expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#5").toEqual([2, 3]);
+  });
+});
+
+/* Step 25 (OPEN 83): a source assigned to a question gets a window, whatever its class. The
+   question is not told when the developer's storage changes, so the list does not follow it either:
+   the list, question.value and the rows/panels hold the same records until the list reads again. */
+describe("Step 25: an assigned source is read, not read through", () => {
+  interface IAssigned {
+    survey: SurveyModel;
+    question: any;
+    // The developer's storage, read and replaced outside the list.
+    getStorage: () => Array<any>;
+    setStorage: (arr: Array<any>) => void;
+    // How often the source's count() callback ran; an ArrayDynamicDataSource only.
+    countCalls: () => number;
+  }
+  const questionTypes = ["matrix", "panel"];
+  const sourceKinds = ["ArrayDynamicDataSource", "SurveyDataDynamicDataSource"];
+  function records(...values: Array<string>): Array<any> {
+    return values.map((value: string): any => ({ col1: value }));
+  }
+  function col1(arr: Array<any>): Array<any> {
+    return (arr || []).map((record: any): any => !!record ? record.col1 : record);
+  }
+  function createQuestion(type: string): { survey: SurveyModel, question: any } {
+    const json: any = type === "matrix"
+      ? { type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "col1" }] }
+      : { type: "paneldynamic", name: "q", panelCount: 0, templateElements: [{ type: "text", name: "col1" }] };
+    const survey = new SurveyModel({ elements: [json] });
+    return { survey: survey, question: survey.getQuestionByName("q") };
+  }
+  async function createAssigned(type: string, kind: string): Promise<IAssigned> {
+    const { survey, question } = createQuestion(type);
+    let res: IAssigned;
+    if (kind === "ArrayDynamicDataSource") {
+      let arr: Array<any> = records("a0", "a1", "a2");
+      let calls = 0;
+      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; },
+        (): number => { calls++; return arr.length; });
+      res = {
+        survey: survey, question: question, getStorage: (): Array<any> => arr,
+        setStorage: (a: Array<any>): void => { arr = a; }, countCalls: (): number => calls
+      };
+    } else {
+      survey.setValue("other", records("a0", "a1", "a2"));
+      question.dataSource = new SurveyDataDynamicDataSource(survey, "other");
+      res = {
+        survey: survey, question: question, getStorage: (): Array<any> => survey.getValue("other"),
+        setStorage: (a: Array<any>): void => { survey.setValue("other", a); }, countCalls: (): number => 0
+      };
+    }
+    await flush();
+    return res;
+  }
+  function listValues(question: any): Array<any> {
+    return col1(question.getDataList().getLoadedRecords());
+  }
+  function objectValues(question: any): Array<any> {
+    return question instanceof QuestionMatrixDynamicModel ? rowValues(question) : panelValues(question);
+  }
+  function getCell(question: any, index: number): Question {
+    return question instanceof QuestionMatrixDynamicModel
+      ? question.visibleRows[index].getQuestionByName("col1") : question.panels[index].getQuestionByName("col1");
+  }
+  // The list, question.value and the rows/panels: the three reads that have to agree.
+  function expectAll(question: any, expected: Array<any>, no: string): void {
+    expect(listValues(question), no + ": the list").toEqual(expected);
+    expect(col1(question.value), no + ": question.value").toEqual(expected);
+    expect(objectValues(question), no + ": the rows/panels").toEqual(expected);
+  }
+  questionTypes.forEach((type: string): void => {
+    sourceKinds.forEach((kind: string): void => {
+      const name = type + ", " + kind + ": ";
+      test(name + "an outside change is seen after refresh(), not before", async () => {
+        const { question, getStorage, setStorage } = await createAssigned(type, kind);
+        expectAll(question, ["a0", "a1", "a2"], "#1");
+        setStorage(records("outside0", "outside1", "outside2"));
+        expect(col1(getStorage()), "#2: the storage has the change").toEqual(["outside0", "outside1", "outside2"]);
+        expectAll(question, ["a0", "a1", "a2"], "#3: nothing has moved");
+        setStorage(records("outside0"));
+        expect(question.getDataList().count, "#4: nor the count").toBe(3);
+        expectAll(question, ["a0", "a1", "a2"], "#5: a shorter array");
+        question.getDataList().refresh();
+        await flush();
+        expectAll(question, ["outside0"], "#6: after refresh()");
+        expect(question.getDataList().count, "#7").toBe(1);
+      });
+      test(name + "an outside change does not re-decide a filter until refresh()", async () => {
+        const { question, setStorage } = await createAssigned(type, kind);
+        const list = question.getDataList();
+        question.filterExpression = "{col1} <> 'a1'";
+        expect(objectValues(question), "#1: the view").toEqual(["a0", "a2"]);
+        // The same length: a1 moves to the first record, which the view holds.
+        setStorage(records("a1", "b1", "b2"));
+        expect(list.getCreatedIndexes(), "#2: the membership").toEqual([0, 2]);
+        expect(list.getCreatedIndexes().map((index: number): any => list.getRecord(index).col1), "#3: the records of the view").toEqual(["a0", "a2"]);
+        expect(objectValues(question), "#4").toEqual(["a0", "a2"]);
+        // Another length: a record count that changed is what makes a read-through list re-decide.
+        setStorage(records("a1", "b1"));
+        expect(list.getCreatedIndexes(), "#5: the membership").toEqual([0, 2]);
+        expect(list.visibleCount, "#6").toBe(2);
+        expect(objectValues(question), "#7").toEqual(["a0", "a2"]);
+        expect(col1(question.value), "#8: question.value holds every record").toEqual(["a0", "a1", "a2"]);
+        list.refresh();
+        await flush();
+        expect(list.getCreatedIndexes(), "#9: re-decided by the read").toEqual([1]);
+        expect(objectValues(question), "#10").toEqual(["b1"]);
+        expect(col1(question.value), "#11").toEqual(["a1", "b1"]);
+        expect(listValues(question), "#12").toEqual(["a1", "b1"]);
+      });
+      test(name + "a filter assigned after an outside change is decided over the records the question holds", async () => {
+        const { question, setStorage } = await createAssigned(type, kind);
+        setStorage(records("a1", "b1", "b2"));
+        question.filterExpression = "{col1} <> 'a1'";
+        expect(objectValues(question), "#1: the view over the window").toEqual(["a0", "a2"]);
+        expect(col1(question.value), "#2").toEqual(["a0", "a1", "a2"]);
+        expect(listValues(question), "#3").toEqual(["a0", "a1", "a2"]);
+        question.getDataList().refresh();
+        await flush();
+        expect(objectValues(question), "#4: after refresh()").toEqual(["b1", "b2"]);
+        expect(col1(question.value), "#5").toEqual(["a1", "b1", "b2"]);
+      });
+      // A regression guard: it passes with and without the step. The window follows every write.
+      test(name + "an edit, an add, a remove and a move reach the storage, the list and question.value", async () => {
+        const { question, getStorage } = await createAssigned(type, kind);
+        const isMatrix = type === "matrix";
+        const expectStored = (expected: Array<any>, no: string): void => {
+          expect(col1(getStorage()), no + ": the storage").toEqual(expected);
+          expect(listValues(question), no + ": the list").toEqual(expected);
+          expect(col1(question.value), no + ": question.value").toEqual(expected);
+        };
+        getCell(question, 1).value = "edited";
+        expectStored(["a0", "edited", "a2"], "#1 edit");
+        expect(objectValues(question), "#2").toEqual(["a0", "edited", "a2"]);
+        if (isMatrix) question.addRow(); else question.addPanel();
+        expectStored(["a0", "edited", "a2", undefined], "#3 add");
+        expect(objectValues(question), "#4").toEqual(["a0", "edited", "a2", undefined]);
+        if (isMatrix) question.removeRow(0); else question.removePanel(0);
+        expectStored(["edited", "a2", undefined], "#5 remove");
+        expect(objectValues(question), "#6").toEqual(["edited", "a2", undefined]);
+        // A panel has no move of its own: the list's move is the one a drag would make.
+        if (isMatrix) question.moveRowByIndex(0, 1); else question.getDataList().move(0, 1);
+        expectStored(["a2", "edited", undefined], "#7 move");
+        if (isMatrix) {
+          expect(objectValues(question), "#8: the rows take the reordered records").toEqual(["a2", "edited", undefined]);
+        }
+        expect(question.survey.data.q, "#9: nothing reached the hash").toBe(undefined);
+      });
+    });
+    test(type + ": count() is not asked of an assigned ArrayDynamicDataSource", async () => {
+      const { question, countCalls } = await createAssigned(type, "ArrayDynamicDataSource");
+      const list = question.getDataList();
+      expectAll(question, ["a0", "a1", "a2"], "#1");
+      expect(list.count, "#2").toBe(3);
+      expect(list.loadedCount, "#3").toBe(3);
+      expect(list.visibleCount, "#4").toBe(3);
+      getCell(question, 0).value = "edited";
+      if (type === "matrix") question.addRow(); else question.addPanel();
+      expect(list.count, "#5").toBe(4);
+      expect(countCalls(), "#6: the window answers the count").toBe(0);
+    });
+    /* assignSource sets isRemote before it swaps the source, and the hash is cleared in between: a
+       handler that runs there still gets the question's own records from the list, not the window
+       the list last committed. */
+    test(type + ": inside the attach the list still reads through the question's own value", async () => {
+      const { survey, question } = createQuestion(type);
+      const list = question.getDataList();
+      survey.setValue("q", records("h0", "h1"));
+      expect(listValues(question), "#1: read through").toEqual(["h0", "h1"]);
+      const seen: Array<any> = [];
+      survey.onValueChanged.add((): void => { seen.push({ isRemote: list.isRemote, list: listValues(question), count: list.count }); });
+      let arr: Array<any> = records("a0", "a1", "a2");
+      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+      await flush();
+      expect(seen, "#2: the hash is cleared with the default source still in place").toEqual([{ isRemote: true, list: ["h0", "h1"], count: 2 }]);
+      expectAll(question, ["a0", "a1", "a2"], "#3: then the assigned source is read");
+      arr = records("outside");
+      expectAll(question, ["a0", "a1", "a2"], "#4: and not read through");
+    });
+  });
+  /* OPEN 87: the window of an assigned array source keeps the list's own writes only. The push
+     reaches the developer's array, but that array is not taken as the window, so an outside change
+     does not slip into the list and question.value with the next edit while the rows/panels that
+     were not edited still show the old records. */
+  questionTypes.forEach((type: string): void => {
+    sourceKinds.forEach((kind: string): void => {
+      test(type + ", " + kind + ": an outside change does not enter the window with the next edit", async () => {
+        const { question, getStorage, setStorage } = await createAssigned(type, kind);
+        setStorage(records("outside0", "outside1", "outside2"));
+        getCell(question, 2).value = "edited";
+        expect(col1(getStorage()), "#1: the edit reaches the storage as it is now").toEqual(["outside0", "outside1", "edited"]);
+        expectAll(question, ["a0", "a1", "edited"], "#2: the window has the edit and nothing else");
+        if (type === "matrix") question.addRow(); else question.addPanel();
+        expect(col1(getStorage()), "#3: an add").toEqual(["outside0", "outside1", "edited", undefined]);
+        expectAll(question, ["a0", "a1", "edited", undefined], "#4");
+        question.getDataList().refresh();
+        await flush();
+        expectAll(question, ["outside0", "outside1", "edited", undefined], "#5: after refresh()");
+      });
+    });
+  });
+  /* A storage that does not keep what it is handed - here it trims the strings. The list answers
+     with what was stored, and so does question.value: the window takes the array a write has stored
+     while nothing replaced that array outside the list. The panel writes every edit inside a list
+     batch, where the array is stored when the batch ends; the matrix writes outside one. */
+  const trimRecord = (record: any): any => !!record && typeof record.col1 === "string" && record.col1 !== record.col1.trim()
+    ? Object.assign({}, record, { col1: record.col1.trim() }) : record;
+  questionTypes.forEach((type: string): void => {
+    test(type + ": an ArrayDynamicDataSource whose setter normalizes: the list and question.value hold what was stored", async () => {
+      const { question } = createQuestion(type);
+      let arr: Array<any> = records("a0", "a1", "a2");
+      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a.map(trimRecord); });
+      await flush();
+      getCell(question, 1).value = " edited ";
+      expect(col1(arr), "#1: stored trimmed").toEqual(["a0", "edited", "a2"]);
+      expect(listValues(question), "#2: the list").toEqual(["a0", "edited", "a2"]);
+      expect(col1(question.value), "#3: question.value").toEqual(["a0", "edited", "a2"]);
+      getCell(question, 0).value = "next";
+      expect(col1(arr), "#4: the next edit").toEqual(["next", "edited", "a2"]);
+      expect(listValues(question), "#5").toEqual(["next", "edited", "a2"]);
+      expect(col1(question.value), "#6").toEqual(["next", "edited", "a2"]);
+    });
+    test(type + ": a SurveyDataDynamicDataSource whose survey normalizes the value: the list and question.value hold what was stored", async () => {
+      const { survey, question } = createQuestion(type);
+      survey.setValue("other", records("a0", "a1", "a2"));
+      survey.onValueChanging.add((sender, options) => {
+        if (options.name === "other" && Array.isArray(options.value)) options.value = options.value.map(trimRecord);
+      });
+      question.dataSource = new SurveyDataDynamicDataSource(survey, "other");
+      await flush();
+      getCell(question, 1).value = " edited ";
+      expect(col1(survey.getValue("other")), "#1: stored trimmed").toEqual(["a0", "edited", "a2"]);
+      expect(listValues(question), "#2: the list").toEqual(["a0", "edited", "a2"]);
+      expect(col1(question.value), "#3: question.value").toEqual(["a0", "edited", "a2"]);
+    });
+  });
+  /* The stored array can differ from the written one by more than a value, and a batch can fail. In
+     both cases the window goes back to the storage and the list announces a reset, which the
+     question follows as it follows a read: value and rows/panels are rebuilt for the records that
+     are stored. */
+  questionTypes.forEach((type: string): void => {
+    test(type + ": a setter that drops the record of the last page: the question shows a page that exists", async () => {
+      const { question } = createQuestion(type);
+      if (type === "matrix") question.rowsPerPage = 2; else question.panelsPerPage = 2;
+      let arr: Array<any> = records("a0", "a1", "a2");
+      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr,
+        (a: Array<any>): void => { arr = a.filter((r: any): boolean => r.col1 !== "drop"); });
+      await flush();
+      question.goToPage(1);
+      expect(objectValues(question), "#1: the last page").toEqual(["a2"]);
+      getCell(question, 0).value = "drop";
+      expect(col1(arr), "#2: the storage dropped the record").toEqual(["a0", "a1"]);
+      expect(question.pageCount, "#3").toBe(1);
+      expect(question.pageIndex, "#4: not left on a page that is gone").toBe(0);
+      expect(objectValues(question), "#5: the rows/panels of that page").toEqual(["a0", "a1"]);
+      expect(col1(question.value), "#6").toEqual(["a0", "a1"]);
+      expect(listValues(question), "#7").toEqual(["a0", "a1"]);
+    });
+    test(type + ": a list batch that throws: the question goes back to the stored records", async () => {
+      const { question, getStorage } = await createAssigned(type, "ArrayDynamicDataSource");
+      const list = question.getDataList();
+      expect((): void => {
+        list.batch((): void => {
+          list.setValue(0, "col1", "edited");
+          list.remove(2);
+          throw new Error("inside the batch");
+        });
+      }, "#1").toThrow("inside the batch");
+      expect(col1(getStorage()), "#2: nothing was stored").toEqual(["a0", "a1", "a2"]);
+      expectAll(question, ["a0", "a1", "a2"], "#3");
+      getCell(question, 1).value = "next";
+      expect(col1(getStorage()), "#4: the next edit").toEqual(["a0", "next", "a2"]);
+      expectAll(question, ["a0", "next", "a2"], "#5");
+    });
+  });
+  questionTypes.forEach((type: string): void => {
+    test(type + ": after a detach the list reads through the question's value again", async () => {
+      const { survey, question, setStorage } = await createAssigned(type, "ArrayDynamicDataSource");
+      survey.setValue("q", records("h0", "h1"));
+      question.dataSource = undefined;
+      await flush();
+      expectAll(question, ["h0", "h1"], "#1");
+      setStorage(records("outside"));
+      survey.setValue("q", records("h2", "h3", "h4"));
+      expectAll(question, ["h2", "h3", "h4"], "#2: survey.setValue is seen at once");
+    });
   });
 });
 

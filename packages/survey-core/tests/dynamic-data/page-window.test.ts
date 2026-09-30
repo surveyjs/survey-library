@@ -847,6 +847,27 @@ describe("Page window: three indexes", () => {
     matrix.moveRowByIndex(0, 1);
     expect(matrix.value.map(r => r.id), "#6: moveRowByIndex takes created positions").toEqual([1, 0, 2, 3, 4]);
   });
+  /* moveRowByIndex leaves the row objects where they are and hands them the reordered records, so a
+     row names the record of its position after the move. Rows that named the record they held before
+     look stale to the next add, which then rebuilds the whole page. */
+  test("matrix: after a move each row names the record of its position, and the next add keeps the rows", () => {
+    const matrix = createMatrix({ rowsPerPage: 3 }, records(7));
+    matrix.pageIndex = 1;
+    const rows = matrix.visibleRows.slice();
+    expect(rowIds(matrix), "#1").toEqual([3, 4, 5]);
+    matrix.moveRowByIndex(0, 2);
+    expect(matrix.value.map(r => r.id), "#2").toEqual([0, 1, 2, 4, 5, 3, 6]);
+    expect(rowIds(matrix), "#3: the rows take the reordered records").toEqual([4, 5, 3]);
+    expect(matrix.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
+    expect(rows.map(row => (<any>row).builtRecordIndex), "#5").toEqual([3, 4, 5]);
+    const short = createMatrix({ rowsPerPage: 5 }, records(3));
+    const shortRows = short.visibleRows.slice();
+    short.moveRowByIndex(0, 2);
+    short.addRow();
+    expect(short.visibleRows.length, "#6: the new row is on the page").toBe(4);
+    expect(shortRows.every((row, i) => row === short.visibleRows[i]), "#7: the rows of the page are not rebuilt").toBe(true);
+    expect(rowIds(short), "#8").toEqual([1, 2, 0, undefined]);
+  });
   test("(q2) under paging the created position equals the pageVisibleIndex on every page, hidden records present", () => {
     const question = createPanel({ panelsPerPage: 5, templateVisibleIf: "{panel.id} % 3 != 0" }, records(30));
     for (let page = 0; page < question.pageCount; page++) {

@@ -2902,6 +2902,358 @@ describe("DynamicDataList: the assigned source", () => {
     list.dispose();
     expect((<any>list).createDefaultSource === undefined, "#1").toBe(true);
   });
+  // Step 25: ownership decides, not the class of the source.
+  function createAssignedArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any>, set: (arr: Array<any>) => void, countCalls: () => number } {
+    let arr: Array<any> = createRecords(count);
+    let calls = 0;
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; },
+      (): number => { calls++; return arr.length; });
+    return { source: source, get: (): Array<any> => arr, set: (a: Array<any>): void => { arr = a; }, countCalls: (): number => calls };
+  }
+  test("an assigned ArrayDynamicDataSource gets a window and is read again by refresh()", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(2);
+    list.assignSource(assigned.source);
+    expect(list.isReadThrough, "#1: the flag stays, it is about the owner's storage").toBe(true);
+    expect(list.loadedCount, "#2: read by the swap").toBe(2);
+    assigned.set([{ id: 7, name: "outside" }, { id: 8, name: "outside" }, { id: 9, name: "outside" }]);
+    expect(list.loadedCount, "#3: not read through").toBe(2);
+    expect(list.count, "#4").toBe(2);
+    expect(list.getRecord(0), "#5").toEqual({ id: 0, name: "r0" });
+    expect(assigned.countCalls(), "#6: count() is not asked of it").toBe(0);
+    list.refresh();
+    expect(list.loadedCount, "#7: read again").toBe(3);
+    expect(list.getRecord(0), "#8").toEqual({ id: 7, name: "outside" });
+  });
+  test("an assigned ArrayDynamicDataSource: inside onAssigning the default source is still read through", () => {
+    const { list, setArray } = createOwnerList();
+    const assigned = createAssignedArray(2);
+    setArray(createRecords(5));
+    const seen: Array<number> = [];
+    list.assignSource(assigned.source, (): void => { seen.push(list.loadedCount); });
+    expect(seen, "#1: the owner's storage as it is now, not the window of the first load").toEqual([5]);
+    expect(list.loadedCount, "#2").toBe(2);
+  });
+  test("an assigned ArrayDynamicDataSource: the writes reach the array and the window follows them", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    const names = (arr: Array<any>): Array<any> => arr.map((r: any): any => r.name);
+    list.setValue(1, "name", "edited");
+    expect(names(assigned.get()), "#1 edit").toEqual(["r0", "edited", "r2"]);
+    expect(names(list.getLoadedRecords()), "#2").toEqual(["r0", "edited", "r2"]);
+    list.add({ name: "added" });
+    expect(names(assigned.get()), "#3 add").toEqual(["r0", "edited", "r2", "added"]);
+    expect(names(list.getLoadedRecords()), "#4").toEqual(["r0", "edited", "r2", "added"]);
+    list.remove(0);
+    expect(names(assigned.get()), "#5 remove").toEqual(["edited", "r2", "added"]);
+    expect(names(list.getLoadedRecords()), "#6").toEqual(["edited", "r2", "added"]);
+    list.move(0, 2);
+    expect(names(assigned.get()), "#7 move").toEqual(["r2", "added", "edited"]);
+    expect(names(list.getLoadedRecords()), "#8").toEqual(["r2", "added", "edited"]);
+    list.batch((): void => {
+      list.add({ name: "b1" });
+      list.setValue(0, "name", "b0");
+    });
+    expect(names(assigned.get()), "#9 batch").toEqual(["b0", "added", "edited", "b1"]);
+    expect(names(list.getLoadedRecords()), "#10").toEqual(["b0", "added", "edited", "b1"]);
+    expect(list.count, "#11").toBe(4);
+  });
+  test("a detach from an assigned ArrayDynamicDataSource reads through the owner's storage again", () => {
+    const { list, setArray } = createOwnerList();
+    const assigned = createAssignedArray(2);
+    list.assignSource(assigned.source);
+    list.assignSource(undefined);
+    expect(list.loadedCount, "#1").toBe(3);
+    setArray(createRecords(5));
+    expect(list.loadedCount, "#2: read through, no load()").toBe(5);
+  });
+  test("a standalone list that reads through keeps doing so; one that was assigned a source does not", () => {
+    const own = createAssignedArray(2);
+    const list = new DynamicDataList(own.source);
+    list.isReadThrough = true;
+    list.load();
+    own.set(createRecords(4));
+    expect(list.loadedCount, "#1: the source it was constructed with is its own").toBe(4);
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    assigned.set(createRecords(6));
+    expect(list.loadedCount, "#2: an assigned one is not read through").toBe(3);
+  });
+  /* OPEN 87: a synchronous push to an ArrayDynamicDataSource ends in syncWindowAfterSyncPush, which
+     takes the array the push has written. For an assigned source that array is the developer's, and
+     taking it would bring a change made outside the list into the window with the next write and
+     without a reset - so the window of an assigned source keeps the list's own writes only. */
+  test("a write to an assigned ArrayDynamicDataSource does not take an outside change into the window", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    const changes = recordChanges(list);
+    assigned.set([{ id: 7, name: "outside0" }, { id: 8, name: "outside1" }, { id: 9, name: "outside2" }]);
+    list.setValue(2, "name", "edited");
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#1: the window").toEqual(["r0", "r1", "edited"]);
+    expect(assigned.get().map((r: any): any => r.name), "#2: the array").toEqual(["outside0", "outside1", "edited"]);
+    expect(assigned.get()[2].id, "#3: the edit was made on the record the window held").toBe(2);
+    expect(changes, "#4: no reset").toEqual(["recordChanged:2:name"]);
+    list.refresh();
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#5: the outside change arrives with the read").toEqual(["outside0", "outside1", "edited"]);
+    expect(changes, "#6").toEqual(["recordChanged:2:name", "reset"]);
+  });
+  test("an outside change does not enter the window of an assigned ArrayDynamicDataSource with a batch either", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    assigned.set([{ id: 7, name: "outside0" }, { id: 8, name: "outside1" }, { id: 9, name: "outside2" }]);
+    const changes = recordChanges(list);
+    list.batch((): void => { list.setValue(2, "name", "edited"); });
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#1: the window").toEqual(["r0", "r1", "edited"]);
+    expect(assigned.get().map((r: any): any => r.name), "#2: the array").toEqual(["outside0", "outside1", "edited"]);
+    expect(changes, "#3").toEqual(["recordChanged:2:name"]);
+  });
+  // A developer's setter that does not store what it is given: the names are stored trimmed.
+  function createTrimmingArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any> } {
+    let arr: Array<any> = createRecords(count);
+    const trim = (record: any): any => typeof record.name === "string" && record.name !== record.name.trim()
+      ? Object.assign({}, record, { name: record.name.trim() }) : record;
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a.map(trim); });
+    return { source: source, get: (): Array<any> => arr };
+  }
+  test("an assigned ArrayDynamicDataSource whose setter normalizes: the window takes what a write stored", () => {
+    const { list } = createOwnerList();
+    const assigned = createTrimmingArray(3);
+    list.assignSource(assigned.source);
+    const changes = recordChanges(list);
+    list.setValue(0, "name", " edited ");
+    expect(assigned.get()[0].name, "#1: stored trimmed").toBe("edited");
+    expect(list.getRecord(0).name, "#2: the list has what was stored").toBe("edited");
+    expect((<any>list).windowRecords === assigned.get(), "#3: the window is the stored array").toBe(true);
+    expect(changes, "#4: the write notifies once, after the window took the stored record").toEqual(["recordChanged:0:name"]);
+    list.add({ name: " added " });
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#5: an add").toEqual(["edited", "r1", "r2", "added"]);
+  });
+  test("an assigned ArrayDynamicDataSource whose setter normalizes: the window is reconciled when a batch commits", () => {
+    const { list } = createOwnerList();
+    const assigned = createTrimmingArray(3);
+    list.assignSource(assigned.source);
+    const changes = recordChanges(list);
+    const inside: Array<any> = [];
+    list.batch((): void => {
+      list.setValue(0, "name", " edited ");
+      inside.push(list.getRecord(0).name);
+      list.setValue(2, "name", "plain");
+    });
+    expect(inside, "#1: inside the batch the record is the one that was written").toEqual([" edited "]);
+    expect(assigned.get().map((r: any): any => r.name), "#2: stored trimmed").toEqual(["edited", "r1", "plain"]);
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#3: the list has what was stored").toEqual(["edited", "r1", "plain"]);
+    expect((<any>list).windowRecords === assigned.get(), "#4: the window is the stored array").toBe(true);
+    expect(changes, "#5: the record the setter changed is announced after the commit")
+      .toEqual(["recordChanged:0:name", "recordChanged:2:name", "recordChanged:0:undefined"]);
+  });
+  test("a batch whose setter stores what it is given announces nothing of its own", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    const changes = recordChanges(list);
+    list.batch((): void => {
+      list.setValue(0, "name", "edited");
+      list.add({ name: "added" });
+    });
+    expect(changes, "#1").toEqual(["recordChanged:0:name", "recordAdded:3"]);
+    expect((<any>list).windowRecords === assigned.get(), "#2: the window is the stored array").toBe(true);
+    list.batch((): void => { });
+    expect(changes, "#3: an empty batch").toEqual(["recordChanged:0:name", "recordAdded:3"]);
+  });
+  test("a standalone list over its own ArrayDynamicDataSource whose setter normalizes is reconciled when a batch commits", () => {
+    const own = createTrimmingArray(3);
+    const list = new DynamicDataList(own.source);
+    list.load();
+    const changes = recordChanges(list);
+    list.batch((): void => { list.setValue(0, "name", " edited "); });
+    expect(list.getRecord(0).name, "#1").toBe("edited");
+    expect((<any>list).windowRecords === own.get(), "#2: the window is the owner's array").toBe(true);
+    expect(changes, "#3").toEqual(["recordChanged:0:name", "recordChanged:0:undefined"]);
+  });
+  test("a setter that drops a record when a batch commits: the list announces a reset", () => {
+    let arr: Array<any> = createRecords(3);
+    const source = new ArrayDynamicDataSource((): Array<any> => arr,
+      (a: Array<any>): void => { arr = a.filter((r: any): boolean => r.name !== "drop"); });
+    const { list } = createOwnerList();
+    list.assignSource(source);
+    const changes = recordChanges(list);
+    list.batch((): void => { list.setValue(1, "name", "drop"); });
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#1").toEqual(["r0", "r2"]);
+    expect(list.count, "#2").toBe(2);
+    expect(changes, "#3").toEqual(["recordChanged:1:name", "reset"]);
+  });
+  /* The stored array is not always the array the list wrote. Taking it is a change of the records
+     like any other: the cached views and the page index follow it, and another record count is
+     announced as a reset after the write has notified. */
+  function createDroppingArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any> } {
+    let arr: Array<any> = createRecords(count);
+    const source = new ArrayDynamicDataSource((): Array<any> => arr,
+      (a: Array<any>): void => { arr = a.filter((r: any): boolean => r.name !== "drop"); });
+    return { source: source, get: (): Array<any> => arr };
+  }
+  [false, true].forEach((inBatch: boolean): void => {
+    const how = inBatch ? "inside a batch" : "outside a batch";
+    test("a setter that drops the record of the last page, " + how + ": the page index is clamped and a reset follows the write", () => {
+      const { list } = createOwnerList();
+      list.assignSource(createDroppingArray(3).source);
+      list.pageSize = 2;
+      list.pageIndex = 1;
+      expect(list.getPageIndexes(), "#1").toEqual([2]);
+      const changes = recordChanges(list);
+      const write = (): void => { list.setValue(2, "name", "drop"); };
+      if (inBatch) list.batch(write); else write();
+      expect(list.count, "#2").toBe(2);
+      expect(list.pageCount, "#3").toBe(1);
+      expect(list.pageIndex, "#4: not left past the last page").toBe(0);
+      expect(list.getPageIndexes(), "#5").toEqual([0, 1]);
+      expect(changes, "#6: the reset comes after the write's own notification").toEqual(["recordChanged:2:name", "reset"]);
+    });
+    test("a setter that normalizes, " + how + ": a list that re-decides its view on every write re-decides it over the stored records", () => {
+      let arr: Array<any> = [{ n: 1 }, { n: 3 }, { n: 5 }];
+      const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+        arr = a.map((r: any): any => r.n < 0 ? { n: -r.n } : r);
+      });
+      const list = new DynamicDataList(source);
+      list.load();
+      list.filter = "{n} > 0";
+      // Paging makes the write compute the views before the push: they hold the record as written.
+      list.pageSize = 10;
+      const write = (): void => { list.setValue(1, "n", -2); };
+      if (inBatch) list.batch(write); else write();
+      expect(list.getRecord(1), "#1: stored").toEqual({ n: 2 });
+      expect(list.getCreatedIndexes(), "#2: the filter sees the stored record").toEqual([0, 1, 2]);
+      expect(list.visibleCount, "#3").toBe(3);
+      list.filter = "";
+      list.sort = [{ field: "n", direction: "asc" }];
+      const writeSorted = (): void => { list.setValue(0, "n", -9); };
+      if (inBatch) list.batch(writeSorted); else writeSorted();
+      expect(list.getCreatedIndexes(), "#4: the sort sees the stored record").toEqual([1, 2, 0]);
+    });
+    test("a setter that normalizes, " + how + ": a frozen membership keeps the edited record in its place", () => {
+      let arr: Array<any> = [{ n: 1 }, { n: 3 }, { n: 5 }];
+      const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+        arr = a.map((r: any): any => r.n < 0 ? { n: -r.n } : r);
+      });
+      const { list } = createOwnerList();
+      list.assignSource(source);
+      list.sort = [{ field: "n", direction: "asc" }];
+      list.pageSize = 10;
+      const write = (): void => { list.setValue(0, "n", -9); };
+      if (inBatch) list.batch(write); else write();
+      expect(list.getRecord(0), "#1: stored").toEqual({ n: 9 });
+      expect(list.getCreatedIndexes(), "#2: as for any edit").toEqual([0, 1, 2]);
+      list.refreshView();
+      expect(list.getCreatedIndexes(), "#3: re-decided on request").toEqual([1, 2, 0]);
+    });
+  });
+  test("a batch that reads the view between its write and its commit re-decides it when it commits", () => {
+    let arr: Array<any> = [{ n: 1 }, { n: 3 }, { n: 5 }];
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+      arr = a.map((r: any): any => r.n < 0 ? { n: -r.n } : r);
+    });
+    const list = new DynamicDataList(source);
+    list.load();
+    list.filter = "{n} > 0";
+    const seen: Array<number> = [];
+    list.batch((): void => {
+      list.setValue(1, "n", -2);
+      seen.push(list.visibleCount);
+    });
+    expect(seen, "#1: inside the batch the record is the one that was written").toEqual([2]);
+    expect(list.visibleCount, "#2").toBe(3);
+  });
+  /* A batch that throws: the array source drops the writes it collected, so the window must not keep
+     them. The owner was notified of every write inside the batch and is told to start over. */
+  test("a batch that throws: the window of an assigned ArrayDynamicDataSource goes back to the storage", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    list.filter = "{id} < 100";
+    const stored = assigned.get();
+    const changes = recordChanges(list);
+    expect((): void => {
+      list.batch((): void => {
+        list.setValue(0, "name", "edited");
+        list.add({ id: 200, name: "added" });
+        throw new Error("inside the batch");
+      });
+    }, "#1: the error reaches the caller").toThrow("inside the batch");
+    expect(assigned.get() === stored, "#2: nothing was stored").toBe(true);
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#3: the window").toEqual(["r0", "r1", "r2"]);
+    expect(list.count, "#4").toBe(3);
+    expect(list.getCreatedIndexes(), "#5: the membership is decided over the storage").toEqual([0, 1, 2]);
+    expect(changes, "#6").toEqual(["recordChanged:0:name", "recordAdded:3", "reset"]);
+    expect(list.isWriting, "#7").toBe(false);
+    list.setValue(1, "name", "next");
+    expect(assigned.get().map((r: any): any => r.name), "#8: the next write is made on the storage").toEqual(["r0", "next", "r2"]);
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#9").toEqual(["r0", "next", "r2"]);
+  });
+  test("a batch that throws: a standalone list over its own ArrayDynamicDataSource goes back to the storage", () => {
+    const own = createAssignedArray(3);
+    const list = new DynamicDataList(own.source);
+    list.load();
+    const changes = recordChanges(list);
+    expect((): void => {
+      list.batch((): void => { list.remove(0); throw new Error("inside the batch"); });
+    }, "#1").toThrow("inside the batch");
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#2").toEqual(["r0", "r1", "r2"]);
+    expect((<any>list).windowRecords === own.get(), "#3: the window is the owner's array").toBe(true);
+    expect(changes, "#4").toEqual(["recordRemoved:0", "reset"]);
+  });
+  test("a batch that throws after the array was replaced outside the list: the window goes back to what it was before the batch", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    assigned.set([{ id: 7, name: "outside0" }, { id: 8, name: "outside1" }, { id: 9, name: "outside2" }]);
+    list.setValue(2, "name", "kept");
+    expect((): void => {
+      list.batch((): void => { list.setValue(0, "name", "edited"); throw new Error("inside the batch"); });
+    }, "#1").toThrow("inside the batch");
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#2: the list's own earlier write stays, the outside change is not taken").toEqual(["r0", "r1", "kept"]);
+    expect(assigned.get().map((r: any): any => r.name), "#3").toEqual(["outside0", "outside1", "kept"]);
+  });
+  test("a setter that throws after it stored the array: the window takes what was stored", () => {
+    let arr: Array<any> = createRecords(3);
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+      arr = a;
+      throw new Error("after the assignment");
+    });
+    const { list } = createOwnerList();
+    list.assignSource(source);
+    expect((): void => {
+      list.batch((): void => { list.setValue(0, "name", "edited"); });
+    }, "#1").toThrow("after the assignment");
+    expect(arr[0].name, "#2: stored").toBe("edited");
+    expect(list.getRecord(0).name, "#3: the list has it").toBe("edited");
+  });
+  test("an inner batch that throws inside an outer one that goes on: nothing is restored, the outer batch stores every write", () => {
+    const { list } = createOwnerList();
+    const assigned = createAssignedArray(3);
+    list.assignSource(assigned.source);
+    const changes = recordChanges(list);
+    list.batch((): void => {
+      list.setValue(0, "name", "outer");
+      try {
+        list.batch((): void => { list.setValue(1, "name", "inner"); throw new Error("inner"); });
+      } catch(e) {
+        changes.push("caught");
+      }
+    });
+    expect(assigned.get().map((r: any): any => r.name), "#1: the source batch is one batch").toEqual(["outer", "inner", "r2"]);
+    expect(list.getLoadedRecords().map((r: any): any => r.name), "#2").toEqual(["outer", "inner", "r2"]);
+    expect(changes, "#3: no reset").toEqual(["recordChanged:0:name", "recordChanged:1:name", "caught"]);
+  });
+  test("a standalone list over its own ArrayDynamicDataSource still takes the array a write has written", () => {
+    const own = createAssignedArray(3);
+    const list = new DynamicDataList(own.source);
+    list.load();
+    list.setValue(2, "name", "edited");
+    expect(list.getLoadedRecords() !== own.get(), "#1: getLoadedRecords is a copy").toBe(true);
+    expect((<any>list).windowRecords === own.get(), "#2: the window is the owner's array").toBe(true);
+  });
 });
 
 describe("DynamicDataList: the source's shape and the loaded window", () => {

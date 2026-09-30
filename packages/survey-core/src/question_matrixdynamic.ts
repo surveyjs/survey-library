@@ -320,6 +320,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        path that made the change. */
     if (this.isRemoteData && change.type !== "reset") {
       this.storeLoadedRecords();
+      if (change.type === "recordMoved")this.updateRowsFromRecords();
       this.reRunConditionsOnRemoteWrite();
       return;
     }
@@ -360,12 +361,40 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // The edited set of layer 2 names records by index: it follows the list's own inserts and removes.
   private followRecordChange(change: IDynamicDataListChange): void {
     applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue, (remap: (index: number) => number): void => {
+      const rows = this.generatedVisibleRows || [];
+      /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take
+         the reordered records, so each row names the record its position holds now, not the record
+         it held before. */
+      if (change.type === "recordMoved") {
+        const indexes = this.getRecordIndexesForRows();
+        rows.forEach((row: MatrixDropdownRowModelBase, position: number): void => {
+          const dynamicRow = <MatrixDynamicRowModel>row;
+          if (dynamicRow.builtRecordIndex > -1 && position < indexes.length) dynamicRow.builtRecordIndex = indexes[position];
+        });
+        return;
+      }
       // A row whose record was removed keeps -1: it is being disposed.
-      (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
+      rows.forEach((row: MatrixDropdownRowModelBase): void => {
         const dynamicRow = <MatrixDynamicRowModel>row;
         if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
       });
     });
+  }
+  /* The values half of a move made through a data source. With the array source over question.value
+     the push assigns the value, and that assignment hands every row the record of its position
+     (onSetQuestionValue); a data source has no such assignment, so the rows are given theirs here. */
+  private updateRowsFromRecords(): void {
+    const rows = this.generatedVisibleRows;
+    if (!Array.isArray(rows)) return;
+    const indexes = this.getRecordIndexesForRows();
+    this.isRowChanging = true;
+    try {
+      for (let i = 0; i < rows.length && i < indexes.length; i++) {
+        rows[i].value = this.getNewRowValue(indexes[i]);
+      }
+    } finally {
+      this.isRowChanging = false;
+    }
   }
   /* A remote window is a view of its own: the rows are built for the records the list holds, not for
      0 ... rowCount-1, because rowCount is the server total. A matrix that pages builds its rows for

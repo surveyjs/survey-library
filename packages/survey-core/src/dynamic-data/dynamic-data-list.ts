@@ -132,7 +132,8 @@ export class DynamicDataList {
   // read. A window would be a second source of truth that goes stale on every assignment made
   // outside the list (survey.data = ..., a trigger, clearValue, a default value) and would hand out
   // record objects the owner no longer holds. It stays off by default: a paged or asynchronous
-  // source cannot be read on demand.
+  // source cannot be read on demand. The flag is about the owner's OWN storage: it stays set while a
+  // source is assigned and the list does not read through that source (useReadThrough).
   public isReadThrough: boolean = false;
   /* Owners that materialize an object per record - the two questions - set this flag: the view of a
      bare list re-evaluates itself on every write, which for them would dispose a row from inside its
@@ -141,8 +142,20 @@ export class DynamicDataList {
      those points an edited record keeps its place, an added record is always in the view, a removed
      record leaves it, and only a change made outside the list re-evaluates it. */
   public isViewFrozenOnEdit: boolean = false;
+  /* Two conditions that are kept apart. Ownership: only the owner's own storage is read through. A
+     source the owner assigned is read, not watched, whatever its class: the owner is not told when
+     the developer's array changes, so a list that followed it at once would serve records the
+     owner's value and objects have never seen. It gets a window, which changes only when the list
+     reads or writes. Capability: a read-through source answers read() synchronously with an array.
+     The class is checked for that and for nothing else, so a standalone list that sets isReadThrough
+     by hand reads through its array source, and never through any other. */
   private get useReadThrough(): boolean {
-    return this.isReadThrough && !this.hasReadRange && this._source instanceof ArrayDynamicDataSource;
+    return this.isReadThrough && !this.isAssignedSourceInUse && !this.hasReadRange && this._source instanceof ArrayDynamicDataSource;
+  }
+  // Not isRemote alone: assignSource sets the flag before it swaps, and until the swap the list
+  // still holds the default source - the owner's storage - and reads through it.
+  private get isAssignedSourceInUse(): boolean {
+    return this.isRemote && this._source === this.assignedSourceValue;
   }
   private get records(): Array<any> {
     if (!this.useReadThrough) return this.windowRecords;
@@ -203,13 +216,90 @@ export class DynamicDataList {
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
     const source: any = this._source;
-    this.runWrite((): void => {
-      if (!!source && typeof source.batch === "function") {
-        source.batch(func);
-      } else {
-        func();
+    let changes: Array<IDynamicDataListChange>;
+    try {
+      this.runWrite((): void => {
+        if (!source || typeof source.batch !== "function") {
+          func();
+          return;
+        }
+        const before = this.windowRecords;
+        this.batchDepth++;
+        try {
+          source.batch(func);
+        } catch(e) {
+          // The outermost one: a batch of the source nested in another neither stores nor drops.
+          if (this.batchDepth === 1)this.restoreWindowAfterFailedBatch(source, before);
+          throw e;
+        } finally {
+          this.batchDepth--;
+        }
+        changes = this.syncWindowAfterBatch(source);
+      });
+    } finally {
+      (changes || []).forEach((change: IDynamicDataListChange): void => this.raiseChanged(change));
+      this.raisePendingReset();
+    }
+  }
+  private batchDepth: number = 0;
+  /* An array source assigns its array once, when its batch ends, and the setter may store something
+     else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
+     the window with the array that was being built, so the window takes the stored one here. What
+     the setter changed is announced - every write inside the batch notified with its record as it
+     was written: a record that differs is a recordChanged here, another record count is the reset
+     takeStoredArray asks for. */
+  private syncWindowAfterBatch(source: IDynamicDataSource): Array<IDynamicDataListChange> {
+    // A source swapped inside the batch has been read by the swap.
+    if (this._source !== source) return undefined;
+    const written = this.windowRecords;
+    this.syncWindowAfterSyncPush();
+    const stored = this.windowRecords;
+    if (stored === written || stored.length !== written.length) return undefined;
+    const res: Array<IDynamicDataListChange> = [];
+    for (let i = 0; i < stored.length; i++) {
+      if (stored[i] !== written[i] && DynamicDataList.isValueChanged(stored[i], written[i])) {
+        res.push({ type: "recordChanged", index: i, field: undefined });
       }
-    });
+    }
+    return res;
+  }
+  /* The batch threw. The array source has dropped the writes it collected - or its setter threw
+     after it stored them - so the window, which has every write of the batch, goes back to the
+     storage: the array the source holds now, or the window the batch started with when that array
+     is not the list's to take (syncWindowAfterSyncPush). Which writes survived is not known, so
+     everything derived is decided again as after a read, and the owner, which was notified of every
+     write inside the batch, is told to start over. A read-through list has no window to put back. */
+  private restoreWindowAfterFailedBatch(source: IDynamicDataSource, before: Array<any>): void {
+    if (this._source !== source || this.hasReadRange || this.useReadThrough) return;
+    if (!(source instanceof ArrayDynamicDataSource)) return;
+    const stored = this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
+    this.records = Array.isArray(stored) ? stored : [];
+    this.resetWindowState();
+    this.isResetPending = true;
+  }
+  // What a window that was replaced as a whole leaves behind: the flags and the membership of the
+  // records it held. They are decided again over the new one, and the page index is clamped to it.
+  private resetWindowState(): void {
+    this.hiddenFlags = [];
+    this.resetMembership();
+    this.resetViews();
+    this.refreezeMembership();
+    this.clampPageIndex();
+  }
+  /* A reset the list owes its owner for a window it replaced inside a write (takeStoredArray,
+     restoreWindowAfterFailedBatch). It is raised once the outermost write has notified: the owner
+     follows that notification by record index, and a reset in front of it would have it renumber
+     the objects it has just rebuilt. */
+  private isResetPending: boolean = false;
+  private raisePendingReset(): void {
+    if (!this.isResetPending || this.writeDepth > 0) return;
+    this.isResetPending = false;
+    this.raiseChanged({ type: "reset" });
+  }
+  // The notification of a write, raised after its scope.
+  private notifyWrite(change: IDynamicDataListChange): void {
+    this.raiseChanged(change);
+    this.raisePendingReset();
   }
   // True while the list applies a write of its own: the owner uses it to tell an assignment it
   // caused itself from one made outside (survey.data, a trigger, clearValue).
@@ -224,6 +314,8 @@ export class DynamicDataList {
      unchanged: each method notifies after its own scope, so a write nested in ensureCount, truncate
      or batch still notifies with the outer scope open. */
   private runWrite<T>(func: () => T): T {
+    // Before the write edits the window: see isAssignedArrayInSync.
+    if (this.writeDepth === 0)this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
     this.writeDepth++;
     try {
       return func();
@@ -233,6 +325,25 @@ export class DynamicDataList {
   }
   private endWrite(): void {
     if (this.writeDepth > 0)this.writeDepth--;
+    if (this.writeDepth === 0)this.isAssignedArrayInSync = false;
+  }
+  /* True for the span of the outermost write to an assigned ArrayDynamicDataSource whose array was,
+     when the write started, the window record for record: nothing has replaced it outside the list
+     since the list last read or wrote it. Only then does the window take the array the write stores
+     (syncWindowAfterSyncPush). */
+  private isAssignedArrayInSync: boolean = false;
+  private getIsAssignedArrayInSync(): boolean {
+    if (!this.isAssignedSourceInUse || this.hasReadRange || !(this._source instanceof ArrayDynamicDataSource)) return false;
+    const stored = this._source.read();
+    const records = this.windowRecords;
+    // The common case: the window IS the array, taken by the last read or the last write.
+    if (stored === records) return true;
+    // A source that hands out a copy on every read (SurveyDataDynamicDataSource) is compared by content.
+    if (!Array.isArray(stored) || stored.length !== records.length) return false;
+    for (let i = 0; i < records.length; i++) {
+      if (stored[i] !== records[i] && DynamicDataList.isValueChanged(stored[i], records[i])) return false;
+    }
+    return true;
   }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
@@ -299,6 +410,7 @@ export class DynamicDataList {
         this.add(!!createRecord ? createRecord(i) : {});
       }
     });
+    this.raisePendingReset();
   }
   public truncate(n: number): void {
     this.checkWindowIsWholeStorage("truncate");
@@ -307,6 +419,7 @@ export class DynamicDataList {
         this.remove(i);
       }
     });
+    this.raisePendingReset();
   }
 
   public getRecord(index: number): any {
@@ -343,7 +456,7 @@ export class DynamicDataList {
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), [field]),
         { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
     });
-    this.raiseChanged({ type: "recordChanged", index: index, field: field });
+    this.notifyWrite({ type: "recordChanged", index: index, field: field });
     return true;
   }
   // force: push the record even when it did not change. An owner that composes its window on the
@@ -365,7 +478,7 @@ export class DynamicDataList {
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, record, ownedFields), changedFields),
         { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
     });
-    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
+    this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
   /* createdPosition (internal) is the position the new object takes among the created ones. It is
@@ -395,7 +508,7 @@ export class DynamicDataList {
       this.channel.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
         { insertedRecord: newRecord });
     });
-    this.raiseChanged({ type: "recordAdded", index: at });
+    this.notifyWrite({ type: "recordAdded", index: at });
     return at;
   }
   /* Adds a record so that its object takes exactly the given position among the created ones; the
@@ -425,7 +538,7 @@ export class DynamicDataList {
       this.channel.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
         { key: key, pendingInsert: pending });
     });
-    this.raiseChanged({ type: "recordRemoved", index: index });
+    this.notifyWrite({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
     if (!this.clampPageIndexAfterChange()) {
       this.refillWindowAfterRemove();
@@ -471,7 +584,7 @@ export class DynamicDataList {
       this.channel.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
         { key: key, pendingInsert: pending });
     });
-    this.raiseChanged({ type: "recordMoved", from: fromIndex, to: toIndex });
+    this.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
   // Returns whether the flag changed: the owner syncs its page state only then.
@@ -1108,11 +1221,9 @@ export class DynamicDataList {
       this._windowOffset = 0;
     }
     this.isLoaded = true;
-    this.hiddenFlags = [];
-    this.resetMembership();
-    this.resetViews();
-    this.refreezeMembership();
-    this.clampPageIndex();
+    this.resetWindowState();
+    // The reset of a read stands for the one a write still owed (raisePendingReset).
+    this.isResetPending = false;
     this.raiseChanged({ type: "reset" });
     return true;
   }
@@ -1129,14 +1240,47 @@ export class DynamicDataList {
   }
   private syncWindowAfterSyncPush(): void {
     if (this.hasReadRange || this.useReadThrough) return;
+    /* An assigned source is read, not watched (useReadThrough). The window takes the array a write
+       has stored - the setter may have normalized what it was handed, and the list has to answer
+       with what is stored - but only while that array was the window when the write started. An
+       array replaced outside the list would otherwise enter the window with the next write and
+       without a reset: the owner would hold it in its value and not in its objects. The window then
+       keeps the list's own writes (editWindow), and the rest arrives with the next read. */
+    if (this.isAssignedSourceInUse && !this.isAssignedArrayInSync) return;
     /* For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
        rebuilt from it so that the list never holds an array the owner does not. useReadThrough above
-       does not already answer this - it is true only when the list reads through as well, and a list
-       that does not still has to take the array the push has just written. Any other source is left
-       alone: read() may answer asynchronously, and an unwrapped promise here would empty the
-       window. */
+       does not already answer this - it is true only when the list reads through as well, and a
+       list that does not still has to take the array the push has just written. Inside a batch that
+       is the array being built; the stored one is taken when the batch ends (syncWindowAfterBatch).
+       Any other source is left alone: read() may answer asynchronously, and an unwrapped promise
+       here would empty the window. */
     if (!(this._source instanceof ArrayDynamicDataSource)) return;
     const res = this._source.read();
-    this.records = Array.isArray(res) ? res : [];
+    this.takeStoredArray(Array.isArray(res) ? res : []);
+  }
+  /* The array the source stored becomes the window. It is not always the array the list wrote - a
+     setter may normalize a record or drop one - and then it is a change of the records like any
+     other. Records that were replaced: the cached views are dropped and the page index is clamped,
+     exactly as for an edit (replaceRecord), so a frozen membership keeps every record in its place.
+     Another record count: which record is which is no longer known, so everything derived is decided
+     again as after a read, and the owner is owed a reset (raisePendingReset). */
+  private takeStoredArray(stored: Array<any>): void {
+    const written = this.windowRecords;
+    this.records = stored;
+    if (stored === written) return;
+    if (stored.length !== written.length) {
+      this.resetWindowState();
+      this.isResetPending = true;
+      return;
+    }
+    // Nothing is cached over the contents of the records without a local filter or sort.
+    if (!this.hasLocalViews) return;
+    for (let i = 0; i < stored.length; i++) {
+      if (stored[i] !== written[i]) {
+        this.resetViews();
+        this.clampPageIndexAfterChange();
+        return;
+      }
+    }
   }
 }

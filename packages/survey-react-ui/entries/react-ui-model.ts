@@ -82,6 +82,7 @@ export { ReactElementFactory } from "../src/element-factory";
 export { SurveyQuestionImagePicker } from "../src/imagepicker";
 export { SurveyQuestionImageMap } from "../src/reactquestion_imagemap";
 export { SurveyQuestionImage } from "../src/image";
+export { SurveyQuestionFilter, SurveyFilterConditionsEditor } from "../src/components/filter/filter";
 export { SurveyQuestionSignaturePad } from "../src/signaturepad";
 export { SurveyQuestionButtonGroup } from "../src/reactquestion_buttongroup";
 export { SurveyQuestionButtonGroupDropdown } from "../src/buttongroup-dropdown";

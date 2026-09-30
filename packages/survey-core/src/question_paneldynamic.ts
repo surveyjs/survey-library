@@ -828,18 +828,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return typeof (<any>q).getPageState === "function" ? (<any>q).getPageState() : undefined;
   }
   // internal: what this question keeps for its records when an ancestor rebuilds the object holding
-  // it - undefined when it does not page, since a question that does not page validates every panel.
+  // it (see the controller's getPageState).
   public getPageState(): IDynamicDataPageState {
-    if (!this.isPagedByList) return undefined;
-    return this.pageValidation.getState(this.pageIndex);
+    return this.dynamicData.getPageState();
   }
   public setPageState(state: IDynamicDataPageState): void {
-    if (!state) return;
-    this.pageValidation.setState(state);
-    // The page is kept as well (the prompt allows either): the respondent comes back to where they were.
-    if (state.pageIndex > 0) {
-      this.paging.pageIndex = state.pageIndex;
-    }
+    this.dynamicData.setPageState(state);
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -3179,10 +3173,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.updatePanelsContainsErrors();
     } else {
       res = this.validateInPanels(context);
-      /* A question that pages validates the page that exists - Complete included - and then what the
-         page cannot show: the edited records on other pages (layer 2) and a key pair both of whose
-         records are off the page. Either moves to the page that holds the error. */
-      if (res && this.isPagedByList && context.fireCallback && !context.isOnValueChanged) {
+      // Off the page: the edited records and a key pair both of whose records have no panel. Either
+      // moves to the page that holds the error.
+      if (res && this.dynamicData.isOffPageValidationDue(context)) {
         res = this.pageValidation.validateEditedRecords(context, this.getOffPageKeyDuplicatePages());
       }
     }
@@ -3197,7 +3190,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.keyName) return [];
     const list = this.dataList;
     return findDuplicatePages(list, (index: number): any => list.getValue(index, this.keyName),
-      (visibleIndex: number): number => list.getPageOfVisibleIndex(visibleIndex),
       { caseSensitive: true, includeHidden: false });
   }
   private hasInputInChangedQuestions(): boolean {

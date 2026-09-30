@@ -80,7 +80,6 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
    whitespace-only string is empty. The groups are a Map: the keys are respondent input, and
    "__proto__" in a plain object is the prototype, not a group. */
 export function findDuplicatePages(list: DynamicDataList, readKey: (index: number) => any,
-  pageOfVisibleIndex: (visibleIndex: number) => number,
   options: { caseSensitive: boolean, includeHidden: boolean }): Array<number> {
   const visiblePos: { [index: number]: number } = {};
   list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
@@ -105,7 +104,7 @@ export function findDuplicatePages(list: DynamicDataList, readKey: (index: numbe
   const pages: Array<number> = [];
   groups.forEach((group: { count: number, target: number }): void => {
     if (group.count < 2 || group.target < 0) return;
-    const page = pageOfVisibleIndex(group.target);
+    const page = list.getPageOfVisibleIndex(group.target);
     if (pages.indexOf(page) < 0) pages.push(page);
   });
   return pages;

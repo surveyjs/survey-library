@@ -488,26 +488,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.validateRowObjects(context);
   }
   /* internal: what this matrix keeps for its records when an ancestor (a dynamic panel that pages)
-     rebuilds the panel holding it - undefined when it does not page, since a matrix that does not
-     page validates every row anyway. The matrix itself keeps no state for questions nested in its
-     rows: a paged question in a detail panel starts over when its row is rebuilt. */
+     rebuilds the panel holding it (see the controller's getPageState). The matrix itself keeps no
+     state for questions nested in its rows: a paged question in a detail panel starts over when its
+     row is rebuilt. */
   public getPageState(): IDynamicDataPageState {
-    if (!this.isPagedByList) return undefined;
-    return this.pageValidation.getState(this.pageIndex);
+    return this.dynamicData.getPageState();
   }
   public setPageState(state: IDynamicDataPageState): void {
-    if (!state) return;
-    this.pageValidation.setState(state);
-    if (state.pageIndex > 0) {
-      this.paging.pageIndex = state.pageIndex;
-    }
+    this.dynamicData.setPageState(state);
   }
-  /* A matrix that pages validates the page that exists - Complete included - and then what the
-     page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
-     records are off the page. Either moves to the page that holds the error. */
+  // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
+  // moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
     let res = super.validateElementCore(context);
-    if (res && this.isPagedByList && context.fireCallback && !context.isOnValueChanged) {
+    if (res && this.dynamicData.isOffPageValidationDue(context)) {
       res = this.pageValidation.validateEditedRecords(context, this.getOffPageDuplicatePages());
     }
     return res;
@@ -520,13 +514,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getOffPageDuplicatePages(): Array<number> {
     const pages: Array<number> = [];
     const list = this.dataList;
-    const pageOfVisibleIndex = (visibleIndex: number): number => list.getPageOfVisibleIndex(visibleIndex);
     this.getUniqueColumnsNames().forEach((name: string): void => {
       const readKey = (index: number): any => {
         const record = this.getListRecordAt(index);
         return !!record ? record[name] : undefined;
       };
-      findDuplicatePages(list, readKey, pageOfVisibleIndex,
+      findDuplicatePages(list, readKey,
         { caseSensitive: this.useCaseSensitiveComparison, includeHidden: true }).forEach((page: number): void => {
         if (pages.indexOf(page) < 0) pages.push(page);
       });

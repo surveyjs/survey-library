@@ -7,7 +7,9 @@ import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
-import { DynamicDataPageValidation, IDynamicDataPageValidationOwner, getReplacedRecordsRemap } from "./dynamic-data-page-validation";
+import {
+  DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap
+} from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data-record-remap";
 
@@ -369,6 +371,30 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (!this.isPagingActive) return null;
     const recordIndex = this._list.getIndexAtGlobalVisibleIndex(visibleIndex);
     return recordIndex < 0 ? null : this.owner.createRecordItem(recordIndex);
+  }
+
+  /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)
+     rebuilds the object holding it: undefined when the list does not page in memory, since a
+     question that does not page validates every object anyway. */
+  public getPageState(): IDynamicDataPageState {
+    if (!this.isPagedByList) return undefined;
+    return this.pageValidation.getState(this.paging.pageIndex);
+  }
+  // The page is kept as well: the respondent comes back to where they were.
+  public setPageState(state: IDynamicDataPageState): void {
+    if (!state) return;
+    this.pageValidation.setState(state);
+    if (state.pageIndex > 0) {
+      this.paging.pageIndex = state.pageIndex;
+    }
+  }
+  /* A question that pages validates the page that exists - Complete included - and then what the
+     page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
+     records are off the page. Only a full validation that fires its callbacks visits them; a
+     validation on a value change and a quiet one stay on the page. The question looks for its
+     duplicates only when this holds: the scan is O(records). */
+  public isOffPageValidationDue(context: ValidationContext): boolean {
+    return this.isPagedByList && context.fireCallback && !context.isOnValueChanged;
   }
 
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.

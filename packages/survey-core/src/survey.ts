@@ -8746,7 +8746,13 @@ export class SurveyModel extends SurveyElementCore
     if (!theme && !baseTheme) return;
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
-    return this._applyTheme(themeToApply);
+    this.applyThemeCore(themeToApply, true);
+  }
+  public applyThemeCore(theme: ITheme, triggerResponsiveness: boolean): void {
+    this._applyTheme(theme);
+    if (triggerResponsiveness) {
+      this.triggerResponsiveness(true);
+    }
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
@@ -8774,7 +8780,6 @@ export class SurveyModel extends SurveyElementCore
     // so the renderers deliver the fresh resets in the same render as the theme.
     this.resetVariables = undefined;
     this.themeChanged(theme);
-    this.triggerResponsiveness(true);
   }
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));

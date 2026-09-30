@@ -1351,25 +1351,6 @@ describe("DynamicDataList: created indexes", () => {
     expect(list.getCreatedIndexes(), "#1").toEqual([1, 2, 0]);
     expect(list.getVisibleIndexes(), "#2").toEqual([2, 0]);
   });
-  test("addAtCreatedIndex puts the object where it is asked for and the record with it", () => {
-    const list = createList([{ a: 1 }, { a: 2 }, { a: 1 }]);
-    list.isViewFrozenOnEdit = true;
-    list.filter = "{a} = 1";
-    expect(list.getCreatedIndexes(), "#1").toEqual([0, 2]);
-    const index = list.addAtCreatedIndex({ a: 9 }, 1);
-    expect(index, "#2: the record took the place of the object it pushed aside").toBe(2);
-    expect(list.getCreatedIndexes(), "#3: the new object is at created position 1").toEqual([0, 2, 3]);
-    expect(list.getRecord(2), "#4").toEqual({ a: 9 });
-    expect(list.count, "#5").toBe(4);
-  });
-  test("addAtCreatedIndex at the end appends the record", () => {
-    const list = createList([{ a: 1 }, { a: 2 }]);
-    list.isViewFrozenOnEdit = true;
-    list.filter = "{a} = 1";
-    const index = list.addAtCreatedIndex({ a: 7 }, 5);
-    expect(index, "#1").toBe(2);
-    expect(list.getCreatedIndexes(), "#2").toEqual([0, 2]);
-  });
 });
 
 describe("DynamicDataList: frozen membership", () => {

@@ -481,12 +481,9 @@ export class DynamicDataList {
     this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
-  /* createdPosition (internal) is the position the new object takes among the created ones. It is
-     omitted for an ordinary add: the record pushed aside keeps its place and the new one takes the
-     position in front of it, which for an append is the end.
-     The source assigns the key: with a keyField, a key the record carries - copied from the last
+  /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */
-  public add(record?: any, index?: number, createdPosition?: number): number {
+  public add(record?: any, index?: number): number {
     const newRecord = this.removeKeyField(record === undefined ? {} : record);
     // The count the write produces. It is taken before the write: with a read-through source the
     // records only change when the push assigns the owner storage, and the membership has to carry
@@ -500,7 +497,7 @@ export class DynamicDataList {
       this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
       this.hiddenFlags.splice(at, 0, false);
       this.storageCount.onRecordInserted(this._windowOffset, countAfter);
-      this.insertIntoMembership(at, createdPosition, countAfter);
+      this.insertIntoMembership(at, countAfter);
       this.resetViews();
       const sourceIndex = this._windowOffset + at;
       /* An added record has no key yet: the position says where it goes and the source assigns the
@@ -510,16 +507,6 @@ export class DynamicDataList {
     });
     this.notifyWrite({ type: "recordAdded", index: at });
     return at;
-  }
-  /* Adds a record so that its object takes exactly the given position among the created ones; the
-     record itself goes where the object that occupied that position holds its own (at the end when
-     the new object is the last one), so that the two arrays cannot disagree. Returns the record
-     index. */
-  public addAtCreatedIndex(record: any, createdIndex: number): number {
-    const created = this.getCreatedIndexes();
-    const position = Math.max(0, Math.min(createdIndex, created.length));
-    const at = position < created.length ? created[position] : this.recordCount;
-    return this.add(record, at, position);
   }
   public remove(index: number): void {
     if (index < 0 || index >= this.recordCount) return;
@@ -1061,17 +1048,13 @@ export class DynamicDataList {
       this.ensureViews();
     }
   }
-  private insertIntoMembership(at: number, createdPosition: number, newRecordCount: number): void {
+  private insertIntoMembership(at: number, newRecordCount: number): void {
     if (!this.frozenCreatedIndexes) return;
     const created = this.frozenCreatedIndexes.map(insertRemap(at));
-    let position = createdPosition;
-    if (position === undefined) {
-      // The record that was pushed aside keeps its place; the new object takes the position in
-      // front of it, which for an append is the end.
-      position = created.indexOf(at + 1);
-      if (position < 0) position = created.length;
-    }
-    created.splice(Math.max(0, Math.min(position, created.length)), 0, at);
+    // The record that was pushed aside keeps its place; the new object takes the position in front
+    // of it, which for an append is the end.
+    const position = created.indexOf(at + 1);
+    created.splice(position < 0 ? created.length : position, 0, at);
     this.frozenCreatedIndexes = created;
     this.frozenRecordCount = newRecordCount;
   }

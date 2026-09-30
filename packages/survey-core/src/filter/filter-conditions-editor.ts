@@ -195,12 +195,22 @@ export class FilterConditionsEditor {
     const json = this.owner.getValueEditorJson(name, operator) || {};
     const isSameType = !!old && old.getType() === json.type;
     const value = isSameType ? old.value : undefined;
-    if (!!old) {
-      old.parent.removeElement(old);
-      old.dispose();
+    // One editor swapped for another in the same place, not a row that leaves and one that comes:
+    // animated, the old row's leave animation outlives the disposed question and the panel's rows
+    // stay stuck with an empty row and the new one never entering.
+    const panel = this.getPanel(index);
+    let question: Question;
+    panel.blockAnimations();
+    try {
+      if (!!old) {
+        old.parent.removeElement(old);
+        old.dispose();
+      }
+      this.surveyValue.clearValue(this.getValueName(index));
+      question = this.createValueQuestion(index, operator, json);
+    } finally {
+      panel.releaseAnimations();
     }
-    this.surveyValue.clearValue(this.getValueName(index));
-    const question = this.createValueQuestion(index, operator, json);
     if (!Helpers.isValueEmpty(value)) {
       question.value = value;
     }

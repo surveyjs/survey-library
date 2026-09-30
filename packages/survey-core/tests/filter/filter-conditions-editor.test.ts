@@ -6,6 +6,7 @@ import { FilterConditionsEditor } from "../../src/filter/filter-conditions-edito
 import { getFilterFieldDefaultOperator } from "../../src/filter/filter-conditions";
 import { Question } from "../../src/question";
 import { PanelModel } from "../../src/panel";
+import { settings } from "../../src/settings";
 
 function createControl(over: any = {}): QuestionFilterModel {
   return <QuestionFilterModel>createSurvey(over).getQuestionByName("f1");
@@ -234,5 +235,24 @@ describe("FilterConditionsEditor: dispose", () => {
     expect(q.ownConditions, "#3: a disposed editor writes nothing").toBe(undefined);
     expect(q.filterExpression, "#4").toBe("");
     editor.dispose();
+  });
+});
+describe("FilterConditionsEditor: rendering the rebuilt value question", () => {
+  test("an operator change swaps the value row at once, even with animations on", () => {
+    settings.animationEnabled = true;
+    try {
+      const q = createControl();
+      const editor = q.createFastModeEditor("age");
+      const panel = <PanelModel>editor.survey.getPanelByName("f0");
+      panel.enableOnElementRerenderedEvent();
+      expect(panel.animationAllowed, "#1: animations do run in the editor").toBe(true);
+      operatorQ(editor).value = "less";
+      const elements = panel.visibleRows.map(row => row.elements.map(el => el.name).join(","));
+      expect(elements, "#2: the old value row is gone, the new one is in").toEqual(["f0_operator", "f0_value"]);
+      expect(panel.visibleRows[1].elements[0], "#3: and it is the live question").toBe(valueQ(editor));
+      editor.dispose();
+    } finally {
+      settings.animationEnabled = false;
+    }
   });
 });

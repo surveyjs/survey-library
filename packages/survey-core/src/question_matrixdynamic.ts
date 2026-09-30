@@ -53,10 +53,6 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     super(data, value);
     this.buildCells(value);
   }
-  /* The record the row was built for, kept in step with the list's inserts and removes: when the
-     page changes the list already names the records of the new page, and whether the rows are the
-     page is decided by comparing the two. */
-  public builtRecordIndex: number = -1;
   protected getItemIndex(): number {
     const res = super.getItemIndex();
     return res > 0 ? res : this.index + 1;
@@ -284,23 +280,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isReRunningRemoteConditions = false;
     }
   }
-  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void {
-    const rows = this.generatedVisibleRows || [];
-    /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take
-       the reordered records, so each row names the record its position holds now, not the record
-       it held before. */
-    if (change.type === "recordMoved") {
-      const indexes = this.getRecordIndexesForRows();
-      rows.forEach((row: MatrixDropdownRowModelBase, position: number): void => {
-        const dynamicRow = <MatrixDynamicRowModel>row;
-        if (dynamicRow.builtRecordIndex > -1 && position < indexes.length) dynamicRow.builtRecordIndex = indexes[position];
-      });
-      return;
-    }
-    // A row whose record was removed keeps -1: it is being disposed.
-    rows.forEach((row: MatrixDropdownRowModelBase): void => {
-      const dynamicRow = <MatrixDynamicRowModel>row;
-      if (dynamicRow.builtRecordIndex > -1) dynamicRow.builtRecordIndex = remap(dynamicRow.builtRecordIndex);
+  areObjectsBuilt(): boolean {
+    return Array.isArray(this.generatedVisibleRows);
+  }
+  /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take the
+     reordered records, so each row names the record its position holds now, not the record it held
+     before. */
+  followRecordMove(): void {
+    const indexes = this.getRecordIndexesForRows();
+    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
+      if (row.builtRecordIndex > -1 && position < indexes.length) row.builtRecordIndex = indexes[position];
     });
   }
   /* The values half of a move made through a data source. With the array source over question.value
@@ -353,20 +342,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      it names other records than its rows hold. */
   private onRecordsReplaced(oldRecords: Array<any>): void {
     this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
-    if (this.isPageStale()) {
+    if (this.dynamicData.isPageStale()) {
       this.rebuildRowsFromDataList();
     }
-  }
-  // The rows hold other records than the page names.
-  private isPageStale(): boolean {
-    const rows = this.generatedVisibleRows;
-    if (!Array.isArray(rows) || !this.dataListValue) return false;
-    const records = this.dataList.getMaterializedIndexes();
-    if (records.length !== rows.length) return true;
-    for (let i = 0; i < rows.length; i++) {
-      if ((<MatrixDynamicRowModel>rows[i]).builtRecordIndex !== records[i]) return true;
-    }
-    return false;
   }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
@@ -1027,7 +1005,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Under paging the rows are the page: a record added in front of the page, or one the page
     // gives up for it, is a different page, not an appended row.
     const isPageChanged = this.isPagingActive && rows.some((row: MatrixDropdownRowModelBase, i: number): boolean =>
-      (<MatrixDynamicRowModel>row).builtRecordIndex !== created[i]);
+      row.builtRecordIndex !== created[i]);
     if (created.length < rows.length || isPageChanged) {
       this.rebuildRowsFromDataList();
       return;
@@ -1487,7 +1465,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         const row = rows[rows.length - 1];
         // A live-object value is never written back from the row here, as before. Under paging the
         // last row of the page is the new record's only when the page has room for it.
-        const isNewRow = !this.isPagingActive || (<MatrixDynamicRowModel>row).builtRecordIndex === this.getLastRowRecordIndex();
+        const isNewRow = !this.isPagingActive || row.builtRecordIndex === this.getLastRowRecordIndex();
         if (isNewRow && !this.isValueEmpty(row.value) && !this.isEditingObjectValue) {
           this.setLastRowRecord(row.value);
         }
@@ -2212,7 +2190,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected runCellsCondition(properties: HashTable<any>): boolean {
     // The records decide the page; when it is not the page the rows hold, the rebuild runs the
     // conditions of the new rows itself.
-    if (this.updateRecordsVisibilityByExpression(properties) && this.isPageStale()) {
+    if (this.updateRecordsVisibilityByExpression(properties) && this.dynamicData.isPageStale()) {
       this.rebuildRowsFromDataList();
       return true;
     }

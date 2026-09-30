@@ -8,6 +8,8 @@ import { TextContextProcessor } from "./textPreProcessor";
 
 export interface IDynamicItemModelData {
     getSurvey(): ISurvey;
+    // index is a created position - the position among the objects the owner created. Nothing is
+    // answered past the last object.
     getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
     // The position of the item among the objects the owner created.
@@ -214,6 +216,13 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
 
   protected isSettingValue: boolean = false;
   private textPreProcessor: TextContextProcessor;
+  /* The record the object - a row or a panel - was built for, kept in step with the list's inserts
+     and removes. When the page changes the list already names the records of the new page: whether
+     the objects are the page is decided by comparing the two, and an object that is about to be
+     disposed can no longer be asked for its record through the mapping - a panel's record is where
+     the state of the paged questions nested in it is kept. -1: built for no record (a total row, a
+     record read as a value, an object whose record is gone). */
+  public builtRecordIndex: number = -1;
   constructor(public data: IDynamicItemModelData) {
     this.textPreProcessor = new TextContextProcessor(this);
   }

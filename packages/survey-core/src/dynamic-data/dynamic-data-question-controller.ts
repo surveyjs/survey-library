@@ -1,5 +1,5 @@
 import { ISurveyData } from "../base-interfaces";
-import { DynamicRecordItem } from "../dynamicItemModelBase";
+import { DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "../dynamicItemModelBase";
 import { Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
@@ -30,8 +30,12 @@ export interface IDynamicDataQuestionHooks {
   rebuildFromDataList(isPageMove: boolean): void;
   // A page of a source that pages itself was asked for: its objects arrive when the read commits.
   refreshRenderedPage(): void;
-  // The list inserted, removed or moved a record: the record indexes the objects were built for follow.
-  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void;
+  // The objects exist: generated rows, panels built for the first time. Objects that do not exist
+  // are never stale.
+  areObjectsBuilt(): boolean;
+  // A move does not carry the objects: they keep their positions and take the records of their
+  // positions. Absent -> the objects follow their records.
+  followRecordMove?(): void;
   // The loaded window becomes the question value; nothing is rebuilt.
   storeLoadedRecords(): void;
   // After a write to a data source was stored: what a write to the survey would have re-run.
@@ -44,7 +48,9 @@ export interface IDynamicDataQuestionHooks {
   // context class are the question's.
   createRecordItem(recordIndex: number): DynamicRecordItem;
 }
-export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks;
+// The objects are read through the owner's IDynamicItemModelData.getItem, by created position.
+export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
+  & Pick<IDynamicItemModelData, "getItem">;
 
 /* The coordination between a dynamic question and its list. Both dynamic questions need the same
    one and neither of them descends from the other, so it lives here and each question holds it by
@@ -148,7 +154,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     // a record only until something is inserted, removed or moved in front of it. Only a list that
     // pages in memory creates the edited set here.
     applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue,
-      (remap: (index: number) => number): void => { owner.remapBuiltRecordIndexes(change, remap); });
+      (remap: (index: number) => number): void => {
+        if (change.type === "recordMoved" && typeof owner.followRecordMove === "function") {
+          owner.followRecordMove();
+        } else {
+          this.remapBuiltItems(remap);
+        }
+      });
     /* A write the list pushed to a data source: with the array source over question.value the push
        IS the value write, a remote source has no such setter, so the question follows the window
        itself. The objects are not rebuilt - the one that was edited, added or removed is handled by
@@ -187,6 +199,34 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public get hasView(): boolean {
     const list = this._list;
     return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
+  }
+  /* The objects hold other records than the page names: a record became hidden or visible ahead of
+     them, the page moved under them, or the records were replaced. The objects are read one by one:
+     nothing is allocated for the answer. */
+  public isPageStale(): boolean {
+    const list = this._list;
+    const owner = this.owner;
+    if (!list || !owner.areObjectsBuilt()) return false;
+    const records = list.getMaterializedIndexes();
+    for (let i = 0; i < records.length; i++) {
+      const item = owner.getItem(i);
+      if (!(item instanceof DynamicItemModelBase) || item.builtRecordIndex !== records[i]) return true;
+    }
+    return !!owner.getItem(records.length);
+  }
+  /* The record indexes the objects were built for follow an insert, a remove or the records a read
+     brought back. Every object is renumbered, also before the first build. An object whose record is
+     gone - removed, or not found again by a reload - keeps -1: it is being disposed. */
+  public remapBuiltItems(remap: (index: number) => number): void {
+    const owner = this.owner;
+    for (let i = 0; ; i++) {
+      const item = owner.getItem(i);
+      if (!item) return;
+      if (item instanceof DynamicItemModelBase && item.builtRecordIndex > -1) {
+        const to = remap(item.builtRecordIndex);
+        item.builtRecordIndex = to === undefined ? -1 : to;
+      }
+    }
   }
 
   /* The list side of a value assignment. Every assignment of the question's value - by the survey,

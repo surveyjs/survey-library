@@ -41,7 +41,7 @@ import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGet
 import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
@@ -150,11 +150,6 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   public getIndex(): number {
     return this.data.getItemRecordIndex(this);
   }
-  /* The record the panel was built for, kept in step with the list's inserts and removes. When the
-     page changes the list already names the records of the new page, so the panel that is about to
-     be disposed can no longer be asked for its record through the mapping - and its record is where
-     the state of the paged questions nested in it is kept. */
-  public builtRecordIndex: number = -1;
   // The panel's position among the visible records of the whole list ({visiblePanelIndex} - 1).
   public get visibleIndex(): number {
     const data: any = this.data;
@@ -530,14 +525,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   afterRemoteWrite(): void {
     this.reRunConditionsOnRemoteWrite();
   }
-  remapBuiltRecordIndexes(change: IDynamicDataListChange, remap: (index: number) => number): void {
-    // A panel whose record was removed keeps -1: it is being disposed.
-    this.panelsCore.forEach((panel: PanelModel): void => {
-      const item = <QuestionPanelDynamicItem>panel.data;
-      if (item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) {
-        item.builtRecordIndex = remap(item.builtRecordIndex);
-      }
-    });
+  areObjectsBuilt(): boolean {
+    return this.hasPanelBuildFirstTime && !this.useTemplatePanel;
   }
   /* A remote window is a view of its own: the panels are built for the records the list holds, not
      for 0 ... panelCount-1, because panelCount is the server total. A question that pages builds its
@@ -3089,7 +3078,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     try {
       // The records decide the page; when the page they decide is not the one built, the rebuild runs
       // the panels' conditions itself.
-      if (this.updateRecordsVisibility(properties) && this.isPageStale()) {
+      if (this.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
         this.rebuildPanelsFromDataList();
       } else {
         this.runPanelsCondition(this.panelsCore, properties);
@@ -3125,19 +3114,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.syncPagingState();
     }
     return isChanged;
-  }
-  // The panels hold other records than the page names: a record became hidden or visible ahead of
-  // them, or the page moved under them.
-  private isPageStale(): boolean {
-    if (!this.hasPanelBuildFirstTime || this.useTemplatePanel || !this.dataListValue) return false;
-    const records = this.dataList.getMaterializedIndexes();
-    const panels = this.panelsCore;
-    if (records.length !== panels.length) return true;
-    for (let i = 0; i < panels.length; i++) {
-      const item = <QuestionPanelDynamicItem>panels[i].data;
-      if (!(item instanceof QuestionPanelDynamicItem) || item.builtRecordIndex !== records[i]) return true;
-    }
-    return false;
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
@@ -3620,7 +3596,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.hasDataListView && this.hasPanelBuildFirstTime) {
       if (this.dataList.count < this.minPanelCount) {
         this.panelCount = this.minPanelCount;
-      } else if (this.isPageStale()) {
+      } else if (this.dynamicData.isPageStale()) {
         this.rebuildPanelsFromDataList();
       }
       return;
@@ -3635,7 +3611,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      validators is dropped. The panels of the page are rebuilt when the page names other records now. */
   private onRecordsReplaced(oldRecords: any): void {
     this.dynamicData.onRecordsReplaced(oldRecords, this.getPropertyValueWithoutDefault("value"));
-    if (this.isPageStale()) {
+    if (this.dynamicData.isPageStale()) {
       this.rebuildPanelsFromDataList();
     }
   }

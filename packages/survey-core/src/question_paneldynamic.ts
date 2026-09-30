@@ -375,9 +375,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return index < this.dataList.loadedCount ? this.createRecordItem(index) : null;
   }
   private dynamicData = new DynamicDataQuestionController(this);
-  // A peek: it never creates the list. A base constructor runs before the field above is set.
+  // A peek: it never creates the list.
   private get dataListValue(): DynamicDataList {
-    return !!this.dynamicData ? this.dynamicData.listValue : undefined;
+    return this.dynamicData.listValue;
   }
   // Every record-level read and write of this question goes through this list. Its source is a
   // getter/setter pair over question.value - never a captured array - so that the batched creation
@@ -545,7 +545,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      follow them - which is how "the panels are created before the value that holds their records"
      stops being true under paging. */
   private get hasDataListView(): boolean {
-    return !!this.dataListValue && this.dynamicData.hasView;
+    return this.dynamicData.hasView;
   }
   /* Takes a created position - the position in panelsCore - and returns the record it holds: the
      materialized set, which under paging is the current page. A position past the last created one
@@ -583,11 +583,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.visiblePanels;
   }
   private get isPagingActive(): boolean {
-    return !!this.dataListValue && this.dynamicData.isPagingActive;
+    return this.dynamicData.isPagingActive;
   }
   // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
   private get isPagedByList(): boolean {
-    return !!this.dataListValue && this.dynamicData.isPagedByList;
+    return this.dynamicData.isPagedByList;
   }
   /* The page size the list gets. A carousel shows one panel and pages one record at a time, always
      (Andrew's decision 2026-09-25): panelsPerPage keeps its value and its JSON and is ignored.
@@ -658,7 +658,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
   private get pageValidationValue(): DynamicDataPageValidation {
-    return !!this.dynamicData ? this.dynamicData.pageValidationValue : undefined;
+    return this.dynamicData.pageValidationValue;
   }
   private get pageValidation(): DynamicDataPageValidation {
     return this.dynamicData.pageValidation;

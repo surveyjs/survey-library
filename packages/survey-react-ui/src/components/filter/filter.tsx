@@ -32,7 +32,16 @@ const badgeGroupStyle: React.CSSProperties = { display: "inline-flex", alignItem
 const searchStyle: React.CSSProperties = { maxWidth: "360px", padding: "4px 8px", border: "1px solid #ccc", borderRadius: "3px" };
 const noteStyle: React.CSSProperties = { color: "#888" };
 // No overflow clipping: the editor's own dropdowns open their lists inline, inside this box.
-const editorStyle: React.CSSProperties = { minWidth: "320px" };
+const editorStyle: React.CSSProperties = { minWidth: "320px", padding: "12px 16px" };
+// The editor survey's page and panels are drawn with the theme's survey chrome: a page gutter and a
+// framed card per field. Inside a popup that is only empty space, so it is taken off here, scoped to
+// the editor - a prototype stand-in for the rules the theme will get once there is a design.
+const editorClassName = "sv-filter-conditions-editor";
+const editorCss = [
+  "." + editorClassName + " .sd-page__content { padding: 0; }",
+  "." + editorClassName + " .sd-panel.sd-element--with-frame { box-shadow: none; background: transparent; border-radius: 0; }",
+  "." + editorClassName + " .sd-panel__content { padding: 0; }"
+].join(" ");
 // The eslint i18n rule rejects non-ASCII source characters, so the glyphs are built from their codes.
 const clearGlyph = String.fromCharCode(0x00D7);
 const openGlyph = String.fromCharCode(0x25BE);
@@ -77,7 +86,8 @@ export class SurveyFilterConditionsEditor extends SurveyElementBase<{ slot: Filt
     const editor = this.editor;
     if (!editor || editor.isDisposed) return null;
     const survey = editor.survey;
-    return <div style={editorStyle} ref={this.rootRef}>
+    return <div className={editorClassName} style={editorStyle} ref={this.rootRef}>
+      <style>{editorCss}</style>
       {editor.isRawExpression ? <div style={noteStyle}>This preset has no editable conditions: applying starts a new filter.</div> : null}
       <SurveyPage survey={survey} page={survey.currentPage} css={survey.css} creator={this.props.creator} />
     </div>;

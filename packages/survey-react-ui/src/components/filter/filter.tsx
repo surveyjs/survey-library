@@ -29,7 +29,8 @@ const clearButtonStyle: React.CSSProperties = { border: "none", background: "tra
 const badgeGroupStyle: React.CSSProperties = { display: "inline-flex", alignItems: "center" };
 const searchStyle: React.CSSProperties = { maxWidth: "360px", padding: "4px 8px", border: "1px solid #ccc", borderRadius: "3px" };
 const noteStyle: React.CSSProperties = { color: "#888" };
-const editorStyle: React.CSSProperties = { minWidth: "320px", maxHeight: "480px", overflow: "auto" };
+// No overflow clipping: the editor's own dropdowns open their lists inline, inside this box.
+const editorStyle: React.CSSProperties = { minWidth: "320px" };
 // The eslint i18n rule rejects non-ASCII source characters, so the glyphs are built from their codes.
 const clearGlyph = String.fromCharCode(0x00D7);
 const openGlyph = String.fromCharCode(0x25BE);

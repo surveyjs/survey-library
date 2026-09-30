@@ -10,4 +10,5 @@ examples/
 examples_test/
 .gitignore
 index.js
+filter.js
 packages/survey-core/tests/bundle/*

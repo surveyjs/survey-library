@@ -228,28 +228,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.resetRenderedTable();
   }
   // A move through a data source hands the rows their records before the conditions run.
-  afterRemoteWrite(change: IDynamicDataListChange): void {
+  prepareRemoteWrite(change: IDynamicDataListChange): void {
     if (change.type === "recordMoved")this.updateRowsFromRecords();
-    this.reRunConditionsOnRemoteWrite();
   }
-  private isReRunningRemoteConditions: boolean;
-  /* With the array source over question.value a record write reaches the survey, and the survey then
-     re-runs the conditions of every question - which is what recalculates an expression cell, a
-     {row.x} reference and the totals. A remote write never reaches the survey
-     (canSetValueToSurvey), so the question runs its own. Re-entrancy is guarded and not forbidden
-     for a reason: an expression cell writes its result back as a record field, and the nested run
-     would only recompute what the outer one has just settled. */
-  private reRunConditionsOnRemoteWrite(): void {
-    if (this.isReRunningRemoteConditions || !this.data || !this.generatedVisibleRows) return;
-    this.isReRunningRemoteConditions = true;
-    try {
-      const properties = this.getDataFilteredProperties();
-      this.runCellsCondition(properties);
-      if (this.hasTotal) {
-        this.runTotalsCondition(properties);
-      }
-    } finally {
-      this.isReRunningRemoteConditions = false;
+  // The cells' conditions and the totals, which a write to the survey would have re-run.
+  runRemoteWriteConditions(): void {
+    if (!this.generatedVisibleRows) return;
+    const properties = this.getDataFilteredProperties();
+    this.runCellsCondition(properties);
+    if (this.hasTotal) {
+      this.runTotalsCondition(properties);
     }
   }
   areObjectsBuilt(): boolean {

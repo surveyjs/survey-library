@@ -465,22 +465,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   getStoredRecords(): any {
     return this.getPropertyValueWithoutDefault("value");
   }
-  private isReRunningRemoteConditions: boolean;
-  /* With the array source over question.value a record write reaches the survey, and the survey then
-     re-runs the conditions of every question - which is what recalculates an expression question and
-     a {panel.x} reference. A remote write never reaches the survey (canSetValueToSurvey), so the
-     question runs its own. Re-entrancy is guarded and not forbidden for a reason: an expression
-     question writes its result back as a record field, and the nested run would only recompute what
-     the outer one has just settled. */
-  private reRunConditionsOnRemoteWrite(): void {
-    if (this.isReRunningRemoteConditions || !this.data) return;
-    this.isReRunningRemoteConditions = true;
-    try {
-      this.reRunCondition();
-    } finally {
-      this.isReRunningRemoteConditions = false;
-    }
-  }
   getFields(): Array<IDynamicDataField> {
     return getDynamicDataFieldsForQuestions(this.template.questions);
   }
@@ -492,8 +476,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   refreshRenderedPage(): void {
     this.updateRenderedPanels();
   }
-  afterRemoteWrite(): void {
-    this.reRunConditionsOnRemoteWrite();
+  runRemoteWriteConditions(): void {
+    this.reRunCondition();
   }
   areObjectsBuilt(): boolean {
     return this.hasPanelBuildFirstTime && !this.useTemplatePanel;

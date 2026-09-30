@@ -40,8 +40,11 @@ export interface IDynamicDataQuestionHooks {
   getStoredRecords(): any;
   // The loaded window becomes the question value; nothing is rebuilt.
   storeLoadedRecords(): void;
-  // After a write to a data source was stored: what a write to the survey would have re-run.
-  afterRemoteWrite(change: IDynamicDataListChange): void;
+  // After a write to a data source was stored, before the conditions run; not guarded against
+  // re-entrancy. Absent -> nothing to prepare.
+  prepareRemoteWrite?(change: IDynamicDataListChange): void;
+  // What a write to the survey would have re-run after that write; guarded by the controller.
+  runRemoteWriteConditions(): void;
   // Record indexes the question keeps besides its objects and the edited set: a read that commits
   // again renumbers them with its remap. Absent -> the question keeps none.
   hasKeptRecordIndexes?(): boolean;
@@ -178,7 +181,10 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
        the path that made the change. */
     if (list.isRemote && change.type !== "reset") {
       owner.storeLoadedRecords();
-      owner.afterRemoteWrite(change);
+      if (typeof owner.prepareRemoteWrite === "function") {
+        owner.prepareRemoteWrite(change);
+      }
+      this.runConditionsAfterRemoteWrite();
       return;
     }
     if (change.type !== "reset") return;
@@ -235,6 +241,22 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     }
     if (typeof owner.remapKeptRecordIndexes === "function") {
       owner.remapKeptRecordIndexes(remap);
+    }
+  }
+  /* With the array source over question.value a record write reaches the survey, and the survey then
+     re-runs the conditions of every question - which is what recalculates an expression, a {row.x} or
+     {panel.x} reference and the totals. A remote write never reaches the survey (canSetValueToSurvey
+     on the questions), so the question runs its own. Re-entrancy is guarded and not forbidden for a
+     reason: an expression writes its result back as a record field, and the nested run would only
+     recompute what the outer one has just settled. */
+  private isRunningRemoteWriteConditions: boolean = false;
+  private runConditionsAfterRemoteWrite(): void {
+    if (this.isRunningRemoteWriteConditions || !this.owner.data) return;
+    this.isRunningRemoteWriteConditions = true;
+    try {
+      this.owner.runRemoteWriteConditions();
+    } finally {
+      this.isRunningRemoteWriteConditions = false;
     }
   }
   public get isPagingActive(): boolean {

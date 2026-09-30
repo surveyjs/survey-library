@@ -241,14 +241,19 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Restored conditions still waiting for a bound source are edits too and go with them
   // (setOwnConditions drops them); restored saved presets are not edits and stay.
   public clearActiveItem(): void {
+    if (!this.canClearActiveItem) return;
     if (!!this.activeItemName) {
       this.activeItemName = "";
       return;
     }
-    if (this.ownConditions === undefined && this.pendingConditions === undefined) return;
     this.setOwnConditions(undefined);
     this.updateFilterExpression();
     this.raiseUIStateChanged();
+  }
+  // Whether clearActiveItem() has anything to clear. It is that method's own guard, so a "Clear"
+  // button shown by it is shown exactly when clicking it does something.
+  public get canClearActiveItem(): boolean {
+    return !!this.activeItemName || this.ownConditions !== undefined || this.pendingConditions !== undefined;
   }
   // The list a renderer shows. Single mode has no list.
   public get visibleItems(): Array<FilterItem> { return this.allowMultipleItems ? this.items : []; }
@@ -421,7 +426,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const all = this.getFilterFields();
     const names: Array<string> = [];
     this.collapseDuplicateValueNames(all).forEach((field: IDynamicDataFilterField): void => {
-      const key = this.getFieldKey(all, field);
+      const key = this.findFieldKey(all, field);
       if (!!key) names.push(key);
     });
     return new FilterConditionsEditor(this, names, {
@@ -437,11 +442,17 @@ export class QuestionFilterModel extends QuestionNonValue {
   // an earlier field holds that name (a bound nested field is named by its leaf, and two leaves can
   // match), then its valueName, which is unique once duplicates are collapsed. Undefined when
   // neither leads back to it.
-  private getFieldKey(fields: Array<IDynamicDataFilterField>, field: IDynamicDataFilterField): string {
+  private findFieldKey(fields: Array<IDynamicDataFilterField>, field: IDynamicDataFilterField): string {
     const isSame = (f: IDynamicDataFilterField): boolean => !!f && f.name === field.name && f.valueName === field.valueName;
     if (isSame(this.findFieldInList(fields, field.name))) return field.name;
     if (isSame(this.findFieldInList(fields, field.valueName))) return field.valueName;
     return undefined;
+  }
+  // The name a renderer addresses a field by in every call that takes one (getFieldCondition,
+  // createFastModeEditor, ...), by the rule above. A renderer that used field.name would reach the
+  // first of two bound nested fields sharing a leaf name from both badges.
+  public getFieldKey(field: IDynamicDataFilterField): string {
+    return !!field ? this.findFieldKey(this.getFilterFields(), field) : undefined;
   }
   // Advanced mode's apply(): the editor's conditions replace the own ones and its search text
   // replaces searchString, as one change - one write into the source, one onFilterChanged and one

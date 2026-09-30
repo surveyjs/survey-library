@@ -699,7 +699,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   private rebuildPanelsFromDataList(isPageMove: boolean = false): void {
     if (this.isLoadingFromJson || this.useTemplatePanel || !this.hasPanelBuildFirstTime) return;
     // A page size that changed resets the list, and the reset has rebuilt the panels already.
-    if (this.syncListPageSize()) return;
+    if (this.dynamicData.syncListPageSize()) return;
     // Every panel that is created asks for a render and a paging sync: they are collapsed into one.
     const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
     this.isPagingSyncSuspended = true;
@@ -758,18 +758,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.updateTabbedMenuItems();
     this.disposePanels(oldPanels);
   }
-  /* The page size is decided by the display mode and by single-input mode as well, and neither of
-     them tells the list: every build re-reads it. */
   // internal: single-input mode reads every panel, and nothing tells the list that it became active.
   public syncPageSizeWithMode(): void {
-    this.syncListPageSize();
-  }
-  private syncListPageSize(): boolean {
-    if (!this.dataListValue || this.isLoadingFromJson) return false;
-    const size = this.isDesignMode ? 0 : this.listPageSize;
-    if (this.dataListValue.pageSize === (size > 0 ? size : 0)) return false;
-    this.paging.updatePageSize();
-    return true;
+    this.dynamicData.syncListPageSize();
   }
   private isRebuildingPanels: boolean;
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
@@ -3023,7 +3014,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!force && this.wasNotRenderedInSurvey) return;
     this.blockAnimations();
     // Before the flag: a page size that changes here resets the list, and that reset must not build.
-    this.syncListPageSize();
+    this.dynamicData.syncListPageSize();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
     // Panels that exist before the first build (built while the question had no survey) are attached

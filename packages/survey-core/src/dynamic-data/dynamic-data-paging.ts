@@ -62,13 +62,22 @@ export class DynamicDataPagingController {
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
-  private updateListPageSize(): void {
+  private get runtimePageSize(): number {
     const size = this.owner.isDesignMode ? 0 : this.listPageSize;
-    this.list.pageSize = size > 0 ? size : 0;
+    return size > 0 ? size : 0;
+  }
+  private updateListPageSize(): void {
+    this.list.pageSize = this.runtimePageSize;
   }
   public updatePageSize(): void {
     this.updateListPageSize();
     this.syncState();
+  }
+  // Returns true when the list pages by another size now: that resets the list.
+  public updatePageSizeIfChanged(): boolean {
+    if (this.list.pageSize === this.runtimePageSize) return false;
+    this.updatePageSize();
+    return true;
   }
   public get pageIndex(): number {
     return this.owner.getPropertyValue("pageIndex") || 0;

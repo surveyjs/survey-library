@@ -215,6 +215,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     validation.cancelPendingMove();
     validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
   }
+  /* The page size is decided by the question's mode as well - the display mode, single-input mode,
+     design mode - and none of them tells the list: the points that depend on it re-read it here.
+     Returns true when it changed. The list is not created for it. */
+  public syncListPageSize(): boolean {
+    if (!this._list || this.owner.isLoadingFromJson) return false;
+    return this.paging.updatePageSizeIfChanged();
+  }
 
   // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.
   public getDataList(): DynamicDataList {

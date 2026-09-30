@@ -422,12 +422,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // internal: single-input mode reads every row, and nothing tells the list that it became active.
   public syncPageSizeWithMode(): void {
-    const list = this.dataListValue;
-    if (!list || this.isLoadingFromJson) return;
-    const size = this.isDesignMode ? 0 : this.listPageSize;
-    if (list.pageSize !== (size > 0 ? size : 0)) {
-      this.paging.updatePageSize();
-    }
+    this.dynamicData.syncListPageSize();
   }
   /* Three indexes (prompt 15): the record index names the record, visibleIndex is its position among
      the visible records of the whole list (the list's globalVisibleIndex), pageVisibleIndex its

@@ -11402,6 +11402,30 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.columns[1].sortField, "#2: with one it is the key the cell writes").toBe("shared");
     expect(matrix.getFields().some(f => f.name === "shared"), "#3: and that is the field the list knows").toBe(true);
   });
+  test("the fields of the columns: typed values, a comment, and the key the other text is stored under", () => {
+    const matrix = createMatrix({ rowCount: 0, columns: [
+      { name: "c1", cellType: "text" },
+      { name: "num", cellType: "text", inputType: "number" },
+      { name: "flag", cellType: "boolean" },
+      { name: "pick", cellType: "dropdown", choices: [1, 2], showOtherItem: true },
+      { name: "both", cellType: "dropdown", choices: [1, 2], showOtherItem: true, showCommentArea: true }
+    ] });
+    expect(matrix.getFields()).toEqual([
+      { name: "c1", dataType: "any" },
+      { name: "num", dataType: "number" },
+      { name: "flag", dataType: "boolean" },
+      { name: "pick", dataType: "number" },
+      { name: "both", dataType: "number" },
+      { name: "both-Comment", dataType: "string" },
+      { name: "pick-Comment", dataType: "string" }
+    ]);
+  });
+  test("a date column sorts by date and not by text", () => {
+    const matrix = createMatrix({ rowCount: 3, columns: [{ name: "c1", cellType: "text", inputType: "date" }] },
+      [{ c1: "2024-01-10" }, { c1: "2024-1-5" }, { c1: "2023-12-31" }]);
+    matrix.sortBy = "c1";
+    expect(pageValues(matrix), "#1: as text 2024-1-5 would be last").toEqual(["2023-12-31", "2024-1-5", "2024-01-10"]);
+  });
   test("toggleSort adds a field to the sort instead of replacing it", () => {
     const matrix = createMatrix({ rowCount: 3, allowSortRows: true },
       [{ c1: "b", c2: "2" }, { c1: "a", c2: "1" }, { c1: "b", c2: "1" }]);

@@ -12903,6 +12903,38 @@ describe("Survey", () => {
     expect(focusedQuestionId, "do not focus any question").toBeFalsy();
     SurveyElement.FocusElement = oldFunc;
   });
+  test("Do not focus the first invalid question on next page when autoFocusFirstError is false", () => {
+    const focusedQuestionIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionIds.push(elId);
+      return true;
+    };
+    const json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1", isRequired: true }],
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2", isRequired: true }],
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.nextPage();
+    expect(survey.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(focusedQuestionIds, "focus the required question by default").toEqual([survey.getQuestionByName("question1").inputId]);
+
+    const surveyNoFocus = new SurveyModel({ autoFocusFirstError: false, ...json });
+    focusedQuestionIds.length = 0;
+    surveyNoFocus.nextPage();
+    expect(surveyNoFocus.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(surveyNoFocus.getQuestionByName("question1").errors.length, "the error is still shown").toBeGreaterThan(0);
+    expect(focusedQuestionIds, "do not focus when autoFocusFirstError is false").toEqual([]);
+    SurveyElement.FocusElement = oldFunc;
+  });
   test("onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546", () => {
     var survey = new SurveyModel({
       pages: [
@@ -15285,11 +15317,6 @@ describe("Survey", () => {
 
     survey.readOnly = false;
     survey.setIsMobile(false);
-    survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
-
-    survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -18203,7 +18230,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
     expect(survey.backgroundOpacity, "before applyTheme").toBe(1);
-    expect(survey["isCompact"], "before applyTheme").toBe(false);
     expect(survey.headerView, "before applyTheme").toBe("advanced");
 
     survey.applyTheme({
@@ -18226,7 +18252,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit).toBe("cover");
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("advanced");
   });
   test("survey.applyTheme with baseTheme", () => {
@@ -18249,9 +18274,24 @@ describe("Survey", () => {
 
     expect(survey.backgroundImageFit).toBe("contain");
     expect(survey.backgroundOpacity).toBe(0.8);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
+  test("survey.applyTheme recalculates question widths", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    let log = "";
+    survey.getAllQuestions().forEach(q => {
+      q["triggerResponsivenessCallback"] = (hard: boolean) => {
+        log += `->${q.name}:${hard}`;
+      };
+    });
+    survey.applyTheme({ isPanelless: true });
+    expect(log).toBe("->q1:true->q2:true");
   });
   test("survey.applyTheme does not mutate the original theme", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -19448,42 +19488,6 @@ describe("Survey", () => {
     expect(getContainerContent("right"), "default right").toEqual([]);
   });
 
-  test("Check triggerReponsiveness is called when isCompact changed", () => {
-    const json = {
-      title: "My Survey",
-      showNavigationButtons: false,
-      pages: [
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q1"
-            }
-          ]
-        },
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q2"
-            }
-          ]
-        },
-      ]
-    };
-    const survey = new SurveyModel(json);
-    let log = "";
-    survey.getAllQuestions().forEach(q => {
-      q["triggerResponsivenessCallback"] = (hard: boolean) => {
-        log += `->${q.name}:${hard}`;
-      };
-    });
-    survey["isCompact"] = true;
-    expect(log).toBe("->q1:true->q2:true");
-    log = "";
-    survey["isCompact"] = false;
-    expect(log).toBe("->q1:true->q2:true");
-  });
   test("element.wasREndered", () => {
     const json = {
       pages: [
@@ -21900,6 +21904,41 @@ describe("Survey", () => {
     expect(rootElement).toBe("survey_root_element");
     expect(options.rootElement).toBeUndefined();
     settings.confirmActionAsync = oldSettingsFunc;
+  });
+  test("belowheader is hidden for question progress in an advanced header", () => {
+    const prop = Serializer.findProperty("survey", "progressBarLocation");
+    const all = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+    const withoutBelowHeader = ["auto", "aboveheader", "bottom", "topbottom"];
+    expect(prop.getChoices(null)).toEqual(all);
+
+    const survey = new SurveyModel({ showProgressBar: true });
+    expect(survey.headerView).toBe("advanced");
+    expect(survey.progressBarType).toBe("pages");
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "requiredQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "correctQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+
+    survey.headerView = "basic";
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.headerView = "advanced";
+    survey.progressBarType = "pages";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    const stored = new SurveyModel({
+      headerView: "advanced",
+      showProgressBar: true,
+      progressBarType: "questions",
+      progressBarLocation: "belowheader",
+    });
+    expect(stored.progressBarLocation).toBe("belowheader");
+    expect(prop.getChoices(stored)).toEqual(withoutBelowHeader);
   });
 });
 

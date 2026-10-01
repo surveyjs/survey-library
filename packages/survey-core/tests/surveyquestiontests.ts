@@ -7592,6 +7592,29 @@ describe("Survey_Questions", () => {
 
     FunctionFactory.Instance.unregister("asyncFunc");
   });
+  test("SurveyModel.validate: onAsyncValidation is fail-fast and fires once", () => {
+    let returnResults = new Array<any>();
+    function asyncFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFuncSurveyValidate", asyncFunc, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFuncSurveyValidate({q2})" }] }
+      ]
+    });
+    survey.getQuestionByName("q2").value = 2;
+    const callbackResults = new Array<any>();
+    const res = survey.validate(true, false, (hasErrors: boolean) => { callbackResults.push(hasErrors); });
+    expect(res, "a failure is already known").toBe(false);
+    expect(callbackResults, "fired on the synchronous failure").toEqual([true]);
+    returnResults[0](false);
+    expect(callbackResults, "not fired again when the pending validator answers").toEqual([true]);
+    expect(survey.getQuestionByName("q2").errors.length, "the async error is set").toBe(1);
+    FunctionFactory.Instance.unregister("asyncFuncSurveyValidate");
+  });
   test("Question.validate vs callback function and two different validates #10307", () => {
     let returnResults = new Array<any>();
     function asyncFunc(params: any): any {
@@ -7950,6 +7973,47 @@ describe("Survey_Questions", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     expect(q1.getPropertyValue("titleActions"), "There is no titleActions array on creatong&loading").toBeUndefined();
+  });
+  test("Reading hasTitleActions/titleActions the first time doesn't notify UI subscribers", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", title: "Page 1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", title: "Page 2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    survey.onGetPageTitleActions.add((_, options) => {
+      if (options.page.name === "page2") {
+        options.titleActions.push({ id: "action1", title: "Action 1" });
+      }
+    });
+    const page1 = survey.pages[0];
+    const page2 = survey.pages[1];
+    const changes: Array<string> = [];
+    [page1, page2].forEach(page => {
+      page.addOnPropertyValueChangedCallback((sender: Base, options) => changes.push(`${sender["name"]}:prop:${options.name}`));
+      page.addOnArrayChangedCallback((sender: Base, options) => changes.push(`${sender["name"]}:array:${options.name}`));
+    });
+
+    expect(page1.hasTitleActions, "page1 has no title actions").toBe(false);
+    expect(page2.hasTitleActions, "page2 has title actions").toBe(true);
+    expect(page2.titleActions.map(a => a.id), "page2 title actions").toEqual(["action1"]);
+    expect(changes, "Lazy creation of titleActions doesn't fire change events (it's called from render)").toEqual([]);
+
+    page2.titleActions.push({ id: "action2" });
+    expect(changes, "Changing titleActions after creation notifies UI subscribers").toEqual(["page2:array:titleActions"]);
+  });
+  test("titleActions notifies UI subscribers if the array has been created before requesting title actions", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.onGetQuestionTitleActions.add((_, options) => {
+      options.titleActions.push({ id: "action1", title: "Action 1" });
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.titleActions, "The array is created empty").toHaveLength(0);
+    const changes: Array<string> = [];
+    q1.addOnArrayChangedCallback((_, options) => changes.push(options.name));
+    expect(q1.hasTitleActions, "q1 has title actions").toBe(true);
+    expect(q1.titleActions.map(a => a.id), "q1 title actions").toEqual(["action1"]);
+    expect(changes, "The existing (possibly rendered) array is changed, notify UI subscribers").toEqual(["titleActions"]);
   });
   test("The expression of matrix cell value is shown in display value when there is no value, bug#11140", () => {
     const survey = new SurveyModel({

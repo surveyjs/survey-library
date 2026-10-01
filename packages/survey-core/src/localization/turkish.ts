@@ -55,6 +55,10 @@ export var turkishSurveyStrings = {
   value: "değer",
   // "Response required."
   requiredError: "Lütfen soruya cevap verin.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Değer yanlış.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Değer bilinmeyen anahtarlar içerir: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
   // "Response required: answer questions in all rows."

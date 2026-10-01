@@ -3,3 +3,4 @@ build/
 example/
 node_modules/
 tests/bundle/
+promts/

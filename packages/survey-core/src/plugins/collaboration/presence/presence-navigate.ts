@@ -1,4 +1,4 @@
-import { DomWindowHelper, PageModel, Question, SurveyModel } from "survey-core";
+import { DomWindowHelper, PageModel, Question, SurveyModel, getScrollBehavior } from "survey-core";
 import { IPresencePeer } from "./presence-envelope";
 import { IPresenceState, resolvePage } from "./presence-state";
 import { SurveyPresenceScene } from "./survey-scene";
@@ -38,7 +38,7 @@ export function scrollToQuestion(
   const tryScroll = () => {
     const node = scene.findQuestionNode(questionName as string);
     if (!!node) {
-      node.scrollIntoView({ block: "center", behavior: "smooth" });
+      node.scrollIntoView({ block: "center", behavior: getScrollBehavior() });
       return;
     }
     if (Date.now() - started > SCROLL_POLL_MS) return;

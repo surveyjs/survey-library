@@ -18,6 +18,7 @@
       <span
         v-if="question.cssClasses.materialRadioDecorator"
         :class="question.cssClasses.materialRadioDecorator"
+        aria-hidden="true"
       >
         <svg
           v-if="question.itemSvgIcon"

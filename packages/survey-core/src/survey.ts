@@ -28,7 +28,9 @@ import {
   ITextProcessorResult, ISurveyUIState,
   ISurveyWebProvider,
   ISaveToJSONOptions,
-  IScrollElementToTopOptions
+  IScrollElementToTopOptions,
+  IDataIssue,
+  IDataVerificationOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -42,7 +44,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question, ValidationContext } from "./question";
+import { IQuestionPlainData, Question, ValidationContext, IVerifyDataContext, createVerifyDataContext } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -58,13 +60,14 @@ import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
+import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues, isProtoKey } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
 import {
@@ -1424,16 +1427,9 @@ export class SurveyModel extends SurveyElementCore
   private cssValue: any = null;
   private updateCompletedPageCss() {
     this.containerCss = this.css.container;
-    this.completedCss = new CssClassBuilder().append(this.css.body)
-      .append(this.css.completedPage).toString(); // for completed page
-    this.completedBeforeCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.completedBeforePage)
-      .toString();
-    this.loadingBodyCss = new CssClassBuilder()
-      .append(this.css.body)
-      .append(this.css.bodyLoading)
-      .toString();
+    this.completedCss = toCssClasses(this.css.body, this.css.completedPage); // for completed page
+    this.completedBeforeCss = toCssClasses(this.css.body, this.css.completedBeforePage);
+    this.loadingBodyCss = toCssClasses(this.css.body, this.css.bodyLoading);
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
@@ -1470,9 +1466,11 @@ export class SurveyModel extends SurveyElementCore
     return this.css.title;
   }
   public get bodyCss(): string {
-    return new CssClassBuilder().append(this.css.body)
-      .append(this.css.bodyWithTimer, this.showTimer && this.state === "running")
-      .append(this.css.body + "--" + this.calculatedWidthMode).toString();
+    return toCssClasses(
+      this.css.body,
+      this.showTimer && this.state === "running" && this.css.bodyWithTimer,
+      this.css.body + "--" + this.calculatedWidthMode
+    );
   }
   public get bodyContainerCss(): string {
     return this.css.bodyContainer;
@@ -2103,14 +2101,8 @@ export class SurveyModel extends SurveyElementCore
     var data = this.data;
     var hasChanges = false;
     for (var key in data) {
-      if (!!this.getQuestionByValueName(key)) continue;
-      if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)
-      )
-        continue;
-      var calcValue = this.getCalculatedValueByName(key);
-      if (!!calcValue && calcValue.includeIntoResult) continue;
+      // isKnownRootKey() is the same test setData() runs, so the two never disagree.
+      if (this.isKnownRootKey(key)) continue;
       hasChanges = true;
       delete data[key];
     }
@@ -2279,8 +2271,13 @@ export class SurveyModel extends SurveyElementCore
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, this.locale);
   }
+  // The locale the survey is displayed in. `locale` is empty when the default locale is used,
+  // so renderers bind the root element's `lang` attribute to this value instead.
+  public get rootLang(): string {
+    return this.locale || surveyLocalization.defaultLocale || "en";
+  }
   public get localeDir(): string {
-    return surveyLocalization.localeDirections[this.locale];
+    return surveyLocalization.localeDirections[this.rootLang];
   }
   /**
    * Returns an array of locales whose translations are used in the survey.
@@ -2503,8 +2500,7 @@ export class SurveyModel extends SurveyElementCore
       top: "sv-logo--top",
       bottom: "sv-logo--bottom",
     };
-    return new CssClassBuilder().append(this.css.logo)
-      .append(logoClasses[this.logoPosition]).toString();
+    return toCssClasses(this.css.logo, logoClasses[this.logoPosition]);
   }
   public get titleIsEmpty(): boolean {
     return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
@@ -2578,17 +2574,6 @@ export class SurveyModel extends SurveyElementCore
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
   }
-  @property() private _isCompact: boolean = false;
-  public set isCompact(newVal: boolean) {
-    if (newVal !== this._isCompact) {
-      this._isCompact = newVal;
-      this.updateElementCss();
-      this.triggerResponsiveness(true);
-    }
-  }
-  public get isCompact(): boolean {
-    return this._isCompact;
-  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -2630,11 +2615,11 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() wrapperFormCss: string;
   public updateWrapperFormCss(): void {
-    this.wrapperFormCss = new CssClassBuilder()
-      .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
-      .append(this.css.rootWrapperFixed, !this.formScrollDisabled)
-      .toString();
+    this.wrapperFormCss = toCssClasses(
+      this.css.rootWrapper,
+      !!this.backgroundImage && this.css.rootWrapperHasImage,
+      !this.formScrollDisabled && this.css.rootWrapperFixed
+    );
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3236,11 +3221,11 @@ export class SurveyModel extends SurveyElementCore
     return "sv-progress-" + this.getEffectiveProgressBarType().toLowerCase();
   }
   public getProgressCssClasses(container: string = ""): string {
-    return new CssClassBuilder()
-      .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
-      .toString();
+    return toCssClasses(
+      this.css.progress,
+      this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
+      this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
+    );
   }
   private canShowProgressBar(): boolean {
     return (
@@ -3364,6 +3349,10 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   public set data(data: any) {
+    this.assignData(data);
+  }
+  // The data setter and setData() both assign through here, so the two can never drift apart.
+  private assignData(data: any): void {
     this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
@@ -4007,7 +3996,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
-      if (!page.validate(true, true)) return false;
+      if (!page.validate(true, this.autoFocusFirstError)) return false;
       page.passed = true;
     }
     return true;
@@ -4652,7 +4641,7 @@ export class SurveyModel extends SurveyElementCore
       page = this.activePage;
     }
     if (!page) return true;
-    return this.validatePageCore(page, true, onAsyncValidation);
+    return this.validatePageCore(page, this.autoFocusFirstError, onAsyncValidation);
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     const res = this.validate(fireCallback, focusOnFirstError, onAsyncValidation);
@@ -4683,6 +4672,104 @@ export class SurveyModel extends SurveyElementCore
     }
     context.finish();
     return context.runningResult;
+  }
+  /**
+   * Loads survey data, checks it against the survey definition, and returns an array of [detected issues](/form-library/documentation/api-reference/idataissue).
+   *
+   * This method applies the same survey logic as direct assignment to the [`data`](#data) property, then checks the resulting values and reports issues. Use the `options` parameter to configure these checks.
+   *
+   * This method does not run the validation rules defined in the JSON schema. To run them, call the [`validate()`](#validate) method separately.
+   * @param data A JSON-serializable object with survey answers.
+   * @param options *(Optional)* Specifies which issues to report.
+   * @param {boolean} options.reportUnknownProperties Reports data properties that do not correspond to a question or another recognized survey result field. Default value: `true`
+   * @param {boolean} options.reportInvalidValueTypes Reports values whose type or structure does not match the question configuration. Default value: `true`
+   * @param {boolean} options.reportInvalidChoiceValues Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true`
+   * @param {boolean} options.reportExpressionResultMismatches Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false`
+   * @returns An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+   * @since 3.1.2
+   */
+  public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
+    const hasData = data !== undefined && data !== null;
+    // Two deep copies: Helpers.createCopy() keeps the nested references and would let the model
+    // change the caller's object and the snapshot alike.
+    const snapshot = hasData ? Helpers.getUnbindValue(data) : {};
+    this.assignData(hasData ? Helpers.getUnbindValue(data) : data);
+    const context = createVerifyDataContext(options);
+    this.initializeForVerification();
+    this.verifyDataCore(context);
+    if (options?.reportExpressionResultMismatches === true) {
+      this.collectExpressionResultMismatches(snapshot, this.data, context);
+    }
+    return context.issues;
+  }
+  private initializeForVerification(): void {
+    this.pages.forEach(page => page.initializeForVerification());
+  }
+  private verifyDataCore(context: IVerifyDataContext): void {
+    if (context.checks.reportUnknownProperties) {
+      const data = this.data;
+      for (const key in data) {
+        if (this.isKnownRootKey(key)) continue;
+        context.addIssue("unknownProperty", key, data[key], undefined);
+      }
+    }
+    this.pages.forEach(page => page.verifyDataCore(context));
+  }
+  // The root keys clearIncorrectValues(true) keeps: a question found by valueName, a comment or a
+  // totals key of such a question, a calculated value that is a part of the result.
+  private isKnownRootKey(key: string): boolean {
+    if (!!this.getQuestionByValueName(key)) return true;
+    if (this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
+      this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
+    const calcValue = this.getCalculatedValueByName(key);
+    return !!calcValue && calcValue.includeIntoResult;
+  }
+  // The expressionResultMismatch diagnostic. Despite the name it is not limited to expressions:
+  // every difference between the response and survey.data after loading is something the model did
+  // to the input, a default it added, a value it normalized, a value a trigger set or a condition
+  // cleared, a value it dropped. The comparison is deep and the leaves are compared by strict
+  // identity, never by Helpers.isTwoValueEquals(), which treats "5" and 5 or "A" and "a " as equal:
+  // those are exactly the normalizations this diagnostic exists to show.
+  private collectExpressionResultMismatches(oldData: any, newData: any, context: IVerifyDataContext): void {
+    this.collectExpressionResultMismatchesCore(oldData, newData, context, undefined);
+  }
+  private collectExpressionResultMismatchesCore(oldVal: any, newVal: any, context: IVerifyDataContext, rootKey: string): void {
+    if (Helpers.isValueObject(oldVal, true) && Helpers.isValueObject(newVal, true) &&
+      !Array.isArray(oldVal) && !Array.isArray(newVal)) {
+      // Own keys only: a data key named "constructor" or "toString" is data, not an inherited member.
+      const hasOwn = (obj: any, key: string): boolean => Object.prototype.hasOwnProperty.call(obj, key);
+      Object.keys(oldVal).forEach(key => {
+        context.pushSegment(key);
+        this.collectExpressionResultMismatchesCore(oldVal[key], hasOwn(newVal, key) ? newVal[key] : undefined, context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      });
+      Object.keys(newVal).forEach(key => {
+        if (hasOwn(oldVal, key)) return;
+        context.pushSegment(key);
+        this.collectExpressionResultMismatchesCore(undefined, newVal[key], context, rootKey !== undefined ? rootKey : key);
+        context.popSegment();
+      });
+      return;
+    }
+    if (Array.isArray(oldVal) && Array.isArray(newVal)) {
+      const count = Math.max(oldVal.length, newVal.length);
+      for (let i = 0; i < count; i++) {
+        context.pushSegment(i);
+        this.collectExpressionResultMismatchesCore(oldVal[i], newVal[i], context, rootKey);
+        context.popSegment();
+      }
+      return;
+    }
+    if (this.isSameDataLeaf(oldVal, newVal)) return;
+    const question = rootKey !== undefined ? this.getQuestionByValueName(rootKey) : undefined;
+    context.addIssue("expressionResultMismatch", undefined, oldVal, question, newVal);
+  }
+  // null and undefined are both "absent", so a key the model stores as null for a value the
+  // response left out is not a difference. Everything else is compared by strict identity.
+  private isSameDataLeaf(oldVal: any, newVal: any): boolean {
+    const oldRes = oldVal === null ? undefined : oldVal;
+    const newRes = newVal === null ? undefined : newVal;
+    return oldRes === newRes;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {
@@ -5483,7 +5570,7 @@ export class SurveyModel extends SurveyElementCore
   public start(): boolean {
     if (!this.firstPageIsStartPage) return false;
     this.isCurrentPageRendering = true;
-    if (!this.validatePageCore(this.startPage, true)) return false;
+    if (!this.validatePageCore(this.startPage, this.autoFocusFirstError)) return false;
     this.isStartedState = false;
     this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();
@@ -5726,18 +5813,41 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() rootCss: string;
   public getRootCss(): string {
-    return new CssClassBuilder()
-      .append(this.css.root)
-      .append(this.css.rootTheme)
-      .append(this.css.rootProgress + "--" + this.getEffectiveProgressBarType())
-      .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
-      .append(this.css.rootCompact, this.isCompact)
-      .append(this.css.rootFitToContainer, this.fitToContainer)
-      .toString();
+    // Read up front. `!animationEnabled || isReducedMotion` would skip the property while animations
+    // are off, and Vue only re-renders properties a render actually touched.
+    const reducedMotion = this.isReducedMotion;
+    return toCssClasses(
+      this.css.root,
+      this.css.rootTheme,
+      this.css.rootProgress + "--" + this.getEffectiveProgressBarType(),
+      this.isMobile && this.css.rootMobile,
+      (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
+      this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
+      this.fitToContainer && this.css.rootFitToContainer
+    );
   }
   private isSmoothScrollEnabled = false;
+  // Read only after mount: during render the server cannot know the preference,
+  // so a class derived from it would break hydration. CSS media query covers the first paint.
+  @property({ defaultValue: false }) private isReducedMotion: boolean;
+  private reducedMotionUnsubscribe: () => void;
+  private updateReducedMotion(): void {
+    this.isReducedMotion = isReducedMotionPreferred();
+    this.rootCss = this.getRootCss();
+  }
+  private subscribeToReducedMotion(): void {
+    this.unsubscribeFromReducedMotion();
+    this.updateReducedMotion();
+    this.reducedMotionUnsubscribe = subscribeReducedMotionChange(() => {
+      if (this.isDisposed) return;
+      this.updateReducedMotion();
+    });
+  }
+  private unsubscribeFromReducedMotion(): void {
+    if (!this.reducedMotionUnsubscribe) return;
+    this.reducedMotionUnsubscribe();
+    this.reducedMotionUnsubscribe = undefined;
+  }
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
   public generateStylesheet = true;
@@ -5780,6 +5890,7 @@ export class SurveyModel extends SurveyElementCore
         this.resizeObserver.observe(observedElement);
       }
     }
+    this.subscribeToReducedMotion();
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,
@@ -5795,6 +5906,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   beforeDestroySurveyElement() {
+    this.unsubscribeFromReducedMotion();
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
@@ -8759,17 +8871,21 @@ export class SurveyModel extends SurveyElementCore
     if (!theme && !baseTheme) return;
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
-    return this._applyTheme(themeToApply);
+    this.applyThemeCore(themeToApply, true);
+  }
+  public applyThemeCore(theme: ITheme, triggerResponsiveness: boolean): void {
+    this._applyTheme(theme);
+    if (triggerResponsiveness) {
+      this.triggerResponsiveness(true);
+    }
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "header") {
+      if (key === "header" || key === "isPanelless") {
         return;
       }
-      if (key === "isPanelless") {
-        this.isCompact = theme[key];
-      } else if (key === "cssVariables") {
+      if (key === "cssVariables") {
         this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];
@@ -8813,6 +8929,7 @@ export class SurveyModel extends SurveyElementCore
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
   public dispose(): void {
+    this.unsubscribeFromReducedMotion();
     this.unConnectEditingObj();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
@@ -9068,7 +9185,19 @@ Serializer.addClass("survey", [
   {
     name: "progressBarLocation",
     default: "auto",
-    choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    choices: (obj: any) => {
+      const choices = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+      if (!obj) return choices;
+      const headerView = obj.headerView;
+      const isAdvanced = headerView === undefined || headerView === null || headerView === ""
+        || isStrCiEqual(String(headerView), "advanced");
+      const type = typeof obj.progressBarType === "string" ? obj.progressBarType.toLowerCase() : "";
+      const isQuestionProgress = type === "questions"
+        || type === "requiredquestions" || type === "requiredquestion"
+        || type === "correctquestions" || type === "correctquestion";
+      if (isAdvanced && isQuestionProgress) return choices.filter(item => item !== "belowheader");
+      return choices;
+    },
     visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
@@ -9255,3 +9384,7 @@ Serializer.addClass("survey", [
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);
+const progressBarLocationProp = Serializer.findProperty("survey", "progressBarLocation");
+progressBarLocationProp.dependsOn = ["progressBarType", "headerView"];
+Serializer.findProperty("survey", "progressBarType").addDependedProperty("progressBarLocation");
+Serializer.findProperty("survey", "headerView").addDependedProperty("progressBarLocation");

@@ -1,18 +1,19 @@
-import { EventBase, SurveyModel } from "survey-core";
+import { EventBase, Helpers, SurveyModel } from "survey-core";
 import { ICollabIn, ICollabOut } from "./collab-messages";
-import { IValueSyncOptions, ValueSyncController } from "./data/value-sync";
+import { ValueSyncController } from "./data/value-sync";
+import { decodeSurveyName, encodeValueKey } from "./data/value-record";
 import { PresenceController } from "./presence/index";
 import { IPresencePeer, IPresencePeerEntry } from "./presence/presence-envelope";
 import { emptyPresenceState, IPresenceState } from "./presence/presence-state";
 import { CollabBarModel, ICollabBarOptions } from "./bar/bar-model";
 import { HistoryController, IHistoryOptions } from "./history/history-controller";
 import { HistoryPanel } from "./history/history-panel";
+import { hasSameContent } from "./history/history-entry";
 
 export * from "./collab-messages";
 export * from "./presence/index";
 export { ValueSyncController } from "./data/value-sync";
-export type { IValueSyncOptions } from "./data/value-sync";
-export { MAX_VALUE_CHARS, COMMENT_KEY_SUFFIX, encodeValueKey, decodeValueKey } from "./data/value-record";
+export { COMMENT_KEY_SUFFIX, encodeValueKey, decodeValueKey } from "./data/value-record";
 export { commitFocusedEditor, QUESTION_ROOT_SELECTOR } from "./data/editor-commit";
 export { CollabBarModel, COLLAB_BAR_ELEMENT_ID } from "./bar/bar-model";
 export type { ICollabBarOptions, CollabBarStatus } from "./bar/bar-model";
@@ -25,7 +26,7 @@ export type { IHistoryEntry } from "./history/history-entry";
 
 export type CollabStatus = "connecting" | "connected" | "closed";
 
-export interface ICollaborationOptions extends IValueSyncOptions, ICollabBarOptions, IHistoryOptions {
+export interface ICollaborationOptions extends ICollabBarOptions, IHistoryOptions {
   // Outgoing presence is coalesced to at most one message per this many ms. The window
   // lives here rather than in the host because it is a property of how chatty presence
   // is, not of the transport - and because a host coalescing an event that already
@@ -73,6 +74,7 @@ export class CollaborationPlugin {
   // cascades into are recorded as theirs rather than as ours.
   private applyingFrom: IPresencePeer | null = null;
   private inertPeersChanged: EventBase<any, { peers: ReadonlyMap<string, IPresencePeer> }>;
+  private detachHistory: (() => void) | undefined;
 
   // Presence coalescing: a window opens on the first change and the state is read when
   // it CLOSES, so what goes out is always the current state, never the one that
@@ -88,17 +90,11 @@ export class CollaborationPlugin {
         onEntryClick: (entry) => this.goToQuestion(entry.questionName),
       });
       this.history.onChanged.add((_sender, o) => this.historyPanel.setEntries(o.entries));
+      this.listenForHistory();
     }
 
-    this.data = new ValueSyncController(survey, options);
-    this.data.onMessage.add((_sender, o) => {
-      // A local change raised WHILE a peer value is being applied is a cascade of that
-      // edit (clearInvisibleValues, a trigger), so the history credits its author. The
-      // message still goes out as ours: the peers have to hear the cascade.
-      this.history?.record(
-        this.data.isApplying ? this.applyingFrom : null, o.message.key, o.message.value);
-      this.onEvent.fire(this, { message: o.message });
-    });
+    this.data = new ValueSyncController(survey);
+    this.data.onMessage.add((_sender, o) => this.onEvent.fire(this, { message: o.message }));
 
     if (options.presence !== false) {
       this.presence = new PresenceController(survey);
@@ -193,16 +189,12 @@ export class CollaborationPlugin {
       case "value": {
         // Resolved before the apply, so a cascade recorded during it is credited to
         // the peer that caused it.
-        const author = this.authorOf(message.from);
-        this.applyingFrom = author;
+        this.applyingFrom = this.authorOf(message.from);
         try {
           this.data.applyValue(message);
         } finally {
           this.applyingFrom = null;
         }
-        // After the apply, so the entry can describe the question by its NEW display
-        // value - and so the cause sits above its cascade in a newest-first list.
-        this.history?.record(author, message.key, message.value);
         break;
       }
       case "peer":
@@ -229,6 +221,7 @@ export class CollaborationPlugin {
     this.bar?.dispose();
     this.presence?.dispose();
     this.data.dispose();
+    this.detachHistory?.();
     this.history?.dispose();
     this.historyPanel?.dispose();
   }
@@ -236,6 +229,43 @@ export class CollaborationPlugin {
   private setStatus(status: CollabStatus): void {
     this.statusValue = status;
     this.bar?.setStatus(status);
+  }
+
+  // The history records what changed in THIS survey, so it listens to the survey rather
+  // than to the wire. A message that changes nothing here - a value already held, the
+  // same value from a second peer - raises no onValueChanged, and neither does init,
+  // which assigns survey.data wholesale.
+  private listenForHistory(): void {
+    const survey = this.survey;
+    // The value each pending change started from: onValueChanged does not carry it.
+    const before = new Map<string, any>();
+    const onValueChanging = (_sender: SurveyModel, o: { name: string, oldValue: any, value: any }) => {
+      // Only for a change that is coming: a set to the same value raises onValueChanging
+      // and never onValueChanged, and would leave its old value parked here.
+      if (!Helpers.isTwoValueEquals(o.oldValue, o.value, false, true, false)) before.set(o.name, o.oldValue);
+    };
+    const onValueChanged = (_sender: SurveyModel, o: { name: string, value: any }) => {
+      const known = before.has(o.name);
+      const oldValue = before.get(o.name);
+      before.delete(o.name);
+      // A row added or removed with nothing in it changes the value, not the answer. The
+      // participant who added it raises no event at all - rowCount is not a value - so
+      // the peers skip it too, and everyone's log agrees.
+      if (known && hasSameContent(oldValue, o.value)) return;
+      const decoded = decodeSurveyName(o.name, survey.commentSuffix);
+      // A change raised WHILE a peer value is being applied is that value or its cascade
+      // (clearInvisibleValues, a trigger), so it is credited to the peer. survey-core
+      // raises the cascade first, which keeps the cause above it in a newest-first list.
+      this.history.record(this.data.isApplying ? this.applyingFrom : null,
+        encodeValueKey(decoded.name, decoded.isComment), o.value);
+    };
+    survey.onValueChanging.add(onValueChanging);
+    survey.onValueChanged.add(onValueChanged);
+    this.detachHistory = () => {
+      survey.onValueChanging.remove(onValueChanging);
+      survey.onValueChanged.remove(onValueChanged);
+      before.clear();
+    };
   }
 
   // The peer an incoming edit belongs to. Never null, because null is reserved for

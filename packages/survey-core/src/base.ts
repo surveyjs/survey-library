@@ -18,6 +18,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -851,8 +852,9 @@ export class Base implements IObjectValueContext {
   protected getArrayPropertyValue(name: string, onPush?: (item: any) => void, onRemove?: (item: any) => void): Array<any> {
     let res = this.getPropertyValue(name);
     if (!Array.isArray(res)) {
-      res = this.createNewArray(name, onPush, onRemove);
-      this.setPropertyValueDirectly(name, res);
+      //The array is created lazily on reading (often during rendering), it is not a change, do not notify UI subscribers
+      res = this.createNewArray(name, onPush, onRemove, true);
+      this.setPropertyValueDirectly(name, res, true);
     }
     return res;
   }
@@ -1511,14 +1513,14 @@ export class Base implements IObjectValueContext {
   public get hasActiveUISubscribers(): boolean {
     return !!this.onPropertyValueCoreChanged;
   }
-  protected createNewArrayCore(name: string): Array<any> {
+  protected createNewArrayCore(name: string, isCalcValue?: boolean): Array<any> {
     var res = null;
     if (!!this.createArrayCoreHandler) {
       res = this.createArrayCoreHandler(this.propertyHash, name);
     }
     if (!res) {
       res = new Array<any>();
-      this.setPropertyValueCore(this.propertyHash, name, res);
+      this.setPropertyValueCore(this.propertyHash, name, res, isCalcValue);
     }
     return res;
   }
@@ -1537,9 +1539,10 @@ export class Base implements IObjectValueContext {
   protected createNewArray(
     name: string,
     onPush: any = null,
-    onRemove: any = null
+    onRemove: any = null,
+    isCalcValue?: boolean
   ): Array<any> {
-    var newArray = this.createNewArrayCore(name);
+    var newArray = this.createNewArrayCore(name, isCalcValue);
     if (!this.arraysInfo) {
       this.arraysInfo = {};
     }
@@ -1705,7 +1708,7 @@ export class Base implements IObjectValueContext {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
+    return isAnimationEnabled() && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {

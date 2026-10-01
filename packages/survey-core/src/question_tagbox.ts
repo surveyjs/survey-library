@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
@@ -148,15 +148,15 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return "combobox";
   }
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlEditable, !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle)
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.control,
+      this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle && this.cssClasses.controlEditable,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);

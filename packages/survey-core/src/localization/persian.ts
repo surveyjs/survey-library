@@ -55,6 +55,10 @@ export var persianSurveyStrings = {
   value: "مقدار",
   // "Response required."
   requiredError: "لطفا به سوال پاسخ دهید",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "این مقدار اشتباه است.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "مقدار شامل کلیدهای ناشناخته است: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
   // "Response required: answer questions in all rows."

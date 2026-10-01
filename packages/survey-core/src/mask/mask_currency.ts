@@ -66,7 +66,7 @@ export function isValidCurrencyPattern(value: string): boolean {
  * ```js
  * const surveyJson = {
  *   "elements": [{
- *     "name": "textquestion1"
+ *     "name": "textquestion1",
  *     "type": "text",
  *     "maskType": "currency",
  *     "maskSettings": {
@@ -366,6 +366,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
     // the symbol is arbitrary author text - it may contain the decimal separator, a digit or a
     // minus sign - so it is removed as boundary text instead of being left to the number parser
     return super.getUnmaskedValue(this.unwrapText(src));
+  }
+  public isValueOutOfRange(src: string): boolean {
+    return super.isValueOutOfRange(this.unwrapText(src));
   }
 }
 

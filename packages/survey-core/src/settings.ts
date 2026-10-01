@@ -163,11 +163,11 @@ export var settings = {
    * Nested properties:
    *
    * - `changeNavigationButtonsOnComplete`: `boolean`\
-   * Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
-   * Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
+   * Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
    *
    * - `executeCompleteOnValueChanged`: `boolean`\
-   * Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
+   * Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
+   * Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
    *
    * - `executeSkipOnValueChanged`: `boolean`\
    * Specifies whether to re-evaluate an expression associated with the [Skip trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#skip) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `true`.\
@@ -339,6 +339,9 @@ export var settings = {
    *
    * - `textRenderMode`: `"input"` (default) | `"div"`\
    * Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
+   *
+   * - `enableValidation`: `boolean`\
+   * Specifies whether to validate questions in read-only mode. Default value: `false`.
    */
   readOnly: {
     enableValidation: false,
@@ -677,6 +680,34 @@ export var settings = {
     visiblePanelIndex: "visiblePanelIndex",
     unwrapPostfix: "-unwrapped"
   },
+  // The operators the condition editors offer - Creator's logic editor and the Filter Control - and the
+  // question types each of them takes: a class name takes the class and every class derived from it,
+  // "!name" refuses them, an empty list takes every type. The key order is the order the editors list
+  // the operators in. defaultOperators: the operator a new condition starts with, by question type,
+  // else "default". Moved from survey-creator-core, whose settings.operators and
+  // settings.logic.defaultOperators now point here.
+  logic: {
+    operators: <{ [operator: string]: Array<string> }>{
+      empty: [],
+      notempty: [],
+      equal: ["!file"],
+      notequal: ["!file"],
+      contains: ["checkbox", "text", "comment"],
+      notcontains: ["checkbox", "text", "comment"],
+      anyof: ["selectbase"],
+      noneof: ["selectbase"],
+      allof: ["checkbox"],
+      greater: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      less: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      greaterorequal: ["!checkbox", "!imagepicker", "!boolean", "!file"],
+      lessorequal: ["!checkbox", "!imagepicker", "!boolean", "!file"]
+    },
+    defaultOperators: <{ [questionType: string]: string }>{
+      default: "equal",
+      checkbox: "allof",
+      tagbox: "allof"
+    }
+  },
   /**
    * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
@@ -739,6 +770,12 @@ export var settings = {
    * Default value: `true`
   */
   animationEnabled: true,
+
+  animation: {
+    // When true, the OS "prefers-reduced-motion: reduce" preference turns animations and smooth scrolling off
+    // even if animationEnabled is true.
+    respectReducedMotion: true,
+  },
 
   /**
    * An object that specifies HTML tags to use when rendering survey, page, panel, and question titles.
@@ -910,6 +947,20 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
+  /**
+   * Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+   *
+   * Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+   *
+   * - [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+   * - Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+   * - `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+   *
+   * Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+   *
+   * This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+   */
+  allowExponentialNotation: false,
   /**
    * Defines the file type categories used by the [`acceptedCategories`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedCategories) property of [File Upload](https://surveyjs.io/form-library/examples/file-upload/) questions.
    *

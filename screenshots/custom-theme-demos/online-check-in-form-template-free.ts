@@ -1,0 +1,485 @@
+import { countryChoices } from "./country-choices";
+
+export const survey = {
+  "title": "Online Check-in",
+  "description": "Check-in is available 2 to 24 hours prior to departure for all destinations. To complete the check-in process, please fill out the form below.",
+  "logo": "https://api.surveyjs.io/private/Surveys/files?name=ee96dc76-ecfb-4b17-8589-493015f1132a",
+  "logoWidth": "auto",
+  "logoHeight": "40",
+  "completedHtml": "<div style=\"max-width:640px;text-align:center;margin:16px auto;\">\n\n<div style=\"padding:0 24px;\">\n<h4>Check-in complete.</h4>\n<p>Thank you for checking in. Your journey with us is all set. Have a great flight.</p>\n</div>\n\n</div>\n",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "passengers",
+          "width": "100%",
+          "minWidth": "256px",
+          "titleLocation": "hidden",
+          "templateQuestionTitleLocation": "hidden",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "first-name",
+              "width": "35%",
+              "minWidth": "208px",
+              "title": "PASSENGER #{panelIndex} INFO",
+              "titleLocation": "top",
+              "placeholder": "First name"
+            },
+            {
+              "type": "text",
+              "name": "last-name",
+              "width": "30%",
+              "minWidth": "172px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "placeholder": "Last name"
+            },
+            {
+              "type": "dropdown",
+              "name": "prefix",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "choices": [
+                "Mr.",
+                "Mrs.",
+                "Ms."
+              ],
+              "choicesOrder": "random",
+              "placeholder": "Prefix",
+              "allowClear": false
+            },
+            {
+              "type": "multipletext",
+              "name": "birthdate",
+              "width": "65%",
+              "minWidth": "256px",
+              "items": [
+                {
+                  "name": "date",
+                  "inputType": "date",
+                  "title": "Date of birth"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "nationality",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "placeholder": "Nationality"
+            },
+            {
+              "type": "text",
+              "name": "passport-number",
+              "width": "100%",
+              "minWidth": "256px",
+              "title": "PASSENGER #{panelIndex} ID",
+              "titleLocation": "top",
+              "placeholder": "Passport #"
+            },
+            {
+              "type": "dropdown",
+              "name": "passport-issue-country",
+              "width": "35%",
+              "minWidth": "208px",
+              "choices": countryChoices,
+              "placeholder": "Country of issue",
+              "allowClear": false
+            },
+            {
+              "type": "multipletext",
+              "name": "passport-exp-date",
+              "width": "65%",
+              "minWidth": "256px",
+              "startWithNewLine": false,
+              "items": [
+                {
+                  "name": "date",
+                  "inputType": "date",
+                  "title": "Exp. date"
+                }
+              ]
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+          "confirmDeleteText": "Do you want to delete the passenger?",
+          "addPanelText": "ADD PASSENGER",
+          "removePanelText": "REMOVE",
+          "showProgressBar": false
+        },
+        {
+          "type": "panel",
+          "name": "person-to-notify",
+          "elements": [
+            {
+              "type": "text",
+              "name": "person-to-notify-first-name",
+              "width": "35%",
+              "minWidth": "208px",
+              "title": "PERSON TO NOTIFY",
+              "titleLocation": "top",
+              "setValueIf": "{passengers[0].first-name} notempty",
+              "setValueExpression": "{passengers[0].first-name}",
+              "placeholder": "First name"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-last-name",
+              "width": "30%",
+              "minWidth": "172px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "setValueIf": "{passengers[0].last-name} notempty",
+              "setValueExpression": "{passengers[0].last-name}",
+              "placeholder": "Last name"
+            },
+            {
+              "type": "dropdown",
+              "name": "person-to-notify-prefix",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "setValueIf": "{passengers[0].prefix} notempty",
+              "setValueExpression": "{passengers[0].prefix}",
+              "choices": [
+                "Mr.",
+                "Mrs.",
+                "Ms."
+              ],
+              "choicesOrder": "random",
+              "placeholder": "Prefix",
+              "allowClear": false
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-email",
+              "width": "65%",
+              "minWidth": "256px",
+              "inputType": "email",
+              "placeholder": "Email"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-phone",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "placeholder": "Phone"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-address",
+              "width": "100%",
+              "minWidth": "256px",
+              "title": "ADDRESS",
+              "titleLocation": "top",
+              "placeholder": "Address line 1"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-city",
+              "width": "35%",
+              "minWidth": "208px",
+              "placeholder": "City"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-state",
+              "width": "30%",
+              "minWidth": "172px",
+              "startWithNewLine": false,
+              "placeholder": "State"
+            },
+            {
+              "type": "text",
+              "name": "person-to-notify-zip",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "placeholder": "Zip Code"
+            },
+            {
+              "type": "dropdown",
+              "name": "person-to-notify-country",
+              "width": "100%",
+              "minWidth": "256px",
+              "choices": countryChoices,
+              "placeholder": "Country",
+              "allowClear": false
+            }
+          ],
+          "questionTitleLocation": "hidden",
+          "width": "100%",
+          "minWidth": "256px"
+        },
+        {
+          "type": "panel",
+          "name": "flight",
+          "elements": [
+            {
+              "type": "text",
+              "name": "departure-booking-number",
+              "width": "65%",
+              "minWidth": "256px",
+              "title": "DEPARTURE",
+              "titleLocation": "top",
+              "validators": [
+                {
+                  "type": "regex",
+                  "text": "Your booking number must consist of exactly 6 digits.",
+                  "regex": "^\\d{6}$"
+                }
+              ],
+              "maxLength": 6,
+              "placeholder": "Please enter your 6-digit booking number"
+            },
+            {
+              "type": "text",
+              "name": "departure-flight-number",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "placeholder": "Flight #"
+            },
+            {
+              "type": "multipletext",
+              "name": "departure-date",
+              "width": "65%",
+              "minWidth": "256px",
+              "items": [
+                {
+                  "name": "date",
+                  "inputType": "date",
+                  "title": "Date"
+                }
+              ]
+            },
+            {
+              "type": "multipletext",
+              "name": "departure-time",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "items": [
+                {
+                  "name": "time",
+                  "inputType": "time",
+                  "title": "Time"
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "name": "departure-country",
+              "width": "65%",
+              "minWidth": "256px",
+              "title": "DEPARTING FROM",
+              "choices": countryChoices,
+              "placeholder": "Country",
+              "allowClear": false
+            },
+            {
+              "type": "text",
+              "name": "departure-city",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "title": " ",
+              "placeholder": "City"
+            },
+            {
+              "type": "dropdown",
+              "name": "destination-country",
+              "width": "65%",
+              "minWidth": "256px",
+              "title": "DESTINATION",
+              "titleLocation": "top",
+              "choices": countryChoices,
+              "placeholder": "Country",
+              "allowClear": false
+            },
+            {
+              "type": "text",
+              "name": "destination-city",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "title": " ",
+              "titleLocation": "top",
+              "placeholder": "City"
+            },
+            {
+              "type": "checkbox",
+              "name": "connecting-flight",
+              "width": "100%",
+              "minWidth": "256px",
+              "choices": [
+                {
+                  "value": "true",
+                  "text": "I have a connecting flight"
+                }
+              ]
+            },
+            {
+              "type": "multipletext",
+              "name": "connecting-flight-date",
+              "visibleIf": "{connecting-flight} = ['true']",
+              "width": "65%",
+              "minWidth": "256px",
+              "items": [
+                {
+                  "name": "date",
+                  "inputType": "date",
+                  "title": "Date"
+                }
+              ]
+            },
+            {
+              "type": "multipletext",
+              "name": "connecting-flight-time",
+              "visibleIf": "{connecting-flight} = ['true']",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "items": [
+                {
+                  "name": "time",
+                  "inputType": "time",
+                  "title": "Time"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "connecting-flight-booking-number",
+              "visibleIf": "{connecting-flight} = ['true']",
+              "width": "65%",
+              "minWidth": "256px",
+              "title": "DEPARTURE",
+              "validators": [
+                {
+                  "type": "regex",
+                  "text": "Your booking number must consist of exactly 6 digits.",
+                  "regex": "^\\d{6}$"
+                }
+              ],
+              "maxLength": 6,
+              "placeholder": "Please enter your 6-digit booking number"
+            },
+            {
+              "type": "text",
+              "name": "connecting-flight-number",
+              "visibleIf": "{connecting-flight} = ['true']",
+              "width": "35%",
+              "minWidth": "208px",
+              "startWithNewLine": false,
+              "placeholder": "Flight #"
+            }
+          ],
+          "questionTitleLocation": "hidden",
+          "width": "100%",
+          "minWidth": "256px"
+        }
+      ]
+    }
+  ],
+  "questionDescriptionLocation": "underInput",
+  "questionErrorLocation": "bottom",
+  "completeText": "Check In",
+  "widthMode": "static",
+  "width": "860"
+};
+
+export const theme = {
+  "backgroundImage": "https://api.surveyjs.io/private/Surveys/files?name=0e692c99-8fa6-4f8b-b06e-ded5f714d0c8",
+  "backgroundImageFit": "cover",
+  "backgroundImageAttachment": "fixed",
+  "backgroundOpacity": 0.75,
+  "cssVariables": {
+    "--sjs-general-backcolor": "rgba(255, 255, 255, 0.25)",
+    "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)",
+    "--sjs-general-backcolor-dim": "#197CE6",
+    "--sjs-general-backcolor-dim-light": "rgba(255, 255, 255, 1)",
+    "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)",
+    "--sjs-general-forecolor": "rgba(0, 0, 0, 0.91)",
+    "--sjs-general-forecolor-light": "rgba(0, 0, 0, 0.45)",
+    "--sjs-primary-backcolor": "rgba(4, 91, 185, 1)",
+    "--sjs-primary-backcolor-light": "rgba(255, 255, 255, 0.25)",
+    "--sjs-primary-backcolor-dark": "rgba(4, 91, 185, 0.75)",
+    "--sjs-primary-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)",
+    "--sjs-base-unit": "8px",
+    "--sjs-corner-radius": "4px",
+    "--sjs-shadow-small": "0px 0px 0px 0px rgba(0, 0, 0, 0)",
+    "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.1)",
+    "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
+    "--sjs-shadow-inner": "0px 0px 0px 0px rgba(0, 0, 0, 0)",
+    "--sjs-border-light": "rgba(255, 255, 255, 0.15)",
+    "--sjs-border-default": "rgba(0, 0, 0, 0.25)",
+    "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",
+    "--sjs-special-red": "rgba(229, 10, 62, 1)",
+    "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
+    "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-green": "rgba(25, 179, 148, 1)",
+    "--sjs-special-green-light": "rgba(25, 179, 148, 0.1)",
+    "--sjs-special-green-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-blue": "rgba(67, 127, 217, 1)",
+    "--sjs-special-blue-light": "rgba(67, 127, 217, 0.1)",
+    "--sjs-special-blue-forecolor": "rgba(255, 255, 255, 1)",
+    "--sjs-special-yellow": "rgba(255, 152, 20, 1)",
+    "--sjs-special-yellow-light": "rgba(255, 152, 20, 0.1)",
+    "--sjs-special-yellow-forecolor": "rgba(255, 255, 255, 1)",
+    "--font-family": "Open Sans",
+    "--sjs-questionpanel-cornerRadius": "8px",
+    "--sjs-editorpanel-hovercolor": "rgba(4, 91, 185, 1)",
+    "--sjs-editorpanel-cornerRadius": "3px",
+    "--sjs-font-pagetitle-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-editorfont-color": "rgba(0, 0, 0, 0.9)",
+    "--sjs-font-editorfont-placeholdercolor": "rgba(0, 0, 0, 0.5)",
+    "--sjs-font-questiontitle-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-questiondescription-color": "rgba(255, 255, 255, 0.75)",
+    "--sjs-questionpanel-hovercolor": "rgba(255, 255, 255, 0.15)",
+    "--sjs-font-questiontitle-weight": "700",
+    "--sjs-font-questiontitle-size": "14px",
+    "--sjs-font-questiondescription-size": "14px",
+    "--sjs-font-editorfont-size": "14px",
+    "--sjs-header-backcolor": "transparent",
+    "--sjs-font-headertitle-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-headertitle-size": "24px",
+    "--sjs-font-headerdescription-color": "rgba(255, 255, 255, 1)",
+    "--sjs-font-headerdescription-size": "14px",
+    "--sjs-font-headerdescription-weight": "600",
+    "--sjs-questionpanel-backcolor": "rgba(255, 255, 255, 0.25)",
+    "--sjs-font-headertitle-weight": "700",
+    "--sjs-font-pagetitle-weight": "700"
+  },
+  "themeName": "default",
+  "colorPalette": "light",
+  "isPanelless": false,
+  "header": {
+    "height": 176,
+    "textAreaWidth": 424,
+    "inheritWidthFrom": "survey",
+    "logoPositionX": "right",
+    "logoPositionY": "top",
+    "titlePositionX": "left",
+    "titlePositionY": "bottom",
+    "descriptionPositionX": "left",
+    "descriptionPositionY": "bottom"
+  },
+  "headerView": "advanced"
+};

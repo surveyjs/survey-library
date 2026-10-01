@@ -55,6 +55,10 @@ export var greekSurveyStrings = {
   value: "τιμή",
   // "Response required."
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Η τιμή είναι λανθασμένη.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Η τιμή περιέχει άγνωστα κλειδιά: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Απαντήστε σε τουλάχιστον μία ερώτηση.",
   // "Response required: answer questions in all rows."

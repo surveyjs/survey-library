@@ -141,7 +141,10 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  DataIssueType,
+  IDataVerificationOptions,
+  IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
@@ -152,7 +155,8 @@ export {
   OneAnswerRequiredError,
   RequreNumericError,
   ExceedSizeError,
-  ExceedFilesCountError
+  ExceedFilesCountError,
+  IncorrectValueError
 } from "../../src/error";
 export {
   ILocalizableOwner,
@@ -179,6 +183,14 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
+export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
+export {
+  isConditionOperatorEnabled,
+  isQuestionTypeInList,
+  isQuestionClassContains,
+  getConditionOperatorNames,
+  getConditionDefaultOperator
+} from "../../src/conditions/conditionOperators";
 export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,

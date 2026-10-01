@@ -55,6 +55,10 @@ export var italianSurveyStrings = {
   value: "valore",
   // "Response required."
   requiredError: "Campo obbligatorio",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Il valore è errato.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Il valore contiene chiavi sconosciute: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Per Favore, rispondi ad almeno una domanda.",
   // "Response required: answer questions in all rows."

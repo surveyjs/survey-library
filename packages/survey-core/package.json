@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
@@ -15,7 +15,8 @@
     "watch:dev": "rollup -c rollup.config.mjs -w",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:types",
+    "test:types": "tsc -p tests/typings/tsconfig.json",
     "test:watch": "vitest --no-isolate",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "build:translate": "survey-utils translate library --path ../..",

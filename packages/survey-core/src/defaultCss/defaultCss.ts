@@ -19,7 +19,6 @@ export var defaultCss = {
   rootMobile: "sd-root-modern--mobile",
   rootAnimationDisabled: "sd-root-modern--animation-disabled",
   rootReadOnly: "sd-root--readonly",
-  rootCompact: "sd-root--compact",
   rootFitToContainer: "sd-root-modern--full-container",
   rootWrapper: "sd-root-modern__wrapper",
   rootWrapperFixed: "sd-root-modern__wrapper--fixed",
@@ -93,7 +92,6 @@ export var defaultCss = {
     nested: "sd-element--nested sd-element--nested-with-borders sd-panel--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
-    compact: "sd-element--with-frame sd-element--compact sd-panel--with-frame",
     errorsContainer: "sd-panel__errbox sd-element__erbox sd-element__erbox--above-element"
   },
   paneldynamic: {
@@ -123,7 +121,6 @@ export var defaultCss = {
     panelWrapperList: "sd-paneldynamic__panel-wrapper--list",
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
-    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
     tabsContainer: "sd-paneldynamic__tabs-container",
     tabsContainerWithHeader: "sd-paneldynamic__tabs-container--with-header",
     tabsRoot: "sd-tabs-toolbar",
@@ -179,7 +176,6 @@ export var defaultCss = {
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
-  rowCompact: "sd-row--compact",
   rowEnter: "sd-row--enter",
   rowDelayedEnter: "sd-row--delayed-enter",
   rowLeave: "sd-row--leave",
@@ -230,6 +226,7 @@ export var defaultCss = {
     descriptionUnderInput: "sd-question__description--under-input",
     comment: "sd-formbox sd-comment",
     commentControl: "sd-formbox__input sd-comment__input",
+    commentOnError: "sd-formbox--error",
     commentGrip: "sd-comment__grip",
     commentGripIconId: "icon-grip",
     required: "sd-question--required",
@@ -562,8 +559,7 @@ export var defaultCss = {
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
     cellTextDisabled: "sd-matrix__text--disabled",
-    cellResponsiveTitle: "sd-matrix__responsive-title",
-    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
+    cellResponsiveTitle: "sd-matrix__responsive-title"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -612,8 +608,7 @@ export var defaultCss = {
     actionsCell: "sd-table__cell sd-table__cell--actions",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
-    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame"
+    cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table sd-question--matrixdynamic",
@@ -675,8 +670,7 @@ export var defaultCss = {
     cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
     errorsCell: "sd-table__cell--error",
     errorsCellTop: "sd-table__cell--error-top",
-    errorsCellBottom: "sd-table__cell--error-bottom",
-    compact: "sd-element--with-frame sd-element--compact sd-question--with-frame",
+    errorsCellBottom: "sd-table__cell--error-bottom"
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",

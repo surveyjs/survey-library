@@ -34,13 +34,17 @@ describe("value sync: outgoing", () => {
     expect((sent[0] as any).key).toBe("q1\u0000comment");
     expect((sent[0] as any).value).toBe("note");
   });
-  test("an oversized value is refused and reported on the question", () => {
+  // The plugin sets no size limit of its own: that is the relay's business, and it is
+  // the relay that knows its frame limit.
+  test("a value of any size is sent as it is", () => {
     const survey = new SurveyModel(simpleJson);
-    const plugin = new CollaborationPlugin(survey, { maxValueChars: 32 });
+    const plugin = new CollaborationPlugin(survey);
     const sent = collect(plugin);
-    survey.setValue("q1", "x".repeat(200));
-    expect(sent).toHaveLength(0);
-    expect(survey.getQuestionByName("q1").errors).toHaveLength(1);
+    const large = "x".repeat(16 * 1024 * 1024 + 1);
+    survey.setValue("q1", large);
+    expect(sent).toHaveLength(1);
+    expect((sent[0] as any).value).toBe(large);
+    expect(survey.getQuestionByName("q1").errors).toHaveLength(0);
   });
 });
 

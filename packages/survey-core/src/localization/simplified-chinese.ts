@@ -55,6 +55,10 @@ export var simplifiedChineseSurveyStrings = {
   value: "值",
   // "Response required."
   requiredError: "请填写此问题",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "数值是错误的。",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "该值包含未知键：{0}。",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "至少回答一题.",
   // "Response required: answer questions in all rows."

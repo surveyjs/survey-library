@@ -55,6 +55,10 @@ export var finnishSurveyStrings = {
   value: "arvo",
   // "Response required."
   requiredError: "Vastaa kysymykseen, kiitos.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Arvo on väärä.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Arvo sisältää tuntemattomia avaimia: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vastaa ainakin yhteen kysymykseen.",
   // "Response required: answer questions in all rows."

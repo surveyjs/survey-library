@@ -55,6 +55,10 @@ export var lithuaniaSurveyStrings = {
   value: "reikšmė",
   // "Response required."
   requiredError: "Būtina atsakyti į šį klausimą.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Reikšmė neteisinga.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Reikšmė turi nežinomus raktus: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",
   // "Response required: answer questions in all rows."

@@ -37,7 +37,7 @@ import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDa
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
-  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness
+  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
 } from "./dynamic-data/dynamic-data-question-controller";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -298,7 +298,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const hasRows = !!this.generatedVisibleRows;
     // The page is a slice of the visible records: their visibility is decided before it is cut.
     if (hasRows && !!this.data) {
-      this.updateRecordsVisibilityByExpression(this.getDataFilteredProperties());
+      this.dynamicData.updateRecordsVisibility(this.getDataFilteredProperties());
     }
     if (hasRows) {
       this.clearGeneratedRows();
@@ -2056,7 +2056,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     super.onRowVisibilityChanged(row);
-    // Under paging the records decide the flags (updateRecordsVisibilityByExpression).
+    // Under paging the records decide the flags (getRecordVisibilityRule).
     const index = this.isPagingActive ? -1 : this.getRecordIndexOf(row);
     if (index > -1) {
       this.dataList.setRecordVisible(index, row.isVisible);
@@ -2068,7 +2068,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected runCellsCondition(properties: HashTable<any>): boolean {
     // The records decide the page; when it is not the page the rows hold, the rebuild runs the
     // conditions of the new rows itself.
-    if (this.updateRecordsVisibilityByExpression(properties) && this.dynamicData.isPageStale()) {
+    if (this.dynamicData.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
       this.rebuildRowsFromDataList();
       return true;
     }
@@ -2080,24 +2080,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getRowsVisibleIfForRows(): string {
     return this.isPagingActive ? "" : super.getRowsVisibleIfForRows();
   }
-  /* rowsVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice of the VISIBLE
-     records, so the condition is evaluated over every record with a value-only context - {row.x} is
-     the record's field, {rowIndex} its number - and the list's hidden flags are written without a
-     row. A row that is built runs no rowsVisibleIf of its own (getRowsVisibleIfForRows), so the two
-     cannot disagree. Limitation: an expression cell the condition reads contributes its stored
-     value. Returns whether a flag changed. */
-  private updateRecordsVisibilityByExpression(properties: HashTable<any>): boolean {
-    if (!this.isPagingActive || this.isDesignMode || this.isLoadingFromJson) return false;
-    const list = this.dataList;
-    // Asked before the areInvisibleElementsShowing check: survey.onExpressionRunning fires in that mode too.
-    const expression = this.getExpressionFromSurvey("rowsVisibleIf");
-    const isChanged = list.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
-      (index: number): any => this.getListRecordAt(index),
-      (): IDynamicDataRecordScope => ({ item: this.createRecordItem(-1), properties: properties }));
-    if (isChanged) {
-      this.syncPagingState();
-    }
-    return isChanged;
+  /* IDynamicDataQuestionHooks: rowsVisibleIf under paging, evaluated over every record with a
+     value-only context - {row.x} is the record's field, {rowIndex} its number - in the run's own
+     properties. A row that is built runs no rowsVisibleIf of its own (getRowsVisibleIfForRows), so
+     the two cannot disagree. Limitation: an expression cell the condition reads contributes its
+     stored value. */
+  getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
+    return {
+      expression: this.getExpressionFromSurvey("rowsVisibleIf"),
+      createScope: (): IDynamicDataRecordScope => ({ item: this.createRecordItem(-1), properties: properties })
+    };
   }
   /* When the list pages the progress is counted from the records - every visible record, every
      input column - as it is before the rows exist: the rows are one page. A source that pages itself

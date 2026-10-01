@@ -45,7 +45,7 @@ import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynam
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
-  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness
+  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
 } from "./dynamic-data/dynamic-data-question-controller";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -653,7 +653,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const list = this.dataList;
     // The page is a slice of the visible records: their visibility is decided before it is cut.
     if (!!this.data) {
-      this.updateRecordsVisibility(this.getDataFilteredProperties());
+      this.dynamicData.updateRecordsVisibility(this.getDataFilteredProperties());
     }
     if (!this.isSettingPanelItemData()) {
       this.disposeLeftPanels(this._renderedPanels);
@@ -3002,7 +3002,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     try {
       // The records decide the page; when the page they decide is not the one built, the rebuild runs
       // the panels' conditions itself.
-      if (this.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
+      if (this.dynamicData.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
         this.rebuildPanelsFromDataList();
       } else {
         this.runPanelsCondition(this.panelsCore, properties);
@@ -3014,30 +3014,23 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.runDeferredPagingSync();
     }
   }
-  /* templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice of the VISIBLE
-     records, so the condition is evaluated over every record with a value-only context - {panel.x}
-     is the record's field, {panelIndex} its index, survey values as usual - and the list's hidden
-     flags are written without building a panel. O(records) expression runs per condition run, not
-     O(records) panels. A panel that is built takes its visibility from the same evaluation (see
+  /* IDynamicDataQuestionHooks: templateVisibleIf under paging, evaluated over every record with a
+     value-only context - {panel.x} is the record's field, {panelIndex} its index, survey values as
+     usual - without building a panel: O(records) expression runs per condition run, not O(records)
+     panels. The record item is the panel variable of a copy of the run's properties, as a panel is
+     in runPanelsCondition. A panel that is built takes its visibility from the same evaluation (see
      createNewPanel), so the two cannot disagree. Limitation: an expression question the condition
-     reads contributes its stored value. Returns whether a flag changed. */
-  private updateRecordsVisibility(properties: HashTable<any>): boolean {
-    if (!this.isPagingActive || this.isDesignMode || this.isLoadingFromJson) return false;
-    const list = this.dataList;
-    // survey.onExpressionRunning may rewrite or cancel it, as it does rowsVisibleIf; it is asked
-    // before the areInvisibleElementsShowing check, so the event fires in that mode too.
-    const expression = this.getExpressionFromSurvey("templateVisibleIf");
-    const isChanged = list.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
-      (index: number): any => list.getRecord(index), (): IDynamicDataRecordScope => {
+     reads contributes its stored value. */
+  getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
+    return {
+      expression: this.getExpressionFromSurvey("templateVisibleIf"),
+      createScope: (): IDynamicDataRecordScope => {
         const item = this.createRecordItem(-1);
         const newProps = Helpers.createCopy(properties);
         newProps[settings.expressionVariables.panel] = item;
         return { item: item, properties: newProps };
-      });
-    if (isChanged) {
-      this.syncPagingState();
-    }
-    return isChanged;
+      }
+    };
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
@@ -3422,7 +3415,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
     var json = this.template.toJSON();
-    /* Under paging a record's visibility is decided over the record (updateRecordsVisibility) and a
+    /* Under paging a record's visibility is decided over the record (getRecordVisibilityRule) and a
        hidden record gets no panel, so the panel does not run templateVisibleIf a second time: it takes
        its visibility from that evaluation and the two cannot disagree. */
     if (this.isPagingActive) {

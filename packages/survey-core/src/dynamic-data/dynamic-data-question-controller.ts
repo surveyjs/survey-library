@@ -1,6 +1,6 @@
 import { ISurveyData } from "../base-interfaces";
 import { DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "../dynamicItemModelBase";
-import { Helpers } from "../helpers";
+import { HashTable, Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
 import {
@@ -12,6 +12,7 @@ import {
 } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data-record-remap";
+import { IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
 
 /* What a dynamic question supplies to the coordination it shares with the other one: where its
    records are stored, and what differs for rows and panels in the answer to a list change. They are
@@ -55,15 +56,19 @@ export interface IDynamicDataQuestionHooks {
   focusItemAfterRead(index: number): void;
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
   validatePageObjects(context: ValidationContext): boolean;
-  /* One record as the question reads it without an object: the duplicate scan and createRecordItem
-     read through it. The matrix pads question.value up to rowCount with the default row value; a
-     data source's window and a write in progress are the list's. */
+  /* One record as the question reads it without an object: the duplicate scan, the record
+     visibility and createRecordItem read through it. The matrix pads question.value up to rowCount
+     with the default row value; a data source's window and a write in progress are the list's. */
   getListRecordAt(index: number): any;
   // A record without an object, read as a value: the variable name and the context class are the
   // question's.
   createRecordItem(recordIndex: number): DynamicRecordItem;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   getRecordUniqueness(): IDynamicDataRecordUniqueness;
+  /* rowsVisibleIf / templateVisibleIf over the records of a question that pages: the expression as
+     the survey hands it out (survey.onExpressionRunning) and the scope it runs in. Asked once the
+     controller's guards have passed. */
+  getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule;
 }
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -72,6 +77,11 @@ export interface IDynamicDataRecordUniqueness {
   caseSensitive: boolean;
   // Owner-hidden records take part too.
   includeHidden: boolean;
+}
+export interface IDynamicDataRecordVisibilityRule {
+  expression: string;
+  // Called only when the expression runs.
+  createScope: () => IDynamicDataRecordScope;
 }
 // The objects are read through the owner's IDynamicItemModelData: by created position and by record.
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
@@ -453,6 +463,25 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
       });
     });
     return pages;
+  }
+
+  /* rowsVisibleIf / templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice
+     of the VISIBLE records, so the condition is evaluated over every record without an object and
+     the list's hidden flags are written from it (DynamicDataRecordVisibility). The rule is asked
+     only past the guards, and before areInvisibleElementsShowing is applied: the survey's
+     onExpressionRunning fires in that mode too. A flag that changed changes the page count, which
+     the list does not announce: the question syncs it. Returns whether a flag changed. */
+  public updateRecordsVisibility(properties: HashTable<any>): boolean {
+    const owner = this.owner;
+    // isPagingActive is false in design mode.
+    if (!this.isPagingActive || owner.isLoadingFromJson) return false;
+    const rule = owner.getRecordVisibilityRule(properties);
+    const isChanged = this._list.updateRecordsVisibility(owner.areInvisibleElementsShowing ? "" : rule.expression,
+      (index: number): any => owner.getListRecordAt(index), rule.createScope);
+    if (isChanged) {
+      owner.syncPagingState();
+    }
+    return isChanged;
   }
 
   /* The capabilities of a data source are declared by the presence of its optional methods: a source

@@ -359,7 +359,7 @@ frameworks.forEach((framework) => {
       expect(surveyResult.question3).toEqual(undefined);
     });
 
-    test("numeric input validation - prevent 'e' character", async ({ page }) => {
+    test("numeric input validation - allow exponential notation", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [
@@ -373,21 +373,49 @@ frameworks.forEach((framework) => {
       const input = await page.locator('input[type="number"]');
       await expect(input).toBeFocused();
 
-      // Try to type 'e' character
-      await page.keyboard.press("e");
-      expect(await input.inputValue()).toBe("");
+      await page.keyboard.type("1e5");
+      expect(await input.inputValue()).toBe("1e5");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(100000);
 
-      // Try to type 'E' character
-      await page.keyboard.press("E");
-      expect(await input.inputValue()).toBe("");
+      await input.focus();
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      await page.keyboard.type("2.5E+2");
+      expect(await input.inputValue()).toBe("2.5E+2");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(250);
 
-      // Type valid number
-      await page.keyboard.type("123");
-      expect(await input.inputValue()).toBe("123");
+      await input.focus();
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      await page.keyboard.type("2.5E-3");
+      expect(await input.inputValue()).toBe("2.5E-3");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(0.0025);
+    });
 
-      // Try to add 'e' in the middle
-      await page.keyboard.press("e");
-      expect(await input.inputValue()).toBe("123");
+    test("numeric input validation - incomplete exponential notation shows an error", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      await page.keyboard.type("1e");
+      let result = await page.evaluate(() => window["survey"].getQuestionByName("numericQ").validate());
+      expect(result).toBe(false);
+
+      await page.keyboard.type("3");
+      result = await page.evaluate(() => window["survey"].getQuestionByName("numericQ").validate());
+      expect(result).toBe(true);
     });
 
     test("numeric input validation after paste", async ({ page }) => {
@@ -418,29 +446,6 @@ frameworks.forEach((framework) => {
       expect(await input.inputValue()).toBe("123");
       result = await page.evaluate(() => window["survey"].getQuestionByName("q1").validate());
       expect(result).toBe(true);
-    });
-
-    test("numeric input validation - prevent '+' character", async ({ page }) => {
-      await initSurvey(page, framework, {
-        autoFocusFirstQuestion: true,
-        elements: [
-          {
-            name: "numericQ",
-            type: "text",
-            inputType: "number",
-          }]
-      });
-
-      const input = await page.locator('input[type="number"]');
-      await expect(input).toBeFocused();
-
-      // Try to type '+' character
-      await page.keyboard.press("+");
-      expect(await input.inputValue()).toBe("");
-
-      // Type valid number
-      await page.keyboard.type("123");
-      expect(await input.inputValue()).toBe("123");
     });
 
     test("numeric input validation - prevent '-' at non-first position", async ({ page }) => {

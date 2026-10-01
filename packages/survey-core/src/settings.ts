@@ -944,6 +944,9 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
+  // When true, Text questions with inputType "number" let users type "e", "E", and "+" to enter
+  // numbers in exponential notation (e.g., 1e5, 2.5E-3). Disabled by default: these keys are blocked.
+  allowExponentialNotation: false,
   /**
    * Defines the file type categories used by the [`acceptedCategories`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedCategories) property of [File Upload](https://surveyjs.io/form-library/examples/file-upload/) questions.
    *

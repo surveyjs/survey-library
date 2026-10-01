@@ -359,7 +359,7 @@ frameworks.forEach((framework) => {
       expect(surveyResult.question3).toEqual(undefined);
     });
 
-    test("numeric input validation - allow exponential notation", async ({ page }) => {
+    test("numeric input validation - prevent 'e' character", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [
@@ -368,6 +368,40 @@ frameworks.forEach((framework) => {
             type: "text",
             inputType: "number",
           }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Try to type 'e' character
+      await page.keyboard.press("e");
+      expect(await input.inputValue()).toBe("");
+
+      // Try to type 'E' character
+      await page.keyboard.press("E");
+      expect(await input.inputValue()).toBe("");
+
+      // Type valid number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+
+      // Try to add 'e' in the middle
+      await page.keyboard.press("e");
+      expect(await input.inputValue()).toBe("123");
+    });
+
+    test("numeric input validation - allow exponential notation with settings.allowExponentialNotation", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+      await page.evaluate(() => {
+        window["Survey"].settings.allowExponentialNotation = true;
       });
 
       const input = await page.locator('input[type="number"]');
@@ -395,7 +429,7 @@ frameworks.forEach((framework) => {
       expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(0.0025);
     });
 
-    test("numeric input validation - incomplete exponential notation shows an error", async ({ page }) => {
+    test("numeric input validation - incomplete exponential notation shows an error with settings.allowExponentialNotation", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [
@@ -404,6 +438,9 @@ frameworks.forEach((framework) => {
             type: "text",
             inputType: "number",
           }]
+      });
+      await page.evaluate(() => {
+        window["Survey"].settings.allowExponentialNotation = true;
       });
 
       const input = await page.locator('input[type="number"]');
@@ -446,6 +483,29 @@ frameworks.forEach((framework) => {
       expect(await input.inputValue()).toBe("123");
       result = await page.evaluate(() => window["survey"].getQuestionByName("q1").validate());
       expect(result).toBe(true);
+    });
+
+    test("numeric input validation - prevent '+' character", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Try to type '+' character
+      await page.keyboard.press("+");
+      expect(await input.inputValue()).toBe("");
+
+      // Type valid number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
     });
 
     test("numeric input validation - prevent '-' at non-first position", async ({ page }) => {

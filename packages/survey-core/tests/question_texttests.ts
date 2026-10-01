@@ -892,7 +892,7 @@ describe("question text tests", () => {
     expect(question.value).toBe(" Test ");
   });
 
-  test("Numeric input validation - allow 'e', 'E', and '+' for exponential notation", () => {
+  test("Numeric input validation - prevent 'e' character", () => {
     const q = new QuestionTextModel("q1");
     q.inputType = "number";
 
@@ -907,9 +907,61 @@ describe("question text tests", () => {
       };
     };
 
-    expect(q["shouldPreventNumberInput"](createKeyEvent("e")), "Should allow 'e' character").toBe(false);
-    expect(q["shouldPreventNumberInput"](createKeyEvent("E")), "Should allow 'E' character").toBe(false);
-    expect(q["shouldPreventNumberInput"](createKeyEvent("+", 2)), "Should allow '+' character").toBe(false);
+    // Test 'e' character prevention
+    const eventE = createKeyEvent("e");
+    expect(q["shouldPreventNumberInput"](eventE), "Should prevent 'e' character").toBe(true);
+
+    const eventEUpper = createKeyEvent("E");
+    expect(q["shouldPreventNumberInput"](eventEUpper), "Should prevent 'E' character").toBe(true);
+  });
+
+  test("Numeric input validation - prevent '+' character", () => {
+    const q = new QuestionTextModel("q1");
+    q.inputType = "number";
+
+    const createKeyEvent = (key: string, selectionStart: number = 0) => {
+      return {
+        key: key,
+        target: { selectionStart: selectionStart, value: "" },
+        preventDefault: () => {},
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false
+      };
+    };
+
+    // Test '+' character prevention
+    const eventPlus = createKeyEvent("+", 0);
+    expect(q["shouldPreventNumberInput"](eventPlus), "Should prevent '+' at start").toBe(true);
+
+    const eventPlusMiddle = createKeyEvent("+", 5);
+    expect(q["shouldPreventNumberInput"](eventPlusMiddle), "Should prevent '+' in middle").toBe(true);
+  });
+
+  test("Numeric input validation - allow 'e', 'E', and '+' when settings.allowExponentialNotation is enabled", () => {
+    const q = new QuestionTextModel("q1");
+    q.inputType = "number";
+
+    const createKeyEvent = (key: string, selectionStart: number = 0) => {
+      return {
+        key: key,
+        target: { selectionStart: selectionStart, value: "" },
+        preventDefault: () => {},
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false
+      };
+    };
+
+    expect(settings.allowExponentialNotation, "disabled by default").toBe(false);
+    settings.allowExponentialNotation = true;
+    try {
+      expect(q["shouldPreventNumberInput"](createKeyEvent("e")), "Should allow 'e' character").toBe(false);
+      expect(q["shouldPreventNumberInput"](createKeyEvent("E")), "Should allow 'E' character").toBe(false);
+      expect(q["shouldPreventNumberInput"](createKeyEvent("+", 2)), "Should allow '+' character").toBe(false);
+    } finally {
+      settings.allowExponentialNotation = false;
+    }
   });
 
   test("Numeric input validation - exponential notation is stored as a number", () => {

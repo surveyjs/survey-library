@@ -909,8 +909,9 @@ export class QuestionTextModel extends QuestionTextBase {
     // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
     if (event.ctrlKey || event.metaKey || event.altKey) return false;
 
-    // "e", "E", and "+" are allowed for exponential notation (e.g., 1e5, 1e+5).
+    // "e", "E", and "+" are used only in exponential notation (e.g., 1e5, 1e+5).
     // Incomplete values such as "1e" are reported via input.validity.badInput in onCheckForErrors.
+    if (!settings.allowExponentialNotation && ["e", "E", "+"].indexOf(key) > -1) return true;
 
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0

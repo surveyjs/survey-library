@@ -101,8 +101,11 @@ export interface IDynamicDataValueAssignment {
    caller-provided data source - the survey-data side of a source swap, the running state and the
    focus kept across a refill. The source itself, its capabilities and the loaded window belong to
    the list.
-   It is created with the question. The list and the helpers are created on first use, and the
-   ...Value getters never create.
+   What the questions do with the helpers - a page leave, the validation of the records off the
+   page, the record visibility of a question that pages, the nested page states - runs here with the
+   question's rules (the hooks): a question never sees the page validation.
+   It is created with the question. The list and the helpers are created on first use; listValue and
+   _pageValidation never create.
 
    What a source does NOT change is where the records are kept while they are being edited:
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,

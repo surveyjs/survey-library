@@ -448,6 +448,18 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public markRecordEdited(recordIndex: number): void {
     this.pageValidation.markEdited(recordIndex);
   }
+  /* Shows the page that holds a visible position - where an added record is, or the record carousel
+     and tab mode keep showing - as a move from code: the add was validated already. prepare runs
+     only when the page changes, before the move: the page change rebuilds the objects at once, and
+     the rebuild has to find what the question set aside for it. Returns whether the page changed. */
+  public showPageOfVisibleIndex(visibleIndex: number, prepare?: () => void): boolean {
+    const list = this.list;
+    const page = list.getPageOfVisibleIndex(visibleIndex);
+    if (page === list.pageIndex) return false;
+    if (!!prepare) prepare();
+    this.paging.pageIndex = page;
+    return true;
+  }
   /* A question that pages validates the page that exists - Complete included - and then what the
      page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
      records are off the page. Only a full validation that fires its callbacks visits them; a

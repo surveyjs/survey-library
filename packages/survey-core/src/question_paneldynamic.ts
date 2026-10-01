@@ -657,13 +657,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
        record hidden or shown ahead of it, a sort - keeps showing it, on whatever page it is now. */
     if (currentRecord > -1 && this.pendingCurrentVisibleIndex === undefined && !this.isRenderModeList && this.isPagedByList) {
       const visibleIndex = list.getVisibleIndexes().indexOf(currentRecord);
-      const page = visibleIndex < 0 ? -1 : list.getPageOfVisibleIndex(visibleIndex);
-      if (page > -1 && page !== list.pageIndex) {
-        this.pendingCurrentVisibleIndex = visibleIndex;
-        // Its pageChanged notification rebuilds the page that holds the record.
-        this.paging.pageIndex = page;
-        return;
-      }
+      // Its pageChanged notification rebuilds the page that holds the record.
+      if (visibleIndex > -1 && this.dynamicData.showPageOfVisibleIndex(visibleIndex,
+        (): void => { this.pendingCurrentVisibleIndex = visibleIndex; })) return;
     }
     const count = list.getMaterializedIndexes().length;
     const oldPanels = [].concat(this.panelsCore);
@@ -2414,14 +2410,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.isValueChangingInternally = false;
     }
     this.dynamicData.markRecordEdited(at);
+    /* A record templateVisibleIf hides is at visibleIndex -1, which is on page 0: the question goes
+       there (the matrix stays on its page instead). The current panel is set aside before the page
+       change, whose rebuild takes it; on the same page the panels are rebuilt here. */
     const visibleIndex = list.getVisibleIndexes().indexOf(at);
-    const page = list.getPageOfVisibleIndex(visibleIndex);
     if (!this.isRenderModeList) {
       this.pendingCurrentVisibleIndex = visibleIndex;
     }
-    if (page !== list.pageIndex) {
-      this.paging.pageIndex = page;
-    } else {
+    if (!this.dynamicData.showPageOfVisibleIndex(visibleIndex)) {
       this.rebuildPanelsFromDataList();
     }
     this.updateFooterActions();

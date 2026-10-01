@@ -1177,16 +1177,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private showPageOfAddedRecord(): void {
     this.showPageOfRecord(this.getLastRowRecordIndex());
   }
+  // A record the view does not show (rowsVisibleIf hides it) has no page: the page stays.
   private showPageOfRecord(recordIndex: number): void {
-    const list = this.dataList;
     if (recordIndex < 0) return;
     this.dynamicData.markRecordEdited(recordIndex);
-    const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
+    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
     if (visibleIndex < 0) return;
-    const page = list.getPageOfVisibleIndex(visibleIndex);
-    if (page !== list.pageIndex) {
-      this.paging.pageIndex = page;
-    }
+    this.dynamicData.showPageOfVisibleIndex(visibleIndex);
   }
   private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
     if (!row.isVisible) return null;

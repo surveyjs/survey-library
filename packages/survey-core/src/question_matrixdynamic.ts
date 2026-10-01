@@ -34,7 +34,6 @@ import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
 import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
   DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
@@ -209,7 +208,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         questions.push(column.templateQuestion);
       }
     });
-    const res = getDynamicDataFieldsForQuestions(questions);
+    const res = this.dynamicData.getFieldsOfQuestions(questions);
     questions.forEach(q => {
       // storeOthersAsComment writes the "other" text into the comment key of the same record.
       if (!q.hasComment && (<any>q).hasOther === true) {

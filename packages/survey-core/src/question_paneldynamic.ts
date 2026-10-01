@@ -42,7 +42,6 @@ import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validati
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
   DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
@@ -470,7 +469,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.getPropertyValueWithoutDefault("value");
   }
   getFields(): Array<IDynamicDataField> {
-    return getDynamicDataFieldsForQuestions(this.template.questions);
+    return this.dynamicData.getFieldsOfQuestions(this.template.questions);
   }
   // IDynamicDataQuestionHooks: the panels' side of a list change, see
   // DynamicDataQuestionController.onDataListChanged.

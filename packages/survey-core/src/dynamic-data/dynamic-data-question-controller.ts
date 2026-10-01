@@ -2,9 +2,10 @@ import { ISurveyData } from "../base-interfaces";
 import { DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "../dynamicItemModelBase";
 import { HashTable, Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
+import { settings } from "../settings";
 import { isFocusInsideOrIdle } from "../utils/focus-utils";
 import {
-  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
+  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import {
@@ -91,6 +92,14 @@ export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDyn
 export interface IDynamicDataValueAssignment {
   created: Array<number>;
 }
+/* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
+   that does not say how to compare is "any": the local sort then compares the raw values. "string" is
+   also what a question that does not know its value type reports (an expression, a select question
+   whose choices are not loaded yet), so it is not trusted: the values decide. */
+function getFieldType(question: Question): DynamicDataFieldType {
+  const type = question.getValueType();
+  return type === "number" || type === "date" || type === "boolean" ? type : "any";
+}
 
 /* The coordination between a dynamic question and its list. Both dynamic questions need the same
    one and neither of them descends from the other, so it lives here and each question holds it by
@@ -161,9 +170,22 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     }
   }
 
-  // IDynamicDataOwner: the fields are the question's.
+  // IDynamicDataOwner: the question chooses the questions its records are made of (getFieldsOfQuestions).
   public getFields(): Array<IDynamicDataField> {
     return this.owner.getFields();
+  }
+  /* The record fields the template questions of a dynamic panel or the column questions of a matrix
+     contribute to the list: one per question, under its value name, and one more for a comment,
+     which is stored under an ordinary key of the same record. */
+  public getFieldsOfQuestions(questions: Array<Question>): Array<IDynamicDataField> {
+    const res = new Array<IDynamicDataField>();
+    (questions || []).forEach((question: Question): void => {
+      res.push({ name: question.getValueName(), dataType: getFieldType(question) });
+      if (question.hasComment) {
+        res.push({ name: question.getValueName() + settings.commentSuffix, dataType: "string" });
+      }
+    });
+    return res;
   }
   /* A reset means the view was re-decided: a filter or a sort was assigned, or refreshView() was
      called. Which records have an object changes with it, so the objects are rebuilt.

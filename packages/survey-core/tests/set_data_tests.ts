@@ -799,7 +799,7 @@ describe("setData: boundaries", () => {
       { type: "invalidChoiceValue", path: "q", value: "z" }
     ]);
   });
-  // A known boundary of this branch, listed in the setData() comment: promts/misc/nested-walk.md
+  // A known boundary of this branch, listed in the setData() comment: prompts/misc/nested-walk.md
   // adds the walk into the panels of choice items and replaces this line with the real test.
   test.todo("A numeric question inside the panel of a selected choice item reports \"bad\" as an invalidValueType");
   test("A question that allows custom choices is not reported", () => {

@@ -2617,7 +2617,7 @@ describe("Remote data source: a record without a key", () => {
   });
 });
 
-/* Step 26 (promts/dynamic-data-list/26-shared-question-controller.md): the coordination between a
+/* Step 26 (prompts/dynamic-data-list/26-shared-question-controller.md): the coordination between a
    question and its list moves into one controller. These tests pin what that move can break and no
    earlier test covers; the T numbers are the prompt's. */
 describe("Step 26 pinning", () => {

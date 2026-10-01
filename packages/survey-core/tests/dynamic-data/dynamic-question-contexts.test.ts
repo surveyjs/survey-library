@@ -13,7 +13,7 @@ export * from "../../src/question_expression";
 export * from "../../src/question_matrixdropdown";
 
 /* matrixdynamic and paneldynamic behave the same (step 22,
-   promts/dynamic-data-list/22-same-behaviour-matrix-panel.md). Every scenario runs for both questions
+   prompts/dynamic-data-list/22-same-behaviour-matrix-panel.md). Every scenario runs for both questions
    with the same records; only the names of the authored properties differ. */
 interface IDynamicKind {
   name: string;
@@ -279,7 +279,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
   });
 });
 
-/* Step 23 (promts/dynamic-data-list/23-dedupe-dynamic-questions.md) moves the code these rows run
+/* Step 23 (prompts/dynamic-data-list/23-dedupe-dynamic-questions.md) moves the code these rows run
    through into shared helpers without changing what they answer. The row ids are the prompt's. */
 async function flush(times: number = 30): Promise<void> {
   for (let i = 0; i < times; i++) {

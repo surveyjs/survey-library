@@ -25,6 +25,8 @@ import { Base, IExpressionValidationOptions, IExpressionValidationResult } from 
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { choiceKeyCodeHasLongerMatch, choiceKeyCodeToIndex } from "./utils/choice-key-codes";
+import { KeySequenceBuffer } from "./utils/key-sequence-buffer";
 
 const OTHER_ITEM_VALUE = "other";
 // The contract of a question whose value is picked from a list of items it offers: every Select
@@ -2846,6 +2848,7 @@ export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
     return !!item && item.locOwner === this.question ? item : undefined;
   }
 }
+
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
@@ -2879,6 +2882,91 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
+  }
+  // undefined inherits survey.showChoiceShortcutKeys. defaultFunc keeps an unset value
+  // out of JSON and lets an explicit false override a survey-level true.
+  @property() showShortcutKeys: boolean | undefined;
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
+  public get isChoiceKeyboardSelectionEnabled(): boolean {
+    if (!this.supportsChoiceKeyboardSelection()) return false;
+    const own = this.showShortcutKeys;
+    if (own === true || own === false) return own;
+    return this.survey?.showChoiceShortcutKeys === true;
+  }
+  private choiceKeys: KeySequenceBuffer = new KeySequenceBuffer();
+  private get canUseChoiceKeys(): boolean {
+    return this.isChoiceKeyboardSelectionEnabled && !this.isDesignMode && !this.isInputReadOnly;
+  }
+  public dispose(): void {
+    this.choiceKeys.reset();
+    super.dispose();
+  }
+  public onChoiceKeyDown(event: any): void {
+    if (!this.canUseChoiceKeys) return;
+    if (!event || event.ctrlKey || event.altKey || event.metaKey || event.repeat || event.isComposing || event.keyCode === 229) return;
+    if (!this.isChoiceKeyboardTarget(event.target)) return;
+    const letter = this.readChoiceKeyLetter(event);
+    if (!letter) {
+      this.choiceKeys.reset();
+      return;
+    }
+    if (event.preventDefault) event.preventDefault();
+    this.appendChoiceKeyLetter(letter);
+  }
+  public onChoiceFocusOut(event: any): void {
+    if (this.isChoiceKeyboardTarget(event?.relatedTarget)) return;
+    this.choiceKeys.reset();
+  }
+  private readChoiceKeyLetter(event: any): string {
+    const key = event?.key;
+    return typeof key === "string" && /^[a-z]$/i.test(key) ? key.toUpperCase() : "";
+  }
+  private isChoiceKeyboardTarget(target: any): boolean {
+    if (!target || String(target.tagName || "").toLowerCase() !== "input") return false;
+    if (!/^(radio|checkbox)$/i.test(String(target.type || ""))) return false;
+    const id = target.id;
+    if (!id) return false;
+    return this.visibleChoices.some((item) => this.getItemId(item) === id);
+  }
+  private getChoiceKeyboardItems(): Array<ItemValue> {
+    const items = this.visibleChoices;
+    const res = new Array<ItemValue>();
+    for (let i = 0; i < items.length; i++) {
+      if (this.getItemEnabled(items[i])) res.push(items[i]);
+    }
+    return res;
+  }
+  private appendChoiceKeyLetter(letter: string): void {
+    const code = this.choiceKeys.append(letter);
+    const count = this.getChoiceKeyboardItems().length;
+    const index = choiceKeyCodeToIndex(code);
+    if (index < 1 || index > count) {
+      this.choiceKeys.reset();
+      return;
+    }
+    if (choiceKeyCodeHasLongerMatch(code, count)) {
+      this.choiceKeys.waitAndApply((pending) => {
+        if (this.isDisposed || !pending) return;
+        this.applyChoiceKeyBuffer(pending);
+      }, settings.keyboardInputTimeout);
+      return;
+    }
+    this.choiceKeys.reset();
+    this.applyChoiceKeyBuffer(code);
+  }
+  private applyChoiceKeyBuffer(code: string): void {
+    if (this.isDisposed || !this.canUseChoiceKeys) return;
+    const items = this.getChoiceKeyboardItems();
+    const index = choiceKeyCodeToIndex(code);
+    if (index < 1 || index > items.length) return;
+    const item = items[index - 1];
+    this.applyChoiceKeyboardSelection(item);
+    SurveyElement.FocusElement(this.getItemId(item), false, this.survey?.rootElement, this.shouldHandleFocusScroll);
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.selectItem(item);
   }
 }
 
@@ -3045,6 +3133,11 @@ Serializer.addClass(
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
       layout: "row",
+    },
+    {
+      name: "showShortcutKeys:boolean",
+      defaultFunc: () => undefined,
+      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection()
     }
   ],
   null,

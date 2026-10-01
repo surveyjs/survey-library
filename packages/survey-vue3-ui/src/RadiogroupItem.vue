@@ -14,6 +14,7 @@
           }
         "
         @keydown="question.onKeyDown?.($event)"
+        @focusout="question.onChoiceFocusOut?.($event)"
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"

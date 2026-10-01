@@ -15,6 +15,8 @@
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
         :class="question.cssClasses.itemControl"
+        @keydown="question.onChoiceKeyDown?.($event)"
+        @focusout="question.onChoiceFocusOut?.($event)"
       />
       <input
         v-else
@@ -30,6 +32,8 @@
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
         :class="question.cssClasses.itemControl"
+        @keydown="question.onChoiceKeyDown?.($event)"
+        @focusout="question.onChoiceFocusOut?.($event)"
       />
       <div :class="question.cssClasses.itemDecorator">
         <div :class="question.cssClasses.imageContainer">

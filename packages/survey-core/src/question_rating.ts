@@ -6,6 +6,7 @@ import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
+import { KeySequenceBuffer } from "./utils/key-sequence-buffer";
 import { getLocaleString } from "./surveyStrings";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
@@ -539,8 +540,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     return this.inputId + "_" + index;
   }
   private isEnterKey: boolean;
-  private digitShortcutBuffer: string = "";
-  private digitShortcutTimer: any;
+  private digitKeys: KeySequenceBuffer = new KeySequenceBuffer();
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.isDropdown || this.isEnterKey === true;
   }
@@ -596,9 +596,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
       return;
     }
     const items = this.visibleChoices;
-    if (this.digitShortcutBuffer) {
-      const digits = this.digitShortcutBuffer + digit;
-      this.resetDigitShortcut();
+    if (this.digitKeys.text) {
+      const digits = this.digitKeys.append(digit);
+      this.digitKeys.reset();
       const twoDigitItem = getRatingItemByDigitShortcut(items, digits);
       if (twoDigitItem) {
         this.applyDigitShortcut(twoDigitItem, event);
@@ -611,11 +611,8 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
       return;
     }
     if (ratingDigitShortcutHasPrefix(items, digit)) {
-      this.digitShortcutBuffer = digit;
-      this.digitShortcutTimer = setTimeout(() => {
-        this.digitShortcutTimer = undefined;
-        const pending = this.digitShortcutBuffer;
-        this.digitShortcutBuffer = "";
+      this.digitKeys.append(digit);
+      this.digitKeys.waitAndApply((pending) => {
         if (this.isDisposed || !pending) return;
         const item = getRatingItemByDigitShortcut(this.visibleChoices, pending);
         if (item) {
@@ -665,11 +662,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
   }
   private resetDigitShortcut(): void {
-    if (this.digitShortcutTimer !== undefined && this.digitShortcutTimer !== null) {
-      clearTimeout(this.digitShortcutTimer);
-      this.digitShortcutTimer = undefined;
-    }
-    this.digitShortcutBuffer = "";
+    this.digitKeys.reset();
   }
   public supportOther(): boolean {
     return false;

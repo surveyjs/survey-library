@@ -38,6 +38,12 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
   protected doOnItemChange(event: any): void {
     this.question.clickItemHandler(this.item, event.target.checked);
   }
+  handleOnKeyDown = (event: any) => {
+    this.question.onChoiceKeyDown(event.nativeEvent);
+  };
+  handleOnBlur = (event: any) => {
+    this.question.onChoiceFocusOut(event.nativeEvent);
+  };
   protected renderElementContent(): React.JSX.Element {
     const isChecked = this.question.isItemSelected(this.item);
     return this.renderCheckbox(isChecked);
@@ -65,6 +71,8 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
             readOnly={this.question.isReadOnlyAttr}
             checked={isChecked}
             onChange={this.handleOnChange}
+            onKeyDown={this.handleOnKeyDown}
+            onBlur={this.handleOnBlur}
             required={this.question.hasRequiredError()}
             aria-label={this.ariaLabel}
             aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}

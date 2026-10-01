@@ -86,6 +86,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return true;
+  }
   supportAutoAdvance(): boolean {
     return !this.multiSelect;
   }
@@ -271,6 +274,27 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    if (!this.multiSelect) {
+      super.applyChoiceKeyboardSelection(item);
+      return;
+    }
+    if (this.isReadOnlyAttr || !item) return;
+    const current: Array<any> = [].concat(this.value || []);
+    let index = -1;
+    for (let i = 0; i < current.length; i++) {
+      if (this.isTwoValueEquals(current[i], item.value)) {
+        index = i;
+        break;
+      }
+    }
+    if (index > -1) {
+      current.splice(index, 1);
+    } else {
+      current.push(item.value);
+    }
+    this.value = current;
   }
 
   public isBuiltInChoice(item: ItemValue): boolean {

@@ -4697,6 +4697,7 @@ export class SurveyModel extends SurveyElementCore
    * @param {boolean} options.reportInvalidChoiceValues Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true`
    * @param {boolean} options.reportExpressionResultMismatches Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false`
    * @returns An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+   * @since 3.1.2
    */
   public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
     const hasData = data !== undefined && data !== null;

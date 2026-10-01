@@ -944,8 +944,19 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
-  // When true, Text questions with inputType "number" let users type "e", "E", and "+" to enter
-  // numbers in exponential notation (e.g., 1e5, 2.5E-3). Disabled by default: these keys are blocked.
+  /**
+   * Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+   *
+   * Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+   *
+   * - [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+   * - Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+   * - `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+   *
+   * Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+   *
+   * This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+   */
   allowExponentialNotation: false,
   /**
    * Defines the file type categories used by the [`acceptedCategories`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedCategories) property of [File Upload](https://surveyjs.io/form-library/examples/file-upload/) questions.

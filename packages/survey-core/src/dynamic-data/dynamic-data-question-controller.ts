@@ -142,10 +142,9 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     }
     return this._paging;
   }
-  public get pageValidationValue(): DynamicDataPageValidation {
-    return this._pageValidation;
-  }
-  public get pageValidation(): DynamicDataPageValidation {
+  // The questions ask for what they need done (leavePage, validateOffPage, ...); _pageValidation is
+  // the peek.
+  private get pageValidation(): DynamicDataPageValidation {
     if (!this._pageValidation) {
       this._pageValidation = new DynamicDataPageValidation(this);
     }
@@ -193,7 +192,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     // The record indexes the question keeps - its objects' records, the edited set of layer 2 - name
     // a record only until something is inserted, removed or moved in front of it. Only a list that
     // pages in memory creates the edited set here.
-    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this.pageValidationValue,
+    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this._pageValidation,
       (remap: (index: number) => number): void => {
         if (change.type === "recordMoved" && typeof owner.followRecordMove === "function") {
           owner.followRecordMove();
@@ -419,6 +418,20 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
       this.paging.pageIndex = state.pageIndex;
     }
   }
+  /* The ancestor side of the states above: what the paged questions nested in one record of this
+     question keep while their objects are rebuilt (the dynamic panel's rebuild). Empty states clear
+     the record's entry - and need no page validation to be created for that - while a record that
+     has states creates it. */
+  public keepNestedPageStates(recordIndex: number, states: { [valueName: string]: IDynamicDataPageState }): void {
+    const validation = Object.keys(states).length > 0 ? this.pageValidation : this._pageValidation;
+    if (!!validation) {
+      validation.keepNestedStates(recordIndex, states);
+    }
+  }
+  public getNestedPageStates(recordIndex: number): { [valueName: string]: IDynamicDataPageState } {
+    return !!this._pageValidation ? this._pageValidation.getNestedStates(recordIndex) : undefined;
+  }
+
   /* The page moves of DynamicDataPageValidation.leave: validate, clearIncorrectValues and
      validatedRecords are what carousel/tab Next and the panel's add pass instead of the page. */
   public leavePage(isForward: boolean, move: () => void, validate?: (context: ValidationContext) => boolean,

@@ -38,7 +38,7 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { DynamicDataPageValidation, IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -600,12 +600,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public refreshView(): void { this.paging.refreshView(); }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  private get pageValidationValue(): DynamicDataPageValidation {
-    return this.dynamicData.pageValidationValue;
-  }
-  private get pageValidation(): DynamicDataPageValidation {
-    return this.dynamicData.pageValidation;
-  }
   // IDynamicDataPagingOwner
   leavePage(isForward: boolean, move: () => void): boolean {
     return this.dynamicData.leavePage(isForward, move);
@@ -786,9 +780,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   /* The state a paged question keeps for its records outlives its panels (see
      IDynamicDataPageState): before the panels are disposed, the state of every paged question nested
      in them is kept under the record the panel was built for, and it is handed back to the question
-     the new panel of that record holds. */
+     the new panel of that record holds. A panel without such a question hands empty states: they
+     drop what was kept for its record. */
   private keepNestedPageStates(panels: Array<PanelModel>): void {
-    if (!this.pageValidationValue && !this.hasNestedPagedQuestions(panels)) return;
     panels.forEach((panel: PanelModel): void => {
       const item = <QuestionPanelDynamicItem>panel.data;
       if (!(item instanceof QuestionPanelDynamicItem) || item.builtRecordIndex < 0) return;
@@ -797,7 +791,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         const state = QuestionPanelDynamicModel.getNestedPageState(q);
         if (!!state) states[q.getValueName()] = state;
       });
-      this.pageValidation.keepNestedStates(item.builtRecordIndex, states);
+      this.dynamicData.keepNestedPageStates(item.builtRecordIndex, states);
     });
   }
   private hasNestedPagedQuestions(panels: Array<PanelModel>): boolean {
@@ -810,8 +804,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       const item = <QuestionPanelDynamicItem>panels[i].data;
       if (!(item instanceof QuestionPanelDynamicItem)) continue;
       item.builtRecordIndex = this.getRecordIndexByPanelIndex(i);
-      if (!this.pageValidationValue) continue;
-      const states = this.pageValidationValue.getNestedStates(item.builtRecordIndex);
+      const states = this.dynamicData.getNestedPageStates(item.builtRecordIndex);
       if (!states) continue;
       panels[i].questions.forEach((q: Question): void => {
         const state = states[q.getValueName()];

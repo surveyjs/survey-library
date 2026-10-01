@@ -181,7 +181,7 @@ export class PageModel extends PanelModel implements IPage {
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
     if (this.isPanel) return super.calcCssClasses(css);
-    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
@@ -198,9 +198,6 @@ export class PageModel extends PanelModel implements IPage {
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
-    }
-    if (!!css.rowCompact) {
-      classes.rowCompact = css.rowCompact;
     }
     if (!!css.rowEnter) {
       classes.rowEnter = css.rowEnter;

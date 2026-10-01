@@ -2574,17 +2574,6 @@ export class SurveyModel extends SurveyElementCore
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
   }
-  @property() private _isCompact: boolean = false;
-  public set isCompact(newVal: boolean) {
-    if (newVal !== this._isCompact) {
-      this._isCompact = newVal;
-      this.updateElementCss();
-      this.triggerResponsiveness(true);
-    }
-  }
-  public get isCompact(): boolean {
-    return this._isCompact;
-  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -5834,7 +5823,6 @@ export class SurveyModel extends SurveyElementCore
       this.isMobile && this.css.rootMobile,
       (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
       this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
-      this.isCompact && this.css.rootCompact,
       this.fitToContainer && this.css.rootFitToContainer
     );
   }
@@ -8883,17 +8871,21 @@ export class SurveyModel extends SurveyElementCore
     if (!theme && !baseTheme) return;
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
-    return this._applyTheme(themeToApply);
+    this.applyThemeCore(themeToApply, true);
+  }
+  public applyThemeCore(theme: ITheme, triggerResponsiveness: boolean): void {
+    this._applyTheme(theme);
+    if (triggerResponsiveness) {
+      this.triggerResponsiveness(true);
+    }
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "header") {
+      if (key === "header" || key === "isPanelless") {
         return;
       }
-      if (key === "isPanelless") {
-        this.isCompact = theme[key];
-      } else if (key === "cssVariables") {
+      if (key === "cssVariables") {
         this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];

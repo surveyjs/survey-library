@@ -948,6 +948,20 @@ export var settings = {
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
   /**
+   * Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+   *
+   * Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+   *
+   * - [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+   * - Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+   * - `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+   *
+   * Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+   *
+   * This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+   */
+  allowExponentialNotation: false,
+  /**
    * Defines the file type categories used by the [`acceptedCategories`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedCategories) property of [File Upload](https://surveyjs.io/form-library/examples/file-upload/) questions.
    *
    * This property is an object whose keys are category names and whose values are arrays of file extensions. The default structure is shown below:

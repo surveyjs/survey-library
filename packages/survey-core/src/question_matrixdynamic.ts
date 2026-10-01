@@ -31,12 +31,14 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
-import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
-import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
+import {
+  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness
+} from "./dynamic-data/dynamic-data-question-controller";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
@@ -460,20 +462,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  private get pageValidationValue(): DynamicDataPageValidation {
-    return this.dynamicData.pageValidationValue;
-  }
-  private get pageValidation(): DynamicDataPageValidation {
-    return this.dynamicData.pageValidation;
-  }
   // IDynamicDataPagingOwner
   leavePage(isForward: boolean, move: () => void): boolean {
-    return this.pageValidation.leave(isForward, move);
+    return this.dynamicData.leavePage(isForward, move);
   }
   cancelPendingPageMove(): void {
-    if (!!this.pageValidationValue) {
-      this.pageValidationValue.cancelPendingMove();
-    }
+    this.dynamicData.cancelPendingPageMove();
   }
   // Rows that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
@@ -494,31 +488,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
   // moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
-    let res = super.validateElementCore(context);
-    if (res && this.dynamicData.isOffPageValidationDue(context)) {
-      res = this.pageValidation.validateEditedRecords(context, this.getOffPageDuplicatePages());
-    }
-    return res;
+    return super.validateElementCore(context) && this.dynamicData.validateOffPage(context);
   }
-  /* Every unique column (keyName included) is scanned over the records without a row (O(records)):
-     a pair whose records are both off the page has no row the base check could put the error on.
-     Every record takes part, owner-hidden ones included, as it does without paging, and strings
-     compare as the on-page check compares them; the error goes on the later visible record of the
-     pair, on its page. Returns the pages to visit; layer 2 walks them together with its own. */
-  private getOffPageDuplicatePages(): Array<number> {
-    const pages: Array<number> = [];
-    const list = this.dataList;
-    this.getUniqueColumnsNames().forEach((name: string): void => {
-      const readKey = (index: number): any => {
-        const record = this.getListRecordAt(index);
-        return !!record ? record[name] : undefined;
-      };
-      findDuplicatePages(list, readKey,
-        { caseSensitive: this.useCaseSensitiveComparison, includeHidden: true }).forEach((page: number): void => {
-        if (pages.indexOf(page) < 0) pages.push(page);
-      });
-    });
-    return pages;
+  /* IDynamicDataQuestionHooks: every unique column, keyName included. Every record takes part,
+     owner-hidden ones included, as it does without paging, and strings compare as the on-page check
+     compares them; the error goes on the later visible record of a pair, on its page. */
+  getRecordUniqueness(): IDynamicDataRecordUniqueness {
+    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true };
   }
   /* rowCount, not a write, decides how many records the list reads: the window is question.value
      padded up to it. The records that appear join the view - an added record always does - and the
@@ -547,11 +523,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const len = Array.isArray(val) ? val.length : 0;
     return Math.max(len, this.rowCount);
   }
-  /* One record of getListRecords() without composing the array: a padded record is the default row
-     value. For the loops over the records by index. A data source's window is the list's to answer,
-     and so is a write in progress: inside list.batch() the writes sit in the source's batch array and
-     question.value does not have them yet. */
-  private getListRecordAt(index: number, defaultRecord?: any): any {
+  /* IDynamicDataQuestionHooks: one record of getListRecords() without composing the array: a padded
+     record is the default row value. For the loops over the records by index. A data source's window
+     is the list's to answer, and so is a write in progress: inside list.batch() the writes sit in the
+     source's batch array and question.value does not have them yet. */
+  getListRecordAt(index: number, defaultRecord?: any): any {
     if (this.isRemoteData || this.dataList.isWriting) return this.dataList.getRecord(index);
     const val = this.value;
     if (Array.isArray(val) && index < val.length) return index < 0 ? undefined : val[index];
@@ -1184,7 +1160,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      its validators are asynchronous. */
   public addRowUI(): void {
     if (this.isAddLeavingPage()) {
-      this.pageValidation.leave(true, (): void => { this.addRow(true); });
+      this.dynamicData.leavePage(true, (): void => { this.addRow(true); });
       return;
     }
     this.addRow(true);
@@ -1204,7 +1180,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private showPageOfRecord(recordIndex: number): void {
     const list = this.dataList;
     if (recordIndex < 0) return;
-    this.pageValidation.markEdited(recordIndex);
+    this.dynamicData.markRecordEdited(recordIndex);
     const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
     if (visibleIndex < 0) return;
     const page = list.getPageOfVisibleIndex(visibleIndex);

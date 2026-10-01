@@ -8,7 +8,7 @@ import {
 } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import {
-  DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, getReplacedRecordsRemap
+  DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap
 } from "./dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data-record-remap";
@@ -55,9 +55,23 @@ export interface IDynamicDataQuestionHooks {
   focusItemAfterRead(index: number): void;
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
   validatePageObjects(context: ValidationContext): boolean;
-  // A record without an object, read as a value: the record reader, the variable name and the
-  // context class are the question's.
+  /* One record as the question reads it without an object: the duplicate scan and createRecordItem
+     read through it. The matrix pads question.value up to rowCount with the default row value; a
+     data source's window and a write in progress are the list's. */
+  getListRecordAt(index: number): any;
+  // A record without an object, read as a value: the variable name and the context class are the
+  // question's.
   createRecordItem(recordIndex: number): DynamicRecordItem;
+  // What a duplicate is among the records; asked only when the records without an object are scanned.
+  getRecordUniqueness(): IDynamicDataRecordUniqueness;
+}
+export interface IDynamicDataRecordUniqueness {
+  // The record keys whose values have to be unique; empty when none has to be.
+  fields: Array<string>;
+  // false: strings compare with toLocaleLowerCase.
+  caseSensitive: boolean;
+  // Owner-hidden records take part too.
+  includeHidden: boolean;
 }
 // The objects are read through the owner's IDynamicItemModelData: by created position and by record.
 export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
@@ -395,13 +409,50 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
       this.paging.pageIndex = state.pageIndex;
     }
   }
+  /* The page moves of DynamicDataPageValidation.leave: validate, clearIncorrectValues and
+     validatedRecords are what carousel/tab Next and the panel's add pass instead of the page. */
+  public leavePage(isForward: boolean, move: () => void, validate?: (context: ValidationContext) => boolean,
+    clearIncorrectValues?: boolean, validatedRecords?: Array<number>): boolean {
+    return this.pageValidation.leave(isForward, move, validate, clearIncorrectValues, validatedRecords);
+  }
+  // Nothing is created for it: without the page validation no move is pending.
+  public cancelPendingPageMove(): void {
+    if (!!this._pageValidation) {
+      this._pageValidation.cancelPendingMove();
+    }
+  }
+  // An inserted record is an edit layer 2 tracks (see DynamicDataPageValidation.markEdited).
+  public markRecordEdited(recordIndex: number): void {
+    this.pageValidation.markEdited(recordIndex);
+  }
   /* A question that pages validates the page that exists - Complete included - and then what the
      page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
      records are off the page. Only a full validation that fires its callbacks visits them; a
-     validation on a value change and a quiet one stay on the page. The question looks for its
-     duplicates only when this holds: the scan is O(records). */
-  public isOffPageValidationDue(context: ValidationContext): boolean {
-    return this.isPagedByList && context.fireCallback && !context.isOnValueChanged;
+     validation on a value change and a quiet one stay on the page, and so does a source that pages
+     itself. The question calls it once its page has passed. Returns true when there is nothing to
+     visit. */
+  public validateOffPage(context: ValidationContext): boolean {
+    if (!this.isPagedByList || !context.fireCallback || context.isOnValueChanged) return true;
+    return this.pageValidation.validateEditedRecords(context, this.getOffPageDuplicatePages());
+  }
+  /* The duplicates are looked for only when they are visited: the scan is O(records) per unique
+     field, and a pair whose records both have no object has none the question's own check could put
+     the error on. Returns the pages, without repeats; layer 2 walks them together with its own. */
+  private getOffPageDuplicatePages(): Array<number> {
+    const owner = this.owner;
+    const list = this.list;
+    const uniqueness = owner.getRecordUniqueness();
+    const pages: Array<number> = [];
+    uniqueness.fields.forEach((name: string): void => {
+      const readKey = (index: number): any => {
+        const record = owner.getListRecordAt(index);
+        return !!record ? record[name] : undefined;
+      };
+      findDuplicatePages(list, readKey, uniqueness).forEach((page: number): void => {
+        if (pages.indexOf(page) < 0) pages.push(page);
+      });
+    });
+    return pages;
   }
 
   /* The capabilities of a data source are declared by the presence of its optional methods: a source

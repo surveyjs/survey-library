@@ -38,13 +38,15 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { DynamicDataPageValidation, IDynamicDataPageState, findDuplicatePages } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getDynamicDataFieldsForQuestions } from "./dynamic-data/dynamic-data-fields";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
-import { DynamicDataQuestionController, IDynamicDataQuestionHooks } from "./dynamic-data/dynamic-data-question-controller";
+import {
+  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness
+} from "./dynamic-data/dynamic-data-question-controller";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
@@ -356,8 +358,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
     return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
   }
+  // IDynamicDataQuestionHooks: the list answers for every record, a data source's window included.
+  getListRecordAt(index: number): any {
+    return this.dataList.getRecord(index);
+  }
   createRecordItem(recordIndex: number): DynamicRecordItem {
-    return new DynamicRecordItem(this, recordIndex, this.dataList.getRecord(recordIndex), settings.expressionVariables.panel,
+    return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.panel,
       (item: DynamicRecordItem): IValueGetterContext => new PanelDynamicItemGetterContext(item));
   }
   // internal: the item {panel[index].x} reads. index is a record index; a record the page does not
@@ -602,12 +608,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   // IDynamicDataPagingOwner
   leavePage(isForward: boolean, move: () => void): boolean {
-    return this.pageValidation.leave(isForward, move);
+    return this.dynamicData.leavePage(isForward, move);
   }
   cancelPendingPageMove(): void {
-    if (!!this.pageValidationValue) {
-      this.pageValidationValue.cancelPendingMove();
-    }
+    this.dynamicData.cancelPendingPageMove();
   }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
@@ -2318,7 +2322,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.isRenderModeList && !isLeavingPage) {
       add();
     } else {
-      this.pageValidation.leave(true, add, (context: ValidationContext): boolean =>
+      this.dynamicData.leavePage(true, add, (context: ValidationContext): boolean =>
         isLeavingPage ? this.validatePageObjects(context) : this.validateCurrentPanel(context), !this.isRenderModeList,
       isLeavingPage ? undefined : this.getCurrentPanelRecords());
     }
@@ -2416,7 +2420,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     } finally {
       this.isValueChangingInternally = false;
     }
-    this.pageValidation.markEdited(at);
+    this.dynamicData.markRecordEdited(at);
     const visibleIndex = list.getVisibleIndexes().indexOf(at);
     const page = list.getPageOfVisibleIndex(visibleIndex);
     if (!this.isRenderModeList) {
@@ -2558,7 +2562,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (index < 0) return false;
     const isLeavingPage = this.isPagingActive && this.canGoToNextRecord &&
       index - this.pageStartVisibleIndex >= this.visiblePanelsCore.length - 1;
-    return this.pageValidation.leave(true, (): void => {
+    return this.dynamicData.leavePage(true, (): void => {
       if (this.canGoToNextRecord) {
         this.moveToVisibleIndex(index + 1);
       }
@@ -3147,25 +3151,18 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       res = !this.hasKeysDuplicated(context) && qRes;
       this.updatePanelsContainsErrors();
     } else {
-      res = this.validateInPanels(context);
       // Off the page: the edited records and a key pair both of whose records have no panel. Either
       // moves to the page that holds the error.
-      if (res && this.dynamicData.isOffPageValidationDue(context)) {
-        res = this.pageValidation.validateEditedRecords(context, this.getOffPageKeyDuplicatePages());
-      }
+      res = this.validateInPanels(context) && this.dynamicData.validateOffPage(context);
     }
     return super.validateElementCore(context) && res;
   }
-  /* The keys of the records are scanned without an object (O(records)) with the membership the
-     question has without paging: an owner-hidden record does not take part, a filtered-out one does
-     but never receives the error. Keys compare case-sensitively, as the on-page check compares them.
-     The error goes on the later visible record of a pair, on its page. Returns the pages to visit;
-     layer 2 walks them together with its own. */
-  private getOffPageKeyDuplicatePages(): Array<number> {
-    if (!this.keyName) return [];
-    const list = this.dataList;
-    return findDuplicatePages(list, (index: number): any => list.getValue(index, this.keyName),
-      { caseSensitive: true, includeHidden: false });
+  /* IDynamicDataQuestionHooks: the key, with the membership the question has without paging: an
+     owner-hidden record does not take part, a filtered-out one does but never receives the error.
+     Keys compare case-sensitively, as the on-page check compares them. The error goes on the later
+     visible record of a pair, on its page. */
+  getRecordUniqueness(): IDynamicDataRecordUniqueness {
+    return { fields: !!this.keyName ? [this.keyName] : [], caseSensitive: true, includeHidden: false };
   }
   private hasInputInChangedQuestions(): boolean {
     const qs = this.changingValueQuestions;

@@ -339,6 +339,9 @@ export var settings = {
    *
    * - `textRenderMode`: `"input"` (default) | `"div"`\
    * Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
+   *
+   * - `enableValidation`: `boolean`\
+   * Specifies whether to validate questions in read-only mode. Default value: `false`.
    */
   readOnly: {
     enableValidation: false,

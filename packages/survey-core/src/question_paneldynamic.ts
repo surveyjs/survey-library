@@ -38,7 +38,6 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
-import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
@@ -781,17 +780,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     panels.forEach((panel: PanelModel): void => {
       const item = <QuestionPanelDynamicItem>panel.data;
       if (!(item instanceof QuestionPanelDynamicItem) || item.builtRecordIndex < 0) return;
-      const states: { [valueName: string]: IDynamicDataPageState } = {};
-      panel.questions.forEach((q: Question): void => {
-        const state = QuestionPanelDynamicModel.getNestedPageState(q);
-        if (!!state) states[q.getValueName()] = state;
-      });
-      this.dynamicData.keepNestedPageStates(item.builtRecordIndex, states);
+      this.dynamicData.keepNestedPageStates(item.builtRecordIndex, panel.questions);
     });
   }
   private hasNestedPagedQuestions(panels: Array<PanelModel>): boolean {
-    return panels.some((panel: PanelModel): boolean =>
-      panel.questions.some((q: Question): boolean => !!QuestionPanelDynamicModel.getNestedPageState(q)));
+    return panels.some((panel: PanelModel): boolean => DynamicDataQuestionController.hasPagedQuestions(panel.questions));
   }
   private restoreNestedPageStates(): void {
     const panels = this.panelsCore;
@@ -799,27 +792,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       const item = <QuestionPanelDynamicItem>panels[i].data;
       if (!(item instanceof QuestionPanelDynamicItem)) continue;
       item.builtRecordIndex = this.getRecordIndexByPanelIndex(i);
-      const states = this.dynamicData.getNestedPageStates(item.builtRecordIndex);
-      if (!states) continue;
-      panels[i].questions.forEach((q: Question): void => {
-        const state = states[q.getValueName()];
-        if (!!state && typeof (<any>q).setPageState === "function") {
-          (<any>q).setPageState(state);
-        }
-      });
+      this.dynamicData.restoreNestedPageStates(item.builtRecordIndex, panels[i].questions);
     }
-  }
-  // internal: the state of a question that pages its own records, undefined for any other question.
-  public static getNestedPageState(q: Question): IDynamicDataPageState {
-    return typeof (<any>q).getPageState === "function" ? (<any>q).getPageState() : undefined;
-  }
-  // internal: what this question keeps for its records when an ancestor rebuilds the object holding
-  // it (see the controller's getPageState).
-  public getPageState(): IDynamicDataPageState {
-    return this.dynamicData.getPageState();
-  }
-  public setPageState(state: IDynamicDataPageState): void {
-    this.dynamicData.setPageState(state);
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;

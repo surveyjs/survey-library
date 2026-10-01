@@ -6,6 +6,7 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
 import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
+import { DynamicDataQuestionController } from "../../src/dynamic-data/dynamic-data-question-controller";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
@@ -2694,37 +2695,37 @@ describe("Step 26 pinning", () => {
     const { question } = await createMatrix(readSource(12), { columns: asyncColumns });
     question.visibleRows[0].getQuestionByName("col2").value = "edited";
     question.pageIndex = 1;
-    expect(question.getPageState().edited, "#1: an edited record on a page that is not shown").toEqual([0]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#1: an edited record on a page that is not shown").toEqual([0]);
     expect(question.nextPage(), "#2").toBe(true);
     expect(question.isPageMovePending, "#3").toBe(true);
     question.dataSource = readSource(12, 100);
     expect(question.isPageMovePending, "#4: dropped by the assignment, before the first read answers").toBe(false);
-    expect(question.getPageState().edited, "#5: the edited set named records of the old source").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#5: the edited set named records of the old source").toEqual([]);
     await flush();
     const pageIndex = question.pageIndex;
     const rows = rowValues(question);
     results.forEach(setResult => setResult(1));
     expect(question.pageIndex, "#6: the late result moves nothing").toBe(pageIndex);
     expect(rowValues(question), "#7").toEqual(rows);
-    expect(question.getPageState().edited, "#8").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#8").toEqual([]);
   });
   test("T2 panel: another source drops the pending page move and the edited records", async () => {
     const { question } = await createPanel(readSource(12), { templateElements: asyncTemplate });
     question.panels[0].getQuestionByName("col2").value = "edited";
     question.pageIndex = 1;
-    expect(question.getPageState().edited, "#1: an edited record on a page that is not shown").toEqual([0]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#1: an edited record on a page that is not shown").toEqual([0]);
     expect(question.nextPage(), "#2").toBe(true);
     expect(question.isPageMovePending, "#3").toBe(true);
     question.dataSource = readSource(12, 100);
     expect(question.isPageMovePending, "#4: dropped by the assignment, before the first read answers").toBe(false);
-    expect(question.getPageState().edited, "#5: the edited set named records of the old source").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#5: the edited set named records of the old source").toEqual([]);
     await flush();
     const pageIndex = question.pageIndex;
     const panels = panelValues(question);
     results.forEach(setResult => setResult(1));
     expect(question.pageIndex, "#6: the late result moves nothing").toBe(pageIndex);
     expect(panelValues(question), "#7").toEqual(panels);
-    expect(question.getPageState().edited, "#8").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#8").toEqual([]);
   });
   test("T3 matrix: reading the source members and disposing creates no list", () => {
     const survey = new SurveyModel({
@@ -2987,13 +2988,13 @@ describe("Step 26 pinning", () => {
     });
     survey.data = { matrix: serverRecords(12) };
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    expect(question.getPageState(), "#1: it does not page").toBe(undefined);
+    expect(DynamicDataQuestionController.getPageStateOf(question), "#1: it does not page").toBe(undefined);
     // A sort the respondent makes is a page leave: the page-validation helper exists from here on.
     expect(question.toggleSort("col2"), "#2").toBe(true);
     question.visibleRows[3].getQuestionByName("col1").value = "edited";
     question.clearSort();
     question.rowsPerPage = 5;
-    expect(question.getPageState().edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
   });
   test("D4 panel: an edit made while the list does not page is not tracked", () => {
     const survey = new SurveyModel({
@@ -3002,12 +3003,12 @@ describe("Step 26 pinning", () => {
     });
     survey.data = { panel: serverRecords(12) };
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    expect(question.getPageState(), "#1: it does not page").toBe(undefined);
+    expect(DynamicDataQuestionController.getPageStateOf(question), "#1: it does not page").toBe(undefined);
     expect(question.toggleSort("col2"), "#2").toBe(true);
     question.panels[3].getQuestionByName("col1").value = "edited";
     question.clearSort();
     question.panelsPerPage = 5;
-    expect(question.getPageState().edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
   });
 });
 
@@ -3058,15 +3059,15 @@ describe("Remote data source: a read that commits again", () => {
       matrix.visibleRows[0].getQuestionByName("a").value = "edited";
       matrix.pageIndex = 0;
       await flush();
-      expect(matrix.getPageState().edited, "#1: an edited inner record off the inner page").toEqual([2]);
-      expect(matrixOf(1).getPageState().edited, "#2").toEqual([]);
+      expect(DynamicDataQuestionController.getPageStateOf(matrix).edited, "#1: an edited inner record off the inner page").toEqual([2]);
+      expect(DynamicDataQuestionController.getPageStateOf(matrixOf(1)).edited, "#2").toEqual([]);
       source.moveRecordBehindTheGrid(0, 1);
       question.getDataList().refresh();
       await flush();
       expect(panelValues(question, "id"), "#3: the outer records changed places").toEqual([1, 0]);
       expect(matrixOf(0) === matrix, "#4: the panels were rebuilt").toBe(false);
-      expect(matrixOf(0).getPageState().edited, "#5: the state is in the panel that holds the outer record now").toEqual([2]);
-      expect(matrixOf(1).getPageState().edited, "#6").toEqual([]);
+      expect(DynamicDataQuestionController.getPageStateOf(matrixOf(0)).edited, "#5: the state is in the panel that holds the outer record now").toEqual([2]);
+      expect(DynamicDataQuestionController.getPageStateOf(matrixOf(1)).edited, "#6").toEqual([]);
     });
   });
 
@@ -3076,7 +3077,7 @@ describe("Remote data source: a read that commits again", () => {
     const row: any = question.visibleRows[0];
     row.getQuestionByName("col1").value = "edited";
     await flush();
-    expect(question.getPageState().edited, "#1: the reload has an edited set to follow").toEqual([0]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#1: the reload has an edited set to follow").toEqual([0]);
     expect(row.builtRecordIndex, "#2").toBe(0);
     const seen: Array<number> = [];
     // The rebuild decides the visibility of the records before it clears the rows it replaces.
@@ -3087,7 +3088,7 @@ describe("Remote data source: a read that commits again", () => {
     question.getDataList().refresh();
     await flush();
     expect(question.rowCount, "#3: the read committed").toBe(13);
-    expect(question.getPageState().edited, "#4: the edited set followed its record").toEqual([1]);
+    expect(DynamicDataQuestionController.getPageStateOf(question).edited, "#4: the edited set followed its record").toEqual([1]);
     expect(seen.length > 0, "#5: the handler ran").toBe(true);
     expect(seen[0], "#6: while the old rows still exist, row 0 names the record it was built for").toBe(0);
     expect(row.builtRecordIndex, "#7: and after the read committed").toBe(0);

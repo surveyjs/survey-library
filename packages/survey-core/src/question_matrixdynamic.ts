@@ -31,7 +31,6 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem } from "./dynamicItemModelBase";
 import { MatrixRowGetterContext } from "./question_matrixdropdownbase";
-import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
@@ -473,16 +472,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   validatePageObjects(context: ValidationContext): boolean {
     if (!this.generatedVisibleRows) return true;
     return this.validateRowObjects(context);
-  }
-  /* internal: what this matrix keeps for its records when an ancestor (a dynamic panel that pages)
-     rebuilds the panel holding it (see the controller's getPageState). The matrix itself keeps no
-     state for questions nested in its rows: a paged question in a detail panel starts over when its
-     row is rebuilt. */
-  public getPageState(): IDynamicDataPageState {
-    return this.dynamicData.getPageState();
-  }
-  public setPageState(state: IDynamicDataPageState): void {
-    this.dynamicData.setPageState(state);
   }
   // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
   // moves to the page that holds the error.

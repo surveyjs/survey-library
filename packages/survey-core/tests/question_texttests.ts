@@ -953,6 +953,59 @@ describe("question text tests", () => {
     expect(q["shouldPreventNumberInput"](eventPlusMiddle), "Should prevent '+' in middle").toBe(true);
   });
 
+  test("Numeric input validation - allow 'e', 'E', and '+' when settings.allowExponentialNotation is enabled", () => {
+    const q = new QuestionTextModel("q1");
+    q.inputType = "number";
+
+    const createKeyEvent = (key: string, selectionStart: number = 0) => {
+      return {
+        key: key,
+        target: { selectionStart: selectionStart, value: "" },
+        preventDefault: () => {},
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false
+      };
+    };
+
+    expect(settings.allowExponentialNotation, "disabled by default").toBe(false);
+    settings.allowExponentialNotation = true;
+    try {
+      expect(q["shouldPreventNumberInput"](createKeyEvent("e")), "Should allow 'e' character").toBe(false);
+      expect(q["shouldPreventNumberInput"](createKeyEvent("E")), "Should allow 'E' character").toBe(false);
+      expect(q["shouldPreventNumberInput"](createKeyEvent("+", 2)), "Should allow '+' character").toBe(false);
+    } finally {
+      settings.allowExponentialNotation = false;
+    }
+  });
+
+  test("Numeric input validation - exponential notation is stored as a number", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "number" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "1e5";
+    expect(q.value, "1e5").toBe(100000);
+    q.inputValue = "2.5E-3";
+    expect(q.value, "2.5E-3").toBe(0.0025);
+    q.inputValue = "1e+2";
+    expect(q.value, "1e+2").toBe(100);
+  });
+
+  test("Numeric input validation - incomplete exponential notation shows an error", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "number" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    // Browsers report an empty value and validity.badInput for incomplete numbers such as "1e"
+    const input = { validity: { badInput: true }, classList: { add: () => {} } };
+    q["input"] = input;
+    expect(q.validate(), "badInput").toBe(false);
+    expect(q.errors.length, "one error").toBe(1);
+    expect(q.errors[0].text, "error text").toBe("Invalid input");
+
+    input.validity.badInput = false;
+    q.inputValue = "1e5";
+    expect(q.validate(), "valid exponential value").toBe(true);
+    expect(q.errors.length, "no errors").toBe(0);
+  });
+
   test("Numeric input validation - prevent '-' at non-first position", () => {
     const q = new QuestionTextModel("q1");
     q.inputType = "number";
@@ -998,6 +1051,12 @@ describe("question text tests", () => {
 
     let result4 = simulateMinusKey("", "-123");
     expect(result4, "Should allow '-' at first position").toBe("-123");
+
+    let result5 = simulateMinusKey("1e5", "1e-5");
+    expect(result5, "Should keep '-' in a negative exponent").toBe("1e-5");
+
+    let result6 = simulateMinusKey("-1E5", "-1E-5");
+    expect(result6, "Should keep '-' in a negative exponent of a negative number").toBe("-1E-5");
   });
 
   test("Numeric input validation - prevent '-' when min >= 0", () => {

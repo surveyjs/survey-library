@@ -754,7 +754,8 @@ export class QuestionTextModel extends QuestionTextBase {
     // For input type="number", clean up "-" symbols that are not at the first position
     // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
     if (typeof value === "string" && value.length > 0) {
-      event.target.value = value[0] + value.substring(1).replace(/-/g, "");
+      // Keep "-" that follows "e"/"E" (a negative exponent, e.g., 1e-5)
+      event.target.value = value[0] + value.substring(1).replace(/([eE]?)-/g, (match: string, exp: string) => exp ? match : "");
     }
     this.prevNumberValue = undefined;
   }
@@ -811,8 +812,9 @@ export class QuestionTextModel extends QuestionTextBase {
     // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
     if (event.ctrlKey || event.metaKey || event.altKey) return false;
 
-    // Do not allow "e", "E", or "+" symbols
-    if (["e", "E", "+"].indexOf(key) > -1) return true;
+    // "e", "E", and "+" are used only in exponential notation (e.g., 1e5, 1e+5).
+    // Incomplete values such as "1e" are reported via input.validity.badInput in onCheckForErrors.
+    if (!settings.allowExponentialNotation && ["e", "E", "+"].indexOf(key) > -1) return true;
 
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0

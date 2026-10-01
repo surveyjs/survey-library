@@ -13,9 +13,8 @@ import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
-/* Step 15 (prompts/dynamic-data-list/15-page-window.md): with paging on, the panels and rows that
-   exist are the current page, for an in-memory list as for a data source that pages itself. The
-   letters in the test names are the ones the prompt gives its tests. */
+/* With paging on, the panels and rows that exist are the current page, for an in-memory list as for
+   a data source that pages itself. */
 
 async function flush(times: number = 30): Promise<void> {
   for (let i = 0; i < times; i++) {

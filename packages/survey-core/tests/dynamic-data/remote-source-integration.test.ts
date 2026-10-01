@@ -85,7 +85,7 @@ class FakeServerSource implements IDynamicDataSource {
   // false -> insert answers with nothing, which is what a source that ignores the return contract
   // does: the list then never learns the key of the new record.
   public insertAnswersRecord: boolean = true;
-  // Fields the server fills in on insert where the payload does not carry them (step 19).
+  // Fields the server fills in on insert where the payload does not carry them.
   public insertDefaults: any = undefined;
   private nextKey: number = 1000;
   public insert?: (record: any, sourceIndex: number) => Promise<any>;
@@ -879,7 +879,7 @@ describe("Remote data source: survey data", () => {
   });
 });
 
-describe("Step 24 pinning: attaching and detaching a source", () => {
+describe("Remote data source: attaching and detaching a source", () => {
   // The question's own value changes, which a survey event does not show: an incoming assignment
   // reaches the question through updateValueFromSurvey, not through survey.onValueChanged.
   function recordValues(question: Question): Array<any> {
@@ -1163,7 +1163,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
     expect(list.loadedCount, "#2: the list went with the question and committed nothing").toBe(0);
     expect(list.isLoading, "#3").toBe(false);
   });
-  /* The trap of step 24: an attach that creates the list. A page size from JSON is not a way there -
+  /* The trap: an attach that creates the list. A page size from JSON is not a way there -
      rowsPerPage/panelsPerPage create the list when they are set, and a panel creates it when the
      survey loads - so the attach that creates it creates a list that does not page. */
   test("P9 matrix: an attach to a question whose list does not exist yet", async () => {
@@ -1218,7 +1218,7 @@ describe("Step 24 pinning: attaching and detaching a source", () => {
   });
 });
 
-describe("Step 24 pinning: design mode gives unpaged positions", () => {
+describe("Remote data source: design mode gives unpaged positions", () => {
   function readVariable(item: any, name: string): any {
     const res = item.getValueGetterContext().getValue({ path: [{ name: name }], index: 0, isRoot: false });
     return !!res ? res.value : undefined;
@@ -1237,7 +1237,7 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
   });
   /* setDesignMode notifies no question, so the list keeps the page size and the page it had until the
      next paging sync; the question stops paging because isPagingActive reads the mode. The positions
-     come from the list alone (step 24, step D), so they stay the ones the page had. */
+     come from the list alone, so they stay the ones the page had. */
   test("P10 matrix: design mode set on a question that pages, on its second page", () => {
     const survey = new SurveyModel({ elements: [matrixJson] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -1276,10 +1276,10 @@ describe("Step 24 pinning: design mode gives unpaged positions", () => {
   });
 });
 
-/* Step 25 (OPEN 83): a source assigned to a question gets a window, whatever its class. The
+/* A source assigned to a question gets a window, whatever its class. The
    question is not told when the developer's storage changes, so the list does not follow it either:
    the list, question.value and the rows/panels hold the same records until the list reads again. */
-describe("Step 25: an assigned source is read, not read through", () => {
+describe("Remote data source: an assigned source is read, not read through", () => {
   interface IAssigned {
     survey: SurveyModel;
     question: any;
@@ -1453,7 +1453,7 @@ describe("Step 25: an assigned source is read, not read through", () => {
       expectAll(question, ["a0", "a1", "a2"], "#4: and not read through");
     });
   });
-  /* OPEN 87: the window of an assigned array source keeps the list's own writes only. The push
+  /* The window of an assigned array source keeps the list's own writes only. The push
      reaches the developer's array, but that array is not taken as the window, so an outside change
      does not slip into the list and question.value with the next edit while the rows/panels that
      were not edited still show the old records. */
@@ -1739,7 +1739,7 @@ describe("Remote data source: currentPanel and dispose", () => {
     const { question } = await createPanel(source, { displayMode: "tab" });
     question.goToPage(1);
     await flush();
-    // currentIndex is the position in the whole list, on every page (prompt 15, OPEN 59).
+    // currentIndex is the position in the whole list, on every page.
     question.currentIndex = 7;
     expect(question.currentPanel.getQuestionByName("col1").value, "#1").toBe("v7");
     question.refreshView();
@@ -2484,8 +2484,8 @@ describe("Remote data source: a record without a key", () => {
     expect(recordWithKey(source, 1000), "#5: the server no longer has the record").toBe(undefined);
     expect(source.records.length, "#6").toBe(3);
   });
-  /* Step 19, part B: a write made before the insert answers waits for the key behind it. Drained as
-     the prompt says: auto from now on, settle the held insert, and let the chain run the rest. */
+  /* A write made before the insert answers waits for the key behind it. Drained this way: auto
+     from now on, settle the held insert, and let the chain run the rest. */
   async function drain(source: FakeServerSource): Promise<void> {
     source.auto = true;
     source.settleAll();
@@ -2617,23 +2617,23 @@ describe("Remote data source: a record without a key", () => {
   });
 });
 
-/* Step 26 (prompts/dynamic-data-list/26-shared-question-controller.md): the coordination between a
-   question and its list moves into one controller. These tests pin what that move can break and no
-   earlier test covers; the T numbers are the prompt's. */
-describe("Step 26 pinning", () => {
+/* The coordination between a question and its list: a source assigned again or replaced while a
+   page move is pending, the order of the changes a page move, a remote edit and a filter make, a
+   refill that fails, and the page validation. */
+describe("Remote data source: the coordination between a question and its list", () => {
   const results: Array<(res: any) => void> = [];
-  function asyncStep26Func(params: any): any {
+  function asyncPageValidatorFunc(params: any): any {
     results.push(this.returnResult);
     return false;
   }
   beforeEach(() => {
     results.length = 0;
-    FunctionFactory.Instance.register("asyncStep26Func", asyncStep26Func, true);
+    FunctionFactory.Instance.register("asyncPageValidatorFunc", asyncPageValidatorFunc, true);
   });
   afterEach(() => {
-    FunctionFactory.Instance.unregister("asyncStep26Func");
+    FunctionFactory.Instance.unregister("asyncPageValidatorFunc");
   });
-  const asyncValidators = [{ type: "expression", expression: "asyncStep26Func() = 1" }];
+  const asyncValidators = [{ type: "expression", expression: "asyncPageValidatorFunc() = 1" }];
   const asyncColumns = [{ name: "col1", cellType: "text", validators: asyncValidators }, { name: "col2", cellType: "text" }];
   const asyncTemplate = [{ type: "text", name: "col1", validators: asyncValidators }, { type: "text", name: "col2" }];
   // A read() source: it hands over every record and the list cuts the page.
@@ -2643,7 +2643,7 @@ describe("Step 26 pinning", () => {
     const res: Array<any> = [];
     question.registerPropertyChangedHandlers(["value"], (newValue: any): void => {
       res.push(Array.isArray(newValue) ? newValue.map((r: any): any => !!r ? r.col1 : r) : newValue);
-    }, "step26");
+    }, "recordValues");
     return res;
   }
 

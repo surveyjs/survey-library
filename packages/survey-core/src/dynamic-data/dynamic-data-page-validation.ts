@@ -137,7 +137,7 @@ export interface IDynamicDataPageValidationOwner {
   isDisposed: boolean;
 }
 
-/* The page-level validation of a question that pages (Andrew's decision 2026-09-25, prompt 15).
+/* The page-level validation of a question that pages (Andrew's decision 2026-09-25).
    Validating every record is not an option - there can be thousands, and a record has no object
    until its page is shown - so it is done in two layers:
    1. A forward move the respondent makes (the pager, "add", a sort header, carousel/tab Next)

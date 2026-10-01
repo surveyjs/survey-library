@@ -12,9 +12,8 @@ export * from "../../src/question_text";
 export * from "../../src/question_expression";
 export * from "../../src/question_matrixdropdown";
 
-/* matrixdynamic and paneldynamic behave the same (step 22,
-   prompts/dynamic-data-list/22-same-behaviour-matrix-panel.md). Every scenario runs for both questions
-   with the same records; only the names of the authored properties differ. */
+/* matrixdynamic and paneldynamic behave the same. Every scenario runs for both questions with the
+   same records; only the names of the authored properties differ. */
 interface IDynamicKind {
   name: string;
   // The authored names of the same thing on the two questions.
@@ -108,8 +107,8 @@ describe("F1: {q[i]} names a record for both questions", () => {
         expect(survey.runExpression("{q[2].y}"), "#6").toBe("C");
       });
       /* A cell expression that runs while the matrix builds its rows (allRows answers [] then) reads a
-         record that has no row, filtered out here, as a value, as the panel does. Before step 22 the
-         matrix answered "not found" while building and the first row shown afterwards: 'b'. */
+         record that has no row, filtered out here, as a value, as the panel does. The matrix used to
+         answer "not found" while building and the first row shown afterwards: 'b'. */
       test("F1.2a under a filter, an item being built reads a record that has no row/panel", () => {
         const extra: any = { filterExpression: "{x} != 'a'" };
         extra[kind.items] = [kind.textItem("x"), kind.textItem("d", { defaultValueExpression: "{q[0].x}" })];
@@ -279,8 +278,8 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
   });
 });
 
-/* Step 23 (prompts/dynamic-data-list/23-dedupe-dynamic-questions.md) moves the code these rows run
-   through into shared helpers without changing what they answer. The row ids are the prompt's. */
+/* The getter contexts and the record-visibility pass, which matrixdynamic and paneldynamic share
+   through common helpers. */
 async function flush(times: number = 30): Promise<void> {
   for (let i = 0; i < times; i++) {
     await Promise.resolve();
@@ -313,7 +312,7 @@ function createDesignSurvey(): SurveyModel {
   return survey;
 }
 
-describe("Step 23 pinning: the question-level value getter context", () => {
+describe("Dynamic questions: the question-level value getter context", () => {
   test("V1 matrix, design mode: the design row answers any index, past the last row too", () => {
     const matrix = createDesignSurvey().getQuestionByName("matrix");
     const res = readPath(matrix, 5, ["col1"]);
@@ -358,7 +357,7 @@ describe("Step 23 pinning: the question-level value getter context", () => {
   });
 });
 
-describe("Step 23 pinning: the item getter contexts", () => {
+describe("Dynamic questions: the item getter contexts", () => {
   test("I2 paneldynamic and matrixdynamic, page 2: {prev*} and {next*} at both page edges read the records off the page", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "id" },
@@ -422,7 +421,7 @@ describe("Step 23 pinning: the item getter contexts", () => {
   });
 });
 
-describe("Step 23 pinning: the record-visibility pass under paging", () => {
+describe("Dynamic questions: the record-visibility pass under paging", () => {
   test("R1 matrixdynamic: the padded records are evaluated as the default row value", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, rowsPerPage: 2,
       defaultRowValue: { x: "d" }, rowsVisibleIf: "{row.x} != 'd'", columns: [{ name: "x", cellType: "text" }] }] });

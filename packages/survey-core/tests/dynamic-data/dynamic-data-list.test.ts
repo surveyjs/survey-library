@@ -173,8 +173,8 @@ class FakeServerViewSource implements IDynamicDataSource {
     return this.requests.length;
   }
 }
-/* A source that names its records by "id" and assigns the key of a new record, as a server does
-   (step 19). Reads and writes are synchronous; with holdInserts an insert answers through a promise
+/* A source that names its records by "id" and assigns the key of a new record, as a server does.
+   Reads and writes are synchronous; with holdInserts an insert answers through a promise
    that releaseInserts() settles. Every write records its operation in ops and what it received in
    payloads. */
 class FakeKeyedSource implements IDynamicDataSource {
@@ -2171,7 +2171,7 @@ describe("DynamicDataList: a page past the end", () => {
     list.pageSize = 10;
     list.pageIndex = 5;
     // The total came with the empty answer: it says where the end is, so the list goes straight to
-    // the last page of it and reads that one (step 18) - an empty window is never committed.
+    // the last page of it and reads that one - an empty window is never committed.
     expect(list.pageIndex, "#1: the last page of the total").toBe(2);
     expect(source.rangeCalls.map((c: any): number => c.skip), "#2: the page past the end, then the last one").toEqual([50, 20]);
     expect(list.getRecord(0).id, "#3: the window holds records 20-24").toBe(20);
@@ -2278,8 +2278,8 @@ describe("DynamicDataList: the operation of a failed read", () => {
   });
 });
 
-/* The three review findings on the unknown-total paging (2026-09-23). Each of them is about what
-   the list does with an end it has already been shown. */
+/* A source that cannot count its records: what the list does with an end it has already been
+   shown. */
 describe("DynamicDataList: the end of a source that cannot count", () => {
   test("removing the only record of the last page leaves the page that no longer exists", () => {
     const source = new NoTotalSource(createRecords(11));
@@ -2363,8 +2363,7 @@ describe("DynamicDataList: the end of a source that cannot count", () => {
   });
 });
 
-/* Step 18 (prompts/dynamic-data-list/18-read-source-paging-and-totals.md), parts B and C: a total
-   that changes under the pager. */
+/* A total that changes under the pager. */
 describe("DynamicDataList: a reported total that shrinks", () => {
   test("the page past the new total is not committed empty: the last page of it is read", () => {
     const source = new FakeRangeSource(createRecords(25));
@@ -2475,7 +2474,7 @@ describe("DynamicDataList: a discovered total and a source that grew", () => {
   });
 });
 
-/* Review finding 2 on step 18: the page a retry reads is not committed before its window is. */
+/* The page a retry reads is not committed before its window is. */
 describe("DynamicDataList: a retry that fails changes nothing", () => {
   function createFailingSource(count: number): { source: IDynamicDataSource, records: Array<any>, skips: Array<number>, failAt: Array<number> } {
     const records = createRecords(count);
@@ -2553,7 +2552,7 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
   });
 });
 
-/* Step 21: the pending retry is dropped by a read asked for from outside, and survives the reissue
+/* The pending retry is dropped by a read asked for from outside, and survives the reissue
    of a retry that a write overtook. Each read answers when the test says so, with the server as it
    is by then. */
 describe("DynamicDataList: the pending retry", () => {
@@ -2870,7 +2869,7 @@ describe("DynamicDataList: the assigned source", () => {
     list.dispose();
     expect((<any>list).createDefaultSource === undefined, "#1").toBe(true);
   });
-  // Step 25: ownership decides, not the class of the source.
+  // Ownership decides, not the class of the source.
   function createAssignedArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any>, set: (arr: Array<any>) => void, countCalls: () => number } {
     let arr: Array<any> = createRecords(count);
     let calls = 0;
@@ -2948,7 +2947,7 @@ describe("DynamicDataList: the assigned source", () => {
     assigned.set(createRecords(6));
     expect(list.loadedCount, "#2: an assigned one is not read through").toBe(3);
   });
-  /* OPEN 87: a synchronous push to an ArrayDynamicDataSource ends in syncWindowAfterSyncPush, which
+  /* A synchronous push to an ArrayDynamicDataSource ends in syncWindowAfterSyncPush, which
      takes the array the push has written. For an assigned source that array is the developer's, and
      taking it would bring a change made outside the list into the window with the next write and
      without a reset - so the window of an assigned source keeps the list's own writes only. */

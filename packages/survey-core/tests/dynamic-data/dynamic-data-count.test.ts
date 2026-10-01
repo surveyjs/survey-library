@@ -128,7 +128,7 @@ describe("DynamicDataCount: a discovered total", () => {
       count: 30, isCountKnown: false, hasMore: true, knownCount: 30, retryPageIndex: undefined
     });
   });
-  test("hasMore: true at the known end drops it (step 18 finding 5)", () => {
+  test("hasMore: true at the known end drops it", () => {
     const counter = new DynamicDataCount();
     commit(counter, 10, 10, { hasMore: false });
     expect(stateOf(counter, 10, 10).count, "#1: the end is at 20").toBe(20);
@@ -163,7 +163,7 @@ describe("DynamicDataCount: a page past the end", () => {
     expect(stateOf(counter, 10, 10), "#3: the window in force keeps its count")
       .toEqual(Object.assign({}, before, { retryPageIndex: 1 }));
   });
-  test("a reported total goes straight to its last page (step 18 finding 4)", () => {
+  test("a reported total goes straight to its last page", () => {
     const counter = new DynamicDataCount();
     commit(counter, 40, 10, { total: 60 });
     expect(counter.stepBackPastEnd(page(0, { total: 15 }), 50, 10, 0, 5, 10, ""), "#1").toBe(true);

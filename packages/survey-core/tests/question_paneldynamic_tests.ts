@@ -1079,7 +1079,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.isNextButtonVisible, "currentIndex = 1, nextButton is hidden").toBe(false);
     panel.addPanel();
     expect(panel.currentIndex, "The last added panel is current").toBe(2);
-    // A number is a position in visiblePanels, and a carousel's page is its one panel (prompt 15).
+    // A number is a position in visiblePanels, and a carousel's page is its one panel.
     panel.removePanel(panel.currentPanel);
     expect(panel.currentIndex, "The last  panel is removed").toBe(1);
   });
@@ -1099,7 +1099,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.currentIndex, "go to the second panel").toBe(1);
     panel.validate(true, true);
     // A carousel pages one panel at a time: a panel that was left by code and never edited is not
-    // validated (prompt 15, a behaviour change for carousels).
+    // validated (a behaviour change for carousels).
     expect(panel.currentIndex, "the panel shown is the one validated").toBe(1);
   });
   test("PanelDynamic, keyName + hasError + getAllErrors", () => {
@@ -1702,7 +1702,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     return new SurveyModel(json);
   }
   /* Only the records of a built page have panels, and only a panel runs the writers: the records
-     past the first page keep what was assigned (prompt 15 - expressions stored in records). */
+     past the first page keep what was assigned (expressions stored in records). */
   function sharedValueNamePagedExpectedData(count: number, pageSize: number = 20): Array<any> {
     const res = sharedValueNameRecords(count);
     for (let i = 0; i < Math.min(count, pageSize); i++) {
@@ -1721,7 +1721,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(writeSpy.mock.calls.length, "#2: no panel, so no writer runs").toBe(0);
     survey.currentPageNo = 1;
     const pd0 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd0");
-    expect(createSpy.mock.calls.length, "#3: pd0 only, and its first page only (prompt 15)").toBe(20);
+    expect(createSpy.mock.calls.length, "#3: pd0 only, and its first page only").toBe(20);
     expect(pd0.renderedPanels.length, "#4: one page").toBe(20);
     expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#5").toBe(0);
     expect(survey.data.rec, "#6: the first build completes the records of the page").toEqual(sharedValueNamePagedExpectedData(50));
@@ -1743,7 +1743,7 @@ describe("Survey_QuestionPanelDynamic", () => {
       spies.forEach(spy => spy.mockRestore());
       expect(survey.data.rec, "records: " + count).toEqual(sharedValueNamePagedExpectedData(count));
       for (let i = 0; i < 3; i++) {
-        // The last panel of the page (prompt 15): record 19.
+        // The last panel of the page: record 19.
         const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd" + i)).panels[19];
         expect(panel.getQuestionByName("q1").value, "records: " + count + ", pd" + i).toBe("a19");
         expect(panel.getQuestionByName("exp4").value, "records: " + count + ", pd" + i).toBe("No");
@@ -7657,7 +7657,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel2.panels[0].wasRendered, "panel2, #1").toBe(true);
     expect(panel2.panels[1].wasRendered, "panel2, #2").toBe(true);
     expect(panel3.panels[0].wasRendered, "panel3, #1").toBe(true);
-    // A carousel builds the panel it shows only (prompt 15): the hidden one is not even created.
+    // A carousel builds the panel it shows only: the hidden one is not even created.
     expect(panel3.panels.length, "panel3, #2").toBe(1);
     panel1.currentIndex = 1;
     expect(panel1.panels[0].wasRendered, "panel1, #3").toBe(true);
@@ -7852,7 +7852,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
     expect(panelContainer2.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
-    // Tab and not carousel: a carousel builds one panel (prompt 15), and this test animates two
+    // Tab and not carousel: a carousel builds one panel, and this test animates two
     // panels that both exist. The direction and height hooks are the same for both modes.
     question.displayMode = "tab";
     question.currentIndex = 0;
@@ -10371,7 +10371,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(renderedValues(question), "#4").toEqual(["c", "d"]);
     question.nextPage();
     expect(renderedValues(question), "#5: the last page holds what is left").toEqual(["e"]);
-    expect(question.visiblePanels.length, "#6: visiblePanels is the page (prompt 15)").toBe(1);
+    expect(question.visiblePanels.length, "#6: visiblePanels is the page").toBe(1);
     expect(question.panels.length, "#7").toBe(1);
     expect(question.panelCount, "#8: the record count is untouched").toBe(5);
   });
@@ -10410,7 +10410,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2, templateVisibleIf: "{panel.q1} != 'b'" },
       [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
     expect(question.visiblePanelCount, "#1: three records are visible").toBe(3);
-    expect(question.panels.length, "#2: the page's two panels exist, a hidden record has none (prompt 15)").toBe(2);
+    expect(question.panels.length, "#2: the page's two panels exist, a hidden record has none").toBe(2);
     expect(question.pageCount, "#3: three visible panels of two").toBe(2);
     expect(pageValues(question), "#4: the hidden panel does not take a slot").toEqual(["a", "c"]);
     question.nextPage();
@@ -10493,9 +10493,9 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(carousel.renderedPanels[0] === carousel.visiblePanels[0], "#4: the one panel of its page (page size 1)").toBe(true);
     const tab = createQuestion({ panelCount: 5, panelsPerPage: 2, displayMode: "tab" }, abcde);
     expect(tab.renderedPanels.length, "#5").toBe(1);
-    expect(tab.tabbedMenu.actions.length, "#6: the tabs of the page (prompt 15)").toBe(2);
+    expect(tab.tabbedMenu.actions.length, "#6: the tabs of the page").toBe(2);
   });
-  test("a required question on a page that was never opened does not block the survey (prompt 15)", () => {
+  test("a required question on a page that was never opened does not block the survey", () => {
     const survey = createSurvey({ panelCount: 5, panelsPerPage: 2, templateElements: [{ type: "text", name: "q1", isRequired: true }] },
       [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "" }, { q1: "e" }]);
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
@@ -10643,7 +10643,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     survey.questionsOnPageMode = "inputPerPage";
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     expect(question.singleInputSummary?.items.length, "#1: every visible panel, not the page - single input is its own paging").toBe(4);
-    expect(question.pageCount, "#2: the question does not page while single input is active (prompt 15)").toBe(1);
+    expect(question.pageCount, "#2: the question does not page while single input is active").toBe(1);
     expect(question.panelsOnPage.length, "#3").toBe(4);
   });
   test("getStructuredValue and the progress answer for every visible panel", () => {

@@ -71,7 +71,7 @@ export class DynamicDataCount {
      nothing exists at skip or behind it, so the storage holds at most that many records. The window
      the step back commits then confirms that bound or lowers it, and the pager stops offering the
      page that answered empty.
-     Both steps go to the retry and not to the committed state (review finding 2 on step 18): the
+     Both steps go to the retry and not to the committed state: the
      window in force, its page index and its total stay together until the retry commits, and a
      retry that fails leaves them as they were. */
   public stepBackPastEnd(result: IDynamicDataReadResult, skip: number, take: number, length: number,

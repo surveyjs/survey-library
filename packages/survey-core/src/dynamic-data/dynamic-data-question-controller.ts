@@ -208,7 +208,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (change.type === "pageChanged") {
       this.forgetFocusIndex();
       owner.syncPagingState();
-      /* The objects that exist are the page (prompt 15): a page the list cuts - from question.value
+      /* The objects that exist are the page: a page the list cuts - from question.value
          or from everything a read() source answered with - is rebuilt at once, through the path a
          remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
       if (this.isPagedByList) {
@@ -576,7 +576,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     return !list || !list.isRemote || list.hasCapability(operation);
   }
   /* A remove on a page the list cuts leaves it one record short, and the first record of the next
-     page belongs on it now: the page is refilled, as a data source's remove refill does (step 08). A
+     page belongs on it now: the page is refilled, as a data source's remove refill does. A
      remove that emptied the last page moved the page back, and that page change rebuilt it already.
      pageIndexBefore: the page index the list had before the remove. */
   public refillPageAfterRemove(pageIndexBefore: number): void {
@@ -642,7 +642,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   /* Attaching a source: the answer the question already holds leaves the survey hash before the
      first read. It is one ordinary value change - attaching is a developer action, not a page load -
      and it is the only way to keep a stale local answer, which nobody can see any more, out of the
-     submitted data (OPEN 21). */
+     submitted data. */
   private clearValueInSurveyData(): void {
     const owner = this.owner;
     if (!owner.data || owner.isValueEmpty(owner.data.getValue(owner.getValueName()))) return;

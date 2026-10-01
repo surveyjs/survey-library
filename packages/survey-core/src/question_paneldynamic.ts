@@ -332,7 +332,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     // The view, not the page: a question that pages still answers for every record it shows.
     return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
   }
-  /* Three indexes (prompt 15): the record index names the record, visibleIndex is its position among
+  /* Three indexes: the record index names the record, visibleIndex is its position among
      the visible records of the whole list (the list's globalVisibleIndex; what the respondent
      navigates by), pageVisibleIndex its position in visiblePanels. */
   private get pageStartVisibleIndex(): number {
@@ -520,7 +520,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.updateRenderedPanels();
     }
   }
-  /* The panels that exist are the page (prompt 15): with paging on, panels and visiblePanels hold
+  /* The panels that exist are the page: with paging on, panels and visiblePanels hold
      the current page only, whatever the source, so the page is visiblePanels itself - the same
      instance - and never a slice of it. renderedPanels is what is shown: the page in list mode,
      [currentPanel] in carousel and tab mode. */
@@ -2363,7 +2363,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.notifyOnPanelAddedRemoved(true, index);
     return this.panelsCore[index];
   }
-  /* The in-memory paged add (prompt 15, item 10). The complete record - the default panel value,
+  /* The in-memory paged add. The complete record - the default panel value,
      then the copy from the previous entry - is inserted once, and the question moves to the page of
      the inserted record, which is the last page only for an append; that move rebuilds the page and
      the new record's panel is the one returned. */
@@ -3208,7 +3208,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!values || !Array.isArray(values)) return values;
     /* i is a record index: values is the stored value, in record order. A record the page shows reads
        its display values from its panel's questions; under paging a record without a panel reads them
-       through the template's questions (Andrew's decision 2026-09-25, OPEN 57). This is a live path -
+       through the template's questions (Andrew's decision 2026-09-25). This is a live path -
        text piping and displayValue() call it - so nothing is built for it. */
     const positions = this.hasDataListView ? this.dataList.getMaterializedPositions() : undefined;
     const useTemplate = this.isPagingActive;

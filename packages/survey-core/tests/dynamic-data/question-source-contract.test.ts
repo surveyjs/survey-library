@@ -6,8 +6,7 @@ import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
-/* The contract both dynamic questions share over a caller-provided data source (step 18,
-   prompts/dynamic-data-list/18-read-source-paging-and-totals.md, part D). A source comes in two
+/* The contract both dynamic questions share over a caller-provided data source. A source comes in two
    kinds, and the list pages both:
    - read() only: the source answers with the whole storage and the LIST pages it, exactly as it
      pages question.value. Every record is in memory.
@@ -34,9 +33,9 @@ class ContractSource implements IDynamicDataSource {
   public keyField: string;
   public readRange: (request: IDynamicDataReadRequest) => IDynamicDataReadResult;
   /* true -> insert answers with a promise the test settles through releaseInserts(): a keyed insert
-     whose key is not known yet (step 19 adds its scenarios to this file). */
+     whose key is not known yet. */
   public holdInserts: boolean = false;
-  // A copy of every record insert received, before the key is assigned (step 19).
+  // A copy of every record insert received, before the key is assigned.
   public insertPayloads: Array<any> = [];
   private heldInserts: Array<() => void> = [];
   private nextKey: number = 1000;
@@ -280,7 +279,7 @@ describe.each(namedAdapters)("Question source contract, read(): the list pages -
   test("layer 2, the negative case: an untouched page is not validated", () => {
     const { survey, question } = create();
     question.pageIndex = 1;
-    // Record 0 is empty and its page was never edited: layer 2 visits edited pages only (step 15),
+    // Record 0 is empty and its page was never edited: layer 2 visits edited pages only,
     // so it is not walked - validating every page is a design decision, not this contract.
     expect(survey.tryComplete(), "#1").toBe(true);
   });
@@ -301,7 +300,7 @@ describe.each(namedAdapters)("Question source contract, read(): the list pages -
   });
 });
 
-describe("Question source contract: the two sites step 18 verified", () => {
+describe("Question source contract: the last entry and the visible panel count", () => {
   test("matrix copyDefaultValueFromLastEntry: the last record of a read() storage, the last of a readRange window", () => {
     const readSource = new ContractSource(contractRecords(5), { kind: "read" });
     const read = matrixAdapter.create(readSource, 2, { copyDefaultValueFromLastEntry: true }).question;
@@ -485,7 +484,7 @@ describe.each(namedAdapters)("Question source contract, readRange: a shrink whos
   });
 });
 
-/* Review finding 1 on step 18: a read() source that is read again may bring the edited records back
+/* A read() source that is read again may bring the edited records back
    at other indexes. Layer 2 follows them - by key when the source names its records, by content
    otherwise - and replacing the source starts over. */
 describe.each(namedAdapters)("Question source contract, read(): a read that commits again - %s", (_name: string, adapter: IQuestionAdapter) => {
@@ -545,7 +544,7 @@ describe.each(namedAdapters)("Question source contract, read(): a read that comm
   });
 });
 
-/* Step 19: a new record's identity. The source assigns the key: a key the new record carries - copied
+/* A new record's identity. The source assigns the key: a key the new record carries - copied
    from the last entry, or put on a default value - never reaches insert, never survives the answer,
    and never addresses a write while the insert is in flight. Records 100, 101 ("n1") and 102 ("n2"),
    one page; the new item is at position 3. */

@@ -10430,7 +10430,7 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     expect(matrix.value, "#3: the records beyond rowCount are removed").toEqual([{ c1: "a" }, { c1: "b" }]);
     checkLockstep(matrix, "#3");
   });
-  test("count is rowCount when the value is empty, OPEN 6", () => {
+  test("count is rowCount when the value is empty", () => {
     const matrix = createMatrix({ rowCount: 2, columns: textColumns });
     const list = matrix.getDataList();
     expect(matrix.value, "#1: no value").toBeFalsy();
@@ -10975,7 +10975,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.nextPage();
     expect(matrix.pageIndex, "#4").toBe(2);
     expect(pageValues(matrix), "#5: the last page holds what is left").toEqual(["e"]);
-    expect(matrix.visibleRows.length, "#6: visibleRows is the page (prompt 15)").toBe(1);
+    expect(matrix.visibleRows.length, "#6: visibleRows is the page").toBe(1);
     expect(matrix.allRows.length, "#7").toBe(1);
   });
   test("navigation clamps at both ends", () => {
@@ -11015,7 +11015,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, rowsVisibleIf: "{row.c1} != 'b'" },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     expect(matrix.getDataList().visibleCount, "#1: three records are visible").toBe(3);
-    expect(matrix.allRows.length, "#2: the page's two rows exist, a hidden record has none (prompt 15)").toBe(2);
+    expect(matrix.allRows.length, "#2: the page's two rows exist, a hidden record has none").toBe(2);
     expect(matrix.pageCount, "#3: three visible rows of two").toBe(2);
     expect(pageValues(matrix), "#4: the hidden row does not take a slot").toEqual(["a", "c"]);
     matrix.nextPage();
@@ -11052,7 +11052,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.goToPage(1);
     const rows = dataRows(matrix);
     expect(rows.length, "#2").toBe(2);
-    expect(rows[0].row === matrix.visibleRows[0], "#3: the first row of page 2, the first of visibleRows (prompt 15)").toBe(true);
+    expect(rows[0].row === matrix.visibleRows[0], "#3: the first row of page 2, the first of visibleRows").toBe(true);
     expect(rows[0].cells[0].question.value, "#4").toBe("c");
     expect(rows[1].cells[0].question.value, "#5").toBe("d");
     matrix.goToPage(2);
@@ -11157,7 +11157,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(dataRows(matrix).length, "#8: the rendered table shows the page it fell back to").toBe(2);
     expect(matrix.value, "#9: the value is untouched").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
   });
-  test("a required cell on a page that was never opened does not block the survey (prompt 15)", () => {
+  test("a required cell on a page that was never opened does not block the survey", () => {
     const survey = createSurvey({ rowCount: 5, rowsPerPage: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "" }, { c1: "e" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -11335,7 +11335,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     survey.questionsOnPageMode = "inputPerPage";
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.singleInputSummary?.items.length, "#1: every visible row, not the page - single input is its own paging").toBe(4);
-    expect(matrix.pageCount, "#2: the matrix does not page while single input is active (prompt 15)").toBe(1);
+    expect(matrix.pageCount, "#2: the matrix does not page while single input is active").toBe(1);
     expect(matrix.rowsOnPage.length, "#3").toBe(4);
   });
   test("design mode pages nothing and keeps the authored value", () => {

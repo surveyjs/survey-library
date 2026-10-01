@@ -10,9 +10,8 @@ import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
 import { Helpers } from "../../src/helpers";
 
-/* Step 16 (prompts/dynamic-data-list/16-paging-700-records.md): the per-write costs that remain once
-   only the page is built. These are performance items: the tests count calls, they do not measure
-   time. The item names in the test names are the ones the prompt gives. */
+/* The per-write costs that remain once only the page is built. These are performance items: the
+   tests count calls, they do not measure time. */
 
 function records(count: number, create: (i: number) => any): Array<any> {
   const res: Array<any> = [];
@@ -323,8 +322,7 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
   });
 });
 
-/* Step 18 (prompts/dynamic-data-list/18-read-source-paging-and-totals.md), part E: a read() source is
-   paged by the list, and it is the kind of source whose storage may be large - the server hands over
+/* A read() source is paged by the list, and it is the kind of source whose storage may be large - the server hands over
    everything once. A page visit, an edit and a validation must cost the page, not the record count.
    The whole-list calculations (progress, display value) are correct at O(records) and are tested for
    their result in question-source-contract.test.ts, not here. */

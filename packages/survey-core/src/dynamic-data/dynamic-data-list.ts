@@ -660,7 +660,7 @@ export class DynamicDataList {
     return this.getCreatedIndexes().indexOf(index);
   }
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
-  // keeps one object per record, which is the path every question takes until step 04.
+  // keeps one object per record.
   public get hasView(): boolean {
     return !!this._filter || this._sort.length > 0;
   }

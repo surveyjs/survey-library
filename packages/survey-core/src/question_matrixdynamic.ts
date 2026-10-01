@@ -322,7 +322,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.dataListValue) return;
     this.paging.syncState();
   }
-  /* The rows that exist are the page (prompt 15): with paging on, visibleRows holds the current page
+  /* The rows that exist are the page: with paging on, visibleRows holds the current page
      only, whatever the source, so the page is visibleRows itself - the same instance - and never a
      slice of it. */
   public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
@@ -344,7 +344,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public syncPageSizeWithMode(): void {
     this.dynamicData.syncListPageSize();
   }
-  /* Three indexes (prompt 15): the record index names the record, visibleIndex is its position among
+  /* Three indexes: the record index names the record, visibleIndex is its position among
      the visible records of the whole list (the list's globalVisibleIndex), pageVisibleIndex its
      position in visibleRows; visibleIndex = pageStartVisibleIndex + pageVisibleIndex. */
   private get pageStartVisibleIndex(): number {
@@ -1638,7 +1638,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return values;
   }
-  /* Under paging (OPEN 57): a record on the page reads its display values from its row's cells, a
+  /* Under paging (Andrew's decision 2026-09-25): a record on the page reads its display values from its row's cells, a
      record without a row through the column's templateQuestion - nothing is built on this live path.
      Choices that depend on {row.x}, and a choicesByUrl whose answer is not cached, give the value. */
   private getPagedDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {

@@ -1009,4 +1009,25 @@ describe("Survey_QuestionMatrix", () => {
     expect(rowData.title, "row title").toBe("Row 1");
     expect(rowData.displayValue, "row displayValue should contain display texts").toEqual(["Option A"]);
   });
+  test("visibleRowsChangedCallback fires when rows are assigned and when a rowsVisibleIf result changes", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "matrix", name: "q1", columns: ["col1"], rows: ["row1", "row2"], rowsVisibleIf: "{item} != {a}" }
+      ]
+    });
+    const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
+    let counter = 0;
+    matrix.visibleRowsChangedCallback = () => { counter++; };
+    matrix.rows = ["row1", "row2", "row3"];
+    expect(counter, "rows are assigned").toBe(1);
+    expect(matrix.visibleRows.length, "three visible rows").toBe(3);
+    counter = 0;
+    survey.setValue("a", "row1");
+    expect(counter, "a row becomes hidden").toBe(1);
+    expect(matrix.visibleRows.length, "two visible rows").toBe(2);
+    counter = 0;
+    survey.setValue("b", 1);
+    expect(counter, "no row visibility changes").toBe(0);
+  });
 });

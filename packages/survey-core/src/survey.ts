@@ -2581,17 +2581,6 @@ export class SurveyModel extends SurveyElementCore
   public get isMobile() {
     return this._isMobile && !this.isDesignMode;
   }
-  @property() private _isCompact: boolean = false;
-  public set isCompact(newVal: boolean) {
-    if (newVal !== this._isCompact) {
-      this._isCompact = newVal;
-      this.updateElementCss();
-      this.triggerResponsiveness(true);
-    }
-  }
-  public get isCompact(): boolean {
-    return this._isCompact;
-  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -3374,6 +3363,7 @@ export class SurveyModel extends SurveyElementCore
     this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
+    this.checkTriggersOnSettingData();
   }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
@@ -3389,6 +3379,7 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
     this.markAnsweredPagesAsShown();
+    this.checkTriggersOnSettingData();
   }
   /* Assigning or merging data restores a previously saved survey state, so pages that
   already contain answers are shown as passed in the progress bar. Values changed via
@@ -4683,7 +4674,15 @@ export class SurveyModel extends SurveyElementCore
    * @see validatePage
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
-    return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+    return this.validateElements(this.getPagesToValidate(), fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+  }
+  // Pages after the page where a "complete" trigger completes the survey are never reached
+  private getPagesToValidate(): Array<PageModel> {
+    const pages = this.visiblePages;
+    const triggers = this.completedByTriggers || {};
+    const pageIds = Object.keys(triggers).map(key => triggers[key].pageId);
+    const index = pages.findIndex(page => pageIds.indexOf(page.id) > -1);
+    return index < 0 ? pages : pages.slice(0, index + 1);
   }
   private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     if (!!onAsyncValidation) {
@@ -4710,6 +4709,7 @@ export class SurveyModel extends SurveyElementCore
    * @param {boolean} options.reportInvalidChoiceValues Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true`
    * @param {boolean} options.reportExpressionResultMismatches Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false`
    * @returns An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+   * @since 3.1.2
    */
   public setData(data: any, options?: IDataVerificationOptions): Array<IDataIssue> {
     const hasData = data !== undefined && data !== null;
@@ -5846,7 +5846,6 @@ export class SurveyModel extends SurveyElementCore
       this.isMobile && this.css.rootMobile,
       (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
       this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
-      this.isCompact && this.css.rootCompact,
       this.fitToContainer && this.css.rootFitToContainer
     );
   }
@@ -6969,7 +6968,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private checkOnPageTriggers(isOnComplete: boolean) {
-    var questions = this.getCurrentPageQuestions(true);
+    this.checkTriggers(this.getTriggerKeys(this.getCurrentPageQuestions(true)), true, isOnComplete);
+  }
+  // Setting data doesn't run triggers, except ones that update the survey state without changing data
+  private checkTriggersOnSettingData(): void {
+    this.checkTriggers(this.getTriggerKeys(this.getAllQuestions()), false, false, false, undefined, true);
+  }
+  private getTriggerKeys(questions: Array<Question>): { [index: string]: any } {
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
@@ -6977,7 +6982,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true, isOnComplete);
+    return values;
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
@@ -6994,7 +6999,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private isTriggerIsRunning: boolean = false;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string, isOnSettingData: boolean = false): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       for (var k in key) {
@@ -7011,7 +7016,7 @@ export class SurveyModel extends SurveyElementCore
     this.triggerKeys = key;
     const properties = this.getFilteredProperties();
     const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-      keys: this.triggerKeys, properties: properties };
+      isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
     let originalKeys = Helpers.createCopy(this.triggerKeys);
     const maxIterations = 3;
     for (let i = 0; i < maxIterations; i++) {
@@ -8928,17 +8933,21 @@ export class SurveyModel extends SurveyElementCore
     if (!theme && !baseTheme) return;
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
-    return this._applyTheme(themeToApply);
+    this.applyThemeCore(themeToApply, true);
+  }
+  public applyThemeCore(theme: ITheme, triggerResponsiveness: boolean): void {
+    this._applyTheme(theme);
+    if (triggerResponsiveness) {
+      this.triggerResponsiveness(true);
+    }
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "header") {
+      if (key === "header" || key === "isPanelless") {
         return;
       }
-      if (key === "isPanelless") {
-        this.isCompact = theme[key];
-      } else if (key === "cssVariables") {
+      if (key === "cssVariables") {
         this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];

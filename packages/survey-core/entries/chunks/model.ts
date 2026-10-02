@@ -230,7 +230,6 @@ export {
   MatrixColumn,
   IMatrixData
 } from "../../src/question_matrix";
-export { QuestionMatrixBaseModel } from "../../src/martixBase";
 export {
   MultipleTextItemModel,
   MultipleTextCell,

@@ -15334,11 +15334,6 @@ describe("Survey", () => {
 
     survey.readOnly = false;
     survey.setIsMobile(false);
-    survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
-
-    survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -18252,7 +18247,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
     expect(survey.backgroundOpacity, "before applyTheme").toBe(1);
-    expect(survey["isCompact"], "before applyTheme").toBe(false);
     expect(survey.headerView, "before applyTheme").toBe("advanced");
 
     survey.applyTheme({
@@ -18275,7 +18269,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit).toBe("cover");
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("advanced");
   });
   test("survey.applyTheme with baseTheme", () => {
@@ -18298,9 +18291,24 @@ describe("Survey", () => {
 
     expect(survey.backgroundImageFit).toBe("contain");
     expect(survey.backgroundOpacity).toBe(0.8);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
+  test("survey.applyTheme recalculates question widths", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    let log = "";
+    survey.getAllQuestions().forEach(q => {
+      q["triggerResponsivenessCallback"] = (hard: boolean) => {
+        log += `->${q.name}:${hard}`;
+      };
+    });
+    survey.applyTheme({ isPanelless: true });
+    expect(log).toBe("->q1:true->q2:true");
   });
   test("survey.applyTheme does not mutate the original theme", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -19497,42 +19505,6 @@ describe("Survey", () => {
     expect(getContainerContent("right"), "default right").toEqual([]);
   });
 
-  test("Check triggerReponsiveness is called when isCompact changed", () => {
-    const json = {
-      title: "My Survey",
-      showNavigationButtons: false,
-      pages: [
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q1"
-            }
-          ]
-        },
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q2"
-            }
-          ]
-        },
-      ]
-    };
-    const survey = new SurveyModel(json);
-    let log = "";
-    survey.getAllQuestions().forEach(q => {
-      q["triggerResponsivenessCallback"] = (hard: boolean) => {
-        log += `->${q.name}:${hard}`;
-      };
-    });
-    survey["isCompact"] = true;
-    expect(log).toBe("->q1:true->q2:true");
-    log = "";
-    survey["isCompact"] = false;
-    expect(log).toBe("->q1:true->q2:true");
-  });
   test("element.wasREndered", () => {
     const json = {
       pages: [

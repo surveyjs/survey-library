@@ -50,7 +50,7 @@ export function isValidThousandsSeparator(value: string): boolean {
  * ```js
  * const surveyJson = {
  *   "elements": [{
- *     "name": "textquestion1"
+ *     "name": "textquestion1",
  *     "type": "text",
  *     "maskType": "numeric",
  *     "maskSettings": {

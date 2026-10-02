@@ -1,6 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Base } from "./base";
@@ -14,6 +13,7 @@ import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType, IVerifyDataContext } from "./question";
@@ -351,13 +351,21 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
   */
 export class QuestionMatrixModel
-  extends QuestionMatrixBaseModel<MatrixRowModel, MatrixColumn>
+  extends Question
   implements IMatrixData, IMatrixCellsOwner {
+  protected generatedVisibleRows: Array<MatrixRowModel> = null;
+  public visibleRowsChangedCallback: () => void;
   private isRowChanging = false;
   private cellsValue: MatrixCells;
 
+  protected createColumnValues(): any {
+    return this.createItemValues("columns");
+  }
+
   constructor(name: string) {
     super(name);
+    this.columns = this.createColumnValues();
+    this.rows = this.createItemValues("rows");
     this.cellsValue = new MatrixCells(this);
     this.cellsValue.onValuesChanged = () => {
       this.updateHasCellText();
@@ -366,6 +374,9 @@ export class QuestionMatrixModel
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "rowsVisibleIf" || name === "columnsVisibleIf") {
+      this.runCondition(this.getDataFilteredProperties());
+    }
     if (name === "columns") {
       this.onColumnsChanged();
     }
@@ -388,6 +399,189 @@ export class QuestionMatrixModel
   }
   public getType(): string {
     return "matrix";
+  }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
+  /**
+   * Specifies whether to display the table header that contains column captions.
+   *
+   * Default value: `true`
+   */
+  @property() showHeader: boolean;
+  /**
+   * An array of matrix columns.
+   *
+   * For a Single-Select Matrix, the `columns` array can contain configuration objects with the `text` (display value) and `value` (value to be saved in survey results) properties. Alternatively, the array can contain primitive values that will be used as both the display values and values to be saved in survey results.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * For a Multi-Select Matrix or Dynamic Matrix, the `columns` array should contain configuration objects with properties described in the [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) API Reference section.
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
+   */
+  @property() columns: Array<any>;
+  public get visibleColumns(): Array<any> {
+    const res: Array<any> = [];
+    this.columns.forEach(col => { if (this.isColumnVisible(col)) { res.push(col); } });
+    return res;
+  }
+  protected isColumnVisible(column: any): boolean {
+    return column.isVisible;
+  }
+  /**
+   * An array of matrix rows.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   */
+  @property() rows: Array<any>;
+  /**
+   * A Boolean expression that is evaluated against each matrix row. If the expression evaluates to `false`, the row becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current row in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
+   * @see visibleRows
+   * @see columnsVisibleIf
+   */
+  @property() rowsVisibleIf: string;
+  /**
+   * A Boolean expression that is evaluated against each matrix column. If the expression evaluates to `false`, the column becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current column in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
+   * @see rowsVisibleIf
+   */
+  @property() columnsVisibleIf: string;
+  protected onColumnsChanged(): void { }
+  protected updateVisibilityBasedOnRows(): void {
+    if (this.hideIfRowsEmpty) {
+      this.onVisibleChanged();
+    }
+  }
+  protected isVisibleCore(): boolean {
+    const res = super.isVisibleCore();
+    if (!res || !this.hideIfRowsEmpty) return res;
+    return this.visibleRows?.length > 0;
+  }
+  protected shouldRunColumnExpression(): boolean {
+    return !this.survey || !this.survey.areInvisibleElementsShowing;
+  }
+  protected runItemsCondition(properties: HashTable<any>): void {
+    const hasRowsChanged = this.runConditionsForRows(properties);
+    const hasColumnsChanged = this.runConditionsForColumns(properties);
+    const hasChanges = hasColumnsChanged || hasRowsChanged;
+    if (hasChanges) {
+      if (this.isClearValueOnHidden && hasColumnsChanged) {
+        this.clearInvisibleColumnValues();
+      }
+      this.clearGeneratedRows();
+      if (hasColumnsChanged) {
+        this.onColumnsChanged();
+      }
+      this.onRowsChanged();
+    }
+  }
+  protected clearGeneratedRows(): void {
+    this.generatedVisibleRows = null;
+  }
+  private runConditionsForRows(properties: HashTable<any>): boolean {
+    const showInvisibile = this.areInvisibleElementsShowing;
+    const runner = !showInvisibile ? this.createRowsVisibleIfRunner() : null;
+    const hasChanged = ItemValue.runConditionsForItems(this.rows, undefined, runner,
+      properties, !showInvisibile);
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
+    return hasChanged;
+  }
+  protected runConditionsForColumns(properties: HashTable<any>): boolean {
+    const useColumnsExpression = !this.areInvisibleElementsShowing;
+    const expression = this.getExpressionFromSurvey("columnsVisibleIf");
+    const runner = useColumnsExpression && !!expression ? new ConditionRunner(expression) : null;
+    return ItemValue.runConditionsForItems(this.columns, undefined, runner, properties, this.shouldRunColumnExpression());
+  }
+  public needResponsiveWidth() {
+    //TODO: make it mor intelligent
+    return true;
+  }
+
+  protected get columnsAutoWidth() {
+    return isMatrixColumnsAutoWidth(this.isMobile, this.columns);
+  }
+  public getTableCss(): string {
+    return getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign);
+  }
+  public getTableBodyCss(): string {
+    return getMatrixTableBodyCss(this.cssClasses, this.alternateRows, this.isMobile);
+  }
+  public getTableWrapperCss(): string {
+    return getMatrixTableWrapperCss(this.cssClasses, this.titleLocation);
+  }
+
+  /**
+   * Aligns matrix cell content in the vertical direction.
+   */
+  @property() verticalAlign: "top" | "middle";
+
+  /**
+   * Specifies whether to apply shading to alternate matrix rows.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   */
+  @property() alternateRows: boolean;
+
+  /**
+   * Minimum column width in CSS values.
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   *
+   * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+   * @see width
+   */
+  @property({ returnValue: "" }) columnMinWidth: string;
+
+  /**
+   * A width for the column that displays row titles (first column). Accepts CSS values.
+   */
+  @property({ returnValue: "" }) rowTitleWidth: string;
+  /**
+   * Specifies how to arrange matrix questions.
+   *
+   * Possible values:
+   *
+   * - `"table"` - Displays matrix questions in a table.
+   * - `"list"` - Displays matrix questions one under another as a list.
+   * - `"auto"` (default) - Uses the `"table"` mode if the survey has sufficient width to fit the table or the `"list"` mode otherwise.
+   */
+  @property() displayMode: "auto" | "table" | "list";
+
+  //a11y
+  public getCellAriaLabel(row: any, column: any, directRowTitle?: string): string {
+    return getMatrixCellAriaLabel(this.getLocalizationString("matrix_row"), this.getLocalizationString("matrix_column"), row, column, directRowTitle);
+  }
+
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  // EO a11y
+  protected getIsMobile(): boolean {
+    if (this.displayMode == "auto") return super.getIsMobile();
+    return this.displayMode === "list";
+  }
+  public get isAllowTitleLeft(): boolean {
+    return false;
   }
   public getValueType(): QuestionValueType {
     return "object";
@@ -578,6 +772,7 @@ export class QuestionMatrixModel
   protected runConditionCore(properties: HashTable<any>): void {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
     super.runConditionCore(properties);
+    this.runItemsCondition(properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     const expression = this.getExpressionFromSurvey("rowsVisibleIf");
@@ -585,7 +780,8 @@ export class QuestionMatrixModel
   }
   protected onRowsChanged(): void {
     this.clearGeneratedRows();
-    super.onRowsChanged();
+    this.updateVisibilityBasedOnRows();
+    this.fireCallback(this.visibleRowsChangedCallback);
   }
   public getMatrixRows(): Array<MatrixRowModel> {
     if (!!this.generatedVisibleRows) return this.generatedVisibleRows;
@@ -684,6 +880,7 @@ export class QuestionMatrixModel
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
+    this.updateVisibilityBasedOnRows();
     this.rows = this.sortVisibleRows(this.rows);
     this.onRowsChanged();
     this.onColumnsChanged();
@@ -721,6 +918,10 @@ export class QuestionMatrixModel
   protected hasValueKey(key: string): boolean {
     return this.rows.some(row => row.value + "" === key);
   }
+  /**
+   * Returns an array of visible matrix rows.
+   * @see rowsVisibleIf
+   */
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
   }
@@ -1155,6 +1356,23 @@ Serializer.addClass("matrixcolumn",
 Serializer.addClass(
   "matrix",
   [
+    { name: "showCommentArea:switch", visible: true },
+    "columnsVisibleIf:condition",
+    "rowsVisibleIf:condition",
+    "columnMinWidth",
+    { name: "showHeader:boolean", default: true },
+    {
+      name: "verticalAlign",
+      choices: ["top", "middle"],
+      default: "middle",
+    },
+    { name: "alternateRows:boolean", default: false },
+    {
+      name: "displayMode",
+      default: "auto",
+      choices: ["auto", "table", "list"],
+      visible: false
+    },
     "rowTitleWidth",
     {
       name: "columns:matrixcolumn[]", uniqueProperty: "value",
@@ -1183,7 +1401,7 @@ Serializer.addClass(
   function () {
     return new QuestionMatrixModel("");
   },
-  "matrixbase"
+  "question"
 );
 
 QuestionFactory.Instance.registerQuestion("matrix", (name) => {

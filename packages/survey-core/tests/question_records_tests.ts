@@ -90,6 +90,44 @@ describe("Records question: fixed matrix", () => {
     expect(q.getProgressInfo(), "#5: three visible rows of two cells").toEqual({ questionCount: 6, answeredQuestionCount: 3, requiredQuestionCount: 3, requiredAnsweredQuestionCount: 2 });
     expect(hasNoRecordList(q), "#6").toBe(true);
   });
+  /* The panel keeps the page states of the questions nested in its records while it rebuilds its
+     panels (the matrix that pages: page-window.test.ts). The fixed matrix next to it is walked as
+     well and has none. */
+  test("nested page state: a fixed matrix in a rebuilt dynamic panel has none and creates no list", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "outer", panelsPerPage: 1,
+        templateElements: [{ type: "text", name: "id" }, {
+          type: "matrixdynamic", name: "paged", rowCount: 0, rowsPerPage: 1,
+          columns: [{ name: "a", cellType: "text" }]
+        }, {
+          type: "matrixdropdown", name: "fixed", rows: ["r1", "r2"],
+          columns: [{ name: "a", cellType: "text" }]
+        }]
+      }]
+    });
+    survey.data = { outer: [{ id: 0, paged: [{ a: "0" }, { a: "1" }, { a: "2" }] }, { id: 1 }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const questionOf = (name: string): any => outer.panels[0].getQuestionByName(name);
+    const getPageState = (q: any): any => q.dynamicData.getPageState();
+    const paged = <QuestionMatrixDynamicModel>questionOf("paged");
+    const fixed = <QuestionMatrixDropdownModel>questionOf("fixed");
+    paged.pageIndex = 1;
+    paged.visibleRows[0].cells[0].question.value = "x";
+    paged.pageIndex = 0;
+    expect(getPageState(paged).edited, "#1: the paged matrix keeps an edited record off its page").toEqual([1]);
+    expect(getPageState(fixed), "#2: the fixed matrix has no page state").toBeUndefined();
+    expect(hasNoRecordList(fixed), "#3").toBe(true);
+
+    outer.sortOrder = [{ field: "id", direction: "desc" }];
+    outer.sortOrder = [{ field: "id", direction: "asc" }];
+    const newFixed = <QuestionMatrixDropdownModel>questionOf("fixed");
+    expect(newFixed === fixed, "#4: the panel was rebuilt").toBe(false);
+    expect(questionOf("id").value, "#5: for the same record").toBe(0);
+    expect(getPageState(newFixed), "#6: the new fixed matrix has no page state").toBeUndefined();
+    expect(hasNoRecordList(newFixed), "#7: and no list").toBe(true);
+    expect(newFixed.value, "#8: its answer is untouched").toBeUndefined();
+  });
 });
 
 describe("Records question: lazy list allocation", () => {

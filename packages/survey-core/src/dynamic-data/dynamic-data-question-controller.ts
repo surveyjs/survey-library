@@ -120,8 +120,9 @@ function getFieldType(question: Question): DynamicDataFieldType {
    focus kept across a refill. The source itself, its capabilities and the loaded window belong to
    the list.
    What the questions do with the helpers - a page leave, the validation of the records off the
-   page, the record visibility of a question that pages, the nested page states - runs here with the
-   question's rules (the hooks): a question never sees the page validation.
+   page, the record visibility of a question that pages, the page states kept for nested questions -
+   runs here with the question's rules (the hooks): a question never sees the page validation. Which
+   nested questions have a page state is QuestionRecordsModel's to say.
    It is created with the question. The list and the helpers are created on first use; listValue and
    _pageValidation never create.
 
@@ -129,15 +130,11 @@ function getFieldType(question: Question): DynamicDataFieldType {
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
    it does change is who owns them - see QuestionRecordsModel.canSetValueToSurvey. */
-// The controller of a dynamic question, for an ancestor that holds the question and not the controller.
-const controllers = new WeakMap<Question, DynamicDataQuestionController>();
 export class DynamicDataQuestionController implements IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataPagingOwner {
   private _list: DynamicDataList;
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
-  constructor(private owner: DynamicDataQuestionOwner, private hooks: IDynamicDataQuestionHooks) {
-    controllers.set(owner, this);
-  }
+  constructor(private owner: DynamicDataQuestionOwner, private hooks: IDynamicDataQuestionHooks) { }
   public get listValue(): DynamicDataList {
     return this._list;
   }
@@ -417,29 +414,16 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     return this.paging.updatePageSizeIfChanged();
   }
 
-  /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)
-     rebuilds the object holding it: undefined when the list does not page in memory, since a
-     question that does not page validates every object anyway, and for a question that is not a
-     dynamic one. */
-  public static getPageStateOf(question: Question): IDynamicDataPageState {
-    const controller = controllers.get(question);
-    return !!controller ? controller.getPageState() : undefined;
-  }
-  public static setPageStateOf(question: Question, state: IDynamicDataPageState): void {
-    const controller = controllers.get(question);
-    if (!!controller) {
-      controller.setPageState(state);
-    }
-  }
-  public static hasPagedQuestions(questions: Array<Question>): boolean {
-    return questions.some((q: Question): boolean => !!DynamicDataQuestionController.getPageStateOf(q));
-  }
-  private getPageState(): IDynamicDataPageState {
+  /* What the question keeps for its records when an ancestor (a dynamic panel that pages) rebuilds
+     the object holding it: undefined when the list does not page in memory, since a question that
+     does not page validates every object anyway. QuestionRecordsModel reads it for the questions
+     nested in its records. */
+  public getPageState(): IDynamicDataPageState {
     if (!this.isPagedByList) return undefined;
     return this.pageValidation.getState(this.paging.pageIndex);
   }
   // The page is kept as well: the respondent comes back to where they were.
-  private setPageState(state: IDynamicDataPageState): void {
+  public setPageState(state: IDynamicDataPageState): void {
     if (!state) return;
     this.pageValidation.setState(state);
     if (state.pageIndex > 0) {
@@ -447,30 +431,18 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     }
   }
   /* The ancestor side of the states above: what the paged questions nested in one record of this
-     question keep, by value name, while their objects are rebuilt (the dynamic panel's rebuild). A
-     record without such a question keeps empty states, which clear its entry - and need no page
-     validation to be created for that - while a record that has states creates it. Only the panel
-     keeps them: a paged question in a matrix detail panel starts over when its row is rebuilt. */
-  public keepNestedPageStates(recordIndex: number, questions: Array<Question>): void {
-    const states: { [valueName: string]: IDynamicDataPageState } = {};
-    questions.forEach((q: Question): void => {
-      const state = DynamicDataQuestionController.getPageStateOf(q);
-      if (!!state) states[q.getValueName()] = state;
-    });
+     question keep, by value name, while their objects are rebuilt. Empty states clear the record's
+     entry - and need no page validation to be created for that - while states that are not empty
+     create it. */
+  public keepNestedPageStates(recordIndex: number, states: { [valueName: string]: IDynamicDataPageState }): void {
     const validation = Object.keys(states).length > 0 ? this.pageValidation : this._pageValidation;
     if (!!validation) {
       validation.keepNestedStates(recordIndex, states);
     }
   }
-  // The questions of the object built for a record take what was kept for it.
-  public restoreNestedPageStates(recordIndex: number, questions: Array<Question>): void {
-    const states = !!this._pageValidation ? this._pageValidation.getNestedStates(recordIndex) : undefined;
-    if (!states) return;
-    questions.forEach((q: Question): void => {
-      if (!!states[q.getValueName()]) {
-        DynamicDataQuestionController.setPageStateOf(q, states[q.getValueName()]);
-      }
-    });
+  // What was kept for a record; a peek: nothing is created for it.
+  public getNestedPageStates(recordIndex: number): { [valueName: string]: IDynamicDataPageState } {
+    return !!this._pageValidation ? this._pageValidation.getNestedStates(recordIndex) : undefined;
   }
 
   /* The page moves of DynamicDataPageValidation.leave: validate, clearIncorrectValues and
@@ -571,7 +543,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     }
   }
 
-  // IDynamicDataPageValidationOwner: the rules both questions share; the rest is the question's.
+  // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
   public getDataList(): DynamicDataList {
     return this.list;
   }

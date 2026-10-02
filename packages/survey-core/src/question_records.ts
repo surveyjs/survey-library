@@ -6,6 +6,7 @@ import { Question, ValidationContext } from "./question";
 import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataListChange } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
   DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
@@ -146,6 +147,39 @@ export abstract class QuestionRecordsModel extends Question {
       res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
     }
     return res;
+  }
+  /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)
+     rebuilds the object holding it: undefined for a question that is not a records question, and for
+     one whose list does not page in memory, since a question that does not page validates every
+     object anyway. */
+  private static getPageStateOf(question: Question): IDynamicDataPageState {
+    return question instanceof QuestionRecordsModel ? question.dynamicData.getPageState() : undefined;
+  }
+  protected hasPagedQuestions(questions: Array<Question>): boolean {
+    return questions.some((q: Question): boolean => !!QuestionRecordsModel.getPageStateOf(q));
+  }
+  /* The ancestor side of the states above: what the paged questions nested in one record keep, by
+     value name, while their objects are rebuilt. A record without such a question keeps empty
+     states, which clear its entry. Only the panel keeps them: a paged question in a matrix detail
+     panel starts over when its row is rebuilt. */
+  protected keepPageStatesOfQuestions(recordIndex: number, questions: Array<Question>): void {
+    const states: { [valueName: string]: IDynamicDataPageState } = {};
+    questions.forEach((q: Question): void => {
+      const state = QuestionRecordsModel.getPageStateOf(q);
+      if (!!state) states[q.getValueName()] = state;
+    });
+    this.dynamicData.keepNestedPageStates(recordIndex, states);
+  }
+  // The questions of the object built for a record take what was kept for it.
+  protected restorePageStatesOfQuestions(recordIndex: number, questions: Array<Question>): void {
+    const states = this.dynamicData.getNestedPageStates(recordIndex);
+    if (!states) return;
+    questions.forEach((q: Question): void => {
+      const state = states[q.getValueName()];
+      if (!!state && q instanceof QuestionRecordsModel) {
+        q.dynamicData.setPageState(state);
+      }
+    });
   }
   // True while the data source is reading a page. The UI shows a loading state from it, and
   // question.isReady is false for exactly as long.

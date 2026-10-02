@@ -3731,8 +3731,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
     });
     // A dynamic matrix or panel over a caller-provided data source: a page it is reading, or an edit
-    // the source has not acknowledged. Duck-typed like choicesByUrl above - the flag belongs to the
-    // two dynamic questions and the survey does not import them for it.
+    // the source has not acknowledged. Duck-typed like choicesByUrl above - the flag is
+    // QuestionRecordsModel.isDynamicDataRunning, and the survey does not import the question classes
+    // at runtime.
     questions.forEach(question => {
       if ((<any>question).isDynamicDataRunning === true) res.push({ type: "dynamicData", owner: question });
     });

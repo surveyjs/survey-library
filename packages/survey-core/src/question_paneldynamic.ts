@@ -41,9 +41,7 @@ import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGet
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import {
-  DynamicDataQuestionController, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
-} from "./dynamic-data/dynamic-data-question-controller";
+import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule } from "./dynamic-data/dynamic-data-question-controller";
 import { QuestionRecordsModel } from "./question_records";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -681,11 +679,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     panels.forEach((panel: PanelModel): void => {
       const item = <QuestionPanelDynamicItem>panel.data;
       if (!(item instanceof QuestionPanelDynamicItem) || item.builtRecordIndex < 0) return;
-      this.dynamicData.keepNestedPageStates(item.builtRecordIndex, panel.questions);
+      this.keepPageStatesOfQuestions(item.builtRecordIndex, panel.questions);
     });
   }
   private hasNestedPagedQuestions(panels: Array<PanelModel>): boolean {
-    return panels.some((panel: PanelModel): boolean => DynamicDataQuestionController.hasPagedQuestions(panel.questions));
+    return panels.some((panel: PanelModel): boolean => this.hasPagedQuestions(panel.questions));
   }
   private restoreNestedPageStates(): void {
     const panels = this.panelsCore;
@@ -693,7 +691,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
       const item = <QuestionPanelDynamicItem>panels[i].data;
       if (!(item instanceof QuestionPanelDynamicItem)) continue;
       item.builtRecordIndex = this.getRecordIndexByPanelIndex(i);
-      this.dynamicData.restoreNestedPageStates(item.builtRecordIndex, panels[i].questions);
+      this.restorePageStatesOfQuestions(item.builtRecordIndex, panels[i].questions);
     }
   }
   private assignOnPropertyChangedToTemplate() {

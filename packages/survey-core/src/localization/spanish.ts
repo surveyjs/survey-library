@@ -55,6 +55,10 @@ export var spanishSurveyStrings = {
   value: "valor",
   // "Response required."
   requiredError: "Por favor conteste la pregunta.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "El valor es incorrecto.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "El valor contiene claves desconocidas: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Por favor, responda al menos una pregunta.",
   // "Response required: answer questions in all rows."

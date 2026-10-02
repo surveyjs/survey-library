@@ -13,10 +13,10 @@ import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Question, QuestionValueType } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -109,16 +109,17 @@ export class MatrixRowModel extends Base {
   public get isReadOnlyAttr(): boolean { return this.data.isReadOnlyAttr; }
   public get isDisabledAttr(): boolean { return !this.item.enabled || this.data.isDisabledAttr; }
   public get rowTextClasses(): string {
-    return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
+    return toCssClasses(this.data.cssClasses.rowTextCell);
   }
   @property({ defaultValue: false }) hasError: boolean;
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
-    return new CssClassBuilder().append(cssClasses.row)
-      .append(cssClasses.rowError, this.hasError)
-      .append(cssClasses.rowReadOnly, this.isReadOnly)
-      .append(cssClasses.rowDisabled, this.data.isDisabledStyle)
-      .toString();
+    return toCssClasses(
+      cssClasses.row,
+      this.hasError && cssClasses.rowError,
+      this.isReadOnly && cssClasses.rowReadOnly,
+      this.data.isDisabledStyle && cssClasses.rowDisabled
+    );
   }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixRowValueGetterContext(this);
@@ -493,7 +494,7 @@ export class QuestionMatrixModel
     return (val || "").replace("{type}", this.checkType);
   }
   public get emptyCellCss() {
-    return new CssClassBuilder().append(this.cssClasses.cell).append(this.cssClasses.emptyCell).toString();
+    return toCssClasses(this.cssClasses.cell, this.cssClasses.emptyCell);
   }
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
@@ -501,16 +502,16 @@ export class QuestionMatrixModel
     const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
-    return new CssClassBuilder()
-      .append(css.cell, hasCellText)
-      .append(hasCellText ? css.cellText : this.formatCss(css.label))
-      .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
-      .append(hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked), isChecked)
-      .append(hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled), this.isDisabledStyle)
-      .append(hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly), this.isReadOnlyStyle)
-      .append(hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview), this.isPreviewStyle)
-      .append(this.formatCss(css.itemHover), allowHover && !hasCellText)
-      .toString();
+    return toCssClasses(
+      hasCellText && css.cell,
+      hasCellText ? css.cellText : this.formatCss(css.label),
+      !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()) && css.itemOnError,
+      isChecked && (hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked)),
+      this.isDisabledStyle && (hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled)),
+      this.isReadOnlyStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
+      this.isPreviewStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
+      allowHover && !hasCellText && this.formatCss(css.itemHover)
+    );
   }
   public get itemSvgIcon(): string {
     if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
@@ -687,8 +688,38 @@ export class QuestionMatrixModel
     this.onRowsChanged();
     this.onColumnsChanged();
   }
-  protected isNewValueCorrect(val: any): boolean {
+  protected isDataValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
+  }
+  // A single or multi select matrix has no nested question instances: the cell check is its own
+  // and runs against the columns, one finding per row, or per item of a multi select cell.
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    const unknownKeys: Array<string> = [];
+    for (const key in val) {
+      if (!this.isValueKeyKnown(key)) {
+        unknownKeys.push(key);
+        continue;
+      }
+      // A row of another matrix that shares the value is checked by that matrix.
+      if (!this.hasValueKey(key) || !context.checks.reportInvalidChoiceValues) continue;
+      const cell = val[key];
+      const isArrayCell = this.isMultiSelect && Array.isArray(cell);
+      const cellValues = isArrayCell ? cell : [cell];
+      context.pushSegment(key);
+      cellValues.forEach((cellValue: any, index: number) => {
+        if (!!ItemValue.getItemByValue(this.columns, cellValue)) return;
+        context.addIssue("invalidChoiceValue", isArrayCell ? index : undefined, cellValue, this);
+      });
+      context.popSegment();
+    }
+    if (context.checks.reportUnknownProperties) {
+      unknownKeys.forEach(key => context.addIssue("unknownProperty", key, val[key], this));
+    }
+    return true;
+  }
+  protected hasValueKey(key: string): boolean {
+    return this.rows.some(row => row.value + "" === key);
   }
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
@@ -950,6 +981,12 @@ export class QuestionMatrixModel
       }
     }
     if (inCorrectRows) {
+      // Keep the rows of the matrices that share the value with this one.
+      for (const key in updatedData) {
+        if (!this.hasValueKey(key) && this.isValueKeyKnown(key)) {
+          newData[key] = updatedData[key];
+        }
+      }
       updatedData = newData;
     }
     if (this.isTwoValueEquals(updatedData, this.value)) return;

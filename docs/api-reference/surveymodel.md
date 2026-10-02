@@ -2105,6 +2105,27 @@ Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/d
 
 **Related APIs:** [`hasCookie`](#hasCookie), [`deleteCookie`](#deleteCookie)
 
+### `setData()`
+
+**Return value:** `IDataIssue[]<IDataIssue>` &ndash; An array of [detected issues](/form-library/documentation/api-reference/idataissue), or an empty array if the enabled checks find none.
+
+Loads survey data, checks it against the survey definition, and returns an array of [detected issues](/form-library/documentation/api-reference/idataissue).
+
+This method applies the same survey logic as direct assignment to the [`data`](#data) property, then checks the resulting values and reports issues. Use the `options` parameter to configure these checks.
+
+This method does not run the validation rules defined in the JSON schema. To run them, call the [`validate()`](#validate) method separately.
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `data` | `any` | A JSON-serializable object with survey answers. |
+| `options` | `IDataVerificationOptions` | *(Optional)* Specifies which issues to report. |
+| `options.reportUnknownProperties` | `boolean` | Reports data properties that do not correspond to a question or another recognized survey result field. Default value: `true` |
+| `options.reportInvalidValueTypes` | `boolean` | Reports values whose type or structure does not match the question configuration. Default value: `true` |
+| `options.reportInvalidChoiceValues` | `boolean` | Reports values that do not match an available choice, matrix column or row, or rating value. Default value: `true` |
+| `options.reportExpressionResultMismatches` | `boolean` | Reports differences between the supplied data and the survey data after loading, including values added, changed, or removed by expressions, defaults, triggers, or other loading behavior. Default value: `false` |
+
 ### `setValue()`
 
 Sets a question value (answer).

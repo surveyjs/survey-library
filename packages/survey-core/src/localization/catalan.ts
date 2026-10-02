@@ -55,6 +55,10 @@ export var catalanSurveyStrings = {
   value: "valor",
   // "Response required."
   requiredError: "Si us plau contesti la pregunta.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "El valor és incorrecte.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "El valor conté claus desconegudes: {0}.",
   // [Auto-translated] "Response required: answer at least one question."
   requiredErrorInPanel: "Resposta necessària: respondre almenys una pregunta.",
   // "Response required: answer questions in all rows."

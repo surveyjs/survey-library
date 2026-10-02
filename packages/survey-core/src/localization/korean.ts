@@ -55,6 +55,10 @@ export var koreanStrings = {
   value: "값",
   // "Response required."
   requiredError: "질문에 답하시오.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "값이 잘못됐어요.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "이 값에는 알려지지 않은 키들이 포함되어 있습니다: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "하나 이상의 질문에 답하십시오.",
   // "Response required: answer questions in all rows."

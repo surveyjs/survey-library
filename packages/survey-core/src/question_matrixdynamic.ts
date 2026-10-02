@@ -17,7 +17,7 @@ import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo, ISurveyData } from "./base-interfaces";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
@@ -954,8 +954,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
-  protected isNewValueCorrect(val: any): boolean {
-    return Array.isArray(val);
+  protected isDataValueCorrect(val: any): boolean {
+    // Every row is a plain object; an empty one may be null.
+    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   protected setDefaultValue() {
     DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
@@ -1456,9 +1457,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.paging.pageIndex = page;
     }
   }
-  private getQuestionToFocusOnAddingRow(): Question {
-    if (this.visibleRows.length === 0) return null;
-    var row = this.visibleRows[this.visibleRows.length - 1];
+  private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
+    if (!row.isVisible) return null;
     for (var i = 0; i < row.cells.length; i++) {
       var q = row.cells[i].question;
       if (!!q && q.isVisible && !q.isReadOnly) {
@@ -1485,11 +1485,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.addRowCore();
     this.onEndRowAdding();
     this.singleInputOnAddItem(false);
-    if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
-      this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
+    // The new row is the last one in allRows; visibleRows may end with an existing row when rowsVisibleIf hides the new row
+    const rows = this.allRows;
+    const newRow = oldRowCount !== this.rowCount && rows.length > 0 ? rows[rows.length - 1] : null;
+    if (!newRow) return;
+    if (this.detailPanelShowOnAdding) {
+      newRow.showDetailPanel();
     }
-    if (setFocus && oldRowCount !== this.rowCount) {
-      const q = this.getQuestionToFocusOnAddingRow();
+    if (setFocus) {
+      const q = this.getQuestionToFocusOnAddingRow(newRow);
       if (!!q) {
         q.focus();
       }
@@ -1581,7 +1585,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.showPageOfAddedRecord();
     }
     if (this.survey) {
-      const rows = this.visibleRows;
+      const rows = this.allRows;
       if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
         const row = rows[rows.length - 1];
         this.matrixCallbacks.matrixRowAdded(this, row);
@@ -2134,6 +2138,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const position = positions[i] !== undefined ? positions[i] : -1;
       const row = position > -1 && position < rows.length ? rows[position] : undefined;
       if (!!row) {
+        if (!row.isVisible) continue;
         res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
       } else {
         const record = this.getListRecordAt(i, defaultRecord);
@@ -2340,12 +2345,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
+    return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
   }
   public getToolbarCssClass(location?: "top" | "bottom"): string {
-    return new CssClassBuilder().append(this.cssClasses.toolbar)
-      .append(this.cssClasses.toolbarBottom, location == "bottom")
-      .append(this.cssClasses.toolbarTop, location == "top").toString();
+    return toCssClasses(
+      this.cssClasses.toolbar,
+      location == "bottom" && this.cssClasses.toolbarBottom,
+      location == "top" && this.cssClasses.toolbarTop
+    );
   }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;
@@ -2369,7 +2376,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.addRowUI();
       },
       iconName: <any>new ComputedUpdater(() => this.cssClasses.iconAddId),
-      innerCss: new ComputedUpdater(() => new CssClassBuilder().append(this.cssClasses.button).append(this.cssClasses.buttonAdd).toString()) as any as string,
+      innerCss: new ComputedUpdater(() => toCssClasses(this.cssClasses.button, this.cssClasses.buttonAdd)) as any as string,
       id: "sv-md-add-btn"
     });
     this.toolbarValue.addAction(addBtnAction);
@@ -2382,7 +2389,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.toolbarValue;
   }
   public getTableCss(): string {
-    return new CssClassBuilder().append(super.getTableCss()).append(this.cssClasses.hasFooter, !!this.getShowToolbar("bottom")).toString();
+    return toCssClasses(super.getTableCss(), !!this.getShowToolbar("bottom") && this.cssClasses.hasFooter);
   }
 }
 

@@ -55,6 +55,10 @@ export var bulgarianStrings = {
   value: "Стойност",
   // "Response required."
   requiredError: "Моля, отговорете на следния въпрос.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Стойността е грешна.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Стойността съдържа неизвестни ключове: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",
   // "Response required: answer questions in all rows."

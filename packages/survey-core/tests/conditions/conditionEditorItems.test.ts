@@ -87,6 +87,37 @@ describe("ConditionEditorItem: rows to text", () => {
     item.questionName = "nosuchquestion";
     expect(item.toExpression(), "#3: an unknown name goes as it is").toBe("{nosuchquestion} = 1");
   });
+  test("a value-first row is written with the value on the left and the operator mirrored", () => {
+    const valueFirst = (operator: string, value: any): string => {
+      const item = createItem("q1", operator, value);
+      item.isValueFirst = true;
+      return item.toExpression();
+    };
+    expect(valueFirst("greater", 1), "#1").toBe("1 < {q1}");
+    expect(valueFirst("less", 1), "#2").toBe("1 > {q1}");
+    expect(valueFirst("greaterorequal", 1), "#3").toBe("1 <= {q1}");
+    expect(valueFirst("lessorequal", 1), "#4").toBe("1 >= {q1}");
+    expect(valueFirst("equal", 1), "#5").toBe("1 = {q1}");
+    expect(valueFirst("notequal", 1), "#6").toBe("1 <> {q1}");
+    expect(valueFirst("equal", "abc"), "#7: the value keeps its quoting").toBe("'abc' = {q1}");
+    expect(valueFirst("equal", [1, "a"]), "#8").toBe("[1, 'a'] = {q1}");
+    withDoubleBraces((): void => {
+      expect(valueFirst("equal", 5), "#9").toBe("5 = {{q1}}");
+    });
+    // The user picked an operator that cannot be written the other way round.
+    expect(valueFirst("contains", "a"), "#10").toBe("{q1} contains 'a'");
+    expect(valueFirst("anyof", ["a"]), "#11").toBe("{q1} anyof ['a']");
+    expect(valueFirst("notempty", undefined), "#12").toBe("{q1} notempty");
+  });
+  test("a value-first survey row names the question by its valueName", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", valueName: "val1" }] });
+    const item = new SurveyConditionEditorItem(survey);
+    item.questionName = "q1";
+    item.operator = "greater";
+    item.value = 1;
+    item.isValueFirst = true;
+    expect(item.toExpression()).toBe("1 < {val1}");
+  });
 });
 
 const build = (text: string): Array<any> => new ConditionEditorItemsBuilder().build(text)
@@ -137,6 +168,14 @@ describe("ConditionEditorItemsBuilder: text to rows", () => {
       "['a', 'x'] noneof {q1}", "{a} = 1 and 'x' contains {q1}"]
       .forEach((text: string): void => { expect(build(text), text).toEqual([]); });
   });
+  test("a row taken from a constant on the left remembers that the value came first", () => {
+    const isValueFirst = (text: string): boolean => new ConditionEditorItemsBuilder().build(text)[0].isValueFirst;
+    ["1 < {q1}", "1 >= {q1}", "1 = {q1}", "1 != {q1}", "1 > {q1}", "1 <= {q1}", "'a' = {q1}", "[1, 2] = {q1}"]
+      .forEach((text: string): void => { expect(isValueFirst(text), text).toBe(true); });
+    expect(isValueFirst("{q1} < 1"), "the question on the left").toBe(false);
+    expect(isValueFirst("{q1} empty"), "a unary operator").toBe(false);
+    expect(new ConditionEditorItem().isValueFirst, "a new row").toBe(false);
+  });
   test("arrays of constants are values, empty and notempty take none", () => {
     expect(build("{q3} = [1, 2]")[0].value, "#1").toEqual([1, 2]);
     expect(build("{q3} anyof ['a', 'b']")[0], "#2")
@@ -181,5 +220,11 @@ describe("ConditionEditorItemsBuilder.itemsToExpression", () => {
   test("text built from rows parses back into the same rows", () => {
     const text = "{a} = 1 or {b} <> 'x' and {c} empty and {d} anyof [1, 2]";
     expect(ConditionEditorItemsBuilder.itemsToExpression(new ConditionEditorItemsBuilder().build(text))).toBe(text);
+  });
+  test("a constant on the left comes back on the left", () => {
+    const roundTrip = (text: string): string => ConditionEditorItemsBuilder.itemsToExpression(new ConditionEditorItemsBuilder().build(text));
+    ["1 < {q1}", "1 >= {q1}", "'abc' = {q1}", "[1, 2] = {q1}", "{a} = 1 and 2 < {q1} or {b} empty"]
+      .forEach((text: string): void => { expect(roundTrip(text), text).toBe(text); });
+    expect(roundTrip("1 != {q1}"), "the operator is written the editor's way").toBe("1 <> {q1}");
   });
 });

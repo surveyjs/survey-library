@@ -3136,4 +3136,27 @@ describe("Input Per Page Tests", () => {
     expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
     unregisterFunction("asyncSkuFunc");
   });
+  test("singleInput and single matrix: rows and columns shown by rowsVisibleIf / columnsVisibleIf, Issue#11818", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a", "b", "c"] },
+        { type: "checkbox", name: "q2", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+        { type: "matrix", name: "matrix1", rows: ["a", "b", "c"], columns: ["x", "y", "z"],
+          rowsVisibleIf: "{q1} contains {item}", columnsVisibleIf: "{q2} contains {item}" }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix1 = survey.getQuestionByName("matrix1");
+    survey.currentSingleQuestion = matrix1;
+    expect(matrix1.singleInputQuestion, "no row is visible, #1").toBeFalsy();
+    survey.getQuestionByName("q1").value = ["a", "b"];
+    expect(matrix1.singleInputQuestion?.name, "the first revealed row, #2").toBe("a");
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #2").toEqual(["x", "y"]);
+    survey.getQuestionByName("q2").value = ["y", "z"];
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #3").toEqual(["y", "z"]);
+    matrix1.singleInputQuestion.value = "z";
+    survey.performNext();
+    expect(matrix1.singleInputQuestion.name, "the second revealed row, #4").toBe("b");
+    expect(matrix1.value, "matrix1.value").toEqual({ a: "z" });
+  });
 });

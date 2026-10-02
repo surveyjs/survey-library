@@ -7,9 +7,10 @@ import {
   IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition, IInterviewToolOptions,
 } from "./interview-types";
 import {
-  IInterviewContainer, IInterviewInput, clearUntouchedChoiceErrors, getAnsweredValue, getInputErrors,
-  getInterviewInputs, getUnreportedContainers, isAskableInput, isInShowingChoice, isInputAnswered, isInputValid,
-  makeInputCurrent, updateCurrentItem, validateInput,
+  IInterviewContainer, IInterviewInput, IInterviewPanel, clearUntouchedChoiceErrors, getAnsweredValue,
+  getInputErrors, getInterviewInputs, getInterviewPanels, getUnreportedContainers, isAskableInput,
+  isInShowingChoice, isInputAnswered, isInputValid, makeInputCurrent, updateCurrentItem, validateInput,
+  validatePanels,
 } from "./interview-items";
 import {
   createNameLookup, getAddress, getParentContainer, getQuestionDepth, parseAddress, resolveAddress,
@@ -27,7 +28,7 @@ import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, badAddressError, completionBlockedError, notAskableError,
+  InterviewErrorCodes, badAddressError, completionBlockedError, invalidCannotSkipError, notAskableError,
   nothingToAnswerError, requiredCannotSkipError, surveyCompletedError, unknownQuestionError,
   unknownToolError,
 } from "./interview-errors";
@@ -139,6 +140,11 @@ export class Interview implements IInterview {
       // does not spin past it.
       return this.createErrorResult(requiredCannotSkipError(target.address), inputs);
     }
+    if (!isInputValid(target)) {
+      // The skip keeps the value, and the error keeps the item current whatever the skipped set says:
+      // refused, so that the consumer hears why the same item comes back.
+      return this.createErrorResult(invalidCannotSkipError(target.address), inputs);
+    }
     this.skipped.add(target.address);
     this.editingQuestion = undefined;
     await this.settleSurvey();
@@ -159,6 +165,9 @@ export class Interview implements IInterview {
     // multiple text, a composite - validates itself here, or a RequiredInAllRowsError would keep the
     // model from completing while the interview reported nothing to correct.
     getUnreportedContainers(inputs).forEach(container => container.question.validate(true));
+    // A panel's own errors - a required panel left empty, an onValidatePanel handler - the same way:
+    // the mode validates the current question alone, and survey.tryComplete() would not refuse them.
+    validatePanels(getInterviewPanels(inputs));
     await this.settleSurvey();
     inputs = this.getInputs();
     let errors = this.collectErrors(inputs);
@@ -254,6 +263,8 @@ export class Interview implements IInterview {
         input.question.validate(true);
       }
     });
+    // A key the call wrote has been validated by its own write.
+    validateRevealedInputs(inputs, this.getInputs(), input => isBatchWritten(written, input));
     // One settle for the whole batch: the asynchronous validators and expressions of every write
     // drain together instead of one call per key.
     await this.settleSurvey();
@@ -345,6 +356,7 @@ export class Interview implements IInterview {
       // put a required error back on a question nobody can see.
       if (input.question.isVisibleInSurvey) input.question.validate(true);
     });
+    validateRevealedInputs(inputs, this.getInputs());
     await this.settleSurvey();
     const after = this.getInputs();
     clearUntouchedChoiceErrors(after, input => input.question === target.question ||
@@ -401,6 +413,7 @@ export class Interview implements IInterview {
       wereInvalid.forEach(input => {
         if (input.question.isVisibleInSurvey) input.question.validate(true);
       });
+      validateRevealedInputs(inputs, this.getInputs());
     }
     await this.settleSurvey();
     const after = this.getInputs();
@@ -627,6 +640,11 @@ export class Interview implements IInterview {
         res.push({ name: container.address, message: error.getText() });
       });
     });
+    getInterviewPanels(inputs).forEach((item: IInterviewPanel) => {
+      item.panel.errors.forEach(error => {
+        res.push({ name: item.address, message: error.getText() });
+      });
+    });
     return res;
   }
 
@@ -747,6 +765,23 @@ function getErrorIds(inputs: Array<IInterviewInput>): { [id: string]: boolean } 
     if (input.question.errors.length > 0) res[input.question.id] = true;
   });
   return res;
+}
+
+// The inputs a call has revealed - by a visibleIf, a rowsVisibleIf, a selected choice, an added entry
+// - that hold a value. A visibleIf that hid an input cleared its errors, and the value it kept (the
+// model clears it only if the survey says so) was never validated again, so an invalid one would be
+// neither current nor listed and would surface only at complete(). The same holds for a resumed value
+// on a question that was hidden at the hand-over. A summary step is left out: validating a container
+// validates every entry with it, empty ones included, and its entries are inputs of their own here.
+function validateRevealedInputs(before: Array<IInterviewInput>, after: Array<IInterviewInput>,
+  isValidated?: (input: IInterviewInput) => boolean): void {
+  const wereListed: { [id: string]: boolean } = {};
+  before.forEach(input => { wereListed[input.question.id] = true; });
+  after.forEach(input => {
+    if (wereListed[input.question.id] === true || input.isSummary || !isAskableInput(input)) return;
+    if (input.question.isEmpty() || (!!isValidated && isValidated(input))) return;
+    input.question.validate(true);
+  });
 }
 
 // The mode has no "no input is current" state that is still completable, so the end of the interview

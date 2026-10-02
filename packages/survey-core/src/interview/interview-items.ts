@@ -1,6 +1,6 @@
-import type { Question, SurveyModel } from "survey-core";
+import type { PanelModel, Question, SurveyModel } from "survey-core";
 import type { IInterviewItem } from "./interview-types";
-import { MAX_NESTING_DEPTH, getAddress, getParentContainer } from "./interview-address";
+import { MAX_NESTING_DEPTH, getAddress, getPanelAddress, getParentContainer } from "./interview-address";
 import { getSummaryDescription } from "./interview-summary";
 import { describeQuestion } from "./question-description";
 
@@ -252,6 +252,55 @@ export function getUnreportedContainers(inputs: Array<IInterviewInput>): Array<I
 export interface IInterviewContainer {
   address: string;
   question: Question;
+}
+
+// The panels the inputs sit in: the static panels of a page, the panel of a dynamic panel's entry and
+// the static panels inside it, a choice's panel, a detail panel. A required panel and an onValidatePanel
+// handler give a panel errors of its own, which no item carries, and the mode never validates a panel
+// - in inputPerPage, PanelModelBase.validateCore validates the current question alone. Found by
+// walking up from every input, the ones that cannot be asked included, and from every container above
+// it. A panel that holds nothing visible is not found, and it is invisible: the model skips it too.
+export function getInterviewPanels(inputs: Array<IInterviewInput>): Array<IInterviewPanel> {
+  const seen: { [id: string]: boolean } = {};
+  const res: Array<IInterviewPanel> = [];
+  inputs.forEach(input => {
+    let question: any = input.question;
+    for (let depth = 0; depth <= MAX_NESTING_DEPTH && !!question; depth++) {
+      let node: any = question.parent;
+      // Static panels: the bound only stops a cycle.
+      for (let level = 0; level < MAX_NESTING_DEPTH && !!node && node.isPanel === true; level++) {
+        if (seen[node.id] !== true) {
+          seen[node.id] = true;
+          res.push({ address: getPanelAddress(node, question) || "", panel: node });
+        }
+        // The panel of an entry or of a choice is the top of its own tree; what holds it is reached
+        // through the question it belongs to.
+        if (!!node.parentQuestion || !!node.choiceItem) break;
+        node = node.parent;
+      }
+      question = question.parentQuestion;
+    }
+  });
+  return res;
+}
+
+export interface IInterviewPanel {
+  address: string;
+  panel: PanelModel;
+}
+
+// validateContainerOnly() is the model's own check of a panel without its questions - the one it
+// runs when a question of a panel with errors changes - and it goes on to every panel above. So it
+// is called on the innermost panels only, and the panels above them are checked on the way up.
+export function validatePanels(panels: Array<IInterviewPanel>): void {
+  const isParent: { [id: string]: boolean } = {};
+  panels.forEach(item => {
+    const parent: any = item.panel.parent;
+    if (!!parent) isParent[parent.id] = true;
+  });
+  panels.forEach(item => {
+    if (isParent[item.panel.id] !== true) item.panel.validateContainerOnly();
+  });
 }
 
 function getMatrixRowInputs(question: Question): Array<Question> {

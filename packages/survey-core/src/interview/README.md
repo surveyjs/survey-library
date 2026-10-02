@@ -166,7 +166,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 
 | Field | Description |
 | --- | --- |
-| `name` | The address of the item the error is about, or `""` when it is about the survey as a whole. |
+| `name` | The address of the item the error is about, a container's or a panel's address for the errors of its own that `complete()` reports, or `""` when it is about the survey as a whole. |
 | `message` | English, ready to show to a developer — **unless** there is no `code`, in which case it is the model's own localized error text, the string a rendered UI shows under the same input. |
 | `code` | Present only for the errors the interview raises itself. The stable identifier a host localizes on, the way it localizes on `SurveyLintReasons`: a message is prose and may be reworded, a code is API and is never renamed. |
 
@@ -185,6 +185,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `cannotAdd` | `{ action: "add" }` on a container that has reached its maximum count or has adding turned off, and the same in a batch, at any depth: the list asks for more entries than fit, or a handler of the survey refused the new one. The error is named after the position (`orders[0].items[2]`) and the message after the container: "No entry can be added to \"orders[0].items\" at position 2". |
 | `cannotRemove` | `{ action: "remove" }` on an entry the model offers no remove button for, and the same in a batch, at any depth: a `null` names an entry that cannot go, the removals would fall below the minimum count, or a handler of the survey refused. Named after the position (`orders[0].items[0]`), like `cannotAdd`. |
 | `requiredCannotSkip` | `skip()` on a required item. It stays current. |
+| `invalidCannotSkip` | `skip()` on an optional item that has an error — a value a validator refuses. A skip keeps the value, and the value would still block `complete()`, so the item stays current; correct the value, or clear it with `answer(null)`, and then skip. |
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
 | `startPageIncomplete` | `createInterview` rejects: the model shows a start page and `start()` refused to leave it. An `Error`, not an item error. |
@@ -428,7 +429,7 @@ the synchronous "required and empty" check. It is never computed on demand: `val
 the asynchronous validators over on every call and then throws their result away, so a consumer that
 merely reads the items repeatedly would restart them forever and never see their errors.
 
-Validators therefore run in exactly four places, always with the errors kept, and always followed by
+Validators therefore run in exactly these places, always with the errors kept, and always followed by
 the settle:
 
 * at `createInterview`, on every askable input that already holds a value — a model resumed from
@@ -437,12 +438,18 @@ the settle:
 * in `answer()`, on every input that held errors **before** the write — an expression validator or a
   `min`/`max` bound may depend on the value just written, and a stale error would keep an input
   current forever. (An input that a `visibleIf` hides clears its own errors and is left alone.)
+* after every write — `answer()`, an action of a summary step, `answerAll()` — on every input the call
+  revealed that holds a value: a `visibleIf` that hid it cleared its errors, and the value it kept
+  (under the default `clearInvisibleValues`) is validated again once it is shown. The same covers a
+  resumed value on a question that was hidden at `createInterview`. Without it, an out-of-range
+  `petAge` hidden and shown again would be neither current nor listed, and only `complete()` would
+  refuse it.
 * on a container, after every `add` and every `remove` of its [summary step](#the-summary-step) — a
   `MinRowCountError`, a duplicated key or a required container that has just lost its last entry.
   Validating a container validates its entries with it, and an entry that was just created is empty
   by definition, so the errors that run puts on inputs nobody has been asked for yet are dropped:
   an unanswered required input is an error at `complete()`, not the moment its entry comes into being.
-* in `complete()`, on everything, containers included.
+* in `complete()`, on everything, containers and panels included.
 
 ### Addresses
 
@@ -635,8 +642,11 @@ iv.survey.performNext();
 Skipping is a single-mode gesture and it lives only in the interview — the model has no notion of it.
 `skip()` marks the current item as passed over and selects the next one; a **required** item is
 refused with `requiredCannotSkip` and stays current. The value the input already holds is **not**
-erased: skip means "move on". Answering a skipped item un-skips it, and a skipped item that a
-`requiredIf` turns required is asked again — required means asked.
+erased: skip means "move on". So an optional item with an error — `55` against a maximum of 40 — is
+refused with `invalidCannotSkip` and stays current too: the kept value would still block
+`complete()`. Correct it, or clear it with `answer(null)`, and then skip. Answering a skipped item
+un-skips it, and a skipped item that a `requiredIf` turns required is asked again — required means
+asked.
 
 A skipped item is left out of the `answered` map and counts as done for `progress.answered`.
 
@@ -644,8 +654,12 @@ A skipped item is left out of the `answered` map and counts as done for `progres
 
 1. Every askable item is validated and the model is allowed to settle. A required item that was never
    answered is an error **here** and nowhere else: the interview cannot know the person is done until
-   every required input holds a value. Any error at this point ends the call with
-   `{ completed: false, errors, data, completedHtml: "" }` and the survey still running.
+   every required input holds a value. The panels the items sit in are checked too — a required
+   panel whose questions are all empty, an `onValidatePanel` error — because the mode validates the
+   current question alone and `tryComplete()` would let them through. A panel's error is named after
+   the panel: `contact` on a page, `people[0].contact` inside an entry of a dynamic panel. Any error at
+   this point ends the call with `{ completed: false, errors, data, completedHtml: "" }` and the
+   survey still running.
 2. With no errors, the model is moved to its last input and `survey.tryComplete()` runs — **not**
    `doComplete()`. Server validation lives only on the `tryComplete` path: it reaches
    `doServerValidation`, which fires `onServerValidateQuestions` and blocks until the host calls

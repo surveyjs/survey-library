@@ -21,7 +21,7 @@ import type { Question, SurveyModel } from "survey-core";
 //     string ('contact."e.mail"'), which the tester's grammar has no form for at all.
 //
 // The interview composes an address nowhere else: getAddress() writes them and resolveAddress()
-// reads them.
+// reads them. getPanelAddress() writes the name a panel's errors are reported under.
 
 // The one ceiling of the interview. The depth of a question is the number of container questions
 // above it - the parentQuestion hops from it to a root - so a root is at depth 0 and the address of a
@@ -92,6 +92,25 @@ export function getAddress(question: Question): string | undefined {
     current = parent;
   }
   return undefined;
+}
+
+// The name a panel's own errors are reported under - a required panel left empty, an onValidatePanel
+// error. A panel is not an input and the grammar has no segment for it, so it is named the way a
+// question in its place would be: its name at the top level, "people[0].contact" inside an entry.
+// "question" is a question inside the panel, and it supplies the entry. A panel with no name - the
+// panel of an entry, a choice's panel - is reported under the entry, or under the owner of the choice.
+export function getPanelAddress(panel: any, question: Question): string | undefined {
+  const container = getParentContainer(question);
+  let prefix = "";
+  if (!!container) {
+    const containerAddress = getAddress(container);
+    const segment = getContainerSegment(container, question);
+    if (!containerAddress || segment === undefined) return undefined;
+    prefix = containerAddress + segment;
+  }
+  if (!!panel.name) return (!!prefix ? prefix + "." : "") + quoteSegment(panel.name);
+  if (!!prefix) return prefix;
+  return !!question.parentQuestion ? getAddress(question.parentQuestion) : undefined;
 }
 
 // The depth the ceiling counts: the number of container questions above the question. A chain longer

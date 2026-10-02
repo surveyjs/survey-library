@@ -480,6 +480,43 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(completed.errors.some(error => error.name === "satisfaction")).toBe(true);
   });
 
+  test("A single-choice matrix asks the rows a rowsVisibleIf reveals (B2)", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "checkbox", name: "q1", choices: ["a", "b", "c"], isRequired: true },
+      { type: "matrix", name: "m", rows: ["a", "b", "c"], columns: ["x", "y"],
+        rowsVisibleIf: "{q1} contains {item}", eachRowRequired: true, isRequired: true }] });
+    const r = await iv.answer(["a", "b"]);
+    expect(r.current ? r.current.name : null, "the first revealed row is current").toBe("m.a");
+    expect(r.becameVisible).toEqual(["m.a", "m.b"]);
+    const refused = await iv.complete();
+    expect(refused.completed, "a required matrix with no answers must not complete").toBe(false);
+    await iv.answer("x");
+    const second = await iv.answer("y");
+    expect(second.current).toBe(null);
+    expect(iv.data.m).toEqual({ a: "x", b: "y" });
+    // The batch twin: a row revealed by an earlier write of the same model is writable.
+    const batch = await iv.answerAll({ q1: ["a", "b", "c"], m: { c: "x" } });
+    expect(batch.errors).toEqual([]);
+    expect(iv.data.m).toEqual({ a: "x", b: "y", c: "x" });
+    expect((await iv.complete()).completed).toBe(true);
+  });
+
+  test("A single-choice matrix offers the columns a columnsVisibleIf shows now", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "checkbox", name: "cols", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+      { type: "matrix", name: "m", rows: ["a", "b"], columns: ["x", "y", "z"],
+        columnsVisibleIf: "{cols} contains {item}" }] });
+    expect(iv.current().name).toBe("m.a");
+    expect(iv.current().choices.map((choice: any) => choice.value)).toEqual(["x", "y"]);
+    await iv.answer("cols", ["y", "z"]);
+    expect(iv.current().name).toBe("m.a");
+    expect(iv.current().choices.map((choice: any) => choice.value)).toEqual(["y", "z"]);
+    const refused = await iv.answer("x");
+    expect(refused.errors[0].code, "a hidden column is not a choice").toBe(InterviewErrorCodes.notAChoice);
+    expect((await iv.answer("z")).errors).toEqual([]);
+    expect(iv.data.m).toEqual({ a: "z" });
+  });
+
   test("A multiple text and a composite: one item per part", async () => {
     registerComponent({
       name: "addressbox", title: "Address",

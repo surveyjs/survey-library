@@ -14,6 +14,7 @@ export const InterviewErrorCodes = Object.freeze({
   notANumber: "notANumber",
   badAction: "badAction",
   requiredCannotSkip: "requiredCannotSkip",
+  invalidCannotSkip: "invalidCannotSkip",
   completionBlocked: "completionBlocked",
   surveyCompleted: "surveyCompleted",
   startPageIncomplete: "startPageIncomplete",
@@ -249,6 +250,19 @@ export function requiredCannotSkipError(name: string): IInterviewError {
     message: "The input " + quoteValue(name) + " is required, so it cannot be skipped. It stays the " +
       "current input until it is answered.",
     code: InterviewErrorCodes.requiredCannotSkip,
+  };
+}
+
+// A skip keeps the value (skip means "move on", not "erase"), and an input with an error is current
+// whatever the skipped set says, so a skip that went through would change nothing and hand back the
+// same item - a consumer that skips its way forward would spin on it.
+export function invalidCannotSkipError(name: string): IInterviewError {
+  return {
+    name: name,
+    message: "The input " + quoteValue(name) + " has an error, so it cannot be skipped: a skip keeps the " +
+      "value it holds, and that value would still block complete(). Correct the value, or clear it by " +
+      "answering null, and then skip. It stays the current input.",
+    code: InterviewErrorCodes.invalidCannotSkip,
   };
 }
 

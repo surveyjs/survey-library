@@ -585,7 +585,20 @@ export class QuestionMatrixModel
   }
   protected onRowsChanged(): void {
     this.clearGeneratedRows();
+    this.resetSingleInputQuestions();
     super.onRowsChanged();
+  }
+  protected onColumnsChanged(): void {
+    super.onColumnsChanged();
+    this.resetSingleInputQuestions();
+  }
+  // The row questions of the single-input mode are built from visibleRows and visibleColumns, so a
+  // rowsVisibleIf / columnsVisibleIf that changes either makes them stale. resetSingleInput() drops
+  // them together with the single input that may point to one of them.
+  private resetSingleInputQuestions(): void {
+    if (!!this.nestedQuestionsValue) {
+      this.resetSingleInput();
+    }
   }
   public getMatrixRows(): Array<MatrixRowModel> {
     if (!!this.generatedVisibleRows) return this.generatedVisibleRows;

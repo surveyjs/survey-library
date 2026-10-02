@@ -26,6 +26,15 @@ const petJson = {
 
 const MAX_AGE_ERROR = "The value should not be greater than 40";
 
+// The pet survey with the model's default clearInvisibleValues ("onComplete"): a hidden petAge keeps
+// its value, and showing it again shows that value.
+const petRevealJson = {
+  elements: [
+    { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+    { type: "text", name: "petAge", inputType: "number", min: 0, max: 40, visibleIf: "{hasPet} = 'Yes'" },
+  ],
+};
+
 function lines(...text: Array<string>): string {
   return text.join("\n") + "\n";
 }
@@ -352,8 +361,59 @@ describe("interview single-input mode (issue #11818)", () => {
     survey.setValue("q2", "half typed");
     survey.getQuestionByName("q2").addError(<any>{ getText: () => "not good enough" });
     expect(iv.current().name).toBe("q2");
-    await iv.skip();
+    // An input current with a value is an invalid one, and that skip is refused (see below); the
+    // value stays either way.
+    const res = await iv.skip();
+    expect(res.errors[0].code).toBe(InterviewErrorCodes.invalidCannotSkip);
     expect(iv.data.q2, "skip means move on, not erase").toBe("half typed");
+  });
+
+  test("skip() on an optional input holding an invalid value is refused, and the input stays current", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "text", name: "petAge", inputType: "number", validators: [{ type: "numeric", maxValue: 40 }] },
+      { type: "text", name: "petName" }] });
+    const invalid = await iv.answer(55);
+    expect(invalid.errors.length).toBe(1);
+    const res = await iv.skip();
+    expect(res.errors.length).toBe(1);
+    expect(res.errors[0].code).toBe(InterviewErrorCodes.invalidCannotSkip);
+    expect(res.errors[0].name).toBe("petAge");
+    expect(res.errors[0].message).toContain("petAge");
+    // Unchanged, and said so: the same item, with its value and its error, is current.
+    expect(res.current.name).toBe("petAge");
+    expect(res.current.error).toBe(invalid.errors[0].message);
+    expect(iv.data).toEqual({ petAge: 55 });
+    // Clearing the value is one way out, and then the skip moves on.
+    await iv.answer(null);
+    expect(iv.current().name).toBe("petAge");
+    const skipped = await iv.skip();
+    expect(skipped.errors).toEqual([]);
+    expect(skipped.current.name).toBe("petName");
+  });
+
+  test("An invalid value hidden and shown again is current again (bug hunt #6)", async () => {
+    const iv = await createInterview(petRevealJson);
+    await iv.answer("Yes");
+    expect((await iv.answer("petAge", 55)).errors).toEqual([{ name: "petAge", message: MAX_AGE_ERROR }]);
+    const no = await iv.answer("hasPet", "No");
+    expect(no.becameHidden).toEqual(["petAge"]);
+    expect(no.current).toBe(null);
+    const yes = await iv.answer("hasPet", "Yes");
+    expect(yes.becameVisible).toEqual(["petAge"]);
+    expect(yes.current.name, "the value it still holds is invalid").toBe("petAge");
+    expect(yes.current.error).toBe(MAX_AGE_ERROR);
+    expect(yes.errors, "the call's errors are the written input's").toEqual([]);
+    expect((await iv.complete()).errors).toEqual([{ name: "petAge", message: MAX_AGE_ERROR }]);
+  });
+
+  test("A resumed invalid value on a question hidden at the hand-over is current once shown", async () => {
+    const survey = new SurveyModel(petRevealJson);
+    survey.data = { hasPet: "No", petAge: 55 };
+    const iv = await createInterview(survey);
+    expect(iv.current()).toBe(null);
+    const yes = await iv.answer("hasPet", "Yes");
+    expect(yes.current.name).toBe("petAge");
+    expect(yes.current.error).toBe(MAX_AGE_ERROR);
   });
 
   test("A required input cannot be skipped and stays current", async () => {

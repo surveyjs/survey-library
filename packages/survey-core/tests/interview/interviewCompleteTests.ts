@@ -180,6 +180,91 @@ describe("interview completion (issue #11818)", () => {
   });
 });
 
+const PANEL_REQUIRED_ERROR = "Response required: answer at least one question.";
+
+describe("interview completion validates panels (Issue#11818)", () => {
+  test("A required static panel with every field skipped blocks the completion under the panel's name (B1)", async () => {
+    const json = { elements: [{ type: "panel", name: "contact", isRequired: true,
+      elements: [{ type: "text", name: "phone" }, { type: "text", name: "email" }] }] };
+    expect(new SurveyModel(json).tryComplete(), "the model itself refuses").toBe(false);
+    const iv = await createInterview(json);
+    await iv.skip();
+    await iv.skip();
+    const res = await iv.complete();
+    expect(res.completed, "the interview refuses what the model refuses").toBe(false);
+    expect(res.errors).toEqual([{ name: "contact", message: PANEL_REQUIRED_ERROR }]);
+    expect(iv.survey.state).toBe("running");
+    // Answering a field of the panel is what the model needs, and it clears the panel's error.
+    await iv.answer("email", "a@b.c");
+    const done = await iv.complete();
+    expect(done.completed).toBe(true);
+    expect(done.data).toEqual({ email: "a@b.c" });
+  });
+
+  test("A required panel nested in another panel is reported under its own name", async () => {
+    const json = { elements: [{ type: "panel", name: "outer",
+      elements: [{ type: "text", name: "name" }, { type: "panel", name: "inner", isRequired: true,
+        elements: [{ type: "text", name: "phone" }, { type: "text", name: "email" }] }] }] };
+    expect(new SurveyModel(json).tryComplete(), "the model itself refuses").toBe(false);
+    const iv = await createInterview(json);
+    await iv.answer("Ann");
+    await iv.skip();
+    await iv.skip();
+    const res = await iv.complete();
+    expect(res.completed).toBe(false);
+    expect(res.errors).toEqual([{ name: "inner", message: PANEL_REQUIRED_ERROR }]);
+  });
+
+  test("An onValidatePanel error blocks the completion under the panel's name", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "panel", name: "range",
+      elements: [{ type: "text", name: "from", inputType: "number" }, { type: "text", name: "to", inputType: "number" }] }] });
+    const validated: Array<string> = [];
+    survey.onValidatePanel.add((sender, options) => {
+      validated.push(options.name);
+      if (options.panel.getQuestionByName("from").value > options.panel.getQuestionByName("to").value) {
+        options.error = "\"from\" must not be greater than \"to\"";
+      }
+    });
+    const iv = await createInterview(survey);
+    await iv.answer(5);
+    await iv.answer(2);
+    validated.length = 0;
+    const res = await iv.complete();
+    expect(res.completed).toBe(false);
+    expect(res.errors).toEqual([{ name: "range", message: "\"from\" must not be greater than \"to\"" }]);
+    expect(validated, "the handler runs once per panel").toEqual(["range"]);
+    await iv.answer("to", 9);
+    expect((await iv.complete()).completed).toBe(true);
+  });
+
+  test("A required panel inside a dynamic panel's template is reported under the entry's address", async () => {
+    const json = { elements: [{ type: "paneldynamic", name: "people", panelCount: 1,
+      templateElements: [{ type: "text", name: "name" }, { type: "panel", name: "contact", isRequired: true,
+        elements: [{ type: "text", name: "phone" }, { type: "text", name: "email" }] }] }] };
+    expect(new SurveyModel(json).tryComplete(), "the model itself refuses").toBe(false);
+    const iv = await createInterview(json);
+    await iv.answer("Ann");
+    await iv.skip();
+    await iv.skip();
+    expect(iv.current().name).toBe("people");
+    await iv.answer({ action: "done" });
+    const res = await iv.complete();
+    expect(res.completed).toBe(false);
+    expect(res.errors).toEqual([{ name: "people[0].contact", message: PANEL_REQUIRED_ERROR }]);
+    await iv.answer("people[0].phone", "123");
+    expect((await iv.complete()).completed).toBe(true);
+  });
+
+  test("A required panel the survey hides does not block the completion", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "boolean", name: "show" },
+      { type: "panel", name: "contact", isRequired: true, visibleIf: "{show} = true",
+        elements: [{ type: "text", name: "phone" }] }] });
+    await iv.answer(false);
+    expect((await iv.complete()).completed).toBe(true);
+  });
+});
+
 function lines(...text: Array<string>): string {
   return text.join("\n") + "\n";
 }

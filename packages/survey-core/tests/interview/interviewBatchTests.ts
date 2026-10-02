@@ -452,6 +452,24 @@ describe("interview batch mode (issue #11818)", () => {
       "Return the questions that still need an answer, as Markdown with a YAML block.");
     survey.locale = "";
   });
+
+  test("An invalid value hidden and shown again is listed again, and the loop is not told it is done (bug hunt #6)", async () => {
+    // The model's default clearInvisibleValues: a hidden petAge keeps its value.
+    const iv = await createInterview({ elements: [
+      { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+      { type: "text", name: "petAge", inputType: "number", min: 0, max: 40, visibleIf: "{hasPet} = 'Yes'" }] });
+    const invalid = await iv.answerAll({ hasPet: "Yes", petAge: 55 });
+    expect(invalid.errors).toEqual([{ name: "petAge", message: MAX_AGE_ERROR }]);
+    const no = await iv.answerAll({ hasPet: "No" });
+    expect(no.current).toBe(null);
+    const yes = await iv.answerAll({ hasPet: "Yes" });
+    expect(yes.becameVisible).toEqual(["petAge"]);
+    expect(yes.current, "petAge holds an invalid value").not.toBe(null);
+    expect(yes.current.name).toBe("petAge");
+    expect(yes.current.error).toBe(MAX_AGE_ERROR);
+    expect(yes.describe).toContain("  - name: petAge");
+    expect(yes.describe).toContain(MAX_AGE_ERROR);
+  });
 });
 
 // One rule for a key that names a question that exists and is not visible now, whether the survey hid

@@ -91,6 +91,56 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error the fixed matrix has no data source
   const dd16: DeclaredKeys<QuestionMatrixDropdownModel> = "dataSource";
   res.push(dd1, dd2, dd3, dd4, dd5, dd6, dd7, dd8, dd9, dd10, dd11, dd12, dd13, dd14, dd15, dd16);
+  // @ts-expect-error the fixed matrix does not page
+  const dd17: DeclaredKeys<QuestionMatrixDropdownModel> = "canGoNextPage";
+  // @ts-expect-error the fixed matrix does not page
+  const dd18: DeclaredKeys<QuestionMatrixDropdownModel> = "canGoPrevPage";
+  // @ts-expect-error the fixed matrix does not page
+  const dd19: DeclaredKeys<QuestionMatrixDropdownModel> = "goToPage";
+  // @ts-expect-error the fixed matrix does not page
+  const dd20: DeclaredKeys<QuestionMatrixDropdownModel> = "nextPage";
+  // @ts-expect-error the fixed matrix does not page
+  const dd21: DeclaredKeys<QuestionMatrixDropdownModel> = "prevPage";
+  // @ts-expect-error the fixed matrix does not page
+  const dd22: DeclaredKeys<QuestionMatrixDropdownModel> = "isPageMovePending";
+  // @ts-expect-error the fixed matrix does not page
+  const dd23: DeclaredKeys<QuestionMatrixDropdownModel> = "pagerActions";
+  // @ts-expect-error the fixed matrix has no record list
+  const dd24: DeclaredKeys<QuestionMatrixDropdownModel> = "getDataList";
+  // @ts-expect-error the fixed matrix does not page
+  const dd25: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
+  // @ts-expect-error the paging state is protected
+  const dd26: DeclaredKeys<QuestionMatrixDropdownModel> = "isPagingActive";
+  // @ts-expect-error the paging state is protected
+  const dd27: DeclaredKeys<QuestionMatrixDropdownModel> = "pageStartVisibleIndex";
+  // @ts-expect-error the fixed matrix does not page
+  const dd28: DeclaredKeys<QuestionMatrixDropdownModel> = "pageSize";
+  // @ts-expect-error the fixed matrix has no data source
+  const dd29: DeclaredKeys<QuestionMatrixDropdownModel> = "isRowCountKnown";
+  res.push(dd17, dd18, dd19, dd20, dd21, dd22, dd23, dd24, dd25, dd26, dd27, dd28, dd29);
+
+  // The feature's public API stays public on the dynamic questions.
+  const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isRowCountKnown", "getRecordNumberOffset"];
+  const pdApi: Array<DeclaredKeys<QuestionPanelDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isPanelCountKnown", "getRecordNumberOffset"];
+  res.push(mdApi, pdApi);
+  // The paging state shared by the records questions is protected on every one of them.
+  // @ts-expect-error protected
+  const md7: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagingActive";
+  // @ts-expect-error protected
+  const md8: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagedByList";
+  // @ts-expect-error protected
+  const md9: DeclaredKeys<QuestionMatrixDynamicModel> = "pageStartVisibleIndex";
+  // @ts-expect-error protected
+  const pd7: DeclaredKeys<QuestionPanelDynamicModel> = "hasDataListView";
+  // @ts-expect-error protected
+  const pd8: DeclaredKeys<QuestionPanelDynamicModel> = "rebuildStalePage";
+  // @ts-expect-error protected
+  const pd9: DeclaredKeys<QuestionPanelDynamicModel> = "getViewExpressionItem";
+  res.push(md7, md8, md9, pd7, pd8, pd9);
 
   // The dynamic questions do not expose the hooks or the paging owner's page moves either.
   // @ts-expect-error a hook

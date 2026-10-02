@@ -1,5 +1,4 @@
-import { ISurveyData } from "../base-interfaces";
-import { DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "../dynamicItemModelBase";
+import { DynamicItemModelBase, IDynamicItemModelData } from "../dynamicItemModelBase";
 import { HashTable, Helpers } from "../helpers";
 import { Question, ValidationContext } from "../question";
 import { settings } from "../settings";
@@ -57,12 +56,9 @@ export interface IDynamicDataQuestionHooks {
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
   validatePageObjects(context: ValidationContext): boolean;
   /* One record as the question reads it without an object: the duplicate scan, the record
-     visibility and createRecordItem read through it. The matrix pads question.value up to rowCount
+     visibility and the record items read through it. The matrix pads question.value up to rowCount
      with the default row value; a data source's window and a write in progress are the list's. */
   getListRecordAt(index: number): any;
-  // A record without an object, read as a value: the variable name and the context class are the
-  // question's.
-  createRecordItem(recordIndex: number): DynamicRecordItem;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   getRecordUniqueness(): IDynamicDataRecordUniqueness;
   /* rowsVisibleIf / templateVisibleIf over the records of a question that pages: the expression as
@@ -93,9 +89,9 @@ export interface IDynamicDataRecordVisibilityRule {
   // Called only when the expression runs.
   createScope: () => IDynamicDataRecordScope;
 }
-/* The objects are read through the owner's IDynamicItemModelData: by created position and by record.
+/* The objects are read through the owner's IDynamicItemModelData, by created position.
    isDataLoading is public state of the question, written when the list starts or ends a read. */
-export type DynamicDataQuestionOwner = Question & Pick<IDynamicItemModelData, "getItem" | "getItemByRecordIndex">
+export type DynamicDataQuestionOwner = Question & Pick<IDynamicItemModelData, "getItem">
   & { isDataLoading: boolean };
 // What a value assignment takes before the value is stored and hands back after it (see
 // DynamicDataQuestionController.beginValueAssignment).
@@ -419,26 +415,6 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public syncListPageSize(): boolean {
     if (!this._list || this.owner.isLoadingFromJson) return false;
     return this.paging.updatePageSizeIfChanged();
-  }
-
-  /* The record-item halves of IDynamicItemModelData.getItemVisibleIndex and getItemByVisibleIndex.
-     A record the page does not show has no object: its position among the visible records of the
-     whole list, and the record at such a position, are the list's to answer. */
-  public getRecordItemVisibleIndex(item: ISurveyData): number {
-    if (!(item instanceof DynamicRecordItem) || !this._list) return -1;
-    return this._list.getGlobalVisibleIndex(item.getIndex());
-  }
-  public getRecordItemByVisibleIndex(visibleIndex: number): DynamicRecordItem {
-    if (!this.isPagingActive) return null;
-    const recordIndex = this._list.getIndexAtGlobalVisibleIndex(visibleIndex);
-    return recordIndex < 0 ? null : this.hooks.createRecordItem(recordIndex);
-  }
-  /* The view half of IDynamicExpressionItemOwner.getExpressionItem: index names a record, and a record
-     without an object - filtered out, off the page or not built - is read as a value. */
-  public getViewExpressionItem(index: number): DynamicItemModelBase {
-    const item = this.owner.getItemByRecordIndex(index);
-    if (!!item) return item;
-    return index < this._list.loadedCount ? this.hooks.createRecordItem(index) : null;
   }
 
   /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)

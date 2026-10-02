@@ -326,29 +326,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     // The view, not the page: a question that pages still answers for every record it shows.
     return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
   }
-  /* Three indexes: the record index names the record, visibleIndex is its position among
-     the visible records of the whole list (the list's globalVisibleIndex; what the respondent
-     navigates by), pageVisibleIndex its position in visiblePanels. */
-  private get pageStartVisibleIndex(): number {
-    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
-  }
-  // IDynamicItemModelData: the window offset of a data source that pages itself, see getIndex.
-  getRecordNumberOffset(): number {
-    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
-  }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) {
       const pos = this.visiblePanelsCore.indexOf(item.panel);
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
-    return this.dynamicData.getRecordItemVisibleIndex(item);
+    return this.getRecordItemVisibleIndex(item);
   }
   getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
     if (visibleIndex < 0) return null;
     const panels = this.visiblePanels;
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
-    return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
+    return this.getRecordItemByVisibleIndex(visibleIndex);
   }
   // IDynamicDataQuestionHooks: the list answers for every record, a data source's window included.
   protected getListRecordAt(index: number): any {
@@ -363,7 +353,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   public getExpressionItem(index: number): DynamicItemModelBase {
     const panels = this.panels;
     if (!this.hasDataListView) return index < panels.length ? <DynamicItemModelBase>panels[index].data : null;
-    return this.dynamicData.getViewExpressionItem(index);
+    return this.getViewExpressionItem(index);
   }
   // The batched creation overrides (getValueCore/setValueCore) are honoured: the records are read
   // and written through question.value.
@@ -424,14 +414,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   protected areObjectsBuilt(): boolean {
     return this.hasPanelBuildFirstTime && !this.useTemplatePanel;
   }
-  /* A remote window is a view of its own: the panels are built for the records the list holds, not
-     for 0 ... panelCount-1, because panelCount is the server total. A question that pages builds its
-     panels for the page, so it takes the view path too: its records exist first and the panels
-     follow them - which is how "the panels are created before the value that holds their records"
-     stops being true under paging. */
-  private get hasDataListView(): boolean {
-    return this.dynamicData.hasView;
-  }
   /* Takes a created position - the position in panelsCore - and returns the record it holds: the
      materialized set, which under paging is the current page. A position past the last created one
      is a panel that is being built: its record is the next one, which is what the positional code
@@ -462,13 +444,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
      [currentPanel] in carousel and tab mode. */
   public get panelsOnPage(): Array<PanelModel> {
     return this.visiblePanels;
-  }
-  private get isPagingActive(): boolean {
-    return this.dynamicData.isPagingActive;
-  }
-  // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
-  private get isPagedByList(): boolean {
-    return this.dynamicData.isPagedByList;
   }
   /* The page size the list gets. A carousel shows one panel and pages one record at a time, always
      (Andrew's decision 2026-09-25): panelsPerPage keeps its value and its JSON and is ignored.
@@ -530,7 +505,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
   // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  public get isPageMovePending(): boolean { return this.dynamicData.isPageMovePending; }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
   protected validatePageObjects(context: ValidationContext): boolean {
@@ -2121,19 +2096,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     }
     return true;
   }
-  /* When the list pages the progress is counted from the records - every visible record, every input
-     question of the template - as the matrix counts it before its rows exist: the panels are one
-     page. A question that is empty in a record and has a visibleIf is not counted, since whether it
-     would be shown is not known without its panel. A source that pages itself counts its window. */
+  /* When the list pages the progress is counted from the records (getProgressInfoByRecords): every
+     input question of the template in every visible record. A question that is empty in a record
+     and has a visibleIf is not counted, since whether it would be shown is not known without its
+     panel. */
   public getProgressInfo(): IProgressInfo {
     if (!this.isPagedByList) {
       return SurveyElement.getProgressInfoByElements(this.visiblePanelsCore, this.isRequired);
     }
-    const res = Base.createProgressInfo();
-    const list = this.dataList;
     const questions = this.template.questions.filter((q: Question): boolean => q.hasInput);
-    list.getVisibleIndexes().forEach((index: number): void => {
-      const record = list.getRecord(index) || {};
+    return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => {
       questions.forEach((q: Question): void => {
         const hasValue = !Helpers.isValueEmpty(record[q.getValueName()]);
         if (!hasValue && !!q.visibleIf) return;
@@ -2143,11 +2115,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
         res.requiredAnsweredQuestionCount += hasValue && q.isRequired ? 1 : 0;
       });
     });
-    if (res.requiredQuestionCount === 0 && this.isRequired) {
-      res.requiredQuestionCount = 1;
-      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
-    }
-    return res;
   }
   protected hasCorrectAnswerValue(): boolean {
     return this.getQuizQuestionsInPanels().length > 0 || super.hasCorrectAnswerValue();
@@ -2888,11 +2855,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
     this.isPagingSyncSuspended = true;
     try {
-      // The records decide the page; when the page they decide is not the one built, the rebuild runs
-      // the panels' conditions itself.
-      if (this.dynamicData.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
-        this.rebuildPanelsFromDataList();
-      } else {
+      if (!this.rebuildStalePage(properties)) {
         this.runPanelsCondition(this.panelsCore, properties);
       }
     } finally {

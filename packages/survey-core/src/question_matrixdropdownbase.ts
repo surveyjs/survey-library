@@ -1516,7 +1516,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
   }
   protected getFirstRowVisibleIndex(): number {
-    return 0;
+    return this.pageStartVisibleIndex;
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -2190,17 +2190,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.generateVisibleRowsIfNeeded();
     return this.generatedVisibleRows;
   }
-  /* The rows the rendered table shows. Paging is the one view that is a slice of the objects that
-     exist: which rows exist is decided by the list filter and the list sort (they create the rows),
-     and this cuts the current page out of the visible ones. Everything else - validation, totals,
-     {prevRow}/{nextRow}, the value - works over the unpaged visibleRows.
+  /* The rows the rendered table shows. The rows that exist are the page: which rows exist is decided
+     by the list filter and the list sort (they create the rows), and with paging on visibleRows holds
+     the current page only, whatever the source, so the page is visibleRows itself - the same
+     instance - and never a slice of it.
      Matrix dropdown (fixed rows) has no list and therefore no paging: its page is all of it. */
   public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
     return this.visibleRows;
-  }
-  // Paging is on: an incremental update of the rendered table would work in page-local terms.
-  protected get isPagingActive(): boolean {
-    return false;
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {

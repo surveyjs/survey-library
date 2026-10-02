@@ -70,6 +70,26 @@ describe("Records question: fixed matrix", () => {
     q.dispose();
     expect(hasNoRecordList(q), "#3: dispose").toBe(true);
   });
+  test("fixed matrix: the paging seams answer as a matrix without a list", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "q",
+        columns: [{ name: "a", cellType: "text", isRequired: true }, { name: "b", cellType: "text" }],
+        rows: ["r1", "r2", "r3", "r4"],
+        rowsVisibleIf: "{item} != 'r2'",
+        defaultValue: { r1: { a: "1", b: "2" }, r3: { a: "3" } }
+      }]
+    });
+    const q = <QuestionMatrixDropdownModel>survey.getQuestionByName("q");
+    const rows = q.visibleRows;
+    expect(rows.length, "#1: the second row is hidden").toBe(3);
+    // Compared by identity: a failing toBe on rows makes vitest serialize them.
+    expect(q.rowsOnPage === rows, "#2: the page is visibleRows itself").toBe(true);
+    expect(rows.map(row => row.visibleIndex), "#3: visible indexes start at 0").toEqual([0, 1, 2]);
+    expect(q.getRecordNumberOffset(), "#4: no window offset").toBe(0);
+    expect(q.getProgressInfo(), "#5: three visible rows of two cells").toEqual({ questionCount: 6, answeredQuestionCount: 3, requiredQuestionCount: 3, requiredAnsweredQuestionCount: 2 });
+    expect(hasNoRecordList(q), "#6").toBe(true);
+  });
 });
 
 describe("Records question: lazy list allocation", () => {

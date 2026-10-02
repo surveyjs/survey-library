@@ -1,3 +1,5 @@
+import { Base } from "./base";
+import { IProgressInfo, ISurveyData } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable } from "./helpers";
 import { Question, ValidationContext } from "./question";
@@ -40,7 +42,6 @@ export abstract class QuestionRecordsModel extends Question {
       focusItemAfterRead: (index: number): void => { this.focusItemAfterRead(index); },
       validatePageObjects: (context: ValidationContext): boolean => this.validatePageObjects(context),
       getListRecordAt: (index: number): any => this.getListRecordAt(index),
-      createRecordItem: (recordIndex: number): DynamicRecordItem => this.createRecordItem(recordIndex),
       getRecordUniqueness: (): IDynamicDataRecordUniqueness => this.getRecordUniqueness(),
       getRecordVisibilityRule: (properties: HashTable<any>): IDynamicDataRecordVisibilityRule => this.getRecordVisibilityRule(properties),
       getPageSize: (): number => this.pageSize,
@@ -76,6 +77,75 @@ export abstract class QuestionRecordsModel extends Question {
      isPagedByList. */
   protected get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
+  }
+  /* Paging is on: the objects are built for the page, and an incremental update of the rendered
+     table would work in page-local terms. Off in design mode and without a list, so the matrix with
+     fixed rows never pages. */
+  protected get isPagingActive(): boolean {
+    return this.dynamicData.isPagingActive;
+  }
+  // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
+  protected get isPagedByList(): boolean {
+    return this.dynamicData.isPagedByList;
+  }
+  /* A remote window is a view of its own: the objects are built for the records the list holds, not
+     for 0 ... count-1, because the count is the server total. A question that pages builds its
+     objects for the page, so it takes the view path too: its records exist first and the objects
+     follow them. */
+  protected get hasDataListView(): boolean {
+    return this.dynamicData.hasView;
+  }
+  /* Three indexes: the record index names the record, visibleIndex is its position among the visible
+     records of the whole list (the list's globalVisibleIndex; what the respondent navigates by),
+     pageVisibleIndex its position among the visible objects; visibleIndex = pageStartVisibleIndex +
+     pageVisibleIndex. 0 without a list. */
+  protected get pageStartVisibleIndex(): number {
+    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
+  }
+  // IDynamicItemModelData: the window offset of a data source that pages itself (see rowIndex,
+  // getIndex); 0 without one.
+  public getRecordNumberOffset(): number {
+    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
+  }
+  /* The record-item halves of IDynamicItemModelData.getItemVisibleIndex and getItemByVisibleIndex.
+     A record the page does not show has no object: its position among the visible records of the
+     whole list, and the record at such a position, are the list's to answer. */
+  protected getRecordItemVisibleIndex(item: ISurveyData): number {
+    if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
+    return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
+  }
+  protected getRecordItemByVisibleIndex(visibleIndex: number): DynamicRecordItem {
+    if (!this.isPagingActive) return null;
+    const recordIndex = this.dataListValue.getIndexAtGlobalVisibleIndex(visibleIndex);
+    return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
+  }
+  /* The view half of IDynamicExpressionItemOwner.getExpressionItem: index names a record, and a record
+     without an object - filtered out, off the page or not built - is read as a value. */
+  protected getViewExpressionItem(index: number): DynamicItemModelBase {
+    const item = this.getItemByRecordIndex(index);
+    if (!!item) return item;
+    return index < this.dataListValue.loadedCount ? this.createRecordItem(index) : null;
+  }
+  /* The records decide the page; when it is not the page the objects hold, the rebuild runs the
+     conditions of the new objects itself. Returns true when it rebuilt them. */
+  protected rebuildStalePage(properties: HashTable<any>): boolean {
+    if (!(this.dynamicData.updateRecordsVisibility(properties) && this.dynamicData.isPageStale())) return false;
+    this.rebuildFromDataList(false);
+    return true;
+  }
+  /* When the list pages the progress is counted from the records - every visible record - as it is
+     before the objects exist: the objects are one page. A source that pages itself counts its
+     window: the other pages are on the server. updateByRecord adds one record's inputs. */
+  protected getProgressInfoByRecords(updateByRecord: (res: IProgressInfo, record: any) => void): IProgressInfo {
+    const res = Base.createProgressInfo();
+    this.dataList.getVisibleIndexes().forEach((index: number): void => {
+      updateByRecord(res, this.getListRecordAt(index) || {});
+    });
+    if (res.requiredQuestionCount === 0 && this.isRequired) {
+      res.requiredQuestionCount = 1;
+      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
+    }
+    return res;
   }
   // True while the data source is reading a page. The UI shows a loading state from it, and
   // question.isReady is false for exactly as long.
@@ -169,8 +239,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract validatePageObjects(context: ValidationContext): boolean;
   // One record as the question reads it without an object.
   protected abstract getListRecordAt(index: number): any;
-  // A record without an object, read as a value.
-  protected abstract createRecordItem(recordIndex: number): DynamicRecordItem;
   // What a duplicate is among the records.
   protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
   // The record visibility condition of a question that pages, and the scope it runs in.
@@ -178,9 +246,12 @@ export abstract class QuestionRecordsModel extends Question {
   // The authored page size (rowsPerPage / panelsPerPage) and the one the list gets at runtime.
   protected abstract get pageSize(): number;
   protected abstract get listPageSize(): number;
-  // The objects, by created position and by record: the controller's owner type reads them.
+  // The objects, by created position (the controller's owner type reads it) and by record.
   public abstract getItem(index: number): DynamicItemModelBase;
   public abstract getItemByRecordIndex(recordIndex: number): DynamicItemModelBase;
+  // A record without an object, read as a value: the variable name and the context class are the
+  // question's. The record-item lookups and the record visibility scope create it.
+  protected abstract createRecordItem(recordIndex: number): DynamicRecordItem;
 
   // IDynamicDataQuestionHooks with a default.
   // The length getListRecords() would return.

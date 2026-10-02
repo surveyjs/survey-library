@@ -179,12 +179,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isRowChanging = false;
     }
   }
-  /* A remote window is a view of its own: the rows are built for the records the list holds, not for
-     0 ... rowCount-1, because rowCount is the server total. A matrix that pages builds its rows for
-     the page, so it takes the view path too. */
-  private get hasDataListView(): boolean {
-    return this.dynamicData.hasView;
-  }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
      row-creation callbacks again. It is the same path a remote page change takes, so there is one. */
@@ -210,19 +204,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
   }
-  /* The rows that exist are the page: with paging on, visibleRows holds the current page
-     only, whatever the source, so the page is visibleRows itself - the same instance - and never a
-     slice of it. */
-  public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
-    return this.visibleRows;
-  }
-  protected get isPagingActive(): boolean {
-    return this.dynamicData.isPagingActive;
-  }
-  // The list cuts the page, see DynamicDataQuestionController.isPagedByList.
-  private get isPagedByList(): boolean {
-    return this.dynamicData.isPagedByList;
-  }
   // Single-input mode is its own paging: it walks every row and lists them in its summary.
   protected get listPageSize(): number {
     // settings.matrix.maxRowCount is the number of rows one page may hold.
@@ -232,19 +213,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public syncPageSizeWithMode(): void {
     this.dynamicData.syncListPageSize();
   }
-  /* Three indexes: the record index names the record, visibleIndex is its position among
-     the visible records of the whole list (the list's globalVisibleIndex), pageVisibleIndex its
-     position in visibleRows; visibleIndex = pageStartVisibleIndex + pageVisibleIndex. */
-  private get pageStartVisibleIndex(): number {
-    return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
-  }
-  protected getFirstRowVisibleIndex(): number {
-    return this.pageStartVisibleIndex;
-  }
-  // IDynamicItemModelData: the window offset of a data source that pages itself (see rowIndex).
-  getRecordNumberOffset(): number {
-    return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
-  }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
       const rows = this.visibleRows;
@@ -252,7 +220,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const pos = rows.indexOf(item);
       return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
     }
-    return this.dynamicData.getRecordItemVisibleIndex(item);
+    return this.getRecordItemVisibleIndex(item);
   }
   /* The neighbour comes from the view: the row when the record has one, the record read as a value
      when the matrix pages and it has none. */
@@ -262,7 +230,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!rows) return null;
     const pos = visibleIndex - this.pageStartVisibleIndex;
     if (pos >= 0 && pos < rows.length) return rows[pos];
-    return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
+    return this.getRecordItemByVisibleIndex(visibleIndex);
   }
   // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
   // filtered out, off the page or not built - is read as a value.
@@ -270,7 +238,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Reading allRows builds the rows, so that a record that has a row is answered by the row.
     const rows = this.allRows;
     if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
-    return this.dynamicData.getViewExpressionItem(index);
+    return this.getViewExpressionItem(index);
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
@@ -340,7 +308,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.pagerActionsValue;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  public get isPageMovePending(): boolean { return this.dynamicData.isPageMovePending; }
   // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
   // moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
@@ -1905,12 +1873,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.syncPagingState();
   }
   protected runCellsCondition(properties: HashTable<any>): boolean {
-    // The records decide the page; when it is not the page the rows hold, the rebuild runs the
-    // conditions of the new rows itself.
-    if (this.dynamicData.updateRecordsVisibility(properties) && this.dynamicData.isPageStale()) {
-      this.rebuildRowsFromDataList();
-      return true;
-    }
+    if (this.rebuildStalePage(properties)) return true;
     const res = super.runCellsCondition(properties);
     this.updateRecordsVisibility();
     return res;
@@ -1919,20 +1882,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getRowsVisibleIfForRows(): string {
     return this.isPagingActive ? "" : super.getRowsVisibleIfForRows();
   }
-  /* When the list pages the progress is counted from the records - every visible record, every
-     input column - as it is before the rows exist: the rows are one page. A source that pages itself
-     counts its window: the other pages are on the server. */
+  // When the list pages the progress is counted from the records (getProgressInfoByRecords): every
+  // input column of every visible record.
   public getProgressInfo(): IProgressInfo {
     if (!this.isPagedByList) return super.getProgressInfo();
-    const res = Base.createProgressInfo();
-    this.dataList.getVisibleIndexes().forEach((index: number): void => {
-      this.updateProgressInfoByRow(res, this.getListRecordAt(index) || {});
-    });
-    if (res.requiredQuestionCount === 0 && this.isRequired) {
-      res.requiredQuestionCount = 1;
-      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
-    }
-    return res;
+    return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => this.updateProgressInfoByRow(res, record));
   }
   /* The owner-visibility layer of the list: a record follows row.isVisible - the same flag
      visibleRows is built from - so that dataList.visibleCount and visibleRows.length agree. */

@@ -173,19 +173,20 @@ function renderSurvey(categories) {
       // on a decimal, which OData refuses.
       searchFields: ["name", "category", "quantity"],
       items: [
-        { name: "cheap-beverages", title: "Cheap beverages", expression: "{category} = 'Beverages' and {price} < 20" },
+        { name: "cheap-beverages", title: "Cheap beverages", expression: "{category} anyof ['Beverages'] and {price} < 20" },
         { name: "out-of-stock", title: "Out of stock", expression: "{stock} = 0" },
         { name: "available", title: "Available", expression: "{stock} > 0 and {discontinued} = false" },
         { name: "edges", title: "Cheap or premium (raw)", expression: "{price} < 10 or {price} > 100" },
         { name: "ai", title: "AI: discontinued", type: "ai", prompt: "discontinued products", expression: "{discontinued} = true", allowEdit: false }
       ] },
     { type: "matrixdynamic", name: "products", title: "Products (OData Northwind)", rowsPerPage: 10, columns: [
-      { name: "name", title: "Product", cellType: "text" },
-      { name: "category", title: "Category", cellType: "dropdown", choices: categories },
+      { name: "name", title: "Product", cellType: "text", filterOperators: ["contains"] },
+      // Picked from a list of checkboxes and nothing else: anyof is the only operator the filter offers.
+      { name: "category", title: "Category", cellType: "dropdown", choices: categories, filterOperators: ["anyof"] },
       { name: "quantity", title: "Quantity per unit", cellType: "text" },
       { name: "price", title: "Price", cellType: "text", inputType: "number" },
       { name: "stock", title: "In stock", cellType: "text", inputType: "number" },
-      { name: "discontinued", title: "Discontinued", cellType: "boolean" }] }
+      { name: "discontinued", title: "Discontinued", cellType: "boolean", filterOperators: ["equal"] }] }
   ] };
   var model = new Survey.Model(json);
   model.getQuestionByName("products").dataSource = productsSource;

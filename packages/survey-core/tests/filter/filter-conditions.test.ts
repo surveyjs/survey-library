@@ -98,6 +98,47 @@ describe("getFilterFieldOperators", () => {
   });
 });
 
+describe("getFilterFieldOperators: the operators the author allows", () => {
+  const dropdown = (operators: Array<string>): IDynamicDataFilterField => {
+    const f = new FilterField("f");
+    f.fieldType = "dropdown";
+    f.filterOperators = operators;
+    return f.getFilterField();
+  };
+  test("only the allowed operators, and the first of them is the default when the natural one is not allowed", () => {
+    const descriptor = dropdown(["anyof"]);
+    expect(getFilterFieldOperators(descriptor), "#1").toEqual(["anyof"]);
+    expect(getFilterFieldDefaultOperator(descriptor), "#2").toBe("anyof");
+  });
+  test("in the author's order", () => {
+    const descriptor = dropdown(["noneof", "anyof"]);
+    expect(getFilterFieldOperators(descriptor), "#1").toEqual(["noneof", "anyof"]);
+    expect(getFilterFieldDefaultOperator(descriptor), "#2").toBe("noneof");
+  });
+  test("the natural default stays the default while it is allowed", () => {
+    expect(getFilterFieldDefaultOperator(dropdown(["anyof", "equal"]))).toBe("equal");
+  });
+  test("an operator the field's editor does not take is dropped", () => {
+    expect(getFilterFieldOperators(dropdown(["contains", "anyof"]))).toEqual(["anyof"]);
+  });
+  test("with nothing left the field keeps its full set", () => {
+    const all = getFilterFieldOperators(dropdown([]));
+    expect(all.length > 1, "#1").toBe(true);
+    expect(getFilterFieldOperators(dropdown(["contains"])), "#2").toEqual(all);
+    expect(getFilterFieldDefaultOperator(dropdown(["contains"])), "#3").toBe(getFilterFieldDefaultOperator(dropdown([])));
+  });
+  test("a descriptor of a bound field restricts the same way", () => {
+    const descriptor: IDynamicDataFilterField = { ...typelessField("x", "string"), operators: ["notequal", "equal"] };
+    expect(getFilterFieldOperators(descriptor)).toEqual(["notequal", "equal"]);
+  });
+  test("a condition with an operator that is not allowed is not one the field can hold", () => {
+    const descriptor = dropdown(["anyof"]);
+    expect(normalizeFilterCondition(descriptor, { field: "f", operator: "equal", value: 1 }), "#1").toBe(undefined);
+    expect(parseFilterExpression("{f} = 1", [descriptor]), "#2").toBe(null);
+    expect(parseFilterExpression("{f} anyof [1]", [descriptor]), "#3").toEqual([{ field: "f", operator: "anyof", value: [1] }]);
+  });
+});
+
 describe("getFilterValueEditorJson", () => {
   test("a typeless field is always edited as plain text, whatever the operator", () => {
     const field = new FilterField("age");

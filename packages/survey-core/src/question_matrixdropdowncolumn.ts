@@ -537,6 +537,9 @@ export class MatrixDropdownColumn extends Base
      sort. A cell type that stores no value a filter can compare - a file to upload - says so
      through the cell question itself and the property does not apply. */
   @property({ defaultValue: true }) allowFiltering: boolean;
+  /* Mirrors question.filterOperators for a cell, and shadows it the way allowFiltering does: the
+     column is the only authority, see the registration below. */
+  @property() filterOperators: Array<string>;
   public get isFilterable(): boolean {
     const q = this.templateQuestion;
     return !!q && q.isFilterable && this.allowFiltering;
@@ -560,7 +563,8 @@ export class MatrixDropdownColumn extends Base
       // The resolved type and not this.cellType: "default" means "whatever the matrix says".
       fieldType: q.getType(),
       templateQuestion: q,
-      choices: this.getMatrixChoicesForFilter()
+      choices: this.getMatrixChoicesForFilter(),
+      operators: this.filterOperators
     };
   }
   // The rule onUpdateSelectBaseCellQuestion applies to every cell: a select cell with no choices and
@@ -1052,6 +1056,9 @@ Serializer.addClass(
         const q = !!obj && !!obj.templateQuestion ? obj.templateQuestion : obj;
         return !!q && !!q.isFilterable;
       } },
+    // The column's own, for the same reason as allowFiltering above: a cell question's copy would
+    // not survive a cellType change. Hidden like question.filterOperators.
+    { name: "filterOperators:string[]", visible: false },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

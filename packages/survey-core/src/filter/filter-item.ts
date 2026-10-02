@@ -1,6 +1,12 @@
 import { Base } from "../base";
 import { Serializer } from "../jsonobject";
 import { LocalizableString } from "../localizablestring";
+import { ISurvey } from "../base-interfaces";
+
+// The control that holds a preset: the survey its title and prompt are localized for.
+export interface IFilterItemOwner {
+  getSurvey(live?: boolean): ISurvey;
+}
 
 // A preset: one saved filter the survey author defines in JSON, that the end user applies to the
 // data with a single click by picking it in the Filter Control, and can then edit over (see
@@ -19,6 +25,19 @@ export class FilterItem extends Base {
     this.name = name;
   }
   public getType(): string { return "filteritem"; }
+
+  // Set by the control as the preset joins its items. Without it a preset knows no survey, and a
+  // localized title (title: { default, de }) would never follow the survey's locale.
+  private itemOwnerValue: IFilterItemOwner;
+  public get itemOwner(): IFilterItemOwner { return this.itemOwnerValue; }
+  public set itemOwner(val: IFilterItemOwner) {
+    this.itemOwnerValue = val;
+    this.locTitle.strChanged();
+    this.locPrompt.strChanged();
+  }
+  public getSurvey(live: boolean = false): ISurvey {
+    return !!this.itemOwnerValue ? this.itemOwnerValue.getSurvey(live) : null;
+  }
 
   // toObjectCore (jsonobject.ts) reserves the "type" key for the polymorphic class
   // discriminator and always skips it in its property loop before findProperty ever runs, so

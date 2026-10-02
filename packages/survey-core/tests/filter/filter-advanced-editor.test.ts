@@ -51,6 +51,21 @@ describe("Advanced mode editor: the editor survey", () => {
     expect(editor.isReadOnly, "#9").toBe(false);
     editor.dispose();
   });
+  test("every field's panel is titled by the field, in the control's locale; the search box has the control's placeholder", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", showSearch: true, fields: [
+      { name: "country", title: { default: "Country", de: "Land" }, fieldType: "dropdown", choices: ["de"] }, { name: "age" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    let editor = q.createAdvancedModeEditor();
+    expect(editor.survey.getPanelByName("f0").title, "#1").toBe("Country");
+    expect(editor.survey.getPanelByName("f1").title, "#2: a field with no title is named by its name").toBe("age");
+    expect(searchQ(editor).placeholder, "#3").toBe("Search by Country, age");
+    editor.dispose();
+    survey.locale = "de";
+    editor = q.createAdvancedModeEditor();
+    expect(editor.survey.getPanelByName("f0").title, "#4").toBe("Land");
+    editor.dispose();
+    survey.locale = "";
+  });
   test("the search question is prefilled with searchString", () => {
     const q = createControl();
     q.searchString = "an";

@@ -20,8 +20,12 @@ interface IDynamicDataPagerQuestion extends Question {
   nextPage(): void;
 }
 
+// Inset the way the matrix's bottom toolbar ("Add row") is: the pager stands where it would. The
+// theme scopes those variables to a matrix, so a Dynamic Panel falls back to the plain 8px.
 const barStyle: React.CSSProperties = {
-  display: "flex", alignItems: "center", gap: "8px", padding: "8px 0", fontSize: "14px"
+  display: "flex", alignItems: "center", gap: "8px", fontSize: "14px",
+  paddingInline: "var(--sd-matrixdynamic-toolbar-padding-inline, 0)",
+  paddingBlock: "var(--sd-matrixdynamic-toolbar-padding-block-start, 8px) var(--sd-matrixdynamic-toolbar-padding-block-end, 8px)"
 };
 const buttonStyle: React.CSSProperties = {
   minWidth: "28px", padding: "2px 8px", border: "1px solid #ccc", borderRadius: "3px",

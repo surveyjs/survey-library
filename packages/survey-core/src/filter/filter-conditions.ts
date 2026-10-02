@@ -79,9 +79,12 @@ export function getFilterConditionText(field: IDynamicDataFilterField, condition
 // The operator a new condition on this field starts with. Same rule Creator's condition editor
 // uses (condition-survey.ts, getDefaultOperatorByQuestion): by the resolved question type, falling
 // back to settings.logic.defaultOperators.default. A typeless field runs on a text question, so it
-// starts the same way any other text field does.
+// starts the same way any other text field does. Where the author does not allow that operator, the
+// first one they do allow.
 export function getFilterFieldDefaultOperator(field: IDynamicDataFilterField): string {
-  return getConditionDefaultOperator(field.fieldType);
+  const res = getConditionDefaultOperator(field.fieldType);
+  const operators = getFilterFieldOperators(field);
+  return operators.indexOf(res) > -1 ? res : operators[0];
 }
 
 // The operators a typeless field never offers, on top of whatever its (always "text") editor type
@@ -105,10 +108,19 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
 // not per operator: asking per operator would give every text field anyof (its checkbox editor
 // json) and take contains away from a checkbox field (its editor json for contains is a
 // radiogroup).
+// The author's filterOperators narrow that set further and order it: an operator the editor does not
+// take is dropped, and when none is left the field keeps the whole set - a field no condition can
+// be written for would only be a dead badge. qType comes from the natural default operator and never
+// from the author's first one: anyof alone would read a dropdown field's editor as a checkbox.
 export function getFilterFieldOperators(field: IDynamicDataFilterField): Array<string> {
-  const qType = getFilterValueEditorJson(field, getFilterFieldDefaultOperator(field)).type;
-  const names = getConditionOperatorNames().filter((op: string): boolean => isConditionOperatorEnabled(qType, op));
-  return field.isTypeless ? narrowTypelessOperators(names, field.valueType) : names;
+  const qType = getFilterValueEditorJson(field, getConditionDefaultOperator(field.fieldType)).type;
+  let names = getConditionOperatorNames().filter((op: string): boolean => isConditionOperatorEnabled(qType, op));
+  if (field.isTypeless) {
+    names = narrowTypelessOperators(names, field.valueType);
+  }
+  const allowed = (field.operators || []).filter((op: string, index: number, ops: Array<string>): boolean =>
+    names.indexOf(op) > -1 && ops.indexOf(op) === index);
+  return allowed.length > 0 ? allowed : names;
 }
 
 // The condition-authoring properties a survey question keeps that a value editor never needs:

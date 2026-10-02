@@ -691,6 +691,9 @@ export class Question extends SurveyElement<Question>
     return this.getValueType() === "object";
   }
   @property({ defaultValue: true }) allowFiltering: boolean;
+  // The operators a Filter Control offers for this question's field, in this order. Empty = every
+  // operator the question's value editor takes; see getFilterFieldOperators.
+  @property() filterOperators: Array<string>;
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
@@ -3556,6 +3559,8 @@ Serializer.addClass("question", [
      through isFilterable and the property does not apply to it. */
   { name: "allowFiltering:boolean", default: true,
     visibleIf: (obj: any): boolean => !!obj && !!obj.isFilterable },
+  // Hidden until Creator has an editor for it, like the Filter Control's own properties.
+  { name: "filterOperators:string[]", visible: false },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

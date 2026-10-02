@@ -465,3 +465,20 @@ describe("QuestionFilterModel: saving after the field list changed", () => {
       .toEqual({ de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } });
   });
 });
+
+describe("QuestionFilterModel: a field with restricted operators", () => {
+  test("a bound control offers only the column's operators, refuses the others and takes a preset with one as raw", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "country", cellType: "dropdown", choices: ["de", "fr"], filterOperators: ["anyof"] }] },
+      { type: "filter", name: "f1", source: "m", items: [{ name: "eq", expression: "{country} = 'de'" }, { name: "any", expression: "{country} anyof ['de']" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(q.getFieldOperators("country"), "#1").toEqual(["anyof"]);
+    q.setFieldCondition("country", "equal", "de");
+    expect(q.getFieldCondition("country"), "#2: refused").toBe(undefined);
+    q.toggleItem("eq");
+    expect(q.isRawExpression, "#3").toBe(true);
+    q.toggleItem("any");
+    expect(q.isRawExpression, "#4").toBe(false);
+    expect(q.getFieldCondition("country"), "#5").toEqual({ field: "country", operator: "anyof", value: ["de"] });
+  });
+});

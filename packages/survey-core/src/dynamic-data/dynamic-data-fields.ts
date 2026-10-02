@@ -55,6 +55,10 @@ export interface IDynamicDataFilterField {
   // Whether the field appears in the Filter Control's fast (single-field) mode. undefined = shown,
   // the same as true; only a standalone FilterField ever sets it, a bound field never opts out.
   showInFastMode?: boolean;
+  // The operators the author allows for the field (filterOperators of the question, the column or the
+  // standalone field), in the order a condition editor lists them. undefined or [] = every operator
+  // the field's value editor takes.
+  operators?: Array<string>;
 }
 // The fields a Filter Control offers for a set of questions. A question whose value is a record of
 // its own - Multiple Textboxes, a composite question - is not a field: its children are, under the
@@ -74,7 +78,8 @@ export function collectFilterFields(res: Array<IDynamicDataFilterField>, questio
   if (question.isFilterable) {
     res.push({
       name: question.name, valueName: valueName, locTitle: question.locTitle,
-      valueType: question.getValueType(), fieldType: question.getType(), templateQuestion: question
+      valueType: question.getValueType(), fieldType: question.getType(), templateQuestion: question,
+      operators: question.filterOperators
     });
     return;
   }

@@ -7,6 +7,8 @@ import { IElementUIState, IFilterCondition, IFilterElementUIState } from "./inte
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
+import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
+import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
   conditionsToExpression, getFieldsByValueName, getFilterConditionText, getFilterFieldOperators, getFilterValueEditorJson,
@@ -40,11 +42,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   private pendingItems: { [name: string]: { conditions: Array<IFilterCondition> } };
   private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
+    this.updateToolbars();
   };
   // A field contributes to the search through its choices, so a choice change is a change of
   // the expression.
   private onFieldPropertyChanged = (): void => {
     this.updateFilterExpression();
+    this.updateToolbars();
   };
 
   constructor(name: string) {
@@ -437,6 +441,8 @@ export class QuestionFilterModel extends QuestionNonValue {
       readOnly: !this.canEditConditions,
       showSearch: this.showSearch,
       searchString: this.searchString,
+      searchPlaceholder: this.searchPlaceholder,
+      showFieldTitles: true,
       onApply: (conditions: Array<IFilterCondition>, searchString?: string): void => {
         this.applyEditorState(conditions, searchString);
       }
@@ -504,9 +510,74 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!isRawPreset && this.isSameConditionSet(res, current)) return;
     this.editConditions((): Array<IFilterCondition> => res);
   }
-  // The element the survey this control is in rendered into: a renderer mounts the advanced
-  // editor's dialog there, inside that survey's theme and outside its <form>. undefined while that
-  // survey is not rendered.
+  // What the fields toolbar shows, read in one pass: each fast mode field's key (the name
+  // getFieldKey() gives it), its title and its condition's text. One read of the field list and one
+  // parse of the preset for all of them - the toolbar asks on every change of the control.
+  public getFastModeFieldStates(): Array<IFilterFieldState> {
+    const all = this.getFilterFields();
+    const fast = this.collapseDuplicateValueNames(all.filter((field: IDynamicDataFilterField): boolean => field.showInFastMode !== false));
+    const conditions = this.ownConditions !== undefined ? this.ownConditions : this.parseActiveItemConditions();
+    const locale = this.getLocale();
+    const res: Array<IFilterFieldState> = [];
+    fast.forEach((field: IDynamicDataFilterField): void => {
+      const key = this.findFieldKey(all, field);
+      if (!key) return;
+      const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
+      res.push({
+        key: key,
+        title: !!field.locTitle ? field.locTitle.calculatedText : field.name,
+        text: !!condition ? getFilterConditionText(field, condition, locale) : ""
+      });
+    });
+    return res;
+  }
+  // The control's UI as standard action bars - see FilterToolbars. Made on first request: a control
+  // nobody renders never builds them, and updateToolbars() leaves them unbuilt.
+  private toolbarsValue: FilterToolbars;
+  private get toolbars(): FilterToolbars {
+    if (!this.toolbarsValue) {
+      this.toolbarsValue = new FilterToolbars(this, (adaptive: boolean): ActionContainer => {
+        const container = this.createActionContainer(adaptive);
+        container.locOwner = this;
+        return container;
+      });
+    }
+    return this.toolbarsValue;
+  }
+  public get itemsToolbar(): ActionContainer { return this.toolbars.itemsToolbar; }
+  public get fieldsToolbar(): ActionContainer { return this.toolbars.fieldsToolbar; }
+  // The line a renderer shows under the presets: why the conditions cannot be edited, or that the
+  // active preset has none to show and the first edit starts a new filter.
+  public get noteText(): string {
+    if (this.isDesignMode) return "";
+    const item = this.activeItem;
+    if (!!item && item.type === "ai") return filterUIStrings.readOnlyNote;
+    return this.isRawExpression ? filterUIStrings.rawNote : "";
+  }
+  // The quick search box is drawn the way a text question's input is, from the survey's own css.
+  public get searchCss(): { root: string, control: string } {
+    const css: any = !!this.survey ? this.survey.getCss() : undefined;
+    const text: any = !!css && !!css.text ? css.text : {};
+    return { root: text.root || "", control: text.control || "" };
+  }
+  // Says what the search looks in: the titles of the fields it searches, in searchFields' order. With
+  // no field to name it is the library's own "Type to search...".
+  public get searchPlaceholder(): string {
+    const titles = this.getSearchFields().map((field: IDynamicDataFilterField): string =>
+      (!!field.locTitle && field.locTitle.calculatedText) || field.name);
+    if (titles.length === 0) return this.getLocalizationString("filterStringPlaceholder");
+    return filterUIStrings.searchPlaceholder.replace("{0}", titles.join(", "));
+  }
+  // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
+  public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
+  private updateToolbars(): void {
+    if (!!this.toolbarsValue && !this.isDisposed) {
+      this.toolbarsValue.update();
+    }
+  }
+  // The element the survey this control is in rendered into: the advanced editor's dialog is
+  // mounted there, inside that survey's theme and outside its <form>. undefined while that survey is
+  // not rendered.
   public getSurveyRootElement(): HTMLElement { return !!this.survey ? (<any>this.survey).rootElement : undefined; }
   public getFieldOperators(name: string): Array<string> {
     const field = this.getFieldByName(name);
@@ -652,6 +723,10 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   public dispose(): void {
     this.detachFromSource();
+    if (!!this.toolbarsValue) {
+      this.toolbarsValue.dispose();
+      this.toolbarsValue = undefined;
+    }
     super.dispose();
   }
   // Re-resolves the source and moves the filter with it: the question that is being left is cleared
@@ -661,6 +736,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const source = this.filterSource;
     if (source === this.attachedSource) {
       this.updateFilterExpression();
+      this.updateToolbars();
       return;
     }
     this.detachFromSource();
@@ -682,6 +758,8 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!!this.filterExpression || this.filterExpression !== oldExpression) {
       this.applyToSource();
     }
+    // A new source brings its own fields.
+    this.updateToolbars();
   }
   private detachFromSource(): void {
     const source: any = this.attachedSource;
@@ -920,6 +998,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     // Neither collection is an ItemValue array, so Base.locStrsChanged does not reach into them.
     this.fields.forEach((field: FilterField): void => { field.locStrsChanged(); });
     this.items.forEach((item: FilterItem): void => { item.locStrsChanged(); });
+    if (!!this.toolbarsValue) {
+      this.toolbarsValue.locStrsChanged();
+    }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -944,6 +1025,7 @@ export class QuestionFilterModel extends QuestionNonValue {
       name === "searchString" || name === "searchFields" || name === "showSearch") {
       this.updateFilterExpression();
     }
+    this.updateToolbars();
   }
   // A host that assigns a new items array replaces the presets the respondent saved into: a new
   // preset that merely has the same name was never saved, and getUIState() - which goes by name -
@@ -995,12 +1077,14 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   private onItemAdded(item: FilterItem): void {
     if (!item) return;
+    item.itemOwner = this;
     item.onPropertyChanged.add(this.onItemPropertyChanged);
     this.updateFilterExpression();
   }
   private onItemRemoved(item: FilterItem): void {
     if (!!item) {
       item.onPropertyChanged.remove(this.onItemPropertyChanged);
+      if (item.itemOwner === this) item.itemOwner = undefined;
     }
     this.updateFilterExpression();
   }

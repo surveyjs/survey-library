@@ -78,6 +78,28 @@ describe("getFilterFields", () => {
       .toEqual(["q1", "q2", "mt.i1", "mt.i2"]);
     expect(fields[1].name, "#2: a static panel is flattened, the key is plain").toBe("q2");
   });
+  test("a column's filterOperators reach its descriptor; the cell question's own do not", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [
+      { name: "c1", cellType: "dropdown", choices: [1, 2], filterOperators: ["anyof"] },
+      { name: "c2", cellType: "dropdown", choices: [1, 2] }] }] });
+    const matrix = <any>survey.getQuestionByName("m");
+    expect(matrix.columns[0].filterOperators, "#1").toEqual(["anyof"]);
+    expect(matrix.toJSON().columns[0].filterOperators, "#2").toEqual(["anyof"]);
+    expect(matrix.toJSON().columns[1].filterOperators, "#3: not emitted when not set").toBe(undefined);
+    matrix.columns[1].templateQuestion.filterOperators = ["equal"];
+    const fields = matrix.getFilterFields();
+    expect(fields[0].operators, "#4").toEqual(["anyof"]);
+    expect(fields[1].operators, "#5: the column is the only authority").toBeFalsy();
+  });
+  test("a panel template question's filterOperators reach its descriptor", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [
+      { type: "dropdown", name: "q1", choices: [1, 2], filterOperators: ["anyof", "noneof"] }, { type: "text", name: "q2" }] }] });
+    const panel = <any>survey.getQuestionByName("p");
+    expect(panel.toJSON().templateElements[0].filterOperators, "#1").toEqual(["anyof", "noneof"]);
+    const fields = panel.getFilterFields();
+    expect(fields[0].operators, "#2").toEqual(["anyof", "noneof"]);
+    expect(fields[1].operators, "#3").toBeFalsy();
+  });
   test("the dotted key of a nested field is the one the expression resolves", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 2,
       templateElements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }] }] }] });

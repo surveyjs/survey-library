@@ -114,6 +114,16 @@ describe("FilterField: fieldType", () => {
     expect(loaded.showInFastMode, "#2").toBe(false);
     expect(loaded.getFilterField().showInFastMode, "#3").toBe(false);
   });
+  test("filterOperators is the field's own property, with or without a fieldType, and round-trips through JSON", () => {
+    const field = new FilterField("");
+    new JsonObject().toObject({ name: "country", fieldType: "dropdown", choices: [1, 2], filterOperators: ["anyof"] }, field);
+    expect(field.filterOperators, "#1").toEqual(["anyof"]);
+    expect(field.getFilterField().operators, "#2").toEqual(["anyof"]);
+    expect(new JsonObject().toJsonObject(field).filterOperators, "#3").toEqual(["anyof"]);
+    field.fieldType = "";
+    expect(field.filterOperators, "#4: kept when the template question is replaced").toEqual(["anyof"]);
+    expect(new JsonObject().toJsonObject(new FilterField("age")).filterOperators, "#5: not emitted when not set").toBe(undefined);
+  });
   test("fieldType is read before the type-specific keys whatever the JSON order", () => {
     const field = new FilterField("");
     new JsonObject().toObject({ choices: [1, 2], name: "country", fieldType: "dropdown" }, field);

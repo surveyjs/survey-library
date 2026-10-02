@@ -195,6 +195,28 @@ describe("FilterConditionsEditor: fast mode writes every change at once", () => 
   });
 });
 
+describe("FilterConditionsEditor: a field with one allowed operator", () => {
+  const countryOnlyAnyOf = (): any => ({ name: "country", fieldType: "dropdown", choices: ["de", "fr", "gb"], filterOperators: ["anyof"] });
+  test("fast mode: no operator dropdown, the checkboxes alone; the first checked one writes anyof", () => {
+    const q = createFilter({ items: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
+    const editor = q.createFastModeEditor("country");
+    expect(operatorQ(editor).isVisible, "#1").toBe(false);
+    expect(operatorQ(editor).value, "#2").toBe("anyof");
+    expect(valueQ(editor).getType(), "#3").toBe("checkbox");
+    expect(q.filterExpression, "#4: nothing checked, no filter yet").toBe("");
+    valueQ(editor).value = ["fr"];
+    expect(q.filterExpression, "#5").toBe("{country} anyof ['fr']");
+    editor.dispose();
+  });
+  test("advanced mode hides it the same way and keeps it for a field with several operators", () => {
+    const q = createFilter({ items: [], fields: [countryOnlyAnyOf(), { name: "age", fieldType: "text", inputType: "number" }] });
+    const editor = q.createAdvancedModeEditor();
+    expect(operatorQ(editor, 0).isVisible, "#1").toBe(false);
+    expect(operatorQ(editor, 1).isVisible, "#2").toBe(true);
+    editor.dispose();
+  });
+});
+
 describe("FilterConditionsEditor: read-only", () => {
   test("design mode: the editor is display-only and writes nothing", () => {
     const survey = new SurveyModel();

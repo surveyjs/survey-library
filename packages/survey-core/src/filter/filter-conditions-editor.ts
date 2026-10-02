@@ -6,6 +6,7 @@ import { Helpers } from "../helpers";
 import { ItemValue } from "../itemvalue";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
+import { getLocaleString } from "../surveyStrings";
 import { getConditionOperatorTitle, getFilterFieldDefaultOperator, isFilterConditionValueRequired } from "./filter-conditions";
 // The question types the editor itself creates, whatever the fields are made of: the operator
 // dropdown, the checkbox anyof/noneof switch to, the radiogroup a checkbox field's contains edits
@@ -40,6 +41,12 @@ export interface IFilterConditionsEditorOptions {
   // it is only ever handed to onApply.
   showSearch?: boolean;
   searchString?: string;
+  // The search box's placeholder; the library's "Type to search..." when not given.
+  searchPlaceholder?: string;
+  // Each field's panel titled by the field. A mode that edits one field opened from something that
+  // already names it (a fast mode badge) leaves it off; one that edits all of them (advanced mode)
+  // needs it, or the fields could not be told apart.
+  showFieldTitles?: boolean;
   // Called by apply() with every condition the editor holds, in the order of its fields - or with
   // undefined when no field was changed since the editor opened or was last applied, only the
   // search box: the fields then hold only their prefill, which the owner must not write back - and
@@ -131,7 +138,8 @@ export class FilterConditionsEditor {
   private createSurvey(): SurveyModel {
     const elements: Array<any> = this.names.map((name: string, index: number): any => this.createPanelJson(name, index));
     if (this.hasSearch) {
-      elements.unshift({ type: "text", name: this.getSearchName(), titleLocation: "hidden", textUpdateMode: "onTyping" });
+      elements.unshift({ type: "text", name: this.getSearchName(), titleLocation: "hidden", textUpdateMode: "onTyping",
+        placeholder: this.options.searchPlaceholder || getLocaleString("filterStringPlaceholder", this.owner.getLocale()) });
     }
     const survey = new SurveyModel({
       showNavigationButtons: false,
@@ -149,17 +157,26 @@ export class FilterConditionsEditor {
     }
     return survey;
   }
-  // No title: the panel only groups a field's operator and value; the field is named by what the
-  // editor is opened from (a fast mode badge), not inside the editor.
+  // The panel groups a field's operator and value, and is titled by the field only where the
+  // editor shows several fields (showFieldTitles): opened from a fast mode badge, the badge names it.
+  // The title is the field's text in the control's locale as it is now - an editor lives as long as
+  // the popup or the dialog it is shown in. A field the author allowed a single operator has nothing
+  // to pick, so its operator dropdown is hidden - it still holds the operator - and the value editor
+  // is all there is.
   private createPanelJson(name: string, index: number): any {
     const locale = this.owner.getLocale();
     const operators = this.owner.getFieldOperators(name).map((op: string): any =>
       ({ value: op, text: getConditionOperatorTitle(op, locale) }));
-    return {
+    const res: any = {
       type: "panel", name: this.getPanelName(index),
       elements: [{ type: "dropdown", name: this.getOperatorName(index), titleLocation: "hidden",
-        choices: operators, allowClear: false }]
+        choices: operators, allowClear: false, visible: operators.length > 1 }]
     };
+    if (this.options.showFieldTitles) {
+      const field = this.owner.getFieldByName(name);
+      res.title = (!!field.locTitle && field.locTitle.calculatedText) || field.name;
+    }
+    return res;
   }
   // A preset that does not decompose gives no condition for any field (getFieldCondition), so the
   // editor opens empty then - there is nothing about its text a field editor could show.

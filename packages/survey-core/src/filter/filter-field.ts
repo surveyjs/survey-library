@@ -97,6 +97,11 @@ export class FilterField extends Base implements ILocalizableOwner {
   public get showInFastMode(): boolean { return this.getPropertyValue("showInFastMode"); }
   public set showInFastMode(val: boolean) { this.setPropertyValue("showInFastMode", val); }
 
+  // The operators the field offers, see getFilterFieldOperators. The field's own property and not the
+  // template question's: that one is replaced whenever fieldType changes.
+  public get filterOperators(): Array<string> { return this.getPropertyValue("filterOperators"); }
+  public set filterOperators(val: Array<string>) { this.setPropertyValue("filterOperators", val); }
+
   public get fieldType(): string { return this.getPropertyValue("fieldType"); }
   public set fieldType(val: string) {
     val = !val ? "" : val.toLocaleLowerCase();
@@ -128,7 +133,7 @@ export class FilterField extends Base implements ILocalizableOwner {
       valueType: this.valueType, fieldType: this.fieldType || q.getType(), templateQuestion: q,
       // Typeless only when no fieldType was authored - a fieldType that happens to resolve to the
       // same question type ("text") was still a deliberate choice and keeps its full operator set.
-      isTypeless: !this.fieldType, showInFastMode: this.showInFastMode
+      isTypeless: !this.fieldType, showInFastMode: this.showInFastMode, operators: this.filterOperators
     };
   }
 
@@ -227,4 +232,5 @@ Serializer.addClass("filterfield", [
     choices: () => { const res = QuestionFactory.Instance.getAllTypes(); res.splice(0, 0, ""); return res; }
   },
   { name: "showInFastMode:boolean", default: true, visible: false },
+  { name: "filterOperators:string[]", visible: false },
 ], () => new FilterField(""));

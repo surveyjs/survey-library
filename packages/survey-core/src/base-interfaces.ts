@@ -8,6 +8,7 @@ export type {
   ISurveyFileCallbacks,
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
+  ISurveyDynamicDataCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,

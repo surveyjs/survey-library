@@ -413,7 +413,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
     //build rows now
-    var rows = this.matrix.visibleRows;
+    var rows = this.matrix.rowsOnPage;
     this.cssClasses = this.matrix.cssClasses;
     this.buildRowsActions();
     this.buildHeader();
@@ -429,7 +429,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showTable", showTable);
   }
   public onAddedRow(row: MatrixDropdownRowModelBase, index: number): void {
-    if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
+    if (this.getRenderedDataRowCount() >= this.matrix.rowsOnPage.length)
       return;
     let rowIndex = this.getRenderedRowIndexByIndex(index);
     this.rowsActions.splice(index, 0, this.buildRowActions(row));
@@ -525,7 +525,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   protected buildRowsActions() {
     this.rowsActions = [];
-    var rows = this.matrix.visibleRows;
+    var rows = this.matrix.rowsOnPage;
     for (var i = 0; i < rows.length; i++) {
       this.rowsActions.push(this.buildRowActions(rows[i]));
     }
@@ -565,7 +565,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         }
       }
     } else {
-      var rows = this.matrix.visibleRows;
+      var rows = this.matrix.rowsOnPage;
       for (var i = 0; i < rows.length; i++) {
         const cell = this.createTextCell(rows[i].locText);
         this.setHeaderCellCssClasses(cell);
@@ -629,14 +629,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private hasActionsCellInLocaltion(location: "start" | "end"): boolean {
     if (location == "end" && this.hasRemoveRows) return true;
-    return this.matrix.visibleRows.some(
+    return this.matrix.rowsOnPage.some(
       (row, index) => !this.isValueEmpty(this.getRowActions(index, location)));
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);
   }
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
-    var rows = this.matrix.visibleRows;
+    var rows = this.matrix.rowsOnPage;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
     if (rows.length == 0 && this.matrix.allowRowReorder && this.matrix.allowRowDragIn) {
       const row = this.createEmptyRow();
@@ -707,7 +707,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       cell.isActionsCell = true;
       cell.isDetailRowCell = isDetailRow;
       cell.className = this.getActionsCellClassName(cell);
-      cell.row = this.matrix.visibleRows[rowIndex];
+      cell.row = this.matrix.rowsOnPage[rowIndex];
       return cell;
     }
     return null;
@@ -744,9 +744,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     actions: Array<IAction>
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
-    var rowIndex = this.matrix.visibleRows.indexOf(row);
+    // lockedRowCount counts records, so the lock is tested against the row's own record index and
+    // not against its position on the page - the first row of page 2 is not the first record.
+    const recordIndex = row.rowIndex - 1;
     const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
-    if (this.isRowsDragAndDrop && (lockedRows < 1 || rowIndex >= lockedRows)) {
+    if (this.isRowsDragAndDrop && (lockedRows < 1 || recordIndex >= lockedRows)) {
       actions.push(new Action({
         id: "drag-drop",
         action: () => {},
@@ -862,7 +864,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     renderedRow: QuestionMatrixDropdownRenderedRow,
     location: "start" | "end"
   ) {
-    var rowIndex = this.matrix.visibleRows.indexOf(row);
+    var rowIndex = this.matrix.rowsOnPage.indexOf(row);
     if (this.hasActionCellInRows(location)) {
       const actions = this.getRowActionsCell(rowIndex, location, renderedRow.isDetailRow);
       if (!!actions) {
@@ -977,7 +979,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       hCell.className = toCssClasses(hCell.className, this.cssClasses.rowTextCell, this.cssClasses.columnTitleCell);
       res.cells.push(hCell);
     }
-    var rows = this.matrix.visibleRows;
+    var rows = this.matrix.rowsOnPage;
     for (var i = 0; i < rows.length; i++) {
       var rChoice = choice;
       var rChoiceIndex = choiceIndex >= 0 ? choiceIndex : i;
@@ -1004,7 +1006,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.matrix.showHeader) {
       res.cells.push(this.createEmptyCell());
     }
-    var rows = this.matrix.visibleRows;
+    var rows = this.matrix.rowsOnPage;
     for (var i = 0; i < rows.length; i++) {
       res.cells.push(this.getRowActionsCell(i, "end"));
     }

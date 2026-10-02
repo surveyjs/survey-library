@@ -295,3 +295,30 @@ describe("SurveyTestRunner: the payload is checked before the handler runs", () 
     expect(result.tests[0].steps[0].checks.length, "no check result is produced").toEqual(0);
   });
 });
+
+describe("SurveyTestContext: targets under a data-list filter", () => {
+  test("A row target addresses the object the question created", () => {
+    const definition = {
+      elements: [{
+        type: "matrixdynamic", name: "matrix", rowCount: 3,
+        columns: [{ name: "col1", cellType: "text" }],
+      }],
+    };
+    const info = createContext(definition);
+    const context = info.context;
+    try {
+      const matrix: any = context.survey.getQuestionByName("matrix");
+      context.survey.data = { matrix: [{ col1: "a" }, { col1: "b" }, { col1: "a" }] };
+      matrix.getDataList().filter = "{col1} = 'a'";
+      expect(matrix.allRows.length, "the filter left two rows").toBe(2);
+      const target = context.resolveTarget("matrix[1].col1");
+      expect(target.kind, "a cell question").toEqual("question");
+      // Row 1 is the second CREATED row, which holds record 2.
+      expect((<any>target.obj).value, "the target addresses the created object").toEqual("a");
+      expect(context.resolveTarget("matrix[1]").obj, "the row target is the created row")
+        .toBe(matrix.allRows[1]);
+    } finally {
+      context.teardown();
+    }
+  });
+});

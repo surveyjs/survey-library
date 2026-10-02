@@ -99,7 +99,7 @@ export const choicesDeadSourceRule: ILintRule = {
         };
         checkField(info.carryForwardValuesFrom, record.path + ".choiceValuesFromQuestion", "choiceValuesFromQuestion");
         checkField(info.carryForwardTextsFrom, record.path + ".choiceTextsFromQuestion", "choiceTextsFromQuestion");
-        // no choiceValuesFromQuestion is not a defect: getValueKeyName (question_baseselect.ts)
+        // no choiceValuesFromQuestion is not a defect: createArrayValueChoices (question.ts)
         // falls back to the first key of every row/panel value object, so choices are built
       }
     });

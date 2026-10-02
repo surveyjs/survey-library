@@ -16,6 +16,7 @@ import type {
   ISurveyFileCallbacks,
   ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks,
+  ISurveyDynamicDataCallbacks,
   ISurveyChoiceCallbacks,
   ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks,
@@ -70,7 +71,7 @@ export interface ISurveySingleInput {
 }
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
-  ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyDynamicDataCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
 
@@ -105,6 +106,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
     valueName: string,
     name: string,
     index: number
+  ): IQuestion;
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
   ): IQuestion;
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   //#endregion

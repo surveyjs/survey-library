@@ -259,10 +259,10 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "noRowsText", visible: true },
     { name: "detailPanelShowOnAdding", visible: true },
     { name: "allowRowReorder", visible: true },
-    // { name: "rowsPerPage", default: 0, visible: false },
-    // { name: "allowSortRows", default: false, visible: false },
-    // { name: "sortBy", default: "", visible: false },
-    // { name: "filterExpression", default: "", visible: false },
+    { name: "rowsPerPage", default: 0, visible: false },
+    { name: "allowSortRows", default: false, visible: false },
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false },
   ],
   paneldynamic: [
     { name: "name", visible: true },
@@ -335,9 +335,9 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "showQuestionNumbers", default: "off", visible: true },
     { name: "questionStartIndex", visible: true },
     { name: "renderMode", visible: false },
-    // { name: "panelsPerPage", default: 0, visible: false },
-    // { name: "sortBy", default: "", visible: false },
-    // { name: "filterExpression", default: "", visible: false },
+    { name: "panelsPerPage", default: 0, visible: false },
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false },
     { name: "displayMode", default: "list", visible: true },
     { name: "showProgressBar", default: true, visible: true },
     { name: "progressBarLocation", default: "top", visible: true },
@@ -363,8 +363,8 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "allowAddRows", "allowRemoveRows", "rowCount", "rowCountExpression", "minRowCount", "maxRowCount",
       "keyName", "defaultRowValue", "copyDefaultValueFromLastEntry", "confirmDelete", "confirmDeleteText",
       "addRowButtonLocation", "addRowText", "removeRowText", "hideColumnsIfEmpty", "noRowsText",
-      "detailPanelShowOnAdding", "allowRowReorder"
-      // "rowsPerPage", "allowSortRows", "sortBy", "filterExpression"
+      "detailPanelShowOnAdding", "allowRowReorder",
+      "rowsPerPage", "allowSortRows", "sortBy", "filterExpression"
     ]
   },
   paneldynamic: {
@@ -376,7 +376,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",
       "confirmDeleteText", "addPanelText", "removePanelText", "prevPanelText", "nextPanelText",
       "showQuestionNumbers", "questionStartIndex", "renderMode",
-      // "panelsPerPage", "sortBy", "filterExpression",
+      "panelsPerPage", "sortBy", "filterExpression",
       "displayMode", "showProgressBar", "progressBarLocation", "tabAlign", "templateQuestionTitleLocation",
       "templateQuestionTitleWidth", "templateErrorLocation", "templateVisibleIf", "removePanelButtonLocation"
     ]

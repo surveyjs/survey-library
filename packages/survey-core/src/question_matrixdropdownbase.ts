@@ -22,8 +22,12 @@ import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, 
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
-import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
+import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { QuestionRecordsModel } from "./question_records";
+import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule } from "./dynamic-data/dynamic-data-question-controller";
+import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export interface IMatrixDuplicationEntry {
   row: MatrixDropdownRowModelBase;
@@ -1014,7 +1018,7 @@ export class MatrixSingleInputLocOwner implements ILocalizableOwner {
 /**
  * A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
  */
-export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData, IMatrixColumnOwner {
+export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implements IMatrixDropdownData, IMatrixColumnOwner {
   protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
   protected generatedTotalRow: MatrixDropdownRowModelBase = null;
   public visibleRowsChangedCallback: () => void;
@@ -1268,8 +1272,8 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
       ...(<any>this.detailElements)
     ];
   }
-  public dispose(): void {
-    super.dispose();
+  // The rows go before the record list (see QuestionRecordsModel.dispose).
+  protected disposeRecordObjects(): void {
     this.clearGeneratedRows();
   }
   public get isContainer(): boolean { return true; }
@@ -2556,10 +2560,99 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     this.isRowChanging = false;
   }
-  protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue, false);
+  /* Inside the list side of the assignment (see QuestionRecordsModel.setQuestionValue), before it
+     closes: an assignment from outside that leaves the rows on their records refreshes their values
+     by position, as it always has. */
+  protected onRecordsValueStored(): void {
     this.onSetQuestionValue();
     this.updateIsAnswered();
+  }
+  // IDynamicDataQuestionHooks in matrix terms. A matrix with fixed rows creates no record list, so the
+  // controller calls them for the dynamic matrix only.
+  protected getFields(): Array<IDynamicDataField> {
+    const questions = new Array<Question>();
+    this.columns.forEach(column => {
+      if (!!column.templateQuestion) {
+        questions.push(column.templateQuestion);
+      }
+    });
+    const res = this.dynamicData.getFieldsOfQuestions(questions);
+    questions.forEach(q => {
+      // storeOthersAsComment writes the "other" text into the comment key of the same record.
+      if (!q.hasComment && (<any>q).hasOther === true) {
+        const name = q.getValueName() + settings.commentSuffix;
+        if (!res.some(f => f.name === name)) {
+          res.push({ name: name, dataType: "string" });
+        }
+      }
+    });
+    return res;
+  }
+  protected refreshRenderedPage(): void {
+    this.resetRenderedTable();
+  }
+  // The cells' conditions and the totals, which a write to the survey would have re-run.
+  protected runRemoteWriteConditions(): void {
+    if (!this.generatedVisibleRows) return;
+    const properties = this.getDataFilteredProperties();
+    this.runCellsCondition(properties);
+    if (this.hasTotal) {
+      this.runTotalsCondition(properties);
+    }
+  }
+  protected areObjectsBuilt(): boolean {
+    return Array.isArray(this.generatedVisibleRows);
+  }
+  // Rows that were never built were never shown: there is nothing the respondent could have left
+  // invalid, and validating them would build them.
+  protected validatePageObjects(context: ValidationContext): boolean {
+    if (!this.generatedVisibleRows) return true;
+    return this.validateRowObjects(context);
+  }
+  protected createRecordItem(recordIndex: number): DynamicRecordItem {
+    return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
+      (item: DynamicRecordItem): IValueGetterContext => new MatrixRowGetterContext(<any>item));
+  }
+  /* IDynamicDataQuestionHooks: every unique column, keyName included. Every record takes part,
+     owner-hidden ones included, as it does without paging, and strings compare as the on-page check
+     compares them; the error goes on the later visible record of a pair, on its page. */
+  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
+    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true };
+  }
+  /* IDynamicDataQuestionHooks: rowsVisibleIf under paging, evaluated over every record with a
+     value-only context - {row.x} is the record's field, {rowIndex} its number - in the run's own
+     properties. A row that is built runs no rowsVisibleIf of its own (getRowsVisibleIfForRows), so
+     the two cannot disagree. Limitation: an expression cell the condition reads contributes its
+     stored value. */
+  protected getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
+    return {
+      expression: this.getExpressionFromSurvey("rowsVisibleIf"),
+      createScope: (): IDynamicDataRecordScope => ({ item: this.createRecordItem(-1), properties: properties })
+    };
+  }
+  /* Not supported yet: a matrix that is not dynamic creates no record list - its keyed answer has no
+     record array, and it has no paging property - so the controller never calls these. Reaching one
+     is a defect. The dynamic matrix answers them. */
+  protected getListRecords(): Array<any> {
+    throw new Error("getListRecords: a matrix without a record list has no records to read");
+  }
+  protected setListRecords(records: Array<any>): void {
+    throw new Error("setListRecords: a matrix without a record list has no records to write");
+  }
+  protected getListRecordAt(index: number): any {
+    throw new Error("getListRecordAt: a matrix without a record list has no record to read");
+  }
+  protected rebuildFromDataList(isPageMove: boolean): void {
+    throw new Error("rebuildFromDataList: a matrix without a record list has no rows to rebuild from it");
+  }
+  protected focusItemAfterRead(index: number): void {
+    throw new Error("focusItemAfterRead: a matrix without a record list has no read to focus a row after");
+  }
+  protected get pageSize(): number {
+    throw new Error("pageSize: a matrix without a record list has no pages to size");
+  }
+  protected get listPageSize(): number {
+    throw new Error("listPageSize: a matrix without a record list has no pages to size");
   }
   supportAutoAdvance(): boolean {
     var rows = this.generatedVisibleRows;

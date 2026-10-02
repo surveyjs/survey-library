@@ -41,10 +41,10 @@ import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGet
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { DynamicDataPagingController } from "./dynamic-data/dynamic-data-paging";
 import {
-  DynamicDataQuestionController, IDynamicDataQuestionHooks, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
+  DynamicDataQuestionController, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule
 } from "./dynamic-data/dynamic-data-question-controller";
+import { QuestionRecordsModel } from "./question_records";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
@@ -199,7 +199,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData, IDynamicDataQuestionHooks {
+export class QuestionPanelDynamicModel extends QuestionRecordsModel implements IDynamicItemModelData {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -271,9 +271,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   public dispose(): void {
-    this.cancelPendingPageMove();
     super.dispose();
-    this.dynamicData.dispose();
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
@@ -317,11 +315,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
-    // isDesignMode is known only once the survey is attached, and the list may have been created
-    // before that: paging is off in the Creator, whatever panelsPerPage says.
-    if (!!this.dataListValue) {
-      this.paging.updatePageSize();
-    }
+    this.syncPageSizeWithSurvey();
   }
   /* The data the survey and the expressions see: the records that have a panel. A record the list
      filter excluded has no panel and is not part of it - the same answer a source that filters on
@@ -357,10 +351,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return this.dynamicData.getRecordItemByVisibleIndex(visibleIndex);
   }
   // IDynamicDataQuestionHooks: the list answers for every record, a data source's window included.
-  getListRecordAt(index: number): any {
+  protected getListRecordAt(index: number): any {
     return this.dataList.getRecord(index);
   }
-  createRecordItem(recordIndex: number): DynamicRecordItem {
+  protected createRecordItem(recordIndex: number): DynamicRecordItem {
     return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.panel,
       (item: DynamicRecordItem): IValueGetterContext => new PanelDynamicItemGetterContext(item));
   }
@@ -371,22 +365,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!this.hasDataListView) return index < panels.length ? <DynamicItemModelBase>panels[index].data : null;
     return this.dynamicData.getViewExpressionItem(index);
   }
-  private dynamicData = new DynamicDataQuestionController(this);
-  // A peek: it never creates the list.
-  private get dataListValue(): DynamicDataList {
-    return this.dynamicData.listValue;
-  }
-  // Every record-level read and write of this question goes through this list. Its source is a
-  // getter/setter pair over question.value - never a captured array - so that the batched creation
-  // overrides (getValueCore/setValueCore) are honoured and every write replaces the array instead of
-  // mutating the one the question currently holds.
-  private get dataList(): DynamicDataList {
-    return this.dynamicData.list;
-  }
-  getListRecords(): Array<any> {
+  // The batched creation overrides (getValueCore/setValueCore) are honoured: the records are read
+  // and written through question.value.
+  protected getListRecords(): Array<any> {
     return this.value;
   }
-  setListRecords(records: Array<any>): void {
+  protected setListRecords(records: Array<any>): void {
     this.value = records;
   }
   // internal, for tests and renderers
@@ -409,79 +393,35 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.updatePanelsReadOnly();
     this.updateFooterActions();
   }
-  // True while the data source is reading a page. The UI shows a loading state from it, and
-  // question.isReady is false for exactly as long.
-  @property({ defaultValue: false, onSet: (val: boolean, q: QuestionPanelDynamicModel): void => { q.updateIsReady(); } }) isDataLoading: boolean;
-  // Read by SurveyModel.getRunningAsyncOperations(): a page that has not arrived or an edit the
-  // source has not acknowledged is an asynchronous operation the survey has started.
-  public get isDynamicDataRunning(): boolean {
-    return this.dynamicData.isRunning;
-  }
-  // "the records are owned by a data source": the survey hash, the write routing, the capabilities
-  // and the count setters ask it. It is deliberately not "the list pages itself": a source that
-  // returns everything in one read is still a source, and its records are still not the question's
-  // to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
-  // isPagedByList.
-  private get isRemoteData(): boolean {
-    return !!this.dataListValue && this.dataListValue.isRemote;
-  }
-  protected getIsQuestionReady(): boolean {
-    return !this.isDataLoading && super.getIsQuestionReady();
-  }
-  /* A remote-backed question is excluded from the survey data: a page load never writes into the
-     survey hash - it is not an answer - so an edit that did would leave the hash holding one page of
-     a table nobody submitted. The records go to the source instead.
-     Known limitation: expressions elsewhere in the survey that name this question ({panel[0].q} or
-     {panel.length}) do not update on a remote edit. The {panel.x} context inside the panels and the
-     question's own validation are unaffected - they read question.value, which is the window. */
-  protected canSetValueToSurvey(): boolean {
-    return !this.isRemoteData;
-  }
-  /* The incoming direction of the same rule: while a source is attached, survey.data = ...,
-     survey.setValue, mergeData and a setvalue trigger do not reach the question. The survey hash may
-     then hold a value the question does not show; that is the caller's doing. */
-  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
-    if (this.isRemoteData) return;
-    super.updateValueFromSurvey(newValue, clearData);
-  }
   /* IDynamicDataQuestionHooks: what a read that commits again renumbers besides the edited set.
      Carousel and tab mode keep showing the current record across a rebuild, and the paged questions
      nested in the panels keep their states under the panels' records. */
-  hasKeptRecordIndexes(): boolean {
+  protected hasKeptRecordIndexes(): boolean {
     return !this.isRenderModeList && this.currentPanelRecordIndex > -1 || this.hasNestedPagedQuestions(this.panelsCore);
   }
   // The panels' own record indexes move before the rebuild, which keeps the nested states under them.
-  remapKeptRecordIndexes(remap: (index: number) => number): void {
+  protected remapKeptRecordIndexes(remap: (index: number) => number): void {
     this.dynamicData.remapBuiltItems(remap);
     if (!this.isRenderModeList && this.currentPanelRecordIndex > -1) {
       const to = remap(this.currentPanelRecordIndex);
       this.currentPanelRecordIndex = to === undefined ? -1 : to;
     }
   }
-  // The storage half alone: used after every write the list pushed to the source. The panel the
-  // respondent is typing in already holds the new value, and a rebuild would dispose it under the
-  // edit (the frozen-membership rule).
-  storeLoadedRecords(): void {
-    this.storeQuestionValue(this.dataList.getLoadedRecords());
-  }
-  getStoredRecords(): any {
-    return this.getPropertyValueWithoutDefault("value");
-  }
-  getFields(): Array<IDynamicDataField> {
+  protected getFields(): Array<IDynamicDataField> {
     return this.dynamicData.getFieldsOfQuestions(this.template.questions);
   }
   // IDynamicDataQuestionHooks: the panels' side of a list change, see
   // DynamicDataQuestionController.onDataListChanged.
-  rebuildFromDataList(isPageMove: boolean): void {
+  protected rebuildFromDataList(isPageMove: boolean): void {
     this.rebuildPanelsFromDataList(isPageMove);
   }
-  refreshRenderedPage(): void {
+  protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
   }
-  runRemoteWriteConditions(): void {
+  protected runRemoteWriteConditions(): void {
     this.reRunCondition();
   }
-  areObjectsBuilt(): boolean {
+  protected areObjectsBuilt(): boolean {
     return this.hasPanelBuildFirstTime && !this.useTemplatePanel;
   }
   /* A remote window is a view of its own: the panels are built for the records the list holds, not
@@ -501,18 +441,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const res = this.dataList.materializedIndexToIndex(index);
     return res >= 0 ? res : this.dataList.count;
   }
-  private get paging(): DynamicDataPagingController {
-    return this.dynamicData.paging;
-  }
-  // The list announces a page index it had to clamp, but not a page count that changed because a
-  // panel became hidden or because the records were replaced: those points call this.
-  syncPagingState(): void {
+  // A sync is deferred while it is suspended, and the rendered panels follow it.
+  protected syncPagingState(): void {
     if (!this.dataListValue) return;
     if (this.isPagingSyncSuspended) {
       this.isPagingSyncPending = true;
       return;
     }
-    this.paging.syncState();
+    super.syncPagingState();
     /* renderedPanels is a stored array and not a computed one: panels that appeared, disappeared or
        became hidden change which of them are on the page, and the panels are created before the
        value that holds their records is - the update they made then saw no records at all. */
@@ -538,7 +474,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      (Andrew's decision 2026-09-25): panelsPerPage keeps its value and its JSON and is ignored.
      Single-input mode walks every panel and shows its own summary of them - it is its own paging -
      so it builds every panel and the list does not page. */
-  public get listPageSize(): number {
+  protected get listPageSize(): number {
     if (this.isSingleInputActive) return 0;
     if (this.displayMode === "carousel") return 1;
     // settings.panel.maxPanelCount is the number of panels one page may hold.
@@ -557,15 +493,15 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public get pageSize(): number { return this.panelsPerPage; }
   public set pageSize(val: number) { this.panelsPerPage = val; }
   // A zero-based page index; always 0 while paging is off.
-  public get pageIndex(): number { return this.isPagingActive ? this.paging.pageIndex : 0; }
+  public get pageIndex(): number { return this.dynamicData.pageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   // The number of pages; 1 for an empty question and for one that does not page.
-  public get pageCount(): number { return this.isPagingActive ? this.paging.pageCount : 1; }
+  public get pageCount(): number { return this.dynamicData.pageCount; }
   /* False while the data source answers a read without a total: panelCount is then the number of
      records known to exist - a lower bound - and pageCount the number of pages found so far. Every
      source that hands over the whole storage leaves it true. */
   public get isPanelCountKnown(): boolean { return this.paging.isCountKnown; }
-  // IDynamicDataPagingOwner: the name the controller reads, as pageSize is for panelsPerPage.
+  // The name both dynamic questions share, as pageSize is for panelsPerPage.
   public get isCountKnown(): boolean { return this.isPanelCountKnown; }
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
@@ -592,22 +528,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      keeps every record. An empty string = no filter. */
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
-  public raiseSortByChanged(oldValue: string, newValue: string): void {
-    this.propertyValueChanged("sortBy", oldValue, newValue);
-  }
   public refreshView(): void { this.paging.refreshView(); }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  // IDynamicDataPagingOwner
-  leavePage(isForward: boolean, move: () => void): boolean {
-    return this.dynamicData.leavePage(isForward, move);
-  }
-  cancelPendingPageMove(): void {
-    this.dynamicData.cancelPendingPageMove();
-  }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
-  validatePageObjects(context: ValidationContext): boolean {
+  protected validatePageObjects(context: ValidationContext): boolean {
     if (!this.hasPanelBuildFirstTime) return true;
     return this.validateInPanels(context);
   }
@@ -1086,7 +1012,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (val < 0 || this.visiblePanelCount < 1) return;
     if (this.isRenderModeList || this.useTemplatePanel) return;
     if (val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
-    this.cancelPendingPageMove();
+    this.dynamicData.cancelPendingPageMove();
     this.moveToVisibleIndex(val);
   }
   /* Selects the panel at a visibleIndex: on the page when it is there, otherwise through a page move
@@ -2544,7 +2470,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public goToPrevPanel() {
     const index = this.currentIndex;
     if (index <= 0) return;
-    this.cancelPendingPageMove();
+    this.dynamicData.cancelPendingPageMove();
     this.moveToVisibleIndex(index - 1);
   }
   public removePanelUI(value: any): void {
@@ -2596,7 +2522,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
-  focusItemAfterRead(index: number): void {
+  protected focusItemAfterRead(index: number): void {
     this.focusAfterPanelRemoved(index);
   }
   // The visibleIndex of the removed panel and the panel itself: the animation that follows takes its
@@ -2983,7 +2909,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      in runPanelsCondition. A panel that is built takes its visibility from the same evaluation (see
      createNewPanel), so the two cannot disagree. Limitation: an expression question the condition
      reads contributes its stored value. */
-  getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
+  protected getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
     return {
       expression: this.getExpressionFromSurvey("templateVisibleIf"),
       createScope: (): IDynamicDataRecordScope => {
@@ -3116,7 +3042,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
      owner-hidden record does not take part, a filtered-out one does but never receives the error.
      Keys compare case-sensitively, as the on-page check compares them. The error goes on the later
      visible record of a pair, on its page. */
-  getRecordUniqueness(): IDynamicDataRecordUniqueness {
+  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     return { fields: !!this.keyName ? [this.keyName] : [], caseSensitive: true, includeHidden: false };
   }
   private hasInputInChangedQuestions(): boolean {
@@ -3475,16 +3401,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.panelCount = newPanelCount;
     this.settingPanelCountBasedOnValue = false;
   }
-  // The list side of an assignment is the controller's (beginValueAssignment).
+  // The list side of an assignment is QuestionRecordsModel's; the panels follow in onRecordsValueAssigned.
   public setQuestionValue(newValue: any): void {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
-    const assignment = this.dynamicData.beginValueAssignment();
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly). A value that is not
-    // an array is kept as it is: isPanelRecordChanged reads it as "every panel changed".
-    const oldValue = this.getStoredRecords();
-    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
-    super.setQuestionValue(newValue, false);
-    this.dynamicData.endValueAssignment(assignment, oldRecords);
+    super.setQuestionValue(newValue);
+  }
+  // oldRecords: a value that is not an array is kept as it is, and isPanelRecordChanged reads it as
+  // "every panel changed".
+  protected onRecordsValueAssigned(oldRecords: any): void {
     this.setPanelCountBasedOnValue();
     // Do not force-refresh nested panel questions while a child question updates panel data.
     // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted

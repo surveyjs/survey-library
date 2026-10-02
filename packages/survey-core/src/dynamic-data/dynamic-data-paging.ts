@@ -6,9 +6,10 @@ import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-inter
 import { DynamicDataList } from "./dynamic-data-list";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
 
-/* The question side of the list's paging, sorting and filtering. Both dynamic questions expose the
-   same members and neither of them descends from the other, so the behaviour lives here and the
-   questions keep the thin public accessors.
+/* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
+   questions keep the thin public accessors. Its owner is the question's DynamicDataQuestionController,
+   which answers from the question's property hash and hooks, so the paging owner members are not
+   part of any question's public type.
 
    The division of labour is the one every helper of this library follows: the list computes, the
    question stores. pageIndex, pageCount, sortOrder and filterExpression are mirrored into the

@@ -15,19 +15,18 @@ import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-
 import { applyRecordChange } from "./dynamic-data-record-remap";
 import { IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
 
-/* What a dynamic question supplies to the coordination it shares with the other one: where its
+/* What a records question supplies to the coordination it shares with the others: where its
    records are stored, and what differs for rows and panels in the answer to a list change. They are
-   methods of the question and not a closure literal, so that the question's own code calls the same
-   members. */
+   protected members of the question (QuestionRecordsModel), so that the question's own code calls
+   the same members; the question hands the controller an object whose functions call them. */
 export interface IDynamicDataQuestionHooks {
   // The question's own storage, given to DynamicDataList.createReadThrough once.
   getListRecords(): Array<any>;
   setListRecords(records: Array<any>): void;
-  // Absent -> the record count is the length of getListRecords().
-  getListRecordCount?(): number;
+  // The record count; QuestionRecordsModel's default is the length of getListRecords().
+  getListRecordCount(): number;
   getFields(): Array<IDynamicDataField>;
 
-  isDataLoading: boolean;
   // Mirrors the paging state of the list into the question (see DynamicDataPagingController.syncState).
   syncPagingState(): void;
   // The objects are re-created for the records the view - under paging, the page - holds now.
@@ -38,21 +37,21 @@ export interface IDynamicDataQuestionHooks {
   // are never stale.
   areObjectsBuilt(): boolean;
   // A move does not carry the objects: they keep their positions and take the records of their
-  // positions. Absent -> the objects follow their records.
-  followRecordMove?(): void;
+  // positions. The default: the objects follow their records (remap renumbers them).
+  followRecordMove(remap: (index: number) => number): void;
   // The stored value, not the default: the records an assignment or a read replaces.
   getStoredRecords(): any;
   // The loaded window becomes the question value; nothing is rebuilt.
   storeLoadedRecords(): void;
   // After a write to a data source was stored, before the conditions run; not guarded against
-  // re-entrancy. Absent -> nothing to prepare.
-  prepareRemoteWrite?(change: IDynamicDataListChange): void;
+  // re-entrancy. The default: nothing to prepare.
+  prepareRemoteWrite(change: IDynamicDataListChange): void;
   // What a write to the survey would have re-run after that write; guarded by the controller.
   runRemoteWriteConditions(): void;
   // Record indexes the question keeps besides its objects and the edited set: a read that commits
-  // again renumbers them with its remap. Absent -> the question keeps none.
-  hasKeptRecordIndexes?(): boolean;
-  remapKeptRecordIndexes?(remap: (index: number) => number): void;
+  // again renumbers them with its remap. The default: the question keeps none.
+  hasKeptRecordIndexes(): boolean;
+  remapKeptRecordIndexes(remap: (index: number) => number): void;
   // The item at a position is focused once the objects of a committed read exist.
   focusItemAfterRead(index: number): void;
   // The one member of IDynamicDataPageValidationOwner that is about the question's own objects.
@@ -70,6 +69,16 @@ export interface IDynamicDataQuestionHooks {
      the survey hands it out (survey.onExpressionRunning) and the scope it runs in. Asked once the
      controller's guards have passed. */
   getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule;
+  // The authored page size: rowsPerPage / panelsPerPage.
+  getPageSize(): number;
+  /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
+     a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
+     object. */
+  getListPageSize(): number;
+  // sortBy is computed from sortOrder and nothing raises its change on its own (see
+  // DynamicDataPagingController.setSortOrderValue). Base.propertyValueChanged is protected, so the
+  // question raises it.
+  raiseSortByChanged(oldValue: string, newValue: string): void;
 }
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -84,9 +93,10 @@ export interface IDynamicDataRecordVisibilityRule {
   // Called only when the expression runs.
   createScope: () => IDynamicDataRecordScope;
 }
-// The objects are read through the owner's IDynamicItemModelData: by created position and by record.
-export type DynamicDataQuestionOwner = Question & IDynamicDataPagingOwner & IDynamicDataQuestionHooks
-  & Pick<IDynamicItemModelData, "getItem" | "getItemByRecordIndex">;
+/* The objects are read through the owner's IDynamicItemModelData: by created position and by record.
+   isDataLoading is public state of the question, written when the list starts or ends a read. */
+export type DynamicDataQuestionOwner = Question & Pick<IDynamicItemModelData, "getItem" | "getItemByRecordIndex">
+  & { isDataLoading: boolean };
 // What a value assignment takes before the value is stored and hands back after it (see
 // DynamicDataQuestionController.beginValueAssignment).
 export interface IDynamicDataValueAssignment {
@@ -101,10 +111,13 @@ function getFieldType(question: Question): DynamicDataFieldType {
   return type === "number" || type === "date" || type === "boolean" ? type : "any";
 }
 
-/* The coordination between a dynamic question and its list. Both dynamic questions need the same
-   one and neither of them descends from the other, so it lives here and each question holds it by
-   composition. The list computes (dynamic-data-list.ts), the question builds and renders its own
-   rows or panels - its objects - and this class is what sits between the two: it creates and
+/* The coordination between a records question and its list. QuestionRecordsModel holds it by
+   composition, and it stays a class of its own because it is the owner the list
+   (IDynamicDataOwner), the page validation (IDynamicDataPageValidationOwner) and the paging helper
+   (IDynamicDataPagingOwner) talk to: their members never have to be public on the question. It
+   reaches the question's own rules through the hooks object the question hands it. The list
+   computes (dynamic-data-list.ts), the question builds and renders its own rows or panels - its
+   objects - and this class is what sits between the two: it creates and
    disposes the list and the question-side helpers, it is the owner of the list and of the page
    validation and answers the changes of the list, and it holds the question side of a
    caller-provided data source - the survey-data side of a source swap, the running state and the
@@ -119,14 +132,14 @@ function getFieldType(question: Question): DynamicDataFieldType {
    What a source does NOT change is where the records are kept while they are being edited:
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
-   it does change is who owns them - see canSetValueToSurvey on the two questions. */
+   it does change is who owns them - see QuestionRecordsModel.canSetValueToSurvey. */
 // The controller of a dynamic question, for an ancestor that holds the question and not the controller.
 const controllers = new WeakMap<Question, DynamicDataQuestionController>();
-export class DynamicDataQuestionController implements IDynamicDataOwner, IDynamicDataPageValidationOwner {
+export class DynamicDataQuestionController implements IDynamicDataOwner, IDynamicDataPageValidationOwner, IDynamicDataPagingOwner {
   private _list: DynamicDataList;
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
-  constructor(private owner: DynamicDataQuestionOwner) {
+  constructor(private owner: DynamicDataQuestionOwner, private hooks: IDynamicDataQuestionHooks) {
     controllers.set(owner, this);
   }
   public get listValue(): DynamicDataList {
@@ -134,13 +147,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   }
   public get list(): DynamicDataList {
     if (!this._list) {
-      const owner = this.owner;
+      const hooks = this.hooks;
       // createReadThrough loads the list, which raises a reset before _list is assigned:
       // onDataListChanged drops it.
       this._list = DynamicDataList.createReadThrough(this,
-        (): Array<any> => owner.getListRecords(),
-        (records: Array<any>): void => { owner.setListRecords(records); },
-        typeof owner.getListRecordCount === "function" ? (): number => owner.getListRecordCount() : undefined);
+        (): Array<any> => hooks.getListRecords(),
+        (records: Array<any>): void => { hooks.setListRecords(records); },
+        (): number => hooks.getListRecordCount());
       this._list.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -154,7 +167,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      helper is first used while the list is being created. */
   public get paging(): DynamicDataPagingController {
     if (!this._paging) {
-      this._paging = new DynamicDataPagingController(this.owner, (): DynamicDataList => this.list);
+      this._paging = new DynamicDataPagingController(this, (): DynamicDataList => this.list);
     }
     return this._paging;
   }
@@ -176,7 +189,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
 
   // IDynamicDataOwner: the question chooses the questions its records are made of (getFieldsOfQuestions).
   public getFields(): Array<IDynamicDataField> {
-    return this.owner.getFields();
+    return this.hooks.getFields();
   }
   /* The record fields the template questions of a dynamic panel or the column questions of a matrix
      contribute to the list: one per question, under its value name, and one more for a comment,
@@ -200,21 +213,21 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     const list = this._list;
     // The reset the list raises while it is being created.
     if (!list) return;
-    const owner = this.owner;
+    const hooks = this.hooks;
     if (change.type === "loading") {
-      owner.isDataLoading = change.isLoading;
+      this.owner.isDataLoading = change.isLoading;
       return;
     }
     if (change.type === "pageChanged") {
       this.forgetFocusIndex();
-      owner.syncPagingState();
+      hooks.syncPagingState();
       /* The objects that exist are the page: a page the list cuts - from question.value
          or from everything a read() source answered with - is rebuilt at once, through the path a
          remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
       if (this.isPagedByList) {
-        owner.rebuildFromDataList(true);
+        hooks.rebuildFromDataList(true);
       } else {
-        owner.refreshRenderedPage();
+        hooks.refreshRenderedPage();
       }
       return;
     }
@@ -223,8 +236,8 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     // pages in memory creates the edited set here.
     applyRecordChange(change, this.isPagedByList ? this.pageValidation : this._pageValidation,
       (remap: (index: number) => number): void => {
-        if (change.type === "recordMoved" && typeof owner.followRecordMove === "function") {
-          owner.followRecordMove();
+        if (change.type === "recordMoved") {
+          hooks.followRecordMove(remap);
         } else {
           this.remapBuiltItems(remap);
         }
@@ -234,15 +247,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
        itself. The objects are not rebuilt - the one that was edited, added or removed is handled by
        the path that made the change. */
     if (list.isRemote && change.type !== "reset") {
-      owner.storeLoadedRecords();
-      if (typeof owner.prepareRemoteWrite === "function") {
-        owner.prepareRemoteWrite(change);
-      }
+      hooks.storeLoadedRecords();
+      hooks.prepareRemoteWrite(change);
       this.runConditionsAfterRemoteWrite();
       return;
     }
     if (change.type !== "reset") return;
-    owner.syncPagingState();
+    hooks.syncPagingState();
     const isRemote = list.isRemote;
     const hasView = list.hasView || isRemote || this.isPagingActive;
     if (!hasView && !this.hasMaterializedView) return;
@@ -250,7 +261,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (isRemote) {
       this.commitLoadedRecords();
     } else {
-      owner.rebuildFromDataList(false);
+      hooks.rebuildFromDataList(false);
     }
   }
   /* A read committed: the loaded window becomes the question value. It is the inbound path - the
@@ -258,16 +269,16 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      and then the objects are rebuilt for the records the window holds. Nothing else may assign the
      value on a load. The position a refill kept is focused last: the objects it names exist now. */
   private commitLoadedRecords(): void {
-    const owner = this.owner;
+    const hooks = this.hooks;
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = owner.getStoredRecords();
+    const oldValue = hooks.getStoredRecords();
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
-    owner.storeLoadedRecords();
+    hooks.storeLoadedRecords();
     this.followReloadedRecords(oldRecords);
-    owner.rebuildFromDataList(false);
+    hooks.rebuildFromDataList(false);
     const index = this.takeFocusIndexAfterRead();
     if (index > -1) {
-      owner.focusItemAfterRead(index);
+      hooks.focusItemAfterRead(index);
     }
   }
   /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
@@ -281,11 +292,11 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      rebuild disposes them. Replacing the source starts over (see assignSource). */
   private followReloadedRecords(oldRecords: any): void {
     if (!this.isPagedByList) return;
-    const owner = this.owner;
+    const hooks = this.hooks;
     const validation = this._pageValidation;
     const hasRecords = !!validation && validation.hasRecords;
-    if (!hasRecords && !(typeof owner.hasKeptRecordIndexes === "function" && owner.hasKeptRecordIndexes())) return;
-    const newRecords = owner.getStoredRecords();
+    if (!hasRecords && !hooks.hasKeptRecordIndexes()) return;
+    const newRecords = hooks.getStoredRecords();
     const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
     const newArray = Array.isArray(newRecords) ? newRecords : [];
     const remap = getReplacedRecordsRemap(oldArray, newArray, this._list.keyField);
@@ -293,14 +304,12 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
       validation.cancelPendingMove();
       validation.onRecordsReplaced(oldArray, newArray, remap);
     }
-    if (typeof owner.remapKeptRecordIndexes === "function") {
-      owner.remapKeptRecordIndexes(remap);
-    }
+    hooks.remapKeptRecordIndexes(remap);
   }
   /* With the array source over question.value a record write reaches the survey, and the survey then
      re-runs the conditions of every question - which is what recalculates an expression, a {row.x} or
      {panel.x} reference and the totals. A remote write never reaches the survey (canSetValueToSurvey
-     on the questions), so the question runs its own. Re-entrancy is guarded and not forbidden for a
+     on the question), so the question runs its own. Re-entrancy is guarded and not forbidden for a
      reason: an expression writes its result back as a record field, and the nested run would only
      recompute what the outer one has just settled. */
   private isRunningRemoteWriteConditions: boolean = false;
@@ -308,7 +317,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     if (this.isRunningRemoteWriteConditions || !this.owner.data) return;
     this.isRunningRemoteWriteConditions = true;
     try {
-      this.owner.runRemoteWriteConditions();
+      this.hooks.runRemoteWriteConditions();
     } finally {
       this.isRunningRemoteWriteConditions = false;
     }
@@ -336,7 +345,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public isPageStale(): boolean {
     const list = this._list;
     const owner = this.owner;
-    if (!list || !owner.areObjectsBuilt()) return false;
+    if (!list || !this.hooks.areObjectsBuilt()) return false;
     const records = list.getMaterializedIndexes();
     for (let i = 0; i < records.length; i++) {
       const item = owner.getItem(i);
@@ -382,16 +391,16 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     const list = this._list;
     if (!list) return;
     list.invalidateViews();
-    this.owner.syncPagingState();
+    this.hooks.syncPagingState();
     if (!assignment) return;
     if (!!assignment.created && !Helpers.isTwoValueEquals(assignment.created, list.getCreatedIndexes())) {
-      this.owner.rebuildFromDataList(false);
+      this.hooks.rebuildFromDataList(false);
     }
     if (!this.isPagedByList) return;
-    this.onRecordsReplaced(oldRecords, this.owner.getStoredRecords());
+    this.onRecordsReplaced(oldRecords, this.hooks.getStoredRecords());
     // The page is rebuilt when it names other records than its objects hold now.
     if (this.isPageStale()) {
-      this.owner.rebuildFromDataList(false);
+      this.hooks.rebuildFromDataList(false);
     }
   }
   /* The validation half of an assignment from outside, for a list that pages in memory: the edited
@@ -422,14 +431,14 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
   public getRecordItemByVisibleIndex(visibleIndex: number): DynamicRecordItem {
     if (!this.isPagingActive) return null;
     const recordIndex = this._list.getIndexAtGlobalVisibleIndex(visibleIndex);
-    return recordIndex < 0 ? null : this.owner.createRecordItem(recordIndex);
+    return recordIndex < 0 ? null : this.hooks.createRecordItem(recordIndex);
   }
   /* The view half of IDynamicExpressionItemOwner.getExpressionItem: index names a record, and a record
      without an object - filtered out, off the page or not built - is read as a value. */
   public getViewExpressionItem(index: number): DynamicItemModelBase {
     const item = this.owner.getItemByRecordIndex(index);
     if (!!item) return item;
-    return index < this._list.loadedCount ? this.owner.createRecordItem(index) : null;
+    return index < this._list.loadedCount ? this.hooks.createRecordItem(index) : null;
   }
 
   /* What a question that pages keeps for its records when an ancestor (a dynamic panel that pages)
@@ -530,13 +539,13 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      field, and a pair whose records both have no object has none the question's own check could put
      the error on. Returns the pages, without repeats; layer 2 walks them together with its own. */
   private getOffPageDuplicatePages(): Array<number> {
-    const owner = this.owner;
+    const hooks = this.hooks;
     const list = this.list;
-    const uniqueness = owner.getRecordUniqueness();
+    const uniqueness = hooks.getRecordUniqueness();
     const pages: Array<number> = [];
     uniqueness.fields.forEach((name: string): void => {
       const readKey = (index: number): any => {
-        const record = owner.getListRecordAt(index);
+        const record = hooks.getListRecordAt(index);
         return !!record ? record[name] : undefined;
       };
       findDuplicatePages(list, readKey, uniqueness).forEach((page: number): void => {
@@ -554,13 +563,14 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      the list does not announce: the question syncs it. Returns whether a flag changed. */
   public updateRecordsVisibility(properties: HashTable<any>): boolean {
     const owner = this.owner;
+    const hooks = this.hooks;
     // isPagingActive is false in design mode.
     if (!this.isPagingActive || owner.isLoadingFromJson) return false;
-    const rule = owner.getRecordVisibilityRule(properties);
+    const rule = hooks.getRecordVisibilityRule(properties);
     const isChanged = this._list.updateRecordsVisibility(owner.areInvisibleElementsShowing ? "" : rule.expression,
-      (index: number): any => owner.getListRecordAt(index), rule.createScope);
+      (index: number): any => hooks.getListRecordAt(index), rule.createScope);
     if (isChanged) {
-      owner.syncPagingState();
+      hooks.syncPagingState();
     }
     return isChanged;
   }
@@ -581,7 +591,7 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
      pageIndexBefore: the page index the list had before the remove. */
   public refillPageAfterRemove(pageIndexBefore: number): void {
     if (this.isPagedByList && this._list.pageIndex === pageIndexBefore) {
-      this.owner.rebuildFromDataList(false);
+      this.hooks.rebuildFromDataList(false);
     }
   }
 
@@ -601,13 +611,54 @@ export class DynamicDataQuestionController implements IDynamicDataOwner, IDynami
     this.paging.pageIndex = pageIndex;
   }
   public validatePageObjects(context: ValidationContext): boolean {
-    return this.owner.validatePageObjects(context);
+    return this.hooks.validatePageObjects(context);
   }
   public setPropertyValue(name: string, val: any): void {
     this.owner.setPropertyValue(name, val);
   }
   public get isDisposed(): boolean {
     return this.owner.isDisposed;
+  }
+
+  /* IDynamicDataPagingOwner: the paging helper's owner is the controller, so the question's paging
+     state never has to be public for it. The state itself stays in the question's property hash
+     (setPropertyValue above serves both owners), which is what the renderers observe. The page
+     moves - leavePage and cancelPendingPageMove - are the ones below. */
+  public getPropertyValue(name: string): any {
+    return this.owner.getPropertyValue(name);
+  }
+  public getLocalizationFormatString(strName: string, ...args: any[]): string {
+    return this.owner.getLocalizationFormatString(strName, ...args);
+  }
+  public get pageSize(): number {
+    return this.hooks.getPageSize();
+  }
+  public get listPageSize(): number {
+    return this.hooks.getListPageSize();
+  }
+  // A zero-based page index; always 0 while paging is off.
+  public get pageIndex(): number {
+    return this.isPagingActive ? this.paging.pageIndex : 0;
+  }
+  // The number of pages; 1 for an empty question and for one that does not page.
+  public get pageCount(): number {
+    return this.isPagingActive ? this.paging.pageCount : 1;
+  }
+  public get isCountKnown(): boolean {
+    return this.paging.isCountKnown;
+  }
+  public get isDesignMode(): boolean {
+    return this.owner.isDesignMode;
+  }
+  public get isLoadingFromJson(): boolean {
+    return this.owner.isLoadingFromJson;
+  }
+  public raiseSortByChanged(oldValue: string, newValue: string): void {
+    this.hooks.raiseSortByChanged(oldValue, newValue);
+  }
+  // True while a page move waits for the asynchronous validators of the page it leaves.
+  public get isPageMovePending(): boolean {
+    return this.owner.getPropertyValue("isPageMovePending", false);
   }
 
   // The survey-data side of the swap. The list keeps the assigned source (assignedSource), so there

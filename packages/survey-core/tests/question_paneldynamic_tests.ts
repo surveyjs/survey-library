@@ -10063,7 +10063,7 @@ describe("DynamicDataList integration", () => {
       ]
     });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    expect(question.getFields()).toEqual([
+    expect((<any>question).dynamicData.getFields()).toEqual([
       { name: "q1", dataType: "any" },
       { name: "age", dataType: "number" },
       { name: "born", dataType: "date" },

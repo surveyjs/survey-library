@@ -207,6 +207,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
+export { QuestionRecordsModel } from "../../src/question_records";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

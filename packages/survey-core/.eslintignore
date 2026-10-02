@@ -4,3 +4,4 @@ example/
 node_modules/
 tests/bundle/
 promts/
+prompts/

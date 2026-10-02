@@ -10241,4 +10241,23 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const column = new MatrixDropdownColumn("c");
     expect(column.getDynamicType(), "A column without a matrix").toBe("question");
   });
+  test("visibleRowsChangedCallback fires when a row is added or removed", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "q1", columns: [{ name: "col1" }], rowCount: 2 }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    expect(matrix.visibleRows.length, "two rows").toBe(2);
+    let counter = 0;
+    matrix.visibleRowsChangedCallback = () => { counter++; };
+    matrix.addRow();
+    expect(counter, "a row is added").toBe(2);
+    expect(matrix.visibleRows.length, "three rows").toBe(3);
+    counter = 0;
+    matrix.removeRow(0);
+    expect(counter, "a row is removed").toBe(1);
+    expect(matrix.visibleRows.length, "two rows again").toBe(2);
+    counter = 0;
+    matrix.rowCount = 4;
+    expect(counter, "rowCount is increased").toBe(1);
+  });
 });

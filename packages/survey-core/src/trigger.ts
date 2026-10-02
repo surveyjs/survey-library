@@ -90,14 +90,20 @@ export class Trigger extends Base {
   protected canBeExecutedOnComplete(): boolean {
     return false;
   }
+  protected canBeExecutedOnSettingData(): boolean {
+    return false;
+  }
   protected isExecutingOnNextPage: boolean;
   protected isExecutingOnNavigation: boolean;
+  protected isExecutingOnSettingData: boolean;
   public checkExpression(options: { isOnNextPage: boolean, isOnComplete: boolean, isOnNavigation: boolean,
-    keys: any, properties?: HashTable<any>, }): void {
+    isOnSettingData?: boolean, keys: any, properties?: HashTable<any>, }): void {
     this.isExecutingOnNextPage = options.isOnNextPage;
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
+    this.isExecutingOnSettingData = options.isOnSettingData === true;
     if (!this.canBeExecuted(options.isOnNextPage)) return;
     if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
+    if (this.isExecutingOnSettingData && !this.canBeExecutedOnSettingData()) return;
     const keys = Object.keys(options.keys);
     if (Array.isArray(keys) && !this.canBeExecuteOnKeysChange(keys)) return;
     const props = options.properties || null;
@@ -238,7 +244,12 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return "completetrigger";
   }
   public get requireValidQuestion(): boolean { return true; }
+  // On setting survey data, the trigger updates the navigation buttons and doesn't complete the survey
+  protected canBeExecutedOnSettingData(): boolean {
+    return true;
+  }
   protected isRealExecution(): boolean {
+    if (this.isExecutingOnSettingData) return false;
     return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNavigation;
   }
   protected onSuccess(properties: HashTable<any>): void {

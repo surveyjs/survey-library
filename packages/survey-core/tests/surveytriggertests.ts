@@ -699,6 +699,90 @@ describe("Triggers", () => {
     expect(survey.isCompleteButtonVisible, "complete button is visible, #4").toBe(true);
     expect(survey.isShowNextButton, "next button is invisible, #4").toBe(false);
   });
+  function createSurveyWithCompleteTriggerAndRequiredQuestions(): SurveyModel {
+    return new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "question1",
+              "title": "Question 1",
+              "isRequired": true,
+              "choices": ["A", "B"]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "title": "Question 2",
+              "isRequired": true
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "type": "complete",
+          "expression": "{question1} = 'A'"
+        }
+      ]
+    });
+  }
+  test("complete trigger and next/complete buttons on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #1").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #1").toBe(true);
+    survey.data = { question1: "A" };
+    expect(survey.isCompleteButtonVisible, "complete button is visible, #2").toBe(true);
+    expect(survey.isShowNextButton, "next button is invisible, #2").toBe(false);
+    survey.data = { question1: "B" };
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #3").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #3").toBe(true);
+  });
+  test("complete trigger and survey.validate() on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.data = { question1: "A" };
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+    expect(survey.getQuestionByName("question2").errors.length, "there is no errors in question2").toBe(0);
+    survey.data = { question1: "B" };
+    expect(survey.validate(true, false), "complete trigger is not executed, question2 is empty").toBe(false);
+  });
+  test("complete trigger and survey.validate() with focusing the first error on setting survey.data, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.data = { question1: "A" };
+    expect(survey.validate(true, true), "complete trigger is executed").toBe(true);
+    expect(survey.currentPageNo, "We are staying on the first page").toBe(0);
+  });
+  test("complete trigger and survey.validate() on changing the question value, Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.getQuestionByName("question1").value = "A";
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+    expect(survey.tryComplete(), "survey can be completed").toBe(true);
+    expect(survey.state, "survey is completed").toBe("completed");
+  });
+  test("complete trigger and survey.validate() on survey.mergeData(), Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.mergeData({ question1: "A" });
+    expect(survey.state, "survey is not completed on merging data").toBe("running");
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed").toBe(true);
+    survey.mergeData({ question1: "B" });
+    expect(survey.isCompleteButtonVisible, "complete button is invisible").toBe(false);
+    expect(survey.validate(true, false), "complete trigger is not executed").toBe(false);
+  });
+  test("complete trigger and survey.validate() on survey.setValue(), Bug#11935", () => {
+    const survey = createSurveyWithCompleteTriggerAndRequiredQuestions();
+    survey.setValue("question1", "A");
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
+  });
   test("runexpression trigger and isNextPage", () => {
     let counter = 0;
     FunctionFactory.Instance.register("calcCust", function getCustValue(params

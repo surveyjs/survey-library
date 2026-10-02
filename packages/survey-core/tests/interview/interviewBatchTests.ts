@@ -453,3 +453,108 @@ describe("interview batch mode (issue #11818)", () => {
     survey.locale = "";
   });
 });
+
+// One rule for a key that names a question that exists and is not visible now, whether the survey hid
+// it before the call or an earlier key of the same call did: refused with notAskable / "hidden", never
+// written. Issue#11818
+describe("interview batch mode: hidden targets (issue #11818)", () => {
+  const HIDDEN_TEXT = "the survey hides it";
+
+  function codes(errors: Array<any>): Array<any> {
+    return errors.map(error => ({ name: error.name, code: error.code }));
+  }
+
+  test("A hidden target is refused the same way at the root, in a dynamic panel and in a multiple text (D1)", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+      { type: "text", name: "petName", visibleIf: "{hasPet}='Yes'" },
+      // A multiple-text item has no visibleIf of its own: its editor is hidden directly below.
+      { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+      { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+        { type: "text", name: "a" }, { type: "text", name: "b", visibleIf: "{hasPet}='Yes'" }] }] });
+    await iv.answerAll({ hasPet: "No" });
+    const survey = iv.survey;
+    const editor = (<any>survey.getQuestionByName("mt")).getItemByName("b").editor;
+    editor.visible = false;
+    const panelField = (<any>survey.getQuestionByName("pd")).panels[0].getQuestionByName("b");
+    expect(survey.getQuestionByName("petName").isVisible, "petName is hidden").toBe(false);
+    expect(editor.isVisible, "mt.b is hidden").toBe(false);
+    expect(panelField.isVisible, "pd[0].b is hidden").toBe(false);
+    const before = JSON.parse(JSON.stringify(iv.data));
+
+    const res = await iv.answerAll({ petName: "Rex", mt: { b: "x" }, pd: [{ b: "y" }] });
+    expect(codes(res.errors)).toEqual([
+      { name: "petName", code: InterviewErrorCodes.notAskable },
+      { name: "mt.b", code: InterviewErrorCodes.notAskable },
+      { name: "pd[0].b", code: InterviewErrorCodes.notAskable },
+    ]);
+    res.errors.forEach(error => expect(error.message, error.name).toContain(HIDDEN_TEXT));
+    expect(iv.data).toEqual(before);
+  });
+
+  test("A hidden root that exists is notAskable; a name that exists nowhere is unknownQuestion", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+      { type: "text", name: "petName", visibleIf: "{hasPet}='Yes'" },
+      { type: "panel", name: "extra", visible: false, elements: [{ type: "text", name: "inPanel" }] }] });
+    const res = await iv.answerAll({ petName: "Rex", nope: "x", inPanel: "y" });
+    expect(codes(res.errors)).toEqual([
+      { name: "petName", code: InterviewErrorCodes.notAskable },
+      { name: "nope", code: InterviewErrorCodes.unknownQuestion },
+      { name: "inPanel", code: InterviewErrorCodes.notAskable },
+    ]);
+    expect(res.errors[0].message).toContain(HIDDEN_TEXT);
+    expect(iv.data).toEqual({});
+    // A key the same call reveals is still written, and one the same call hides is still refused.
+    const yes = await iv.answerAll({ hasPet: "Yes", petName: "Rex" });
+    expect(yes.errors).toEqual([]);
+    expect(iv.data).toEqual({ hasPet: "Yes", petName: "Rex" });
+    const no = await iv.answerAll({ hasPet: "No", petName: "Max" });
+    expect(codes(no.errors)).toEqual([{ name: "petName", code: InterviewErrorCodes.notAskable }]);
+    expect(iv.data.petName).toBe("Rex");
+  });
+
+  test("A hidden root whose address is quoted is notAskable under the address the agent sent", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+      { type: "text", name: "pet.name", visibleIf: "{hasPet}='Yes'" }] });
+    await iv.answerAll({ hasPet: "Yes" });
+    expect(iv.getBatchDocument().items.map(item => item.name)).toEqual(["\"pet.name\""]);
+    await iv.answerAll({ hasPet: "No" });
+    const res = await iv.answerAll({ "\"pet.name\"": "Rex" });
+    expect(codes(res.errors)).toEqual([{ name: "\"pet.name\"", code: InterviewErrorCodes.notAskable }]);
+    expect(res.errors[0].message).toContain(HIDDEN_TEXT);
+    expect(iv.data).toEqual({ hasPet: "No" });
+  });
+
+  test("A hidden question of a composite is refused with notAskable and not written", async () => {
+    ComponentCollection.Instance.add(<any>{
+      name: "fullname",
+      elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
+    });
+    customComponents.push("fullname");
+    const iv = await createInterview({ elements: [{ type: "fullname", name: "who" }] });
+    const last = (<any>iv.survey.getQuestionByName("who")).contentPanel.getQuestionByName("last");
+    last.visible = false;
+    expect(last.isVisible).toBe(false);
+    const res = await iv.answerAll({ who: { first: "Ann", last: "Lee" } });
+    expect(codes(res.errors)).toEqual([{ name: "who.last", code: InterviewErrorCodes.notAskable }]);
+    expect(res.errors[0].message).toContain(HIDDEN_TEXT);
+    expect(iv.data).toEqual({ who: { first: "Ann" } });
+  });
+
+  test("A matrix dropdown cell in a hidden column is refused with notAskable and not written", async () => {
+    const iv = await createInterview({ elements: [{
+      type: "matrixdropdown", name: "m", rows: ["r1"],
+      columns: [{ name: "sku", cellType: "text" }, { name: "note", cellType: "text" }],
+    }] });
+    const matrix: any = iv.survey.getQuestionByName("m");
+    const column = matrix.getColumnByName("note");
+    column.visible = false;
+    expect(column.isColumnVisible).toBe(false);
+    const res = await iv.answerAll({ m: { r1: { sku: "A-1", note: "x" } } });
+    expect(codes(res.errors)).toEqual([{ name: "m.r1.note", code: InterviewErrorCodes.notAskable }]);
+    expect(res.errors[0].message).toContain(HIDDEN_TEXT);
+    expect(iv.data).toEqual({ m: { r1: { sku: "A-1" } } });
+  });
+});

@@ -230,9 +230,11 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     await iv.answerAll({ medications: [{}] });
     await iv.answerAll({ medications: null });
     expect(iv.data).toEqual({ medications: [{ name: "Aspirin", dose: "20 mg" }] });
-    // A single object is wrapped: one record is one entry, at position 0.
-    await iv.answerAll({ medications: { dose: "30 mg" } });
-    expect(iv.data.medications[0].dose).toBe("30 mg");
+    // A single object is not a list: it is refused, and entry 0 is left as it is.
+    const single = await iv.answerAll({ medications: { dose: "30 mg" } });
+    expect(single.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "medications", code: InterviewErrorCodes.badRecord }]);
+    expect(iv.data).toEqual({ medications: [{ name: "Aspirin", dose: "20 mg" }] });
   });
 
   test("The keys of a record are written in the entry's field order", async () => {
@@ -407,6 +409,45 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(res.errors[0].message).toContain("position 5");
     expect(res.errors[0].message).toContain("Removing an entry first");
     expect(iv.survey.getQuestionByName("medications").panelCount).toBe(4);
+  });
+
+  // A plain object would otherwise patch position 0 and silently overwrite the first entry. Issue#11818
+  test("A single object for a dynamic panel is badRecord and does not overwrite entry 0 (B5)", async () => {
+    const s = new SurveyModel({ elements: [{ type: "paneldynamic", name: "meds",
+      templateElements: [{ type: "text", name: "name" }] }] });
+    s.data = { meds: [{ name: "A" }, { name: "B" }] };
+    const iv = await createInterview(s);
+    const res = await iv.answerAll({ meds: { name: "C" } });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "meds", code: InterviewErrorCodes.badRecord }]);
+    expect(res.errors[0].message).toContain("must be a list of entries");
+    expect(iv.data).toEqual({ meds: [{ name: "A" }, { name: "B" }] });
+  });
+
+  test("A single object for a dynamic matrix is badRecord and does not overwrite row 0", async () => {
+    const iv = await createInterview(itemsJson({ defaultValue: [{ sku: "A-1" }, { sku: "B-2" }] }));
+    expect(iv.data).toEqual({ items: [{ sku: "A-1" }, { sku: "B-2" }] });
+    const res = await iv.answerAll({ items: { sku: "C-3" } });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "items", code: InterviewErrorCodes.badRecord }]);
+    expect(res.errors[0].message).toContain("must be a list of entries");
+    expect(iv.data).toEqual({ items: [{ sku: "A-1" }, { sku: "B-2" }] });
+  });
+
+  test("A single object for a dynamic panel nested in a dynamic panel is badRecord at the nested address", async () => {
+    const s = new SurveyModel({ elements: [{ type: "paneldynamic", name: "orders",
+      templateElements: [
+        { type: "text", name: "ref" },
+        { type: "paneldynamic", name: "lines", templateElements: [{ type: "text", name: "sku" }] },
+      ] }] });
+    s.data = { orders: [{ ref: "PO-1", lines: [{ sku: "A" }, { sku: "B" }] }] };
+    const iv = await createInterview(s);
+    const res = await iv.answerAll({ orders: [{ ref: "PO-2", lines: { sku: "C" } }] });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "orders[0].lines", code: InterviewErrorCodes.badRecord }]);
+    expect(res.errors[0].message).toContain("must be a list of entries");
+    // The other keys of the entry are written; the nested list is not touched.
+    expect(iv.data).toEqual({ orders: [{ ref: "PO-2", lines: [{ sku: "A" }, { sku: "B" }] }] });
   });
 
   test("An element that is not a record, and a null past the count, are badRecord", async () => {

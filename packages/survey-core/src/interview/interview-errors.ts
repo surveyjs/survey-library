@@ -58,9 +58,10 @@ export function unknownQuestionError(name: string, known: Array<string>): IInter
 }
 
 // One code, four reasons. "batch" and "hidden" belong to answerAll(): a container below the depth
-// ceiling is one no mode reaches, and a question an earlier answer of the same call hid or turned off
-// is one the batch may no longer write. Both are the same statement to the caller - "this key was
-// not written" - so they are the same code with a message that says which.
+// ceiling is one no mode reaches, and a question the survey does not show now - hidden before the
+// call, or by an earlier answer of the same call - is one the batch may not write. Both are the same
+// statement to the caller - "this key was not written" - so they are the same code with a message
+// that says which.
 export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "hidden";
 
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
@@ -68,7 +69,8 @@ const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
   batch: "it sits deeper than the " + MAX_NESTING_DEPTH + " nested containers the interview addresses, " +
     "and neither mode reaches it",
-  hidden: "an earlier answer of the same call hid it or turned it off, so it is no longer being asked",
+  hidden: "the survey hides it or no longer offers it, whether that was so before this call or an earlier " +
+    "answer of the same call caused it, so it is no longer being asked",
 };
 
 export function notAskableError(name: string, reason: InterviewNotAskableReason): IInterviewError {
@@ -84,10 +86,17 @@ export function unknownToolError(name: string): Error {
 }
 
 // "isDisabled": the value is one of the question's choices, and a choicesEnableIf has turned it off.
-export function notAChoiceError(name: string, value: any, choices: Array<any>, isDisabled?: boolean): IInterviewError {
-  const why = isDisabled === true
+// "matches": the value differs from several choices only in case or surrounding spaces, so it names
+// none of them.
+export function notAChoiceError(name: string, value: any, choices: Array<any>, isDisabled?: boolean,
+  matches?: Array<any>): IInterviewError {
+  let why = isDisabled === true
     ? " is a choice of " + quoteValue(name) + " that is disabled now"
     : " is not among the choices of " + quoteValue(name);
+  if (!!matches && matches.length > 1) {
+    why = " matches several choices of " + quoteValue(name) + " that differ only in case or spaces (" +
+      quoteValues(matches) + "); send one of them exactly";
+  }
   return {
     name: name,
     message: "The value " + quoteValue(value) + why + ". Available choices: " + quoteValues(choices) + ".",

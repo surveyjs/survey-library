@@ -8,11 +8,11 @@ import {
 } from "./interview-types";
 import {
   IInterviewContainer, IInterviewInput, clearUntouchedChoiceErrors, getAnsweredValue, getInputErrors,
-  getInterviewInputs, getUnreportedContainers, isAskableInput, isInputAnswered, isInputValid,
+  getInterviewInputs, getUnreportedContainers, isAskableInput, isInShowingChoice, isInputAnswered, isInputValid,
   makeInputCurrent, updateCurrentItem, validateInput,
 } from "./interview-items";
 import {
-  createNameLookup, getAddress, getParentContainer, getQuestionDepth, resolveAddress,
+  createNameLookup, getAddress, getParentContainer, getQuestionDepth, parseAddress, resolveAddress,
 } from "./interview-address";
 import { applySummaryAction } from "./interview-summary";
 import {
@@ -225,7 +225,7 @@ export class Interview implements IInterview {
     if (resolved.writes.length === 0) {
       // Nothing is written, so nothing can be revealed: the keys that name nothing are refused now.
       return this.createResult(inputs, noChanges(),
-        getResolutionErrors(keys, refused, resolved.unresolved, this.getBatchAskable(inputs)), true);
+        getResolutionErrors(keys, refused, resolved.unresolved, this.getUnresolvedErrors(inputs)), true);
     }
     const before = takeSnapshot(this.surveyValue, inputs);
     // The same rule as in single mode: an expression validator or a min/max bound may depend on a
@@ -261,7 +261,7 @@ export class Interview implements IInterview {
     clearUntouchedChoiceErrors(after, input => isBatchWritten(written, input) ||
       hadErrors[input.question.id] === true);
     this.makeCurrent(after);
-    const errors = getResolutionErrors(keys, refused, resolved.unresolved, this.getBatchAskable(after));
+    const errors = getResolutionErrors(keys, refused, resolved.unresolved, this.getUnresolvedErrors(after));
     writeErrors.forEach(error => errors.push(error));
     after.forEach(input => {
       // By identity as well as by address: a removal of the same call shifts the entries after it, so
@@ -532,6 +532,28 @@ export class Interview implements IInterview {
   // What an unknownQuestion of a batch lists: the roots an agent may write to.
   private getBatchAskable(inputs: Array<IInterviewInput>): Array<string> {
     return getBatchAddresses(getBatchEntries(this.surveyValue, inputs));
+  }
+
+  // The refusal of a key that named no entry in any pass, read against the state after the writes. A
+  // key that names a root the survey has and does not show now - hidden before the call or by an
+  // earlier key of it - was not invented by the agent: it is notAskable / "hidden", the answer a hidden
+  // field of a container gets (interview-fields.ts getUnknownKeyError). A visible question that is not
+  // an entry - read-only by property, on the start page, no input at all - and a name the survey does
+  // not have are unknownQuestion, with the list of what may be written. The key is an address and is
+  // decoded first: a root named pet.name is the key "\"pet.name\"", and the bare pet.name names a field
+  // of a container called pet, not that root.
+  private getUnresolvedErrors(inputs: Array<IInterviewInput>): (key: string) => IInterviewError {
+    let askable: Array<string>;
+    return (key: string) => {
+      const segments = parseAddress(key);
+      const isRoot = !!segments && segments.length === 1 && segments[0].index === undefined;
+      const question = isRoot ? this.surveyValue.getQuestionByName(segments[0].name) : undefined;
+      if (!!question && (!question.isVisibleInSurvey || !isInShowingChoice(question))) {
+        return notAskableError(key, "hidden");
+      }
+      if (!askable) askable = this.getBatchAskable(inputs);
+      return unknownQuestionError(key, askable);
+    };
   }
 
   private isCompleted(): boolean {
@@ -808,16 +830,16 @@ function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [add
 }
 
 // The refusals of the call in the order the object carried the keys, whichever pass refused them. A
-// key that named nothing in any pass is unknownQuestion with the list of what may be written now -
-// after the writes, which may have revealed some and hidden others.
+// key that named nothing in any pass is refused by "getError", against the state after the writes,
+// which may have revealed some questions and hidden others.
 function getResolutionErrors(keys: Array<string>, refused: { [key: string]: IInterviewError },
-  unresolved: Array<string>, askable: Array<string>): Array<IInterviewError> {
+  unresolved: Array<string>, getError: (key: string) => IInterviewError): Array<IInterviewError> {
   const res: Array<IInterviewError> = [];
   keys.forEach(key => {
     if (!!refused[key]) {
       res.push(refused[key]);
     } else if (unresolved.indexOf(key) >= 0) {
-      res.push(unknownQuestionError(key, askable));
+      res.push(getError(key));
     }
   });
   return res;

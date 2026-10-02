@@ -653,3 +653,132 @@ describe("interview single-input mode (issue #11818)", () => {
     expect(iv.describe()).toContain("petAge: 55");
   });
 });
+
+// A case or whitespace variant of a choice is written as the choice's own value, the way an exact
+// match is: the model compares choices case-sensitively and untrimmed, and validating the question
+// would clear the raw variant behind the interview's back. Issue#11818
+describe("interview choice variants (issue #11818)", () => {
+  const CHOICE_TYPES = ["radiogroup", "dropdown", "checkbox"];
+  const MODES = ["single", "batch"];
+
+  function choiceJson(type: string, choices: Array<any>): any {
+    return { elements: [{ type: type, name: "q", choices: choices }, { type: "text", name: "next" }] };
+  }
+
+  // The array form for a checkbox, the plain value for the others.
+  function choiceValue(type: string, value: any): any {
+    return type === "checkbox" ? [value] : value;
+  }
+
+  async function answerChoice(json: any, mode: string, value: any): Promise<{ iv: IInterview, res: any }> {
+    const iv = await createInterview(json);
+    const res = mode === "single" ? await iv.answer(value) : await iv.answerAll({ q: value });
+    return { iv: iv, res: res };
+  }
+
+  async function checkVariant(variant: string): Promise<void> {
+    for (const type of CHOICE_TYPES) {
+      for (const mode of MODES) {
+        const label = type + ", " + mode + ", " + JSON.stringify(variant);
+        const json = choiceJson(type, ["Yes", "No"]);
+        const exact = await answerChoice(json, mode, choiceValue(type, "Yes"));
+        const res = await answerChoice(json, mode, choiceValue(type, variant));
+        expect(res.res.errors, label).toEqual([]);
+        expect(res.iv.data, label).toEqual({ q: choiceValue(type, "Yes") });
+        if (mode === "single") {
+          expect(res.res.current.name, label).toBe("next");
+        } else {
+          expect(res.iv.getBatchDocument().items.map(item => item.name), label).toEqual(["next"]);
+        }
+        expect(res.res, label + ": the same result as the exact match").toEqual(exact.res);
+      }
+    }
+  }
+
+  test("A case variant of a choice writes the choice's value, as an exact match does", async () => {
+    await checkVariant("yes");
+    await checkVariant("YES");
+  });
+
+  test("A whitespace variant of a choice writes the choice's value, as an exact match does", async () => {
+    await checkVariant(" Yes");
+    await checkVariant(" yes ");
+  });
+
+  test("A variant that matches several choices is refused with notAChoice and nothing is written", async () => {
+    for (const type of CHOICE_TYPES) {
+      for (const mode of MODES) {
+        const label = type + ", " + mode;
+        const res = await answerChoice(choiceJson(type, ["a", "A"]), mode, choiceValue(type, " a"));
+        expect(res.res.errors.map(error => ({ name: error.name, code: error.code })), label)
+          .toEqual([{ name: "q", code: InterviewErrorCodes.notAChoice }]);
+        expect(res.res.errors[0].message, label).toContain("\"a\", \"A\"");
+        expect(res.iv.data, label).toEqual({});
+      }
+    }
+  });
+
+  test("An exact match is written as sent, also among choices that differ only in case", async () => {
+    for (const type of CHOICE_TYPES) {
+      for (const mode of MODES) {
+        const label = type + ", " + mode;
+        const plain = await answerChoice(choiceJson(type, ["Yes", "No"]), mode, choiceValue(type, "No"));
+        expect(plain.res.errors, label).toEqual([]);
+        expect(plain.iv.data, label).toEqual({ q: choiceValue(type, "No") });
+        for (const value of ["a", "A"]) {
+          const res = await answerChoice(choiceJson(type, ["a", "A"]), mode, choiceValue(type, value));
+          expect(res.res.errors, label + ", " + value).toEqual([]);
+          expect(res.iv.data, label + ", " + value).toEqual({ q: choiceValue(type, value) });
+        }
+      }
+    }
+  });
+
+  test("Every element of a checkbox array is matched on its own", async () => {
+    const json = { elements: [{ type: "checkbox", name: "c", choices: ["Dog", "Cat", "Fish"] }] };
+    const single = await createInterview(json);
+    const res = await single.answer(["dog", " Cat", "Fish"]);
+    expect(res.errors).toEqual([]);
+    expect(single.data).toEqual({ c: ["Dog", "Cat", "Fish"] });
+    const batch = await createInterview(json);
+    const all = await batch.answerAll({ c: ["FISH", "dog "] });
+    expect(all.errors).toEqual([]);
+    expect(batch.data).toEqual({ c: ["Fish", "Dog"] });
+    // One element that matches nothing refuses the whole value.
+    const bad = await batch.answerAll({ c: ["cat", "Bird"] });
+    expect(bad.errors.map(error => error.code)).toEqual([InterviewErrorCodes.notAChoice]);
+    expect(batch.data).toEqual({ c: ["Fish", "Dog"] });
+  });
+
+  test("A choice sent twice in one array is selected once, whichever pass matched it", async () => {
+    const json = { elements: [{ type: "checkbox", name: "c", choices: ["Dog", "Cat"], minSelectedChoices: 2 }] };
+    for (const sent of [["dog", "Dog"], ["Dog", "dog"], ["Dog", "Dog"]]) {
+      const iv = await createInterview(json);
+      const res = await iv.answer(sent);
+      expect(iv.data, JSON.stringify(sent)).toEqual({ c: ["Dog"] });
+      // One distinct choice does not satisfy minSelectedChoices: 2.
+      expect(res.errors.length, JSON.stringify(sent)).toBe(1);
+      expect(res.current.name, JSON.stringify(sent)).toBe("c");
+    }
+  });
+
+  test("A rating matches a variant of its rateValues the same way", async () => {
+    const json = { elements: [{ type: "rating", name: "level", rateValues: ["low", "high"] }] };
+    const single = await createInterview(json);
+    expect((await single.answer("High")).errors).toEqual([]);
+    expect(single.data).toEqual({ level: "high" });
+    const batch = await createInterview(json);
+    expect((await batch.answerAll({ level: " LOW" })).errors).toEqual([]);
+    expect(batch.data).toEqual({ level: "low" });
+  });
+
+  test("A variant of a choice is written, not dropped by the model's check (B3)", async () => {
+    const iv = await createInterview({ elements: [
+      { type: "radiogroup", name: "r", choices: ["Yes", "No"] },
+      { type: "checkbox", name: "c", choices: ["Dog", "Cat"] }] });
+    const r = await iv.answer("yes");
+    expect(r.errors).toEqual([]);
+    expect(iv.data).toEqual({ r: "Yes" });
+    expect(r.current.name).toBe("c");
+  });
+});

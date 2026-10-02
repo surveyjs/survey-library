@@ -520,17 +520,17 @@ describe("interview nested elements in choice items (issue #11818)", () => {
     expect(writes).toEqual(["a", "b", "c"]);
   });
 
-  test("Batch mode: a key nothing reveals is unknownQuestion, listing what may be written after the call", async () => {
+  test("Batch mode: a choice question nothing reveals is notAskable; an unknown key lists what may be written after the call", async () => {
     const iv = await createInterview(petJson());
     const alone = await iv.answerAll({ petName: "Rex" });
     expect(alone.errors.length).toBe(1);
-    expect(alone.errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
+    expect(alone.errors[0].code).toBe(InterviewErrorCodes.notAskable);
     expect(alone.errors[0].name).toBe("petName");
     expect(iv.data).toEqual({});
 
     const no = await iv.answerAll({ hasPet: "No", petName: "Rex" });
     expect(no.errors.length).toBe(1);
-    expect(no.errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
+    expect(no.errors[0].code).toBe(InterviewErrorCodes.notAskable);
     expect(no.errors[0].name).toBe("petName");
     expect(iv.data).toEqual({ hasPet: "No" });
 

@@ -272,12 +272,13 @@ export function writeRecordsValue(container: Question, address: string, value: a
   return res;
 }
 
-// A single plain object is wrapped, by the array rule of tier 04. null, undefined and an empty list
-// write nothing and remove nothing: "clear it all" is a list of nulls.
+// null, undefined and an empty list write nothing and remove nothing: "clear it all" is a list of
+// nulls. A single plain object is not a list and is refused, not wrapped: wrapped it would patch
+// position 0 and overwrite the first entry with no error. The scalar rule of tier 04 (a scalar for an
+// array-valued question is wrapped) is about values, not entries.
 function toRecordList(value: any): Array<any> | undefined {
   if (value === undefined || value === null) return [];
   if (Array.isArray(value)) return value;
-  if (isPlainObject(value)) return [value];
   return undefined;
 }
 

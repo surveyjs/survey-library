@@ -665,8 +665,9 @@ export function prepareValue(item: IInterviewItem, address: string, value: any, 
     !Array.isArray(res.value)) {
     res.value = [res.value];
   }
-  const choicesError = checkChoices(item, address, res.value, stored);
-  if (!!choicesError) return { error: choicesError };
+  const matched = matchChoices(item, address, res.value, stored);
+  if (!!matched.error) return { error: matched.error };
+  res.value = matched.value;
   const numberError = checkNumber(item, address, res.value);
   if (!!numberError) return { error: numberError };
   return res;
@@ -688,23 +689,62 @@ export function isPlainObject(value: any): boolean {
 // A choice a choicesEnableIf turned off is refused as a new selection - a respondent cannot click it -
 // and accepted where the question already holds it: the UI keeps a checked item checked when it turns
 // off, so resending ["cat", "dog"] with "cat" stored and disabled is the same answer plus "dog".
-function checkChoices(item: IInterviewItem, address: string, value: any, stored: any): IInterviewError {
+//
+// Two passes per value, and the first that finds something wins. Exact: the comparison the model
+// makes when it clears an unknown value (ItemValue.getItemByValue - case kept, nothing trimmed), so
+// what passes here is never cleared later, and it is written as sent. Normalized, only when nothing
+// matched exactly: case ignored and whitespace trimmed, and the one choice that matches is written as
+// the choice's own value - the variant itself would be dropped by the model's next validation, with no
+// error to say so. A variant that matches several choices ("a" and "A") names none of them.
+function matchChoices(item: IInterviewItem, address: string, value: any, stored: any): IMatchedChoices {
   const choices = item.choices || item.rateValues;
-  if (!choices || item.choicesUnknown || Helpers.isValueEmpty(value)) return undefined;
+  if (!choices || item.choicesUnknown || Helpers.isValueEmpty(value)) return { value: value };
   const available = choices.filter(choice => choice.disabled !== true).map(choice => choice.value);
   const storedValues: Array<any> = Helpers.isValueEmpty(stored) ? [] : Array.isArray(stored) ? stored : [stored];
+  // A disabled choice the question already holds is as selectable as an enabled one.
+  const selectable = choices.filter(choice => choice.disabled !== true ||
+    storedValues.some(storedValue => isExactChoice(choice.value, storedValue)));
   const values: Array<any> = Array.isArray(value) ? value : [value];
+  const res: Array<any> = [];
+  // A choice sent twice - exactly, as two variants, or as both - is selected once: a duplicate would
+  // count twice against minSelectedChoices and maxSelectedChoices.
+  const add = (selected: any): void => {
+    if (!res.some(item => isExactChoice(item, selected))) res.push(selected);
+  };
   for (let i = 0; i < values.length; i++) {
-    if (containsValue(available, values[i])) continue;
-    const choice = choices.filter(described => Helpers.isTwoValueEquals(described.value, values[i]))[0];
-    if (!!choice && containsValue(storedValues, values[i])) continue;
-    return notAChoiceError(address, values[i], available, !!choice);
+    const element = values[i];
+    if (selectable.some(choice => isExactChoice(choice.value, element))) {
+      add(element);
+      continue;
+    }
+    if (choices.some(choice => isExactChoice(choice.value, element))) {
+      return { error: notAChoiceError(address, element, available, true) };
+    }
+    const matches = selectable.filter(choice => isNormalizedChoice(choice.value, element));
+    if (matches.length > 1) {
+      return { error: notAChoiceError(address, element, available, false, matches.map(choice => choice.value)) };
+    }
+    if (matches.length === 0) {
+      const isDisabled = choices.some(choice => isNormalizedChoice(choice.value, element));
+      return { error: notAChoiceError(address, element, available, isDisabled) };
+    }
+    add(matches[0].value);
   }
-  return undefined;
+  return { value: Array.isArray(value) ? res : res[0] };
 }
 
-function containsValue(values: Array<any>, value: any): boolean {
-  return values.some(item => Helpers.isTwoValueEquals(item, value));
+interface IMatchedChoices {
+  value?: any;
+  error?: IInterviewError;
+}
+
+function isExactChoice(choice: any, value: any): boolean {
+  return Helpers.isTwoValueEquals(choice, value, false, true, false);
+}
+
+function isNormalizedChoice(choice: any, value: any): boolean {
+  return typeof choice === "string" && typeof value === "string" &&
+    Helpers.isTwoValueEquals(choice, value, false, false, true);
 }
 
 function checkNumber(item: IInterviewItem, address: string, value: any): IInterviewError {

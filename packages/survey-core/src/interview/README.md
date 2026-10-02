@@ -175,9 +175,9 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | Code | Raised when |
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
-| `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. |
+| `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. In `answerAll()`, a key that names no question the survey has, or a visible one that is not an item; a hidden one is `notAskable`. |
 | `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
-| `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. |
+| `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
@@ -578,6 +578,17 @@ not have. A value outside the listed choices is `notAChoice`, a non-numeric stri
 `notANumber`, an action object where a value belongs is `badAction`; each writes nothing and comes
 back with its code and the same current item. A scalar answer to a question whose value is an array
 is **wrapped** silently — a voice consumer says "Dog" and means `["Dog"]`.
+
+A value is matched against the choices in two passes, and the first that finds something wins.
+**Exact** — case and spaces kept, the comparison the model itself makes when it clears an unknown
+value — writes the value as sent. **Normalized**, only when nothing matched exactly — case ignored,
+surrounding spaces trimmed — writes the one matching choice's own `value`: `"yes"` and `" Yes"` for the
+choice `"Yes"` write `"Yes"`, with no error and no notice, and the interview moves on as for an exact
+match. Writing the variant itself would have the model drop it on its next validation. A variant that
+matches several choices is `notAChoice`; with choices `"a"` and `"A"`, `"a"` and `"A"` are exact
+matches and are written as sent. The same rule applies to every element of an array and to a
+rating's `rateValues`. A choice sent twice in one array — `["dog", "Dog"]`, or `["Dog", "Dog"]` — is
+selected once, so it never counts twice against `minSelectedChoices` or `maxSelectedChoices`.
 
 An item that accepts a comment — the `other` choice, a comment area — takes the object form, and
 reports it back the same way:
@@ -1018,9 +1029,12 @@ order the object carries them in — a question inside the choice that key selec
 (`{ petName: "Rex", hasPet: "Yes" }`), a root that key's `visibleIf` shows
 (`{ from: "Rome", trip: "yes" }`). The keys that name nothing when the call starts are resolved again
 once the others were written, and written as a further pass, again in item order; that repeats while
-a pass writes something. A key that names nothing after the last pass is `unknownQuestion`, and its
-message lists the inputs there are **after** the writes. It is the rule a container already applies
-to its own fields, one level up.
+a pass writes something. A key still left after the last pass is refused against the state **after**
+the writes: a question the survey has and does not show now — hidden before the call or by an earlier
+key of it, or inside a choice that is not selected — is `notAskable` with the reason `hidden`, the
+answer a hidden field of a container gets at any depth; any other key is `unknownQuestion`, and its
+message lists the inputs there are after the writes. It is the rule a container already applies to
+its own fields, one level up.
 
 The writes are **sequential, and each answer is re-checked immediately before its own write** against
 the state its predecessors left behind: the item must still be visible and askable — an earlier write
@@ -1326,7 +1340,8 @@ items:
   entry's `fields`, a declaration in `template`. See [Nested containers](#nested-containers).
 
 **The value.** A list, whose positions are the `entries[].index` of the document the agent read. A
-single plain object is wrapped — `[obj]` — like any other array value; `null`, `undefined` and `[]`
+single plain object is not a list: it is refused with `badRecord` and nothing of the key is written —
+wrapped as `[obj]` it would patch position 0 and overwrite the first entry. `null`, `undefined` and `[]`
 for the whole key write nothing and remove nothing ("clear it all" is a list of `null`s), and a
 position the list does not reach, or an `undefined` in it, is left alone.
 
@@ -1513,7 +1528,7 @@ entries:
 
 **The value.** Inside a record, a key whose field is a container takes **that container's own value
 form** — a list by position for a dynamic one (an object patches, a position past the count adds,
-`null` removes, a single object is wrapped), an object of fields for a fixed-shape one, an object of
+`null` removes, a single object is `badRecord`), an object of fields for a fixed-shape one, an object of
 row objects for a matrix dropdown. It is the shape the value has in `data`, at every level:
 
 ```js

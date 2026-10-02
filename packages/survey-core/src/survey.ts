@@ -3161,6 +3161,7 @@ export class SurveyModel extends SurveyElementCore
   public set data(data: any) {
     this.valuesHash = {};
     this.setDataCore(data, !data);
+    this.checkTriggersOnSettingData();
   }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
@@ -3175,6 +3176,7 @@ export class SurveyModel extends SurveyElementCore
     const newData = this.data;
     this.mergeValues(data, newData);
     this.setDataCore(newData);
+    this.checkTriggersOnSettingData();
   }
   /**
    * Represents the current state of the survey UI.
@@ -4383,7 +4385,15 @@ export class SurveyModel extends SurveyElementCore
    * @see validatePage
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
-    return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+    return this.validateElements(this.getPagesToValidate(), fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+  }
+  // Pages after the page where a "complete" trigger completes the survey are never reached
+  private getPagesToValidate(): Array<PageModel> {
+    const pages = this.visiblePages;
+    const triggers = this.completedByTriggers || {};
+    const pageIds = Object.keys(triggers).map(key => triggers[key].pageId);
+    const index = pages.findIndex(page => pageIds.indexOf(page.id) > -1);
+    return index < 0 ? pages : pages.slice(0, index + 1);
   }
   private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     if (!!onAsyncValidation) {
@@ -6493,7 +6503,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private checkOnPageTriggers(isOnComplete: boolean) {
-    var questions = this.getCurrentPageQuestions(true);
+    this.checkTriggers(this.getTriggerKeys(this.getCurrentPageQuestions(true)), true, isOnComplete);
+  }
+  // Setting data doesn't run triggers, except ones that update the survey state without changing data
+  private checkTriggersOnSettingData(): void {
+    this.checkTriggers(this.getTriggerKeys(this.getAllQuestions()), false, false, false, undefined, true);
+  }
+  private getTriggerKeys(questions: Array<Question>): { [index: string]: any } {
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
@@ -6501,7 +6517,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true, isOnComplete);
+    return values;
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
@@ -6518,7 +6534,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private isTriggerIsRunning: boolean = false;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string, isOnSettingData: boolean = false): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       for (var k in key) {
@@ -6535,7 +6551,7 @@ export class SurveyModel extends SurveyElementCore
     this.triggerKeys = key;
     const properties = this.getFilteredProperties();
     const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-      keys: this.triggerKeys, properties: properties };
+      isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
     let originalKeys = Helpers.createCopy(this.triggerKeys);
     const maxIterations = 3;
     for (let i = 0; i < maxIterations; i++) {

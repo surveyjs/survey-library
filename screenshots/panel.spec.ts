@@ -21,7 +21,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             elements: [
               {
                 type: "radiogroup",
@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
             title: "Contact",
             minWidth: "780px",
             maxWidth: "780px",
-            width: "780px",
+            width: "804px",
             elements: [
               {
                 type: "text",
@@ -94,7 +94,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             state: "collapsed",
             elements: [
               {
@@ -136,7 +136,7 @@ frameworks.forEach(framework => {
             title: "Please answer",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             state: "collapsed",
             elements: [{ type: "text", name: "question", }] },
         ]
@@ -168,7 +168,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             visible: false,
             elements: [
               {
@@ -465,7 +465,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             elements: [
               {
                 type: "radiogroup",
@@ -502,7 +502,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             elements: [
               {
                 type: "radiogroup",
@@ -542,7 +542,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             elements: [
               {
                 type: "radiogroup",
@@ -579,7 +579,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             showNumber: true,
             elements: [
               {

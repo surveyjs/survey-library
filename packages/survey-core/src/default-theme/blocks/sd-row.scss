@@ -3,11 +3,8 @@
 .sd-row {
   display: flex;
   flex-direction: row;
-  width: 100%;
   box-sizing: border-box;
-}
 
-.sd-row--multiple {
   row-gap: var(--sjs2-spacing-x200);
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + var(--sd-base-padding));
@@ -23,7 +20,7 @@
 }
 
 .sd-panel:not(.sd-panel--as-page) {
-  .sd-row--multiple {
+  .sd-row {
     row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical);
     margin-left:  calc(var(--sjs2-layout-component-panel-content-area-gap-horizontal) * -1);
     width: calc(100% + var(--sjs2-layout-component-panel-content-area-gap-horizontal));
@@ -35,7 +32,7 @@
   }
 }
 
-.sd-page__row.sd-row--multiple {
+.sd-page__row {
   row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
   margin-left: calc(-1 * var(--sjs2-layout-component-page-content-area-gap-horizontal));
   width: calc(100% + var(--sjs2-layout-component-page-content-area-gap-horizontal));

@@ -211,6 +211,7 @@ frameworks.forEach((framework) => {
     });
 
     test("ranking: keyboard", async ({ page }) => {
+      await expect(page.locator(".sv-ranking-item").first()).toBeVisible();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowUp");

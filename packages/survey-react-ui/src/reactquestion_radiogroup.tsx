@@ -59,6 +59,9 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
   handleOnKeyDown = (event: any) => {
     this.question.onKeyDown?.(event);
   };
+  handleOnBlur = (event: any) => {
+    this.question.onChoiceFocusOut?.(event.nativeEvent);
+  };
   protected renderElementContent(): React.JSX.Element {
     return this.renderRadioButton();
   }
@@ -86,6 +89,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
             onKeyDown={this.handleOnKeyDown}
+            onBlur={this.handleOnBlur}
             aria-label={this.ariaLabel}
             aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
           />

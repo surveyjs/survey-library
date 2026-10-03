@@ -22,6 +22,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public getType(): string {
     return "radiogroup";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return true;
+  }
   supportElementsInChoice(): boolean { return true; }
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
@@ -55,6 +58,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   // Arrow keys change the selected value via the native radio group. Auto-advance
   // waits for Enter so keyboard users can review the choice before leaving the page.
   public onKeyDown(event: any): void {
+    this.onChoiceKeyDown(event);
     if (event.key !== "Enter" && event.keyCode !== 13) return;
     if (this.isEmpty() || this.isInputReadOnly) return;
     const survey = this.survey as SurveyModel;

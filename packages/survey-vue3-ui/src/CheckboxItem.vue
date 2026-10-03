@@ -10,6 +10,8 @@
             change(e);
           }
         "
+        @keydown="question.onChoiceKeyDown?.($event)"
+        @focusout="question.onChoiceFocusOut?.($event)"
         :value="item.value"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"

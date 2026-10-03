@@ -55,6 +55,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getType(): string {
     return "checkbox";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return true;
+  }
   protected getItemValueType() {
     return "checkboxitem";
   }
@@ -196,6 +199,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
     this.selectItem(item, checked);
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.clickItemHandler(item, !this.isItemSelected(item));
   }
   public selectItem(item: ItemValue, checked?: boolean): void {
     if (this.isReadOnlyAttr || !item) return;

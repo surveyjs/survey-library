@@ -63,6 +63,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
+    this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   protected getStateElement() {
     return this.item;
@@ -96,6 +98,12 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     return this.props.question;
   }
 
+  handleOnKeyDown(event: any) {
+    this.question.onChoiceKeyDown(event.nativeEvent);
+  }
+  handleOnBlur(event: any) {
+    this.question.onChoiceFocusOut(event.nativeEvent);
+  }
   handleOnChange(event: any) {
     if (this.question.isReadOnlyAttr) return;
     if (this.question.multiSelect) {
@@ -196,6 +204,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            onKeyDown={this.handleOnKeyDown}
+            onBlur={this.handleOnBlur}
             required={this.question.inputRequiredAttribute}
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}

@@ -14,8 +14,8 @@ import {
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).dynamicData.getPageState();
-const setPageState = (q: Question, state: IDynamicDataPageState): void => { (<any>q).dynamicData.setPageState(state); };
+const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
+const setPageState = (q: Question, state: IDynamicDataPageState): void => { (<any>q).setPageState(state); };
 
 /* With paging on, the panels and rows that exist are the current page, for an in-memory list as for
    a data source that pages itself. */
@@ -1559,7 +1559,7 @@ describe("Page window: the nested page states a rebuilt panel keeps", () => {
     expect(panelIds(question), "#1").toEqual(range(0, 4));
     question.sortOrder = [{ field: "id", direction: "desc" }];
     expect(panelIds(question), "#2: the panels were rebuilt").toEqual([4, 3, 2, 1, 0]);
-    expect((<any>question).dynamicData._pageValidation, "#3: no page validation was created").toBeUndefined();
+    expect((<any>question)._pageValidation, "#3: no page validation was created").toBeUndefined();
   });
   test("a record whose nested question stopped paging drops the state it had", () => {
     const survey = new SurveyModel({

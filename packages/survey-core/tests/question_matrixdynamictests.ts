@@ -11419,7 +11419,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", valueName: "shared" }] });
     expect(matrix.columns[0].sortField, "#1: without a valueName it is the name").toBe("c1");
     expect(matrix.columns[1].sortField, "#2: with one it is the key the cell writes").toBe("shared");
-    expect((<any>matrix).dynamicData.getFields().some(f => f.name === "shared"), "#3: and that is the field the list knows").toBe(true);
+    expect((<any>matrix).getFields().some(f => f.name === "shared"), "#3: and that is the field the list knows").toBe(true);
   });
   test("the fields of the columns: typed values, a comment, and the key the other text is stored under", () => {
     const matrix = createMatrix({ rowCount: 0, columns: [
@@ -11429,7 +11429,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
       { name: "pick", cellType: "dropdown", choices: [1, 2], showOtherItem: true },
       { name: "both", cellType: "dropdown", choices: [1, 2], showOtherItem: true, showCommentArea: true }
     ] });
-    expect((<any>matrix).dynamicData.getFields()).toEqual([
+    expect((<any>matrix).getFields()).toEqual([
       { name: "c1", dataType: "any" },
       { name: "num", dataType: "number" },
       { name: "flag", dataType: "boolean" },

@@ -168,5 +168,50 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error a hook
   const pd6: DeclaredKeys<QuestionPanelDynamicModel> = "getFields";
   res.push(md1, md2, md3, md4, md5, md6, pd1, pd2, pd3, pd4, pd5, pd6);
+
+  // The coordination between a question and its record list is not public on any of them.
+  // @ts-expect-error the record list coordination
+  const ddCoord1: DeclaredKeys<QuestionMatrixDropdownModel> = "onDataListChanged";
+  // @ts-expect-error the record list coordination
+  const ddCoord2: DeclaredKeys<QuestionMatrixDropdownModel> = "assignDataSource";
+  // @ts-expect-error the record list coordination
+  const ddCoord3: DeclaredKeys<QuestionMatrixDropdownModel> = "canWriteRecords";
+  // @ts-expect-error the record list coordination
+  const ddCoord4: DeclaredKeys<QuestionMatrixDropdownModel> = "validateOffPage";
+  // @ts-expect-error the record list coordination
+  const ddCoord5: DeclaredKeys<QuestionMatrixDropdownModel> = "isPageStale";
+  // @ts-expect-error the record list coordination
+  const ddCoord6: DeclaredKeys<QuestionMatrixDropdownModel> = "beginValueAssignment";
+  // @ts-expect-error the record list coordination
+  const ddCoord7: DeclaredKeys<QuestionMatrixDropdownModel> = "helperOwner";
+  // @ts-expect-error the record list coordination
+  const mdCoord1: DeclaredKeys<QuestionMatrixDynamicModel> = "onDataListChanged";
+  // @ts-expect-error the record list coordination
+  const mdCoord2: DeclaredKeys<QuestionMatrixDynamicModel> = "assignDataSource";
+  // @ts-expect-error the record list coordination
+  const mdCoord3: DeclaredKeys<QuestionMatrixDynamicModel> = "canWriteRecords";
+  // @ts-expect-error the record list coordination
+  const mdCoord4: DeclaredKeys<QuestionMatrixDynamicModel> = "validateOffPage";
+  // @ts-expect-error the record list coordination
+  const mdCoord5: DeclaredKeys<QuestionMatrixDynamicModel> = "isPageStale";
+  // @ts-expect-error the record list coordination
+  const mdCoord6: DeclaredKeys<QuestionMatrixDynamicModel> = "beginValueAssignment";
+  // @ts-expect-error the record list coordination
+  const mdCoord7: DeclaredKeys<QuestionMatrixDynamicModel> = "helperOwner";
+  // @ts-expect-error the record list coordination
+  const pdCoord1: DeclaredKeys<QuestionPanelDynamicModel> = "onDataListChanged";
+  // @ts-expect-error the record list coordination
+  const pdCoord2: DeclaredKeys<QuestionPanelDynamicModel> = "assignDataSource";
+  // @ts-expect-error the record list coordination
+  const pdCoord3: DeclaredKeys<QuestionPanelDynamicModel> = "canWriteRecords";
+  // @ts-expect-error the record list coordination
+  const pdCoord4: DeclaredKeys<QuestionPanelDynamicModel> = "validateOffPage";
+  // @ts-expect-error the record list coordination
+  const pdCoord5: DeclaredKeys<QuestionPanelDynamicModel> = "isPageStale";
+  // @ts-expect-error the record list coordination
+  const pdCoord6: DeclaredKeys<QuestionPanelDynamicModel> = "beginValueAssignment";
+  // @ts-expect-error the record list coordination
+  const pdCoord7: DeclaredKeys<QuestionPanelDynamicModel> = "helperOwner";
+  res.push(ddCoord1, ddCoord2, ddCoord3, ddCoord4, ddCoord5, ddCoord6, ddCoord7, mdCoord1, mdCoord2, mdCoord3, mdCoord4, mdCoord5, mdCoord6, mdCoord7, pdCoord1, pdCoord2, pdCoord3, pdCoord4, pdCoord5, pdCoord6, pdCoord7);
   return res;
 }

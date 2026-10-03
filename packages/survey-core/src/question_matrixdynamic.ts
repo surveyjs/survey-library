@@ -129,7 +129,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
   public set dataSource(val: IDynamicDataSource) {
-    this.dynamicData.assignSource(val);
+    this.assignDataSource(val);
     // The capabilities of the new source decide whether the cells are editable and whether the
     // add/remove buttons are shown: the cells read isMatrixReadOnly() through their readOnlyCallback
     // and need the reactive refresh that an ordinary read-only change would give them.
@@ -145,8 +145,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     super.storeLoadedRecords();
     this.rowCountValue = this.dataList.count;
   }
-  // IDynamicDataQuestionHooks: the rows' side of a list change, see
-  // DynamicDataQuestionController.onDataListChanged.
+  // QuestionRecordsModel hook: the rows' side of a list change, see
+  // QuestionRecordsModel.onDataListChanged.
   protected rebuildFromDataList(): void {
     this.rebuildRowsFromDataList();
   }
@@ -187,7 +187,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const hasRows = !!this.generatedVisibleRows;
     // The page is a slice of the visible records: their visibility is decided before it is cut.
     if (hasRows && !!this.data) {
-      this.dynamicData.updateRecordsVisibility(this.getDataFilteredProperties());
+      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
     }
     if (hasRows) {
       this.clearGeneratedRows();
@@ -211,7 +211,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // internal: single-input mode reads every row, and nothing tells the list that it became active.
   public syncPageSizeWithMode(): void {
-    this.dynamicData.syncListPageSize();
+    this.syncListPageSize();
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
@@ -251,10 +251,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get pageSize(): number { return this.rowsPerPage; }
   public set pageSize(val: number) { this.rowsPerPage = val; }
   // A zero-based page index; always 0 while paging is off.
-  public get pageIndex(): number { return this.dynamicData.pageIndex; }
+  public get pageIndex(): number { return this.reportedPageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   // The number of pages; 1 for an empty question and for one that does not page.
-  public get pageCount(): number { return this.dynamicData.pageCount; }
+  public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: rowCount is then the number of rows
      known to exist - a lower bound - and pageCount the number of pages found so far. Every source
      that hands over the whole table leaves it true. */
@@ -308,11 +308,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.pagerActionsValue;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.dynamicData.isPageMovePending; }
+  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
   // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
   // moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
-    return super.validateElementCore(context) && this.dynamicData.validateOffPage(context);
+    return super.validateElementCore(context) && this.validateOffPage(context);
   }
   /* rowCount, not a write, decides how many records the list reads: the window is question.value
      padded up to it. The records that appear join the view - an added record always does - and the
@@ -341,7 +341,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const len = Array.isArray(val) ? val.length : 0;
     return Math.max(len, this.rowCount);
   }
-  /* IDynamicDataQuestionHooks: one record of getListRecords() without composing the array: a padded
+  /* QuestionRecordsModel hook: one record of getListRecords() without composing the array: a padded
      record is the default row value. For the loops over the records by index. A data source's window
      is the list's to answer, and so is a write in progress: inside list.batch() the writes sit in the
      source's batch array and question.value does not have them yet. */
@@ -593,7 +593,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       // One source.remove; question.value and rowCount follow through the recordRemoved notification.
       const pageIndex = list.pageIndex;
       list.remove(index);
-      this.dynamicData.refillPageAfterRemove(pageIndex);
+      this.refillPageAfterRemove(pageIndex);
       this.onRowsChanged();
       return;
     }
@@ -817,12 +817,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get isRowsDragAndDrop(): boolean {
     // Under a sort the row order is the sort's: dragging a row would say nothing about where the
     // record goes. A data source without a move method cannot be told about a reorder either.
-    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.dynamicData.canWrite("move");
+    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.canWriteRecords("move");
   }
   // One hook for the whole matrix, not one per cell: the cell questions read it through
   // data.isMatrixReadOnly() (parentIsReadOnly).
   public isMatrixReadOnly(): boolean {
-    return super.isMatrixReadOnly() || !this.dynamicData.canWrite("update");
+    return super.isMatrixReadOnly() || !this.canWriteRecords("update");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
   /* Enables the header-click sort the UI series will add; a column opts out with
@@ -929,7 +929,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get canAddRow(): boolean {
     return (
       this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
-      this.dynamicData.canWrite("insert") && this.rowCount < this.rowCountLimit
+      this.canWriteRecords("insert") && this.rowCount < this.rowCountLimit
     );
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
@@ -952,7 +952,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.allowRemoveRows &&
       !this.isReadOnly &&
       !this.hasRowCountExpression &&
-      this.dynamicData.canWrite("remove") &&
+      this.canWriteRecords("remove") &&
       this.rowCount > this.minRowCount;
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
@@ -969,7 +969,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      its validators are asynchronous. */
   public addRowUI(): void {
     if (this.isAddLeavingPage()) {
-      this.dynamicData.leavePage(true, (): void => { this.addRow(true); });
+      this.leavePage(true, (): void => { this.addRow(true); });
       return;
     }
     this.addRow(true);
@@ -989,10 +989,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // A record the view does not show (rowsVisibleIf hides it) has no page: the page stays.
   private showPageOfRecord(recordIndex: number): void {
     if (recordIndex < 0) return;
-    this.dynamicData.markRecordEdited(recordIndex);
+    this.markRecordEdited(recordIndex);
     const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
     if (visibleIndex < 0) return;
-    this.dynamicData.showPageOfVisibleIndex(visibleIndex);
+    this.showPageOfVisibleIndex(visibleIndex);
   }
   private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
     if (!row.isVisible) return null;
@@ -1241,7 +1241,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
          row focused above goes with it: the position is focused once more after that rebuild. A
          refill that completed inside the removal needs nothing - the rows above are already the
          rebuilt ones. */
-      this.dynamicData.keepFocusIndexForRead(value);
+      this.keepFocusIndexForRead(value);
     });
   }
   private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
@@ -1346,7 +1346,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.isRowChanging = false;
       }
     }
-    this.dynamicData.refillPageAfterRemove(pageIndex);
+    this.refillPageAfterRemove(pageIndex);
     this.onRowsChanged();
     if (this.survey) {
       this.matrixCallbacks.matrixRowRemoved(this, index, row);

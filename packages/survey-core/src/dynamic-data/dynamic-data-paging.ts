@@ -7,16 +7,16 @@ import { DynamicDataList } from "./dynamic-data-list";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
-   questions keep the thin public accessors. Its owner is the question's DynamicDataQuestionController,
-   which answers from the question's property hash and hooks, so the paging owner members are not
-   part of any question's public type.
+   questions keep the thin public accessors. Its owner is a private object of the question
+   (QuestionRecordsModel), which answers from the question's property hash and hooks, so the paging
+   owner members are not part of any question's public type.
 
    The division of labour is the one every helper of this library follows: the list computes, the
    question stores. pageIndex, pageCount, sortOrder and filterExpression are mirrored into the
    owner's property hash by syncState(), so that React/Vue/Angular re-render through the ordinary
    onPropertyChanged bridge; the accessors read the mirror and never the list. Every change the list
    makes on its own - a clamped page index, a filter it refused to run - reaches the mirror through
-   DynamicDataQuestionController.onDataListChanged, which has the question call syncState() for a
+   QuestionRecordsModel.onDataListChanged, which calls syncState() for a
    "reset" and a "pageChanged".
 
    The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not

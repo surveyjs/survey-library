@@ -16,7 +16,7 @@ import {
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).dynamicData.getPageState();
+const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
 
 class Deferred {
   public promise: Promise<any>;

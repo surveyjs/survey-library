@@ -24,9 +24,8 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordsModel } from "./question_records";
+import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule } from "./dynamic-data/dynamic-data-question-controller";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export interface IMatrixDuplicationEntry {
@@ -2563,8 +2562,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  // IDynamicDataQuestionHooks in matrix terms. A matrix with fixed rows creates no record list, so the
-  // controller calls them for the dynamic matrix only.
+  // The QuestionRecordsModel hooks in matrix terms. A matrix with fixed rows creates no record list, so
+  // they are called for the dynamic matrix only.
   protected getFields(): Array<IDynamicDataField> {
     const questions = new Array<Question>();
     this.columns.forEach(column => {
@@ -2572,7 +2571,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         questions.push(column.templateQuestion);
       }
     });
-    const res = this.dynamicData.getFieldsOfQuestions(questions);
+    const res = this.getFieldsOfQuestions(questions);
     questions.forEach(q => {
       // storeOthersAsComment writes the "other" text into the comment key of the same record.
       if (!q.hasComment && (<any>q).hasOther === true) {
@@ -2609,13 +2608,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
       (item: DynamicRecordItem): IValueGetterContext => new MatrixRowGetterContext(<any>item));
   }
-  /* IDynamicDataQuestionHooks: every unique column, keyName included. Every record takes part,
+  /* QuestionRecordsModel hook: every unique column, keyName included. Every record takes part,
      owner-hidden ones included, as it does without paging, and strings compare as the on-page check
      compares them; the error goes on the later visible record of a pair, on its page. */
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true };
   }
-  /* IDynamicDataQuestionHooks: rowsVisibleIf under paging, evaluated over every record with a
+  /* QuestionRecordsModel hook: rowsVisibleIf under paging, evaluated over every record with a
      value-only context - {row.x} is the record's field, {rowIndex} its number - in the run's own
      properties. A row that is built runs no rowsVisibleIf of its own (getRowsVisibleIfForRows), so
      the two cannot disagree. Limitation: an expression cell the condition reads contributes its
@@ -2627,8 +2626,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     };
   }
   /* Not supported yet: a matrix that is not dynamic creates no record list - its keyed answer has no
-     record array, and it has no paging property - so the controller never calls these. Reaching one
-     is a defect. The dynamic matrix answers them. */
+     record array, and it has no paging property - so QuestionRecordsModel never calls these.
+     Reaching one is a defect. The dynamic matrix answers them. */
   protected getListRecords(): Array<any> {
     throw new Error("getListRecords: a matrix without a record list has no records to read");
   }

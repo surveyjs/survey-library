@@ -10,8 +10,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
    at the points that need it and coordinate every value assignment and their disposal with it. */
 
 function hasNoRecordList(q: any): boolean {
-  const controller = q.dynamicData;
-  return controller === undefined || controller.listValue === undefined;
+  return q._dataList === undefined && q._paging === undefined && q._pageValidation === undefined;
 }
 
 describe("Records question: fixed matrix", () => {
@@ -109,7 +108,7 @@ describe("Records question: fixed matrix", () => {
     survey.data = { outer: [{ id: 0, paged: [{ a: "0" }, { a: "1" }, { a: "2" }] }, { id: 1 }] };
     const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
     const questionOf = (name: string): any => outer.panels[0].getQuestionByName(name);
-    const getPageState = (q: any): any => q.dynamicData.getPageState();
+    const getPageState = (q: any): any => q.getPageState();
     const paged = <QuestionMatrixDynamicModel>questionOf("paged");
     const fixed = <QuestionMatrixDropdownModel>questionOf("fixed");
     paged.pageIndex = 1;
@@ -136,12 +135,12 @@ describe("Records question: lazy list allocation", () => {
     panel.template.addNewQuestion("text", "a");
     panel.value = [{ a: 1 }, { a: 2 }];
     // setPanelCountBasedOnValue reads the record count through the list.
-    expect((<any>panel).dynamicData.listValue, "#1: the dynamic panel has created its list").toBeDefined();
+    expect((<any>panel).dataListValue, "#1: the dynamic panel has created its list").toBeDefined();
 
     const matrix = new QuestionMatrixDynamicModel("m");
     matrix.addColumn("a");
     matrix.value = [{ a: 1 }, { a: 2 }];
-    expect((<any>matrix).dynamicData.listValue, "#2: the dynamic matrix has not").toBeUndefined();
+    expect((<any>matrix).dataListValue, "#2: the dynamic matrix has not").toBeUndefined();
   });
 });
 
@@ -152,14 +151,13 @@ describe("Records question: value assignment", () => {
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the page is built").toBe(2);
-    expect((<any>q).dynamicData.listValue, "the list exists").toBeDefined();
+    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     return q;
   }
   test("matrix: one list-side pair per assignment, and the rows get their values inside it", () => {
     const q = createPagedMatrix();
-    const controller = (<any>q).dynamicData;
-    const begin = vi.spyOn(controller, "beginValueAssignment");
-    const end = vi.spyOn(controller, "endValueAssignment");
+    const begin = vi.spyOn(<any>q, "beginValueAssignment");
+    const end = vi.spyOn(<any>q, "endValueAssignment");
     const onSet = vi.spyOn(<any>q, "onSetQuestionValue");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
     expect(begin, "#1").toHaveBeenCalledTimes(1);
@@ -174,10 +172,9 @@ describe("Records question: value assignment", () => {
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }];
-    expect((<any>q).dynamicData.listValue, "the list exists").toBeDefined();
-    const controller = (<any>q).dynamicData;
-    const begin = vi.spyOn(controller, "beginValueAssignment");
-    const end = vi.spyOn(controller, "endValueAssignment");
+    expect((<any>q).dataListValue, "the list exists").toBeDefined();
+    const begin = vi.spyOn(<any>q, "beginValueAssignment");
+    const end = vi.spyOn(<any>q, "endValueAssignment");
     const setCount = vi.spyOn(<any>q, "setPanelCountBasedOnValue");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
     expect(begin, "#1").toHaveBeenCalledTimes(1);
@@ -189,9 +186,8 @@ describe("Records question: value assignment", () => {
   });
   test("an assignment made from inside another one runs a complete pair of its own", () => {
     const q = createPagedMatrix();
-    const controller = (<any>q).dynamicData;
-    const begin = vi.spyOn(controller, "beginValueAssignment");
-    const end = vi.spyOn(controller, "endValueAssignment");
+    const begin = vi.spyOn(<any>q, "beginValueAssignment");
+    const end = vi.spyOn(<any>q, "endValueAssignment");
     let isReassigned = false;
     q.valueChangedCallback = (): void => {
       if (isReassigned) return;
@@ -217,7 +213,7 @@ describe("Records question: dispose", () => {
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the rows are built").toBe(2);
-    const list = (<any>q).dynamicData.listValue;
+    const list = (<any>q).dataListValue;
     expect(list, "the list exists").toBeDefined();
     const listDispose = vi.spyOn(list, "dispose");
     const clearRows = vi.spyOn(<any>q, "clearGeneratedRows");
@@ -233,7 +229,7 @@ describe("Records question: dispose", () => {
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    const list = (<any>q).dynamicData.listValue;
+    const list = (<any>q).dataListValue;
     expect(list, "the list exists").toBeDefined();
     const listDispose = vi.spyOn(list, "dispose");
     const templateDispose = vi.spyOn(q.template, "dispose");

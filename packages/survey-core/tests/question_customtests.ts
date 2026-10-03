@@ -2906,6 +2906,25 @@ describe("custom questions", () => {
     expect(json.showOtherItem, "json.showOtherItem").toBe(true);
 
   });
+  test("single component, text: inheritBaseProps: true, toJSON with maskSettings, Bug#11930", () => {
+    ComponentCollection.Instance.add({
+      name: "customtext",
+      inheritBaseProps: true,
+      questionJSON: {
+        type: "text"
+      },
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "customtext", name: "q1" },
+        { type: "customtext", name: "q2", maskType: "numeric", maskSettings: { decimalSeparator: "," } }
+      ]
+    });
+    expect(survey.toJSON().pages[0].elements, "survey.toJSON() works").toEqual([
+      { type: "customtext", name: "q1" },
+      { type: "customtext", name: "q2", maskType: "numeric", maskSettings: { decimalSeparator: "," } }
+    ]);
+  });
   test("single component, file: inheritBaseProps: true, Bug #8757", () => {
     ComponentCollection.Instance.add({
       name: "customfile",

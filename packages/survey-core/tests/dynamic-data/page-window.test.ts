@@ -587,6 +587,45 @@ describe("Page window: records without an object", () => {
     expect(mdisplay[3].color, "#4: the matrix, a row").toBe("blue");
     expect(mdisplay[73].color, "#5: the column's templateQuestion").toBe("blue");
   });
+  const titledChoices = [{ value: 1, text: "red" }, { value: 2, text: "blue" }];
+  const titledRecords = (): Array<any> => records(4, (i: number) => ({ id: i, color: i % 2 + 1, note: "n" + i }));
+  test("paged matrix: a record without a row shows its column titles as keys", () => {
+    const matrix = createMatrix({ rowsPerPage: 2, columns: [{ name: "id", cellType: "text" },
+      { name: "color", title: "Color", cellType: "dropdown", choices: titledChoices }] }, titledRecords());
+    matrix.visibleRows;
+    const display = matrix.getDisplayValue(true);
+    expect(display[0], "#1: a record on the page, through its row").toEqual({ id: 0, Color: "red", note: "n0" });
+    expect(display[3], "#2: a record without a row, through the column").toEqual({ id: 3, Color: "blue", note: "n3" });
+    expect(Object.keys(display[3]), "#3: the renamed key goes last, a key without a column keeps its place").toEqual(["id", "note", "Color"]);
+    expect(matrix.getDisplayValue(false)[3], "#4: without keysAsText the keys stay").toEqual({ id: 3, color: "blue", note: "n3" });
+  });
+  test("paged panel: a record without a panel shows its question titles as keys", () => {
+    const question = createPanel({ panelsPerPage: 2, templateElements: [{ type: "text", name: "id" },
+      { type: "dropdown", name: "color", title: "Color", choices: titledChoices }] }, titledRecords());
+    question.panels;
+    const display = question.getDisplayValue(true);
+    expect(display[0], "#1: a record on the page, through its panel").toEqual({ id: 0, Color: "red", note: "n0" });
+    expect(display[3], "#2: a record without a panel, through the template").toEqual({ id: 3, Color: "blue", note: "n3" });
+    expect(Object.keys(display[3]), "#3: the renamed key goes last, a key without a question keeps its place").toEqual(["id", "note", "Color"]);
+    expect(question.getDisplayValue(false)[3], "#4: without keysAsText the keys stay").toEqual({ id: 3, color: "blue", note: "n3" });
+  });
+  test("paged panel: a record without a panel reads a key the template lacks through the question that shares its value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "A", valueName: "rec", panelsPerPage: 2, templateElements: [{ type: "text", name: "id" }] },
+        { type: "paneldynamic", name: "B", valueName: "rec",
+          templateElements: [{ type: "text", name: "id" }, { type: "dropdown", name: "color", choices: titledChoices }] }
+      ]
+    });
+    survey.data = { rec: records(4, (i: number) => ({ id: i, color: i % 2 + 1 })) };
+    const a = <QuestionPanelDynamicModel>survey.getQuestionByName("A");
+    const b = <QuestionPanelDynamicModel>survey.getQuestionByName("B");
+    a.panels;
+    expect(b.panels.length, "#1: B does not page").toBe(4);
+    const display = a.getDisplayValue(false);
+    expect(display[0], "#2: a record on A's page").toEqual({ id: 0, color: "red" });
+    expect(display[3], "#3: a record without a panel in A, through B's question for that record").toEqual({ id: 3, color: "blue" });
+  });
   test("(k) the recorded gap: getPlainData covers the current page only", () => {
     const question = createPanel({ panelsPerPage: 20 }, records(100));
     expect(question.getPlainData().data.length, "#1: the page, not the 100 records").toBe(20);

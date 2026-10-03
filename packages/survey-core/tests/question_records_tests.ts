@@ -89,6 +89,22 @@ describe("Records question: fixed matrix", () => {
     expect(q.getProgressInfo(), "#5: three visible rows of two cells").toEqual({ questionCount: 6, answeredQuestionCount: 3, requiredQuestionCount: 3, requiredAnsweredQuestionCount: 2 });
     expect(hasNoRecordList(q), "#6").toBe(true);
   });
+  test("fixed matrix: a matrix without paging answers page 0 of 1 and creates no record list", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "q", rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }]
+    });
+    const q = <QuestionMatrixDropdownModel>survey.getQuestionByName("q");
+    expect(q.visibleRows.length, "#1: every row").toBe(3);
+    expect(q.pageIndex, "#2: page 0").toBe(0);
+    expect(q.pageCount, "#3: of 1").toBe(1);
+    expect(q.pageSize, "#4: no paging").toBe(0);
+    expect(q.canGoNextPage, "#5: nothing to move to").toBe(false);
+    expect(q.nextPage(), "#6: the move does not happen").toBe(false);
+    expect(q.pageIndex, "#7: still page 0").toBe(0);
+    expect(q.sortBy, "#8: no sort").toBe("");
+    expect(q.filterExpression, "#9: no filter").toBe("");
+    expect((<any>q).dataListValue, "#10: no record list").toBeUndefined();
+  });
   /* The panel keeps the page states of the questions nested in its records while it rebuilds its
      panels (the matrix that pages: page-window.test.ts). The fixed matrix next to it is walked as
      well and has none. */

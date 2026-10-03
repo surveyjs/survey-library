@@ -40,7 +40,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataField, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -287,8 +287,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   private get isValidatingExpressions(): boolean {
     return !this.useTemplatePanel && this.template.data instanceof QuestionPanelDynamicItem;
   }
-  public get isCompositeQuestion(): boolean { return true; }
-  public get isContainer(): boolean { return true; }
   public getFirstQuestionToFocus(withError: boolean): Question {
     const panels = this.currentPanel ? [this.currentPanel] : this.visiblePanelsCore;
     for (let panel of panels) {
@@ -360,10 +358,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   protected setListRecords(records: Array<any>): void {
     this.value = records;
   }
-  // internal, for tests and renderers
-  public getDataList(): DynamicDataList {
-    return this.dataList;
-  }
   /**
    * A data source that supplies the panel records. Assign an object that implements `IDynamicDataSource` to read the records from a server: the question then shows one loaded page at a time and pushes every edit, insertion and deletion to the source.
    *
@@ -371,10 +365,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
    * @since 3.1.0
    */
   public get dataSource(): IDynamicDataSource {
-    return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
+    return this.getDataSource();
   }
   public set dataSource(val: IDynamicDataSource) {
-    this.assignDataSource(val);
+    this.setDataSource(val);
     // The capabilities of the new source decide whether the panels are editable and whether the
     // add/remove buttons are shown.
     this.updatePanelsReadOnly();
@@ -450,71 +444,31 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     if (this.isSingleInputActive) return 0;
     if (this.displayMode === "carousel") return 1;
     // settings.panel.maxPanelCount is the number of panels one page may hold.
-    return Math.min(this.panelsPerPage, settings.panel.maxPanelCount);
+    return Math.min(this.pageSize, settings.panel.maxPanelCount);
   }
   /* The number of panels on one page, 0 = no paging. In list mode the page is what is shown; in tab
      mode it is the tabs of one page, of which one panel is shown; a carousel ignores it and pages one
      panel at a time. */
   public get panelsPerPage(): number {
-    return this.getPropertyValue("panelsPerPage");
+    return this.pageSize;
   }
   public set panelsPerPage(val: number) {
-    this.paging.setPageSize("panelsPerPage", val);
+    this.pageSize = val;
+  }
+  protected getPageSizePropertyName(): string {
+    return "panelsPerPage";
+  }
+  protected onPageSizeAssigned(): void {
     this.updateRenderedPanels();
   }
-  public get pageSize(): number { return this.panelsPerPage; }
-  public set pageSize(val: number) { this.panelsPerPage = val; }
-  // A zero-based page index; always 0 while paging is off.
-  public get pageIndex(): number { return this.reportedPageIndex; }
-  public set pageIndex(val: number) { this.paging.pageIndex = val; }
-  // The number of pages; 1 for an empty question and for one that does not page.
-  public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: panelCount is then the number of
-     records known to exist - a lower bound - and pageCount the number of pages found so far. Every
-     source that hands over the whole storage leaves it true. */
-  public get isPanelCountKnown(): boolean { return this.paging.isCountKnown; }
-  // The name both dynamic questions share, as pageSize is for panelsPerPage.
-  public get isCountKnown(): boolean { return this.isPanelCountKnown; }
-  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
-  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
-  /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
-     found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */
-  public goToPage(index: number): boolean { return this.paging.goToPage(index); }
-  public nextPage(): boolean { return this.paging.nextPage(); }
-  public prevPage(): boolean { return this.paging.prevPage(); }
-  /* The sort the panels are displayed in: { field, direction } descriptors applied in array order,
-     an empty array = no sort. It never reorders the question value. */
-  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
-  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
-  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
-     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
-     so a sort made at runtime changes what toJSON() emits. */
-  public get sortBy(): string { return this.paging.sortBy; }
-  public set sortBy(val: string) { this.paging.sortBy = val; }
-  /* The header-click cycle for one field: ascending, then descending, then not sorted. With
-     addToSort the field is cycled inside the current sort instead of replacing it. */
-  public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
-  public clearSort(): void { this.paging.clearSort(); }
-  /* A survey expression over the panel values - the same language as visibleIf, with the record
-     fields as its variables. A record that does not satisfy it gets no panel; the question value
-     keeps every record. An empty string = no filter. */
-  public get filterExpression(): string { return this.paging.filterExpression; }
-  public set filterExpression(val: string) { this.paging.filterExpression = val; }
-  public refreshView(): void { this.paging.refreshView(); }
-  // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+     records known to exist - a lower bound (see isCountKnown). */
+  public get isPanelCountKnown(): boolean { return this.isCountKnown; }
   // Panels that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
   protected validatePageObjects(context: ValidationContext): boolean {
     if (!this.hasPanelBuildFirstTime) return true;
     return this.validateInPanels(context);
-  }
-  private pagerActionsValue: ActionContainer;
-  public get pagerActions(): ActionContainer {
-    if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
-    }
-    return this.pagerActionsValue;
   }
   /* A full rebuild: the panels are re-created for the records the view - under paging, the page -
      now holds. It costs the per-panel state - collapsed/expanded state, panel errors, question
@@ -580,10 +534,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     this.fireCallback(this.panelCountChangedCallback);
     this.updateTabbedMenuItems();
     this.disposePanels(oldPanels);
-  }
-  // internal: single-input mode reads every panel, and nothing tells the list that it became active.
-  public syncPageSizeWithMode(): void {
-    this.syncListPageSize();
   }
   private isRebuildingPanels: boolean;
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
@@ -746,9 +696,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
       panel.clearOnDeletingContainer();
     });
   }
-  public get isAllowTitleLeft(): boolean {
-    return false;
-  }
   public removeElement(element: IElement): boolean {
     return this.template.removeElement(element);
   }
@@ -780,9 +727,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     return this.template.elements;
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
-    // accessor instead of looking for a hash entry that will never be there.
-    return name !== "templateElements" && name !== "sortBy" && super.isPropertyStoredInHash(name);
+    return name !== "templateElements" && super.isPropertyStoredInHash(name);
   }
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
@@ -1670,15 +1615,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
    * @see allowAddPanel
    */
   @property({ onSetting: (val: number) => val <= 0 ? 1 : val }) maxPanelCount: number;
-  /* internal: the limit panelCount is checked against. settings.panel.maxPanelCount is the number of
-     panels one page may hold: without paging every panel is on the one page, so it limits the total
-     as well; with paging it limits the page size only (listPageSize), and the total is limited by
-     maxPanelCount alone - when the question sets it, since its default is the setting. */
+  // internal: the limit panelCount is checked against (see getRecordCountLimit).
   public get panelCountLimit(): number {
-    const pageMax = settings.panel.maxPanelCount;
-    if (this.isDesignMode || !(this.listPageSize > 0)) return Math.min(this.maxPanelCount, pageMax);
-    const val = this.getPropertyValueWithoutDefault("maxPanelCount");
-    return val > 0 ? val : Number.MAX_SAFE_INTEGER;
+    return this.getRecordCountLimit(this.maxPanelCount, this.getPropertyValueWithoutDefault("maxPanelCount"), settings.panel.maxPanelCount);
   }
 
   private onMaxPanelCountChanged(): void {
@@ -2655,11 +2594,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     if (!key.endsWith(postPrefix)) return false;
     return !!panel.getQuestionByName(key.substring(0, key.length - postPrefix.length));
   }
-  // recordIndex, not a panel position: the other question may hold its panels for another set of
-  // records or in another order.
-  public getSharedQuestionFromArray(name: string, recordIndex: number): Question {
-    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
-  }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;
     const hasContext = !!context && (context === true || this.template.questions.indexOf(contextQ) > -1);
@@ -3103,60 +3037,20 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
       if (!val) continue;
       const position = !!positions ? (positions[i] !== undefined ? positions[i] : -1) : i;
       if (position > -1 && position < this.panelsCore.length) {
-        values[i] = this.getPanelDisplayValue(position, i, val, keysAsText);
+        values[i] = this.getRecordDisplayValue(this.panelsCore[position], i, val, keysAsText);
       } else if (useTemplate) {
-        values[i] = this.getRecordDisplayValue(i, val, keysAsText);
+        values[i] = this.getRecordDisplayValue(this.template, i, val, keysAsText);
       }
     }
     return values;
   }
-  /* The same text the panel would give when the choices do not depend on the panel: the template
-     question formats the value. Choices that depend on {panel.x}, and a choicesByUrl whose answer is
-     not in the ChoicesRestful cache yet, give the raw value - reading here never starts a request. */
-  private getRecordDisplayValue(recordIndex: number, val: any, keysAsText: boolean): any {
-    const keys = Object.keys(val);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      let question = <Question>this.template.getQuestionByValueName(key);
-      if (!question) {
-        question = this.getSharedQuestionFromArray(key, recordIndex);
-      }
-      if (!question) continue;
-      const qValue = question.getDisplayValue(keysAsText, val[key]);
-      val[key] = qValue;
-      if (keysAsText && !!question.title && question.title !== key) {
-        val[question.title] = qValue;
-        delete val[key];
-      }
-    }
-    return val;
-  }
-
-  private getPanelDisplayValue(
-    panelIndex: number,
-    recordIndex: number,
-    val: any,
-    keysAsText: boolean
-  ): any {
-    if (!val) return val;
-    var panel = this.panelsCore[panelIndex];
-    var keys = Object.keys(val);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var question = panel.getQuestionByValueName(key);
-      if (!question) {
-        question = this.getSharedQuestionFromArray(key, recordIndex);
-      }
-      if (!!question) {
-        var qValue = question.getDisplayValue(keysAsText, val[key]);
-        val[key] = qValue;
-        if (keysAsText && !!question.title && question.title !== key) {
-          val[question.title] = qValue;
-          delete val[key];
-        }
-      }
-    }
-    return val;
+  /* container: the record's panel, or the template for a record without one. The template gives the
+     same text the panel would when the choices do not depend on the panel. Choices that depend on
+     {panel.x}, and a choicesByUrl whose answer is not in the ChoicesRestful cache yet, give the raw
+     value - reading here never starts a request. */
+  private getRecordDisplayValue(container: PanelModel, recordIndex: number, val: any, keysAsText: boolean): any {
+    return this.formatRecordDisplayValue(keysAsText, val,
+      (key: string): Question => <Question>container.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
   }
   private validateInPanels(context: ValidationContext): boolean {
     let res = true;
@@ -3491,10 +3385,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   }
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
-  }
-  getBindedQuestions(): Array<IQuestion> {
-    if (!this.survey || !this.valueName) return [];
-    return this.survey.getQuestionsByValueName(this.valueName);
   }
   /* index is a CREATED position, the counterpart of getItemIndex. It used to index visiblePanels,
      which disagreed with getItemIndex whenever a panel was hidden by templateVisibleIf - the pair is

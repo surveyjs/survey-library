@@ -30,8 +30,7 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicItemModelBase, DynamicQuestionValueGetterContext } from "./dynamicItemModelBase";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataListChange, IDynamicDataSort, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -115,10 +114,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.resetRenderedTable();
     }
   }
-  // internal, for tests and renderers
-  public getDataList(): DynamicDataList {
-    return this.dataList;
-  }
   /**
    * A data source that supplies the matrix records. Assign an object that implements `IDynamicDataSource` to read the rows from a server: the matrix then shows one loaded page at a time and pushes every cell edit, row insertion and row deletion to the source.
    *
@@ -126,10 +121,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @since 3.1.0
    */
   public get dataSource(): IDynamicDataSource {
-    return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
+    return this.getDataSource();
   }
   public set dataSource(val: IDynamicDataSource) {
-    this.assignDataSource(val);
+    this.setDataSource(val);
     // The capabilities of the new source decide whether the cells are editable and whether the
     // add/remove buttons are shown: the cells read isMatrixReadOnly() through their readOnlyCallback
     // and need the reactive refresh that an ordinary read-only change would give them.
@@ -207,11 +202,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // Single-input mode is its own paging: it walks every row and lists them in its summary.
   protected get listPageSize(): number {
     // settings.matrix.maxRowCount is the number of rows one page may hold.
-    return this.isSingleInputActive ? 0 : Math.min(this.rowsPerPage, settings.matrix.maxRowCount);
-  }
-  // internal: single-input mode reads every row, and nothing tells the list that it became active.
-  public syncPageSizeWithMode(): void {
-    this.syncListPageSize();
+    return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
@@ -242,73 +233,26 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
-    return this.getPropertyValue("rowsPerPage");
+    return this.pageSize;
   }
   public set rowsPerPage(val: number) {
-    this.paging.setPageSize("rowsPerPage", val);
+    this.pageSize = val;
+  }
+  protected getPageSizePropertyName(): string {
+    return "rowsPerPage";
+  }
+  protected onPageSizeAssigned(): void {
     this.resetRenderedTable();
   }
-  public get pageSize(): number { return this.rowsPerPage; }
-  public set pageSize(val: number) { this.rowsPerPage = val; }
-  // A zero-based page index; always 0 while paging is off.
-  public get pageIndex(): number { return this.reportedPageIndex; }
-  public set pageIndex(val: number) { this.paging.pageIndex = val; }
-  // The number of pages; 1 for an empty question and for one that does not page.
-  public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: rowCount is then the number of rows
-     known to exist - a lower bound - and pageCount the number of pages found so far. Every source
-     that hands over the whole table leaves it true. */
-  public get isRowCountKnown(): boolean { return this.paging.isCountKnown; }
-  // The name both dynamic questions share, as pageSize is for rowsPerPage.
-  public get isCountKnown(): boolean { return this.isRowCountKnown; }
-  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
-  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
-  /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
-     found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */
-  public goToPage(index: number): boolean { return this.paging.goToPage(index); }
-  public nextPage(): boolean { return this.paging.nextPage(); }
-  public prevPage(): boolean { return this.paging.prevPage(); }
-  /* The sort the rows are displayed in: { field, direction } descriptors applied in array order,
-     an empty array = no sort. It never reorders the question value. */
-  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
-  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
-  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
-     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
-     so a header click changes what toJSON() emits. */
-  public get sortBy(): string { return this.paging.sortBy; }
-  public set sortBy(val: string) { this.paging.sortBy = val; }
-  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
-     addToSort the field is cycled inside the current sort instead of replacing it, which is the
-     multi-field sort a modified header click makes. */
-  public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
-  public clearSort(): void { this.paging.clearSort(); }
-  /* A survey expression over the row values - the same language as visibleIf, with the record
-     fields as its variables. A row that does not satisfy it is not created; the question value
-     keeps every record. An empty string = no filter. It is not rowsVisibleIf: that one is a
-     per-row expression with a row context and stays the owner-visibility layer. */
-  public get filterExpression(): string { return this.paging.filterExpression; }
-  public set filterExpression(val: string) { this.paging.filterExpression = val; }
-  public refreshView(): void { this.paging.refreshView(); }
-  protected isPropertyStoredInHash(name: string): boolean {
-    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
-    // accessor instead of looking for a hash entry that will never be there.
-    return name !== "sortBy" && super.isPropertyStoredInHash(name);
-  }
+     known to exist - a lower bound (see isCountKnown). */
+  public get isRowCountKnown(): boolean { return this.isCountKnown; }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list
     // here, once, whatever order their keys came in.
     this.paging.flushAuthoredView();
   }
-  private pagerActionsValue: ActionContainer;
-  public get pagerActions(): ActionContainer {
-    if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
-    }
-    return this.pagerActionsValue;
-  }
-  // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
   // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
   // moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
@@ -654,7 +598,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.rowCountAboveSettings = val;
         return;
       }
-      if (this.isRowCountLimitedBySettings) return;
+      if (this.isRecordCountLimitedByPageMax) return;
     }
     this.setRowCountCore(val);
   }
@@ -662,7 +606,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   endLoadingFromJson(): void {
     const val = this.rowCountAboveSettings;
     this.rowCountAboveSettings = undefined;
-    if (val > 0 && !this.isRowCountLimitedBySettings) {
+    if (val > 0 && !this.isRecordCountLimitedByPageMax) {
       this.setRowCountCore(val);
     }
     super.endLoadingFromJson();
@@ -875,18 +819,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see allowAddRows
    */
   @property({ onSetting: (val: number) => val <= 0 ? 1 : val }) maxRowCount: number;
-  /* settings.matrix.maxRowCount is the number of rows one page may hold: without paging every row is
-     on the one page, so it limits the total as well; with paging it limits the page size only
-     (listPageSize). */
-  private get isRowCountLimitedBySettings(): boolean {
-    return this.isDesignMode || !(this.listPageSize > 0);
-  }
-  /* internal: the limit rowCount is checked against. With paging the total is limited by maxRowCount
-     alone - when the question sets it, since its default is the setting. */
+  // internal: the limit rowCount is checked against (see getRecordCountLimit).
   public get rowCountLimit(): number {
-    if (this.isRowCountLimitedBySettings) return Math.min(this.maxRowCount, settings.matrix.maxRowCount);
-    const val = this.getPropertyValueWithoutDefault("maxRowCount");
-    return val > 0 ? val : Number.MAX_SAFE_INTEGER;
+    return this.getRecordCountLimit(this.maxRowCount, this.getPropertyValueWithoutDefault("maxRowCount"), settings.matrix.maxRowCount);
   }
 
   private onMaxRowCountChanged(): void {
@@ -1465,30 +1400,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getPagedDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
     const rows = this.generatedVisibleRows || [];
     const positions = this.dataList.getMaterializedPositions();
+    const getColumnQuestion = (key: string): Question => {
+      const column = this.getColumnByName(key);
+      return !!column ? column.templateQuestion : undefined;
+    };
     for (let i = 0; i < values.length; i++) {
       const val = values[i];
       if (!val) continue;
       const row = positions[i] !== undefined ? rows[positions[i]] : undefined;
-      values[i] = !!row ? this.getRowDisplayValue(keysAsText, row, val) : this.getRecordDisplayValue(keysAsText, val);
+      values[i] = !!row ? this.getRowDisplayValue(keysAsText, row, val) : this.formatRecordDisplayValue(keysAsText, val, getColumnQuestion);
     }
     return values;
-  }
-  private getRecordDisplayValue(keysAsText: boolean, rowValue: any): any {
-    const keys = Object.keys(rowValue);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      const column = this.getColumnByName(key);
-      const question = !!column ? column.templateQuestion : undefined;
-      if (!question) continue;
-      const displayValue = question.getDisplayValue(keysAsText, rowValue[key]);
-      if (keysAsText && !!question.title && question.title !== key) {
-        rowValue[question.title] = displayValue;
-        delete rowValue[key];
-      } else {
-        rowValue[key] = displayValue;
-      }
-    }
-    return rowValue;
   }
   protected getConditionObjectRowName(index: number): string {
     return "[" + index.toString() + "]";

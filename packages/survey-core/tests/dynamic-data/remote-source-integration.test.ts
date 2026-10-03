@@ -812,6 +812,25 @@ describe("Remote data source: capabilities", () => {
     expect(question.panels[0].getQuestionByName("col1").isReadOnly, "#1").toBe(true);
     expect(question.canAddPanel, "#2: adding is a different capability").toBe(true);
   });
+  test("matrix: assigning a source refreshes the cells' read-only state, also for the same source", async () => {
+    const source = new FakeServerSource(serverRecords(6), ["readRange", "insert", "remove"]);
+    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const rows = question.visibleRows;
+    const spies = rows.map(row => vi.spyOn(row, "onQuestionReadOnlyChanged"));
+    question.dataSource = source;
+    expect(spies.every(spy => spy.mock.calls.length === 1), "#1: every row is told").toBe(true);
+    expect(rows[0].getQuestionByName("col1").isReadOnly, "#2").toBe(true);
+    spies.forEach(spy => spy.mockRestore());
+  });
+  test("panel: assigning a source refreshes the footer actions, also for the same source", async () => {
+    const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
+    const { question } = await createPanel(source, { panelsPerPage: 0 });
+    let footerUpdates = 0;
+    (<any>question).updateFooterActionsCallback = (): void => { footerUpdates++; };
+    question.dataSource = source;
+    expect(footerUpdates, "#1: the footer is told").toBe(1);
+    expect(question.canAddPanel, "#2").toBe(false);
+  });
 });
 
 describe("Remote data source: survey data", () => {
@@ -2232,6 +2251,23 @@ describe("Remote data source: a total the source does not know", () => {
     // Reaching the end settles the count: there is nothing behind the last record.
     expect(question.isPanelCountKnown, "#6").toBe(true);
     expect(question.pageCount, "#7").toBe(3);
+  });
+  test("isCountKnown answers as isRowCountKnown and isPanelCountKnown", async () => {
+    const { question: matrix } = await createMatrix(createNoTotalSource(25), { rowsPerPage: 10 });
+    const { question: panel } = await createPanel(createNoTotalSource(25), { panelsPerPage: 10 });
+    expect(matrix.isCountKnown, "#1: matrix, not known").toBe(false);
+    expect(matrix.isRowCountKnown, "#2").toBe(false);
+    expect(panel.isCountKnown, "#3: panel, not known").toBe(false);
+    expect(panel.isPanelCountKnown, "#4").toBe(false);
+    for (let i = 0; i < 2; i++) {
+      matrix.nextPage();
+      panel.nextPage();
+      await flush();
+    }
+    expect(matrix.isCountKnown, "#5: matrix, the end was reached").toBe(true);
+    expect(matrix.isRowCountKnown, "#6").toBe(true);
+    expect(panel.isCountKnown, "#7: panel, the end was reached").toBe(true);
+    expect(panel.isPanelCountKnown, "#8").toBe(true);
   });
   test("a source that reports its total leaves both questions knowing it", async () => {
     const { question } = await createMatrix(new FakeServerSource(serverRecords(25)), { rowsPerPage: 10 });

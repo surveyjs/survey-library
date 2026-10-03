@@ -1108,9 +1108,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getType(): string {
     return "matrixdropdownbase";
   }
-  public get isCompositeQuestion(): boolean {
-    return true;
-  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *
@@ -1262,9 +1259,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.displayMode == "auto") return super.getIsMobile();
     return this.displayMode === "list";
   }
-  public get isAllowTitleLeft(): boolean {
-    return false;
-  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -1275,7 +1269,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected disposeRecordObjects(): void {
     this.clearGeneratedRows();
   }
-  public get isContainer(): boolean { return true; }
   public get isRowsDynamic(): boolean {
     return false;
   }
@@ -2379,24 +2372,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   ): any {
     if (!rowValue) return rowValue;
     if (!!row.editingObj) return rowValue;
-    var keys = Object.keys(rowValue);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var question = row.getQuestionByName(key);
-      if (!question) {
-        question = this.getSharedQuestionByName(key, row);
-      }
-      if (!!question) {
-        var displayvalue = question.getDisplayValue(keysAsText, rowValue[key]);
-        if (keysAsText && !!question.title && question.title !== key) {
-          rowValue[question.title] = displayvalue;
-          delete rowValue[key];
-        } else {
-          rowValue[key] = displayvalue;
-        }
-      }
-    }
-    return rowValue;
+    return this.formatRecordDisplayValue(keysAsText, rowValue,
+      (key: string): Question => row.getQuestionByName(key) || this.getSharedQuestionByName(key, row));
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
@@ -2626,8 +2603,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     };
   }
   /* Not supported yet: a matrix that is not dynamic creates no record list - its keyed answer has no
-     record array, and it has no paging property - so QuestionRecordsModel never calls these.
-     Reaching one is a defect. The dynamic matrix answers them. */
+     record array, and it has no paging property - so QuestionRecordsModel never calls these on its
+     own. The public paging, sort and filter writes of the fixed matrix (pageIndex, sortOrder, sortBy,
+     filterExpression, toggleSort, clearSort, refreshView) and getDataList() reach them until it has a
+     record list; any other path that reaches one is a defect. The dynamic matrix answers them. */
   protected getListRecords(): Array<any> {
     throw new Error("getListRecords: a matrix without a record list has no records to read");
   }
@@ -2643,11 +2622,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected focusItemAfterRead(index: number): void {
     throw new Error("focusItemAfterRead: a matrix without a record list has no read to focus a row after");
   }
-  protected get pageSize(): number {
-    throw new Error("pageSize: a matrix without a record list has no pages to size");
-  }
   protected get listPageSize(): number {
     throw new Error("listPageSize: a matrix without a record list has no pages to size");
+  }
+  /* A bridge until the fixed matrix has a record list: no paging property, so pageSize reads 0 and
+     ignores a write. It goes away with the members above; the dynamic matrix names rowsPerPage. */
+  protected getPageSizePropertyName(): string {
+    return "";
   }
   supportAutoAdvance(): boolean {
     var rows = this.generatedVisibleRows;
@@ -3035,11 +3016,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return options.value;
   }
-  // recordIndex, not a row position: the other question may hold its rows for another set of
-  // records or in another order.
-  getSharedQuestionFromArray(name: string, recordIndex: number): Question {
-    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
-  }
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
@@ -3205,10 +3181,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         index
       )
     );
-  }
-  getBindedQuestions(): Array<IQuestion> {
-    if (!this.survey || !this.valueName) return [];
-    return this.survey.getQuestionsByValueName(this.valueName);
   }
   // index is a CREATED position.
   getItem(index: number): DynamicItemModelBase {

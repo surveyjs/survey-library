@@ -10000,6 +10000,20 @@ describe("Survey_QuestionMatrixDynamic", () => {
       settings.matrix.maxRowCount = 1000;
     }
   });
+  test("settings.matrix.maxRowCount limits the total number of rows in design mode, whatever rowsPerPage says", () => {
+    settings.matrix.maxRowCount = 5;
+    try {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 2, rowsPerPage: 3, columns: [{ name: "id" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+      expect(matrix.rowCountLimit, "#1: design mode does not page").toBe(5);
+      matrix.rowCount = 7;
+      expect(matrix.rowCount, "#2: above the setting is rejected").toBe(2);
+    } finally {
+      settings.matrix.maxRowCount = 1000;
+    }
+  });
   test("rowCountExpression with an invalid result, Issue#11793", () => {
     const survey = new SurveyModel({
       elements: [
@@ -10548,7 +10562,7 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     expect(matrix.value, "#2: the emptied row is deleted").toEqual({ r2: { c2: "b" } });
     matrix.visibleRows[1].cells[1].question.value = undefined;
     expect(matrix.isEmpty(), "#3: the matrix is empty").toBeTruthy();
-    expect((<any>matrix).getDataList, "#4: matrix dropdown has no data list").toBeUndefined();
+    expect((<any>matrix).dataListValue, "#4: matrix dropdown has no data list").toBeUndefined();
   });
 });
 
@@ -11030,6 +11044,32 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.rowsPerPage = 2;
     expect(matrix.rowsOnPage.length, "#4").toBe(2);
   });
+  test("rowsPerPage and pageSize are one value, from code and from JSON", () => {
+    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    expect(matrix.pageSize, "#1: JSON, read through pageSize").toBe(2);
+    matrix.pageSize = 3;
+    expect(matrix.rowsPerPage, "#2: pageSize writes rowsPerPage").toBe(3);
+    expect(matrix.rowsOnPage.length, "#3").toBe(3);
+    expect(matrix.toJSON().rowsPerPage, "#4: and its JSON").toBe(3);
+    matrix.rowsPerPage = 4;
+    expect(matrix.pageSize, "#5: rowsPerPage writes pageSize").toBe(4);
+    matrix.pageSize = <any>"abc";
+    expect(matrix.rowsPerPage, "#6: a value that is not a number is 0").toBe(0);
+    expect(matrix.pageCount, "#7: no paging").toBe(1);
+    matrix.pageSize = <any>"2";
+    expect(matrix.rowsPerPage, "#8: a numeric string is its number").toBe(2);
+    expect(matrix.rowsOnPage.length, "#9").toBe(2);
+  });
+  test("an assigned page size refreshes the rendered table, also when the value is the same", () => {
+    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    let table = matrix.renderedTable;
+    matrix.rowsPerPage = 2;
+    expect(matrix.renderedTable !== table, "#1: rowsPerPage").toBe(true);
+    table = matrix.renderedTable;
+    matrix.pageSize = 2;
+    expect(matrix.renderedTable !== table, "#2: pageSize").toBe(true);
+    expect(dataRows(matrix).length, "#3: the page").toBe(2);
+  });
   test("a row hidden by rowsVisibleIf takes no page slot", () => {
     const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, rowsVisibleIf: "{row.c1} != 'b'" },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
@@ -11318,6 +11358,14 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     changed.splice(0, changed.length);
     matrix.filterExpression = "{c1} != 'z'";
     expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
+  });
+  test("the pager actions are created once", () => {
+    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const actions = matrix.pagerActions;
+    matrix.nextPage();
+    expect(matrix.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    matrix.rowsPerPage = 3;
+    expect(matrix.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);

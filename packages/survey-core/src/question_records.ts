@@ -1,14 +1,16 @@
 import { Base } from "./base";
-import { IProgressInfo, ISurveyData } from "./base-interfaces";
+import { IProgressInfo, IQuestion, ISurveyData } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { Question, ValidationContext } from "./question";
+import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
-  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSource
+  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
+  IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
 import {
   DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap
@@ -165,6 +167,27 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return this._pageValidation;
   }
+  public get isCompositeQuestion(): boolean {
+    return true;
+  }
+  public get isContainer(): boolean { return true; }
+  public get isAllowTitleLeft(): boolean {
+    return false;
+  }
+  // recordIndex, not an object position: the other question may hold its objects (rows, panels) for
+  // another set of records or in another order.
+  public getSharedQuestionFromArray(name: string, recordIndex: number): Question {
+    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
+  }
+  public getBindedQuestions(): Array<IQuestion> {
+    if (!this.survey || !this.valueName) return [];
+    return this.survey.getQuestionsByValueName(this.valueName);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
+    // accessor instead of looking for a hash entry that will never be there.
+    return name !== "sortBy" && super.isPropertyStoredInHash(name);
+  }
   /* The record fields the template questions of a dynamic panel or the column questions of a matrix
      contribute to the list: one per question, under its value name, and one more for a comment,
      which is stored under an ordinary key of the same record. */
@@ -261,7 +284,7 @@ export abstract class QuestionRecordsModel extends Question {
      (getReplacedRecordsRemap), so that an edited record is still validated wherever it is now. The
      objects are renumbered only by a question that keeps state under their records (the panel's
      remapKeptRecordIndexes): the rows a read replaces keep the records they were built for until the
-     rebuild disposes them. Replacing the source starts over (see assignDataSource). */
+     rebuild disposes them. Replacing the source starts over (see setDataSource). */
   private followReloadedRecords(oldRecords: any): void {
     if (!this.isPagedByList) return;
     const validation = this._pageValidation;
@@ -377,6 +400,39 @@ export abstract class QuestionRecordsModel extends Question {
     const item = this.getItemByRecordIndex(index);
     if (!!item) return item;
     return index < this.dataListValue.loadedCount ? this.createRecordItem(index) : null;
+  }
+  /* The display values of one record, formatted key by key in place: getQuestion names the question
+     that formats a key - one of the record's object, of the template or a shared one - and a key
+     without a question keeps its value. With keysAsText a key whose question has another title is
+     renamed to the title. Returns the record. */
+  protected formatRecordDisplayValue(keysAsText: boolean, record: any, getQuestion: (key: string) => Question): any {
+    const keys = Object.keys(record);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const question = getQuestion(key);
+      if (!question) continue;
+      const displayValue = question.getDisplayValue(keysAsText, record[key]);
+      if (keysAsText && !!question.title && question.title !== key) {
+        record[question.title] = displayValue;
+        delete record[key];
+      } else {
+        record[key] = displayValue;
+      }
+    }
+    return record;
+  }
+  /* The setting (settings.matrix.maxRowCount, settings.panel.maxPanelCount) is the number of objects
+     one page may hold: without paging every object is on the one page, so it limits the total as
+     well; with paging it limits the page size only (listPageSize). */
+  protected get isRecordCountLimitedByPageMax(): boolean {
+    return this.isDesignMode || !(this.listPageSize > 0);
+  }
+  /* The limit the record count is checked against: maxCount and the page maximum pageMax without
+     paging; with paging explicitMaxCount alone - when the question sets it, since the default of
+     maxCount is the setting. */
+  protected getRecordCountLimit(maxCount: number, explicitMaxCount: number, pageMax: number): number {
+    if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, pageMax);
+    return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
   }
   /* The records decide the page; when it is not the page the objects hold, the rebuild runs the
      conditions of the new objects itself. Returns true when it rebuilt them. */
@@ -561,6 +617,76 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
   }
+  /* The authored page size, 0 = no paging, stored under the property getPageSizePropertyName() names
+     - the one the JSON and the property grid know (rowsPerPage, panelsPerPage). The question reads
+     pageSize; the named property is its public face. An empty name is the fixed matrix until it has
+     a record list: it does not page yet, so it reads 0 and a write is ignored. That branch goes away
+     with the "not supported yet" members of the matrix base. */
+  public get pageSize(): number {
+    const name = this.getPageSizePropertyName();
+    return !!name ? this.getPropertyValue(name) : 0;
+  }
+  public set pageSize(val: number) {
+    const name = this.getPageSizePropertyName();
+    if (!name) return;
+    this.paging.setPageSize(name, val);
+    this.onPageSizeAssigned();
+  }
+  // internal, for tests and renderers
+  public getDataList(): DynamicDataList {
+    return this.dataList;
+  }
+  // internal: single-input mode reads every object, and nothing tells the list that it became active.
+  public syncPageSizeWithMode(): void {
+    this.syncListPageSize();
+  }
+  // A zero-based page index; always 0 while paging is off.
+  public get pageIndex(): number { return this.reportedPageIndex; }
+  public set pageIndex(val: number) { this.paging.pageIndex = val; }
+  // The number of pages; 1 for an empty question and for one that does not page.
+  public get pageCount(): number { return this.reportedPageCount; }
+  /* False while the data source answers a read without a total: the record count (rowCount,
+     panelCount) is then the number of records known to exist - a lower bound - and pageCount the
+     number of pages found so far. Every source that hands over the whole storage leaves it true. */
+  public get isCountKnown(): boolean { return this.paging.isCountKnown; }
+  public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
+  public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
+  /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
+     found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */
+  public goToPage(index: number): boolean { return this.paging.goToPage(index); }
+  public nextPage(): boolean { return this.paging.nextPage(); }
+  public prevPage(): boolean { return this.paging.prevPage(); }
+  /* The sort the records are displayed in: { field, direction } descriptors applied in array order,
+     an empty array = no sort. It never reorders the question value. */
+  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
+  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
+  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
+     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
+     so a sort made at runtime, a header click included, changes what toJSON() emits. */
+  public get sortBy(): string { return this.paging.sortBy; }
+  public set sortBy(val: string) { this.paging.sortBy = val; }
+  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+     addToSort the field is cycled inside the current sort instead of replacing it, which is the
+     multi-field sort a modified header click makes. */
+  public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
+  public clearSort(): void { this.paging.clearSort(); }
+  /* A survey expression over the record values - the same language as visibleIf, with the record
+     fields as its variables. A record that does not satisfy it has no object; the question value
+     keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:
+     that one is a per-object expression with the object's context and stays the owner-visibility
+     layer. */
+  public get filterExpression(): string { return this.paging.filterExpression; }
+  public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  public refreshView(): void { this.paging.refreshView(); }
+  private pagerActionsValue: ActionContainer;
+  public get pagerActions(): ActionContainer {
+    if (!this.pagerActionsValue) {
+      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
+    }
+    return this.pagerActionsValue;
+  }
+  // True while a page move waits for the asynchronous validators of the page it leaves.
+  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
     return this.isPagingActive ? this.paging.pageIndex : 0;
@@ -570,9 +696,13 @@ export abstract class QuestionRecordsModel extends Question {
     return this.isPagingActive ? this.paging.pageCount : 1;
   }
 
-  // The survey-data side of the swap. The list keeps the assigned source (assignedSource), so there
-  // is no getter here. The question follows the call with its own refresh, also for the same source.
-  protected assignDataSource(val: IDynamicDataSource): void {
+  // The assigned data source, read back from the list (assignedSource); nothing is created for it.
+  protected getDataSource(): IDynamicDataSource {
+    return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
+  }
+  // The survey-data side of the swap. The question follows the call with its own refresh, also for
+  // the same source.
+  protected setDataSource(val: IDynamicDataSource): void {
     const newValue = val || undefined;
     // Another storage: the records layer 2 tracks and the states kept for them name records of the
     // old one. Dropped before the swap, whose first read may commit inside it.
@@ -791,8 +921,8 @@ export abstract class QuestionRecordsModel extends Question {
      the survey hands it out (survey.onExpressionRunning) and the scope it runs in. Asked once the
      guards of updatePagedRecordsVisibility have passed. */
   protected abstract getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule;
-  // The authored page size: rowsPerPage / panelsPerPage.
-  protected abstract get pageSize(): number;
+  // The property the authored page size is stored under (see pageSize).
+  protected abstract getPageSizePropertyName(): string;
   /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
      a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
      object. */
@@ -805,6 +935,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract createRecordItem(recordIndex: number): DynamicRecordItem;
 
   // The specialization hooks with a default.
+  /* Runs after every assignment of the page size, whatever the value - also one that does not change
+     it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
+  protected onPageSizeAssigned(): void { }
   // The length getListRecords() would return.
   protected getListRecordCount(): number {
     const records = this.getListRecords();

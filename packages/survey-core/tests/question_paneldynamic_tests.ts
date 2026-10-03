@@ -8378,6 +8378,20 @@ describe("Survey_QuestionPanelDynamic", () => {
       settings.panel.maxPanelCount = 100;
     }
   });
+  test("settings.panel.maxPanelCount limits the total number of panels in design mode, whatever panelsPerPage says", () => {
+    settings.panel.maxPanelCount = 5;
+    try {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ elements: [{ type: "paneldynamic", name: "pd", panelCount: 2, panelsPerPage: 3, templateElements: [{ type: "text", name: "id" }] }] });
+      const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      expect(question.panelCountLimit, "#1: design mode does not page").toBe(5);
+      question.panelCount = 7;
+      expect(question.panelCount, "#2: above the setting is limited").toBe(5);
+    } finally {
+      settings.panel.maxPanelCount = 100;
+    }
+  });
   test("Do not serialize renderMode & showProgressBar", () => {
     const survey = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "panel1", displayMode: "carousel", showProgressBar: false }]
@@ -10406,6 +10420,32 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     question.panelsPerPage = 2;
     expect(question.panelsOnPage.length, "#4").toBe(2);
   });
+  test("panelsPerPage and pageSize are one value, from code and from JSON", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    expect(question.pageSize, "#1: JSON, read through pageSize").toBe(2);
+    question.pageSize = 3;
+    expect(question.panelsPerPage, "#2: pageSize writes panelsPerPage").toBe(3);
+    expect(question.panelsOnPage.length, "#3").toBe(3);
+    expect(question.toJSON().panelsPerPage, "#4: and its JSON").toBe(3);
+    question.panelsPerPage = 4;
+    expect(question.pageSize, "#5: panelsPerPage writes pageSize").toBe(4);
+    question.pageSize = <any>"abc";
+    expect(question.panelsPerPage, "#6: a value that is not a number is 0").toBe(0);
+    expect(question.pageCount, "#7: no paging").toBe(1);
+    question.pageSize = <any>"2";
+    expect(question.panelsPerPage, "#8: a numeric string is its number").toBe(2);
+    expect(question.panelsOnPage.length, "#9").toBe(2);
+  });
+  test("an assigned page size updates the rendered panels, also when the value is the same", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    const update = vi.spyOn(<any>question, "updateRenderedPanels");
+    question.panelsPerPage = 2;
+    expect(update.mock.calls.length, "#1: panelsPerPage").toBe(1);
+    question.pageSize = 2;
+    expect(update.mock.calls.length, "#2: pageSize").toBe(2);
+    expect(renderedValues(question), "#3: the page").toEqual(["a", "b"]);
+    update.mockRestore();
+  });
   test("a panel hidden by templateVisibleIf takes no page slot", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2, templateVisibleIf: "{panel.q1} != 'b'" },
       [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
@@ -10619,6 +10659,14 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     changed.splice(0, changed.length);
     question.filterExpression = "{q1} != 'z'";
     expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
+  });
+  test("the pager actions are created once", () => {
+    const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
+    const actions = question.pagerActions;
+    question.nextPage();
+    expect(question.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    question.panelsPerPage = 3;
+    expect(question.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);

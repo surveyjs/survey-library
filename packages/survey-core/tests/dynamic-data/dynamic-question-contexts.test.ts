@@ -380,9 +380,19 @@ describe("Dynamic questions: the item getter contexts", () => {
       { name: "vis", cellType: "expression", expression: "{visibleRowIndex}" }, { name: "next", cellType: "expression", expression: "{nextRow.c1}" }] }] });
     survey.data = { d: { a: { c1: 1 }, b: { c1: 2 }, c: { c1: 3 } } };
     const matrix: any = survey.getQuestionByName("d");
-    expect(typeof matrix.getItemVisibleIndex, "#0: the fallback path").toBe("undefined");
+    expect(matrix.visibleRows.map((row: any) => matrix.getItemVisibleIndex(row)), "#0: the positions in visibleRows").toEqual([0, 1, 2]);
     const values = matrix.visibleRows.map((row: any) => ["prev", "vis", "next"].map(name => row.getQuestionByName(name).value));
     expect(values, "#1").toEqual([[undefined, 1, 2], [1, 2, 3], [2, 3, undefined]]);
+  });
+  test("matrix dropdown: a row's previous and next rows skip a hidden row", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", rows: ["a", "b", "c"], rowsVisibleIf: "{item} != 'b'", columns: [
+      { name: "c1", cellType: "text" }, { name: "prev", cellType: "expression", expression: "{prevRow.c1}" },
+      { name: "vis", cellType: "expression", expression: "{visibleRowIndex}" }, { name: "next", cellType: "expression", expression: "{nextRow.c1}" }] }] });
+    survey.data = { d: { a: { c1: 1 }, b: { c1: 2 }, c: { c1: 3 } } };
+    const matrix: any = survey.getQuestionByName("d");
+    expect(matrix.visibleRows.map((row: any) => row.rowName), "#1").toEqual(["a", "c"]);
+    const values = matrix.visibleRows.map((row: any) => ["prev", "vis", "next"].map(name => row.getQuestionByName(name).value));
+    expect(values, "#2: row b is not a neighbour").toEqual([[undefined, 1, 3], [1, 2, undefined]]);
   });
   test("I5 matrixdynamic: a record item's {rowIndex} is 1-based plus the remote window offset", async () => {
     const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2 });

@@ -2095,6 +2095,25 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.getNestedQuestions(true).length, "Include nested questions").toBe(4 * (1 + 4));
     expect(panel.getNestedQuestions(true, false).length, "exclude nested questions").toBe(4 * 2);
   });
+  test("panelDynamic.getNestedQuestions skips the questions of a hidden panel for visible questions only", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "panel1",
+          templateVisibleIf: "{panel.q1} != 'hide'",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        }
+      ]
+    });
+    survey.data = { panel1: [{ q1: "a" }, { q1: "hide" }, { q1: "c" }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel.visiblePanels.length, "#1").toBe(2);
+    expect(panel.getNestedQuestions(true).map(q => q.value), "#2: visible only").toEqual(["a", undefined, "c", undefined]);
+    expect(panel.getNestedQuestions(false).map(q => q.value), "#3: every panel").toEqual(["a", undefined, "hide", undefined, "c", undefined]);
+  });
 
   test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", () => {
     settings.panelDynamicMaxPanelCountInCondition = 0;
@@ -9285,6 +9304,25 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel2.panels[1].getQuestionByName("col3").isEmpty(), "Check value for panel2, row2, col3").toBe(true);
     expect(panel3.panels[0].getQuestionByName("col5").isEmpty(), "Check value for panel3, row1, col5").toBe(true);
     expect(panel3.panels[1].getQuestionByName("col5").isEmpty(), "Check value for panel3, row2, col5").toBe(true);
+  });
+  test("a row value change runs the triggers of the same record's panel in a sorted paneldynamic bound to the same value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "matrix", valueName: "data", rowCount: 0,
+          columns: [{ name: "x", cellType: "text" }, { name: "y", cellType: "text" }] },
+        { type: "paneldynamic", name: "panel", valueName: "data", sortBy: "x-",
+          templateElements: [
+            { type: "text", name: "x" },
+            { type: "text", name: "z", resetValueIf: "{panel.y} = 'reset'" }
+          ] }
+      ]
+    });
+    survey.data = { data: [{ x: "a", z: "za" }, { x: "b", z: "zb" }, { x: "c", z: "zc" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels.map(p => p.getQuestionByName("x").value), "#1: the panels are sorted").toEqual(["c", "b", "a"]);
+    matrix.visibleRows[0].getQuestionByName("y").value = "reset";
+    expect(panel.panels.map(p => p.getQuestionByName("z").value), "#2: record 0's panel is the last one").toEqual(["zc", "zb", undefined]);
   });
 
   test("paneldynamic shared question value", () => {

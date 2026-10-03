@@ -78,7 +78,7 @@ export class DynamicDataList {
   constructor(source: IDynamicDataSource, public owner?: IDynamicDataOwner) {
     this._source = source;
   }
-  // The exact comparison DynamicItemModelBase.isValueChanged uses, so that the questions can
+  // The exact comparison QuestionRecordItem.isValueChanged uses, so that the questions can
   // delegate to it instead of keeping their own copy.
   public static isValueChanged(newValue: any, oldValue: any): boolean {
     return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);

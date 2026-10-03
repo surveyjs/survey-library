@@ -37,14 +37,13 @@ import { getScrollBehavior } from "./utils/reduced-motion";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
-import { DynamicItemGetterContext, DynamicItemModelBase, DynamicQuestionValueGetterContext, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
+import { QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
-export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
+export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
     return settings.expressionVariables.nextPanel;
   }
@@ -54,7 +53,7 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.parentPanel.toLocaleLowerCase()) {
-      const q = <Question>(<any>this.item.data);
+      const q = this.item.data;
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
         path[0].name = this.variableName;
         params.isRoot = true;
@@ -90,7 +89,7 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   }
 }
 
-export class PanelDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
+export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // An empty path goes on to the record the index names.
   protected hasDesignValue(params: IValueGetterContextGetValueParams): boolean {
     return params.path.length > 0;
@@ -115,10 +114,10 @@ class PanelDynamicTabbedMenuItem extends Action {
   }
 }
 
-export class QuestionPanelDynamicItem extends DynamicItemModelBase {
+export class QuestionPanelDynamicItem extends QuestionRecordItem {
   private panelValue: PanelModel;
   // isLight: the questions are attached without running their conditions; the owner runs them later.
-  constructor(public data: IDynamicItemModelData, panel: PanelModel, isLight?: boolean) {
+  constructor(public data: QuestionPanelDynamicModel, panel: PanelModel, isLight?: boolean) {
     super(data);
     this.data = data;
     this.panelValue = panel;
@@ -149,13 +148,12 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   }
   // The panel's position among the visible records of the whole list ({visiblePanelIndex} - 1).
   public get visibleIndex(): number {
-    const data: any = this.data;
-    return !!data && typeof data.getItemVisibleIndex === "function" ? data.getItemVisibleIndex(this) : -1;
+    return !!this.data ? this.data.getItemVisibleIndex(this) : -1;
   }
   // The panel's position in visiblePanels: the page it is on, when the question pages.
   public get pageVisibleIndex(): number {
-    const data: any = this.data;
-    return !!data && Array.isArray(data.visiblePanels) ? data.visiblePanels.indexOf(this.panel) : -1;
+    const panels = !!this.data ? this.data.visiblePanels : undefined;
+    return Array.isArray(panels) ? panels.indexOf(this.panel) : -1;
   }
 
   public get questions(): Array<Question> {
@@ -177,7 +175,7 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
 }
 
 export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
-  constructor(public data: IDynamicItemModelData) { }
+  constructor(public data: QuestionPanelDynamicModel) { }
   getSurveyData(): ISurveyData {
     return null;
   }
@@ -196,7 +194,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends QuestionRecordsModel implements IDynamicItemModelData {
+export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -328,26 +326,28 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     }
     return this.getRecordItemVisibleIndex(item);
   }
-  getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
+  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
     if (visibleIndex < 0) return null;
     const panels = this.visiblePanels;
     const pos = visibleIndex - this.pageStartVisibleIndex;
-    if (pos >= 0 && pos < panels.length) return <DynamicItemModelBase>panels[pos].data;
+    if (pos >= 0 && pos < panels.length) return <QuestionRecordItem>panels[pos].data;
     return this.getRecordItemByVisibleIndex(visibleIndex);
   }
   // QuestionRecordsModel hook: the list answers for every record, a data source's window included.
   protected getListRecordAt(index: number): any {
     return this.dataList.getRecord(index);
   }
-  protected createRecordItem(recordIndex: number): DynamicRecordItem {
-    return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.panel,
-      (item: DynamicRecordItem): IValueGetterContext => new PanelDynamicItemGetterContext(item));
+  protected getRecordItemVariableName(): string {
+    return settings.expressionVariables.panel;
+  }
+  protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
+    return new PanelDynamicItemGetterContext(item);
   }
   // internal: the item {panel[index].x} reads. index is a record index; a record the page does not
   // show is read as a value.
-  public getExpressionItem(index: number): DynamicItemModelBase {
+  public getExpressionItem(index: number): QuestionRecordItem {
     const panels = this.panels;
-    if (!this.hasDataListView) return index < panels.length ? <DynamicItemModelBase>panels[index].data : null;
+    if (!this.hasDataListView) return index < panels.length ? <QuestionRecordItem>panels[index].data : null;
     return this.getViewExpressionItem(index);
   }
   // The batched creation overrides (getValueCore/setValueCore) are honoured: the records are read
@@ -1569,7 +1569,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     return !!this.panelCountExpression && !this.isRemoteData;
   }
   private setPanelCountByExpression(val: any): void {
-    this.panelCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
+    this.panelCount = this.getRecordCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
   }
   /* The result is clamped by minPanelCount/maxPanelCount, so changing a limit has to
      recalculate it: the raw expression result is not stored anywhere */
@@ -2020,7 +2020,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     );
   }
   protected setDefaultValue() {
-    DynamicItemModelBase.setDefaultValueCore(this, this.defaultPanelValue, this.panelCount, () => super.setDefaultValue());
+    if (!this.setDefaultRecordValues(this.defaultPanelValue, this.panelCount)) super.setDefaultValue();
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
@@ -2638,7 +2638,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     if (includeItSelf) {
       questions.push(this);
     }
-    DynamicItemModelBase.collectNestedQuestionsInItems(
+    this.collectNestedQuestionsOfItems(
       visibleOnly ? this.visiblePanelsCore : this.panelsCore,
       questions, visibleOnly, includeNested, includeItSelf
     );
@@ -2758,8 +2758,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     this.releaseAnimations();
   }
   private runTriggersOnBuildPanelsFirstTime(): void {
-    DynamicItemModelBase.runTriggersOnItems(
-      this.visiblePanelsCore.map(p => <DynamicItemModelBase>p.data),
+    this.runTriggersOnItems(
+      this.visiblePanelsCore.map(p => <QuestionRecordItem>p.data),
       item => this.getItemData(item),
       settings.expressionVariables.panel
     );
@@ -2817,7 +2817,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
     this.visiblePanelsCore.forEach(p => {
-      (<DynamicItemModelBase>p.data).runTriggers(name, value, keys);
+      (<QuestionRecordItem>p.data).runTriggers(name, value, keys);
     });
   }
   private reRunCondition() {
@@ -3378,10 +3378,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
     // the one updateItemValue writes and getPanelItemDataByIndex reads for it, not the record count.
     return this.getRecordIndexByPanelIndex(position < 0 ? items.length : position);
   }
-  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
     const position = this.hasDataListView ? this.dataList.indexToMaterializedIndex(recordIndex) : recordIndex;
     if (position < 0 || position >= this.panelsCore.length) return undefined;
-    return <DynamicItemModelBase>this.panelsCore[position].data;
+    return <QuestionRecordItem>this.panelsCore[position].data;
   }
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
@@ -3389,9 +3389,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   /* index is a CREATED position, the counterpart of getItemIndex. It used to index visiblePanels,
      which disagreed with getItemIndex whenever a panel was hidden by templateVisibleIf - the pair is
      what a bound question was addressed through. */
-  getItem(index: number): DynamicItemModelBase {
+  getItem(index: number): QuestionRecordItem {
     const panel = this.panelsCore[index] || undefined;
-    return <DynamicItemModelBase>panel?.data;
+    return <QuestionRecordItem>panel?.data;
   }
   // index is a created position: the position in panelsCore.
   private getPanelItemDataByIndex(index: number): any {

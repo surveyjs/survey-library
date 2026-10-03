@@ -1,13 +1,14 @@
 import { Base } from "./base";
-import { IProgressInfo, IQuestion, ISurveyData } from "./base-interfaces";
+import { IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { Question, ValidationContext } from "./question";
+import { Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
-import { DynamicItemModelBase, DynamicRecordItem } from "./dynamicItemModelBase";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { TextContextProcessor } from "./textPreProcessor";
 import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
@@ -353,7 +354,7 @@ export abstract class QuestionRecordsModel extends Question {
     const records = list.getMaterializedIndexes();
     for (let i = 0; i < records.length; i++) {
       const item = this.getItem(i);
-      if (!(item instanceof DynamicItemModelBase) || item.builtRecordIndex !== records[i]) return true;
+      if (!(item instanceof QuestionRecordItem) || item.builtRecordIndex !== records[i]) return true;
     }
     return !!this.getItem(records.length);
   }
@@ -364,7 +365,7 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
-      if (item instanceof DynamicItemModelBase && item.builtRecordIndex > -1) {
+      if (item instanceof QuestionRecordItem && item.builtRecordIndex > -1) {
         const to = remap(item.builtRecordIndex);
         item.builtRecordIndex = to === undefined ? -1 : to;
       }
@@ -377,26 +378,34 @@ export abstract class QuestionRecordsModel extends Question {
   protected get pageStartVisibleIndex(): number {
     return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
   }
-  // IDynamicItemModelData: the window offset of a data source that pages itself (see rowIndex,
-  // getIndex); 0 without one.
+  /* The index the respondent and the expressions see for an item's record ({panelIndex},
+     {rowIndex}) is the record index plus this offset: the position of the loaded window in the whole
+     list for a data source that pages itself, 0 otherwise. The record index itself stays
+     window-local - it is what the question storage is addressed by. */
   public getRecordNumberOffset(): number {
     return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
   }
-  /* The record-item halves of IDynamicItemModelData.getItemVisibleIndex and getItemByVisibleIndex.
+  /* A record without an object, read as a value. The record-item lookups create it, and so does the
+     record visibility scope of the subclasses (getRecordVisibilityRule). */
+  protected createRecordItem(recordIndex: number): RecordValueItem {
+    return new RecordValueItem(this, recordIndex, this.getListRecordAt(recordIndex), this.getRecordItemVariableName(),
+      (item: RecordValueItem): IValueGetterContext => this.createRecordItemContext(item));
+  }
+  /* The record-item halves of getItemVisibleIndex and getItemByVisibleIndex.
      A record the page does not show has no object: its position among the visible records of the
      whole list, and the record at such a position, are the list's to answer. */
   protected getRecordItemVisibleIndex(item: ISurveyData): number {
-    if (!(item instanceof DynamicRecordItem) || !this.dataListValue) return -1;
+    if (!(item instanceof RecordValueItem) || !this.dataListValue) return -1;
     return this.dataListValue.getGlobalVisibleIndex(item.getIndex());
   }
-  protected getRecordItemByVisibleIndex(visibleIndex: number): DynamicRecordItem {
+  protected getRecordItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
     if (!this.isPagingActive) return null;
     const recordIndex = this.dataListValue.getIndexAtGlobalVisibleIndex(visibleIndex);
     return recordIndex < 0 ? null : this.createRecordItem(recordIndex);
   }
-  /* The view half of IDynamicExpressionItemOwner.getExpressionItem: index names a record, and a record
-     without an object - filtered out, off the page or not built - is read as a value. */
-  protected getViewExpressionItem(index: number): DynamicItemModelBase {
+  /* The view half of getExpressionItem: index names a record, and a record without an object -
+     filtered out, off the page or not built - is read as a value. */
+  protected getViewExpressionItem(index: number): QuestionRecordItem {
     const item = this.getItemByRecordIndex(index);
     if (!!item) return item;
     return index < this.dataListValue.loadedCount ? this.createRecordItem(index) : null;
@@ -433,6 +442,59 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordCountLimit(maxCount: number, explicitMaxCount: number, pageMax: number): number {
     if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, pageMax);
     return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
+  }
+  protected collectNestedQuestionsOfItems(
+    items: Array<{ questions: Array<Question> }>,
+    questions: Array<Question>,
+    visibleOnly: boolean,
+    includeNested: boolean,
+    includeItSelf: boolean
+  ): void {
+    if (!Array.isArray(items)) return;
+    items.forEach(item => {
+      item.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+    });
+  }
+  protected runTriggersOnItems(
+    items: Array<QuestionRecordItem>,
+    getItemValue: (item: QuestionRecordItem) => any,
+    variablePrefix: string
+  ): void {
+    items.forEach(item => {
+      const val = getItemValue(item);
+      if (!Helpers.isValueEmpty(val)) {
+        item.runTriggers("", undefined, Helpers.createCopyWithPrefix(val, variablePrefix + "."));
+      }
+    });
+  }
+  /* Converts the result of a panelCountExpression/rowCountExpression into a record count.
+     Invalid results (NaN, undefined, negative) become 0 and fractional results are rounded
+     down. The clamping is done here, before the count is assigned, because the panelCount
+     setter clamps in design mode only and the rowCount setter rejects out-of-range values
+     instead of clamping them. */
+  protected getRecordCountByExpressionValue(value: any, minCount: number, maxCount: number): number {
+    let res = Math.floor(Helpers.getNumber(value));
+    if (!(res > 0)) {
+      res = 0;
+    }
+    if (res < minCount) {
+      res = minCount;
+    }
+    if (maxCount >= 0 && res > maxCount) {
+      res = maxCount;
+    }
+    return res;
+  }
+  /* defaultRowValue / defaultPanelValue: an empty question gets recordCount copies of it. Returns
+     false when it does not apply - there is no default record value, or defaultValue is set - and the
+     question's own default value is applied instead. */
+  protected setDefaultRecordValues(defaultRecordValue: any, recordCount: number): boolean {
+    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) return false;
+    if (!this.isEmpty() || recordCount == 0) return true;
+    const newValue: Array<any> = [];
+    for (let i = 0; i < recordCount; i++) newValue.push(defaultRecordValue);
+    this.value = newValue;
+    return true;
   }
   /* The records decide the page; when it is not the page the objects hold, the rebuild runs the
      conditions of the new objects itself. Returns true when it rebuilt them. */
@@ -928,11 +990,28 @@ export abstract class QuestionRecordsModel extends Question {
      object. */
   protected abstract get listPageSize(): number;
   // The objects, by created position and by record.
-  public abstract getItem(index: number): DynamicItemModelBase;
-  public abstract getItemByRecordIndex(recordIndex: number): DynamicItemModelBase;
-  // A record without an object, read as a value: the variable name and the context class are the
-  // question's. The record-item lookups and the record visibility scope create it.
-  protected abstract createRecordItem(recordIndex: number): DynamicRecordItem;
+  public abstract getItem(index: number): QuestionRecordItem;
+  public abstract getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
+  // The record an item - a row, a panel - reads and writes.
+  public abstract getItemData(item: ISurveyData): any;
+  /* The index of the item record in the question storage. It is the only index two questions bound
+     to one value share: they may create objects for a different set of records (a filtered list) or
+     in a different order (a sorted one). */
+  public abstract getItemRecordIndex(item: ISurveyData): number;
+  // The value an item's {matrix} / {panel} variable reads.
+  public abstract getFilteredData(): any;
+  /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
+     row's visibleIndex), and the item at such a position - an object when the record has one, a
+     record read as a value when it has not (the question pages). */
+  public abstract getItemVisibleIndex(item: ISurveyData): number;
+  public abstract getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
+  // internal: the item {matrix[index].x} / {panel[index].x} reads. index is a record index; a record
+  // without a row or a panel - filtered out, off the page or not built - is read as a value.
+  public abstract getExpressionItem(index: number): QuestionRecordItem;
+  // A record without an object, read as a value: the variable name ({row}, {panel}) and the context
+  // the record is read through are the question's.
+  protected abstract getRecordItemVariableName(): string;
+  protected abstract createRecordItemContext(item: QuestionRecordItem): IValueGetterContext;
 
   // The specialization hooks with a default.
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
@@ -975,5 +1054,338 @@ export abstract class QuestionRecordsModel extends Question {
      question raises it. */
   protected raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);
+  }
+}
+
+// The question-level context of matrixdynamic and paneldynamic: {matrix[2].col1}, {panel[2].q1}.
+export abstract class QuestionRecordsValueGetterContext extends QuestionValueGetterContext {
+  /* Design mode with an index: whether the design-time answer applies. When it does, its result is
+     returned as it is - undefined included. */
+  protected hasDesignValue(params: IValueGetterContextGetValueParams): boolean {
+    return true;
+  }
+  protected abstract getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const index = params.index;
+    if (index > -1 && this.question.isDesignMode && this.hasDesignValue(params)) return this.getDesignValue(params);
+    if (index > -1) {
+      // The index names a record of the value, and so does the index a bound question passes: the
+      // row or panel that holds it, or - when the record has none - the record read as a value.
+      const item = (<QuestionRecordsModel>this.question).getExpressionItem(index);
+      if (!!item) {
+        params.isRoot = false;
+        return item.getValueGetterContext().getValue(params);
+      }
+      return { isFound: false, value: undefined, context: this };
+    }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: params.path.length === 0, value: undefined };
+    return super.getValue(params);
+  }
+}
+
+export abstract class QuestionRecordItemGetterContext extends QuestionItemValueGetterContext {
+  constructor(protected item: QuestionRecordItem) {
+    super();
+  }
+  protected getIndex(): number { return this.item.getIndex(); }
+  protected getQuestionData(): Question { return this.item.data; }
+  protected get questionName(): string {
+    return "";
+  }
+  protected abstract getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
+  protected abstract getNextName(): string;
+  protected abstract getPrevName(): string;
+  protected get variableName(): string {
+    return this.item.getVariableName();
+  }
+  protected abstract getItemValue(name: string): any;
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    if (path.length === 0) return undefined;
+    // context variables ({row.col1}, {PANEL.q1}, {prevRow.col1}, ...) are case-insensitive
+    const firstName = path[0].name.toLocaleLowerCase();
+
+    if (path.length === 1) {
+      const val = this.getItemValue(path[0].name);
+      if (val !== undefined) {
+        return { isFound: true, value: val, context: this };
+      }
+
+      if (this.questionName && firstName === this.questionName.toLocaleLowerCase()) {
+        const matrix = this.item.data;
+        return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
+      }
+    }
+
+    if (path.length > 1) {
+      const dIndex = firstName === this.getPrevName().toLocaleLowerCase() ? -1 : firstName === this.getNextName().toLocaleLowerCase() ? 1 : 0;
+      if (dIndex !== 0) {
+        const index = this.visibleIndex + dIndex;
+        const item = this.getVisibleItem(index);
+        if (!item) return { isFound: true, value: undefined, context: this };
+        path[0].name = this.variableName;
+        return item.getValueGetterContext().getValue(params);
+      }
+    }
+
+    const res = this.getSpecificValue(params);
+    if (res) return res;
+
+    const isVarPrefix = firstName === this.variableName.toLocaleLowerCase();
+    if (isVarPrefix || !params.isRoot) {
+      if (isVarPrefix) {
+        path.shift();
+      }
+      let res = super.getValue(params);
+      if (!!res && res.isFound) return res;
+      const allValues = this.item.getAllValues();
+      if (params.isRoot) {
+        res = this.getValueFromBindedQuestions(path, allValues);
+        if (!!res) return res;
+      }
+      return new VariableGetterContext(allValues).getValue(params);
+    }
+    return undefined;
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const qs = this.item.getQuestionsByValueName(name, true);
+    if (qs.length > 0) {
+      res.isFound = true;
+      res.obj = qs[0];
+      res.context = qs[0].getValueGetterContext();
+    }
+  }
+  /* The neighbour comes from the view, not from the objects that exist: the first panel or row of a
+     page has a previous record, it just has no object. The owner answers with the object's item or
+     with the record read as a value. */
+  protected getVisibleItem(index: number): QuestionRecordItem {
+    const data = this.item.data;
+    return !!data ? data.getItemByVisibleIndex(index) : null;
+  }
+  // The position among the visible records of the whole list, not among the objects of the page.
+  protected get visibleIndex(): number {
+    const data = this.item.data;
+    return !!data ? data.getItemVisibleIndex(this.item) : -1;
+  }
+  /* The RECORD index, so that a stored {panelIndex} / {rowIndex} expression keeps meaning the same
+     record when a filter or a sort changes which objects exist - and in the whole list, so that
+     "Participant 23" is record 23 on every page of a data source that pages itself. item.getIndex()
+     is the window-local index the storage is addressed by; the offset turns it into the number the
+     respondent sees. 0-based: the callers add 1 where the variable is 1-based. */
+  protected getRecordNumber(): number {
+    const data = this.item.data;
+    return this.item.getIndex() + (!!data ? data.getRecordNumberOffset() : 0);
+  }
+  protected getItemVariableNames(): Array<string> {
+    return [];
+  }
+  public getContextKeys(keys?: any): { [key: string]: any } {
+    const res: { [key: string]: any } = {};
+    let names = this.getItemVariableNames();
+    if (!keys || !this.isItemDependenciesTrackable() || this.isContainerValueChanged(keys)) {
+      names = names.concat([this.variableName, this.questionName, this.getPrevName(), this.getNextName()])
+        .concat(this.getRelatedItemNames());
+    }
+    names.forEach((name) => {
+      if (name) {
+        res[name] = this.item;
+        // expressions may reference variables in any case ({parentpanel.q1} vs "parentPanel")
+        const lowerName = name.toLowerCase();
+        if (lowerName !== name) {
+          res[lowerName] = this.item;
+        }
+      }
+    });
+    return res;
+  }
+  protected getRelatedItemNames(): Array<string> {
+    return [];
+  }
+  /* An item whose expressions calculate over filtered (visible) data - a matrix total row -
+     can change on any value change (e.g. row visibility), so its dependencies cannot be
+     analyzed statically and its context names are always reported as changed */
+  protected isItemDependenciesTrackable(): boolean {
+    return true;
+  }
+  private isContainerValueChanged(keys: any): boolean {
+    let container: any = this.item.data;
+    while(!!container) {
+      const valueName = typeof container.getValueName === "function" ? container.getValueName() : container.name;
+      if (!!valueName && Object.prototype.hasOwnProperty.call(keys, valueName)) return true;
+      let itemData = container.data;
+      if (itemData instanceof QuestionRecordItem) {
+        itemData = itemData.data;
+      }
+      /* Walk up through container questions that store the data (nested matrices/panels via
+         their item, custom questions directly) until the survey level is reached */
+      container = !!itemData && itemData !== container && typeof itemData.getValueName === "function" ? itemData : undefined;
+    }
+    return false;
+  }
+}
+
+export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
+
+  protected isSettingValue: boolean = false;
+  private textPreProcessor: TextContextProcessor;
+  /* The record the object - a row or a panel - was built for, kept in step with the list's inserts
+     and removes. When the page changes the list already names the records of the new page: whether
+     the objects are the page is decided by comparing the two, and an object that is about to be
+     disposed can no longer be asked for its record through the mapping - a panel's record is where
+     the state of the paged questions nested in it is kept. -1: built for no record (a total row, a
+     record read as a value, an object whose record is gone). */
+  public builtRecordIndex: number = -1;
+  constructor(public data: QuestionRecordsModel) {
+    this.textPreProcessor = new TextContextProcessor(this);
+  }
+  abstract getValueGetterContext(): IValueGetterContext;
+  getSurveyData(): ISurveyData {
+    return this;
+  }
+  getTextProcessor(): ITextProcessor {
+    return this.textPreProcessor;
+  }
+
+  public abstract getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question>;
+  public abstract getVariableName(): string;
+  protected abstract getQuestionByName(name: string): IQuestion;
+
+  public abstract getIndex(): number;
+
+  getSurvey(): ISurvey {
+    return this.data ? this.data.getSurvey() : null;
+  }
+  getValue(name: string): any {
+    return this.getAllValues()[name];
+  }
+  abstract setValue(name: string, newValue: any): void;
+
+  getAllValues(): any {
+    return this.data.getItemData(this);
+  }
+
+  abstract getComment(name: string): string;
+  abstract setComment(name: string, newValue: string, locNotification: boolean): void;
+
+  getFilteredProperties(): any {
+    return { survey: this.getSurvey(), [this.getVariableName()]: this };
+  }
+  findQuestionByName(name: string): IQuestion {
+
+    if (!name) return undefined;
+    const prefix = this.getVariableName() + ".";
+    if (name.indexOf(prefix) === 0) {
+      return this.getQuestionByName(name.substring(prefix.length));
+    }
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name) : null;
+  }
+
+  public abstract get questions(): Array<Question>;
+  public runTriggers(name: string, value: any, keys?: any): void {
+    if (!name && !keys) return;
+    this.questions.forEach(q => q.runTriggers(name, value, keys));
+  }
+
+  protected runTriggersOnSetValue(name: string, newValue: any): void {
+    const questions = this.questions;
+    const suffix = settings.commentSuffix;
+    if (name.endsWith(suffix)) {
+      name = name.substring(0, name.length - suffix.length);
+      const cQ = this.getQuestionByName(name);
+      if (!!cQ) {
+        newValue = cQ.value;
+      }
+    }
+    const triggerName = this.getVariableName() + "." + name;
+    for (var i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (q.getValueName() !== name) {
+        q.checkBindings(name, newValue);
+      }
+      q.runTriggers(triggerName, newValue);
+    }
+    /* The record index, not the position of this item: a question bound to the same value may have
+       created its objects for a different set of records or in a different order. */
+    const index = this.data.getItemRecordIndex(this);
+    if (index < 0) return;
+    const bindedQuestions = this.data.getBindedQuestions();
+    bindedQuestions.forEach((q: IQuestion) => {
+      if (q === this.data || !(q instanceof QuestionRecordsModel)) return;
+      const item = q.getItemByRecordIndex(index);
+      if (!!item) {
+        const triggerName = item.getVariableName() + "." + name;
+        item.runTriggers(triggerName, newValue);
+      }
+    });
+  }
+
+  protected updateSharedQuestionsValue(name: string, value: any): void {
+    const questions = this.getQuestionsByValueName(name);
+    if (questions.length > 1) {
+      for (let i = 0; i < questions.length; i ++) {
+        if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
+          this.isSettingValue = true;
+          questions[i].updateValueFromSurvey(value);
+          this.isSettingValue = false;
+        }
+      }
+    }
+  }
+
+  protected isValueChanged(name: string, newValue: any): boolean {
+    const oldItemData = this.data.getItemData(this);
+    const oldValue = !!oldItemData ? oldItemData[name] : undefined;
+    return DynamicDataList.isValueChanged(newValue, oldValue);
+  }
+
+  protected getSharedQuestionByName(columnName: string): Question {
+    return !!this.data
+      ? this.data.getSharedQuestionFromArray(columnName, this.getIndex())
+      : null;
+  }
+}
+
+/* A record that has no object - an owner that pages builds objects for the current page only - seen
+   by an expression as a value: {panel.x} / {row.x} is the record's field, the index variables are
+   the record's, and nothing inside it is a question. What reads the record this way: the
+   {prevPanel.x} / {nextRow.x} neighbours of the first and last object of a page, and
+   templateVisibleIf / rowsVisibleIf, which decide the page before any object exists. It is never
+   written through. */
+class RecordValueItem extends QuestionRecordItem {
+  constructor(data: QuestionRecordsModel, private recordIndex: number, private record: any,
+    private variableName: string, private createContext: (item: RecordValueItem) => IValueGetterContext) {
+    super(data);
+  }
+  public reset(recordIndex: number, record: any): void {
+    this.recordIndex = recordIndex;
+    this.record = record;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return this.createContext(this);
+  }
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    return [];
+  }
+  public getVariableName(): string {
+    return this.variableName;
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return null;
+  }
+  public getIndex(): number {
+    return this.recordIndex;
+  }
+  public getAllValues(): any {
+    return this.record || {};
+  }
+  public setValue(name: string, newValue: any): void { }
+  public getComment(name: string): string {
+    const res = this.getAllValues()[name + settings.commentSuffix];
+    return !!res ? res : "";
+  }
+  public setComment(name: string, newValue: string, locNotification: boolean): void { }
+  public get questions(): Array<Question> {
+    return [];
   }
 }

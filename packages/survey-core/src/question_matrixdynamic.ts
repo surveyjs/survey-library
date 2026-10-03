@@ -29,10 +29,10 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { DynamicItemModelBase, DynamicQuestionValueGetterContext } from "./dynamicItemModelBase";
+import { QuestionRecordItem, QuestionRecordsValueGetterContext } from "./question_records";
 import { IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
-export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterContext {
+export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
   protected getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     return (<QuestionMatrixDynamicModel>this.question).getDesignRowContext().getValue(params);
@@ -42,7 +42,7 @@ export class MatrixDynamicValueGetterContext extends DynamicQuestionValueGetterC
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
 
-  constructor(public index: number, data: IMatrixDropdownData, value: any) {
+  constructor(public index: number, data: QuestionMatrixDropdownModelBase, value: any) {
     super(data, value);
     this.buildCells(value);
   }
@@ -203,33 +203,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected get listPageSize(): number {
     // settings.matrix.maxRowCount is the number of rows one page may hold.
     return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
-  }
-  getItemVisibleIndex(item: ISurveyData): number {
-    if (item instanceof MatrixDropdownRowModelBase) {
-      const rows = this.visibleRows;
-      if (!rows) return item.visibleIndex;
-      const pos = rows.indexOf(item);
-      return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
-    }
-    return this.getRecordItemVisibleIndex(item);
-  }
-  /* The neighbour comes from the view: the row when the record has one, the record read as a value
-     when the matrix pages and it has none. */
-  getItemByVisibleIndex(visibleIndex: number): DynamicItemModelBase {
-    if (visibleIndex < 0) return null;
-    const rows = this.visibleRows;
-    if (!rows) return null;
-    const pos = visibleIndex - this.pageStartVisibleIndex;
-    if (pos >= 0 && pos < rows.length) return rows[pos];
-    return this.getRecordItemByVisibleIndex(visibleIndex);
-  }
-  // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
-  // filtered out, off the page or not built - is read as a value.
-  public getExpressionItem(index: number): DynamicItemModelBase {
-    // Reading allRows builds the rows, so that a record that has a row is answered by the row.
-    const rows = this.allRows;
-    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
-    return this.getViewExpressionItem(index);
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
@@ -461,7 +434,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   protected setDefaultValue() {
-    DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
+    if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const maxIndex = Math.max(fromIndex, toIndex);
@@ -690,7 +663,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !!this.rowCountExpression && !this.isRemoteData;
   }
   private setRowCountByExpression(val: any): void {
-    this.rowCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minRowCount, this.rowCountLimit);
+    this.rowCount = this.getRecordCountByExpressionValue(val, this.minRowCount, this.rowCountLimit);
   }
   /* The result is clamped by minRowCount/maxRowCount, so changing a limit has to recalculate
      it: the raw expression result is not stored anywhere */
@@ -1757,7 +1730,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const res = this.getRecordIndexOf(row);
     return res > -1 ? res : index;
   }
-  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
     const position = this.dataList.indexToMaterializedIndex(recordIndex);
     return position < 0 ? undefined : this.getItem(position);
   }

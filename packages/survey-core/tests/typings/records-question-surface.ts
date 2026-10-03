@@ -220,5 +220,54 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
   res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared5, ddShared6, mdShared1, mdShared2, mdShared3, mdShared4, mdShared5, mdShared6,
     pdShared1, pdShared2, pdShared3, pdShared4, pdShared5, pdShared6);
+
+  // The helpers the rows and panels share, and the record item the question creates, are not public either.
+  // @ts-expect-error protected
+  const ddItems1: DeclaredKeys<QuestionMatrixDropdownModel> = "collectNestedQuestionsOfItems";
+  // @ts-expect-error protected
+  const ddItems2: DeclaredKeys<QuestionMatrixDropdownModel> = "runTriggersOnItems";
+  // @ts-expect-error protected
+  const ddItems3: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordCountByExpressionValue";
+  // @ts-expect-error protected
+  const ddItems4: DeclaredKeys<QuestionMatrixDropdownModel> = "setDefaultRecordValues";
+  // @ts-expect-error a hook
+  const ddItems5: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordItemVariableName";
+  // @ts-expect-error a hook
+  const ddItems6: DeclaredKeys<QuestionMatrixDropdownModel> = "createRecordItemContext";
+  // @ts-expect-error protected
+  const ddItems7: DeclaredKeys<QuestionMatrixDropdownModel> = "createRecordItem";
+  // @ts-expect-error protected
+  const mdItems1: DeclaredKeys<QuestionMatrixDynamicModel> = "collectNestedQuestionsOfItems";
+  // @ts-expect-error protected
+  const mdItems2: DeclaredKeys<QuestionMatrixDynamicModel> = "runTriggersOnItems";
+  // @ts-expect-error protected
+  const mdItems3: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordCountByExpressionValue";
+  // @ts-expect-error protected
+  const mdItems4: DeclaredKeys<QuestionMatrixDynamicModel> = "setDefaultRecordValues";
+  // @ts-expect-error a hook
+  const mdItems5: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordItemVariableName";
+  // @ts-expect-error a hook
+  const mdItems6: DeclaredKeys<QuestionMatrixDynamicModel> = "createRecordItemContext";
+  // @ts-expect-error protected
+  const mdItems7: DeclaredKeys<QuestionMatrixDynamicModel> = "createRecordItem";
+  // @ts-expect-error protected
+  const pdItems1: DeclaredKeys<QuestionPanelDynamicModel> = "collectNestedQuestionsOfItems";
+  // @ts-expect-error protected
+  const pdItems2: DeclaredKeys<QuestionPanelDynamicModel> = "runTriggersOnItems";
+  // @ts-expect-error protected
+  const pdItems3: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordCountByExpressionValue";
+  // @ts-expect-error protected
+  const pdItems4: DeclaredKeys<QuestionPanelDynamicModel> = "setDefaultRecordValues";
+  // @ts-expect-error a hook
+  const pdItems5: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordItemVariableName";
+  // @ts-expect-error a hook
+  const pdItems6: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItemContext";
+  // @ts-expect-error protected
+  const pdItems7: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItem";
+  res.push(ddItems1, ddItems2, ddItems3, ddItems4, ddItems5, ddItems6, ddItems7, mdItems1, mdItems2, mdItems3, mdItems4, mdItems5, mdItems6,
+    mdItems7, pdItems1, pdItems2, pdItems3, pdItems4, pdItems5, pdItems6, pdItems7);
+  // The fixed matrix answers the visible-index and expression-item lookups the matrix rows ask for.
+  const ddItemLookups: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["getItemVisibleIndex", "getItemByVisibleIndex", "getExpressionItem"];
+  res.push(ddItemLookups);
   return res;
 }

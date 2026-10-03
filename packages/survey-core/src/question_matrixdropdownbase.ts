@@ -3,7 +3,7 @@ import { property } from "./decorators";
 import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
+import { IElement, IQuestion, ISurvey, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -22,9 +22,8 @@ import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, 
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
-import { DynamicItemGetterContext, DynamicItemModelBase, DynamicRecordItem, IDynamicItemModelData } from "./dynamicItemModelBase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
+import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
@@ -33,7 +32,18 @@ export interface IMatrixDuplicationEntry {
   value: any;
 }
 
-export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData, ILocalizableOwner {
+/* The matrix as its cells see it. The first group is what the interface has always declared for the
+   rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
+export interface IMatrixDropdownData extends IObjectValueContext, ILocalizableOwner {
+  getSurvey(): ISurvey;
+  getItem(index: number): QuestionRecordItem;
+  getItemData(item: ISurveyData): any;
+  getItemIndex(item: ISurveyData): number;
+  getValueGetterContext(): IValueGetterContext;
+  getFilteredData(): any;
+  getBindedQuestions(): IQuestion[];
+  getSharedQuestionFromArray(name: string, index: number): Question;
+  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): any;
   onRowChanging(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -207,17 +217,12 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
 }
 
-export class MatrixRowGetterContext extends DynamicItemGetterContext {
+export class MatrixRowGetterContext extends QuestionRecordItemGetterContext {
   /* row is a row object, or - for a matrix that pages - a record without a row read as a value
-     (DynamicRecordItem): the neighbours of the first and last row of a page, and rowsVisibleIf,
+     (RecordValueItem): the neighbours of the first and last row of a page, and rowsVisibleIf,
      which decides the page before any row exists. */
   constructor(protected row: MatrixDropdownRowModelBase) {
     super(row);
-  }
-  // A matrix that does not know the positions in the whole list (matrixdropdown): visibleRows.
-  protected getVisibleIndexWithoutOwner(): number {
-    const rows = this.getQuestionData().visibleRows;
-    return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
   protected getNextName(): string {
     return settings.expressionVariables.nextRow;
@@ -225,15 +230,10 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   protected getPrevName(): string {
     return settings.expressionVariables.prevRow;
   }
-  protected getVisibleItemWithoutOwner(index: number): DynamicItemModelBase {
-    const rows = this.getQuestionData().visibleRows;
-    if (!rows || index < 0 || index >= rows.length) return null;
-    return rows[index];
-  }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.totalRow.toLocaleLowerCase()) {
-      const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
+      const totalRow = this.row.data.visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
         return totalRow.getValueGetterContext().getValue(params);
@@ -278,7 +278,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
 }
 
-export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
+export class MatrixDropdownRowModelBase extends QuestionRecordItem implements ILocalizableOwner {
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -291,11 +291,11 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   public visibleIndex: number = -1;
   // The row's position in visibleRows: the page it is on, when the matrix pages.
   public get pageVisibleIndex(): number {
-    const rows = !!this.data ? (<any>this.data).visibleRows : undefined;
+    const rows = !!this.data ? this.data.visibleRows : undefined;
     return Array.isArray(rows) ? rows.indexOf(this) : -1;
   }
 
-  constructor(public data: IMatrixDropdownData, value: any) {
+  constructor(public data: QuestionMatrixDropdownModelBase, value: any) {
     super(data);
     this.data = data;
     this.subscribeToChanges(value);
@@ -927,7 +927,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
      getIndex() stays the window-local record index the matrix storage is addressed by. */
   public get rowIndex(): number {
     const res = this.getItemIndex();
-    return res > 0 ? res + DynamicItemModelBase.getRecordNumberOffset(this.data) : res;
+    return res > 0 ? res + (!!this.data ? this.data.getRecordNumberOffset() : 0) : res;
   }
   public getIndex(): number {
     return this.getItemIndex() - 1;
@@ -971,7 +971,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
 }
 
 export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
-  constructor(data: IMatrixDropdownData) {
+  constructor(data: QuestionMatrixDropdownModelBase) {
     super(data, null);
     this.buildCells(null);
   }
@@ -2215,7 +2215,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private runTriggersOnNewRows(): void {
     const val = this.value;
-    DynamicItemModelBase.runTriggersOnItems(
+    this.runTriggersOnItems(
       this.generatedVisibleRows,
       row => this.getRowValueCore(row as MatrixDropdownRowModelBase, val),
       settings.expressionVariables.row
@@ -2470,7 +2470,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    DynamicItemModelBase.collectNestedQuestionsInItems(rows, questions, visibleOnly, includeNested, includeItSelf);
+    this.collectNestedQuestionsOfItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";
@@ -2581,9 +2581,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.generatedVisibleRows) return true;
     return this.validateRowObjects(context);
   }
-  protected createRecordItem(recordIndex: number): DynamicRecordItem {
-    return new DynamicRecordItem(this, recordIndex, this.getListRecordAt(recordIndex), settings.expressionVariables.row,
-      (item: DynamicRecordItem): IValueGetterContext => new MatrixRowGetterContext(<any>item));
+  protected getRecordItemVariableName(): string {
+    return settings.expressionVariables.row;
+  }
+  protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
+    return new MatrixRowGetterContext(<any>item);
   }
   /* QuestionRecordsModel hook: every unique column, keyName included. Every record takes part,
      owner-hidden ones included, as it does without paging, and strings compare as the on-page check
@@ -3100,8 +3102,35 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   getItemRecordIndex(item: ISurveyData): number {
     return this.getItemIndex(item);
   }
-  getItemByRecordIndex(recordIndex: number): DynamicItemModelBase {
+  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
     return this.getItem(recordIndex);
+  }
+  getItemVisibleIndex(item: ISurveyData): number {
+    if (item instanceof MatrixDropdownRowModelBase) {
+      const rows = this.visibleRows;
+      if (!rows) return item.visibleIndex;
+      const pos = rows.indexOf(item);
+      return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
+    }
+    return this.getRecordItemVisibleIndex(item);
+  }
+  /* The neighbour comes from the view: the row when the record has one, the record read as a value
+     when the matrix pages and it has none. */
+  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
+    if (visibleIndex < 0) return null;
+    const rows = this.visibleRows;
+    if (!rows) return null;
+    const pos = visibleIndex - this.pageStartVisibleIndex;
+    if (pos >= 0 && pos < rows.length) return rows[pos];
+    return this.getRecordItemByVisibleIndex(visibleIndex);
+  }
+  // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
+  // filtered out, off the page or not built - is read as a value.
+  public getExpressionItem(index: number): QuestionRecordItem {
+    // Reading allRows builds the rows, so that a record that has a row is answered by the row.
+    const rows = this.allRows;
+    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
+    return this.getViewExpressionItem(index);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     let elements: Array<IElement>;
@@ -3183,7 +3212,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     );
   }
   // index is a CREATED position.
-  getItem(index: number): DynamicItemModelBase {
+  getItem(index: number): QuestionRecordItem {
     if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
     return this.generatedVisibleRows[index];
   }

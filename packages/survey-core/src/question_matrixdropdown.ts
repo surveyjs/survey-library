@@ -62,7 +62,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   constructor(
     public name: string,
     item: ItemValue,
-    data: IMatrixDropdownData,
+    data: QuestionMatrixDropdownModelBase,
     value: any
   ) {
     super(data, value);

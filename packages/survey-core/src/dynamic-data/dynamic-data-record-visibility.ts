@@ -2,7 +2,7 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { IValueGetterContext } from "../conditions/conditionProcessValue";
 import { HashTable } from "../helpers";
 
-// The record read as a value (DynamicRecordItem), typed by shape: this module does not load dynamicItemModelBase.ts.
+// The record read as a value (RecordValueItem), typed by shape: this module does not load question_records.ts.
 export interface IDynamicDataRecordScope {
   item: { reset(recordIndex: number, record: any): void, getValueGetterContext(): IValueGetterContext };
   properties: HashTable<any>;

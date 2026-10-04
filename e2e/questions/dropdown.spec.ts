@@ -851,6 +851,12 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
 
+      // Wait for the new survey DOM to be ready before keyboard interaction.
+      // initSurvey unmounts the old React root synchronously, then schedules the
+      // new render asynchronously. Without this wait, Tab is pressed before the
+      // first dropdown exists in the DOM and focus is never established.
+      await expect(page.locator(".sd-dropdown").first()).toBeVisible();
+
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -859,7 +865,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(page.locator(".sd-dropdown__value .sv-string-viewer")).toHaveText("Nissan");
 
-      await page.waitForTimeout(100);
+      await expect(popupContainer).not.toBeVisible();
       await page.keyboard.press(" ");
       await expect(popupContainer).toBeVisible();
       await page.keyboard.press("ArrowUp");

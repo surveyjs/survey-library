@@ -2877,3 +2877,75 @@ describe("Matrix row getType", () => {
     expect(dynamicRow.getType()).toBe("matrixrow");
   });
 });
+
+describe("Fixed matrix: duplicate row keys share one answer", () => {
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  const cellValue = (matrix: QuestionMatrixDropdownModel, rowIndex: number, colIndex: number): any =>
+    matrix.visibleRows[rowIndex].cells[colIndex].question.value;
+  const setCell = (matrix: QuestionMatrixDropdownModel, rowIndex: number, colIndex: number, val: any): void => {
+    matrix.visibleRows[rowIndex].cells[colIndex].question.value = val;
+  };
+  test("an edit of one occurrence leaves the other one showing stale cells, and its next edit drops the first edit", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: ["a", "a", "b"], columns: textColumns }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    expect(matrix.renderedTable.rows.filter(row => row.row && !row.isDetailRow).length, "#0: two rows are rendered for one key").toBe(3);
+    setCell(matrix, 0, 0, "1");
+    expect(matrix.value, "#1: the answer").toEqual({ a: { c1: "1" } });
+    expect(cellValue(matrix, 1, 0), "#1: the other occurrence does not show the edit").toBeUndefined();
+    setCell(matrix, 1, 1, "2");
+    expect(matrix.value, "#2: the stale occurrence drops the first edit").toEqual({ a: { c2: "2" } });
+    expect(cellValue(matrix, 0, 0), "#2: the first occurrence keeps showing its own edit").toBe("1");
+    expect(cellValue(matrix, 0, 1), "#2: and not the second one").toBeUndefined();
+    setCell(matrix, 0, 1, "3");
+    expect(matrix.value, "#3: the first occurrence writes its cells back").toEqual({ a: { c1: "1", c2: "3" } });
+    expect(matrix.renderedTable.rows.filter(row => row.row && !row.isDetailRow).length, "#3: still two rows for one key").toBe(3);
+  });
+  test("clearIncorrectValues: the first occurrence decides whether the key is kept", () => {
+    const createMatrix = (rows: Array<any>): QuestionMatrixDropdownModel => {
+      const survey = new SurveyModel({
+        elements: [{ type: "matrixdropdown", name: "matrix", rows: rows, columns: textColumns }]
+      });
+      survey.data = { matrix: { a: { c1: 1 } } };
+      return <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    };
+    const firstHidden = createMatrix([{ value: "a", visibleIf: "{show} = true" }, "a"]);
+    firstHidden.clearIncorrectValues();
+    expect(firstHidden.value, "#1: the first occurrence is hidden").toEqual({});
+    const secondHidden = createMatrix(["a", { value: "a", visibleIf: "{show} = true" }]);
+    secondHidden.clearIncorrectValues();
+    expect(secondHidden.value, "#2: the second occurrence is hidden").toEqual({ a: { c1: 1 } });
+  });
+});
+
+describe("Fixed matrix: the shape of the keyed answer", () => {
+  const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
+  test("an emptied row deletes its key and the last emptied row empties the answer", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: ["r1", "r2"], columns: textColumns }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    matrix.visibleRows[0].cells[0].question.value = "a";
+    matrix.visibleRows[1].cells[1].question.value = "b";
+    expect(matrix.value, "#1").toEqual({ r1: { c1: "a" }, r2: { c2: "b" } });
+    matrix.visibleRows[0].cells[0].question.value = undefined;
+    expect(matrix.value, "#2: the emptied row's key is deleted").toEqual({ r2: { c2: "b" } });
+    matrix.visibleRows[1].cells[1].question.value = undefined;
+    expect(matrix.value, "#3: nothing is left").toBeNull();
+    expect(survey.data, "#3: the survey holds no answer").toEqual({});
+  });
+  test("an unknown key and a key of a question sharing the valueName survive a cell edit", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdropdown", name: "q1", valueName: "shared", rows: ["r1", "r2"], columns: textColumns },
+        { type: "matrixdropdown", name: "q2", valueName: "shared", rows: ["r3"], columns: textColumns }
+      ]
+    });
+    survey.data = { shared: { r1: { c1: "a" }, r3: { c1: "c" }, zz: { c1: "z" } } };
+    const q1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    q1.visibleRows[1].cells[1].question.value = "b";
+    expect(q1.value, "#1: the other question's row and the unknown key are kept").toEqual({ r1: { c1: "a" }, r2: { c2: "b" }, r3: { c1: "c" }, zz: { c1: "z" } });
+    expect(survey.data, "#1: the survey data").toEqual({ shared: { r1: { c1: "a" }, r2: { c2: "b" }, r3: { c1: "c" }, zz: { c1: "z" } } });
+  });
+});

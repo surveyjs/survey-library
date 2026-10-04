@@ -6507,13 +6507,24 @@ export class SurveyModel extends SurveyElementCore
   }
   // Setting data doesn't run triggers, except ones that update the survey state without changing data
   private checkTriggersOnSettingData(): void {
+    if (!this.hasTriggersOnSettingData()) return;
     this.checkTriggers(this.getTriggerKeys(this.getAllQuestions()), false, false, false, undefined, true);
+  }
+  // Building trigger keys copies the whole survey value, so skip it when no trigger reacts to setting data
+  private hasTriggersOnSettingData(): boolean {
+    if (this.isCompleted || this.isDisplayMode) return false;
+    const triggers = this.triggers;
+    for (let i = 0; i < triggers.length; i++) {
+      if (triggers[i].isExecutableOnSettingData()) return true;
+    }
+    return false;
   }
   private getTriggerKeys(questions: Array<Question>): { [index: string]: any } {
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
       var name = question.getValueName();
+      if (Object.prototype.hasOwnProperty.call(values, name)) continue;
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);

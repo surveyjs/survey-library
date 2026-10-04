@@ -93,6 +93,10 @@ export class Trigger extends Base {
   protected canBeExecutedOnSettingData(): boolean {
     return false;
   }
+  // The survey checks it to skip collecting trigger keys on setting data when no trigger reacts to it
+  public isExecutableOnSettingData(): boolean {
+    return this.canBeExecutedOnSettingData();
+  }
   protected isExecutingOnNextPage: boolean;
   protected isExecutingOnNavigation: boolean;
   protected isExecutingOnSettingData: boolean;

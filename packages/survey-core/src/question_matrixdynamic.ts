@@ -16,7 +16,7 @@ import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
-import { IShortcutText, ISurveyImpl, IProgressInfo, ISurveyData } from "./base-interfaces";
+import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
@@ -29,7 +29,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordItem, QuestionRecordsValueGetterContext } from "./question_records";
+import { QuestionRecordsValueGetterContext } from "./question_records";
 import { IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
@@ -140,10 +140,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     super.storeLoadedRecords();
     this.rowCountValue = this.dataList.count;
   }
-  // QuestionRecordsModel hook: the rows' side of a list change, see
-  // QuestionRecordsModel.onDataListChanged.
-  protected rebuildFromDataList(): void {
-    this.rebuildRowsFromDataList();
+  // The respondent adds, removes and reorders the rows: the records are the question's to change.
+  protected isRecordMembershipFixed(): boolean {
+    return false;
   }
   // A move through a data source hands the rows their records before the conditions run.
   protected prepareRemoteWrite(change: IDynamicDataListChange): void {
@@ -173,36 +172,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     } finally {
       this.isRowChanging = false;
     }
-  }
-  /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
-     per-row state - open detail panels, row errors, cell question state, row ids - and fires the
-     row-creation callbacks again. It is the same path a remote page change takes, so there is one. */
-  private rebuildRowsFromDataList(): void {
-    if (this.isEditingObjectValue) return;
-    const hasRows = !!this.generatedVisibleRows;
-    // The page is a slice of the visible records: their visibility is decided before it is cut.
-    if (hasRows && !!this.data) {
-      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
-    }
-    if (hasRows) {
-      this.clearGeneratedRows();
-      this.resetRenderedTable();
-      this.getVisibleRows();
-      this.onRowsChanged();
-    }
-    /* The totals are the totals of the rows that exist, so a view change recalculates them - and a
-       total needs the rows even when nothing has asked for them yet. */
-    if (this.hasTotal) {
-      if (!hasRows) {
-        this.getVisibleRows();
-      }
-      this.runTotalsCondition(this.getDataFilteredProperties());
-    }
-  }
-  // Single-input mode is its own paging: it walks every row and lists them in its summary.
-  protected get listPageSize(): number {
-    // settings.matrix.maxRowCount is the number of rows one page may hold.
-    return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
   }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
@@ -285,11 +254,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       res = res.slice(0, this.rowCount);
     }
     return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
-  }
-  // The value is an array of Base objects edited in place (Creator's property grid): it is never
-  // routed through the list, see the comments on the operations that branch on it.
-  private get isEditingObjectValue(): boolean {
-    return this.isValueSurveyElement(this.value);
   }
   private setLastRowRecord(record: any, force: boolean = false): void {
     if (this.isEditingObjectValue) {
@@ -635,7 +599,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const isPageChanged = this.isPagingActive && rows.some((row: MatrixDropdownRowModelBase, i: number): boolean =>
       row.builtRecordIndex !== created[i]);
     if (created.length < rows.length || isPageChanged) {
-      this.rebuildRowsFromDataList();
+      this.rebuildFromDataList(false);
       return;
     }
     for (let i = rows.length; i < created.length; i++) {
@@ -1006,7 +970,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const position = list.indexToMaterializedIndex(at);
     if (position < 0) return at;
     if (position < rows.length) {
-      this.rebuildRowsFromDataList();
+      this.rebuildFromDataList(false);
       return at;
     }
     const newRow = this.createMatrixRow(list.getRecord(at));
@@ -1036,7 +1000,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const at = Math.max(0, Math.min(position, createdCount));
     list.add(record, at < createdCount ? list.materializedIndexToIndex(at) : list.loadedCount);
     if (at < createdCount) {
-      this.rebuildRowsFromDataList();
+      this.rebuildFromDataList(false);
       return;
     }
     const rows = this.generatedVisibleRows;
@@ -1464,18 +1428,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (Array.isArray(val) && index < val.length) return this.getUnbindValue(val[index]);
     return isRemote ? null : this.getUnbindValue(this.getDefaultRowValue(false) || {});
   }
-  /* One row per record in the view. Without a filter and a sort that is one row per record, in
-     record order, which is what createNewValue() composed the value for. The live-object value
-     (Creator's property grid) is never filtered: its rows follow the edited array. */
-  private getRecordIndexesForRows(): Array<number> {
-    if (this.isEditingObjectValue || !this.hasDataListView) {
-      const res = new Array<number>(this.rowCount);
-      for (let i = 0; i < this.rowCount; i++) {
-        res[i] = i;
-      }
-      return res;
-    }
-    return this.dataList.getMaterializedIndexes();
+  // rowCount rows, whatever the value holds beyond them until it is normalized.
+  protected getRecordCountForRows(): number {
+    return this.rowCount;
   }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
@@ -1713,48 +1668,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const res = this.getListRecordAt(this.dataList.materializedIndexToIndex(index));
     return res !== undefined ? res : null;
   }
-  /* The one seam between an object and its record. getItemIndex stays the row position - it is
-     IMatrixDropdownData API and the rendered table addresses rows by position - and this is the
-     record the row at that position holds. */
-  private getRecordIndexOf(item: ISurveyData): number {
-    const position = this.getItemIndex(item);
-    if (position < 0) return -1;
-    return this.dataList.materializedIndexToIndex(position);
-  }
-  getItemRecordIndex(item: ISurveyData): number {
-    return this.getRecordIndexOf(item);
-  }
   // A row position is not a record index under paging, filtering or sorting: a location names the record.
   protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
     if (!this.hasDataListView) return index;
     const res = this.getRecordIndexOf(row);
     return res > -1 ? res : index;
-  }
-  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
-    const position = this.dataList.indexToMaterializedIndex(recordIndex);
-    return position < 0 ? undefined : this.getItem(position);
-  }
-  protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
-    if (this.isEditingObjectValue) return super.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
-    const index = this.getRecordIndexOf(row);
-    if (index < 0) return null;
-    const list = this.dataList;
-    const oldRecord = list.getRecord(index);
-    const oldCellValue = oldRecord?.[columnName];
-    // The merge is the base's; the record it works on is a copy of the one the list holds.
-    const rowValue = Object.assign({}, oldRecord);
-    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
-    // The list's callbacks run in between: a flag a throw left set would make onSetQuestionValue
-    // return early for good.
-    let isChanged = false;
-    this.isRowChanging = true;
-    try {
-      isChanged = list.setRecord(index, rowValue);
-    } finally {
-      this.isRowChanging = false;
-    }
-    return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     super.onRowVisibilityChanged(row);

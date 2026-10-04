@@ -7,8 +7,9 @@ import { IDynamicDataSource } from "./dynamic-data-interfaces";
 // and onValueChanged.oldValue stays correct. Every write therefore builds a new array.
 export class ArrayDynamicDataSource implements IDynamicDataSource {
   // getCount: the length getArray() would return, for a getter that composes the array on the fly.
+  // isMembershipFixed: the records are the owner's to define; insert, remove and move write nothing.
   constructor(private getArray: () => Array<any> | undefined, private setArray: (arr: Array<any>) => void,
-    private getCount?: () => number) { }
+    private getCount?: () => number, private isMembershipFixed: boolean = false) { }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
   private batchHasWrites: boolean = false;
@@ -72,6 +73,7 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   }
   // A source without keyField: the key IS the source index, so update/remove/move take a position.
   public insert(record: any, sourceIndex: number): void {
+    if (this.isMembershipFixed) return;
     const arr = this.read().slice();
     const index = Math.max(0, Math.min(sourceIndex, arr.length));
     arr.splice(index, 0, record);
@@ -85,6 +87,7 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
     this.write(newArray);
   }
   public remove(sourceIndex: number): void {
+    if (this.isMembershipFixed) return;
     const arr = this.read();
     if (!this.isInRange(sourceIndex, arr.length)) return;
     const newArray = arr.slice();
@@ -92,6 +95,7 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
     this.write(newArray);
   }
   public move(fromSourceIndex: number, toSourceIndex: number): void {
+    if (this.isMembershipFixed) return;
     const arr = this.read();
     if (!this.isInRange(fromSourceIndex, arr.length) || !this.isInRange(toSourceIndex, arr.length)) return;
     if (fromSourceIndex === toSourceIndex) return;

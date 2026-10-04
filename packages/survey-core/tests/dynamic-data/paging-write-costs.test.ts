@@ -2,6 +2,7 @@ import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
@@ -468,5 +469,39 @@ describe("E: a read() source paged by the list costs the page", () => {
         vi.restoreAllMocks();
       });
     });
+  });
+});
+
+describe("Fixed matrix: the records are composed once per answer", () => {
+  function createFixedMatrix(rowCount: number): QuestionMatrixDropdownModel {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "m", columns: [{ name: "a", cellType: "text" }],
+        rows: records(rowCount, i => "r" + i)
+      }]
+    });
+    survey.data = { m: { r0: { a: "0" }, r150: { a: "150" } } };
+    return <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+  }
+  test("creating the list, a cell edit, reads and an assignment from outside", () => {
+    const matrix = createFixedMatrix(200);
+    const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+    const list = matrix.getDataList();
+    expect(list.loadedCount, "#1").toBe(200);
+    expect(composes.mock.calls.length, "#1: creating the list composes at most once").toBeLessThanOrEqual(1);
+    const afterCreate = composes.mock.calls.length;
+    matrix.visibleRows[3].cells[0].question.value = "x";
+    expect(list.getRecord(3), "#2: the edit is read back").toEqual({ a: "x" });
+    expect(composes.mock.calls.length - afterCreate, "#2: one cell edit composes at most once more").toBeLessThanOrEqual(1);
+    const afterEdit = composes.mock.calls.length;
+    for (let i = 0; i < 200; i++) {
+      list.getRecord(i);
+    }
+    expect(composes.mock.calls.length - afterEdit, "#3: reads without a write compose nothing").toBe(0);
+    (<SurveyModel>matrix.survey).setValue("m", { r1: { a: "1" } });
+    expect(composes.mock.calls.length - afterEdit, "#4: an assignment composes nothing by itself").toBe(0);
+    expect(list.getRecord(1), "#5: the next read").toEqual({ a: "1" });
+    list.getRecord(2);
+    expect(composes.mock.calls.length - afterEdit, "#5: composes exactly once").toBe(1);
   });
 });

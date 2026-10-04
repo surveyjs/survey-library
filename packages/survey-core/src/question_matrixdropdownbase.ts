@@ -2538,8 +2538,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  // The QuestionRecordsModel hooks in matrix terms. A matrix with fixed rows creates no record list, so
-  // they are called for the dynamic matrix only.
+  // The QuestionRecordsModel hooks in matrix terms.
   protected getFields(): Array<IDynamicDataField> {
     const questions = new Array<Question>();
     this.columns.forEach(column => {
@@ -2595,31 +2594,59 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRecordVisibleIfPropertyName(): string {
     return "rowsVisibleIf";
   }
-  /* Not supported yet: a matrix that is not dynamic creates no record list - its keyed answer has no
-     record array, and it has no paging property - so QuestionRecordsModel never calls these on its
-     own. The public paging, sort and filter writes of the fixed matrix (pageIndex, sortOrder, sortBy,
-     filterExpression, toggleSort, clearSort, refreshView) and getDataList() reach them until it has a
-     record list; any other path that reaches one is a defect. The dynamic matrix answers them. */
+  /* The rows define the records: a list operation that would insert, remove or move one is refused.
+     The dynamic matrix answers false. */
+  protected isRecordMembershipFixed(): boolean {
+    return true;
+  }
+  // The matrix base generates no rows (generateRows), so it has no records: the two matrices answer these.
   protected getListRecords(): Array<any> {
-    throw new Error("getListRecords: a matrix without a record list has no records to read");
+    return [];
   }
-  protected setListRecords(records: Array<any>): void {
-    throw new Error("setListRecords: a matrix without a record list has no records to write");
-  }
+  // No records, so nothing to write: the fixed membership keeps the count at 0.
+  protected setListRecords(records: Array<any>): void { }
+  // No records, so no record at any index.
   protected getListRecordAt(index: number): any {
-    throw new Error("getListRecordAt: a matrix without a record list has no record to read");
+    return undefined;
   }
+  /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
+     per-row state - open detail panels, row errors, cell question state, row ids - and fires the
+     row-creation callbacks again. It is the same path a remote page change takes, so there is one.
+     The rows' side of a list change, see QuestionRecordsModel.onDataListChanged. */
   protected rebuildFromDataList(isPageMove: boolean): void {
-    throw new Error("rebuildFromDataList: a matrix without a record list has no rows to rebuild from it");
+    if (this.isEditingObjectValue) return;
+    const hasRows = !!this.generatedVisibleRows;
+    // The page is a slice of the visible records: their visibility is decided before it is cut.
+    if (hasRows && !!this.data) {
+      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
+    }
+    if (hasRows) {
+      this.clearGeneratedRows();
+      this.resetRenderedTable();
+      this.getVisibleRows();
+      this.onRowsChanged();
+    }
+    /* The totals are the totals of the rows that exist, so a view change recalculates them - and a
+       total needs the rows even when nothing has asked for them yet. */
+    if (this.hasTotal) {
+      if (!hasRows) {
+        this.getVisibleRows();
+      }
+      this.runTotalsCondition(this.getDataFilteredProperties());
+    }
   }
+  // Single-input mode is its own paging: it walks every row and lists them in its summary.
+  protected get listPageSize(): number {
+    // settings.matrix.maxRowCount is the number of rows one page may hold.
+    return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
+  }
+  /* Not supported yet, until the fixed matrix registers a paging property and the last member is
+     settled: getPageSizePropertyName is a bridge - no paging property, so pageSize reads 0 and ignores
+     a write; the dynamic matrix names rowsPerPage. focusItemAfterRead throws: only a committed read of
+     an assigned source reaches it, and the fixed matrix has no assigned source. */
   protected focusItemAfterRead(index: number): void {
     throw new Error("focusItemAfterRead: a matrix without a record list has no read to focus a row after");
   }
-  protected get listPageSize(): number {
-    throw new Error("listPageSize: a matrix without a record list has no pages to size");
-  }
-  /* A bridge until the fixed matrix has a record list: no paging property, so pageSize reads 0 and
-     ignores a write. It goes away with the members above; the dynamic matrix names rowsPerPage. */
   protected getPageSizePropertyName(): string {
     return "";
   }
@@ -3033,9 +3060,34 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
-  /* The seam for the record storage: matrix dynamic writes the record into its DynamicDataList,
-     matrix dropdown composes the object keyed by rowName here. Returns null when nothing changed. */
+  /* The seam for the record storage: a cell write is a record write of the list - the record the row
+     holds, through the question's own source (getListRecords / setListRecords). Returns null when
+     nothing changed. */
   protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
+    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
+    if (this.isEditingObjectValue) return this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue);
+    const index = this.getRecordIndexOf(row);
+    if (index < 0) return null;
+    const list = this.dataList;
+    const oldRecord = list.getRecord(index);
+    const oldCellValue = oldRecord?.[columnName];
+    // The merge is the base's; the record it works on is a copy of the one the list holds.
+    const rowValue = Object.assign({}, oldRecord);
+    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
+    // The list's callbacks run in between: a flag a throw left set would make onSetQuestionValue
+    // return early for good.
+    let isChanged = false;
+    this.isRowChanging = true;
+    try {
+      isChanged = list.setRecord(index, rowValue);
+    } finally {
+      this.isRowChanging = false;
+    }
+    return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+  }
+  /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
+     composed and assigned, and the list is not involved. */
+  protected updateRowValueInWholeValue(row: MatrixDropdownRowModelBase, columnName: string,
     newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
     const oldValue = this.createNewValue(true);
     const oldRowValue = this.getRowValueCore(row, oldValue, true);
@@ -3088,13 +3140,46 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(<any>item);
   }
-  // Matrix dropdown creates a row for every record, so the two indexes are the same one; matrix
-  // dynamic maps them through its list.
+  /* The one seam between an object and its record. getItemIndex stays the row position - it is
+     IMatrixDropdownData API and the rendered table addresses rows by position - and this is the
+     record the row at that position holds. Without a list the rows are built for every record in
+     record order, so the position is the record index; nothing is created for it. */
+  protected getRecordIndexOf(item: ISurveyData): number {
+    const position = this.getItemIndex(item);
+    if (position < 0) return -1;
+    const list = this.dataListValue;
+    return !!list ? list.materializedIndexToIndex(position) : position;
+  }
   getItemRecordIndex(item: ISurveyData): number {
-    return this.getItemIndex(item);
+    return this.getRecordIndexOf(item);
   }
   getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
-    return this.getItem(recordIndex);
+    const list = this.dataListValue;
+    const position = !!list ? list.indexToMaterializedIndex(recordIndex) : recordIndex;
+    return position < 0 ? undefined : this.getItem(position);
+  }
+  /* One row per record in the view. Without a filter and a sort that is one row per record, in
+     record order, which is what createNewValue() composed the value for. The live-object value
+     (Creator's property grid) is never filtered: its rows follow the edited array. */
+  protected getRecordIndexesForRows(): Array<number> {
+    if (this.isEditingObjectValue || !this.hasDataListView) {
+      const count = this.getRecordCountForRows();
+      const res = new Array<number>(count);
+      for (let i = 0; i < count; i++) {
+        res[i] = i;
+      }
+      return res;
+    }
+    return this.dataList.getMaterializedIndexes();
+  }
+  // The number of rows built without a view: one per record.
+  protected getRecordCountForRows(): number {
+    return this.getListRecordCount();
+  }
+  // The value is a Base object, or an array of them, edited in place (Creator's property grid): it is
+  // never routed through the list, see the comments on the operations that branch on it.
+  protected get isEditingObjectValue(): boolean {
+    return this.isValueSurveyElement(this.value);
   }
   getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {

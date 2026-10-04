@@ -87,12 +87,14 @@ export class DynamicDataList {
      getter/setter pair, never a captured array, so that every write replaces the array instead of
      mutating the one the owner currently holds - read through on demand, so that a value assigned
      outside the list is seen at once. The list keeps the factory and not the instance: a detach
-     builds a fresh source, so that the batch state of the one in use cannot survive a swap. */
+     builds a fresh source, so that the batch state of the one in use cannot survive a swap.
+     isMembershipFixed: see the flag; the default source carries it too. */
   public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
-    setArray: (arr: Array<any>) => void, getCount?: () => number): DynamicDataList {
-    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, getCount);
+    setArray: (arr: Array<any>) => void, getCount?: () => number, isMembershipFixed: boolean = false): DynamicDataList {
+    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, getCount, isMembershipFixed);
     const list = new DynamicDataList(createSource(), owner);
     list.createDefaultSource = createSource;
+    list.isMembershipFixed = isMembershipFixed;
     list.isReadThrough = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.
@@ -142,6 +144,11 @@ export class DynamicDataList {
      those points an edited record keeps its place, an added record is always in the view, a removed
      record leaves it, and only a change made outside the list re-evaluates it. */
   public isViewFrozenOnEdit: boolean = false;
+  /* The owner defines which records exist and in what order; the list only reads and updates them.
+     add, remove, move, ensureCount and truncate are refused before they touch any state - the hidden
+     flags, the storage count, the membership, the views - so a refused call leaves no trace and
+     raises nothing, and hasCapability answers false for the three operations. */
+  public isMembershipFixed: boolean = false;
   /* Two conditions that are kept apart. Ownership: only the owner's own storage is read through. A
      source the owner assigned is read, not watched, whatever its class: the owner is not told when
      the developer's array changes, so a list that followed it at once would serve records the
@@ -404,6 +411,7 @@ export class DynamicDataList {
     return res;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
+    if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("ensureCount");
     this.runWrite((): void => {
       for (let i = this.loadedCount; i < n; i++) {
@@ -413,6 +421,7 @@ export class DynamicDataList {
     this.raisePendingReset();
   }
   public truncate(n: number): void {
+    if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("truncate");
     this.runWrite((): void => {
       for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
@@ -484,6 +493,7 @@ export class DynamicDataList {
   /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */
   public add(record?: any, index?: number): number {
+    if (this.isMembershipFixed) return -1;
     const newRecord = this.removeKeyField(record === undefined ? {} : record);
     // The count the write produces. It is taken before the write: with a read-through source the
     // records only change when the push assigns the owner storage, and the membership has to carry
@@ -509,7 +519,7 @@ export class DynamicDataList {
     return at;
   }
   public remove(index: number): void {
-    if (index < 0 || index >= this.recordCount) return;
+    if (this.isMembershipFixed || index < 0 || index >= this.recordCount) return;
     /* Before the splice: afterwards this slot holds the record that moved up into it, and the last
        record of the window has no slot at all. */
     const key = this.getRecordKey(index);
@@ -548,6 +558,7 @@ export class DynamicDataList {
     this.refresh();
   }
   public move(fromIndex: number, toIndex: number): void {
+    if (this.isMembershipFixed) return;
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
@@ -913,6 +924,7 @@ export class DynamicDataList {
   // A capability is declared by the presence of the matching method: the operation names are the
   // source method names.
   public hasCapability(operation: DynamicDataOperation): boolean {
+    if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     return !!source && typeof source[operation] === "function";
   }

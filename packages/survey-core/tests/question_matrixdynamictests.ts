@@ -10615,7 +10615,8 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     expect(matrix.value, "#2: the emptied row is deleted").toEqual({ r2: { c2: "b" } });
     matrix.visibleRows[1].cells[1].question.value = undefined;
     expect(matrix.isEmpty(), "#3: the matrix is empty").toBeTruthy();
-    expect((<any>matrix).dataListValue, "#4: matrix dropdown has no data list").toBeUndefined();
+    expect(Array.isArray(matrix.value), "#4: a cell edit writes through the record list, and the value stays keyed").toBe(false);
+    expect(!!(<any>matrix).dataListValue, "#4: the record list is created by the first cell edit").toBe(true);
   });
 });
 

@@ -3269,3 +3269,67 @@ describe("DynamicDataList: the page of a visible position", () => {
     expect(list.getPageOfVisibleIndex(4), "#4: whatever page is shown").toBe(1);
   });
 });
+
+describe("DynamicDataList: a list whose membership is fixed", () => {
+  const createFixedList = (view: "none" | "sort" | "filter"): { list: DynamicDataList, changes: Array<string>, writes: () => number } => {
+    let stored: Array<any> = createRecords(7);
+    let writes = 0;
+    const changes: Array<string> = [];
+    const owner: IDynamicDataOwner = {
+      getFields: (): Array<IDynamicDataField> => [{ name: "id", dataType: "number" }],
+      onDataListChanged: (change: IDynamicDataListChange): void => { changes.push(changeToString(change)); }
+    };
+    const list = DynamicDataList.createReadThrough(owner, (): Array<any> => stored,
+      (arr: Array<any>): void => { writes++; stored = arr; }, undefined, true);
+    list.pageSize = 2;
+    list.setRecordVisible(3, false);
+    if (view === "sort") list.sort = [{ field: "id", direction: "desc" }];
+    if (view === "filter") list.filter = "{id} != 1";
+    list.pageIndex = 1;
+    changes.length = 0;
+    return { list: list, changes: changes, writes: (): number => writes };
+  };
+  const getState = (list: DynamicDataList): string => JSON.stringify({
+    records: list.getLoadedRecords(), count: list.count, loadedCount: list.loadedCount,
+    hidden: list.getLoadedRecords().map((_: any, i: number): boolean => list.isRecordVisible(i)),
+    created: list.getCreatedIndexes(), visible: list.getVisibleIndexes(), pageIndex: list.pageIndex, pageCount: list.pageCount
+  });
+  (<Array<"none" | "sort" | "filter">>["none", "sort", "filter"]).forEach((view) => {
+    test("add, remove, move, ensureCount and truncate leave no trace, view: " + view, () => {
+      const { list, changes, writes } = createFixedList(view);
+      const before = getState(list);
+      expect(list.add({ id: 100 }), "#1: add is refused").toBe(-1);
+      expect(list.add({ id: 101 }, 0), "#1: an insert as well").toBe(-1);
+      list.remove(0);
+      list.move(0, 2);
+      list.ensureCount(10);
+      list.truncate(1);
+      list.batch((): void => {
+        list.add({ id: 102 });
+        list.remove(1);
+      });
+      expect(getState(list), "#2: records, counts, flags, views and the page are unchanged").toBe(before);
+      expect(changes, "#3: nothing is announced").toEqual([]);
+      expect(writes(), "#4: nothing is written").toBe(0);
+    });
+  });
+  test("its default source is no back door, and an update still goes through", () => {
+    const { list, changes, writes } = createFixedList("none");
+    const before = getState(list);
+    list.source.insert({ id: 100 }, 0);
+    list.source.remove(0);
+    list.source.move(0, 2);
+    expect(getState(list), "#1: unchanged").toBe(before);
+    expect(writes(), "#1: nothing is written").toBe(0);
+    expect(list.setValue(2, "name", "x"), "#2: an update is written").toBe(true);
+    expect(writes(), "#2").toBe(1);
+    expect(list.getRecord(2).name, "#2").toBe("x");
+    expect(changes, "#2: announced").toEqual(["recordChanged:2:name"]);
+  });
+  test("hasCapability answers false for the membership operations only", () => {
+    const { list } = createFixedList("none");
+    expect(["insert", "remove", "move", "update", "read"].map((op: any) => list.hasCapability(op)), "#1").toEqual([false, false, false, true, true]);
+    const free = createList(createRecords(2));
+    expect(["insert", "remove", "move"].map((op: any) => free.hasCapability(op)), "#2: a list without the flag").toEqual([true, true, true]);
+  });
+});

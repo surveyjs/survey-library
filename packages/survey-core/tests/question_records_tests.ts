@@ -14,7 +14,7 @@ function hasNoRecordList(q: any): boolean {
 }
 
 describe("Records question: fixed matrix", () => {
-  test("fixed matrix: no record list is created", () => {
+  test("fixed matrix: the first cell edit creates the record list, nothing before it does", () => {
     const survey = new SurveyModel({
       clearInvisibleValues: "none",
       elements: [{
@@ -34,26 +34,26 @@ describe("Records question: fixed matrix", () => {
     expect(q.value, "#2: a keyed answer").toEqual({ r1: { a: "1" }, r3: { a: "3" } });
 
     q.visibleRows[1].cells[0].question.value = "2";
-    expect(hasNoRecordList(q), "#3: a cell edit").toBe(true);
+    expect(!!(<any>q)._dataList, "#3: a cell edit writes through the record list it creates").toBe(true);
+    expect((<any>q)._pageValidation, "#3: no page validation without paging").toBeUndefined();
     expect(q.value, "#3: the edited row joins the keyed answer").toEqual({ r1: { a: "1" }, r2: { a: "2" }, r3: { a: "3" } });
 
     survey.setValue("showAll", true);
-    expect(hasNoRecordList(q), "#4: a variable rowsVisibleIf reads").toBe(true);
     expect(q.visibleRows.length, "#4: the third row is visible").toBe(3);
     survey.setValue("showAll", false);
     expect(q.visibleRows.length, "#4: the third row is hidden again").toBe(2);
 
     survey.validate();
-    expect(hasNoRecordList(q), "#5: validate").toBe(true);
+    expect((<any>q)._pageValidation, "#5: validate").toBeUndefined();
 
     survey.clearInvisibleValues = "onComplete";
     survey.doComplete();
-    expect(hasNoRecordList(q), "#6: complete").toBe(true);
+    expect((<any>q)._pageValidation, "#6: complete").toBeUndefined();
     expect(q.value, "#6: the hidden row's answer is cleared, nothing is padded").toEqual({ r1: { a: "1" }, r2: { a: "2" } });
     expect(Array.isArray(q.value), "#6: never an array").toBe(false);
 
     q.dispose();
-    expect(hasNoRecordList(q), "#7: dispose").toBe(true);
+    expect((<any>q)._pageValidation, "#7: dispose").toBeUndefined();
   });
   // The base generates no rows of its own (generateRows returns null; visibleRows and validate()
   // throw on it), so it is driven through its value only.
@@ -68,6 +68,42 @@ describe("Records question: fixed matrix", () => {
     expect(hasNoRecordList(q), "#2").toBe(true);
     q.dispose();
     expect(hasNoRecordList(q), "#3: dispose").toBe(true);
+  });
+  test("the concrete matrix base has an empty record list whose membership is fixed", () => {
+    const q = new QuestionMatrixDropdownModelBase("q");
+    q.addColumn("a");
+    q.rows = ["r1", "r2"];
+    const list = q.getDataList();
+    expect(list.loadedCount, "#1: no records").toBe(0);
+    expect(list.add({ a: 1 }), "#2: add is refused").toBe(-1);
+    expect(list.loadedCount, "#3: still none").toBe(0);
+    expect(q.value, "#4: nothing is written").toBeUndefined();
+    q.dispose();
+  });
+  test("fixed matrix: building, reading, assigning, validating and completing create no record list", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "q", isRequired: true,
+        columns: [{ name: "a", cellType: "text", isRequired: true, totalType: "count" }, { name: "b", cellType: "text", isUnique: true }],
+        rows: ["r1", "r2", "r3"], detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }]
+      }]
+    });
+    const q = <QuestionMatrixDropdownModel>survey.getQuestionByName("q");
+    expect(hasNoRecordList(q), "#1: the load").toBe(true);
+    expect(q.visibleRows.length, "#2: the rows").toBe(3);
+    expect(q.renderedTable.rows.length > 0, "#2: the rendered table").toBe(true);
+    expect(hasNoRecordList(q), "#2").toBe(true);
+    survey.setValue("q", { r1: { a: "1", b: "x" }, r2: { a: "2", b: "y" }, r3: { a: "3", b: "z" } });
+    expect(hasNoRecordList(q), "#3: survey.setValue").toBe(true);
+    q.getFilteredData();
+    q.getDisplayValue(true);
+    q.getPlainData();
+    q.getProgressInfo();
+    expect(hasNoRecordList(q), "#4: the value-level reads").toBe(true);
+    expect(survey.validate(), "#5: validate").toBe(true);
+    expect(hasNoRecordList(q), "#5").toBe(true);
+    survey.doComplete();
+    expect(hasNoRecordList(q), "#6: complete").toBe(true);
   });
   test("fixed matrix: the paging seams answer as a matrix without a list", () => {
     const survey = new SurveyModel({

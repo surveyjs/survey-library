@@ -129,4 +129,42 @@ describe("ArrayDynamicDataSource.count", () => {
     });
     expect(local.length, "#4").toBe(2);
   });
+  // An owner that writes back only the elements that changed (the fixed matrix) relies on this.
+  test("update and batch keep the identity of every element they do not replace", () => {
+    const first = { a: 1 };
+    const second = { a: 2 };
+    const third = { a: 3 };
+    const source = ArrayDynamicDataSource.fromArray([first, second, third]);
+    const replaced = { a: 22 };
+    source.update(1, replaced);
+    const afterUpdate = source.array;
+    expect(afterUpdate[0] === first && afterUpdate[2] === third, "#1: update keeps the untouched elements").toBe(true);
+    expect(afterUpdate[1] === replaced, "#1: and stores the new one as it is").toBe(true);
+    const replacedAgain = { a: 33 };
+    source.batch((): void => {
+      source.update(2, replacedAgain);
+      source.update(0, first);
+    });
+    const afterBatch = source.array;
+    expect(afterBatch[0] === first && afterBatch[1] === replaced && afterBatch[2] === replacedAgain, "#2: a batch keeps them too").toBe(true);
+  });
+  test("a source whose membership is fixed writes nothing on insert, remove and move", () => {
+    let local: Array<any> = [{ a: 1 }, { a: 2 }];
+    let writes = 0;
+    const source = new ArrayDynamicDataSource((): Array<any> => local,
+      (arr: Array<any>): void => { writes++; local = arr; }, undefined, true);
+    const before = local;
+    source.insert({ a: 3 }, 0);
+    source.remove(0);
+    source.move(0, 1);
+    source.batch((): void => {
+      source.insert({ a: 3 }, 2);
+      source.remove(1);
+    });
+    expect(writes, "#1: nothing is written").toBe(0);
+    expect(local === before, "#2: the array is the same").toBe(true);
+    source.update(1, { a: 22 });
+    expect(writes, "#3: an update is written").toBe(1);
+    expect(local, "#3").toEqual([{ a: 1 }, { a: 22 }]);
+  });
 });

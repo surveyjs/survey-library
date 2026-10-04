@@ -137,7 +137,7 @@ export abstract class QuestionRecordsModel extends Question {
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
         (): Array<any> => this.getListRecords(),
         (records: Array<any>): void => { this.setListRecords(records); },
-        (): number => this.getListRecordCount());
+        (): number => this.getListRecordCount(), this.isRecordMembershipFixed());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -673,9 +673,11 @@ export abstract class QuestionRecordsModel extends Question {
      without insert gets no add button, one without remove no delete button, one without move no drag
      handles, and one without update makes every object read-only - a silently unsaved edit is worse
      than a disabled field, and an application that wants local-only edits over remote reads
-     implements a no-op update. A question without a data source has every capability. The list is
-     not created for the answer. */
+     implements a no-op update. A question without a data source has every capability, except the
+     membership operations of a question that defines its records itself (isRecordMembershipFixed).
+     The list is not created for the answer. */
   protected canWriteRecords(operation: DynamicDataOperation): boolean {
+    if (this.isRecordMembershipFixed() && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const list = this._dataList;
     return !list || !list.isRemote || list.hasCapability(operation);
   }
@@ -910,6 +912,24 @@ export abstract class QuestionRecordsModel extends Question {
     validation.cancelPendingMove();
     validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
   }
+  /* The records were replaced by a change of what defines them - the rows of the fixed matrix - and
+     the question knows where each one went: the remap gives the new index of an old record, -1 for
+     one that is gone. The edited set, the states kept for nested paged questions and the record
+     indexes the question keeps besides them follow. Nothing is created for it, and the remap is asked
+     for only when something keeps record indexes. */
+  protected followRemappedRecords(createRemap: () => ((index: number) => number)): void {
+    const validation = this._pageValidation;
+    if (!!validation) {
+      validation.cancelPendingMove();
+    }
+    const hasValidationRecords = !!validation && validation.hasRecords;
+    if (!hasValidationRecords && !this.hasKeptRecordIndexes()) return;
+    const remap = createRemap();
+    if (hasValidationRecords) {
+      validation.onRecordRemap(remap);
+    }
+    this.remapKeptRecordIndexes(remap);
+  }
   // The value is stored and the list-side pair is still open.
   protected onRecordsValueStored(): void { }
   // The list-side pair is closed. oldRecords: a copy of the value the assignment replaced.
@@ -1021,6 +1041,11 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract createRecordItemContext(item: QuestionRecordItem): IValueGetterContext;
 
   // The specialization hooks with a default.
+  /* The question defines which records exist and in what order (the rows of the fixed matrix): the
+     list it creates refuses to insert, remove or move one, and so does its default source. */
+  protected isRecordMembershipFixed(): boolean {
+    return false;
+  }
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
   protected onPageSizeAssigned(): void { }

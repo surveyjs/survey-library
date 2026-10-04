@@ -783,6 +783,58 @@ describe("Triggers", () => {
     expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
     expect(survey.validate(true, false), "complete trigger is executed, question2 is not required to be answered").toBe(true);
   });
+  function spyOnTriggerKeys(survey: SurveyModel): { counter: number, valueNames: Array<string> } {
+    const res = { counter: 0, valueNames: new Array<string>() };
+    const surveyAny = <any>survey;
+    const prevGetTriggerKeys = surveyAny.getTriggerKeys;
+    const prevGetValue = survey.getValue;
+    surveyAny.getTriggerKeys = function (...args: Array<any>) {
+      res.counter++;
+      survey.getValue = function (name: string): any {
+        res.valueNames.push(name);
+        return prevGetValue.call(survey, name);
+      };
+      try {
+        return prevGetTriggerKeys.apply(survey, args);
+      } finally {
+        survey.getValue = prevGetValue;
+      }
+    };
+    return res;
+  }
+  test("Do not build trigger keys on setting survey.data if there is no trigger that runs on setting data, Bug#11935", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "q2", valueName: "items", templateElements: [{ type: "text", name: "q2_1" }] },
+        { type: "matrixdynamic", name: "q3", valueName: "items", columns: [{ name: "q2_1" }] }
+      ]
+    };
+    let survey = new SurveyModel(json);
+    let spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A", items: [{ q2_1: 1 }, { q2_1: 2 }] };
+    survey.mergeData({ q1: "B" });
+    expect(spy.counter, "there are no triggers").toBe(0);
+
+    survey = new SurveyModel({ ...json, triggers: [{ type: "setvalue", expression: "{q1} = 'A'", setToName: "q4", setValue: 1 }] });
+    spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A" };
+    survey.mergeData({ q1: "B" });
+    expect(spy.counter, "setvalue trigger doesn't run on setting data").toBe(0);
+    expect(survey.getValue("q4"), "setvalue trigger is not executed").toBeUndefined();
+
+    survey = new SurveyModel({ ...json, triggers: [{ type: "complete", expression: "{q1} = 'A'" }] });
+    spy = spyOnTriggerKeys(survey);
+    survey.data = { q1: "A", items: [{ q2_1: 1 }, { q2_1: 2 }] };
+    expect(spy.counter, "complete trigger runs on setting data").toBe(1);
+    expect(spy.valueNames, "a value shared by several questions is read once").toEqual(["q1", "items"]);
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.validate(true, false), "complete trigger is executed").toBe(true);
+
+    survey.mode = "display";
+    survey.data = { q1: "B" };
+    expect(spy.counter, "triggers do not run in display mode").toBe(1);
+  });
   test("runexpression trigger and isNextPage", () => {
     let counter = 0;
     FunctionFactory.Instance.register("calcCust", function getCustValue(params

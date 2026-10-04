@@ -1011,9 +1011,10 @@ export class DynamicDataList {
       const needSort = this._sort.length > 0 && !this.hasReadRange;
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.records : undefined;
-      created = needFilter ? applyFilter(records, this.filterRunner) : createIndexes(recordCount);
+      const fields = needFilter || needSort ? this.getFields() : undefined;
+      created = needFilter ? applyFilter(records, this.filterRunner, fields) : createIndexes(recordCount);
       if (needSort) {
-        created = applySort(records, this._sort, this.getFields(), created);
+        created = applySort(records, this._sort, fields, created);
       }
       this.freezeCreatedIndexes(created, recordCount);
     }

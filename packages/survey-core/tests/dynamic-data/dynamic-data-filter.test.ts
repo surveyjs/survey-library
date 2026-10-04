@@ -276,3 +276,28 @@ describe("dynamic-data-filter: applySort", () => {
     expect(indexes).toEqual([3, 2, 1]);
   });
 });
+
+describe("fields that are read and never stored", () => {
+  const records = [{ title: "stored c", n: 3 }, { title: "stored a", n: 1 }, { title: "stored b", n: 2 }];
+  const titles = ["Cherry", "Apple", "Banana"];
+  const fields: Array<IDynamicDataField> = [{ name: "title", dataType: "string", getValue: (record: any, index: number): any => titles[index] }];
+  test("a virtual field sorts and ignores the stored key of the same name", () => {
+    const before = JSON.stringify(records);
+    expect(applySort(records, [{ field: "title", direction: "asc" }], fields), "#1: by the virtual titles").toEqual([1, 2, 0]);
+    expect(applySort(records, [{ field: "title", direction: "desc" }], fields), "#2").toEqual([0, 2, 1]);
+    expect(JSON.stringify(records), "#3: the records are not modified").toBe(before);
+  });
+  test("a virtual field is a filter variable and wins over the stored key of the same name", () => {
+    const before = JSON.stringify(records);
+    expect(applyFilter(records, "{title} contains 'an'", fields), "#1: Banana").toEqual([2]);
+    expect(applyFilter(records, "{title} = 'Apple' or {n} = 3", fields), "#2: with a stored key").toEqual([0, 1]);
+    expect(applyFilter(records, "{title} contains 'stored'", fields), "#3: the stored key is not seen").toEqual([]);
+    expect(JSON.stringify(records), "#4: the records are not modified").toBe(before);
+  });
+  test("each sort key of a record is read once", () => {
+    let reads = 0;
+    const counted: Array<IDynamicDataField> = [{ name: "title", getValue: (record: any, index: number): any => { reads++; return titles[index]; } }];
+    applySort(records, [{ field: "title", direction: "asc" }], counted);
+    expect(reads, "#1: one read per record").toBe(3);
+  });
+});

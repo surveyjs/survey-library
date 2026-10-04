@@ -137,6 +137,10 @@ export interface IDynamicDataField {
   name: string;
   dataType?: DynamicDataFieldType;
   compare?(a: any, b: any): number;
+  // Present -> the field is read, never stored: its value comes from the record index, the record or
+  // both, and a key of the same name in the record is ignored for it. The sort reads it, and the
+  // filter expression gets it as a variable beside the record's own keys.
+  getValue?(record: any, index: number): any;
 }
 export type IDynamicDataListChange =
   { type: "reset" } |

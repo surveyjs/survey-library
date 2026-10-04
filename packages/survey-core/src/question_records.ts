@@ -980,6 +980,14 @@ export abstract class QuestionRecordsModel extends Question {
   /* The tail of setSurveyImpl, which the subclasses call last: isDesignMode is known only once the
      survey is attached, and the list may have been created before that - paging is off in the
      Creator, whatever the page size says. */
+  /* The sort and the filter the JSON authored reach the list once the load is over. An authored one
+     created the paging helper when it was set, so a question without one has nothing pending and
+     nothing is created for it. */
+  protected flushAuthoredView(): void {
+    if (!!this._paging) {
+      this._paging.flushAuthoredView();
+    }
+  }
   protected syncPageSizeWithSurvey(): void {
     if (!!this.dataListValue) {
       this.paging.updatePageSize();

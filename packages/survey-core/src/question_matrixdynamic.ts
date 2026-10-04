@@ -175,12 +175,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* False while the data source answers a read without a total: rowCount is then the number of rows
      known to exist - a lower bound (see isCountKnown). */
   public get isRowCountKnown(): boolean { return this.isCountKnown; }
-  public onSurveyLoad(): void {
-    super.onSurveyLoad();
-    // The one hook every load ends with: the sort and the filter the JSON authored reach the list
-    // here, once, whatever order their keys came in.
-    this.paging.flushAuthoredView();
-  }
   /* rowCount, not a write, decides how many records the list reads: the window is question.value
      padded up to it. The records that appear join the view - an added record always does - and the
      ones that disappear leave it; the membership of the rest is not re-decided. */

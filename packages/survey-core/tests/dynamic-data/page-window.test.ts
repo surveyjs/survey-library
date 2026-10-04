@@ -2063,4 +2063,42 @@ describe("Fixed matrix validates every page", () => {
     expect(matrix.errors.length, "#2: the question's own error").toBe(1);
     expect(matrix.pageIndex, "#3").toBe(0);
   });
+  test("a row the filter excludes, with an empty required cell, does not block completion", () => {
+    const { survey, matrix } = createFixed({ filterExpression: "{rowName} != 'r7'" }, answered(["r7"]));
+    expect(matrix.pageCount, "#1: six rows in the view").toBe(2);
+    expect(survey.tryComplete(), "#2").toBe(true);
+  });
+  test("equal unique values with r6 filtered out: no duplicate", () => {
+    const { survey } = createFixed({ columns: [{ name: "a", cellType: "text", isUnique: true }], filterExpression: "{rowName} != 'r6'" }, { r2: { a: "x" }, r6: { a: "x" } });
+    expect(survey.tryComplete(), "#1").toBe(true);
+  });
+});
+
+describe("Fixed matrix pages its rows under a sort and a filter", () => {
+  const rows = [{ value: "r1", text: "Golf" }, { value: "r2", text: "Echo" }, { value: "r3", text: "Alpha" }, { value: "r4", text: "Foxtrot" },
+    { value: "r5", text: "Bravo" }, { value: "r6", text: "Delta" }, { value: "r7", text: "Charlie" }];
+  const createFixed = (json: any, data: any, surveyJson?: any): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel(Object.assign({
+      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", rowsPerPage: 2, rows: rows, columns: [{ name: "a", cellType: "text" }] }, json)]
+    }, surveyJson));
+    survey.data = { matrix: data };
+    return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix") };
+  };
+  test("an edit writes the row's own key: record index, visible position and page-local position all differ", () => {
+    const { matrix } = createFixed({ sortBy: "rowTitle", filterExpression: "{rowName} != 'r3'" }, {});
+    // In the view: Bravo r5, Charlie r7, Delta r6, Echo r2, Foxtrot r4, Golf r1.
+    matrix.nextPage();
+    const row = matrix.visibleRows[1];
+    expect(row.rowName, "#1: page 1 holds Delta and Echo").toBe("r2");
+    expect([row.builtRecordIndex, row.visibleIndex, row.pageVisibleIndex], "#2: record 1, visible 3, page-local 1").toEqual([1, 3, 1]);
+    row.cells[0].question.value = "echo";
+    expect(matrix.value, "#3: the row's own key").toEqual({ r2: { a: "echo" } });
+  });
+  test("a filtered-out row keeps its answer when invisible values are cleared", () => {
+    const { survey, matrix } = createFixed({ rowsVisibleIf: "{hide} notcontains {item}", filterExpression: "{rowName} != 'r6'" },
+      { r1: { a: "1" }, r5: { a: "5" }, r6: { a: "6" } }, { clearInvisibleValues: "onHidden" });
+    expect(matrix.visibleRows.length, "#0").toBe(2);
+    survey.setValue("hide", ["r5"]);
+    expect(matrix.value, "#1: the hidden r5 goes, the filtered-out r6 stays").toEqual({ r1: { a: "1" }, r6: { a: "6" } });
+  });
 });

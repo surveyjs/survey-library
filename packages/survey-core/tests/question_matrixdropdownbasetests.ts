@@ -3200,3 +3200,250 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     expect(["insert", "remove", "move", "update"].map(op => q.canWriteRecords(op)), "#7: canWriteRecords").toEqual([false, false, false, true]);
   });
 });
+
+describe("Fixed matrix sorts and filters its rows", () => {
+  const sixRows = [{ value: "r1", text: "Delta" }, { value: "r2", text: "Alpha" }, { value: "r3", text: "Foxtrot" },
+    { value: "r4", text: "Bravo" }, { value: "r5", text: "Echo" }, { value: "r6", text: "Charlie" }];
+  const data = (): any => ({ r1: { a: 3 }, r2: { a: 1 }, r3: { a: 2 }, r4: { a: 5 }, r5: { a: 1 }, r6: { a: 4 } });
+  const numberColumn = [{ name: "a", cellType: "text", inputType: "number" }];
+  const createFixed = (json?: any, values?: any, surveyJson?: any): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel(Object.assign({
+      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn }, json)]
+    }, surveyJson));
+    survey.data = { matrix: values !== undefined ? values : data() };
+    return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix") };
+  };
+  const names = (matrix: QuestionMatrixDropdownModel): Array<string> => matrix.visibleRows.map(row => row.rowName);
+  test("sortBy the row title, descending, and by a column; the answer does not change", () => {
+    const { matrix } = createFixed();
+    const before = JSON.stringify(matrix.value);
+    matrix.sortBy = "rowTitle";
+    expect(names(matrix), "#1: Alpha, Bravo, Charlie, Delta, Echo, Foxtrot").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
+    expect(matrix.toJSON().sortBy, "#1: written back").toBe("rowTitle");
+    matrix.sortBy = "rowTitle-";
+    expect(names(matrix), "#2").toEqual(["r3", "r5", "r1", "r6", "r4", "r2"]);
+    matrix.sortBy = "a-";
+    expect(names(matrix), "#3: ties keep the record order").toEqual(["r4", "r6", "r1", "r3", "r2", "r5"]);
+    expect(JSON.stringify(matrix.value), "#4: not a byte of the answer").toBe(before);
+  });
+  test("filterExpression over a virtual field and a column; the filtered-out answers stay", () => {
+    const { matrix } = createFixed();
+    const before = JSON.stringify(matrix.value);
+    matrix.filterExpression = "{rowName} != 'r2' and {a} > 1";
+    expect(names(matrix), "#1").toEqual(["r1", "r3", "r4", "r6"]);
+    expect(JSON.stringify(matrix.value), "#2: the answer is unchanged").toBe(before);
+    expect(matrix.value.r5, "#3: a filtered-out answer stays").toEqual({ a: 1 });
+    matrix.filterExpression = "{rowTitle} contains 'ha'";
+    expect(names(matrix), "#4: Alpha, Charlie").toEqual(["r2", "r6"]);
+  });
+  test("an authored sortBy and filterExpression load, apply once, and are saved back unchanged", () => {
+    const json = { type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn, sortBy: "rowTitle-", filterExpression: "{a} > 1" };
+    const survey = new SurveyModel({ elements: [json] });
+    survey.data = { matrix: data() };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    expect(names(matrix), "#1").toEqual(["r3", "r1", "r6", "r4"]);
+    const saved = matrix.toJSON();
+    expect([saved.sortBy, saved.filterExpression], "#2").toEqual(["rowTitle-", "{a} > 1"]);
+    matrix.sortBy = "a";
+    expect(matrix.toJSON().sortBy, "#3: a sort set at runtime is serialized").toBe("a");
+  });
+  test("an edit that makes a row fail the filter keeps the row until refreshView", () => {
+    const { matrix } = createFixed();
+    matrix.filterExpression = "{a} > 1";
+    expect(names(matrix), "#1").toEqual(["r1", "r3", "r4", "r6"]);
+    matrix.visibleRows[1].cells[0].question.value = 0;
+    expect(names(matrix), "#2: the membership is frozen").toEqual(["r1", "r3", "r4", "r6"]);
+    expect(matrix.value.r3, "#3: the row's own key").toEqual({ a: 0 });
+    matrix.refreshView();
+    expect(names(matrix), "#4").toEqual(["r1", "r4", "r6"]);
+  });
+  test("a column named rowTitle: the virtual field wins", () => {
+    const { matrix } = createFixed({ columns: [{ name: "rowTitle", cellType: "text" }] },
+      { r1: { rowTitle: "z" }, r2: { rowTitle: "y" }, r3: { rowTitle: "x" } });
+    matrix.sortBy = "rowTitle";
+    expect(names(matrix), "#1: by the row titles, not the column").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
+    matrix.filterExpression = "{rowTitle} = 'x'";
+    expect(names(matrix), "#2: the column is not a filter variable either").toEqual([]);
+  });
+  test("rowOrder random and a sort with ties: tied rows keep the randomized order", () => {
+    const { survey, matrix } = createFixed({ rowOrder: "random", columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
+    survey.randomSeed = 12345;
+    const randomized = names(matrix);
+    matrix.sortBy = "b";
+    expect(names(matrix), "#1: every b is empty, the order is the randomized one").toEqual(randomized);
+    matrix.visibleRows[2].cells[1].question.value = "first";
+    matrix.refreshView();
+    expect(names(matrix), "#2: the one row with a b leads").toEqual([randomized[2]].concat(randomized.filter((n, i) => i !== 2)));
+  });
+  test("any field sorts and filters: an invisible column, a key no column registers, a field no record holds", () => {
+    const { matrix } = createFixed({
+      columnsVisibleIf: "{item} != 'hiddenByCondition'",
+      columns: [{ name: "a", cellType: "text" }, { name: "invisible", cellType: "text", visible: false }, { name: "hiddenByCondition", cellType: "text" }]
+    }, { r1: { invisible: 2, hiddenByCondition: 6, extra: "b" }, r2: { invisible: 1, hiddenByCondition: 5, extra: "a" }, r3: { invisible: 3, hiddenByCondition: 4 } });
+    matrix.sortBy = "invisible";
+    expect(names(matrix).slice(0, 3), "#1: an invisible column").toEqual(["r2", "r1", "r3"]);
+    matrix.sortBy = "hiddenByCondition";
+    expect(names(matrix).slice(0, 3), "#2: a column hidden by columnsVisibleIf").toEqual(["r3", "r2", "r1"]);
+    matrix.sortBy = "extra";
+    expect(names(matrix).slice(0, 2), "#3: a key no column registers").toEqual(["r2", "r1"]);
+    matrix.sortBy = "nothing";
+    expect(names(matrix), "#4: a field no record holds keeps the record order").toEqual(["r1", "r2", "r3", "r4", "r5", "r6"]);
+    matrix.sortBy = "";
+    matrix.filterExpression = "{invisible} > 1";
+    expect(names(matrix), "#5: a filter on an invisible column's key").toEqual(["r1", "r3"]);
+  });
+  test("toggleSort cycles ascending, descending and none", () => {
+    const { matrix } = createFixed();
+    matrix.toggleSort("rowTitle");
+    expect([matrix.sortBy, names(matrix)[0]], "#1").toEqual(["rowTitle", "r2"]);
+    matrix.toggleSort("rowTitle");
+    expect([matrix.sortBy, names(matrix)[0]], "#2").toEqual(["rowTitle-", "r3"]);
+    matrix.toggleSort("rowTitle");
+    expect([matrix.sortBy, names(matrix)[0]], "#3").toEqual(["", "r1"]);
+  });
+  test("no UI: the fixed matrix has no allowSortRows and no sortable column", () => {
+    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
+    expect(Serializer.findProperty("matrixdropdown", "allowSortRows"), "#1").toBeFalsy();
+    expect(matrix.columns.map(column => column.isSortable), "#2").toEqual([false, false]);
+  });
+  describe("filtered-out rows", () => {
+    test("their answers are kept by clearIncorrectValues", () => {
+      const { matrix } = createFixed();
+      matrix.filterExpression = "{a} > 1";
+      matrix.clearIncorrectValues();
+      expect(matrix.value, "#1").toEqual(data());
+    });
+    (<Array<"onHidden" | "onComplete">>["onHidden", "onComplete"]).forEach(mode => {
+      test("their answers are kept when invisible values are cleared, " + mode, () => {
+        const { survey, matrix } = createFixed({ rowsVisibleIf: "{hide} notcontains {item}" }, undefined, { clearInvisibleValues: mode });
+        matrix.filterExpression = "{a} > 1";
+        expect(names(matrix), "#0: the rows of the view are shown").toEqual(["r1", "r3", "r4", "r6"]);
+        survey.setValue("hide", ["r4"]);
+        if (mode === "onComplete") survey.doComplete();
+        const expected = data();
+        delete expected.r4;
+        expect(matrix.value, "#1: the hidden row goes, the filtered-out rows stay").toEqual(expected);
+      });
+    });
+    test("they are not in getFilteredData, the totals or the progress", () => {
+      const { survey, matrix } = createFixed({ columns: [{ name: "a", cellType: "text", inputType: "number", totalType: "sum" }] });
+      matrix.filterExpression = "{a} > 1";
+      expect(matrix.getFilteredData(), "#1").toEqual({ r1: { a: 3 }, r3: { a: 2 }, r4: { a: 5 }, r6: { a: 4 } });
+      expect(matrix.totalValue.a, "#2: the total of the rows in the view").toBe(14);
+      expect(matrix.getProgressInfo().questionCount, "#3").toBe(4);
+      expect(survey.getFilteredValues().matrix, "#4: the survey's filtered values hold the stored answer").toEqual(data());
+    });
+    test("their progress is left out before any row is built", () => {
+      const { matrix } = createFixed();
+      matrix.filterExpression = "{a} > 1";
+      expect((<any>matrix).generatedVisibleRows, "#0: no row is built").toBeFalsy();
+      expect(matrix.getProgressInfo().questionCount, "#1").toBe(4);
+    });
+    test("hideIfRowsEmpty hides the question when the filter excludes every row", () => {
+      const { matrix } = createFixed({ hideIfRowsEmpty: true });
+      expect(matrix.isVisible, "#1").toBe(true);
+      matrix.filterExpression = "{a} > 100";
+      expect(matrix.isVisible, "#2").toBe(false);
+      matrix.filterExpression = "";
+      expect(matrix.isVisible, "#3").toBe(true);
+    });
+    test("an empty required cell in a filtered-out row does not block completion", () => {
+      const { survey, matrix } = createFixed({ columns: [{ name: "a", cellType: "text", isRequired: true }] }, { r1: { a: 1 }, r2: { a: 2 }, r3: { a: 3 } });
+      matrix.filterExpression = "{a} notempty";
+      expect(names(matrix), "#1").toEqual(["r1", "r2", "r3"]);
+      expect(survey.tryComplete(), "#2").toBe(true);
+    });
+    test("a visible row that repeats a filtered-out row's unique value is no duplicate", () => {
+      const { survey, matrix } = createFixed({ columns: [{ name: "a", cellType: "text", isUnique: true }] }, { r1: { a: "x" }, r2: { a: "x" } });
+      matrix.filterExpression = "{rowName} != 'r2'";
+      expect(survey.validate(), "#1").toBe(true);
+      expect(matrix.visibleRows[0].cells[0].question.errors.length, "#2").toBe(0);
+    });
+  });
+  test("duplicate row keys apart under a sort: both edit orders, the answer holds the last edit and both rows show it", () => {
+    const rows = [{ value: "a", text: "Alpha" }, { value: "b", text: "Bravo" }, { value: "a", text: "Charlie" }];
+    [0, 2].forEach(first => {
+      const { matrix } = createFixed({ rows: rows, sortBy: "rowTitle-", columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, null);
+      expect(matrix.visibleRows.map(row => row.rowName), "#0: the two a rows are apart").toEqual(["a", "b", "a"]);
+      const second = 2 - first;
+      matrix.visibleRows[first].cells[0].question.value = "1";
+      expect(matrix.visibleRows[second].cells[0].question.value, "#1 from " + first).toBe("1");
+      matrix.visibleRows[second].cells[1].question.value = "2";
+      expect(matrix.value, "#2 from " + first).toEqual({ a: { c1: "1", c2: "2" } });
+      expect(matrix.visibleRows[first].cells[1].question.value, "#3 from " + first).toBe("2");
+    });
+  });
+  [{ sortBy: "rowTitle" }, { filterExpression: "{a} > 1" }].forEach(view => {
+    test("insert, remove and move are refused under a view and leave no trace, " + Object.keys(view)[0], () => {
+      const { survey, matrix } = createFixed(view);
+      const rowsBefore = names(matrix);
+      let changes = 0;
+      survey.onValueChanged.add(() => changes++);
+      const list = matrix.getDataList();
+      const before = JSON.stringify({ created: list.getCreatedIndexes(), visible: list.getVisibleIndexes(), count: list.loadedCount });
+      expect(list.add({ a: 9 }), "#1").toBe(-1);
+      list.remove(0);
+      list.move(0, 2);
+      list.source.insert({ a: 9 }, 0);
+      expect(JSON.stringify({ created: list.getCreatedIndexes(), visible: list.getVisibleIndexes(), count: list.loadedCount }), "#2").toBe(before);
+      expect(names(matrix), "#3").toEqual(rowsBefore);
+      expect(matrix.value, "#4").toEqual(data());
+      expect(changes, "#5").toBe(0);
+    });
+  });
+  test("the fixed matrix has no data source", () => {
+    const { matrix } = createFixed({ sortBy: "a" });
+    expect((<any>matrix).getDataSource(), "#1").toBeUndefined();
+    expect((<any>matrix).dataSource, "#2").toBeUndefined();
+  });
+  test("an invalid filter raises onDynamicDataError with read, and the rows stay unfiltered", () => {
+    const { survey, matrix } = createFixed();
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    matrix.filterExpression = "{a} >";
+    expect(errors, "#1").toEqual(["read"]);
+    expect(names(matrix).length, "#2: every row").toBe(6);
+  });
+  describe("a change of the row metadata re-decides the view", () => {
+    test("a renamed row title moves its row under a sort", () => {
+      const { survey, matrix } = createFixed({ sortBy: "rowTitle" });
+      let changes = 0;
+      survey.onValueChanged.add(() => changes++);
+      matrix.rows[2].text = "Aardvark";
+      expect(names(matrix)[0], "#1: Aardvark leads").toBe("r3");
+      expect(changes, "#2: no value change").toBe(0);
+      expect(matrix.value, "#3").toEqual(data());
+    });
+    test("a rename into and out of a filter", () => {
+      const { matrix } = createFixed({ filterExpression: "{rowTitle} contains 'x'" });
+      expect(names(matrix), "#1: Foxtrot").toEqual(["r3"]);
+      matrix.rows[0].text = "Xray";
+      expect(names(matrix), "#2: into the filter").toEqual(["r1", "r3"]);
+      matrix.rows[2].text = "Golf";
+      expect(names(matrix), "#3: out of it").toEqual(["r1"]);
+    });
+    test("switching the survey locale re-sorts by the localized titles", () => {
+      const { survey, matrix } = createFixed({
+        sortBy: "rowTitle",
+        rows: [{ value: "r1", text: { default: "Apple", de: "Zebra" } }, { value: "r2", text: { default: "Banana", de: "Affe" } }]
+      }, {});
+      expect(names(matrix), "#1").toEqual(["r1", "r2"]);
+      survey.locale = "de";
+      expect(names(matrix), "#2").toEqual(["r2", "r1"]);
+      survey.locale = "";
+      expect(names(matrix), "#3").toEqual(["r1", "r2"]);
+    });
+    test("a piped title is not followed until refreshView", () => {
+      const { survey, matrix } = createFixed({ sortBy: "rowTitle", rows: [{ value: "r1", text: "M {name}" }, { value: "r2", text: "N" }] }, {});
+      survey.setValue("name", "z");
+      expect(names(matrix), "#1: M z, N").toEqual(["r1", "r2"]);
+      survey.setValue("name", "");
+      survey.setValue("name", "0");
+      expect(names(matrix), "#2: the order holds").toEqual(["r1", "r2"]);
+      matrix.rows[0].text = "O {name}";
+      expect(names(matrix), "#3: an edit of the title is followed").toEqual(["r2", "r1"]);
+      matrix.refreshView();
+      expect(names(matrix), "#4").toEqual(["r2", "r1"]);
+    });
+  });
+});

@@ -175,6 +175,8 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "hideIfRowsEmpty", visible: true },
     { name: "rowOrder", default: "initial", visible: true },
     { name: "rowsPerPage", default: 0, visible: false },
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false },
   ],
   matrixdynamic: [
     { name: "name", visible: true },
@@ -356,7 +358,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
 const expectedOwnRegistrations: { [type: string]: { parentName: string, properties: Array<string> } } = {
   matrixdropdown: {
     parentName: "matrixdropdownbase",
-    properties: ["rows", "rowsVisibleIf", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder", "rowsPerPage"]
+    properties: ["rows", "rowsVisibleIf", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder", "rowsPerPage", "sortBy", "filterExpression"]
   },
   matrixdynamic: {
     parentName: "matrixdropdownbase",

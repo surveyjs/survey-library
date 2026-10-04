@@ -2364,6 +2364,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.generatedTotalRow = null;
     this.updateHasFooter();
     this.genetateColumnsName();
+    // The one hook every load ends with: the sort and the filter the JSON authored reach the list
+    // here, once, whatever order their keys came in.
+    this.flushAuthoredView();
   }
   private genetateColumnsName(): void {
     this.columns.forEach(column => {

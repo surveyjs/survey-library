@@ -19,6 +19,8 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
+import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { settings } from "./settings";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -165,6 +167,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
+    if (item.ownerPropertyName === "rows" && name === "text") {
+      this.redecideViewOfRows();
+    }
     // A row whose value changed names another record: its row is built again for it. The answer is
     // left as it is - the old key stays in the value, as it does without rows.
     if (item.ownerPropertyName === "rows" && name === "value") {
@@ -195,6 +200,42 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const hasDuplicates = keys.some((key: string, index: number): boolean => keys.indexOf(key) !== index);
     this.recordItemsCache = { revision: this.rowsRevision, items: items, keys: keys, hasDuplicates: hasDuplicates };
     return this.recordItemsCache;
+  }
+  public localeChanged(): void {
+    super.localeChanged();
+    this.redecideViewOfRows();
+  }
+  /* The rowTitle field reads the rows items' text, which an edit of a title or the survey locale
+     changes. Under a sort or a filter that is a change from outside, so the view is decided again, as
+     after an assignment. Without a view nothing happens and no list is created. Not tracked: a title
+     whose text processing reads a survey value ("Row {q1}") - re-deciding on every value change would
+     re-sort the table under the respondent; the view picks the new title up at its next re-decision
+     (refreshView(), an assignment from outside, a rows change, a locale change). */
+  private redecideViewOfRows(): void {
+    const list = this.dataListValue;
+    if (!list || !list.hasView) return;
+    const created = list.getCreatedIndexes();
+    list.invalidateViews();
+    this.syncPagingState();
+    if (!Helpers.isTwoValueEquals(created, list.getCreatedIndexes()) || this.isPageStale()) {
+      this.rebuildFromDataList(false);
+    }
+  }
+  /* The record fields: the columns', and the row itself, which the answer never stores - item, rowName
+     and rowValue are the row value, rowTitle its text, under the names the row context answers in
+     rowsVisibleIf. A virtual field wins over a column of the same value name, as the row context does:
+     that column is left out of the fields, so it can be neither sorted nor filtered by. */
+  protected getFields(): Array<IDynamicDataField> {
+    const vars = settings.expressionVariables;
+    const readItem = (index: number): ItemValue => this.getRecordItems()[index];
+    const virtualFields: Array<IDynamicDataField> = [vars.item, vars.rowName, vars.rowValue].map((name: string): IDynamicDataField => ({
+      name: name, dataType: "any", getValue: (record: any, index: number): any => { const item = readItem(index); return !!item ? item.value : undefined; }
+    }));
+    virtualFields.push({
+      name: vars.rowTitle, dataType: "string", getValue: (record: any, index: number): any => { const item = readItem(index); return !!item ? item.text : undefined; }
+    });
+    const names = virtualFields.map((field: IDynamicDataField): string => field.name);
+    return super.getFields().filter((field: IDynamicDataField): boolean => names.indexOf(field.name) < 0).concat(virtualFields);
   }
   // internal: the rows items of the records, in record order.
   public getRecordItems(): Array<ItemValue> {
@@ -509,12 +550,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   /* The first row of a key decides. Under paging the records decide: a record off the page keeps its
      answer when it is visible. An answer key is a string, so a key and a row value compare as strings. */
   private isKeyVisible(key: string, isPaged: boolean): boolean {
-    if (isPaged) {
-      const index = this.getRecordItemsCache().keys.indexOf(String(key));
-      return index > -1 && this.dataList.isRecordVisible(index);
-    }
-    const row = this.getRowByKey(key);
-    return !!row && row.isVisible;
+    const row = isPaged ? undefined : this.getRowByKey(key);
+    if (!!row) return row.isVisible;
+    // Under a view a record without a row - off the page or filtered out - decides by its own flag:
+    // the filter is a view, and a filtered-out record keeps its answer.
+    const list = this.dataListValue;
+    if (!isPaged && !(!!list && list.hasView)) return false;
+    const index = this.getRecordItemsCache().keys.indexOf(String(key));
+    return index > -1 && list.isRecordVisible(index);
   }
   private getRowByKey(val: any): MatrixDropdownRowModelBase {
     const rows = this.generatedVisibleRows;
@@ -631,6 +674,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return false;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void {
+    // A sort or a filter in force: the records in the view, which is what the rows would be built for.
+    const list = this.dataListValue;
+    if (!!list && list.hasView) {
+      list.getVisibleIndexes().forEach((index: number): void => { this.updateProgressInfoByRow(res, this.getListRecordAt(index) || {}); });
+      return;
+    }
     let val = this.value;
     if (!val) val = {};
     for (var i = 0; i < this.rows.length; i ++) {
@@ -692,7 +741,13 @@ Serializer.addClass(
       choices: ["initial", "random"],
     },
     // Hidden in the property grid: paging is turned on from JSON or code.
-    { name: "rowsPerPage:number", default: 0, minValue: 0, visible: false }
+    { name: "rowsPerPage:number", default: 0, minValue: 0, visible: false },
+    /* The sort and the filter of the rows. Plain strings and not ":condition"/":expression": both
+       of those make JsonObjectProperty.isExpression true, and everything that discovers expressions
+       by type - Base.validateExpressions(), the linter - would then read them with the survey as
+       the variable context, while their variables are record fields. */
+    { name: "sortBy", default: "", visible: false },
+    { name: "filterExpression", default: "", visible: false }
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

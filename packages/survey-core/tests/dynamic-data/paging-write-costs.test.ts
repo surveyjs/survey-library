@@ -545,4 +545,32 @@ describe("Fixed matrix: the records are composed once per answer", () => {
     expect(generations.mock.calls.length, "#3: one build per page visit").toBe(6);
     expect(maxRows, "#4: no more than one page of rows at a time").toBe(5);
   });
+  [{ name: "a sort", apply: (m: any): void => { m.sortBy = "rowTitle-"; } }, { name: "a filter", apply: (m: any): void => { m.filterExpression = "{rowTitle} contains '1'"; } }].forEach(view => {
+    [0, 10].forEach(rowsPerPage => {
+      test("assigning " + view.name + " composes the records once and builds no more rows than the view, rowsPerPage " + rowsPerPage, () => {
+        const survey = new SurveyModel({
+          elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, columns: [{ name: "a", cellType: "text" }], rows: records(200, i => "r" + i) }]
+        });
+        survey.data = { m: { r0: { a: "0" } } };
+        const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+        matrix.visibleRows;
+        matrix.getDataList();
+        const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+        const getter = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getListRecords");
+        const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+        let virtualReads = 0;
+        const getFields = (<any>QuestionMatrixDropdownModel.prototype).getFields;
+        vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getFields").mockImplementation(function (this: any) {
+          return getFields.call(this).map((field: any) => !field.getValue ? field :
+            Object.assign({}, field, { getValue: (record: any, index: number): any => { virtualReads++; return field.getValue(record, index); } }));
+        });
+        view.apply(matrix);
+        const viewCount = matrix.getDataList().getVisibleIndexes().length;
+        expect(composes.mock.calls.length, "#1: composed at most once").toBeLessThanOrEqual(1);
+        expect(getter.mock.calls.length, "#2: the getter is called at most twice").toBeLessThanOrEqual(2);
+        expect(builds.mock.calls.length, "#3: no more rows than the view").toBeLessThanOrEqual(rowsPerPage > 0 ? rowsPerPage : viewCount);
+        expect(virtualReads, "#4: one read per record for the one key").toBeLessThanOrEqual(200);
+      });
+    });
+  });
 });

@@ -16,6 +16,7 @@ import {
 import {
   DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap
 } from "./dynamic-data/dynamic-data-page-validation";
+import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
@@ -367,6 +368,18 @@ export abstract class QuestionRecordsModel extends Question {
       }
     }
   }
+  /* The records of indexes, each with the object that holds it when it has one: the value-level
+     results of a question whose objects are a view or a page walk the records, not the objects.
+     position is the created position, -1 for a record the objects do not hold; a position past the
+     built objects has no object either. */
+  protected forEachRecordItem(indexes: Array<number>, func: (index: number, item: QuestionRecordItem, position: number) => void): void {
+    const positions = this.dataList.getMaterializedPositions();
+    for (let i = 0; i < indexes.length; i++) {
+      const index = indexes[i];
+      const position = positions[index] !== undefined ? positions[index] : -1;
+      func(index, position > -1 ? this.getItem(position) || undefined : undefined, position);
+    }
+  }
   /* Three indexes: the record index names the record, visibleIndex is its position among the visible
      records of the whole list (the list's globalVisibleIndex; what the respondent navigates by),
      pageVisibleIndex its position among the visible objects; visibleIndex = pageStartVisibleIndex +
@@ -637,6 +650,20 @@ export abstract class QuestionRecordsModel extends Question {
       });
     });
     return pages;
+  }
+  /* The records the duplicate check on the page compares, as getRecordUniqueness names them, so that
+     the check on the page and the scan off it agree: the loaded records - a duplicate on a page the
+     question has not read is the server's business - or only the visible ones, and of the records
+     with no object the owner-hidden ones only when they take part. A record with an object takes
+     part as its object does: the question decides that, and reads and compares the keys itself. */
+  protected forEachUniquenessRecord(func: (index: number, item: QuestionRecordItem, position: number) => void): void {
+    const list = this.dataList;
+    const uniqueness = this.getRecordUniqueness();
+    const indexes = uniqueness.includeFilteredOut ? createIndexes(list.loadedCount) : list.getVisibleIndexes();
+    this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {
+      if (!item && !uniqueness.includeHidden && !list.isRecordVisible(index)) return;
+      func(index, item, position);
+    });
   }
   // Layer 1 is on: design mode never validates a page leave.
   private isPageLeaveValidated(): boolean {

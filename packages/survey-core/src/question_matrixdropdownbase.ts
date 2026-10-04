@@ -26,6 +26,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
+import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 
 export interface IMatrixDuplicationEntry {
   row: MatrixDropdownRowModelBase;
@@ -2954,21 +2955,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return res;
   }
-  /* Under a view the records that take part are the ones the question's record uniqueness names (see
-     getRecordUniqueness), so that the check on the page and the scan off it agree. The loaded records:
-     a duplicate on a page the matrix has not read is the server's business. */
+  // Under a view the records forEachUniquenessRecord names take part; a row that exists takes part when it is visible.
   private getRecordDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    const list = this.dataList;
-    const uniqueness = this.getRecordUniqueness();
     const res = new Array<IMatrixDuplicationEntry>();
     const readRecord = this.createDuplicationRecordReader();
-    const indexes = uniqueness.includeFilteredOut ? createIndexes(list.loadedCount) : list.getVisibleIndexes();
-    this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase, position: number): void => {
+    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
+      const row = <MatrixDropdownRowModelBase>item;
       if (!!row) {
         if (row.isVisible) res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
         return;
       }
-      if (!uniqueness.includeHidden && !list.isRecordVisible(index)) return;
       const record = readRecord(index);
       res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
     });
@@ -2991,12 +2987,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const res: Array<MatrixDropdownRowModelBase> = [];
     const entries = this.getDuplicationEntries(columnName);
     for (var i = 0; i < entries.length; i++) {
-      let val = entries[i].value;
+      const val = entries[i].value;
       if (!this.isValueEmpty(val)) {
-        if (!this.useCaseSensitiveComparison && typeof val === "string") {
-          val = val.toLocaleLowerCase();
-        }
-        const key = String(val);
+        const key = getDuplicateKey(val, this.useCaseSensitiveComparison);
         if (!keyValues.has(key)) {
           keyValues.set(key, []);
         }
@@ -3187,16 +3180,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getFilteredDataCore();
   }
   protected getFilteredDataCore(): any { return this.value; }
-  /* The records of indexes, each with the row that holds it when it has one: the value-level results
-     of a matrix whose rows are a view or a page walk the records, not the rows. */
+  // forEachRecordItem with the rows typed.
   protected forEachRecordRow(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, position: number) => void): void {
-    const rows = this.generatedVisibleRows || [];
-    const positions = this.dataList.getMaterializedPositions();
-    for (let i = 0; i < indexes.length; i++) {
-      const index = indexes[i];
-      const position = positions[index] !== undefined ? positions[index] : -1;
-      func(index, position > -1 && position < rows.length ? rows[position] : undefined, position);
-    }
+    this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {
+      func(index, <MatrixDropdownRowModelBase>item, position);
+    });
   }
   // One walk, the result in the answer's shape: func adds what a record contributes.
   protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {

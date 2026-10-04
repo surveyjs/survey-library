@@ -3359,6 +3359,17 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(survey.validate(), "#1").toBe(true);
       expect(matrix.visibleRows[0].cells[0].question.errors.length, "#2").toBe(0);
     });
+    test("a paged row that repeats an owner-hidden row's unique value is no duplicate, a visible one off the page is", () => {
+      const columns = [{ name: "a", cellType: "text", isUnique: true }, { name: "b", cellType: "text" }];
+      const { survey, matrix } = createFixed({ columns: columns, rowsPerPage: 2, rowsVisibleIf: "{row.b} != 'hide'" },
+        { r1: { a: "x", b: "hide" }, r2: { a: "y" }, r3: { a: "z" }, r4: { a: "w" } });
+      expect(names(matrix), "#1").toEqual(["r2", "r3"]);
+      matrix.visibleRows[0].cells[0].question.value = "x";
+      expect(matrix.validate(false), "#2: the hidden row does not take part").toBe(true);
+      expect(survey.validate(), "#3").toBe(true);
+      matrix.visibleRows[0].cells[0].question.value = "w";
+      expect(matrix.validate(false), "#4: the row of the next page does").toBe(false);
+    });
   });
   test("duplicate row keys apart under a sort: both edit orders, the answer holds the last edit and both rows show it", () => {
     const rows = [{ value: "a", text: "Alpha" }, { value: "b", text: "Bravo" }, { value: "a", text: "Charlie" }];

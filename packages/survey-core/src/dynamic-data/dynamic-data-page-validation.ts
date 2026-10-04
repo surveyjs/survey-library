@@ -70,6 +70,16 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
   };
 }
 
+/* The group key of a value the duplicate checks compare by: one String() key, so that 1 and "1" are
+   one key, with strings folded by toLocaleLowerCase when the comparison is not case-sensitive. What
+   is empty, and so takes no part, each check decides before it asks for the key. */
+export function getDuplicateKey(value: any, caseSensitive: boolean): string {
+  if (!caseSensitive && typeof value === "string") {
+    value = value.toLocaleLowerCase();
+  }
+  return String(value);
+}
+
 /* The off-page half of a duplicate check (layer 2): the records are scanned without an object
    (O(records)) and grouped by String(value); a group of two or more gives the page of its latest
    visible record, which is where the error goes. A group with no visible record gives no page: it
@@ -90,12 +100,9 @@ export function findDuplicatePages(list: DynamicDataList, readKey: (index: numbe
   for (let j = 0; j < count; j++) {
     const i = options.includeFilteredOut !== false ? j : visible[j];
     if (!options.includeHidden && !list.isRecordVisible(i)) continue;
-    let val = readKey(i);
+    const val = readKey(i);
     if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) continue;
-    if (!options.caseSensitive && typeof val === "string") {
-      val = val.toLocaleLowerCase();
-    }
-    const key = String(val);
+    const key = getDuplicateKey(val, options.caseSensitive);
     let group = groups.get(key);
     if (!group) {
       group = { count: 0, target: -1 };

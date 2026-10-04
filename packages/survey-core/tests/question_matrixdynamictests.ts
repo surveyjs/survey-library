@@ -11305,6 +11305,75 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }];
     expect(matrix.hasErrors(true), "#2").toBe(false);
   });
+  const keyErrors = (matrix: QuestionMatrixDynamicModel): Array<number> => {
+    return matrix.rowsOnPage.map(row => row.getQuestionByName("c1").errors.length);
+  };
+  test("a key typed on the page repeats a record without a row: filtered-out and owner-hidden records take part", () => {
+    const create = (): QuestionMatrixDynamicModel => createMatrix({ rowCount: 6, rowsPerPage: 2, keyName: "c1",
+      filterExpression: "{c2} != 'out'", rowsVisibleIf: "{row.c2} != 'hide'" },
+    [{ c1: "x", c2: "out" }, { c1: "y", c2: "hide" }, { c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    const matrix = create();
+    expect(pageValues(matrix), "#1").toEqual(["a", "b"]);
+    matrix.rowsOnPage[1].getQuestionByName("c1").value = "x";
+    expect(matrix.validate(false), "#2: the filtered-out record").toBe(false);
+    matrix.rowsOnPage[1].getQuestionByName("c1").value = "y";
+    expect(matrix.validate(false), "#3: the owner-hidden record").toBe(false);
+    matrix.rowsOnPage[1].getQuestionByName("c1").value = "z";
+    expect(matrix.validate(false), "#4").toBe(true);
+    const pair = create();
+    pair.rowsOnPage[0].getQuestionByName("c1").value = "x";
+    pair.rowsOnPage[1].getQuestionByName("c1").value = "x";
+    expect(pair.hasErrors(true), "#5").toBe(true);
+    expect(keyErrors(pair), "#6: every row of the group").toEqual([1, 1]);
+  });
+  test("a key typed on a sorted page repeats a record of another page: every row of the group gets the error", () => {
+    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, keyName: "c1" },
+      [{ c1: "x", c2: "1" }, { c1: "b", c2: "4" }, { c1: "c", c2: "3" }, { c1: "d", c2: "2" }]);
+    matrix.sortOrder = [{ field: "c2", direction: "asc" }];
+    matrix.goToPage(1);
+    expect(pageValues(matrix), "#1").toEqual(["c", "b"]);
+    matrix.rowsOnPage[0].getQuestionByName("c1").value = "x";
+    matrix.rowsOnPage[1].getQuestionByName("c1").value = "x";
+    expect(matrix.validate(false), "#2").toBe(false);
+    expect(matrix.hasErrors(true), "#3").toBe(true);
+    expect(matrix.pageIndex, "#4").toBe(1);
+    expect(keyErrors(matrix), "#5: both rows on the page").toEqual([1, 1]);
+    matrix.rowsOnPage[0].getQuestionByName("c1").value = "c";
+    expect(matrix.hasErrors(true), "#6: the pair with the record of page 1 remains").toBe(true);
+    expect(keyErrors(matrix), "#7: the row that left the group lost the error").toEqual([0, 1]);
+  });
+  test("keys on the page and keys off it compare alike: case as useCaseSensitiveComparison says, a number as its string", () => {
+    const create = (first: any, caseSensitive: boolean): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+      const survey = createSurvey({ rowCount: 4, rowsPerPage: 2, keyName: "c1" }, [{ c1: first }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      matrix.useCaseSensitiveComparison = caseSensitive;
+      return { survey: survey, matrix: matrix };
+    };
+    const check = (first: any, typed: any, caseSensitive: boolean): Array<boolean> => {
+      const onPage = create(first, caseSensitive);
+      onPage.matrix.goToPage(1);
+      onPage.matrix.rowsOnPage[1].getQuestionByName("c1").value = typed;
+      const offPage = create(first, caseSensitive);
+      offPage.matrix.getDataList().source.update(3, { c1: typed });
+      const offPageValid = offPage.survey.tryComplete();
+      return [onPage.matrix.validate(false), offPageValid];
+    };
+    expect(check("A", "a", false), "#1: case-insensitive").toEqual([false, false]);
+    expect(check("A", "a", true), "#2: case-sensitive").toEqual([true, true]);
+    expect(check(1, "1", true), "#3: 1 and \"1\"").toEqual([false, false]);
+    expect(check("x", "y", false), "#4").toEqual([true, true]);
+  });
+  test("a key typed on the page repeats a padded record: it reads the default row value", () => {
+    const matrix = createMatrix({ rowCount: 2, rowsPerPage: 2, keyName: "c1", defaultRowValue: { c1: "same" } }, [{ c1: "a" }, { c1: "b" }]);
+    matrix.visibleRows;
+    matrix.rowCount = 3;
+    expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: record 2 is padded, not stored").toBe(2);
+    expect(pageValues(matrix), "#2").toEqual(["a", "b"]);
+    matrix.rowsOnPage[1].getQuestionByName("c1").value = "same";
+    expect(matrix.validate(false), "#3").toBe(false);
+    expect(matrix.hasErrors(true), "#4").toBe(true);
+    expect(keyErrors(matrix), "#5").toEqual([0, 1]);
+  });
   test("rowCountExpression pages like a rowCount that was set", () => {
     const survey = createSurvey({ rowsPerPage: 2, rowCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");

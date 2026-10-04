@@ -10602,6 +10602,71 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     question.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }];
     expect(question.hasErrors(true), "#2").toBe(false);
   });
+  const keyErrors = (question: QuestionPanelDynamicModel): Array<number> => {
+    return question.panelsOnPage.map(panel => panel.getQuestionByName("q1").errors.length);
+  };
+  test("a key typed on a sorted page repeats a record of another page: only the page's own check runs without callbacks", () => {
+    const create = (): QuestionPanelDynamicModel => {
+      const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1" },
+        [{ q1: "x", q2: "1" }, { q1: "b", q2: "4" }, { q1: "c", q2: "3" }, { q1: "d", q2: "2" }]);
+      question.sortOrder = [{ field: "q2", direction: "asc" }];
+      question.goToPage(1);
+      return question;
+    };
+    const question = create();
+    expect(pageValues(question), "#1: the second page of the sorted list").toEqual(["c", "b"]);
+    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    expect(question.validate(false), "#2: the record of page 1 takes part").toBe(false);
+    expect(question.hasErrors(true), "#3").toBe(true);
+    expect(question.pageIndex, "#4").toBe(1);
+    expect(keyErrors(question), "#5: only the panel that repeats the key").toEqual([0, 1]);
+    const pair = create();
+    pair.panelsOnPage[0].getQuestionByName("q1").value = "b";
+    expect(pair.hasErrors(true), "#6: a pair on the page").toBe(true);
+    expect(keyErrors(pair), "#7: only the later panel of the pair").toEqual([0, 1]);
+    const typed = create();
+    typed.getDataList().source.update(0, { q1: 1, q2: "1" });
+    typed.panelsOnPage[1].getQuestionByName("q1").value = "1";
+    expect(typed.validate(false), "#8: 1 and \"1\" are the same key").toBe(false);
+    expect(typed.hasErrors(true), "#9").toBe(true);
+    expect(keyErrors(typed), "#10").toEqual([0, 1]);
+  });
+  test("a key typed on the page repeats a filtered-out record: a duplicate", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1", filterExpression: "{q2} != 'out'" },
+      [{ q1: "x", q2: "out" }, { q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(pageValues(question), "#1").toEqual(["a", "b"]);
+    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    expect(question.validate(false), "#2").toBe(false);
+    expect(question.hasErrors(true), "#3").toBe(true);
+    expect(keyErrors(question), "#4").toEqual([0, 1]);
+  });
+  test("a key typed on the page repeats an owner-hidden record: no duplicate", () => {
+    const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1", templateVisibleIf: "{panel.q2} != 'hide'" },
+      [{ q1: "x", q2: "hide" }, { q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    expect(pageValues(question), "#1").toEqual(["a", "b"]);
+    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    expect(question.validate(false), "#2").toBe(true);
+    expect(question.hasErrors(true), "#3").toBe(false);
+    expect(keyErrors(question), "#4").toEqual([0, 0]);
+  });
+  test("without paging the later panel of a pair gets the error, and a key change also compares the hidden panels", () => {
+    const question = createQuestion({ panelCount: 3, keyName: "q1" }, [{ q1: "a" }, { q1: 1 }, { q1: "a" }]);
+    expect(question.hasErrors(true), "#1").toBe(true);
+    expect(question.panels.map(panel => panel.getQuestionByName("q1").errors.length), "#2").toEqual([0, 0, 1]);
+    question.panels[2].getQuestionByName("q1").value = "1";
+    expect(question.hasErrors(true), "#3: 1 and \"1\" are the same key").toBe(true);
+    expect(question.panels.map(panel => panel.getQuestionByName("q1").errors.length), "#4").toEqual([0, 0, 1]);
+
+    const survey = createSurvey({ panelCount: 3, keyName: "q1", templateVisibleIf: "{panel.q2} != 'hide'" },
+      [{ q1: "x", q2: "hide" }, { q1: "a" }, { q1: "b" }]);
+    survey.checkErrorsMode = "onValueChanged";
+    const hidden = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(hidden.visiblePanels.length, "#5").toBe(2);
+    hidden.panels[2].getQuestionByName("q1").value = "x";
+    expect(hidden.panels[2].getQuestionByName("q1").errors.length, "#6: the key change compares every panel").toBe(1);
+    expect(hidden.hasErrors(true), "#7: the full check compares the visible panels").toBe(false);
+    expect(hidden.panels[2].getQuestionByName("q1").errors.length, "#8").toBe(0);
+  });
   test("panelCountExpression pages like a panelCount that was set", () => {
     const survey = createSurvey({ panelsPerPage: 2, panelCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");

@@ -3057,18 +3057,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private getKeyValuesWithoutPanels(): Array<any> {
     const res: Array<any> = [];
     if (!this.keyName || !this.hasDataListView) return res;
-    const list = this.dataList;
-    const positions = this.dataList.getMaterializedPositions();
-    // The records that are loaded: a duplicate on a page the question has not read is the server's
-    // business, and a key constraint over a whole remote table cannot be checked here. An owner-hidden
-    // record does not take part, as it does not without paging, where its hidden panel is skipped.
-    for (let i = 0; i < list.loadedCount; i++) {
-      if (positions[i] !== undefined || !list.isRecordVisible(i)) continue;
-      const val = list.getValue(i, this.keyName);
+    // A key constraint over a whole remote table cannot be checked here. An owner-hidden record does not
+    // take part (getRecordUniqueness), as it does not without paging, where its hidden panel is skipped.
+    // A record the page holds is compared through its panel.
+    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
+      if (position > -1) return;
+      const record = this.getListRecordAt(index);
+      const val = !!record ? record[this.keyName] : undefined;
       if (!this.isValueEmpty(val)) {
         res.push(val);
       }
-    }
+    });
     return res;
   }
   private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, context: ValidationContext): boolean {

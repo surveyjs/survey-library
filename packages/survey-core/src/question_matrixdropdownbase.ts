@@ -2791,6 +2791,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected focusItemAfterRead(index: number): void {
     throw new Error("focusItemAfterRead: a matrix without a record list has no read to focus a row after");
   }
+  /* The renderers show a pager under the table while the matrix has more than one page: never in design
+     mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it
+     re-renders the question. */
+  public get showPager(): boolean {
+    return this.pageCount > 1;
+  }
   // The number of rows on one page, 0 = no paging.
   public get rowsPerPage(): number {
     return this.pageSize;

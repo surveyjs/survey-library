@@ -14,6 +14,8 @@ import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { describe, test, expect } from "vitest";
+import { FunctionFactory } from "../src/functionsfactory";
+import { germanSurveyStrings } from "../src/localization/german";
 export * from "../src/localization/german";
 
 describe("Survey_QuestionMatrixDropdownBase", () => {
@@ -2963,6 +2965,71 @@ describe("Fixed matrix: the shape of the keyed answer", () => {
     q1.visibleRows[1].cells[1].question.value = "b";
     expect(q1.value, "#1: the other question's row and the unknown key are kept").toEqual({ r1: { c1: "a" }, r2: { c2: "b" }, r3: { c1: "c" }, zz: { c1: "z" } });
     expect(survey.data, "#1: the survey data").toEqual({ shared: { r1: { c1: "a" }, r2: { c2: "b" }, r3: { c1: "c" }, zz: { c1: "z" } } });
+  });
+});
+
+describe("The pager of a matrix that pages its rows", () => {
+  const fiveRows = ["r1", "r2", "r3", "r4", "r5"];
+  const createMatrix = (type: string, json: any, surveyJson?: any): QuestionMatrixDropdownModelBase => {
+    const survey = new SurveyModel(Object.assign({
+      elements: [Object.assign(type === "matrixdropdown" ? { rows: fiveRows } : { rowCount: 5 },
+        { type: type, name: "matrix", columns: [{ name: "a", cellType: "text" }] }, json)]
+    }, surveyJson));
+    return <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  };
+  ["matrixdropdown", "matrixdynamic"].forEach(type => {
+    test("showPager: only while the matrix has more than one page, " + type, () => {
+      expect(createMatrix(type, {}).showPager, "#1: no paging").toBe(false);
+      expect(createMatrix(type, { rowsPerPage: 5 }).showPager, "#2: one page").toBe(false);
+      const paged = createMatrix(type, { rowsPerPage: 2 });
+      expect(paged.showPager, "#3: three pages").toBe(true);
+      expect(paged.pageCount, "#3").toBe(3);
+      expect(createMatrix(type, { rowsPerPage: 2 }, { questionsOnPageMode: "inputPerPage" }).showPager, "#4: single-input mode").toBe(false);
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ elements: [Object.assign(type === "matrixdropdown" ? { rows: fiveRows } : { rowCount: 5 }, { type: type, name: "matrix", rowsPerPage: 2, columns: [{ name: "a" }] })] });
+      expect((<QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix")).showPager, "#5: design mode").toBe(false);
+    });
+  });
+  test("the page buttons are icons with localized titles, the page info is text without a tab stop", () => {
+    const matrix = createMatrix("matrixdropdown", { rowsPerPage: 2 });
+    const prev = matrix.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.pagerActions.getActionById("sv-pager-next");
+    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    expect([prev.title, next.title, info.title], "#1").toEqual(["Previous", "Next", "1 of 3"]);
+    expect([prev.iconName, next.iconName], "#2").toEqual(["icon-arrowleft", "icon-arrowright"]);
+    expect([prev.hasTitle, next.hasTitle], "#3: the title is the tooltip and the accessible name").toEqual([false, false]);
+    expect([prev.getTooltip(), next.getTooltip()], "#3").toEqual(["Previous", "Next"]);
+    expect([info.enabled, info.disableTabStop], "#4: the info is not a button").toEqual([false, true]);
+    (<SurveyModel>matrix.survey).locale = "de";
+    expect([prev.title, next.title, info.title], "#5: the titles follow the locale").toEqual([germanSurveyStrings.pagePrevText, germanSurveyStrings.pageNextText, "1 von 3"]);
+    (<SurveyModel>matrix.survey).locale = "";
+    expect(prev.title, "#6").toBe("Previous");
+  });
+  test("the page buttons are disabled on the edges and while a page waits for an asynchronous validator", () => {
+    const results: Array<(res: any) => void> = [];
+    FunctionFactory.Instance.register("pagerAsyncFunc", function (this: any) { results.push(this.returnResult); return false; }, true);
+    try {
+      const matrix = createMatrix("matrixdropdown", {
+        rowsPerPage: 2,
+        columns: [{ name: "a", cellType: "text", validators: [{ type: "expression", expression: "pagerAsyncFunc({row.a}) = 1" }] }]
+      });
+      matrix.value = { r1: { a: "x" }, r2: { a: "y" } };
+      expect(matrix.visibleRows.length, "#0: the page is shown").toBe(2);
+      const prev = matrix.pagerActions.getActionById("sv-pager-prev");
+      const next = matrix.pagerActions.getActionById("sv-pager-next");
+      expect([prev.enabled, next.enabled], "#1: page 0").toEqual([false, true]);
+      next.action();
+      expect(matrix.isPageMovePending, "#2: the move waits").toBe(true);
+      expect([prev.enabled, next.enabled], "#2: nothing can be clicked meanwhile").toEqual([false, false]);
+      results.forEach(setResult => setResult(1));
+      expect(matrix.pageIndex, "#3: moved").toBe(1);
+      expect([prev.enabled, next.enabled], "#3").toEqual([true, true]);
+      matrix.pageIndex = 2;
+      expect([prev.enabled, next.enabled], "#4: the last page").toEqual([true, false]);
+    } finally {
+      FunctionFactory.Instance.unregister("pagerAsyncFunc");
+    }
   });
 });
 

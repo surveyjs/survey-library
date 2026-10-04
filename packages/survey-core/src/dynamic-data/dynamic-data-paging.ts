@@ -383,10 +383,15 @@ export class DynamicDataPagingController {
     }
     this.syncState();
   }
-  // The pager the UI series renders: it computes nothing of its own.
+  /* The pager the renderers show through their action bar: it computes nothing of its own. The page
+     buttons are icons whose localized titles are their accessible names; the page info is a disabled
+     item without a tab stop, text the keyboard passes over. */
   public createPagerActions(container: ActionContainer): ActionContainer {
     const prevAction = new Action({
       id: "sv-pager-prev",
+      iconName: "icon-arrowleft",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pagePrevText")),
       enabled: <any>new ComputedUpdater(() => this.canGoPrevPage),
       action: () => { this.prevPage(); }
     });
@@ -402,10 +407,15 @@ export class DynamicDataPagingController {
         const page = this.owner.pageIndex + 1;
         const text = this.owner.getLocalizationFormatString("indexText", page, this.owner.pageCount);
         return this.owner.isCountKnown ? text : String(page);
-      })
+      }),
+      enabled: false,
+      disableTabStop: true
     });
     const nextAction = new Action({
       id: "sv-pager-next",
+      iconName: "icon-arrowright",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pageNextText")),
       enabled: <any>new ComputedUpdater(() => this.canGoNextPage),
       action: () => { this.nextPage(); }
     });

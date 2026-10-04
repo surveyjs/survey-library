@@ -522,4 +522,27 @@ describe("Fixed matrix: the records are composed once per answer", () => {
     expect(matrix.getProgressInfo().answeredQuestionCount, "#5").toBe(2);
     expect(builds.mock.calls.length, "#6: no row is built for them").toBe(0);
   });
+  test("a full validation visits every page and builds one page of rows at a time", () => {
+    const data: any = {};
+    records(30, i => "r" + i).forEach((name: string) => { data[name] = { a: name }; });
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: 5, columns: [{ name: "a", cellType: "text", isRequired: true }], rows: records(30, i => "r" + i) }]
+    });
+    survey.data = { m: data };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#0: the first page").toBe(5);
+    const rowBuilds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+    const generations = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "generateRows");
+    let maxRows = 0;
+    const originalGetVisibleRows = (<any>matrix).getVisibleRows.bind(matrix);
+    (<any>matrix).getVisibleRows = function (): any {
+      const res = originalGetVisibleRows();
+      maxRows = Math.max(maxRows, ((<any>matrix).generatedVisibleRows || []).length);
+      return res;
+    };
+    expect(survey.validate(), "#1").toBe(true);
+    expect(rowBuilds.mock.calls.length, "#2: the five other pages, then the first one again").toBe(30);
+    expect(generations.mock.calls.length, "#3: one build per page visit").toBe(6);
+    expect(maxRows, "#4: no more than one page of rows at a time").toBe(5);
+  });
 });

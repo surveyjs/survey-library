@@ -545,6 +545,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const list = this.dataListValue;
     return this.isPagingActive && list.getVisibleIndexes().length !== list.getCreatedIndexes().length;
   }
+  // The rows are schema-defined: a row the respondent never opened can violate a required column, a
+  // cell validator or a unique column, so a full validation visits every page of the view.
+  protected isEveryPageValidated(): boolean {
+    return true;
+  }
   // Only visible rows in the view take part, as only visible rows are checked without paging.
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     const res = super.getRecordUniqueness();

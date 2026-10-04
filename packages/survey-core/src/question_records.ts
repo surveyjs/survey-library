@@ -613,7 +613,13 @@ export abstract class QuestionRecordsModel extends Question {
      visit. */
   protected validateOffPage(context: ValidationContext): boolean {
     if (!this.isPagedByList || !context.fireCallback || context.isOnValueChanged) return true;
-    return this.pageValidation.validateEditedRecords(context, this.getOffPageDuplicatePages());
+    const pages = this.getOffPageDuplicatePages();
+    if (this.isEveryPageValidated()) {
+      for (let i = 0; i < this.dataList.pageCount; i++) {
+        if (pages.indexOf(i) < 0) pages.push(i);
+      }
+    }
+    return this.pageValidation.validateEditedRecords(context, pages);
   }
   /* The duplicates are looked for only when they are visited: the scan is O(records) per unique
      field, and a pair whose records both have no object has none the question's own check could put
@@ -1043,6 +1049,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* The question defines which records exist and in what order (the rows of the fixed matrix): the
      list it creates refuses to insert, remove or move one, and so does its default source. */
   protected isRecordMembershipFixed(): boolean {
+    return false;
+  }
+  /* A full validation visits every page of the view, not only the pages of the edited records: the
+     records exist whether or not the respondent opened their page (the rows of the fixed matrix).
+     The pages are visited one at a time, so only one page of objects exists at once. */
+  protected isEveryPageValidated(): boolean {
     return false;
   }
   /* The visibility a record has of its own under paging, beside the record visibility expression (the

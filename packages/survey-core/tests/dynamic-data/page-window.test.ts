@@ -1917,3 +1917,150 @@ describe("Fixed matrix pages its rows", () => {
     });
   });
 });
+
+describe("Fixed matrix validates every page", () => {
+  const sevenRows = ["r1", "r2", "r3", "r4", "r5", "r6", "r7"];
+  const requiredA = [{ name: "a", cellType: "text", isRequired: true }];
+  const answered = (except?: Array<string>, extra?: any): any => {
+    const res: any = {};
+    sevenRows.forEach((name, i) => {
+      if (!except || except.indexOf(name) < 0) res[name] = Object.assign({ a: "a" + (i + 1) }, extra && extra[name]);
+    });
+    return res;
+  };
+  const createFixed = (json: any, data: any, surveyJson?: any): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel(Object.assign({
+      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", rowsPerPage: 3, rows: sevenRows, columns: requiredA }, json)]
+    }, surveyJson));
+    survey.data = { matrix: data };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    expect(matrix.visibleRows.length, "the first page is shown").toBe(3);
+    return { survey: survey, matrix: matrix };
+  };
+  const rowNames = (matrix: QuestionMatrixDropdownModel): Array<string> => matrix.visibleRows.map(row => row.rowName);
+  const errorRows = (matrix: QuestionMatrixDropdownModel, column: string = "a"): Array<string> =>
+    matrix.visibleRows.filter(row => row.getQuestionByName(column).errors.length > 0).map(row => row.rowName);
+  test("an empty required cell in a row on a page never opened blocks completion and shows its page", () => {
+    const data = answered(["r7"]);
+    const { survey, matrix } = createFixed({}, data);
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(matrix.pageIndex, "#2: the page of r7").toBe(2);
+    expect(errorRows(matrix), "#3: the error is on r7").toEqual(["r7"]);
+    expect(matrix.value, "#4: the answer is unchanged").toEqual(data);
+  });
+  test("a hidden row with an empty required cell does not block completion", () => {
+    [{ rows: ["r1", "r2", "r3", "r4", "r5", "r6", { value: "r7", visibleIf: "false" }] }, { rowsVisibleIf: "{item} != 'r7'" }].forEach((hide, i) => {
+      const data = answered(["r7"]);
+      const { survey, matrix } = createFixed(hide, data);
+      expect(survey.tryComplete(), "#" + i + ": completes").toBe(true);
+      expect(matrix.value, "#" + i + ": the answer is unchanged").toEqual(data);
+    });
+  });
+  test("every row answered: the survey completes, and the page the respondent was on comes back", () => {
+    const data = answered();
+    const { survey, matrix } = createFixed({}, data);
+    matrix.pageIndex = 1;
+    expect(survey.validate(), "#1").toBe(true);
+    expect(matrix.pageIndex, "#2: back on page 1").toBe(1);
+    expect(survey.tryComplete(), "#3").toBe(true);
+    expect(matrix.value, "#4").toEqual(data);
+  });
+  test("a cell validator that fails for a row off the page", () => {
+    const data = answered(undefined, { r5: { a: "bad" } });
+    const { survey, matrix } = createFixed({ columns: [{ name: "a", cellType: "text", isRequired: true, validators: [{ type: "expression", expression: "{row.a} != 'bad'" }] }] }, data);
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(matrix.pageIndex, "#2").toBe(1);
+    expect(errorRows(matrix), "#3").toEqual(["r5"]);
+  });
+  test("onMatrixCellValidate returns an error for a row off the page", () => {
+    const { survey, matrix } = createFixed({}, answered());
+    survey.onMatrixCellValidate.add((_, options) => {
+      if (options.row.rowName === "r6") options.error = "not r6";
+    });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(matrix.pageIndex, "#2").toBe(1);
+    expect(errorRows(matrix), "#3").toEqual(["r6"]);
+  });
+  test("a required question in the detail panel of a row off the page", () => {
+    const { survey, matrix } = createFixed({ detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d", isRequired: true }] },
+      answered(undefined, { r1: { d: "1" }, r2: { d: "2" }, r3: { d: "3" }, r5: { d: "5" }, r6: { d: "6" }, r7: { d: "7" } }));
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(matrix.pageIndex, "#2").toBe(1);
+    expect(matrix.visibleRows[0].rowName, "#3").toBe("r4");
+    expect(matrix.visibleRows[0].isDetailPanelShowing, "#4: the panel with the error is open").toBe(true);
+    expect(matrix.visibleRows[0].detailPanel.getQuestionByName("d").errors.length, "#5").toBe(1);
+  });
+  describe("unique columns", () => {
+    const uniqueColumns = [{ name: "a", cellType: "text", isUnique: true }];
+    test("equal values on pages 0 and 1, validated from page 2", () => {
+      const { survey, matrix } = createFixed({ columns: uniqueColumns }, { r2: { a: "x" }, r6: { a: "x" } });
+      matrix.pageIndex = 2;
+      expect(survey.tryComplete(), "#1").toBe(false);
+      expect(matrix.pageIndex, "#2: the first page with an error").toBe(0);
+      expect(errorRows(matrix), "#3: the error is on the row that exists").toEqual(["r2"]);
+    });
+    test("the same values with r6 hidden: no duplicate", () => {
+      [{ rowsVisibleIf: "{item} != 'r6'" }, { rows: ["r1", "r2", "r3", "r4", "r5", { value: "r6", visibleIf: "false" }, "r7"] }].forEach((hide, i) => {
+        const { survey, matrix } = createFixed(Object.assign({ columns: uniqueColumns }, hide), { r2: { a: "x" }, r6: { a: "x" } });
+        matrix.pageIndex = 1;
+        expect(survey.tryComplete(), "#" + i).toBe(true);
+      });
+    });
+    test("the same values with r2 hidden and r6 on the current page: no error on r6", () => {
+      const { survey, matrix } = createFixed({ columns: uniqueColumns, rowsVisibleIf: "{item} != 'r2'" }, { r2: { a: "x" }, r6: { a: "x" } });
+      matrix.pageIndex = 1;
+      expect(rowNames(matrix), "#1: r6 is on the page").toEqual(["r5", "r6", "r7"]);
+      expect(survey.tryComplete(), "#2").toBe(true);
+    });
+  });
+  describe("asynchronous validators", () => {
+    const results: Array<{ name: string, setResult: (res: any) => void }> = [];
+    const register = (): void => {
+      results.length = 0;
+      FunctionFactory.Instance.register("fixedAsyncFunc", function (this: any, params: Array<any>): any {
+        results.push({ name: params[0], setResult: this.returnResult });
+        return false;
+      }, true);
+    };
+    afterEach(() => {
+      FunctionFactory.Instance.unregister("fixedAsyncFunc");
+    });
+    const asyncColumns = [{ name: "a", cellType: "text", validators: [{ type: "expression", expression: "fixedAsyncFunc({row.a}) = 1" }] }];
+    const settle = (fail?: string): void => {
+      while(results.length > 0) {
+        const item = results.shift();
+        item.setResult(item.name === fail ? 0 : 1);
+      }
+    };
+    test("a validator that fails for r5: the survey stays and the matrix shows page 1 once it settles", () => {
+      register();
+      const { survey, matrix } = createFixed({ columns: asyncColumns }, answered());
+      survey.tryComplete();
+      settle("a5");
+      expect(survey.state, "#1: not completed").toBe("running");
+      expect(matrix.pageIndex, "#2: the page of r5").toBe(1);
+      expect(errorRows(matrix), "#3").toEqual(["r5"]);
+    });
+    test("the same validator passing: the survey completes after the walk", () => {
+      register();
+      const { survey } = createFixed({ columns: asyncColumns }, answered());
+      survey.tryComplete();
+      settle();
+      expect(survey.state, "#1").toBe("completed");
+    });
+  });
+  test("a validation on a value change does not walk the pages", () => {
+    const { matrix } = createFixed({}, answered(["r7"]), { checkErrorsMode: "onValueChanged" });
+    const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+    matrix.visibleRows[0].cells[0].question.value = "changed";
+    expect(builds.mock.calls.length, "#1: no other page is built").toBe(0);
+    expect(matrix.pageIndex, "#2").toBe(0);
+    builds.mockRestore();
+  });
+  test("the question's isRequired is checked on the keyed answer", () => {
+    const { survey, matrix } = createFixed({ isRequired: true, columns: [{ name: "a", cellType: "text" }] }, undefined);
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(matrix.errors.length, "#2: the question's own error").toBe(1);
+    expect(matrix.pageIndex, "#3").toBe(0);
+  });
+});

@@ -2869,9 +2869,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return every ? true : false;
   }
+  // Off the page: the edited records, the pages isEveryPageValidated asks for, and a duplicate pair
+  // both of whose records have no row. Either moves to the page that holds the error.
   protected validateElementCore(context: ValidationContext): boolean {
     const rowsValidation = this.validateRowObjects(context);
-    return super.validateElementCore(context) && rowsValidation;
+    return super.validateElementCore(context) && rowsValidation && this.validateOffPage(context);
   }
   // The rows that exist and the duplicates they take part in: what a page of a matrix that pages is
   // validated by before the respondent leaves it.

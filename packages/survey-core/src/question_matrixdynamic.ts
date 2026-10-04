@@ -181,11 +181,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // here, once, whatever order their keys came in.
     this.paging.flushAuthoredView();
   }
-  // Off the page: the edited records and a duplicate pair both of whose records have no row. Either
-  // moves to the page that holds the error.
-  protected validateElementCore(context: ValidationContext): boolean {
-    return super.validateElementCore(context) && this.validateOffPage(context);
-  }
   /* rowCount, not a write, decides how many records the list reads: the window is question.value
      padded up to it. The records that appear join the view - an added record always does - and the
      ones that disappear leave it; the membership of the rest is not re-decided. */

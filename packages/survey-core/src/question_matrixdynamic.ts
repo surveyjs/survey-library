@@ -7,8 +7,7 @@ import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
-  MatrixSingleInputLocOwner,
-  IMatrixDuplicationEntry
+  MatrixSingleInputLocOwner
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
@@ -173,19 +172,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isRowChanging = false;
     }
   }
-  // The number of rows on one page, 0 = no paging.
-  public get rowsPerPage(): number {
-    return this.pageSize;
-  }
-  public set rowsPerPage(val: number) {
-    this.pageSize = val;
-  }
-  protected getPageSizePropertyName(): string {
-    return "rowsPerPage";
-  }
-  protected onPageSizeAssigned(): void {
-    this.resetRenderedTable();
-  }
   /* False while the data source answers a read without a total: rowCount is then the number of rows
      known to exist - a lower bound (see isCountKnown). */
   public get isRowCountKnown(): boolean { return this.isCountKnown; }
@@ -298,7 +284,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     this.dragDropMatrixRows = new DragDropMatrixRows(this.survey, null, true);
-    this.syncPageSizeWithSurvey();
   }
 
   private draggedRow: MatrixDropdownRowModelBase;
@@ -1521,7 +1506,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      list filter excluded has no row and is not part of it - the same answer a source that filters on
      its own side gives, and what makes a total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
-    if (this.isPagedByList) return this.getPagedFilteredData();
     const res: any = [];
     this.generatedVisibleRows.forEach(row => {
       if (row.isVisible && !row.isEmpty) {
@@ -1530,69 +1514,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
     return res;
   }
-  /* Under paging the survey data and the totals are the view's records, not the page's rows: a
-     record with a row gives its filteredValue (the values of invisible cells dropped), a record
-     without one is taken as it is stored - it has no cells to be invisible. */
-  private getPagedFilteredData(): any {
-    const list = this.dataList;
-    const rows = this.generatedVisibleRows || [];
-    const positions = this.dataList.getMaterializedPositions();
-    const res: any = [];
-    list.getVisibleIndexes().forEach((index: number): void => {
-      const row = positions[index] !== undefined ? rows[positions[index]] : undefined;
-      if (!!row) {
-        if (row.isVisible && !row.isEmpty) res.push(row.filteredValue);
-        return;
-      }
-      const record = this.getListRecordAt(index);
-      if (!this.isValueEmpty(record)) res.push(record);
-    });
-    return res;
-  }
-  /* Clearing the values of invisible rows may only touch the records that HAVE a row: a record the
-     list filter excluded is not invisible, it is unrepresented, and dropping it here would delete
-     it from question.value. */
-  protected getDataWithoutInvisibleRows(): any {
-    if (!this.hasDataListView) return super.getDataWithoutInvisibleRows();
-    const list = this.dataList;
-    const rows = this.generatedVisibleRows || [];
-    const positions = this.dataList.getMaterializedPositions();
-    const res: any = [];
-    // loadedCount, not count: with a data source that pages, count is the server total and only the
-    // records of the loaded window can be looked at. Equal for every local source.
-    for (let i = 0; i < list.loadedCount; i++) {
-      const position = positions[i] !== undefined ? positions[i] : -1;
-      const row = position > -1 && position < rows.length ? rows[position] : undefined;
-      if (!row) {
-        res.push(this.getListRecordAt(i));
-      } else if (row.isVisible && !row.isEmpty) {
-        res.push(row.filteredValue);
-      }
-    }
-    return res;
-  }
-  protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    if (!this.hasDataListView) return super.getDuplicationEntries(columnName);
-    const list = this.dataList;
-    const rows = this.generatedVisibleRows || [];
-    const res = new Array<IMatrixDuplicationEntry>();
-    const positions = this.dataList.getMaterializedPositions();
-    // Only read, never stored: every padded record can share one default record.
+  // Only read, never stored: every padded record can share one default record.
+  protected createDuplicationRecordReader(): (index: number) => any {
     const defaultRecord = this.getDefaultRowValue(false) || {};
-    // The records that are loaded: a duplicate on a page the matrix has not read is the server's
-    // business, and a key constraint over a whole remote table cannot be checked here.
-    for (let i = 0; i < list.loadedCount; i++) {
-      const position = positions[i] !== undefined ? positions[i] : -1;
-      const row = position > -1 && position < rows.length ? rows[position] : undefined;
-      if (!!row) {
-        if (!row.isVisible) continue;
-        res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
-      } else {
-        const record = this.getListRecordAt(i, defaultRecord);
-        res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
-      }
-    }
-    return res;
+    return (index: number): any => this.getListRecordAt(index, defaultRecord);
   }
   protected onBeforeValueChanged(val: any): void {
     // The record count of a remote-backed matrix comes from the read, never from the length of the
@@ -1673,47 +1598,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.hasDataListView) return index;
     const res = this.getRecordIndexOf(row);
     return res > -1 ? res : index;
-  }
-  onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
-    super.onRowVisibilityChanged(row);
-    // Under paging the records decide the flags (updatePagedRecordsVisibility).
-    const index = this.isPagingActive ? -1 : this.getRecordIndexOf(row);
-    if (index > -1) {
-      this.dataList.setRecordVisible(index, row.isVisible);
-    }
-    // A hidden row takes no page slot: the page count follows row visibility, and the list does not
-    // announce it.
-    this.syncPagingState();
-  }
-  protected runCellsCondition(properties: HashTable<any>): boolean {
-    if (this.rebuildStalePage(properties)) return true;
-    const res = super.runCellsCondition(properties);
-    this.updateRecordsVisibility();
-    return res;
-  }
-  // When the list pages the progress is counted from the records (getProgressInfoByRecords): every
-  // input column of every visible record.
-  public getProgressInfo(): IProgressInfo {
-    if (!this.isPagedByList) return super.getProgressInfo();
-    return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => this.updateProgressInfoByRow(res, record));
-  }
-  /* The owner-visibility layer of the list: a record follows row.isVisible - the same flag
-     visibleRows is built from - so that dataList.visibleCount and visibleRows.length agree. */
-  private updateRecordsVisibility(): void {
-    const rows = this.generatedVisibleRows;
-    if (!Array.isArray(rows) || this.isPagingActive) return;
-    const list = this.dataList;
-    let isChanged = false;
-    for (let i = 0; i < rows.length; i++) {
-      const index = list.materializedIndexToIndex(i);
-      if (index > -1 && list.setRecordVisible(index, rows[i].isVisible)) {
-        isChanged = true;
-      }
-    }
-    // A run that changed no flag changed no page count.
-    if (isChanged) {
-      this.syncPagingState();
-    }
   }
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);

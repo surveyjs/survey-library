@@ -2921,7 +2921,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      Keys compare case-sensitively, as the on-page check compares them. The error goes on the later
      visible record of a pair, on its page. */
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
-    return { fields: !!this.keyName ? [this.keyName] : [], caseSensitive: true, includeHidden: false };
+    return { fields: !!this.keyName ? [this.keyName] : [], caseSensitive: true, includeHidden: false, includeFilteredOut: true };
   }
   private hasInputInChangedQuestions(): boolean {
     const qs = this.changingValueQuestions;

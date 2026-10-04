@@ -18,7 +18,7 @@ import {
 } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
-import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -27,6 +27,8 @@ export interface IDynamicDataRecordUniqueness {
   caseSensitive: boolean;
   // Owner-hidden records take part too.
   includeHidden: boolean;
+  // Records outside the view - the filter excludes them - take part too.
+  includeFilteredOut: boolean;
 }
 // What a value assignment takes before the value is stored and hands back after it (see
 // QuestionRecordsModel.beginValueAssignment).
@@ -654,8 +656,10 @@ export abstract class QuestionRecordsModel extends Question {
     // isPagingActive is false in design mode.
     if (!this.isPagingActive || this.isLoadingFromJson) return false;
     const expression = this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName());
-    const isChanged = this._dataList.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
-      (index: number): any => this.getListRecordAt(index), (): IDynamicDataRecordScope => this.createRecordVisibilityScope(properties));
+    const isShowingAll = this.areInvisibleElementsShowing;
+    const isChanged = this._dataList.updateRecordsVisibility(isShowingAll ? "" : expression,
+      (index: number): any => this.getListRecordAt(index), (): IDynamicDataRecordScope => this.createRecordVisibilityScope(properties),
+      isShowingAll ? undefined : this.getRecordConditionReader());
     if (isChanged) {
       this.syncPagingState();
     }
@@ -692,17 +696,12 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The authored page size, 0 = no paging, stored under the property getPageSizePropertyName() names
      - the one the JSON and the property grid know (rowsPerPage, panelsPerPage). The question reads
-     pageSize; the named property is its public face. An empty name is the fixed matrix until it has
-     a record list: it does not page yet, so it reads 0 and a write is ignored. That branch goes away
-     with the "not supported yet" members of the matrix base. */
+     pageSize; the named property is its public face. */
   public get pageSize(): number {
-    const name = this.getPageSizePropertyName();
-    return !!name ? this.getPropertyValue(name) : 0;
+    return this.getPropertyValue(this.getPageSizePropertyName());
   }
   public set pageSize(val: number) {
-    const name = this.getPageSizePropertyName();
-    if (!name) return;
-    this.paging.setPageSize(name, val);
+    this.paging.setPageSize(this.getPageSizePropertyName(), val);
     this.onPageSizeAssigned();
   }
   // internal, for tests and renderers
@@ -1045,6 +1044,12 @@ export abstract class QuestionRecordsModel extends Question {
      list it creates refuses to insert, remove or move one, and so does its default source. */
   protected isRecordMembershipFixed(): boolean {
     return false;
+  }
+  /* The visibility a record has of its own under paging, beside the record visibility expression (the
+     fixed matrix: a row's visibleIf and visible flag). undefined: no record has one, which is the
+     default; the reader is asked for one record at a time. */
+  protected getRecordConditionReader(): (index: number) => IDynamicDataRecordCondition {
+    return undefined;
   }
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */

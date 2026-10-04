@@ -75,16 +75,20 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
    visible record, which is where the error goes. A group with no visible record gives no page: it
    has no record to put the error on. Returns the pages, without repeats.
    The questions differ in which records take part and how values compare, and each call site spells
-   its options out: includeHidden - owner-hidden records take part too (the matrix); caseSensitive -
+   its options out: includeHidden - owner-hidden records take part too (the matrix); includeFilteredOut -
+   the records the filter excludes take part too, otherwise only the visible ones are scanned; caseSensitive -
    false folds strings with toLocaleLowerCase. Empty means what Base.isValueEmpty means: a
    whitespace-only string is empty. The groups are a Map: the keys are respondent input, and
    "__proto__" in a plain object is the prototype, not a group. */
 export function findDuplicatePages(list: DynamicDataList, readKey: (index: number) => any,
-  options: { caseSensitive: boolean, includeHidden: boolean }): Array<number> {
+  options: { caseSensitive: boolean, includeHidden: boolean, includeFilteredOut?: boolean }): Array<number> {
   const visiblePos: { [index: number]: number } = {};
-  list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
+  const visible = list.getVisibleIndexes();
+  visible.forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
   const groups = new Map<string, { count: number, target: number }>();
-  for (let i = 0; i < list.loadedCount; i++) {
+  const count = options.includeFilteredOut !== false ? list.loadedCount : visible.length;
+  for (let j = 0; j < count; j++) {
+    const i = options.includeFilteredOut !== false ? j : visible[j];
     if (!options.includeHidden && !list.isRecordVisible(i)) continue;
     let val = readKey(i);
     if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) continue;

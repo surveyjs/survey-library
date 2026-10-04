@@ -12,7 +12,7 @@ import {
 import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
-import { DynamicDataRecordVisibility, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
+import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
 
 // Index vocabulary - binding for every method and parameter name in this file:
 //
@@ -761,13 +761,14 @@ export class DynamicDataList {
   }
   /* The owner-visibility decided by an expression over every record - rowsVisibleIf /
      templateVisibleIf of a question that pages (see DynamicDataRecordVisibility). The owner reads
-     the expression, the record and the context; the list keeps the runner and whether the flags are
-     the expression's. Returns whether a flag changed. */
-  public updateRecordsVisibility(expression: string, readRecord: (index: number) => any, createScope: () => IDynamicDataRecordScope): boolean {
+     the expression, the record, the context and the condition a record has of its own; the list keeps
+     the runners and whether the flags are the expression's. Returns whether a flag changed. */
+  public updateRecordsVisibility(expression: string, readRecord: (index: number) => any, createScope: () => IDynamicDataRecordScope,
+    readCondition?: (index: number) => IDynamicDataRecordCondition): boolean {
     if (!this.recordVisibility) {
       this.recordVisibility = new DynamicDataRecordVisibility();
     }
-    return this.recordVisibility.update(this, expression, readRecord, createScope);
+    return this.recordVisibility.update(this, expression, readRecord, createScope, readCondition);
   }
 
   public get pageSize(): number {

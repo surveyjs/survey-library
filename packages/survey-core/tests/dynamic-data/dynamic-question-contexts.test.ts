@@ -490,3 +490,53 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     });
   });
 });
+
+describe("Fixed matrix pages its rows: the row context of a record without a row", () => {
+  const rows = [{ value: "r1", text: "Apple" }, { value: "r2", text: "Banana" }, { value: "r3", text: "Cherry" },
+    { value: "r4", text: "Date" }, { value: "r5", text: "Elder" }, { value: "r6", text: "Fig" }, { value: "r7", text: "Grape" }];
+  const createFixed = (json: any): { survey: SurveyModel, matrix: any } => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", rowsPerPage: 3, rows: rows, columns: [{ name: "a", cellType: "text" }] }, json),
+        { type: "expression", name: "readsR6", expression: "{matrix.r6.a}" }]
+    });
+    survey.data = { matrix: { r2: { a: "2" }, r6: { a: "six" } } };
+    return { survey: survey, matrix: survey.getQuestionByName("matrix") };
+  };
+  const names = (matrix: any): Array<string> => matrix.visibleRows.map((row: any) => row.rowName);
+  test("{rowTitle} decides the visibility of records off the page", () => {
+    const { matrix } = createFixed({ rowsVisibleIf: "{rowTitle} notcontains 'e'" });
+    expect(names(matrix), "#1: Apple, Cherry, Date, Elder and Grape contain an e").toEqual(["r2", "r6"]);
+    expect(matrix.pageCount, "#2").toBe(1);
+    expect(matrix.value, "#3: the hidden records keep their answers").toEqual({ r2: { a: "2" }, r6: { a: "six" } });
+  });
+  test("{item} and {rowName} decide the visibility of records off the page", () => {
+    const { survey, matrix } = createFixed({ rowsVisibleIf: "{item} != 'r1' and {rowName} != {skip}" });
+    survey.setValue("skip", "r5");
+    expect(names(matrix), "#1: page 0").toEqual(["r2", "r3", "r4"]);
+    matrix.nextPage();
+    expect(names(matrix), "#2: page 1").toEqual(["r6", "r7"]);
+  });
+  test("a custom function reads the record item as this.row", () => {
+    const seen: Array<any> = [];
+    FunctionFactory.Instance.register("fixedRecordName", function (this: any) {
+      seen.push(this.row.getIndex());
+      return this.row.getValueGetterContext().getValue({ name: "", path: [{ name: "rowName" }] }).value;
+    });
+    try {
+      const { matrix } = createFixed({ rowsVisibleIf: "fixedRecordName() != 'r3'" });
+      expect(names(matrix), "#1").toEqual(["r1", "r2", "r4"]);
+      expect(seen.indexOf(6) > -1, "#2: the record off the page was asked as well").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("fixedRecordName");
+    }
+  });
+  test("{matrix.r6.a} reads the keyed answer while r6 is off the page", () => {
+    const { survey, matrix } = createFixed({});
+    expect(names(matrix), "#1: r6 is not on the page").toEqual(["r1", "r2", "r3"]);
+    expect(survey.getValue("readsR6"), "#2").toBe("six");
+    matrix.nextPage();
+    matrix.visibleRows[2].cells[0].question.value = "6!";
+    matrix.prevPage();
+    expect(survey.getValue("readsR6"), "#3: an edit made on r6's page").toBe("6!");
+  });
+});

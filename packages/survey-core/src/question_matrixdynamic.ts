@@ -680,9 +680,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return super.isMatrixReadOnly() || !this.canWriteRecords("update");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
-  /* Enables the header-click sort the UI series will add; a column opts out with
-     column.allowSort = false. This step only stores and exposes it - the sort itself is assigned
-     through sortOrder/sortBy. */
+  /* Enables the header-click sort a renderer may offer; a column opts out with
+     column.allowSort = false. The property is stored and exposed (column.isSortable reads it) - the
+     sort itself is assigned through sortOrder/sortBy/toggleSort. */
   @property({ defaultValue: false }) allowSortRows: boolean;
 
   public get iconDragElement(): string {

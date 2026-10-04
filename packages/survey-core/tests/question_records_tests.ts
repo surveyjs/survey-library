@@ -5,9 +5,10 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
-/* The record list and its helpers are created on demand. A matrix whose rows are fixed never pages,
-   sorts or filters, so nothing on its paths may create them; the dynamic questions create the list
-   at the points that need it and coordinate every value assignment and their disposal with it. */
+/* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
+   list on the first cell edit, on getDataList() and when it pages, sorts or filters - and on no other
+   path; the dynamic questions create the list at the points that need it. Every records question
+   coordinates its value assignments and its disposal with the list. */
 
 function hasNoRecordList(q: any): boolean {
   return q._dataList === undefined && q._paging === undefined && q._pageValidation === undefined;
@@ -289,5 +290,75 @@ describe("Records question: dispose", () => {
     expect(listDispose, "#1").toHaveBeenCalledTimes(1);
     expect(templateDispose, "#2").toHaveBeenCalledTimes(1);
     expect(listDispose.mock.invocationCallOrder[0] < templateDispose.mock.invocationCallOrder[0], "#3").toBe(true);
+  });
+});
+
+describe("Records questions: one API across the three types", () => {
+  interface IKind {
+    type: string;
+    pageSizeName: string;
+    json: any;
+    data: any;
+    // The record the filter below hides, read from the value.
+    hiddenRecord(value: any): any;
+    shown(q: any): Array<any>;
+  }
+  const kinds: Array<IKind> = [
+    {
+      type: "matrixdropdown", pageSizeName: "rowsPerPage",
+      json: { rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] },
+      data: { r1: { a: "1" }, r2: { a: "2" }, r3: { a: "3" } },
+      hiddenRecord: (value: any): any => value.r2,
+      shown: (q: any): Array<any> => q.visibleRows.map((row: any) => row.getQuestionByName("a").value)
+    },
+    {
+      type: "matrixdynamic", pageSizeName: "rowsPerPage",
+      json: { rowCount: 3, columns: [{ name: "a", cellType: "text" }] },
+      data: [{ a: "1" }, { a: "2" }, { a: "3" }],
+      hiddenRecord: (value: any): any => value[1],
+      shown: (q: any): Array<any> => q.visibleRows.map((row: any) => row.getQuestionByName("a").value)
+    },
+    {
+      type: "paneldynamic", pageSizeName: "panelsPerPage",
+      json: { templateElements: [{ type: "text", name: "a" }] },
+      data: [{ a: "1" }, { a: "2" }, { a: "3" }],
+      hiddenRecord: (value: any): any => value[1],
+      shown: (q: any): Array<any> => q.panels.map((panel: any) => panel.getQuestionByName("a").value)
+    }
+  ];
+  const create = (kind: IKind, extra?: any): any => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q" }, kind.json, extra)] });
+    survey.data = { q: kind.data };
+    return survey.getQuestionByName("q");
+  };
+  kinds.forEach(kind => {
+    test("paging, sorting, filtering and the record list, " + kind.type, () => {
+      const q = create(kind, { [kind.pageSizeName]: 2 });
+      expect([q[kind.pageSizeName], q.pageSize], "#1: the type-specific name and pageSize agree").toEqual([2, 2]);
+      q.pageSize = 1;
+      expect(q[kind.pageSizeName], "#1: set through pageSize").toBe(1);
+      expect(q.getDataList().loadedCount, "#2: the record list").toBe(3);
+      expect(q.pageCount, "#3").toBe(3);
+      q.pageIndex = 1;
+      expect([q.pageIndex, kind.shown(q)], "#4: the page moves").toEqual([1, ["2"]]);
+      const sorted = create(kind, { sortBy: "a-" });
+      expect(sorted.toJSON().sortBy, "#5: sortBy round-trips through JSON").toBe("a-");
+      expect(kind.shown(sorted), "#5: applied").toEqual(["3", "2", "1"]);
+      const filtered = create(kind, { filterExpression: "{a} != '2'" });
+      expect(kind.shown(filtered), "#6: the filter hides a record").toEqual(["1", "3"]);
+      expect(kind.hiddenRecord(filtered.value), "#6: the value keeps it").toEqual({ a: "2" });
+    });
+  });
+  test("the single-select matrix has none of these members, and its answer, rows and JSON are its own", () => {
+    const json = { type: "matrix", name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] };
+    const survey = new SurveyModel({ elements: [json] });
+    survey.data = { m: { r1: "c2" } };
+    const m: any = survey.getQuestionByName("m");
+    ["pageSize", "rowsPerPage", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
+      expect(name in m, "#1: " + name).toBe(false);
+    });
+    expect(m.value, "#2: the answer").toEqual({ r1: "c2" });
+    expect(m.visibleRows.map((row: any) => row.name), "#3: the rows").toEqual(["r1", "r2"]);
+    expect(m.toJSON(), "#4: the JSON").toEqual({ name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] });
   });
 });

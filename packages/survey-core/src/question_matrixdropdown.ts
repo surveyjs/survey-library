@@ -146,6 +146,20 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
+  constructor(name: string) {
+    super(name);
+    this.rows = this.createItemValues("rows");
+  }
+  /**
+   * An array of matrix rows.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   */
+  @property() rows: Array<any>;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rows") {
@@ -440,6 +454,18 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see rowsVisibleIf
    */
   @property() hideIfRowsEmpty: boolean;
+  protected updateVisibilityBasedOnRows(): void {
+    if (this.hideIfRowsEmpty) {
+      this.onVisibleChanged();
+    }
+  }
+  protected isVisibleCore(): boolean {
+    const res = super.isVisibleCore();
+    if (!res || !this.hideIfRowsEmpty) return res;
+    // Under paging the rows are one page: the visible records count.
+    if (this.isPagingActive) return this.dataListValue.visibleCount > 0;
+    return this.visibleRows?.length > 0;
+  }
 
   public getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   public getValueGetterContext(): IValueGetterContext {

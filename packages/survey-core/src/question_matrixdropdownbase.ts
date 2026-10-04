@@ -1083,7 +1083,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   constructor(name: string) {
     super(name);
     this.columns = this.createColumnValues();
-    this.rows = this.createItemValues("rows");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -1140,16 +1139,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return res;
   }
   /**
-   * An array of matrix rows.
-   *
-   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
-   *
-   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
-   *
-   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
-   */
-  @property() rows: Array<any>;
-  /**
    * Returns an array of visible matrix rows.
    * @see rowsVisibleIf
    */
@@ -1188,19 +1177,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.runItemsCondition(properties);
   }
   protected onColumnsChanged(): void { }
-  // hideIfRowsEmpty is declared on QuestionMatrixDropdownModel only; QuestionMatrixDynamicModel has no such property
-  protected updateVisibilityBasedOnRows(): void {
-    if ((<any>this).hideIfRowsEmpty) {
-      this.onVisibleChanged();
-    }
-  }
-  protected isVisibleCore(): boolean {
-    const res = super.isVisibleCore();
-    if (!res || !(<any>this).hideIfRowsEmpty) return res;
-    // Under paging the rows are one page: the visible records count.
-    if (this.isPagingActive) return this.dataListValue.visibleCount > 0;
-    return this.visibleRows?.length > 0;
-  }
+  // The points where the visible rows may have changed; the fixed matrix hides itself without rows
+  // (hideIfRowsEmpty).
+  protected updateVisibilityBasedOnRows(): void { }
   public needResponsiveWidth() {
     //TODO: make it mor intelligent
     return true;
@@ -2788,11 +2767,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected get listPageSize(): number {
     // settings.matrix.maxRowCount is the number of rows one page may hold.
     return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
-  }
-  /* Not supported yet: focusItemAfterRead throws - only a committed read of an assigned source
-     reaches it, and the fixed matrix has no assigned source. */
-  protected focusItemAfterRead(index: number): void {
-    throw new Error("focusItemAfterRead: a matrix without a record list has no read to focus a row after");
   }
   /* The renderers show a pager under the table while the matrix has more than one page: never in design
      mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it

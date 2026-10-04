@@ -85,6 +85,13 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
     "nextPage", "prevPage", "isPageMovePending", "pagerActions", "getDataList", "syncPageSizeWithMode", "pageSize"];
   res.push(ddApi);
+  // rows defines the records of the fixed matrix; the dynamic matrix and the matrix base have none.
+  const ddRows: DeclaredKeys<QuestionMatrixDropdownModel> = "rows";
+  // @ts-expect-error the dynamic matrix has no rows
+  const mdRows: DeclaredKeys<QuestionMatrixDynamicModel> = "rows";
+  // @ts-expect-error the matrix base has no rows
+  const dbRows: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rows";
+  res.push(ddRows, mdRows, dbRows);
 
   // The feature's public API stays public on the dynamic questions.
   const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",

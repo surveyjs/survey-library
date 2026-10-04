@@ -57,9 +57,9 @@ type RecordsHelperOwner = IDynamicDataOwner & IDynamicDataPageValidationOwner & 
    What the questions do with the helpers - a page leave, the validation of the records off the
    page, the record visibility of a question that pages, the page states kept for nested questions -
    runs here with the subclass's rules (the specialization hooks at the end): a subclass never sees
-   the page validation. Rows, panels, columns and templates are the subclasses' terms. A question
-   that never creates a record list - the matrix with fixed rows - is one too; the list-side code
-   then never calls the hooks.
+   the page validation. Rows, panels, columns and templates are the subclasses' terms. The matrix
+   with fixed rows is one too: it defines its records itself and answers the hooks over its keyed
+   answer.
    The list and the helpers are created on first use; dataListValue and _pageValidation never create.
    They talk to one private owner object (helperOwner) and not to the question, so the members they
    call never have to be public on a question.
@@ -323,8 +323,7 @@ export abstract class QuestionRecordsModel extends Question {
     return !!this.dataListValue && this.dataListValue.isRemote;
   }
   /* Paging is on: the objects are built for the page, and an incremental update of the rendered
-     table would work in page-local terms. Off in design mode and without a list, so the matrix with
-     fixed rows never pages. */
+     table would work in page-local terms. Off in design mode and without a list. */
   protected get isPagingActive(): boolean {
     return !this.isDesignMode && !!this._dataList && this._dataList.pageSize > 0;
   }
@@ -1011,8 +1010,6 @@ export abstract class QuestionRecordsModel extends Question {
   // What a write to the survey would have re-run after a write to a data source; guarded by
   // runConditionsAfterRemoteWrite.
   protected abstract runRemoteWriteConditions(): void;
-  // The item at a position is focused once the objects of a committed read exist.
-  protected abstract focusItemAfterRead(index: number): void;
   // The question's own objects on the page; the rest of the page validation is shared.
   protected abstract validatePageObjects(context: ValidationContext): boolean;
   /* One record as the question reads it without an object: the duplicate scan, the record
@@ -1054,6 +1051,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract createRecordItemContext(item: QuestionRecordItem): IValueGetterContext;
 
   // The specialization hooks with a default.
+  /* The item at a position is focused once the objects of a committed read exist. Only a committed read
+     of an assigned source reaches it; the default: nothing to focus (the fixed matrix has no source). */
+  protected focusItemAfterRead(index: number): void { }
   /* The question defines which records exist and in what order (the rows of the fixed matrix): the
      list it creates refuses to insert, remove or move one, and so does its default source. */
   protected isRecordMembershipFixed(): boolean {

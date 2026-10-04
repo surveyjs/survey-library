@@ -194,6 +194,10 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const ddShared5: DeclaredKeys<QuestionMatrixDropdownModel> = "getPageSizePropertyName";
   // @ts-expect-error protected
   const ddShared6: DeclaredKeys<QuestionMatrixDropdownModel> = "onPageSizeAssigned";
+  // @ts-expect-error a hook
+  const ddShared7: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordVisibleIfPropertyName";
+  // @ts-expect-error private
+  const ddShared8: DeclaredKeys<QuestionMatrixDropdownModel> = "getRowsVisibleIfForRows";
   // @ts-expect-error protected
   const mdShared1: DeclaredKeys<QuestionMatrixDynamicModel> = "getDataSource";
   // @ts-expect-error protected
@@ -206,6 +210,10 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const mdShared5: DeclaredKeys<QuestionMatrixDynamicModel> = "getPageSizePropertyName";
   // @ts-expect-error protected
   const mdShared6: DeclaredKeys<QuestionMatrixDynamicModel> = "onPageSizeAssigned";
+  // @ts-expect-error a hook
+  const mdShared7: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordVisibleIfPropertyName";
+  // @ts-expect-error private
+  const mdShared8: DeclaredKeys<QuestionMatrixDynamicModel> = "getRowsVisibleIfForRows";
   // @ts-expect-error protected
   const pdShared1: DeclaredKeys<QuestionPanelDynamicModel> = "getDataSource";
   // @ts-expect-error protected
@@ -218,8 +226,10 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdShared5: DeclaredKeys<QuestionPanelDynamicModel> = "getPageSizePropertyName";
   // @ts-expect-error protected
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
-  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared5, ddShared6, mdShared1, mdShared2, mdShared3, mdShared4, mdShared5, mdShared6,
-    pdShared1, pdShared2, pdShared3, pdShared4, pdShared5, pdShared6);
+  // @ts-expect-error a hook
+  const pdShared7: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordVisibleIfPropertyName";
+  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared5, ddShared6, ddShared7, ddShared8, mdShared1, mdShared2, mdShared3, mdShared4, mdShared5,
+    mdShared6, mdShared7, mdShared8, pdShared1, pdShared2, pdShared3, pdShared4, pdShared5, pdShared6, pdShared7);
 
   // The helpers the rows and panels share, and the record item the question creates, are not public either.
   // @ts-expect-error protected
@@ -234,7 +244,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const ddItems5: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordItemVariableName";
   // @ts-expect-error a hook
   const ddItems6: DeclaredKeys<QuestionMatrixDropdownModel> = "createRecordItemContext";
-  // @ts-expect-error protected
+  // @ts-expect-error private
   const ddItems7: DeclaredKeys<QuestionMatrixDropdownModel> = "createRecordItem";
   // @ts-expect-error protected
   const mdItems1: DeclaredKeys<QuestionMatrixDynamicModel> = "collectNestedQuestionsOfItems";
@@ -248,7 +258,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const mdItems5: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordItemVariableName";
   // @ts-expect-error a hook
   const mdItems6: DeclaredKeys<QuestionMatrixDynamicModel> = "createRecordItemContext";
-  // @ts-expect-error protected
+  // @ts-expect-error private
   const mdItems7: DeclaredKeys<QuestionMatrixDynamicModel> = "createRecordItem";
   // @ts-expect-error protected
   const pdItems1: DeclaredKeys<QuestionPanelDynamicModel> = "collectNestedQuestionsOfItems";
@@ -262,7 +272,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdItems5: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordItemVariableName";
   // @ts-expect-error a hook
   const pdItems6: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItemContext";
-  // @ts-expect-error protected
+  // @ts-expect-error private
   const pdItems7: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItem";
   res.push(ddItems1, ddItems2, ddItems3, ddItems4, ddItems5, ddItems6, ddItems7, mdItems1, mdItems2, mdItems3, mdItems4, mdItems5, mdItems6,
     mdItems7, pdItems1, pdItems2, pdItems3, pdItems4, pdItems5, pdItems6, pdItems7);

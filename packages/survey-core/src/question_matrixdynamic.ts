@@ -1758,7 +1758,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     super.onRowVisibilityChanged(row);
-    // Under paging the records decide the flags (getRecordVisibilityRule).
+    // Under paging the records decide the flags (updatePagedRecordsVisibility).
     const index = this.isPagingActive ? -1 : this.getRecordIndexOf(row);
     if (index > -1) {
       this.dataList.setRecordVisible(index, row.isVisible);
@@ -1772,10 +1772,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const res = super.runCellsCondition(properties);
     this.updateRecordsVisibility();
     return res;
-  }
-  // A matrix that pages decides rowsVisibleIf over the records; its rows are visible records only.
-  protected getRowsVisibleIfForRows(): string {
-    return this.isPagingActive ? "" : super.getRowsVisibleIfForRows();
   }
   // When the list pages the progress is counted from the records (getProgressInfoByRecords): every
   // input column of every visible record.

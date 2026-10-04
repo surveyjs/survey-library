@@ -454,6 +454,19 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       FunctionFactory.Instance.unregister("step23RecordX");
     }
   });
+  test("matrixdynamic: a function the rowsVisibleIf calls sees the record item as this.row", () => {
+    FunctionFactory.Instance.register("recordRowX", function (this: any): any {
+      return !!this.row ? this.row.getValue("x") : undefined;
+    });
+    try {
+      const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2, rowsVisibleIf: "recordRowX() != 'a'" });
+      const question = getQuestion(survey);
+      expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+      expect((<QuestionMatrixDynamicModel>question).rowsOnPage.map(r => r.getValue("x")), "#2: the page starts at record 1").toEqual(["b", "c"]);
+    } finally {
+      FunctionFactory.Instance.unregister("recordRowX");
+    }
+  });
   kinds.forEach((kind: IDynamicKind) => {
     test("R4 " + kind.name + ": showInvisibleElements clears the flags once and restores them when it is turned off", () => {
       const extra: any = {};

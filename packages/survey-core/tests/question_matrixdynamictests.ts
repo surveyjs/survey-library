@@ -2174,6 +2174,59 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[0].cells[1].question.value, "Custom function with row property works correctly").toBe("abcabc");
     FunctionFactory.Instance.unregister("rowCustomFunc");
   });
+  test("row property in a custom function the rowsVisibleIf calls", () => {
+    const seen: Array<any> = [];
+    FunctionFactory.Instance.register("rowVisibleCol1", function (this: any, params: any): any {
+      seen.push(this.row);
+      return !!this.row ? this.row.getValue(params[0]) : undefined;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "matrixdropdown", name: "dd", rows: ["r1", "r2", "r3"], cellType: "text", columns: [{ name: "col1" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" },
+          { type: "matrixdynamic", name: "md", rowCount: 3, cellType: "text", columns: [{ name: "col1" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" }
+        ]
+      });
+      survey.data = { dd: { r2: { col1: "a" } }, md: [{ col1: "b" }, { col1: "a" }, { col1: "c" }] };
+      const dd = <QuestionMatrixDropdownModel>survey.getQuestionByName("dd");
+      const md = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+      expect(dd.visibleRows.map(r => r.rowName), "#1: the matrix dropdown row reads its own cell").toEqual(["r1", "r3"]);
+      expect(md.visibleRows.map(r => r.getValue("col1")), "#2: the dynamic matrix row reads its own cell").toEqual(["b", "c"]);
+      expect(seen.length > 0 && seen.every(row => !!row && (row.data === dd || row.data === md)), "#3: this.row is always the matrix's own row").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("rowVisibleCol1");
+    }
+  });
+  test("row property in a custom function the rowsVisibleIf of a matrix in a detail panel calls is the inner row", () => {
+    const seen: Array<any> = [];
+    FunctionFactory.Instance.register("rowVisibleCol1", function (this: any, params: any): any {
+      seen.push(this.row);
+      return !!this.row ? this.row.getValue(params[0]) : undefined;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [{
+          type: "matrixdynamic", name: "outer", rowCount: 1, detailPanelMode: "underRow",
+          columns: [{ name: "col1", cellType: "text" }],
+          detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 2, columns: [{ name: "col1", cellType: "text" }],
+            rowsVisibleIf: "rowVisibleCol1('col1') != 'a'" }]
+        }]
+      });
+      survey.data = { outer: [{ col1: "a", inner: [{ col1: "b" }, { col1: "a" }] }] };
+      const outer = <QuestionMatrixDynamicModel>survey.getQuestionByName("outer");
+      const outerRow = outer.visibleRows[0];
+      outerRow.showDetailPanel();
+      const inner = <QuestionMatrixDynamicModel>outerRow.detailPanel.getQuestionByName("inner");
+      seen.splice(0, seen.length);
+      survey.setValue("other", 1);
+      expect(inner.visibleRows.map(r => r.getValue("col1")), "#1: the inner row reads its own cell, not the outer row's").toEqual(["b"]);
+      expect(seen.length > 0 && seen.every(row => !!row && row.data === inner), "#2: this.row is the inner matrix's row").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("rowVisibleCol1");
+    }
+  });
 
   test("Complete example with totals and expressions: invoice example", () => {
     Serializer.addProperty("itemvalue", "price:number");

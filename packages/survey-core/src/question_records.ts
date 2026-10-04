@@ -28,11 +28,6 @@ export interface IDynamicDataRecordUniqueness {
   // Owner-hidden records take part too.
   includeHidden: boolean;
 }
-export interface IDynamicDataRecordVisibilityRule {
-  expression: string;
-  // Called only when the expression runs.
-  createScope: () => IDynamicDataRecordScope;
-}
 // What a value assignment takes before the value is stored and hands back after it (see
 // QuestionRecordsModel.beginValueAssignment).
 interface IDynamicDataValueAssignment {
@@ -386,8 +381,8 @@ export abstract class QuestionRecordsModel extends Question {
     return !!this.dataListValue ? this.dataListValue.getRecordNumberOffset() : 0;
   }
   /* A record without an object, read as a value. The record-item lookups create it, and so does the
-     record visibility scope of the subclasses (getRecordVisibilityRule). */
-  protected createRecordItem(recordIndex: number): RecordValueItem {
+     record visibility scope (updatePagedRecordsVisibility). */
+  private createRecordItem(recordIndex: number): RecordValueItem {
     return new RecordValueItem(this, recordIndex, this.getListRecordAt(recordIndex), this.getRecordItemVariableName(),
       (item: RecordValueItem): IValueGetterContext => this.createRecordItemContext(item));
   }
@@ -644,20 +639,34 @@ export abstract class QuestionRecordsModel extends Question {
 
   /* rowsVisibleIf / templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice
      of the VISIBLE records, so the condition is evaluated over every record without an object and
-     the list's hidden flags are written from it (DynamicDataRecordVisibility). The rule is asked
-     only past the guards, and before areInvisibleElementsShowing is applied: the survey's
-     onExpressionRunning fires in that mode too. A flag that changed changes the page count, which
-     the list does not announce: the question syncs it. Returns whether a flag changed. */
+     the list's hidden flags are written from it (DynamicDataRecordVisibility), without building a
+     row or a panel: O(records) expression runs per condition run. The context is value-only -
+     {row.x} / {panel.x} is the record's field, {rowIndex} / {panelIndex} its index, survey values
+     as usual - and the record item is the {row} / {panel} variable of a copy of the run's
+     properties, as a built row or panel is, so a custom function sees it as this.row / this.panel.
+     A built object runs no visibility condition of its own (getRowsVisibleIfForRows, createNewPanel):
+     a hidden record gets none, and the two cannot disagree. Limitation: an expression cell or an
+     expression question the condition reads contributes its stored value.
+     The expression is read only past the guards, and before areInvisibleElementsShowing is applied:
+     the survey's onExpressionRunning fires in that mode too. A flag that changed changes the page
+     count, which the list does not announce: the question syncs it. Returns whether a flag changed. */
   protected updatePagedRecordsVisibility(properties: HashTable<any>): boolean {
     // isPagingActive is false in design mode.
     if (!this.isPagingActive || this.isLoadingFromJson) return false;
-    const rule = this.getRecordVisibilityRule(properties);
-    const isChanged = this._dataList.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : rule.expression,
-      (index: number): any => this.getListRecordAt(index), rule.createScope);
+    const expression = this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName());
+    const isChanged = this._dataList.updateRecordsVisibility(this.areInvisibleElementsShowing ? "" : expression,
+      (index: number): any => this.getListRecordAt(index), (): IDynamicDataRecordScope => this.createRecordVisibilityScope(properties));
     if (isChanged) {
       this.syncPagingState();
     }
     return isChanged;
+  }
+  // Called only when the expression runs, once per run: one item is reset to every record.
+  private createRecordVisibilityScope(properties: HashTable<any>): IDynamicDataRecordScope {
+    const item = this.createRecordItem(-1);
+    const newProps = Helpers.createCopy(properties);
+    newProps[this.getRecordItemVariableName()] = item;
+    return { item: item, properties: newProps };
   }
 
   /* The capabilities of a data source are declared by the presence of its optional methods: a source
@@ -979,12 +988,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract getListRecordAt(index: number): any;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
-  /* rowsVisibleIf / templateVisibleIf over the records of a question that pages: the expression as
-     the survey hands it out (survey.onExpressionRunning) and the scope it runs in. Asked once the
-     guards of updatePagedRecordsVisibility have passed. */
-  protected abstract getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule;
   // The property the authored page size is stored under (see pageSize).
   protected abstract getPageSizePropertyName(): string;
+  // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
+  protected abstract getRecordVisibleIfPropertyName(): string;
   /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
      a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
      object. */

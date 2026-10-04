@@ -23,9 +23,8 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
+import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 
 export interface IMatrixDuplicationEntry {
   row: MatrixDropdownRowModelBase;
@@ -507,7 +506,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (!this.data) return;
     const newProps = Helpers.createCopy(properties);
     newProps[settings.expressionVariables.row] = this;
-    this.visible = alwaysVisible === true || this.getRowVisibleIfBaseOnExpression(properties, rowsVisibleIf);
+    this.visible = alwaysVisible === true || this.getRowVisibleIfBaseOnExpression(newProps, rowsVisibleIf);
     this.runRowsEnableCondition(newProps);
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].runCondition(newProps);
@@ -1937,10 +1936,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.isRunningCellsCondition = false;
     return isRowVisiblilityChanged;
   }
-  // The rowsVisibleIf the rows run themselves. A matrix that pages decides it over the records and
-  // builds rows for visible records only, so its rows run none.
-  protected getRowsVisibleIfForRows(): string {
-    return this.getExpressionFromSurvey("rowsVisibleIf");
+  // The rowsVisibleIf the rows run themselves. A matrix that pages decides it over the records
+  // (updatePagedRecordsVisibility) and builds rows for visible records only, so its rows run none.
+  private getRowsVisibleIfForRows(): string {
+    return this.isPagingActive ? "" : this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName());
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
     const expression = this.getExpressionFromSurvey("columnsVisibleIf");
@@ -2593,16 +2592,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true };
   }
-  /* QuestionRecordsModel hook: rowsVisibleIf under paging, evaluated over every record with a
-     value-only context - {row.x} is the record's field, {rowIndex} its number - in the run's own
-     properties. A row that is built runs no rowsVisibleIf of its own (getRowsVisibleIfForRows), so
-     the two cannot disagree. Limitation: an expression cell the condition reads contributes its
-     stored value. */
-  protected getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
-    return {
-      expression: this.getExpressionFromSurvey("rowsVisibleIf"),
-      createScope: (): IDynamicDataRecordScope => ({ item: this.createRecordItem(-1), properties: properties })
-    };
+  protected getRecordVisibleIfPropertyName(): string {
+    return "rowsVisibleIf";
   }
   /* Not supported yet: a matrix that is not dynamic creates no record list - its keyed answer has no
      record array, and it has no paging property - so QuestionRecordsModel never calls these on its

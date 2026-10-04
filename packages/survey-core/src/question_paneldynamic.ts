@@ -40,8 +40,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, IDynamicDataRecordVisibilityRule, QuestionRecordsModel } from "./question_records";
-import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
@@ -2796,23 +2795,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.runDeferredPagingSync();
     }
   }
-  /* QuestionRecordsModel hook: templateVisibleIf under paging, evaluated over every record with a
-     value-only context - {panel.x} is the record's field, {panelIndex} its index, survey values as
-     usual - without building a panel: O(records) expression runs per condition run, not O(records)
-     panels. The record item is the panel variable of a copy of the run's properties, as a panel is
-     in runPanelsCondition. A panel that is built takes its visibility from the same evaluation (see
-     createNewPanel), so the two cannot disagree. Limitation: an expression question the condition
-     reads contributes its stored value. */
-  protected getRecordVisibilityRule(properties: HashTable<any>): IDynamicDataRecordVisibilityRule {
-    return {
-      expression: this.getExpressionFromSurvey("templateVisibleIf"),
-      createScope: (): IDynamicDataRecordScope => {
-        const item = this.createRecordItem(-1);
-        const newProps = Helpers.createCopy(properties);
-        newProps[settings.expressionVariables.panel] = item;
-        return { item: item, properties: newProps };
-      }
-    };
+  protected getRecordVisibleIfPropertyName(): string {
+    return "templateVisibleIf";
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
@@ -3157,9 +3141,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
     var json = this.template.toJSON();
-    /* Under paging a record's visibility is decided over the record (getRecordVisibilityRule) and a
-       hidden record gets no panel, so the panel does not run templateVisibleIf a second time: it takes
-       its visibility from that evaluation and the two cannot disagree. */
+    /* Under paging a record's visibility is decided over the record (updatePagedRecordsVisibility)
+       and a hidden record gets no panel, so the panel does not run templateVisibleIf a second time:
+       it takes its visibility from that evaluation and the two cannot disagree. */
     if (this.isPagingActive) {
       delete json.visibleIf;
     }

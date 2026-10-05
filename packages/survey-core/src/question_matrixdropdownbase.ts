@@ -2448,7 +2448,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   /* The display values of a record: its row's cells format them, and a record without a row - off
      the page or never built - is formatted by its columns' template questions, so nothing is built
-     for it. The record is formatted in place. */
+     for it. The record is formatted in place: the caller passes a copy it owns. */
   protected getRecordDisplayValue(keysAsText: boolean, row: MatrixDropdownRowModelBase, record: any): any {
     if (!!row) return this.getRowDisplayValue(keysAsText, row, record);
     return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question => this.getColumnByName(key)?.templateQuestion);

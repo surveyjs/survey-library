@@ -495,13 +495,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
           rowName = displayRowValue;
         }
       }
-      (<any>res)[rowName] = this.getRowDisplayValue(keysAsText, rows[i], val);
+      // A copy: val is the caller's, and may be survey data itself.
+      (<any>res)[rowName] = this.getRowDisplayValue(keysAsText, rows[i], this.getUnbindValue(val));
     }
     return res;
   }
   /* Under paging every visible record, in view order: a record on the page reads its display values
      from its row's cells, a record without a row through the columns' template questions - nothing is
-     built for it. The first row of a key decides. */
+     built for it. The first row of a key decides; each record is formatted in a copy. */
   private getPagedDisplayValue(keysAsText: boolean, value: any): any {
     const res: any = {};
     const items = this.getRecordItems();
@@ -513,7 +514,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         rowName = ItemValue.getTextOrHtmlByValue(this.rows, rowName) || rowName;
       }
       if (Object.prototype.hasOwnProperty.call(res, rowName)) return;
-      res[rowName] = this.getRecordDisplayValue(keysAsText, row, !!row ? val : this.getUnbindValue(val));
+      res[rowName] = this.getRecordDisplayValue(keysAsText, row, this.getUnbindValue(val));
     });
     return res;
   }

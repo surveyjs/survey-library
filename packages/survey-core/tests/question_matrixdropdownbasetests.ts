@@ -3458,3 +3458,34 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
   });
 });
+
+describe("Fixed matrix: display values leave the value they format unchanged", () => {
+  const columns = [{ name: "c1", title: "Col 1", cellType: "dropdown", choices: [{ value: 1, text: "One" }] }];
+  [false, true].forEach((isPaged: boolean) => {
+    const name = isPaged ? "paged" : "not paged";
+    test(name + ": getDisplayValue with a value formats a copy of it", () => {
+      const survey = new SurveyModel({
+        elements: [Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { rowsPerPage: 1 } : {})]
+      });
+      const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+      expect(matrix.visibleRows.length, "#1: rows").toBe(isPaged ? 1 : 2);
+      // Paged, r1 has a row on the page and r2 has none.
+      const input = { r1: { c1: 1 }, r2: { c1: 1 } };
+      expect(matrix.getDisplayValue(true, input), "#2: the display values").toEqual({ r1: { "Col 1": "One" }, r2: { "Col 1": "One" } });
+      expect(input, "#3: the value given is unchanged").toEqual({ r1: { c1: 1 }, r2: { c1: 1 } });
+    });
+    test(name + ": displayValue() over the matrix's own value leaves the survey data unchanged", () => {
+      const survey = new SurveyModel({
+        elements: [
+          Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { rowsPerPage: 1 } : {}),
+          { type: "expression", name: "e", expression: "displayValue('m', {m})" }
+        ]
+      });
+      survey.setValue("m", { r1: { c1: 1 }, r2: { c1: 1 } });
+      const matrix = survey.getQuestionByName("m");
+      expect(survey.getValue("e"), "#1: the expression shows the display values").toEqual({ r1: { "Col 1": "One" }, r2: { "Col 1": "One" } });
+      expect(survey.data.m, "#2: the survey data keeps the answer").toEqual({ r1: { c1: 1 }, r2: { c1: 1 } });
+      expect(matrix.value, "#3: and so does the matrix").toEqual({ r1: { c1: 1 }, r2: { c1: 1 } });
+    });
+  });
+});

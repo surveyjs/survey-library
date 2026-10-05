@@ -299,7 +299,15 @@ export abstract class QuestionRecordsModel extends Question {
      remapKeptRecordIndexes): the rows a read replaces keep the records they were built for until the
      rebuild disposes them. Replacing the source starts over (see setDataSource). */
   private followReloadedRecords(oldRecords: any): void {
-    if (!this.isPagedByList) return;
+    if (!this.isPagedByList) {
+      /* A page of a paging source replaced the whole storage the list paged - a paging source that
+         cannot filter is read whole only while a filter is set. The edited set named records by
+         their index in that storage, which names nothing on a page, and a paging source never
+         validates the records of other pages ahead of their page: they are on the server. Kept, the
+         set would be remapped from the page into the next whole storage and name the wrong records. */
+      if (!!this._pageValidation && this._dataList.isPagedBySource)this._pageValidation.clearEditedRecords();
+      return;
+    }
     const validation = this._pageValidation;
     const hasRecords = !!validation && validation.hasRecords;
     if (!hasRecords && !this.hasKeptRecordIndexes()) return;
@@ -343,8 +351,8 @@ export abstract class QuestionRecordsModel extends Question {
     return !this.isDesignMode && !!this._dataList && this._dataList.pageSize > 0;
   }
   /* The list cuts the page: over question.value, or over the whole storage a source without paging
-     answered with. Every record is in memory, so the page is a slice and layer 2 can track the
-     edited records. Its opposite is a paging source (list.isPagedBySource): the window IS the page
+     answered with - or a paging source that cannot filter, read whole while a filter is set. Every
+     record is in memory, so the page is a slice and layer 2 can track the edited records. Its opposite is a paging source (list.isPagedBySource): the window IS the page
      and the records of the other pages are on the server. */
   protected get isPagedByList(): boolean {
     return this.isPagingActive && !this._dataList.isPagedBySource;

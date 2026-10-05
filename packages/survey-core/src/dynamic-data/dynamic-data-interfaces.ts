@@ -7,7 +7,7 @@
 // - the write capabilities by the presence of the matching method: a source that has "remove" can
 //   delete a record, one without it cannot, and so on.
 // A missing flag means false. The list falls back to a local implementation for every capability
-// the source does not declare, except the two a paging source leaves out (see below).
+// the source does not declare, except a sort a paging source leaves out (see below).
 //
 // How to write a source (the short version, for the documentation that follows this series):
 //
@@ -74,11 +74,16 @@
 // answers with every record, and the list filters and sorts that answer itself, whatever the two
 // flags say; its request is always { skip: 0, take: 0, filter: "", sort: [] }. A paging source
 // declares each of the two on its own: a source that pages and sorts but cannot filter declares
-// { paging: true, sorting: true }. The list never filters or sorts one page locally, and it never
-// reads everything to make up for a missing capability: a view that a paging source has not
-// declared is refused. No request is sent, the window in force stays, and the refusal is reported
-// through survey.onDynamicDataError with the operation "read". The request of a paging source
-// carries only the parts it has declared: "" for an undeclared filter, [] for an undeclared sort.
+// { paging: true, sorting: true }. The list never filters or sorts one page locally:
+// - a paging source that cannot filter is read whole while a filter is set: the request is the one of
+//   a source that does not page, and the list filters, sorts and pages the answer itself. Once the
+//   filter is cleared, the source is paged again. Declare filtering to keep a filter from reading
+//   every record;
+// - a sort a paging source has not declared is refused on a paged read: no request is sent, the
+//   window in force stays, and the refusal is reported through survey.onDynamicDataError with the
+//   operation "read". question.canSortRecords says up front whether a sort is available.
+// The request of a paged read carries only the parts the source has declared: "" for no filter, []
+// for an undeclared sort.
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
 // survey.onDynamicDataError with the operation name; the records the question shows are kept as

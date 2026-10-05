@@ -15,8 +15,8 @@ import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, 
    later write overtake it - and in doRead, where the answer to a read that a write overtook while it
    was in flight is discarded and the read is issued again.
    Which writes overtake a read in flight (markInFlightReadOvertaken, isAnswerOvertaken): every
-   insert, remove and move, and every write to a read with a take of 0 - every read of a source that
-   does not page, and a paged read of everything from skip. An update to a paged read with take > 0
+   insert, remove and move, and every write to a read with a take of 0 - every read of the whole
+   storage, and a paged read of everything from skip. An update to a paged read with take > 0
    overtakes it only when it can have changed the answer:
    - without a keyField, an update inside the range the read asked for ([skip, skip + take)); one
      outside it leaves the answer as it is;
@@ -33,12 +33,12 @@ export interface IDynamicDataChannelHost {
   getSource(): IDynamicDataSource;
   isDisposed(): boolean;
   getKeyField(): string;
-  // The source pages itself: the next read is a paged one.
-  isPagedBySource(): boolean;
-  // The range of the next read. skip and take are 0 for a source without paging.
+  // The next read is a paged one: the source pages, and it filters too or there is no filter.
+  isReadPagedBySource(): boolean;
+  // The range of the next read. skip and take are 0 for a read of the whole storage.
   getReadRange(useWindowOffset: boolean): { skip: number, take: number };
   /* The request the source is sent: the range and the view. It copies the owner's sort, and it
-     throws for a view that a paging source has not declared, so it is built inside the read's error
+     throws for a sort that a paging source has not declared, so it is built inside the read's error
      handling: a refused read takes the path of a source that throws. */
   createReadRequest(skip: number, take: number): IDynamicDataReadRequest;
   // The window commit. Returns whether the window was committed - an empty page past the end is not.
@@ -246,7 +246,7 @@ export class DynamicDataSourceChannel {
     const source = host.getSource();
     if (host.isDisposed() || !source) return;
     const requestId = ++this.readRequestId;
-    const isPagedRead = host.isPagedBySource();
+    const isPagedRead = host.isReadPagedBySource();
     const range = host.getReadRange(useWindowOffset);
     const skip = range.skip;
     const take = range.take;

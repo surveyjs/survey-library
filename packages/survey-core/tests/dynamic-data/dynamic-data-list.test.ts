@@ -3416,23 +3416,30 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
     expect(requests, "#10: removing the sort reads again").toEqual([{ skip: 2, take: 2, filter: "", sort: [] }]);
     expect(errors.length, "#11").toBe(1);
   });
-  test("a filter a paging source has not declared is refused the same way", () => {
+  test("a filter a paging source cannot run is run locally over the whole storage, which the source is read for", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true, sorting: true });
     const list = new DynamicDataList(source);
     const errors = collectErrors(list);
     list.pageSize = 2;
     list.load();
+    list.pageIndex = 1;
     requests.length = 0;
-    list.filter = "{id} > 2";
-    expect(requests, "#1: nothing was sent").toEqual([]);
-    expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
-    expect(errors[0].message.indexOf("\"filtering\"") > -1, "#3: " + errors[0].message).toBe(true);
-    expect(list.filter, "#4: the filter is kept, as for a read that fails").toBe("{id} > 2");
-    expect(list.getRecord(0).id, "#5: the window in force").toBe(0);
-    expect(list.getVisibleIndexes(), "#6: not filtered locally").toEqual([0, 1]);
+    list.filter = "{id} > 0";
+    expect(requests, "#1: one read of the whole storage").toEqual([{ skip: 0, take: 0, filter: "", sort: [] }]);
+    expect(errors, "#2").toEqual([]);
+    expect(list.isPagedBySource, "#3: the window is the whole storage").toBe(false);
+    expect(list.loadedCount, "#4").toBe(5);
+    expect(list.windowOffset, "#5").toBe(0);
+    expect(list.pageIndex, "#6: the filter resets the page").toBe(0);
+    expect(list.getPageIndexes().map(i => list.getRecord(i).id), "#7: filtered and paged by the list").toEqual([1, 2]);
+    expect(list.pageCount, "#8: from the visible count").toBe(2);
+    expect(list.isCountKnown, "#9").toBe(true);
+    expect(list.count, "#10: the storage count").toBe(5);
     list.filter = "";
-    expect(requests, "#7: removing the filter reads again").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
-    expect(errors.length, "#8").toBe(1);
+    expect(requests.slice(1), "#11: without the filter the source pages again").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
+    expect(list.isPagedBySource, "#12").toBe(true);
+    expect(list.loadedCount, "#13").toBe(2);
+    expect(errors, "#14").toEqual([]);
   });
   test("a page change under a view the paging source has not declared is refused too", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true });
@@ -3494,5 +3501,276 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
       .toEqual([{ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] }]);
     expect(list.loadedCount, "#5").toBe(2);
     expect(errors.length, "#6").toBe(1);
+  });
+});
+/* A paging source that cannot filter is read whole while a filter is set: the list filters, sorts and
+   pages that answer itself, and the source pages again once the filter is cleared. The window keeps
+   the mode it was read in until the next read commits, so a read that is pending or failed never
+   has a page taken for the whole storage, or the whole storage for a page. */
+describe("DynamicDataList: a paging source that cannot filter is read whole while a filter is set", () => {
+  interface IHeldRead { request: IDynamicDataReadRequest, answer: Deferred }
+  // Answers the range it is asked for and ignores the view. held: every read answers with a promise
+  // the test settles. total: false -> the answer of a page carries hasMore instead of a total.
+  function createSource(count: number, capabilities: IDynamicDataSourceCapabilities, options: { held?: boolean, total?: boolean } = {}):
+    { source: IDynamicDataSource, requests: Array<IDynamicDataReadRequest>, held: Array<IHeldRead>, removed: Array<any> } {
+    const records = createRecords(count);
+    const requests: Array<IDynamicDataReadRequest> = [];
+    const held: Array<IHeldRead> = [];
+    const removed: Array<any> = [];
+    const answer = (request: IDynamicDataReadRequest): IDynamicDataReadResult => {
+      const take = request.take > 0 ? request.take : records.length;
+      const res: IDynamicDataReadResult = { records: records.slice(request.skip, request.skip + take) };
+      if (options.total === false) {
+        res.hasMore = request.skip + take < records.length;
+      } else {
+        res.total = records.length;
+      }
+      return res;
+    };
+    const source: IDynamicDataSource = {
+      capabilities: capabilities,
+      read: (request: IDynamicDataReadRequest): any => {
+        requests.push(request);
+        if (!options.held) return answer(request);
+        const deferred = new Deferred();
+        held.push({ request: request, answer: deferred });
+        return deferred.promise.then((): any => answer(request));
+      },
+      update: (): void => {},
+      remove: (key: any): void => { removed.push(key); }
+    };
+    return { source: source, requests: requests, held: held, removed: removed };
+  }
+  function collectErrors(list: DynamicDataList): Array<{ operation: string, message: string }> {
+    const res: Array<{ operation: string, message: string }> = [];
+    list.onError = (error: any, operation: string): void => { res.push({ operation: operation, message: String(error && error.message) }); };
+    return res;
+  }
+  function pageIds(list: DynamicDataList): Array<number> {
+    return list.getPageIndexes().map((i: number): number => list.getRecord(i).id);
+  }
+  const wholeRequest = { skip: 0, take: 0, filter: "", sort: [] };
+
+  test("in the whole storage, a page change, a sort change and another filter send no request", () => {
+    const { source, requests } = createSource(6, { paging: true, sorting: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.filter = "{id} > 0";
+    requests.length = 0;
+    list.pageIndex = 1;
+    expect(pageIds(list), "#1: the list pages").toEqual([3, 4]);
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(pageIds(list), "#2: the list sorts").toEqual([3, 2]);
+    list.filter = "{id} < 3";
+    expect(list.pageIndex, "#3: another filter resets the page").toBe(0);
+    expect(pageIds(list), "#4: the list filters").toEqual([2, 1]);
+    expect(requests, "#5").toEqual([]);
+  });
+  test("clearing the filter reads the current page, and the count facts are the page's", () => {
+    const { source, requests } = createSource(5, { paging: true }, { total: false });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    expect(list.isCountKnown, "#1: a page without a total").toBe(false);
+    list.filter = "{id} > 0";
+    expect(list.isCountKnown, "#2: the whole storage").toBe(true);
+    expect(list.hasMore, "#3").toBe(false);
+    expect(list.pageCount, "#4").toBe(2);
+    list.pageIndex = 1;
+    requests.length = 0;
+    list.filter = "";
+    expect(requests, "#5: page 0, the filter reset the page").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
+    expect(list.isCountKnown, "#6").toBe(false);
+    expect(list.hasMore, "#7").toBe(true);
+    expect(list.count, "#8: the records seen so far").toBe(2);
+    expect(list.pageCount, "#9: the pages known to exist").toBe(2);
+  });
+  test("while the whole storage is read, the page in force stays, unfiltered", async () => {
+    const { source, requests, held } = createSource(5, { paging: true }, { held: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    const loaded = list.load();
+    held[0].answer.resolve();
+    await loaded;
+    list.pageIndex = 1;
+    held[1].answer.resolve();
+    await flush();
+    list.filter = "{id} > 2";
+    expect(requests[2], "#1").toEqual(wholeRequest);
+    expect(list.isLoading, "#2").toBe(true);
+    expect(list.isPagedBySource, "#3: the window in force is a page").toBe(true);
+    expect(list.windowOffset, "#4").toBe(2);
+    expect(pageIds(list), "#5: not filtered locally").toEqual([2, 3]);
+    held[2].answer.resolve();
+    await flush();
+    expect(list.isPagedBySource, "#6").toBe(false);
+    expect(list.loadedCount, "#7").toBe(5);
+    expect(pageIds(list), "#8").toEqual([3, 4]);
+  });
+  test("a failed read of the whole storage keeps the page, and the next change reads it again", async () => {
+    const { source, requests, held } = createSource(5, { paging: true }, { held: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    const loaded = list.load();
+    held[0].answer.resolve();
+    await loaded;
+    list.filter = "{id} > 2";
+    held[1].answer.reject(new Error("offline"));
+    await flush();
+    expect(errors.map(e => e.operation), "#1").toEqual(["read"]);
+    expect(list.isPagedBySource, "#2: still the page").toBe(true);
+    expect(pageIds(list), "#3: not filtered locally").toEqual([0, 1]);
+    list.filter = "{id} > 1";
+    expect(requests.length, "#4: the whole storage is read again").toBe(3);
+    expect(requests[2], "#5").toEqual(wholeRequest);
+    held[2].answer.resolve();
+    await flush();
+    expect(pageIds(list), "#6").toEqual([2, 3]);
+    list.pageIndex = 1;
+    expect(requests.length, "#7: once it is in force, a page change reads nothing").toBe(3);
+  });
+  test("a failed page read after the filter is cleared keeps the whole storage in force", async () => {
+    const { source, held } = createSource(5, { paging: true }, { held: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.filter = "{id} > 2";
+    const loaded = list.load();
+    expect(held[0].request, "#1").toEqual(wholeRequest);
+    held[0].answer.resolve();
+    await loaded;
+    list.filter = "";
+    expect(held[1].request, "#2").toEqual({ skip: 0, take: 2, filter: "", sort: [] });
+    held[1].answer.reject(new Error("offline"));
+    await flush();
+    expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
+    expect(list.isPagedBySource, "#4: the whole storage").toBe(false);
+    expect(list.loadedCount, "#5").toBe(5);
+    expect(pageIds(list), "#6: paged by the list").toEqual([0, 1]);
+    expect(list.pageCount, "#7").toBe(3);
+  });
+  test("only the last answer commits: a filter changed again, and a filter cleared before the whole storage answered", async () => {
+    const { source, requests, held } = createSource(5, { paging: true }, { held: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    const loaded = list.load();
+    held[0].answer.resolve();
+    await loaded;
+    list.filter = "{id} > 2";
+    list.filter = "{id} > 3";
+    expect(requests.slice(1), "#1: the window in force is still a page, so the whole storage is read again").toEqual([wholeRequest, wholeRequest]);
+    const changes = recordChanges(list);
+    held[2].answer.resolve();
+    await flush();
+    held[1].answer.resolve();
+    await flush();
+    expect(changes.filter(c => c === "reset"), "#2: one commit").toEqual(["reset"]);
+    expect(pageIds(list), "#3: the last filter").toEqual([4]);
+    list.filter = "{id} > 0";
+    expect(requests.length, "#4: the whole storage is in force").toBe(3);
+    const second = createSource(5, { paging: true }, { held: true });
+    const other = new DynamicDataList(second.source);
+    other.pageSize = 2;
+    const otherLoaded = other.load();
+    second.held[0].answer.resolve();
+    await otherLoaded;
+    other.filter = "{id} > 2";
+    other.filter = "";
+    second.held[2].answer.resolve();
+    await flush();
+    second.held[1].answer.resolve();
+    await flush();
+    expect(other.isPagedBySource, "#5: the whole storage answered after the page is discarded").toBe(true);
+    expect(other.loadedCount, "#6").toBe(2);
+  });
+  test("a write in the whole storage addresses the unfiltered source index and overtakes a whole-storage read", async () => {
+    const sync = createSource(5, { paging: true });
+    const list = new DynamicDataList(sync.source);
+    list.pageSize = 2;
+    list.load();
+    list.filter = "{id} > 2";
+    expect(list.getPageIndexes(), "#1").toEqual([3, 4]);
+    list.remove(3);
+    expect(sync.removed, "#2: the position in the whole source").toEqual([3]);
+    const held = createSource(5, { paging: true }, { held: true });
+    const other = new DynamicDataList(held.source);
+    other.pageSize = 2;
+    other.filter = "{id} > 2";
+    const loaded = other.load();
+    held.held[0].answer.resolve();
+    await loaded;
+    other.refresh();
+    other.setValue(0, "name", "x");
+    held.held[1].answer.resolve();
+    await flush();
+    expect(held.requests, "#3: the overtaken read is read again").toEqual([wholeRequest, wholeRequest, wholeRequest]);
+    held.held[2].answer.resolve();
+    await flush();
+    expect(other.isLoading, "#4").toBe(false);
+  });
+  test("a sort the source cannot run is sorted locally in the whole storage; once the filter is cleared the page read refuses it", () => {
+    const { source, requests } = createSource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    list.filter = "{id} > 0";
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(pageIds(list), "#1").toEqual([4, 3]);
+    expect(errors, "#2").toEqual([]);
+    requests.length = 0;
+    list.filter = "";
+    expect(requests, "#3: nothing was sent").toEqual([]);
+    expect(errors.map(e => e.operation), "#4").toEqual(["read"]);
+    expect(errors[0].message.indexOf("\"sorting\"") > -1, "#5: " + errors[0].message).toBe(true);
+    expect(list.isPagedBySource, "#6: the whole storage stays in force").toBe(false);
+    expect(pageIds(list), "#7: sorted, no longer filtered").toEqual([4, 3]);
+  });
+  test("canSort answers from the capabilities, not from the filter", () => {
+    const paging = new DynamicDataList(createSource(5, { paging: true }).source);
+    paging.pageSize = 2;
+    paging.load();
+    expect(paging.canSort, "#1").toBe(false);
+    paging.filter = "{id} > 0";
+    expect(paging.canSort, "#2: the whole storage is in force").toBe(false);
+    const sorting = new DynamicDataList(createSource(5, { paging: true, sorting: true }).source);
+    expect(sorting.canSort, "#3").toBe(true);
+    const notPaging = new DynamicDataList(createSource(5, {}).source);
+    expect(notPaging.canSort, "#4").toBe(true);
+  });
+  test("a filter the list cannot parse is reported and dropped, and the page is read", () => {
+    const { source, requests } = createSource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    requests.length = 0;
+    list.filter = "{id} >";
+    expect(errors.map(e => e.operation), "#1").toEqual(["read"]);
+    expect(list.filter, "#2").toBe("");
+    expect(requests, "#3").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
+    expect(list.isPagedBySource, "#4").toBe(true);
+  });
+  test("a source that pages and filters still gets the filter in a page read", () => {
+    const { source, requests } = createSource(5, { paging: true, filtering: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.filter = "{id} > 2";
+    expect(requests[1], "#1").toEqual({ skip: 0, take: 2, filter: "{id} > 2", sort: [] });
+    expect(list.isPagedBySource, "#2").toBe(true);
+  });
+  test("a list never asked to load reads nothing when a filter is set, and its first read is the whole storage", () => {
+    const { source, requests } = createSource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.filter = "{id} > 2";
+    expect(requests, "#1").toEqual([]);
+    expect(list.isPagedBySource, "#2: nothing committed, the next read decides").toBe(false);
+    list.load();
+    expect(requests, "#3").toEqual([wholeRequest]);
+    expect(list.getPageIndexes(), "#4").toEqual([3, 4]);
   });
 });

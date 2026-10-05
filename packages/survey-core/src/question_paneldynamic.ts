@@ -946,8 +946,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.pendingCurrentVisibleIndex = visibleIndex;
     this.paging.pageIndex = Math.floor(visibleIndex / pageSize);
     // The page did not move - clamped to the page in force - so no rebuild takes the position. A
-    // source that pages itself takes it when the read of the page commits.
-    if (this.pendingCurrentVisibleIndex !== undefined && !list.isPagedBySource) {
+    // page change the source answers takes it when the read of the page commits.
+    if (this.pendingCurrentVisibleIndex !== undefined && !list.readsSourceOnViewChange) {
       this.restoreCurrentPanelByRecord(-1);
     }
   }

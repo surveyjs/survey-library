@@ -263,6 +263,10 @@ export class DynamicDataPageValidation {
     this.edited = [];
     this.nested = {};
   }
+  // The records are not tracked any more (canTrackEditedRecords): the indexes name nothing.
+  public clearEditedRecords(): void {
+    this.edited = [];
+  }
   /* The records were assigned from outside the list - a sibling on the same valueName wrote them.
      The edited set and the nested states follow the records they name (getReplacedRecordsRemap); a
      change the remap cannot place marks every record of the changed part as edited. */

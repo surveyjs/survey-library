@@ -379,11 +379,13 @@ export class DynamicDataPagingController {
   /* Re-decides which records are shown. The view of a source that pages travels in the read request
      and the source decides the membership of the window itself - the window IS the answer - so
      re-running a local filter the list never ran would say nothing; the window is read again
-     instead. Every source without paging takes the local path. */
+     instead. So is the whole storage that a paging source which cannot filter owes while a filter
+     is set and its window is still a page. Everything else - a source without paging, and that whole
+     storage once it is in force - takes the local path. */
   public refreshView(): void {
     const list = this.list;
     this.cancelPendingPageMove();
-    if (list.isPagedBySource) {
+    if (list.readsSourceOnViewChange) {
       list.refresh();
     } else {
       list.refreshView();

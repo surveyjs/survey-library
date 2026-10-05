@@ -23,7 +23,10 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel } from "./question_records";
+import {
+  QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
+  QuestionRecordsSingleInputBehavior
+} from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
@@ -3572,28 +3575,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
 }
 
-export class MatrixDropdownBaseSingleInputBehavior extends QuestionSingleInputBehavior {
+export class MatrixDropdownBaseSingleInputBehavior extends QuestionRecordsSingleInputBehavior<MatrixDropdownRowModelBase> {
   protected get matrixBase(): QuestionMatrixDropdownModelBase {
     return this.question as QuestionMatrixDropdownModelBase;
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     return this.matrixBase.locSingleInputTitleTemplate;
   }
-  protected singleInputMoveToFirstCore(): void {
-    const data: any = this.matrixBase.singleInputQuestion?.data;
-    this.singleInputEditRow(data);
+  protected getRecords(): Array<MatrixDropdownRowModelBase> {
+    return this.matrixBase.visibleRows;
   }
-  // Single-input mode is its own paging and walks every row: the list is told before they are read.
-  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    this.matrixBase.syncPageSizeWithMode();
-    return super.getSingleInputQuestionsCore(question, checkDynamic);
+  protected getRecordOfQuestion(question: Question): MatrixDropdownRowModelBase {
+    return <any>question.data;
   }
-  public singleInputEditRow(row: MatrixDropdownRowModelBase): void {
-    if (!row) return;
-    const qs = row.visibleQuestions;
-    if (Array.isArray(qs) && qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
+  // A navigation check, not a validation: it must not show errors or expand detail panels/questions.
+  protected isRecordValid(row: MatrixDropdownRowModelBase): boolean {
+    return row.validate(new ValidationContext({ fireCallback: false }));
   }
 }
 

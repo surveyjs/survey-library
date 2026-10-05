@@ -20,9 +20,8 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
-import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
-import { ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
 import { Base } from "./base";
@@ -1651,28 +1650,7 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
     }
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    this.matrixDynamic.syncPageSizeWithMode();
-    const res = new Array<Question>();
-    const rows = this.matrixDynamic.visibleRows;
-    if (checkDynamic) {
-      for (let i = 0; i < rows.length; i ++) {
-        const row = rows[i];
-        // A navigation check, not a validation: it must not show errors or expand detail panels/questions.
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext({ fireCallback: false }))) {
-          this.fillSingleInputQuestionsByRow(res, row);
-        }
-      }
-    }
-    return this.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const row = <MatrixDropdownRowModelBase>innerQuestion.data;
-    this.fillSingleInputQuestionsByRow(res, row);
-  }
-  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
-    if (row) {
-      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
+    return this.getDynamicSingleInputQuestions(question, checkDynamic);
   }
   public getSingleInputAddTextCore(): string {
     if (!this.matrixDynamic.canAddRow) return undefined;
@@ -1681,34 +1659,22 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
   public singleInputAddItemCore(): void {
     this.matrixDynamic.addRowUI();
   }
-  protected getSingleQuestionOnChange(index: number): Question {
-    const rows = this.matrixDynamic.visibleRows;
-    if (rows.length > 0) {
-      if (index < 0 || index >= rows.length) index = rows.length - 1;
-      const row = rows[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
-  }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const md = this.matrixDynamic;
-    md.syncPageSizeWithMode();
-    const res = new QuestionSingleInputSummary(md, md.locNoRowsText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
+    // Read once per summary; the page-size sync that the summary starts with does not change it.
     const canRemoveRows = md.canRemoveRows;
-    md.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
-      locText.setJson(md.locSingleInputTitleTemplate.getJson());
-      const bntEdit = new Action({ locTitle: md.locEditRowText, action: () => { this.singleInputEditRow(row); } });
-      const btnRemove = canRemoveRows && md.canRemoveRow(row) ?
-        new Action({ locTitle: md.locRemoveRowText, action: () => { md.removeRowUI(row); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    return this.createRecordsSummary({
+      noEntriesText: md.locNoRowsText,
+      editText: md.locEditRowText,
+      removeText: md.locRemoveRowText,
+      getTitle: (row: MatrixDropdownRowModelBase): LocalizableString => {
+        const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
+        locText.setJson(md.locSingleInputTitleTemplate.getJson());
+        return locText;
+      },
+      canRemove: (row: MatrixDropdownRowModelBase): boolean => canRemoveRows && md.canRemoveRow(row),
+      remove: (row: MatrixDropdownRowModelBase): void => { md.removeRowUI(row); }
     });
-    res.items = items;
-    return res;
   }
 }
 

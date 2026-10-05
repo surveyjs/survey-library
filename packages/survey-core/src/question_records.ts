@@ -21,6 +21,10 @@ import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { Action } from "./actions/action";
+import { LocalizableString } from "./localizablestring";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -1677,5 +1681,105 @@ class RecordValueItem extends QuestionRecordItem {
   public setComment(name: string, newValue: string, locNotification: boolean): void { }
   public get questions(): Array<Question> {
     return [];
+  }
+}
+// A record object as the single-input steps see it: a matrix row or a dynamic panel.
+interface ISingleInputRecord {
+  visibleQuestions: Array<Question>;
+  hasValueAnyQuestion(visibleOnly?: boolean): boolean;
+}
+
+interface IRecordsSingleInputSummaryOptions<TRecord> {
+  noEntriesText: LocalizableString;
+  editText: LocalizableString;
+  removeText: LocalizableString;
+  getTitle: (record: TRecord) => LocalizableString;
+  canRemove: (record: TRecord) => boolean;
+  remove: (record: TRecord) => void;
+}
+
+// The single-input steps of a records question: a step is a visible question of a record.
+export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingleInputRecord> extends QuestionSingleInputBehavior {
+  protected get recordsQuestion(): QuestionRecordsModel {
+    return this.question as QuestionRecordsModel;
+  }
+  protected abstract getRecords(): Array<TRecord>;
+  // Not always a record: the lookup is also asked for the question itself and for its parents.
+  protected abstract getRecordOfQuestion(question: Question): TRecord;
+  protected abstract isRecordValid(record: TRecord): boolean;
+
+  // Single-input mode is its own paging and walks every record: the list is told before they are read.
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+    this.recordsQuestion.syncPageSizeWithMode();
+    return super.getSingleInputQuestionsCore(question, checkDynamic);
+  }
+  // The steps of a question that adds and removes records: the questions of every record that is
+  // empty or invalid, the questions of the current record when it is complete, and the summary.
+  protected getDynamicSingleInputQuestions(question: Question, checkDynamic: boolean): Array<Question> {
+    this.recordsQuestion.syncPageSizeWithMode();
+    const unfinished = new Array<Question>();
+    if (checkDynamic) {
+      const records = this.getRecords();
+      for (let i = 0; i < records.length; i ++) {
+        const record = records[i];
+        if (!record.hasValueAnyQuestion(true) || !this.isRecordValid(record)) {
+          this.addRecordQuestions(unfinished, record);
+        }
+      }
+    }
+    const res = new Array<Question>();
+    if (!!question && question !== this.question && unfinished.indexOf(question) < 0) {
+      this.addRecordQuestions(res, this.getRecordOfQuestion(question));
+    }
+    unfinished.forEach(q => res.push(q));
+    if (this.singleInputSummaryShown && res.length > 0) {
+      res.unshift(this.question);
+    }
+    res.push(this.question);
+    return res;
+  }
+  private addRecordQuestions(res: Array<Question>, record: TRecord): void {
+    if (!!record) {
+      record.visibleQuestions.forEach(q => res.push(q));
+    }
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const records = this.getRecords();
+    if (records.length > 0) {
+      if (index < 0 || index >= records.length) index = records.length - 1;
+      const vQs = records[index].visibleQuestions;
+      if (vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
+  }
+  protected singleInputMoveToFirstCore(): void {
+    const question = this.question.singleInputQuestion;
+    if (!!question) {
+      this.editRecord(this.getRecordOfQuestion(question));
+    }
+  }
+  protected editRecord(record: TRecord): void {
+    if (!record) return;
+    const qs = record.visibleQuestions;
+    // The summary step asks for the record of the question itself, which is not a record.
+    if (Array.isArray(qs) && qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
+  protected createRecordsSummary(options: IRecordsSingleInputSummaryOptions<TRecord>): QuestionSingleInputSummary {
+    this.recordsQuestion.syncPageSizeWithMode();
+    const res = new QuestionSingleInputSummary(this.question, options.noEntriesText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    this.getRecords().forEach(record => {
+      const locText = options.getTitle(record);
+      const btnEdit = new Action({ locTitle: options.editText, action: () => { this.editRecord(record); } });
+      const btnRemove = options.canRemove(record) ?
+        new Action({ locTitle: options.removeText, action: () => { options.remove(record); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, btnEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
   }
 }

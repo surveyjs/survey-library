@@ -33,12 +33,15 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { getScrollBehavior } from "./utils/reduced-motion";
-import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
+import {
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
+  QuestionRecordsSingleInputBehavior
+} from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
   protected getNextName(): string {
@@ -3656,40 +3659,34 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
 }
 
-export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior {
+export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputBehavior<PanelModel> {
   protected get panelDynamic(): QuestionPanelDynamicModel {
     return this.question as QuestionPanelDynamicModel;
   }
+  protected getRecords(): Array<PanelModel> {
+    return this.panelDynamic.visiblePanels;
+  }
+  // The outermost panel of the question.
+  protected getRecordOfQuestion(question: Question): PanelModel {
+    let parent = question.parent;
+    while(!!parent && !!parent.parent) {
+      parent = parent.parent;
+    }
+    return <PanelModel>parent;
+  }
+  protected isRecordValid(panel: PanelModel): boolean {
+    return panel.validate(false, false);
+  }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     this.panelDynamic.onFirstRendering();
-    this.panelDynamic.syncPageSizeWithMode();
-    const res = new Array<Question>();
-    const panels = this.panelDynamic.visiblePanels;
-    if (checkDynamic) {
-      for (let i = 0; i < panels.length; i ++) {
-        const panel = panels[i];
-        if (!panel.hasValueAnyQuestion(true) || !panel.validate(false, false)) {
-          this.fillSingleInputQuestionsByPanel(res, panel);
-        }
-      }
-    }
-    return this.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const panel = this.getPanelByQuestion(innerQuestion);
-    this.fillSingleInputQuestionsByPanel(res, panel);
-  }
-  private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
-    if (panel) {
-      panel.visibleQuestions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
+    return this.getDynamicSingleInputQuestions(question, checkDynamic);
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     const res = this.panelDynamic.locTemplateTitle;
     res.onGetTextCallback = (text: string): string => {
       const q = this.panelDynamic.singleInputQuestion;
       if (!q) return text;
-      return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
+      return this.processSingleInputTitle(text, this.getRecordOfQuestion(q));
     };
     return res;
   }
@@ -3701,13 +3698,6 @@ export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior
   private getSingleInputTitleTemplate(): string {
     return this.panelDynamic.getLocalizationString("panelDynamicTabTextFormat");
   }
-  private getPanelByQuestion(question: Question): PanelModel {
-    let parent = question.parent;
-    while(!!parent && !!parent.parent) {
-      parent = parent.parent;
-    }
-    return <PanelModel>parent;
-  }
   public getSingleInputAddTextCore(): string {
     if (!this.panelDynamic.canAddPanel) return undefined;
     return this.panelDynamic.addPanelText;
@@ -3715,49 +3705,23 @@ export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior
   public singleInputAddItemCore(): void {
     this.panelDynamic.addPanelUI();
   }
-  protected getSingleQuestionOnChange(index: number): Question {
-    const panels = this.panelDynamic.visiblePanels;
-    if (panels.length > 0) {
-      if (index < 0 || index >= panels.length) index = panels.length - 1;
-      const row = panels[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
-  }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const pd = this.panelDynamic;
-    pd.syncPageSizeWithMode();
-    const res = new QuestionSingleInputSummary(pd, pd.locNoEntriesText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
-    pd.visiblePanels.forEach((panel) => {
-      const locText = new LocalizableString(pd, true, undefined, pd.locTemplateTitle.localizationName);
-      locText.setJson(pd.locTemplateTitle.getJson());
-      locText.onGetTextCallback = (text: string): string => {
-        return this.processSingleInputTitle(pd.templateTitle, panel);
-      };
-      const bntEdit = new Action({ locTitle: pd.locEditPanelText, action: () => { this.singInputEditPanel(panel); } });
-      const btnRemove = pd.canRemovePanel ? new Action({ locTitle: pd.locRemovePanelText, action: () => { pd.removePanelUI(panel); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    return this.createRecordsSummary({
+      noEntriesText: pd.locNoEntriesText,
+      editText: pd.locEditPanelText,
+      removeText: pd.locRemovePanelText,
+      getTitle: (panel: PanelModel): LocalizableString => {
+        const locText = new LocalizableString(pd, true, undefined, pd.locTemplateTitle.localizationName);
+        locText.setJson(pd.locTemplateTitle.getJson());
+        locText.onGetTextCallback = (text: string): string => {
+          return this.processSingleInputTitle(pd.templateTitle, panel);
+        };
+        return locText;
+      },
+      canRemove: (): boolean => pd.canRemovePanel,
+      remove: (panel: PanelModel): void => { pd.removePanelUI(panel); }
     });
-    res.items = items;
-    return res;
-  }
-  protected singleInputMoveToFirstCore(): void {
-    let panel = this.panelDynamic.singleInputQuestion?.parent;
-    while(!!panel && !!panel.parent) {
-      panel = panel.parent;
-    }
-    this.singInputEditPanel(<PanelModel>panel);
-  }
-  private singInputEditPanel(panel: PanelModel): void {
-    if (!panel) return;
-    const qs = panel.visibleQuestions;
-    if (qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
   }
 }
 

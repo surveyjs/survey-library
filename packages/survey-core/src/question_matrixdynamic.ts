@@ -1559,8 +1559,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       ? questionValue[index]
       : null;
   }
-  /* Still reached with an explicit value: onSetQuestionValue, updateValueOnRowsGeneration,
-     onRowChanging, runTriggersOnNewRows and getRowObj all compose a value of their own and ask for
+  /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,
+     runTriggersOnNewRows, verifyValueCore and getRowObj all compose a value of their own and ask for
      one row of it. The record storage of the question is the list; this is a lookup in a value. */
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,

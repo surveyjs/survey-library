@@ -6,6 +6,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
+import { CustomError } from "../src/error";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, on getDataList() and when it pages, sorts or filters - and on no other
@@ -725,6 +726,158 @@ describe("Records questions: writes through an item", () => {
       };
       expect(measure(20), "#1").toBe(20);
       expect(measure(40), "#2").toBe(40);
+    });
+  });
+});
+
+describe("Records questions: error walks", () => {
+  interface IErrorKind {
+    type: string;
+    variable: string;
+    create(elements: Array<any>, extra?: any): any;
+    items(q: any): Array<any>;
+    question(q: any, index: number, name: string): any;
+    value(records: Array<any>): any;
+  }
+  const errorKinds: Array<IErrorKind> = [
+    {
+      type: "matrixdynamic", variable: "row",
+      create: (elements, extra) => Object.assign({ type: "matrixdynamic", rowCount: 3, columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }, extra),
+      items: q => q.allRows,
+      question: (q, index, name) => q.allRows[index].getQuestionByName(name),
+      value: records => records
+    },
+    {
+      type: "matrixdropdown", variable: "row",
+      create: (elements, extra) => Object.assign({ type: "matrixdropdown", rows: ["r0", "r1", "r2"], columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }, extra),
+      items: q => q.allRows,
+      question: (q, index, name) => q.allRows[index].getQuestionByName(name),
+      value: records => {
+        const res: any = {};
+        records.forEach((record, index) => { res["r" + index] = record; });
+        return res;
+      }
+    },
+    {
+      type: "paneldynamic", variable: "panel",
+      create: (elements, extra) => Object.assign({ type: "paneldynamic", panelCount: 3, templateElements: elements.map(e => Object.assign({ type: "text" }, e)) }, extra),
+      items: q => q.panels.map((panel: any) => panel.data),
+      question: (q, index, name) => q.panels[index].getQuestionByName(name),
+      value: records => records
+    }
+  ];
+  const createSurvey = (kind: IErrorKind, elements: Array<any>, extra?: any): SurveyModel =>
+    new SurveyModel({ elements: [Object.assign({ name: "q" }, kind.create(elements, extra))] });
+  const hiddenIf = (kind: IErrorKind): any => kind.type === "paneldynamic" ? { templateVisibleIf: "{panel.h} empty" } : { rowsVisibleIf: "{row.h} empty" };
+  errorKinds.forEach(kind => {
+    test("getAllErrors does not report an item that was hidden after it showed an error, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a", isRequired: true }, { name: "h" }], hiddenIf(kind));
+      const q = survey.getQuestionByName("q");
+      kind.question(q, 2, "a").value = "valid";
+      expect(q.validate(true), "#1").toBe(false);
+      expect(q.getAllErrors().length, "#1: two items show an error").toBe(2);
+      kind.question(q, 1, "h").value = "hide";
+      expect(kind.question(q, 1, "a").errors.length, "#2: the hidden item keeps its error").toBe(1);
+      expect(q.getAllErrors().length, "#2: and it is not reported").toBe(1);
+      expect(q.validate(true), "#3: the question is still invalid").toBe(false);
+    });
+  });
+  [errorKinds[0], errorKinds[1]].forEach(kind => {
+    const detail = {
+      detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "q2", validators: [{ type: "expression", expression: "{row.q1} + {row.q2} <= 10" }] }]
+    };
+    test("a detail-panel error goes away when survey.setValue makes the row valid, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "q1", cellType: "text", inputType: "number" }], detail);
+      const q = survey.getQuestionByName("q");
+      const row = q.visibleRows[0];
+      row.showDetailPanel();
+      row.getQuestionByName("q1").value = 5;
+      row.getQuestionByName("q2").value = 8;
+      expect(q.validate(true), "#1").toBe(false);
+      expect(row.getQuestionByName("q2").errors.length, "#1: the detail question shows it").toBe(1);
+      expect(q.getAllErrors().length, "#2: the question reports it").toBe(1);
+      survey.setValue("q", kind.value([{ q1: 1, q2: 8 }, {}, {}]));
+      expect(row.getQuestionByName("q2").errors.length, "#3: re-validated and cleared").toBe(0);
+      expect(q.getAllErrors().length, "#4").toBe(0);
+    });
+    test("clearErrors clears hidden rows and detail panels, the panel's own error included, and creates no detail panel, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a", isRequired: true }, { name: "h" }], Object.assign({
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "d", isRequired: true }]
+      }, hiddenIf(kind)));
+      const q = survey.getQuestionByName("q");
+      kind.question(q, 2, "h").value = "hidden from the start";
+      q.visibleRows[0].showDetailPanel();
+      const detailPanel = q.allRows[0].detailPanel;
+      expect(q.validate(true), "#1").toBe(false);
+      expect(kind.question(q, 1, "a").errors.length, "#1: row 1").toBe(1);
+      expect(detailPanel.getQuestionByName("d").errors.length, "#1: the detail question").toBe(1);
+      detailPanel.errors = [new CustomError("the detail panel")];
+      kind.question(q, 1, "h").value = "hide";
+      q.clearErrors();
+      expect(kind.question(q, 1, "a").errors.length, "#2: the hidden row").toBe(0);
+      expect(detailPanel.getQuestionByName("d").errors.length, "#3: the detail question").toBe(0);
+      expect(detailPanel.errors.length, "#4: the detail panel").toBe(0);
+      expect(q.allRows[2].detailPanel, "#5: never created").toBeNull();
+    });
+    test("an asynchronous validator of a detail question keeps the question running validators until it answers, " + kind.type, () => {
+      const results: Array<(res: any) => void> = [];
+      FunctionFactory.Instance.register("recordsAsyncFunc", function (this: any) { results.push(this.returnResult); return false; }, true);
+      try {
+        const survey = createSurvey(kind, [{ name: "a" }], {
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "text", name: "d", validators: [{ type: "expression", expression: "recordsAsyncFunc({row.d}) = 1" }] }]
+        });
+        const q = survey.getQuestionByName("q");
+        q.visibleRows[0].showDetailPanel();
+        q.visibleRows[0].getQuestionByName("d").value = "v";
+        q.validate(true);
+        expect(results.length > 0, "#1: the validator is waiting").toBe(true);
+        expect(q.isRunningValidators, "#1").toBe(true);
+        results.forEach(res => res(1));
+        expect(q.isRunningValidators, "#2: answered").toBe(false);
+      } finally {
+        FunctionFactory.Instance.unregister("recordsAsyncFunc");
+      }
+    });
+  });
+  test("clearErrors clears the own error of a panel nested in a dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "q", panelCount: 1, templateElements: [
+        { type: "panel", name: "nested", isRequired: true, elements: [{ type: "text", name: "t" }] }
+      ] }]
+    });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    const nested = <any>q.panels[0].getElementByName("nested");
+    expect(q.validate(true), "#1").toBe(false);
+    expect(nested.errors.length, "#1").toBe(1);
+    q.clearErrors();
+    expect(nested.errors.length, "#2").toBe(0);
+  });
+  [true, false].forEach(isMatrix => {
+    test("paging: the walks create no object for an edited record off the page, and leaving the page still finds its error, " + (isMatrix ? "matrix" : "panel"), () => {
+      const records: Array<any> = [];
+      for (let i = 0; i < 12; i++) records.push({ id: "id" + i, name: "n" + i });
+      const elements = [{ name: "id" }, { name: "name", isRequired: true }];
+      const survey = new SurveyModel({
+        elements: [isMatrix
+          ? { type: "matrixdynamic", name: "q", rowsPerPage: 5, columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }
+          : { type: "paneldynamic", name: "q", panelsPerPage: 5, templateElements: elements.map(e => Object.assign({ type: "text" }, e)) }]
+      });
+      survey.data = { q: records };
+      const q: any = survey.getQuestionByName("q");
+      const objects = (): Array<any> => isMatrix ? q.visibleRows : q.panels;
+      q.pageIndex = 1;
+      objects()[1].getQuestionByName("name").value = "";
+      q.pageIndex = 0;
+      q.clearErrors();
+      expect(q.getAllErrors().length, "#1").toBe(0);
+      expect(q.isRunningValidators, "#1").toBe(false);
+      expect(objects().length, "#2: the page only").toBe(5);
+      expect(q.getItemByRecordIndex(6), "#2: no object for the edited record").toBeUndefined();
+      expect(q.validate(true), "#3: a full validation finds the edited record").toBe(false);
+      expect(q.pageIndex, "#3: on its page").toBe(1);
     });
   });
 });

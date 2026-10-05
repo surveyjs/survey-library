@@ -9,6 +9,7 @@ import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
+import { SurveyError } from "./survey-error";
 import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
@@ -1044,6 +1045,36 @@ export abstract class QuestionRecordsModel extends Question {
       item.onAnyValueChanged(name, questionName);
     }
   }
+  /* The error walks visit the objects that exist and create none: a record without an object has
+     shown no error. Every object is cleared and asked for running validators - a hidden one may
+     still hold an error or wait for one - and the visible ones report their errors: a hidden object
+     is never validated, so what it holds is stale. */
+  public clearErrors(): void {
+    super.clearErrors();
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      item.clearErrors();
+    }
+  }
+  public getAllErrors(): Array<SurveyError> {
+    let res = super.getAllErrors();
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return res;
+      if (this.isItemVisible(item)) {
+        res = res.concat(item.getAllErrors());
+      }
+    }
+  }
+  protected getIsRunningValidators(): boolean {
+    if (super.getIsRunningValidators()) return true;
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return false;
+      if (item.isRunningValidators()) return true;
+    }
+  }
   // Read once, by the first build of the objects.
   protected takeValueChangedBeforeBuild(): boolean {
     const res = this.isValueChangedBeforeBuild;
@@ -1136,6 +1167,8 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract get listPageSize(): number;
   // The objects, by created position and by record.
   public abstract getItem(index: number): QuestionRecordItem;
+  // An object the question shows: a hidden one reports no errors (see getAllErrors).
+  protected abstract isItemVisible(item: QuestionRecordItem): boolean;
   public abstract getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
   // The record an item - a row, a panel - reads and writes.
   public abstract getItemData(item: ISurveyData): any;
@@ -1517,8 +1550,33 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   /* After a write of this item reached the owner: its own questions re-run what reads the record
      through the item variable ({row.x}, {panel.x}). The other items are not told. */
-  protected notifyRecordWritten(): void {
+  private notifyRecordWritten(): void {
     this.onAnyValueChanged(this.getVariableName(), "");
+  }
+  // The errors the item's questions show; the owner asks the visible items only.
+  public getAllErrors(): Array<SurveyError> {
+    let res: Array<SurveyError> = [];
+    const questions = this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      const errors = questions[i].getAllErrors();
+      if (errors && errors.length > 0) {
+        res = res.concat(errors);
+      }
+    }
+    return res;
+  }
+  public isRunningValidators(): boolean {
+    const questions = this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].isRunningValidators) return true;
+    }
+    return false;
+  }
+  public clearErrors(): void {
+    const questions = this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      questions[i].clearErrors();
+    }
   }
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {

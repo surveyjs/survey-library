@@ -24,7 +24,6 @@ import { settings } from "./settings";
 import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { confirmActionAsync } from "./utils/confirm-dialog";
-import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { defaultActionBarCss } from "./actions/actionBarCss";
@@ -38,7 +37,6 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
 
@@ -165,6 +163,10 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   protected updateQuestionFromRecord(question: Question, record: any): void {
     super.updateQuestionFromRecord(question, record);
     question.initDataUI();
+  }
+  // The panel clears its nested panels' own errors and its own as well.
+  public clearErrors(): void {
+    this.panel.clearErrors();
   }
 }
 
@@ -2545,12 +2547,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearIncorrectValuesInPanel(i);
     }
   }
-  public clearErrors() {
-    super.clearErrors();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelsCore[i].clearErrors();
-    }
-  }
   // index is a CREATED position - what it has always been for this method.
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index < 0 || index >= this.panelsCore.length) return null;
@@ -2958,31 +2954,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
     }
   }
-  protected getIsRunningValidators(): boolean {
-    return super.getIsRunningValidators() || this.isRunningValidatorsInPanels();
-  }
-  private isRunningValidatorsInPanels(): boolean {
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      var questions = this.panelsCore[i].questions;
-      for (var j = 0; j < questions.length; j++) {
-        if (questions[j].isRunningValidators) return true;
-      }
-    }
-    return false;
-  }
-  public getAllErrors(): Array<SurveyError> {
-    var result = super.getAllErrors();
-    const panels = this.visiblePanelsCore;
-    for (var i = 0; i < panels.length; i++) {
-      var questions = panels[i].questions;
-      for (var j = 0; j < questions.length; j++) {
-        var errors = questions[j].getAllErrors();
-        if (errors && errors.length > 0) {
-          result = result.concat(errors);
-        }
-      }
-    }
-    return result;
+  // What puts a panel into visiblePanels.
+  protected isItemVisible(item: QuestionRecordItem): boolean {
+    return (<QuestionPanelDynamicItem>item).panel.visible;
   }
   public getValueGetterContext(): IValueGetterContext {
     return new PanelDynamicValueGetterContext(this);

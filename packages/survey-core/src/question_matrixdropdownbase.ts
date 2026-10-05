@@ -637,6 +637,13 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
     return true;
   }
+  // The detail panel's own errors as well; a panel that was never created has none.
+  public clearErrors(): void {
+    super.clearErrors();
+    if (!!this.detailPanel) {
+      this.detailPanel.clearErrors();
+    }
+  }
   public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
     const questions = visibleOnly ? this.visibleQuestions : this.questions;
     for (let i = 0; i < questions.length; i++) {
@@ -1885,10 +1892,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       rows[i].clearIncorrectValues(this.getRowValue(i));
     }
   }
-  public clearErrors(): void {
-    super.clearErrors();
-    this.runFuncForCellQuestions((q: Question) => { q.clearErrors(); });
-  }
   public localeChanged(): void {
     super.localeChanged();
     this.runFuncForCellQuestions((q: Question) => { q.localeChanged(); });
@@ -2837,38 +2840,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const isDuplicated = this.isValueDuplicated(context);
     return rowsValidation && !isDuplicated;
   }
-  protected isRunningValidatorsInRows(): boolean {
-    if (!this.generatedVisibleRows) return false;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var cells = this.generatedVisibleRows[i].cells;
-      if (!cells) continue;
-      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
-        if (!cells[colIndex]) continue;
-        var question = cells[colIndex].question;
-        if (!!question && question.isRunningValidators) return true;
-      }
-    }
-    return false;
-  }
-  protected getIsRunningValidators(): boolean {
-    return super.getIsRunningValidators() || this.isRunningValidatorsInRows();
-  }
-  public getAllErrors(): Array<SurveyError> {
-    var result = super.getAllErrors();
-    var rows = this.generatedVisibleRows;
-
-    if (rows === null) return result;
-
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      for (var j = 0; j < row.cells.length; j++) {
-        var errors = row.cells[j].question.getAllErrors();
-        if (errors && errors.length > 0) {
-          result = result.concat(errors);
-        }
-      }
-    }
-    return result;
+  // The rows rowsVisibleIf hides are never validated.
+  protected isItemVisible(item: QuestionRecordItem): boolean {
+    return (<MatrixDropdownRowModelBase>item).isVisible;
   }
   private validateRows(context: ValidationContext): boolean {
     let rows = this.generatedVisibleRows;

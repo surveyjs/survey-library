@@ -881,3 +881,60 @@ describe("Records questions: error walks", () => {
     });
   });
 });
+
+describe("Records questions: the object of a record", () => {
+  function createDynamic(isMatrix: boolean, records: Array<any>, props: any = {}): any {
+    const survey = new SurveyModel({
+      elements: [isMatrix
+        ? Object.assign({ type: "matrixdynamic", name: "q", columns: [{ name: "a", cellType: "text" }] }, props)
+        : Object.assign({ type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "a" }] }, props)]
+    });
+    survey.data = { q: records };
+    return survey.getQuestionByName("q");
+  }
+  // The object a lookup by record answers: a row, or a panel's item.
+  function getObjects(q: any, isMatrix: boolean): Array<any> {
+    return isMatrix ? q.visibleRows : q.panels.map((p: any) => p.data);
+  }
+  test("fixed matrix without a list: a record's row is found, a missing one is not, and no list is created", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "q", rows: ["r1", "r2"], columns: [{ name: "a" }] }] });
+    const q: any = survey.getQuestionByName("q");
+    const rows = q.visibleRows;
+    expect(q.getItemByRecordIndex(1) === rows[1], "#1: the row of the second record").toBe(true);
+    expect(q.getItemByRecordIndex(2), "#2: past the rows").toBeFalsy();
+    expect(q.getItemByRecordIndex(-1), "#3: a negative index").toBeUndefined();
+    expect(hasNoRecordList(q), "#4: no list").toBe(true);
+  });
+  [true, false].forEach((isMatrix: boolean) => {
+    const name = isMatrix ? "dynamic matrix" : "dynamic panel";
+    test(name + ": with a list but no view, the record index is the object position", () => {
+      const q = createDynamic(isMatrix, [{ a: "1" }, { a: "2" }, { a: "3" }]);
+      q.getDataList();
+      const objects = getObjects(q, isMatrix);
+      expect(q.getItemByRecordIndex(2) === objects[2], "#1: the object of the last record").toBe(true);
+      expect(q.getItemByRecordIndex(3), "#2: past the records").toBeFalsy();
+      expect(q.getItemByRecordIndex(-1), "#3: a negative index").toBeUndefined();
+    });
+    test(name + ": under a sort, a record is found at the position the sort gave it", () => {
+      const q = createDynamic(isMatrix, [{ a: "1" }, { a: "3" }, { a: "2" }]);
+      q.sortBy = "a-";
+      const objects = getObjects(q, isMatrix);
+      expect(q.getItemByRecordIndex(1) === objects[0], "#1: the largest value is first").toBe(true);
+      expect(q.getItemByRecordIndex(2) === objects[1], "#2: then the middle one").toBe(true);
+      expect(q.getItemByRecordIndex(0) === objects[2], "#3: the smallest value is last").toBe(true);
+    });
+    test(name + ": under paging, a record off the page has no object and the lookup builds none", () => {
+      const records: Array<any> = [];
+      for (let i = 0; i < 12; i++) records.push({ a: "v" + i });
+      const q = createDynamic(isMatrix, records, isMatrix ? { rowsPerPage: 5 } : { panelsPerPage: 5 });
+      q.pageIndex = 1;
+      const objects = getObjects(q, isMatrix);
+      expect(objects.length, "#1: the page only").toBe(5);
+      expect(q.getItemByRecordIndex(7) === objects[2], "#2: a record on the page").toBe(true);
+      expect(q.getItemByRecordIndex(2), "#3: a record on another page").toBeUndefined();
+      expect(q.getItemByRecordIndex(12), "#4: past the records").toBeUndefined();
+      const after = getObjects(q, isMatrix);
+      expect(after.length === objects.length && after.every((o: any, i: number) => o === objects[i]), "#5: no object was built").toBe(true);
+    });
+  });
+});

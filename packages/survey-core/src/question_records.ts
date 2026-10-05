@@ -355,6 +355,13 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this._dataList;
     return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
   }
+  /* The object that holds a record, undefined for a record without one. Without a view the objects
+     are built in record order, so the record index is the position - also for a panel whose record
+     is not stored yet. Nothing is created: neither the list nor an object. */
+  public getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
+    const position = this.hasDataListView ? this.dataListValue.indexToMaterializedIndex(recordIndex) : recordIndex;
+    return position < 0 ? undefined : this.getItem(position);
+  }
   /* The objects hold other records than the page names: a record became hidden or visible ahead of
      them, the page moved under them, or the records were replaced. The objects are read one by one:
      nothing is allocated for the answer. */
@@ -1169,11 +1176,10 @@ export abstract class QuestionRecordsModel extends Question {
      a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
      object. */
   protected abstract get listPageSize(): number;
-  // The objects, by created position and by record.
+  // The objects, by created position (getItemByRecordIndex looks them up by record).
   public abstract getItem(index: number): QuestionRecordItem;
   // An object the question shows: a hidden one reports no errors (see getAllErrors).
   protected abstract isItemVisible(item: QuestionRecordItem): boolean;
-  public abstract getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
   // The record an item - a row, a panel - reads and writes.
   public abstract getItemData(item: ISurveyData): any;
   /* The index of the item record in the question storage. It is the only index two questions bound

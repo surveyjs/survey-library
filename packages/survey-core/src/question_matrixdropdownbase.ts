@@ -3285,11 +3285,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   getItemRecordIndex(item: ISurveyData): number {
     return this.getRecordIndexOf(item);
   }
-  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
-    const list = this.dataListValue;
-    const position = !!list ? list.indexToMaterializedIndex(recordIndex) : recordIndex;
-    return position < 0 ? undefined : this.getItem(position);
-  }
   /* One row per record in the view. Without a filter and a sort that is one row per record, in
      record order, which is what createNewValue() composed the value for. The live-object value
      (Creator's property grid) is never filtered: its rows follow the edited array. */

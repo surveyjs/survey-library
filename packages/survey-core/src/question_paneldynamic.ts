@@ -3275,11 +3275,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // the one updateItemValue writes and getPanelItemDataByIndex reads for it, not the record count.
     return this.getRecordIndexByPanelIndex(position < 0 ? items.length : position);
   }
-  getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
-    const position = this.hasDataListView ? this.dataList.indexToMaterializedIndex(recordIndex) : recordIndex;
-    if (position < 0 || position >= this.panelsCore.length) return undefined;
-    return <QuestionRecordItem>this.panelsCore[position].data;
-  }
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }

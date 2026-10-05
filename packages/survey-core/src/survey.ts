@@ -7462,26 +7462,8 @@ export class SurveyModel extends SurveyElementCore
     }
     this.runConditionOnValuesChanged(values, name);
     this.checkTriggers(changed, false, false, false, name);
-    // Validation above can keep an existing error and broadcast its text before calculated
-    // values this pass updates. Refresh the error text once those values have settled.
-    if (!this.isRunningConditions) {
-      this.updateRenderedErrorTexts();
-    }
     for (const key in changed) {
       this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
-    }
-  }
-  private updateRenderedErrorTexts(): void {
-    const questions = this.getAllQuestions();
-    for (let i = 0; i < questions.length; i++) {
-      const nested = questions[i].getNestedQuestions(false, true, true);
-      for (let j = 0; j < nested.length; j++) {
-        const errors = nested[j].getPropertyValue("errors");
-        if (!Array.isArray(errors)) continue;
-        for (let k = 0; k < errors.length; k++) {
-          errors[k].updateText();
-        }
-      }
     }
   }
   // The only place that writes the variables hash. A variable shadows a data key with the same

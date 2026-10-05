@@ -127,6 +127,7 @@ export abstract class QuestionRecordsModel extends Question {
       raiseSortByChanged: (oldValue: string, newValue: string): void => { question.raiseSortByChanged(oldValue, newValue); },
       leavePage: (isForward: boolean, move: () => void): boolean => question.leavePage(isForward, move),
       cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); },
+      get canSort(): boolean { return question.canSortRecords; },
       // True while a page move waits for the asynchronous validators of the page it leaves.
       get isPageMovePending(): boolean { return question.getPropertyValue("isPageMovePending", false); }
     };
@@ -793,6 +794,14 @@ export abstract class QuestionRecordsModel extends Question {
      addToSort the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes. */
   public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
+  /* Can the records be sorted: false only for a data source that pages and has not declared
+     sorting. The matrix columns (isSortable) and toggleSort read it. It never creates the list:
+     without one the answer is true - the stored sort is applied once a list exists, and a source
+     that cannot run it then refuses it as any read does. */
+  public get canSortRecords(): boolean {
+    const list = this._dataList;
+    return !list || list.canSort;
+  }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value

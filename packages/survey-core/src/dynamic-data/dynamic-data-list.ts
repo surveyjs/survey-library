@@ -963,6 +963,13 @@ export class DynamicDataList {
   private get isWindowWholeStorage(): boolean {
     return !this.isPagedBySource;
   }
+  /* Can the records be sorted at all: the list sorts them, or the paging source declared that it
+     does. From the snapshot, so it changes only when a source is assigned. A sort that is not
+     available is refused when it is read (createReadRequest); an owner asks this first, so that a
+     respondent is never offered one. */
+  public get canSort(): boolean {
+    return this.isSortedLocally || (this.isPagedBySource && this.sourceCapabilities.sorting);
+  }
   // A capability is declared by the presence of the matching method: the operation names are the
   // source method names.
   public hasCapability(operation: DynamicDataOperation): boolean {

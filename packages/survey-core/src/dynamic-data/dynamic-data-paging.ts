@@ -51,6 +51,8 @@ export interface IDynamicDataPagingOwner {
   cancelPendingPageMove?(): void;
   // True while a move waits for the asynchronous validators of the page: the pager is not usable.
   isPageMovePending?: boolean;
+  // False when the records cannot be sorted: a header click then does nothing. Absent -> true.
+  canSort?: boolean;
 }
 
 export class DynamicDataPagingController {
@@ -313,7 +315,10 @@ export class DynamicDataPagingController {
      addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
      a modified header click does in a grid - and leaves the other fields where they are. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
-     validated first (layer 1). Returns false only for an error found synchronously. */
+     validated first (layer 1). Returns false when the records cannot be sorted - the click does
+     nothing: no validation, no sort, no error - and for an error found synchronously. Whether they
+     can be sorted is checked before the page is left, so that a refused click costs no validation.
+     A sort from code (sortOrder, sortBy) is not checked here: the list refuses it and reports it. */
   public toggleSort(field: string, addToSort?: boolean): boolean {
     if (!field) return false;
     const newSort = this.getToggledSort(field, addToSort);
@@ -321,6 +326,7 @@ export class DynamicDataPagingController {
       this.setSortOrderCore(newSort, true);
       return true;
     }
+    if (this.owner.canSort === false) return false;
     return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
   }
   private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {

@@ -701,3 +701,87 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(errors, "#6").toEqual(["read"]);
   });
 });
+
+/* A header sort is offered only where it can run: the list sorts the records, or the paging source
+   declared sorting. A click that cannot sort does nothing - no validation, no request, no error. */
+describe("Question source contract: sort availability", () => {
+  function createSortableMatrix(source: ContractSource): { survey: SurveyModel, question: QuestionMatrixDynamicModel, errors: Array<string> } {
+    const { survey, question } = matrixAdapter.create(source, 2, { allowSortRows: true });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    return { survey: survey, question: question, errors: errors };
+  }
+  function sortableColumns(question: QuestionMatrixDynamicModel): Array<boolean> {
+    return question.columns.map(column => column.isSortable);
+  }
+  test("matrix, a paging source without sorting: no column is sortable and a header click does nothing", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, filtering: true } });
+    const { question, errors } = createSortableMatrix(source);
+    expect(question.canSortRecords, "#1").toBe(false);
+    expect(sortableColumns(question), "#2").toEqual([false, false]);
+    const readsBefore = source.pagedReadCount;
+    // Record 100 has no name, and the name is required: validating the page would show an error.
+    expect(question.toggleSort("id"), "#3").toBe(false);
+    expect(source.pagedReadCount, "#4: no request").toBe(readsBefore);
+    expect(question.sortBy, "#5").toBe("");
+    expect(errors, "#6: no error event").toEqual([]);
+    expect(question.visibleRows[0].getQuestionByName("name").errors.length, "#7: the page was not validated").toBe(0);
+  });
+  test("matrix, a paging source with sorting: the columns are sortable and a header click reads the sorted page", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
+    const { question, errors } = createSortableMatrix(source);
+    question.pageIndex = 1;
+    expect(sortableColumns(question), "#1").toEqual([true, true]);
+    const readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(source.pagedReadCount, "#3: the sorted page is read").toBe(readsBefore + 1);
+    expect(question.sortBy, "#4").toBe("id");
+    expect(errors, "#5").toEqual([]);
+  });
+  test("matrix, a source without paging and without sorting: the list sorts, so the columns are sortable", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "not paging" });
+    const { question } = createSortableMatrix(source);
+    question.pageIndex = 1;
+    expect(sortableColumns(question), "#1").toEqual([true, true]);
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(question.toggleSort("id"), "#3").toBe(true);
+    expect(question.sortBy, "#4").toBe("id-");
+    expect(matrixAdapter.ids(question), "#5: sorted here, descending").toEqual([102, 101]);
+  });
+  test("matrix: assigning another source changes whether the columns are sortable", () => {
+    const sorting = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
+    const { question } = createSortableMatrix(sorting);
+    expect(sortableColumns(question), "#1").toEqual([true, true]);
+    question.dataSource = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    expect(sortableColumns(question), "#2").toEqual([false, false]);
+    question.dataSource = undefined;
+    expect(sortableColumns(question), "#3: the question's own value").toEqual([true, true]);
+  });
+  test("matrix in design mode, or without a list, keeps the header click", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = createSortableMatrix(source);
+    survey.setDesignMode(true);
+    expect(question.toggleSort("id"), "#1: design mode stores the sort").toBe(true);
+    expect(question.sortBy, "#2").toBe("id");
+    const standalone = new QuestionMatrixDynamicModel("m");
+    standalone.allowSortRows = true;
+    standalone.addColumn("col1");
+    expect((<any>standalone)._dataList, "#3: no list yet").toBeUndefined();
+    expect(standalone.canSortRecords, "#4").toBe(true);
+    expect((<any>standalone)._dataList, "#5: the answer did not create one").toBeUndefined();
+    expect(standalone.columns[0].isSortable, "#6").toBe(true);
+    expect(standalone.toggleSort("col1"), "#7").toBe(true);
+    expect(standalone.sortBy, "#8").toBe("col1");
+  });
+  test("panel, a paging source without sorting: toggleSort returns false", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = panelAdapter.create(source, 2);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    const readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#1").toBe(false);
+    expect(source.pagedReadCount, "#2").toBe(readsBefore);
+    expect(question.sortBy, "#3").toBe("");
+    expect(errors, "#4").toEqual([]);
+  });
+});

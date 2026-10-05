@@ -528,9 +528,11 @@ export class MatrixDropdownColumn extends Base
   /* Opts this column out of the header-click sort. Every cell type has a comparer, so no type is
      unsortable by construction: the opt-out is the author's. */
   @property({ defaultValue: true }) allowSort: boolean;
+  // The data source can make every column unsortable: one that pages and has not declared sorting
+  // (matrix.canSortRecords).
   public get isSortable(): boolean {
     const matrix: any = this.colOwner;
-    return !!matrix && matrix.allowSortRows === true && this.allowSort;
+    return !!matrix && matrix.allowSortRows === true && this.allowSort && matrix.canSortRecords !== false;
   }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
      a column with a valueName shares the key with the question it is bound to. It is the same name

@@ -11904,3 +11904,131 @@ test("matrixdynamic: getRowValue inside a list batch sees the write that is bein
   expect(matrix.getRowValue(0), "#3: committed").toEqual({ a: 3 });
   expect(matrix.value[0], "#4").toEqual({ a: 3 });
 });
+
+describe("value assigned by a handler during an add or remove", () => {
+  const createRecords = (): Array<any> => [{ a: "1" }, { a: "2" }, { a: "3" }];
+  const createSurvey = (props?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const json: any = { type: "matrixdynamic", name: "q", columns: [{ name: "a", cellType: "text" }] };
+    const survey = new SurveyModel({ elements: [Object.assign(json, props)] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    matrix.value = createRecords();
+    return { survey: survey, matrix: matrix };
+  };
+  const getRowValues = (matrix: QuestionMatrixDynamicModel): Array<any> => matrix.visibleRows.map(row => row.value);
+  // The rendered table shows exactly the rows of the matrix, in their order.
+  const isRenderedTableOfRows = (matrix: QuestionMatrixDynamicModel): boolean => {
+    const rendered = matrix.renderedTable.rows.filter(row => !!row.row && !row.isErrorsRow && !row.isDetailRow);
+    const rows = matrix.visibleRows;
+    return rendered.length === rows.length && rendered.every((row, index) => row.row === rows[index]);
+  };
+  const runOnce = (event: any, func: () => void): void => {
+    let isDone = false;
+    event.add(() => {
+      if (isDone) return;
+      isDone = true;
+      func();
+    });
+  };
+
+  test("a value assigned on value changed while a row is removed replaces the rows", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("more records assigned on value changed while a row is removed get a row each", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    const assigned = [{ a: "x1" }, { a: "x2" }, { a: "x3" }, { a: "x4" }];
+    runOnce(survey.onValueChanged, () => survey.setValue("q", assigned));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual(assigned);
+    expect(getRowValues(matrix), "#2").toEqual(assigned);
+    expect(matrix.rowCount, "#3").toBe(4);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("a value assigned on value changed while a paged matrix removes a row replaces the rows", () => {
+    const { survey, matrix } = createSurvey({ rowsPerPage: 2 });
+    expect(getRowValues(matrix), "#0").toEqual([{ a: "1" }, { a: "2" }]);
+    expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
+  });
+  test("a value assigned on row removed replaces the rows", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onMatrixRowRemoved, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("an added row without a default row value writes nothing and fires no value change", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    let changedCount = 0;
+    survey.onValueChanged.add(() => { changedCount++; });
+    matrix.addRow();
+    expect(changedCount, "#1").toBe(0);
+    expect(matrix.value, "#2").toEqual(createRecords());
+    expect(getRowValues(matrix), "#3").toEqual([{ a: "1" }, { a: "2" }, { a: "3" }, {}]);
+    expect(matrix.rowCount, "#4").toBe(4);
+  });
+  test("a value assigned on value changed while a row with a default row value is added replaces the rows", () => {
+    const { survey, matrix } = createSurvey({ defaultRowValue: { a: "d" } });
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    matrix.addRow();
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+  });
+  test("a value written by a matrix bound to the same value while a row is removed replaces the rows", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "q", valueName: "data", columns: [{ name: "a", cellType: "text" }] },
+        { type: "matrixdynamic", name: "twin", valueName: "data", columns: [{ name: "a", cellType: "text" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    const twin = <QuestionMatrixDynamicModel>survey.getQuestionByName("twin");
+    matrix.value = createRecords();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => { twin.value = [{ a: "x" }]; });
+    matrix.removeRow(0);
+    expect(matrix.value, "#1").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#3").toBe(1);
+    expect(twin.value, "#4").toEqual([{ a: "x" }]);
+  });
+  test("a handler that assigns the value and throws while a row is removed leaves the rows following the value", () => {
+    const { survey, matrix } = createSurvey();
+    expect(getRowValues(matrix), "#0").toEqual(createRecords());
+    runOnce(survey.onValueChanged, () => {
+      survey.setValue("q", [{ a: "x" }]);
+      throw new Error("handler error");
+    });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation + ": " + options.error.message); });
+    // The list pushes the remove and reports what its push throws instead of rethrowing it.
+    matrix.removeRow(0);
+    expect(errors, "#1: the error is reported").toEqual(["remove: handler error"]);
+    expect(matrix.value, "#2").toEqual([{ a: "x" }]);
+    expect(getRowValues(matrix), "#3").toEqual([{ a: "x" }]);
+    expect(matrix.rowCount, "#4").toBe(1);
+    const assigned = [{ a: "y1" }, { a: "y2" }, { a: "y3" }, { a: "y4" }];
+    survey.setValue("q", assigned);
+    expect(getRowValues(matrix), "#5: a later assignment is followed").toEqual(assigned);
+    expect(matrix.rowCount, "#6").toBe(4);
+  });
+});

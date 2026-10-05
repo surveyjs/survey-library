@@ -11099,3 +11099,145 @@ describe("Dynamic panel: the question's own value changes", () => {
     expect(question.panels[3].getQuestionByName("a").value, "#4: the last panel shows its record").toBe("4");
   });
 });
+
+describe("value assigned by a handler during an add or remove", () => {
+  const createRecords = (): Array<any> => [{ a: "1" }, { a: "2" }, { a: "3" }];
+  const createSurvey = (props?: any): { survey: SurveyModel, question: QuestionPanelDynamicModel } => {
+    const json: any = { type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "a" }] };
+    const survey = new SurveyModel({ elements: [Object.assign(json, props)] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.value = createRecords();
+    return { survey: survey, question: question };
+  };
+  const getPanelValues = (question: QuestionPanelDynamicModel): Array<any> => question.panels.map(panel => panel.getValue());
+  const runOnce = (event: any, func: () => void): void => {
+    let isDone = false;
+    event.add(() => {
+      if (isDone) return;
+      isDone = true;
+      func();
+    });
+  };
+
+  test("a value assigned on value changed while a panel is removed replaces the panels", () => {
+    const { survey, question } = createSurvey();
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    question.removePanel(0);
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value assigned on panel removed replaces the panels", () => {
+    const { survey, question } = createSurvey();
+    runOnce(survey.onDynamicPanelRemoved, () => survey.setValue("q", [{ a: "x" }]));
+    question.removePanel(0);
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("more records assigned on value changed while a panel is removed get a panel each", () => {
+    const { survey, question } = createSurvey();
+    const assigned = [{ a: "x1" }, { a: "x2" }, { a: "x3" }, { a: "x4" }];
+    runOnce(survey.onValueChanged, () => survey.setValue("q", assigned));
+    question.removePanel(0);
+    expect(question.value, "#1").toEqual(assigned);
+    expect(getPanelValues(question), "#2").toEqual(assigned);
+    expect(question.panelCount, "#3").toBe(4);
+  });
+  test("a value assigned on value changed while a panel is added replaces the panels", () => {
+    const { survey, question } = createSurvey();
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    question.addPanel();
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value assigned while an added panel writes its default values is not overwritten by the panels", () => {
+    const { survey, question } = createSurvey({ templateElements: [{ type: "text", name: "a", defaultValue: "d" }] });
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    question.addPanel();
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value assigned while a panel with a default panel value is added keeps the assigned records", () => {
+    const { survey, question } = createSurvey({ defaultPanelValue: { a: "d" } });
+    const assigned = [{ a: "x1" }, { a: "x2" }, { a: "x3" }, { a: "x4" }];
+    runOnce(survey.onValueChanged, () => survey.setValue("q", assigned));
+    question.addPanel();
+    expect(question.value, "#1").toEqual(assigned);
+    expect(getPanelValues(question), "#2").toEqual(assigned);
+    expect(question.panelCount, "#3").toBe(4);
+  });
+  test("a value assigned on panel added replaces the panels", () => {
+    const { survey, question } = createSurvey();
+    runOnce(survey.onDynamicPanelAdded, () => survey.setValue("q", [{ a: "x" }]));
+    question.addPanel();
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value assigned on value changed while a paged question adds a panel replaces the panels", () => {
+    const { survey, question } = createSurvey({ panelsPerPage: 2 });
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    question.addPanel();
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value assigned on value changed while a paged question removes a panel replaces the panels", () => {
+    const { survey, question } = createSurvey({ panelsPerPage: 2 });
+    runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
+    question.removePanel(0);
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+  });
+  test("a value written by a question bound to the same value while a panel is removed replaces the panels", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "q", valueName: "data", templateElements: [{ type: "text", name: "a" }] },
+        { type: "paneldynamic", name: "twin", valueName: "data", templateElements: [{ type: "text", name: "a" }] }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    const twin = <QuestionPanelDynamicModel>survey.getQuestionByName("twin");
+    question.value = createRecords();
+    runOnce(survey.onValueChanged, () => { twin.value = [{ a: "x" }]; });
+    question.removePanel(0);
+    expect(question.value, "#1").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#2").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#3").toBe(1);
+    expect(getPanelValues(twin), "#4").toEqual([{ a: "x" }]);
+  });
+  test("a handler that assigns the value and throws on panel removed leaves the panels following the value", () => {
+    const { survey, question } = createSurvey();
+    runOnce(survey.onDynamicPanelRemoved, () => {
+      survey.setValue("q", [{ a: "x" }]);
+      throw new Error("handler error");
+    });
+    expect(() => question.removePanel(0), "#1: the error reaches the caller").toThrow("handler error");
+    expect(question.value, "#2").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#3").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#4").toBe(1);
+    const assigned = [{ a: "y1" }, { a: "y2" }, { a: "y3" }, { a: "y4" }];
+    survey.setValue("q", assigned);
+    expect(getPanelValues(question), "#5: a later assignment is followed").toEqual(assigned);
+    expect(question.panelCount, "#6").toBe(4);
+  });
+  test("a handler that assigns the value and throws while an added panel writes its default values leaves the panels following the value", () => {
+    const { survey, question } = createSurvey({ templateElements: [{ type: "text", name: "a", defaultValue: "d" }] });
+    runOnce(survey.onValueChanged, () => {
+      survey.setValue("q", [{ a: "x" }]);
+      throw new Error("handler error");
+    });
+    expect(() => question.addPanel(), "#1: the error reaches the caller").toThrow("handler error");
+    expect(question.value, "#2").toEqual([{ a: "x" }]);
+    expect(getPanelValues(question), "#3").toEqual([{ a: "x" }]);
+    expect(question.panelCount, "#4").toBe(1);
+    const assigned = [{ a: "y1" }, { a: "y2" }, { a: "y3" }, { a: "y4" }];
+    survey.setValue("q", assigned);
+    expect(getPanelValues(question), "#5: a later assignment is followed").toEqual(assigned);
+    expect(question.panelCount, "#6").toBe(4);
+  });
+});

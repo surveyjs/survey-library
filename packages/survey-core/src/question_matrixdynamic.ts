@@ -1520,6 +1520,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setRowCountValueFromData = false;
   }
+  /* The row count follows the assigned value as it does for any assignment from the survey
+     (updateValueFromSurvey). The rows can be re-created inside a row add or remove, which locks out
+     the reset of the rendered table (onStartRowAddingRemoving): its end resets the table instead. */
+  protected followOutsideAssignment(): void {
+    const prev = this.setRowCountValueFromData;
+    this.setRowCountValueFromData = true;
+    try {
+      super.followOutsideAssignment();
+    } finally {
+      this.setRowCountValueFromData = prev;
+    }
+    if (this.isRendredTableCreated) {
+      this.renderedTable.requireReset();
+    }
+  }
   // A deep copy of the value, truncated to rowCount and padded up to it.
   protected createNewValue(): any {
     var result = this.createValueCopy();

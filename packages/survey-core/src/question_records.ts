@@ -901,6 +901,10 @@ export abstract class QuestionRecordsModel extends Question {
      then hold a value the question does not show; that is the caller's doing. */
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
+    // Owed before the value is stored: a handler that throws after storing it still leaves it owed.
+    if (this.ownRecordsChangeDepth > 0 && !Helpers.isTwoValueEquals(this.value, newValue)) {
+      this.isOutsideAssignmentOwed = true;
+    }
     super.updateValueFromSurvey(newValue, clearData);
   }
   /* The list side of an assignment is the begin/end pair below: every assignment of the value passes
@@ -995,12 +999,49 @@ export abstract class QuestionRecordsModel extends Question {
     return this.recordWriteDepth > 0;
   }
   protected writeRecords<T>(func: () => T): T {
-    this.recordWriteDepth++;
+    return this.runOwnRecordsChange((): T => {
+      this.recordWriteDepth++;
+      try {
+        return func();
+      } finally {
+        this.recordWriteDepth--;
+      }
+    });
+  }
+  /* A change the question makes to its own value or records - writeRecords, the dynamic panel's
+     internal value change - suppresses part of the follow-up of an assignment: the count or the
+     objects do not follow the value meanwhile. User code runs inside such a change (onValueChanged
+     of the question's own write, onDynamicPanelRemoved), and an assignment it makes from outside -
+     survey.setValue, a bound question, a trigger - is stored but would not be followed. It is
+     followed once the last open change ends, also when the change throws: the assignment is the
+     last write and wins. The steps of the operation that come after the change see the count and
+     the objects of the assigned value; one that would write its own record into it checks
+     outsideAssignmentCount. */
+  private ownRecordsChangeDepth: number = 0;
+  private isOutsideAssignmentOwed: boolean = false;
+  private outsideAssignmentCountValue: number = 0;
+  protected get outsideAssignmentCount(): number {
+    return this.outsideAssignmentCountValue;
+  }
+  protected runOwnRecordsChange<T>(func: () => T): T {
+    this.ownRecordsChangeDepth++;
     try {
       return func();
     } finally {
-      this.recordWriteDepth--;
+      this.ownRecordsChangeDepth--;
+      if (this.ownRecordsChangeDepth === 0 && this.isOutsideAssignmentOwed) {
+        this.isOutsideAssignmentOwed = false;
+        this.outsideAssignmentCountValue++;
+        this.followOutsideAssignment();
+      }
     }
+  }
+  /* What an assignment does after the list-side pair, run again with every suppression gone: the
+     count follows the stored value, and every object is refreshed from its record - the records it
+     showed before are unknown, so the changed-record shortcut cannot be used. */
+  protected followOutsideAssignment(): void {
+    this.onRecordsValueStored();
+    this.onRecordsValueAssigned(undefined);
   }
   /* An assignment from outside the objects - the survey, a trigger, a bound question - pushes the
      records into the objects that exist, and only into those whose record changed: a question bound

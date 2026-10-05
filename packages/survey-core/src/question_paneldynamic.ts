@@ -1316,15 +1316,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      value meanwhile (setPanelCountBasedOnValue), and the on-value-change validation skips it unless
      a respondent's input is part of it (validateElementCore). It is not writeRecords, which keeps the
      existing panels from being refreshed from the records. The previous state comes back afterwards,
-     also when func throws or runs another such change from a callback. */
+     also when func throws or runs another such change from a callback. It is one of the question's
+     own changes: an assignment from outside made meanwhile is followed after it, with the state
+     already restored (runOwnRecordsChange). */
   private runInternalValueChange<T>(func: () => T): T {
-    const prev = this.isValueChangingInternally;
-    this.isValueChangingInternally = true;
-    try {
-      return func();
-    } finally {
-      this.isValueChangingInternally = prev;
-    }
+    return this.runOwnRecordsChange((): T => {
+      const prev = this.isValueChangingInternally;
+      this.isValueChangingInternally = true;
+      try {
+        return func();
+      } finally {
+        this.isValueChangingInternally = prev;
+      }
+    });
   }
   protected getValueCore() {
     return this.isAddingNewPanels
@@ -2293,7 +2297,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
     // The panel object exists before its record is moved into place: onPanelAdded must see the same
     // state it sees today.
+    const outsideAssignmentCount = this.outsideAssignmentCount;
     this.panelCount++;
+    // A handler assigned the value meanwhile: the records are its own, and none of them is the new one.
+    if (this.outsideAssignmentCount !== outsideAssignmentCount) return;
     const list = this.dataList;
     if (list.count !== this.panelCount) return;
     const lastIndex = this.panelCount - 1;

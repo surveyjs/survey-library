@@ -445,6 +445,30 @@ frameworks.forEach(framework => {
           });
         });
       });
+      // The rating question (question5) uses a ResizeObserver + requestAnimationFrame
+      // responsiveness check to decide whether to render as inline buttons or a dropdown.
+      // If that check fires before fonts are fully loaded, the scrollWidth measurement
+      // may be inflated and the question incorrectly switches to "dropdown" mode,
+      // making the screenshot 8px shorter than the baseline (and causing the wrong
+      // chevron button to be clicked for the popup screenshot).
+      // Fix: wait for React's componentDidMount to set up the observer, wait for
+      // fonts, then call triggerResponsiveness(true) to force a re-check with
+      // correct font metrics so the rating reliably renders in "buttons" mode.
+      await page.locator(".sd-root-modern").waitFor({ state: "visible" });
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => {
+        const survey = (window as any).survey;
+        const q = survey && survey.getQuestionByName("question5");
+        if (q && typeof q.triggerResponsiveness === "function") {
+          q.triggerResponsiveness(true);
+        }
+      });
+      // Wait for the re-measurement (setTimeout 1ms inside triggerResponsiveness)
+      // and any resulting re-render plus ResizeObserver cycle to settle.
+      await page.evaluate(() => new Promise<void>(resolve => setTimeout(
+        () => requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        20
+      )));
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });

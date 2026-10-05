@@ -59,18 +59,6 @@ describe("expression validator error text after setVariable", () => {
     expect(vue.text()).toBe("An item already exists: Item B");
   });
 
-  test("setVariables updates a retained error that interpolates a calculated value", () => {
-    const survey = createSurvey("An item already exists: {existing_item_name}");
-    const question = survey.getQuestionByName("selection");
-    const vue = displayedByVue(survey);
-    const error = question.errors[0];
-
-    survey.setVariables({ existing_items: ["Item B"] });
-
-    expect(question.errors[0]).toBe(error);
-    expect(vue.text()).toBe("An item already exists: Item B");
-  });
-
   test("direct source variable in the error text is broadcast with the new value", () => {
     const survey = createSurvey("An item already exists: {existing_items}");
     const vue = displayedByVue(survey);

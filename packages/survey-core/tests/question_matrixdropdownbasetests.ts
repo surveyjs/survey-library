@@ -2842,6 +2842,25 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const cellQuestion2 = <QuestionDropdownModel>matrix.visibleRows[1].cells[0].question;
     expect(cellQuestion2.itemComponent, "cell question itemComponent in a new row").toBe("custom-dropdown-item");
   });
+  test("visibleRowsChangedCallback does not fire in a matrixdropdown when rows change", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "matrixdropdown", name: "q1", columns: [{ name: "col1" }], rows: ["row1", "row2"], rowsVisibleIf: "{item} != {a}" }
+      ]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    expect(matrix.visibleRows.length, "two visible rows").toBe(2);
+    let counter = 0;
+    matrix.visibleRowsChangedCallback = () => { counter++; };
+    // The dropdown base never calls onRowsChanged from its condition path or from an incremental rows edit
+    matrix.rows = ["row1", "row2", "row3"];
+    expect(counter, "rows are assigned").toBe(0);
+    expect(matrix.visibleRows.length, "three visible rows").toBe(3);
+    survey.setValue("a", "row1");
+    expect(counter, "a row becomes hidden").toBe(0);
+    expect(matrix.visibleRows.length, "two visible rows").toBe(2);
+  });
 });
 
 describe("Matrix row getType", () => {

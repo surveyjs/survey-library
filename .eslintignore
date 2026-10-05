@@ -12,3 +12,4 @@ examples_test/
 index.js
 packages/survey-core/tests/bundle/*
 packages/survey-core/promts/
+packages/survey-core/prompts/

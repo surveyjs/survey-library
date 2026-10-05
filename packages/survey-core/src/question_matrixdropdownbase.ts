@@ -2399,6 +2399,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
   }
+  // The rows of the records indexes names, in that order: createRow makes one, and it is told its record.
+  protected createRowsForRecords<T extends MatrixDropdownRowModelBase>(indexes: Array<number>, createRow: (index: number) => T): Array<T> {
+    return indexes.map((index: number): T => {
+      const row = createRow(index);
+      row.builtRecordIndex = index;
+      return row;
+    });
+  }
   protected generateTotalRow(): MatrixDropdownRowModelBase {
     return new MatrixDropdownTotalRowModel(this);
   }
@@ -2437,6 +2445,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!!row.editingObj) return rowValue;
     return this.formatRecordDisplayValue(keysAsText, rowValue,
       (key: string): Question => row.getQuestionByName(key) || this.getSharedQuestionByName(key, row));
+  }
+  /* The display values of a record: its row's cells format them, and a record without a row - off
+     the page or never built - is formatted by its columns' template questions, so nothing is built
+     for it. The record is formatted in place. */
+  protected getRecordDisplayValue(keysAsText: boolean, row: MatrixDropdownRowModelBase, record: any): any {
+    if (!!row) return this.getRowDisplayValue(keysAsText, row, record);
+    return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question => this.getColumnByName(key)?.templateQuestion);
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
@@ -2495,7 +2510,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         name: this.getRecordDataName(index),
         title: this.getRecordText(index, visibleIndex),
         value: value,
-        displayValue: this.formatRecordDisplayValue(false, this.getUnbindValue(value), (key: string): Question => this.getColumnTemplateQuestion(key)),
+        displayValue: this.getRecordDisplayValue(false, undefined, this.getUnbindValue(value)),
         getString: (val: any) => this.getValueAsString(val),
         isNode: true,
         data: cellQuestions.map((cell) => {
@@ -2509,11 +2524,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     (cellQuestions || []).forEach(cell => cell.question.dispose());
     return res;
-  }
-  // The question a key of a record without a row is formatted by: its column's template question.
-  protected getColumnTemplateQuestion(key: string): Question {
-    const column = this.getColumnByName(key);
-    return !!column ? column.templateQuestion : undefined;
   }
   // What a row of a record would answer as dataName, text and accessibility text: the matrix's own
   // names for its records (the dynamic matrix numbers them).

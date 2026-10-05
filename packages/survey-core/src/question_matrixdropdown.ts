@@ -8,7 +8,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
-import { Question, QuestionValueType, IVerifyDataContext } from "./question";
+import { QuestionValueType, IVerifyDataContext } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
@@ -513,8 +513,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         rowName = ItemValue.getTextOrHtmlByValue(this.rows, rowName) || rowName;
       }
       if (Object.prototype.hasOwnProperty.call(res, rowName)) return;
-      res[rowName] = !!row ? this.getRowDisplayValue(keysAsText, row, val) :
-        this.formatRecordDisplayValue(keysAsText, this.getUnbindValue(val), (key: string): Question => this.getColumnTemplateQuestion(key));
+      res[rowName] = this.getRecordDisplayValue(keysAsText, row, !!row ? val : this.getUnbindValue(val));
     });
     return res;
   }
@@ -668,19 +667,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   // One row per record the view holds - every record, in record order, without one.
   protected generateRows(): Array<MatrixDropdownRowModel> {
-    const result = new Array<MatrixDropdownRowModel>();
     const items = this.getRecordItems();
-    if (items.length === 0) return result;
+    if (items.length === 0) return [];
     let val = this.value;
     if (!val) val = {};
-    const indexes = this.getRecordIndexesForRows();
-    for (let i = 0; i < indexes.length; i++) {
-      const item = items[indexes[i]];
-      const row = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
-      row.builtRecordIndex = indexes[i];
-      result.push(row);
-    }
-    return result;
+    return this.createRowsForRecords(this.getRecordIndexesForRows(), (index: number): MatrixDropdownRowModel =>
+      this.createMatrixRow(items[index], this.getRowValueForCreation(val, items[index].value)));
   }
   protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);

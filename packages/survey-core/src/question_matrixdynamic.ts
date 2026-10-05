@@ -1305,15 +1305,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getPagedDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
     const rows = this.generatedVisibleRows || [];
     const positions = this.dataList.getMaterializedPositions();
-    const getColumnQuestion = (key: string): Question => {
-      const column = this.getColumnByName(key);
-      return !!column ? column.templateQuestion : undefined;
-    };
     for (let i = 0; i < values.length; i++) {
       const val = values[i];
       if (!val) continue;
       const row = positions[i] !== undefined ? rows[positions[i]] : undefined;
-      values[i] = !!row ? this.getRowDisplayValue(keysAsText, row, val) : this.formatRecordDisplayValue(keysAsText, val, getColumnQuestion);
+      values[i] = this.getRecordDisplayValue(keysAsText, row, val);
     }
     return values;
   }
@@ -1358,8 +1354,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
-    var result = new Array<MatrixDynamicRowModel>();
-    if (this.rowCount === 0) return result;
+    if (this.rowCount === 0) return [];
     const indexes = this.getRecordIndexesForRows();
     /* The default write-back needs the whole padded value, and a live-object value is not copied at
        all. Every other build copies the records that get a row and nothing else: a page visit of a
@@ -1367,12 +1362,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        0 ... rowCount-1 and the copies are the ones createNewValue() makes, record for record. */
     const isWritingDefaults = this.isDefaultWriteBackNeeded();
     const val = isWritingDefaults || this.isEditingObjectValue ? this.createNewValue() : undefined;
-    for (var i = 0; i < indexes.length; i++) {
-      const rowValue = !!val ? this.getRowValueByIndex(val, indexes[i]) : this.getNewRowValue(indexes[i]);
-      const row = this.createMatrixRow(rowValue);
-      row.builtRecordIndex = indexes[i];
-      result.push(row);
-    }
+    const result = this.createRowsForRecords(indexes, (index: number): MatrixDynamicRowModel =>
+      this.createMatrixRow(!!val ? this.getRowValueByIndex(val, index) : this.getNewRowValue(index)));
     if (isWritingDefaults) {
       this.value = val;
     }

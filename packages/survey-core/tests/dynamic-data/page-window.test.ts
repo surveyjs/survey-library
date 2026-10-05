@@ -76,9 +76,9 @@ class PagedSource implements IDynamicDataSource {
   public reads: Array<IDynamicDataReadRequest> = [];
   public updates: Array<Array<any>> = [];
   public removes: Array<any> = [];
+  public capabilities = { paging: true, filtering: true, sorting: true };
   constructor(public data: Array<any>, public reportTotal: boolean = true) { }
-  public read(): Array<any> { return this.data; }
-  public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+  public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
     this.reads.push(request);
     const take = request.take > 0 ? request.take : this.data.length;
     const res: IDynamicDataReadResult = { records: this.data.slice(request.skip, request.skip + take).map(r => Object.assign({}, r)) };

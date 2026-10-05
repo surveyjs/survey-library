@@ -24,6 +24,7 @@ import { setOldTheme } from "./oldTheme";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
+import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { describe, test, expect, vi } from "vitest";
 import { Helpers } from "../src/helpers";
 describe("Survey_QuestionMatrixDynamic", () => {
@@ -11884,6 +11885,28 @@ describe("matrixdynamic: the padded records are not composed for their count", (
       spy.mockRestore();
     }
     expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
+  });
+  test("a matrix detached from an assigned source counts its padded records without composing them again", () => {
+    const survey = createSurvey();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "a" }]);
+    expect(matrix.getDataList().isRemote, "#1").toBe(true);
+    matrix.dataSource = undefined;
+    matrix.rowCount = ROW_COUNT;
+    const list = matrix.getDataList();
+    expect(list.isRemote, "#2: back on its own storage").toBe(false);
+    const rows = matrix.visibleRows;
+    expect(rows.length, "#3").toBe(ROW_COUNT);
+    expect(Array.isArray(matrix.value) ? matrix.value.length : 0, "#4: the value is shorter than rowCount").toBeLessThan(ROW_COUNT);
+    const spy = vi.spyOn(Helpers, "getUnbindValue");
+    try {
+      expect(list.count, "#5: the count of the padded records").toBe(ROW_COUNT);
+      rows.forEach(row => row.rowIndex);
+      expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
+      expect(spy.mock.calls.length, "#7: no padded record was copied").toBe(0);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
 

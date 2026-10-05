@@ -265,9 +265,9 @@ describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
   // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
     public requests: Array<IDynamicDataReadRequest> = [];
+    public capabilities = { paging: true, filtering: true, sorting: true };
     constructor(private records: Array<any>) { }
-    public read(): Array<any> { return this.records; }
-    public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
       this.requests.push(request);
       return { records: this.records.slice(), total: this.records.length };
     }

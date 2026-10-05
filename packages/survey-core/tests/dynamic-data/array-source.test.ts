@@ -105,30 +105,7 @@ describe("ArrayDynamicDataSource", () => {
   });
 });
 
-describe("ArrayDynamicDataSource.count", () => {
-  test("without a getCount callback count() is the length of one read", () => {
-    let readCount = 0;
-    const local = [{ a: 1 }, { a: 2 }];
-    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; }, (): void => { });
-    expect(source.count(), "#1").toBe(source.read().length);
-    readCount = 0;
-    expect(source.count(), "#2").toBe(2);
-    expect(readCount, "#3: one read per call").toBe(1);
-  });
-  test("with a getCount callback count() does not read, inside a batch it follows the batch array", () => {
-    let readCount = 0;
-    let local: Array<any> = [{ a: 1 }];
-    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
-      (arr: Array<any>): void => { local = arr; }, (): number => 7);
-    readCount = 0;
-    expect(source.count(), "#1: the callback answers").toBe(7);
-    expect(readCount, "#2").toBe(0);
-    source.batch((): void => {
-      source.insert({ a: 2 }, 1);
-      expect(source.count(), "#3: the batch array").toBe(2);
-    });
-    expect(local.length, "#4").toBe(2);
-  });
+describe("ArrayDynamicDataSource: element identity and fixed membership", () => {
   // An owner that writes back only the elements that changed (the fixed matrix) relies on this.
   test("update and batch keep the identity of every element they do not replace", () => {
     const first = { a: 1 };
@@ -152,7 +129,7 @@ describe("ArrayDynamicDataSource.count", () => {
     let local: Array<any> = [{ a: 1 }, { a: 2 }];
     let writes = 0;
     const source = new ArrayDynamicDataSource((): Array<any> => local,
-      (arr: Array<any>): void => { writes++; local = arr; }, undefined, true);
+      (arr: Array<any>): void => { writes++; local = arr; }, true);
     const before = local;
     source.insert({ a: 3 }, 0);
     source.remove(0);

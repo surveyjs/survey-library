@@ -3,7 +3,7 @@ import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
-  IDynamicDataReadResult, IDynamicDataSource
+  IDynamicDataReadResult, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 class Deferred {
@@ -53,16 +53,12 @@ function recordChanges(list: DynamicDataList): Array<string> {
 
 // A source that pages itself. It is synchronous, so the list stays synchronous with it.
 class FakeRangeSource implements IDynamicDataSource {
-  public readCalls: number = 0;
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
   constructor(public records: Array<any>) { }
-  public read(): Array<any> {
-    this.readCalls++;
-    return this.records;
-  }
   public requests: Array<IDynamicDataReadRequest> = [];
-  public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
     this.requests.push(request);
     this.rangeCalls.push({ skip: request.skip, take: request.take });
     const count = request.take > 0 ? request.take : this.records.length;
@@ -89,15 +85,13 @@ class FakeRangeSource implements IDynamicDataSource {
 }
 // The same, reading on demand through deferreds.
 class FakeAsyncRangeSource implements IDynamicDataSource {
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
   public pendingReads: Array<Deferred> = [];
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
   constructor(public records: Array<any>) { }
-  public read(): Promise<Array<any>> {
-    return Promise.resolve(this.records);
-  }
   public requests: Array<IDynamicDataReadRequest> = [];
-  public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+  public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
     this.requests.push(request);
     this.rangeCalls.push({ skip: request.skip, take: request.take });
     const deferred = new Deferred();
@@ -147,14 +141,10 @@ class FakeAsyncSource implements IDynamicDataSource {
    locally. It answers every request from the records it holds, applying the view it was given, and
    keeps every request it was asked. */
 class FakeServerViewSource implements IDynamicDataSource {
-  public readCalls: number = 0;
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
   public requests: Array<IDynamicDataReadRequest> = [];
   constructor(public records: Array<any>) { }
-  public read(): Array<any> {
-    this.readCalls++;
-    return this.records;
-  }
-  public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
     this.requests.push(request);
     let view = this.records.slice();
     // A toy server: it understands "{field} > number" and nothing else.
@@ -635,12 +625,11 @@ describe("DynamicDataList: local filter, sort and paging", () => {
 });
 
 describe("DynamicDataList: a source that pages itself", () => {
-  test("the list reads one page and never calls read()", () => {
+  test("the list reads one page and never the whole storage", () => {
     const source = new FakeRangeSource(createRecords(5));
     const list = new DynamicDataList(source);
     list.pageSize = 2;
     list.load();
-    expect(source.readCalls).toBe(0);
     expect(source.rangeCalls).toEqual([{ skip: 0, take: 2 }]);
     expect(list.count).toBe(5);
     expect(list.loadedCount).toBe(2);
@@ -713,7 +702,6 @@ describe("DynamicDataList: a source that filters and sorts itself", () => {
     const list = new DynamicDataList(source);
     list.load();
     expect(source.rangeCalls).toBe(1);
-    expect(source.readCalls, "read() is never called for a paging source").toBe(0);
     list.filter = "{id} > 2";
     // One request, with the expression text untouched: the source translates it into its dialect.
     expect(source.rangeCalls).toBe(2);
@@ -748,7 +736,7 @@ describe("DynamicDataList: a source that filters and sorts itself", () => {
     expect(list.getVisibleIndexes()).toEqual([0, 1, 2]);
     expect(list.getRecord(0).id).toBe(2);
   });
-  test("a source without readRange gets both locally", () => {
+  test("a source without paging gets both locally", () => {
     const source = ArrayDynamicDataSource.fromArray(createRecords(4));
     const list = new DynamicDataList(source);
     list.load();
@@ -1283,7 +1271,7 @@ describe("DynamicDataList: pageIndex is clamped when the visible count shrinks",
     expect(list.pageIndex, "#2").toBe(0);
     expect(list.getPageIndexes().length, "#3").toBe(1);
   });
-  test("a clamped page index reloads the page of a readRange source", () => {
+  test("a clamped page index reloads the page of a paging source", () => {
     const source = new FakeRangeSource(createRecords(3));
     const list = new DynamicDataList(source);
     list.pageSize = 2;
@@ -1499,24 +1487,21 @@ interface ITableCall {
    arrived; a write reaches the table when it is acknowledged, as it would on a server. The ids the
    table removed are kept, so that a test can tell WHICH record went, not only how many. */
 class FakeTableSource implements IDynamicDataSource {
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
   public calls: Array<ITableCall> = [];
   public removedIds: Array<any> = [];
   public auto: boolean = false;
   constructor(public records: Array<any>) { }
-  public read(): Promise<Array<any>> {
-    const snapshot = this.records.slice();
-    return this.call("read", [], (): Array<any> => snapshot);
-  }
   // The call log keeps the range alone: every assertion here is about where the window was read.
   public requests: Array<IDynamicDataReadRequest> = [];
-  public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+  public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
     this.requests.push(request);
     const size = request.take > 0 ? request.take : this.records.length;
     const snapshot = {
       records: this.records.slice(request.skip, request.skip + size).map(this.copy),
       total: this.records.length
     };
-    return this.call("readRange", [request.skip, request.take], (): IDynamicDataReadResult => snapshot);
+    return this.call("read", [request.skip, request.take], (): IDynamicDataReadResult => snapshot);
   }
   public update(sourceIndex: number, record: any): Promise<void> {
     return this.call("update", [sourceIndex], (): void => { this.records[sourceIndex] = this.copy(record); });
@@ -1622,7 +1607,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     const list = await createTableList(source);
     list.remove(0);
     await flush(SETTLE_TURNS);
-    expect(source.argsOf("readRange"), "#1: one extra read of the same page").toEqual([[0, 10], [0, 10]]);
+    expect(source.argsOf("read"), "#1: one extra read of the same page").toEqual([[0, 10], [0, 10]]);
     expect(list.loadedCount, "#2: the page is full again").toBe(10);
     expect(list.count, "#3").toBe(29);
     expect(windowIds(list), "#4: the first record of the old second page moved up").toEqual(idRange(1, 10));
@@ -1666,10 +1651,10 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     const shortList = await createTableList(shortSource);
     shortList.pageIndex = 2;
     await flush(SETTLE_TURNS);
-    const shortReads = shortSource.argsOf("readRange").length;
+    const shortReads = shortSource.argsOf("read").length;
     shortList.remove(0);
     await flush(SETTLE_TURNS);
-    expect(shortSource.argsOf("readRange").length, "#1: short last page - no read").toBe(shortReads);
+    expect(shortSource.argsOf("read").length, "#1: short last page - no read").toBe(shortReads);
     expect(windowIds(shortList), "#2").toEqual([21, 22, 23, 24]);
 
     const fullSource = new FakeTableSource(tableRecords(30));
@@ -1677,10 +1662,10 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     const fullList = await createTableList(fullSource);
     fullList.pageIndex = 2;
     await flush(SETTLE_TURNS);
-    const fullReads = fullSource.argsOf("readRange").length;
+    const fullReads = fullSource.argsOf("read").length;
     fullList.remove(0);
     await flush(SETTLE_TURNS);
-    expect(fullSource.argsOf("readRange").length, "#3: full last page - no read").toBe(fullReads);
+    expect(fullSource.argsOf("read").length, "#3: full last page - no read").toBe(fullReads);
     expect(fullList.loadedCount, "#4: one shorter").toBe(9);
     expect(fullList.count, "#5").toBe(29);
   });
@@ -1691,23 +1676,23 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     list.pageIndex = 2;
     await flush(SETTLE_TURNS);
     expect(windowIds(list), "#1").toEqual([20]);
-    const reads = source.argsOf("readRange").length;
+    const reads = source.argsOf("read").length;
     const changes = recordChanges(list);
     list.remove(0);
     await flush(SETTLE_TURNS);
-    expect(source.argsOf("readRange").slice(reads), "#2: exactly one read, for the previous page").toEqual([[10, 10]]);
+    expect(source.argsOf("read").slice(reads), "#2: exactly one read, for the previous page").toEqual([[10, 10]]);
     expect(changes, "#3").toEqual(["recordRemoved:0", "pageChanged", "loading:true", "reset", "loading:false"]);
     expect(list.pageIndex, "#4").toBe(1);
     expect(windowIds(list), "#5").toEqual(idRange(10, 19));
   });
-  test("[P] pageSize 0 with readRange: no refill read", async () => {
+  test("[P] pageSize 0 with a paging source: no refill read", async () => {
     const source = new FakeTableSource(tableRecords(5));
     source.auto = true;
     const list = await createTableList(source, 0);
-    expect(source.argsOf("readRange"), "#1").toEqual([[0, 0]]);
+    expect(source.argsOf("read"), "#1").toEqual([[0, 0]]);
     list.remove(0);
     await flush(SETTLE_TURNS);
-    expect(source.argsOf("readRange").length, "#2").toBe(1);
+    expect(source.argsOf("read").length, "#2").toBe(1);
     expect(list.loadedCount, "#3").toBe(4);
   });
   test("[R] a rejected refill read keeps the short window", async () => {
@@ -1718,8 +1703,8 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     list.remove(0);
     source.settleFirst("remove");
     await flush(SETTLE_TURNS);
-    expect(source.pendingOf("readRange").length, "#1: the refill is in flight").toBe(1);
-    source.pendingOf("readRange")[0].fail(new Error("boom"));
+    expect(source.pendingOf("read").length, "#1: the refill is in flight").toBe(1);
+    source.pendingOf("read")[0].fail(new Error("boom"));
     await flush(SETTLE_TURNS);
     expect(windowIds(list), "#2: the short window stays").toEqual(idRange(1, 9));
     expect(errors, "#3").toEqual(["read"]);
@@ -1760,12 +1745,12 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     source.settleFirst("remove");
     await flush(SETTLE_TURNS);
     checkNoRemovedRecord("#3");
-    expect(source.argsOf("readRange").length, "#4: no read while delete 2 is pending").toBe(1);
+    expect(source.argsOf("read").length, "#4: no read while delete 2 is pending").toBe(1);
     source.settleFirst("remove");
     await flush(SETTLE_TURNS);
     checkNoRemovedRecord("#5");
-    expect(source.argsOf("readRange").length, "#6: exactly one read after delete 2").toBe(2);
-    source.settleFirst("readRange");
+    expect(source.argsOf("read").length, "#6: exactly one read after delete 2").toBe(2);
+    source.settleFirst("read");
     await flush(SETTLE_TURNS);
     checkNoRemovedRecord("#7");
     expect(windowIds(list), "#8").toEqual(idRange(2, 11));
@@ -1784,7 +1769,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     source.settleFirst("remove");
     await flush(SETTLE_TURNS);
     // Whatever read is in flight now answers while delete 2 may still be pending.
-    source.settleFirst("readRange");
+    source.settleFirst("read");
     await flush(SETTLE_TURNS);
     expect(windowIds(list).indexOf(1), "#1: the removed record is not back").toBe(-1);
     const index = windowIds(list).indexOf(3);
@@ -1802,11 +1787,11 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     // on a record of that page.
     editList.refresh();
     editList.setValue(0, "name", "edited");
-    editSource.settleFirst("readRange");
+    editSource.settleFirst("read");
     await flush(SETTLE_TURNS);
     expect(editList.getValue(0, "name"), "#1: the stale answer did not paint over the edit").toBe("edited");
     await settleEverything(editSource);
-    expect(editSource.argsOf("readRange").length, "#2: the page was read again after the push").toBe(3);
+    expect(editSource.argsOf("read").length, "#2: the page was read again after the push").toBe(3);
     expect(editList.getValue(0, "name"), "#3").toBe("edited");
     expect(editSource.records[0].name, "#4").toBe("edited");
     expect(editWatch.resetsWhilePushPending, "#5").toBe(0);
@@ -1819,7 +1804,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     list.pageIndex = 1;
     // The page read was issued against a server that still has record 0.
     list.remove(0);
-    source.settleFirst("readRange");
+    source.settleFirst("read");
     await flush(SETTLE_TURNS);
     await settleEverything(source);
     expect(source.removedIds, "#1").toEqual([0]);
@@ -1835,7 +1820,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     list.pageSize = 10;
     list.assignSource(source);
     list.load();
-    source.settleFirst("readRange");
+    source.settleFirst("read");
     await flush(SETTLE_TURNS);
     expect(list.loadedCount, "#1: loaded").toBe(10);
     expect(list.hasPendingRead, "#2: nothing pending").toBe(false);
@@ -1846,7 +1831,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     await flush(SETTLE_TURNS);
     expect(list.hasPendingRead, "#7: in flight").toBe(true);
     expect(list.isLoading, "#8").toBe(true);
-    source.settleFirst("readRange");
+    source.settleFirst("read");
     await flush(SETTLE_TURNS);
     expect(list.hasPendingRead, "#10: committed").toBe(false);
     expect(list.isLoading, "#11").toBe(false);
@@ -1859,30 +1844,26 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     newSource.auto = true;
     list.source = newSource;
     await flush(SETTLE_TURNS);
-    expect(newSource.argsOf("readRange"), "#1: the new source is read once").toEqual([[0, 10]]);
+    expect(newSource.argsOf("read"), "#1: the new source is read once").toEqual([[0, 10]]);
     await settleEverything(oldSource);
-    expect(oldSource.argsOf("readRange").length, "#2: the old source is not read again").toBe(1);
-    expect(newSource.argsOf("readRange").length, "#3: nor the new one").toBe(1);
+    expect(oldSource.argsOf("read").length, "#2: the old source is not read again").toBe(1);
+    expect(newSource.argsOf("read").length, "#3: nor the new one").toBe(1);
     expect(windowIds(list), "#4").toEqual(idRange(0, 4));
     expect(list.isLoading, "#5").toBe(false);
     expect(list.hasPendingRead, "#6").toBeFalsy();
   });
 });
 
-describe("DynamicDataList: the read-through count comes from the source", () => {
-  // Built the way createReadThroughDataList builds one, over a getter that counts its calls.
+describe("DynamicDataList: the read-through count comes from the read-through callback", () => {
+  // Built the way the questions build one, over a getter that counts its calls.
   function createCountingList(recordCount: number, withCount: boolean = true): { list: DynamicDataList, source: ArrayDynamicDataSource, reads: () => number } {
     let local: Array<any> = [];
     for (let i = 0; i < recordCount; i++) local.push({ a: i });
     let readCount = 0;
-    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
+    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => { readCount++; return local; },
       (arr: Array<any>): void => { local = arr; },
       withCount ? (): number => local.length : undefined);
-    const list = new DynamicDataList(source);
-    list.isReadThrough = true;
-    list.isViewFrozenOnEdit = true;
-    list.load();
-    return { list: list, source: source, reads: (): number => readCount };
+    return { list: list, source: <ArrayDynamicDataSource>list.source, reads: (): number => readCount };
   }
   test("count, loadedCount, the identity conversions and visibleCount do not read the records", () => {
     const { list, reads } = createCountingList(10);
@@ -1903,30 +1884,21 @@ describe("DynamicDataList: the read-through count comes from the source", () => 
     expect(reads() - start, "#2: one read").toBe(1);
     start = reads();
     expect(list.getRecord(10), "#3").toBeUndefined();
-    expect(reads() - start, "#4: the guard is answered by count()").toBe(0);
+    expect(reads() - start, "#4: the guard reads nothing").toBe(0);
     start = reads();
     expect(list.getValue(5, "a"), "#5").toBe(5);
     expect(reads() - start, "#6: one read").toBe(1);
   });
-  test("an array source without count(): the list falls back to the length of the records", () => {
-    // Unreachable in production: every ArrayDynamicDataSource implements count(), and the list reads
-    // through only an ArrayDynamicDataSource. The branch exists because the capability is optional.
-    let local: Array<any> = [{ a: 1 }, { a: 2 }, { a: 3 }];
-    let readCount = 0;
-    const source = new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
-      (arr: Array<any>): void => { local = arr; });
-    (<any>source).count = undefined;
-    const list = new DynamicDataList(source);
-    list.isReadThrough = true;
-    list.load();
-    let start = readCount;
+  test("a read-through list without a count callback falls back to the length of the records", () => {
+    const { list, reads } = createCountingList(3, false);
+    let start = reads();
     expect(list.count, "#1").toBe(3);
-    expect(readCount - start, "#2: one read per access").toBe(1);
-    start = readCount;
+    expect(reads() - start, "#2: one read per access").toBe(1);
+    start = reads();
     expect(list.count, "#3").toBe(3);
-    expect(readCount - start, "#4").toBe(1);
+    expect(reads() - start, "#4").toBe(1);
   });
-  test("inside a batch count() follows the array being built", () => {
+  test("inside a batch the count follows the array being built", () => {
     const { list } = createCountingList(2);
     const counts: Array<number> = [];
     list.batch((): void => {
@@ -2011,19 +1983,17 @@ describe("DynamicDataList: one request per read", () => {
 /* A source that pages but cannot count what it pages: it answers without a total. hasMoreAnswer
    overrides the flag the list would otherwise infer from the length of the window. */
 class NoTotalSource implements IDynamicDataSource {
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
   public requests: Array<IDynamicDataReadRequest> = [];
   public hasMoreAnswer: boolean = undefined;
   public failOnFilter: boolean = false;
   public ops: Array<string> = [];
   constructor(public records: Array<any>) { }
-  public read(): Array<any> {
-    return this.records;
-  }
   /* >= 0: the answer arrives on a timer. A promise that is already resolved settles the read a
      commit starts of its own inside the same microtask drain, which hides whether the caller was
      given it to await. */
   public delay: number = -1;
-  public readRange(request: IDynamicDataReadRequest): any {
+  public read(request: IDynamicDataReadRequest): any {
     this.requests.push(request);
     if (this.failOnFilter && !!request.filter) throw new Error("the server cannot filter on that");
     const size = request.take > 0 ? request.take : this.records.length;
@@ -2111,8 +2081,8 @@ describe("DynamicDataList: a total the source may not know", () => {
   test("a total wins over hasMore", () => {
     const records = createRecords(25);
     const source: IDynamicDataSource = {
-      read: (): Array<any> => records,
-      readRange: (request: IDynamicDataReadRequest): IDynamicDataReadResult => ({
+      capabilities: { paging: true, filtering: true, sorting: true },
+      read: (request: IDynamicDataReadRequest): IDynamicDataReadResult => ({
         records: records.slice(request.skip, request.skip + request.take), total: 25, hasMore: false
       })
     };
@@ -2124,7 +2094,7 @@ describe("DynamicDataList: a total the source may not know", () => {
     expect(list.hasMore, "#3: computed from the total, not read from hasMore").toBe(true);
     expect(list.pageCount, "#4").toBe(3);
   });
-  test("a read() source always knows its count", () => {
+  test("a source without paging always knows its count", () => {
     const list = createList(createRecords(7));
     expect(list.isCountKnown, "#1").toBe(true);
     expect(list.hasMore, "#2").toBe(false);
@@ -2232,7 +2202,7 @@ describe("DynamicDataList: the operation of a failed read", () => {
   });
   /* The request is built inside the read's error handling: a sort array whose copy throws (a proxy,
      an accessor) is a failed read, and the read it superseded leaves no loading state behind. A
-     source without readRange is never sent a request, so it never copies the sort at all. */
+     source without paging is sent an empty view, so the sort is never copied for it at all. */
   function createThrowingSort(): { sort: Array<any>, arm: () => void } {
     let isArmed = false;
     const sort = new Proxy([{ field: "id", direction: "asc" }], {
@@ -2257,7 +2227,7 @@ describe("DynamicDataList: the operation of a failed read", () => {
     expect(list.isLoading, "#4: the superseded read left no loading state").toBe(false);
     expect(list.hasPendingRead, "#5").toBe(false);
   });
-  test("a source without readRange is not sent a request", () => {
+  test("a source without paging is not sent the sort", () => {
     const list = createList(createRecords(4));
     const operations: Array<string> = [];
     list.onError = (error: any, operation: string): void => { operations.push(operation); };
@@ -2405,8 +2375,8 @@ describe("DynamicDataList: a reported total that shrinks", () => {
     const records = createRecords(25);
     const skips: Array<number> = [];
     const source: IDynamicDataSource = {
-      read: (): Array<any> => records,
-      readRange: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
+      capabilities: { paging: true, filtering: true, sorting: true },
+      read: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
         skips.push(request.skip);
         const current = records.slice();
         return Promise.resolve({ records: current.slice(request.skip, request.skip + request.take), total: current.length });
@@ -2428,7 +2398,7 @@ describe("DynamicDataList: a reported total that shrinks", () => {
 
 /* A source without a total that always says whether there is something behind the window. */
 class ExplicitHasMoreSource extends NoTotalSource {
-  public readRange(request: IDynamicDataReadRequest): any {
+  public read(request: IDynamicDataReadRequest): any {
     this.requests.push(request);
     const size = request.take > 0 ? request.take : this.records.length;
     return {
@@ -2481,8 +2451,8 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
     const skips: Array<number> = [];
     const failAt: Array<number> = [];
     const source: IDynamicDataSource = {
-      read: (): Array<any> => records,
-      readRange: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
+      capabilities: { paging: true, filtering: true, sorting: true },
+      read: (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> => {
         skips.push(request.skip);
         if (failAt.indexOf(request.skip) > -1) return Promise.reject(new Error("the retry failed"));
         const current = records.slice();
@@ -2533,10 +2503,10 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
     list.pageIndex = 1;
     await settleTimers();
     source.records = source.records.slice(0, 10);
-    const readRange = source.readRange.bind(source);
+    const read = source.read.bind(source);
     let failed = 0;
-    source.readRange = (request: IDynamicDataReadRequest): any => {
-      if (request.skip !== 0) return readRange(request);
+    source.read = (request: IDynamicDataReadRequest): any => {
+      if (request.skip !== 0) return read(request);
       failed++;
       return Promise.reject(new Error("failed"));
     };
@@ -2557,13 +2527,11 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
    is by then. */
 describe("DynamicDataList: the pending retry", () => {
   class HeldRangeSource implements IDynamicDataSource {
+    public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
     public skips: Array<number> = [];
     public held: Array<() => void> = [];
     constructor(public records: Array<any>) { }
-    public read(): Array<any> {
-      return this.records;
-    }
-    public readRange(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+    public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
       this.skips.push(request.skip);
       const deferred = new Deferred();
       this.held.push((): void => deferred.resolve());
@@ -2870,12 +2838,10 @@ describe("DynamicDataList: the assigned source", () => {
     expect((<any>list).createDefaultSource === undefined, "#1").toBe(true);
   });
   // Ownership decides, not the class of the source.
-  function createAssignedArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any>, set: (arr: Array<any>) => void, countCalls: () => number } {
+  function createAssignedArray(count: number): { source: ArrayDynamicDataSource, get: () => Array<any>, set: (arr: Array<any>) => void } {
     let arr: Array<any> = createRecords(count);
-    let calls = 0;
-    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; },
-      (): number => { calls++; return arr.length; });
-    return { source: source, get: (): Array<any> => arr, set: (a: Array<any>): void => { arr = a; }, countCalls: (): number => calls };
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    return { source: source, get: (): Array<any> => arr, set: (a: Array<any>): void => { arr = a; } };
   }
   test("an assigned ArrayDynamicDataSource gets a window and is read again by refresh()", () => {
     const { list } = createOwnerList();
@@ -2887,7 +2853,6 @@ describe("DynamicDataList: the assigned source", () => {
     expect(list.loadedCount, "#3: not read through").toBe(2);
     expect(list.count, "#4").toBe(2);
     expect(list.getRecord(0), "#5").toEqual({ id: 0, name: "r0" });
-    expect(assigned.countCalls(), "#6: count() is not asked of it").toBe(0);
     list.refresh();
     expect(list.loadedCount, "#7: read again").toBe(3);
     expect(list.getRecord(0), "#8").toEqual({ id: 7, name: "outside" });
@@ -3331,5 +3296,203 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
     expect(["insert", "remove", "move", "update", "read"].map((op: any) => list.hasCapability(op)), "#1").toEqual([false, false, false, true, true]);
     const free = createList(createRecords(2));
     expect(["insert", "remove", "move"].map((op: any) => free.hasCapability(op)), "#2: a list without the flag").toEqual([true, true, true]);
+  });
+});
+
+/* One read request for every source: the shape of the request a source is sent, the shapes of the
+   answer the list takes, and the view a paging source has not declared. */
+describe("DynamicDataList: the read request and the read capabilities", () => {
+  // A paging source with the capabilities the test gives it: it answers the page it is asked for and
+  // ignores the view, so that what the list does with an undeclared part shows.
+  function createCapabilitySource(count: number, capabilities: IDynamicDataSourceCapabilities):
+    { source: IDynamicDataSource, requests: Array<IDynamicDataReadRequest> } {
+    const records = createRecords(count);
+    const requests: Array<IDynamicDataReadRequest> = [];
+    const source: IDynamicDataSource = {
+      capabilities: capabilities,
+      read: (request: IDynamicDataReadRequest): IDynamicDataReadResult => {
+        requests.push(request);
+        const take = request.take > 0 ? request.take : records.length;
+        return { records: records.slice(request.skip, request.skip + take), total: records.length };
+      }
+    };
+    return { source: source, requests: requests };
+  }
+  function collectErrors(list: DynamicDataList): Array<{ operation: string, message: string }> {
+    const res: Array<{ operation: string, message: string }> = [];
+    list.onError = (error: any, operation: string): void => { res.push({ operation: operation, message: String(error && error.message) }); };
+    return res;
+  }
+  test("a source without paging may answer with a bare array, synchronously or asynchronously", async () => {
+    const records = createRecords(3);
+    const syncList = new DynamicDataList({ read: (): Array<any> => records });
+    syncList.load();
+    expect(syncList.loadedCount, "#1").toBe(3);
+    expect(syncList.getRecord(0) === records[0], "#2: the records themselves").toBe(true);
+    const asyncList = new DynamicDataList({ read: (): Promise<Array<any>> => Promise.resolve(records) });
+    await asyncList.load();
+    expect(asyncList.loadedCount, "#3").toBe(3);
+    expect(asyncList.isCountKnown, "#4").toBe(true);
+    expect(asyncList.count, "#5").toBe(3);
+  });
+  test("a source without paging may answer with a result object: it is the whole storage, total and hasMore are ignored", async () => {
+    const records = createRecords(3);
+    const list = new DynamicDataList({ read: (): any => Promise.resolve({ records: records, total: 99, hasMore: true }) });
+    list.pageSize = 2;
+    await list.load();
+    expect(list.loadedCount, "#1: every record").toBe(3);
+    expect(list.count, "#2: the length, not the total").toBe(3);
+    expect(list.isCountKnown, "#3").toBe(true);
+    expect(list.hasMore, "#4").toBe(false);
+    expect(list.pageCount, "#5: the list pages the answer").toBe(2);
+  });
+  test("a paging source may answer with a bare array: its end is inferred from a short window", () => {
+    const records = createRecords(25);
+    const list = new DynamicDataList({
+      capabilities: { paging: true },
+      read: (request: IDynamicDataReadRequest): Array<any> => records.slice(request.skip, request.skip + request.take)
+    });
+    list.pageSize = 10;
+    list.load();
+    expect(list.loadedCount, "#1").toBe(10);
+    expect(list.isCountKnown, "#2: a full window may have more").toBe(false);
+    expect(list.hasMore, "#3").toBe(true);
+    list.pageIndex = 1;
+    list.pageIndex = 2;
+    expect(list.windowOffset, "#4").toBe(20);
+    expect(list.loadedCount, "#5").toBe(5);
+    expect(list.isCountKnown, "#6: the short window is the end").toBe(true);
+    expect(list.count, "#7").toBe(25);
+    expect(list.hasMore, "#8").toBe(false);
+  });
+  test("a source without paging is sent an empty request whatever the page size, the filter and the sort", () => {
+    const records = createRecords(6);
+    const requests: Array<IDynamicDataReadRequest> = [];
+    const list = new DynamicDataList({
+      read: (request: IDynamicDataReadRequest): Array<any> => { requests.push(request); return records; }
+    });
+    list.pageSize = 2;
+    list.load();
+    list.setView("{id} > 0", [{ field: "id", direction: "desc" }]);
+    list.pageIndex = 1;
+    list.refresh();
+    list.load();
+    expect(requests.length, "#1: the view and the page change are local").toBe(3);
+    requests.forEach((request: IDynamicDataReadRequest, i: number): void => {
+      expect(request, "#2: request " + i).toEqual({ skip: 0, take: 0, filter: "", sort: [] });
+    });
+    expect(list.getPageIndexes().map((index: number): number => list.getRecord(index).id), "#3: filtered, sorted and paged here").toEqual([3, 2]);
+  });
+  test("a paging source that declares only paging reads normally while no view is set", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    list.pageIndex = 1;
+    expect(requests, "#1").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }, { skip: 2, take: 2, filter: "", sort: [] }]);
+    expect(errors, "#2").toEqual([]);
+  });
+  test("a sort a paging source has not declared is refused: no request, the window and its page stay", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true, filtering: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    list.pageIndex = 1;
+    const changes = recordChanges(list);
+    requests.length = 0;
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests, "#1: nothing was sent").toEqual([]);
+    expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
+    expect(errors[0].message.indexOf("\"sorting\"") > -1, "#3: the message names the capability: " + errors[0].message).toBe(true);
+    expect(list.pageIndex, "#4").toBe(1);
+    expect(list.windowOffset, "#5").toBe(2);
+    expect(list.getRecord(0).id, "#6: the window in force").toBe(2);
+    expect(list.getVisibleIndexes(), "#7: not sorted locally").toEqual([0, 1]);
+    expect(list.isLoading, "#8").toBe(false);
+    expect(changes, "#9: nothing announced").toEqual([]);
+    list.sort = [];
+    expect(requests, "#10: removing the sort reads again").toEqual([{ skip: 2, take: 2, filter: "", sort: [] }]);
+    expect(errors.length, "#11").toBe(1);
+  });
+  test("a filter a paging source has not declared is refused the same way", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true, sorting: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    requests.length = 0;
+    list.filter = "{id} > 2";
+    expect(requests, "#1: nothing was sent").toEqual([]);
+    expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
+    expect(errors[0].message.indexOf("\"filtering\"") > -1, "#3: " + errors[0].message).toBe(true);
+    expect(list.filter, "#4: the filter is kept, as for a read that fails").toBe("{id} > 2");
+    expect(list.getRecord(0).id, "#5: the window in force").toBe(0);
+    expect(list.getVisibleIndexes(), "#6: not filtered locally").toEqual([0, 1]);
+    list.filter = "";
+    expect(requests, "#7: removing the filter reads again").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
+    expect(errors.length, "#8").toBe(1);
+  });
+  test("a page change under a view the paging source has not declared is refused too", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    list.sort = [{ field: "id", direction: "asc" }];
+    requests.length = 0;
+    list.refresh();
+    list.pageIndex = 1;
+    expect(requests, "#1").toEqual([]);
+    expect(errors.map(e => e.operation), "#2: one error per read").toEqual(["read", "read", "read"]);
+    expect(list.getRecord(0).id, "#3: the window in force").toBe(0);
+  });
+  test("a paging source that sorts but does not filter is sent the sort and an empty filter", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true, sorting: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests[requests.length - 1], "#1").toEqual({ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] });
+  });
+  test("the capabilities are taken when the source is assigned", () => {
+    const { source, requests } = createCapabilitySource(5, { paging: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    source.capabilities = { paging: true, sorting: true };
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests.length, "#1: the change is not seen").toBe(1);
+    expect(errors.length, "#2: the sort is refused").toBe(1);
+    source.capabilities = {};
+    list.sort = [];
+    expect(requests.length, "#3: still a paging source").toBe(2);
+    expect(requests[1].take, "#4").toBe(2);
+    list.source = ArrayDynamicDataSource.fromArray([]);
+    source.capabilities = { paging: true, sorting: true };
+    list.source = source;
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests[requests.length - 1].sort, "#5: assigned again, the new capabilities count").toEqual([{ field: "id", direction: "desc" }]);
+    expect(errors.length, "#6").toBe(1);
+  });
+  test("a source assigned while a view it has not declared is set: no request, no records, then a capable source recovers", () => {
+    const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(createRecords(3)));
+    const errors = collectErrors(list);
+    list.load();
+    list.sort = [{ field: "id", direction: "desc" }];
+    const refused = createCapabilitySource(5, { paging: true });
+    list.pageSize = 2;
+    list.source = refused.source;
+    expect(refused.requests, "#1").toEqual([]);
+    expect(list.loadedCount, "#2: the window of the old source is gone").toBe(0);
+    expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
+    const capable = createCapabilitySource(5, { paging: true, sorting: true });
+    list.source = capable.source;
+    expect(capable.requests, "#4: the list was asked to fill itself, so the new source is read")
+      .toEqual([{ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] }]);
+    expect(list.loadedCount, "#5").toBe(2);
+    expect(errors.length, "#6").toBe(1);
   });
 });

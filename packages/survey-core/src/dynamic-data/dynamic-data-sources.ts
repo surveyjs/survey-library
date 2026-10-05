@@ -6,10 +6,9 @@ import { IDynamicDataSource } from "./dynamic-data-interfaces";
 // be replaced - never mutated - on every write, so that Question.setNewValue sees a different array
 // and onValueChanged.oldValue stays correct. Every write therefore builds a new array.
 export class ArrayDynamicDataSource implements IDynamicDataSource {
-  // getCount: the length getArray() would return, for a getter that composes the array on the fly.
   // isMembershipFixed: the records are the owner's to define; insert, remove and move write nothing.
   constructor(private getArray: () => Array<any> | undefined, private setArray: (arr: Array<any>) => void,
-    private getCount?: () => number, private isMembershipFixed: boolean = false) { }
+    private isMembershipFixed: boolean = false) { }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
   private batchHasWrites: boolean = false;
@@ -51,13 +50,11 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   public get array(): Array<any> {
     return this.read();
   }
+  /* The source does not page, so the request has nothing to say to it: the list reads it with no
+     request at all wherever it reads through (a method with fewer parameters satisfies the
+     interface), and the answer is the array itself, never a wrapper. */
   public read(): Array<any> {
     return this.batchDepth > 0 ? this.batchArray : this.readCore();
-  }
-  // Inside a batch the answer is the batch array: the batch is building the array the count describes.
-  public count(): number {
-    if (this.batchDepth > 0) return this.batchArray.length;
-    return !!this.getCount ? this.getCount() : this.readCore().length;
   }
   private readCore(): Array<any> {
     const res = this.getArray();

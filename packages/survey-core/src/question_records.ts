@@ -230,7 +230,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.forgetFocusIndex();
       this.syncPagingState();
       /* The objects that exist are the page: a page the list cuts - from question.value
-         or from everything a read() source answered with - is rebuilt at once, through the path a
+         or from everything a source without paging answered with - is rebuilt at once, through the path a
          remote read takes. A page of a source that pages itself is rebuilt when its read commits. */
       if (this.isPagedByList) {
         this.rebuildFromDataList(true);
@@ -288,7 +288,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.focusItemAfterRead(index);
     }
   }
-  /* A read() source the list pages holds the whole storage, so layer 2 tracks its edited records by
+  /* A source without paging holds the whole storage, so layer 2 tracks its edited records by
      index - and a read that commits again (refresh(), a filter the source answers again) may bring
      them back at other indexes: another writer moved, added or removed records. The edited set, the
      states of nested paged questions and what the question keeps besides them follow their records
@@ -341,9 +341,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected get isPagingActive(): boolean {
     return !this.isDesignMode && !!this._dataList && this._dataList.pageSize > 0;
   }
-  /* The list cuts the page: over question.value, or over the whole storage a read() source answered
-     with. Every record is in memory, so the page is a slice and layer 2 can track the edited
-     records. Its opposite is a source with readRange (list.isPagedBySource): the window IS the page
+  /* The list cuts the page: over question.value, or over the whole storage a source without paging
+     answered with. Every record is in memory, so the page is a slice and layer 2 can track the
+     edited records. Its opposite is a paging source (list.isPagedBySource): the window IS the page
      and the records of the other pages are on the server. */
   protected get isPagedByList(): boolean {
     return this.isPagingActive && !this._dataList.isPagedBySource;
@@ -725,8 +725,8 @@ export abstract class QuestionRecordsModel extends Question {
     return { item: item, properties: newProps };
   }
 
-  /* The capabilities of a data source are declared by the presence of its optional methods: a source
-     without insert gets no add button, one without remove no delete button, one without move no drag
+  /* The write capabilities of a data source are declared by the presence of its optional methods (its
+     read capabilities by flags, see dynamic-data-interfaces.ts): a source without insert gets no add button, one without remove no delete button, one without move no drag
      handles, and one without update makes every object read-only - a silently unsaved edit is worse
      than a disabled field, and an application that wants local-only edits over remote reads
      implements a no-op update. A question without a data source has every capability, except the

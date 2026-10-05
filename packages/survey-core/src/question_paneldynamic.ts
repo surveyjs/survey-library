@@ -1442,7 +1442,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
      paging most of the new records never get a panel, so they are created with the defaults their
      panel would have written. The callers keep a data source's records out: ensureCount refuses a
-     partial window only, and a read() source holds its whole storage. */
+     partial window only, and a source without paging holds its whole storage. */
   private syncRecordCount(val: number, createRecord?: (i: number) => any): void {
     const list = this.dataList;
     if (!createRecord && this.isPagingActive) {
@@ -1474,7 +1474,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get visiblePanelCount(): number {
     const panels = this.visiblePanels;
     const list = this.dataListValue;
-    // A read() source is counted like question.value: its hidden and filtered records are in memory.
+    // A source without paging is counted like question.value: its hidden and filtered records are in memory.
     if (!!list && list.isPagedBySource) return list.knownCount;
     return this.isPagingActive ? list.visibleCount : panels.length;
   }

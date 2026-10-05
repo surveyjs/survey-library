@@ -1,5 +1,5 @@
 import { Helpers } from "../helpers";
-import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
 
 /* The request channel of DynamicDataList: everything that orders the requests the list sends to its
    source - the reads, the push chain of the writes, the inserts that have not answered yet, and the
@@ -15,9 +15,9 @@ import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataSource } fro
    later write overtake it - and in doRead, where the answer to a read that a write overtook while it
    was in flight is discarded and the read is issued again.
    Which writes overtake a read in flight (markInFlightReadOvertaken, isAnswerOvertaken): every
-   insert, remove and move, and every write to a read() source or to a readRange read with a take of
-   0. An update to a readRange read with take > 0 overtakes it only when it can have changed the
-   answer:
+   insert, remove and move, and every write to a read with a take of 0 - every read of a source that
+   does not page, and a paged read of everything from skip. An update to a paged read with take > 0
+   overtakes it only when it can have changed the answer:
    - without a keyField, an update inside the range the read asked for ([skip, skip + take)); one
      outside it leaves the answer as it is;
    - with a keyField, never on its own: its key is recorded, and the answer is discarded only when it
@@ -33,14 +33,16 @@ export interface IDynamicDataChannelHost {
   getSource(): IDynamicDataSource;
   isDisposed(): boolean;
   getKeyField(): string;
-  hasReadRange(): boolean;
-  // The range of the next read. skip is 0 for a source without readRange.
+  // The source pages itself: the next read is a paged one.
+  isPagedBySource(): boolean;
+  // The range of the next read. skip and take are 0 for a source without paging.
   getReadRange(useWindowOffset: boolean): { skip: number, take: number };
-  // The request a readRange source is sent: the range and the view. It copies the owner's sort, so
-  // it is built inside the read's error handling.
+  /* The request the source is sent: the range and the view. It copies the owner's sort, and it
+     throws for a view that a paging source has not declared, so it is built inside the read's error
+     handling: a refused read takes the path of a source that throws. */
   createReadRequest(skip: number, take: number): IDynamicDataReadRequest;
   // The window commit. Returns whether the window was committed - an empty page past the end is not.
-  commitRead(data: any, skip: number, take: number, useReadRange: boolean): boolean;
+  commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean;
   // A read failed: the window in force stays, and so does the page it was read for.
   onReadFailed(error: any): void;
   setIsLoading(val: boolean): void;
@@ -51,6 +53,14 @@ export interface IDynamicDataChannelHost {
   syncWindowAfterSyncPush(): void;
 }
 
+/* The one place an answer is read: a bare array is { records: array }, and an answer that is neither
+   an array nor an object with records holds no records. total and hasMore are passed on as they
+   are - whether they mean anything is the reader's to decide. */
+export function toReadResult(data: any): IDynamicDataReadResult {
+  if (Array.isArray(data)) return { records: data };
+  const res = !!data && typeof data === "object" ? data : {};
+  return { records: Array.isArray(res.records) ? res.records : [], total: res.total, hasMore: res.hasMore };
+}
 function isPromiseLike(value: any): boolean {
   // Never instanceof Promise: a source may return any thenable.
   return !!value && typeof value.then === "function";
@@ -149,7 +159,7 @@ export class DynamicDataSourceChannel {
   /* The asynchronous read in flight: the range it asked for, and whether a write enqueued since it
      was issued made its answer stale (see the header). */
   private inFlightRead: {
-    skip: number, take: number, useReadRange: boolean, isOvertaken: boolean,
+    skip: number, take: number, isPagedRead: boolean, isOvertaken: boolean,
     /* Keyed source only: the keys of the records updated while this read was in flight. There a
        position cannot decide it - another writer may move a record between the pages while the read
        runs - so the answer is checked for those records instead (see isAnswerOvertaken). */
@@ -236,13 +246,13 @@ export class DynamicDataSourceChannel {
     const source = host.getSource();
     if (host.isDisposed() || !source) return;
     const requestId = ++this.readRequestId;
-    const useReadRange = host.hasReadRange();
+    const isPagedRead = host.isPagedBySource();
     const range = host.getReadRange(useWindowOffset);
     const skip = range.skip;
     const take = range.take;
     let res: any;
     try {
-      res = useReadRange ? source.readRange(host.createReadRequest(skip, take)) : source.read();
+      res = source.read(host.createReadRequest(skip, take));
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
       this.inFlightRead = undefined;
@@ -251,7 +261,7 @@ export class DynamicDataSourceChannel {
     }
     if (isPromiseLike(res)) {
       const inFlight = {
-        skip: skip, take: take, useReadRange: useReadRange, isOvertaken: false, updatedKeys: <Array<any>>[]
+        skip: skip, take: take, isPagedRead: isPagedRead, isOvertaken: false, updatedKeys: <Array<any>>[]
       };
       this.inFlightRead = inFlight;
       host.setIsLoading(true);
@@ -269,7 +279,7 @@ export class DynamicDataSourceChannel {
            place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
            that is committed and not for the answer that was discarded. It inherits the loading
            state, as a superseding read does. */
-        if (!host.commitRead(data, skip, take, useReadRange)) return this.startRead(false);
+        if (!host.commitRead(data, skip, take, isPagedRead)) return this.startRead(false);
         host.setIsLoading(false);
       }, (error: any): void => {
         if (host.isDisposed() || requestId !== this.readRequestId) return;
@@ -278,7 +288,7 @@ export class DynamicDataSourceChannel {
       });
     }
     this.inFlightRead = undefined;
-    if (!host.commitRead(res, skip, take, useReadRange)) return this.startRead(false);
+    if (!host.commitRead(res, skip, take, isPagedRead)) return this.startRead(false);
     // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
     // read of the same source; the flag that read set is this one's to clear.
     host.setIsLoading(false);
@@ -396,7 +406,7 @@ export class DynamicDataSourceChannel {
   private markInFlightReadOvertaken(operation: DynamicDataOperation, push: IDynamicDataPushInfo): void {
     const read = this.inFlightRead;
     if (!read || read.isOvertaken) return;
-    if (operation === "update" && read.useReadRange && read.take > 0) {
+    if (operation === "update" && read.isPagedRead && read.take > 0) {
       /* A keyed source: where the record is by now is not the position it was edited at - another
          writer may have moved it between the pages while the read was running - so the answer is
          checked for that record when it arrives instead of the range being compared. */
@@ -416,8 +426,7 @@ export class DynamicDataSourceChannel {
   private isAnswerOvertaken(read: { updatedKeys: Array<any> }, data: any): boolean {
     const field = this.host.getKeyField();
     if (!field || read.updatedKeys.length === 0) return false;
-    const records = Array.isArray(data) ? data : (!!data && Array.isArray(data.records) ? data.records : []);
-    return records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
+    return toReadResult(data).records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
   }
   // Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
   // is what the source answered - only an insert has an answer - and it runs for a failed push too,

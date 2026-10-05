@@ -285,7 +285,7 @@ export { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
-  IDynamicDataSource, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
   DynamicDataFieldType, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";

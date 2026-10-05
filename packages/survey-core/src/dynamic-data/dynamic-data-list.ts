@@ -3,11 +3,11 @@ import { Helpers } from "../helpers";
 import { applyFilter, applySort, createFilterRunner, createIndexes } from "./dynamic-data-filter";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "./dynamic-data-interfaces";
 import {
   DynamicDataSourceChannel, IDynamicDataChannelHost, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
-  mergeInsertAnswer
+  mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
@@ -21,7 +21,7 @@ import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataR
 // | index            | record index: the position in the loaded window. Every method     | 0 ... loadedCount-1   |
 // |                  | that takes or returns an unqualified index means this one.        |                       |
 // | sourceIndex      | windowOffset + index; what the list passes to the source editing  | 0 ... count-1         |
-// |                  | methods. Equals the record index for a source without readRange.  |                       |
+// |                  | methods. Equals the record index for a source without paging.     |                       |
 // | visibleIndex     | position among the records that pass the filter and are not       | 0 ... visibleCount-1  |
 // |                  | owner-hidden, in sort order, UNPAGED.                             |                       |
 // | pageLocalIndex   | position on the current page, i.e. in getPageIndexes()            | 0 ... page length-1   |
@@ -77,6 +77,7 @@ export class DynamicDataList {
 
   constructor(source: IDynamicDataSource, public owner?: IDynamicDataOwner) {
     this._source = source;
+    this.takeCapabilities();
   }
   // The exact comparison QuestionRecordItem.isValueChanged uses, so that the questions can
   // delegate to it instead of keeping their own copy.
@@ -88,12 +89,16 @@ export class DynamicDataList {
      mutating the one the owner currently holds - read through on demand, so that a value assigned
      outside the list is seen at once. The list keeps the factory and not the instance: a detach
      builds a fresh source, so that the batch state of the one in use cannot survive a swap.
-     isMembershipFixed: see the flag; the default source carries it too. */
+     isMembershipFixed: see the flag; the default source carries it too.
+     getCount: the length getArray() would return, for a getter that composes the array on the fly.
+     The list keeps it, not the source, so a default source built again after a detach has it too
+     (see recordCount). */
   public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
     setArray: (arr: Array<any>) => void, getCount?: () => number, isMembershipFixed: boolean = false): DynamicDataList {
-    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, getCount, isMembershipFixed);
+    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, isMembershipFixed);
     const list = new DynamicDataList(createSource(), owner);
     list.createDefaultSource = createSource;
+    list.getReadThroughCount = getCount;
     list.isMembershipFixed = isMembershipFixed;
     list.isReadThrough = true;
     // The owner materializes one object per record in the view: its membership may not change under
@@ -103,6 +108,7 @@ export class DynamicDataList {
     return list;
   }
   private createDefaultSource: () => IDynamicDataSource;
+  private getReadThroughCount: () => number;
   private assignedSourceValue: IDynamicDataSource;
   // The source the developer assigned (question.dataSource); undefined while the default one is used.
   public get assignedSource(): IDynamicDataSource {
@@ -157,7 +163,7 @@ export class DynamicDataList {
      The class is checked for that and for nothing else, so a standalone list that sets isReadThrough
      by hand reads through its array source, and never through any other. */
   private get useReadThrough(): boolean {
-    return this.isReadThrough && !this.isAssignedSourceInUse && !this.hasReadRange && this._source instanceof ArrayDynamicDataSource;
+    return this.isReadThrough && !this.isAssignedSourceInUse && this.isWindowWholeStorage && this._source instanceof ArrayDynamicDataSource;
   }
   // Not isRemote alone: assignSource sets the flag before it swaps, and until the swap the list
   // still holds the default source - the owner's storage - and reads through it.
@@ -181,10 +187,13 @@ export class DynamicDataList {
     edit(newRecords);
     this.windowRecords = newRecords;
   }
-  // The length of records without reading them: a read-through source may compose the array on every
-  // read (the matrix pads its value up to rowCount), and most readers want only the count.
+  /* The length of records without reading them: a read-through source may compose the array on every
+     read (the matrix pads its value up to rowCount), and most readers want only the count. Inside a
+     batch the owner's storage does not have the writes yet: the source answers records with the
+     array the batch is building, and its length is the count. Every batch of the source is opened by
+     batch() below, so batchDepth knows it. */
   private get recordCount(): number {
-    if (this.useReadThrough && typeof this._source.count === "function") return this._source.count();
+    if (this.useReadThrough && !!this.getReadThroughCount && this.batchDepth === 0) return this.getReadThroughCount();
     return this.records.length;
   }
   public get source(): IDynamicDataSource {
@@ -194,11 +203,15 @@ export class DynamicDataList {
   // through assignSource.
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
-    /* A read that is still in flight counts as loaded: the list was asked to fill itself and the
-       answer is merely late, so the source that replaces the one being read has to be read too.
-       Without the isLoading half a source swapped during the first read would never be read at all. */
-    const wasLoaded = this.isLoaded || this._isLoading;
+    /* A list that was asked to fill itself reads the source that replaces the one it had, whatever
+       became of that read: an answer that is merely late, and a read that failed or was refused, do
+       not make the list a standalone one that was never loaded. Without the in-flight half a source
+       swapped during the first read would never be read at all; without the failed half neither
+       would a source assigned to replace one whose first read failed. */
+    const wasLoaded = this.isLoadRequested;
     this._source = v;
+    // Before updateFilterRunner: which side runs the filter is decided from them.
+    this.takeCapabilities();
     // The pushes and the reads of the old source: detached, and discarded when they answer.
     this.channel.detach();
     // The old read is abandoned, whatever happens next starts from "not loading".
@@ -277,7 +290,7 @@ export class DynamicDataList {
      everything derived is decided again as after a read, and the owner, which was notified of every
      write inside the batch, is told to start over. A read-through list has no window to put back. */
   private restoreWindowAfterFailedBatch(source: IDynamicDataSource, before: Array<any>): void {
-    if (this._source !== source || this.hasReadRange || this.useReadThrough) return;
+    if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
     if (!(source instanceof ArrayDynamicDataSource)) return;
     const stored = this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
     this.records = Array.isArray(stored) ? stored : [];
@@ -340,7 +353,7 @@ export class DynamicDataList {
      (syncWindowAfterSyncPush). */
   private isAssignedArrayInSync: boolean = false;
   private getIsAssignedArrayInSync(): boolean {
-    if (!this.isAssignedSourceInUse || this.hasReadRange || !(this._source instanceof ArrayDynamicDataSource)) return false;
+    if (!this.isAssignedSourceInUse || !this.isWindowWholeStorage || !(this._source instanceof ArrayDynamicDataSource)) return false;
     const stored = this._source.read();
     const records = this.windowRecords;
     // The common case: the window IS the array, taken by the last read or the last write.
@@ -354,13 +367,17 @@ export class DynamicDataList {
   }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
+    this.isLoadRequested = true;
     this.storageCount.cancelRetry();
     return this.channel.startRead(false);
   }
   public refresh(): void | Promise<void> {
+    this.isLoadRequested = true;
     this.storageCount.cancelRetry();
     return this.channel.startRead(true);
   }
+  // Set by the first load() or refresh(), and never cleared: see the source setter.
+  private isLoadRequested: boolean = false;
   public get isLoading(): boolean {
     return this._isLoading;
   }
@@ -544,13 +561,13 @@ export class DynamicDataList {
   /* With a source that pages itself the window IS the page, so a remove leaves it one record short
      while the records behind it moved up on the server. The page is read again when it came up short
      and the source still has records behind it; a remove on the last page just leaves it shorter.
-     The whole page and not only the one record that moved up (readRange(offset + length, 1)): that
+     The whole page and not only the one record that moved up (a read of offset + length, take 1): that
      read would keep the row objects, but it trusts that the server's order did not change between the
      two reads and it leaves the total unverified. The full read is authoritative for both, and it is
      one request either way. refresh() and not load(): the window stays at its own offset, load()
      recomputes it from pageIndex and the two agree only by coincidence. */
   private refillWindowAfterRemove(): void {
-    if (!this.hasReadRange || !this.isLoaded || this._pageSize <= 0) return;
+    if (!this.isPagedBySource || !this.isLoaded || this._pageSize <= 0) return;
     // hasMore and not "windowOffset + length < count": with an unknown total the count is the
     // records seen so far and would never say that the source has more. With a known total the two
     // are the same value - the count recomputed the flag when the remove decremented it.
@@ -680,11 +697,11 @@ export class DynamicDataList {
     return this.visibleIndexes;
   }
   /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. The list answers
-     from its own state: the offset is windowOffset, which only a readRange read moves - and a
-     question reads a readRange source only when it was assigned - and paging is a page size above 0,
-     which the paging controller sets to 0 in design mode on its next sync. */
+     from its own state: the offset is windowOffset, which only a paged read moves - and a question
+     reads a paging source only when it was assigned - and paging is a page size above 0, which the
+     paging controller sets to 0 in design mode on its next sync. */
   public getPageStartGlobalVisibleIndex(): number {
-    // A paging decision, not offset arithmetic: a read() source has offset 0 on every page.
+    // A paging decision, not offset arithmetic: a source without paging has offset 0 on every page.
     if (this.isPagedBySource) return this.windowOffset;
     return this._pageSize > 0 ? this.pageIndex * this._pageSize : 0;
   }
@@ -780,7 +797,7 @@ export class DynamicDataList {
     this._pageSize = newValue;
     this.clampPageIndex();
     this.resetViews();
-    if (this.hasReadRange && this.isLoaded) {
+    if (this.isPagedBySource && this.isLoaded) {
       this.load();
     } else {
       this.raiseChanged({ type: "reset" });
@@ -796,15 +813,15 @@ export class DynamicDataList {
     this._pageIndex = newValue;
     this.pageIndexes = undefined;
     this.raiseChanged({ type: "pageChanged" });
-    if (this.hasReadRange) {
+    if (this.isPagedBySource) {
       this.load();
     }
   }
   public get pageCount(): number {
     if (this._pageSize <= 0) return 1;
-    // A readRange source pages in the storage, so the page count comes from the storage count; a
-    // local source pages over the visible records.
-    if (!this.hasReadRange) return Math.max(1, Math.ceil(this.visibleCount / this._pageSize));
+    // A paging source pages in the storage, so the page count comes from the storage count; the list
+    // pages a source without paging over the visible records.
+    if (!this.isPagedBySource) return Math.max(1, Math.ceil(this.visibleCount / this._pageSize));
     /* An unknown total: the pages known to exist - the one that is loaded, the ones before it, and
        one more when the source said there is something behind the window. The pager then offers
        "next" one page at a time, which is exactly what the source has told the list. */
@@ -816,8 +833,8 @@ export class DynamicDataList {
     // stale.
     const visible = this.getVisibleIndexes();
     if (!this.pageIndexes) {
-      // A readRange source returns one storage page: the loaded window IS the page.
-      if (this._pageSize <= 0 || this.hasReadRange) {
+      // A paging source returns one storage page: the loaded window IS the page.
+      if (this._pageSize <= 0 || this.isPagedBySource) {
         this.pageIndexes = visible;
       } else {
         const start = this._pageIndex * this._pageSize;
@@ -861,7 +878,8 @@ export class DynamicDataList {
       this.updateFilterRunner();
     }
     this.resetMembership();
-    if (this.hasReadRange) {
+    // The view travels in the request: the source answers it with the next read.
+    if (this.isPagedBySource) {
       this.load();
       return;
     }
@@ -875,7 +893,7 @@ export class DynamicDataList {
      and not on the first read of a view. */
   private updateFilterRunner(): void {
     this.filterRunner = undefined;
-    if (!this._filter || this.hasReadRange) return;
+    if (!this._filter || !this.isFilteredLocally) return;
     try {
       this.filterRunner = createFilterRunner(this._filter);
     } catch(e) {
@@ -899,8 +917,9 @@ export class DynamicDataList {
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
-    // The factory's closures hold the owner.
+    // The factory's closures, and the count callback's, hold the owner.
     this.createDefaultSource = undefined;
+    this.getReadThroughCount = undefined;
     this.records = [];
     this.hiddenFlags = [];
     this.channel.clearPendingInserts();
@@ -915,12 +934,34 @@ export class DynamicDataList {
      object per window record must not slice those objects by pageIndex again - they are the page -
      and "bring this object onto its page" is always already satisfied. */
   public get isPagedBySource(): boolean {
-    return this.hasReadRange;
+    return this.sourceCapabilities.paging;
   }
-  // One capability: a source that pages also filters and sorts itself. A source that filters on its
-  // side but leaves the paging to the list would have the list filter one page.
-  private get hasReadRange(): boolean {
-    return !!this._source && !!this._source.readRange;
+  /* The read capabilities of the source, taken when it is assigned (takeCapabilities) and never read
+     from the source again: a source that changes them is assigned again. The decisions below are
+     separate names for what is still one value: filtering and sorting mean something only together
+     with paging, and a source without paging is read whole and filtered and sorted here. A paging
+     source that leaves out filtering or sorting is never filtered or sorted locally either: the view
+     it has not declared is refused (see createReadRequest). */
+  private sourceCapabilities: IDynamicDataSourceCapabilities = { paging: false, filtering: false, sorting: false };
+  private takeCapabilities(): void {
+    const caps = !!this._source ? this._source.capabilities : undefined;
+    this.sourceCapabilities = {
+      paging: !!caps && !!caps.paging,
+      filtering: !!caps && !!caps.filtering,
+      sorting: !!caps && !!caps.sorting
+    };
+  }
+  // The list runs the filter over the records it holds.
+  private get isFilteredLocally(): boolean {
+    return !this.isPagedBySource;
+  }
+  // The list sorts the records it holds.
+  private get isSortedLocally(): boolean {
+    return !this.isPagedBySource;
+  }
+  // The window holds every record of the source, so a write to it is a write to the whole storage.
+  private get isWindowWholeStorage(): boolean {
+    return !this.isPagedBySource;
   }
   // A capability is declared by the presence of the matching method: the operation names are the
   // source method names.
@@ -983,7 +1024,7 @@ export class DynamicDataList {
     }
   }
   private get hasLocalViews(): boolean {
-    return this.hasView && !this.hasReadRange;
+    return (!!this._filter && this.isFilteredLocally) || (this._sort.length > 0 && this.isSortedLocally);
   }
   // The flags are spliced in step with the records, so they must stay a dense array of the same
   // length: a shorter one would shift the wrong entries.
@@ -1007,8 +1048,8 @@ export class DynamicDataList {
     this.alignHiddenFlags();
     let created = this.getFrozenCreatedIndexes(recordCount);
     if (!created) {
-      const needFilter = !!this.filterRunner && !this.hasReadRange;
-      const needSort = this._sort.length > 0 && !this.hasReadRange;
+      const needFilter = !!this.filterRunner && this.isFilteredLocally;
+      const needSort = this._sort.length > 0 && this.isSortedLocally;
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.records : undefined;
       const fields = needFilter || needSort ? this.getFields() : undefined;
@@ -1122,7 +1163,7 @@ export class DynamicDataList {
     this._pageIndex = newValue;
     this.pageIndexes = undefined;
     this.raiseChanged({ type: "pageChanged" });
-    if (!this.hasReadRange) return false;
+    if (!this.isPagedBySource) return false;
     // The records of the previous page are not in the window: they have to be fetched.
     this.load();
     return true;
@@ -1131,7 +1172,7 @@ export class DynamicDataList {
   // nothing behind it. An unknown total makes "count > loadedCount" unusable - the count IS the
   // window then - so the two committed facts answer it instead.
   private checkWindowIsWholeStorage(operation: string): void {
-    if (this.hasReadRange && (this._windowOffset > 0 || this.hasMore)) {
+    if (!this.isWindowWholeStorage && (this._windowOffset > 0 || this.hasMore)) {
       throw new Error("DynamicDataList." + operation + " requires the whole storage to be loaded.");
     }
   }
@@ -1156,11 +1197,11 @@ export class DynamicDataList {
       getSource: (): IDynamicDataSource => this._source,
       isDisposed: (): boolean => this.isDisposed,
       getKeyField: (): string => this.keyField,
-      hasReadRange: (): boolean => this.hasReadRange,
+      isPagedBySource: (): boolean => this.isPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
-      commitRead: (data: any, skip: number, take: number, useReadRange: boolean): boolean =>
-        this.commitRead(data, skip, take, useReadRange),
+      commitRead: (data: any, skip: number, take: number, isPagedRead: boolean): boolean =>
+        this.commitRead(data, skip, take, isPagedRead),
       onReadFailed: (error: any): void => this.onReadFailed(error),
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
       raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
@@ -1169,23 +1210,35 @@ export class DynamicDataList {
     };
   }
   // The page of a pending retry, else the window in force (a refresh) or the page (a load); a source
-  // without readRange is read whole.
+  // without paging is read whole: skip 0, take 0, whatever the page size is.
   private getReadRange(useWindowOffset: boolean): { skip: number, take: number } {
-    let skip = 0;
-    if (this.hasReadRange) {
-      const retryPageIndex = this.storageCount.retryPageIndex;
-      if (retryPageIndex !== undefined) {
-        skip = retryPageIndex * this._pageSize;
-      } else {
-        skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
-      }
+    if (!this.isPagedBySource) return { skip: 0, take: 0 };
+    let skip: number;
+    const retryPageIndex = this.storageCount.retryPageIndex;
+    if (retryPageIndex !== undefined) {
+      skip = retryPageIndex * this._pageSize;
+    } else {
+      skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
     }
     return { skip: skip, take: this._pageSize };
   }
-  // One read = one request: the range and the view the list wants. The source keeps no state between
-  // the calls, so nothing has to be pushed to it before a read and two questions may share it.
+  /* One read = one request: the range and the view the list wants. The source keeps no state between
+     the calls, so nothing has to be pushed to it before a read and two questions may share it. A
+     source without paging is read whole and the list runs the view, so its request carries none. A
+     paging source gets the view: a part it has not declared is refused here, before anything is
+     sent - the list would otherwise filter or sort one page - so a part that reaches the request
+     is either declared or empty. The throw takes the read down the path of a source that throws
+     (onReadFailed). */
   private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
+    if (!this.isPagedBySource) return { skip: 0, take: 0, filter: "", sort: [] };
+    const caps = this.sourceCapabilities;
+    if (!!this._filter && !caps.filtering) throw this.createUndeclaredViewError("filtering");
+    if (this._sort.length > 0 && !caps.sorting) throw this.createUndeclaredViewError("sorting");
     return { skip: skip, take: take, filter: this._filter, sort: this._sort.slice() };
+  }
+  private createUndeclaredViewError(capability: string): Error {
+    return new Error("DynamicDataList: the source pages but does not declare the \"" + capability +
+      "\" capability, so the view cannot be read. The window in force is kept.");
   }
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.
@@ -1197,10 +1250,10 @@ export class DynamicDataList {
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
      Returns whether the window was committed - an empty page past the end is not. */
-  private commitRead(data: any, skip: number, take: number, useReadRange: boolean): boolean {
-    if (useReadRange) {
-      const result = data || {};
-      const records = Array.isArray(result.records) ? result.records : [];
+  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
+    const result = toReadResult(data);
+    const records = result.records;
+    if (isPagedRead) {
       /* A page past the end is not committed: the count records the retry and the list reads that
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
          the question shows the window in force together with the page it was read for. */
@@ -1213,8 +1266,9 @@ export class DynamicDataList {
       this.records = records;
       this._windowOffset = skip;
     } else {
+      // The whole storage, whatever shape it came in: total and hasMore mean nothing here.
       this.storageCount.commitWholeStorage();
-      this.records = Array.isArray(data) ? data : [];
+      this.records = records;
       this._windowOffset = 0;
     }
     this.isLoaded = true;
@@ -1236,7 +1290,7 @@ export class DynamicDataList {
     this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
   }
   private syncWindowAfterSyncPush(): void {
-    if (this.hasReadRange || this.useReadThrough) return;
+    if (!this.isWindowWholeStorage || this.useReadThrough) return;
     /* An assigned source is read, not watched (useReadThrough). The window takes the array a write
        has stored - the setter may have normalized what it was handed, and the list has to answer
        with what is stored - but only while that array was the window when the write started. An

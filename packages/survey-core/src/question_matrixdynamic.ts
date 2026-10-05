@@ -925,7 +925,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.onRowsChanged();
   }
-  /* A read() source the list pages: every record is in the window, so a new record goes where the
+  /* A source without paging, the list pages it: every record is in the window, so a new record goes where the
      local path would put it - at the record index, which is a storage position - and the question
      shows its page, as showPageOfAddedRecord does for question.value; that page change rebuilds the
      rows. A record that lands on the page in force gets a row of its own when it is the last one on
@@ -1043,7 +1043,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /* The record copyDefaultValueFromLastEntry copies from. The local path runs after rowCount was
      already grown, so the last entry is the record before the new one. The remote path builds the
-     record before the insert: a read() source holds the whole storage, so it is the last record of
+     record before the insert: a source without paging holds the whole storage, so it is the last record of
      it, as for question.value; a source that pages itself holds one window, so it is the last
      record of the window - the record beyond it is on the server. */
   private getLastEntryRecord(): any {

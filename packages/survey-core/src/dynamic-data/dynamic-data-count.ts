@@ -20,7 +20,7 @@ export class DynamicDataCount {
   /* Committed together with the window (see commitWindow). A source that cannot count its records
      cheaply answers without a total: the list then knows only what it has seen, and hasMore is what
      tells it that there is a page behind the one it holds. Both are true/false by default, which is
-     what every source that is not a paging one answers: read() returns the whole storage. */
+     what every source that is not a paging one answers: its read returns the whole storage. */
   private _isCountKnown: boolean = true;
   private _hasMore: boolean = false;
   /* The filter a total the list worked out ITSELF belongs to (see commitCount). Such a total
@@ -110,7 +110,8 @@ export class DynamicDataCount {
     this.maxSeenCount = Math.max(this.maxSeenCount, skip + length);
     return !!retry ? retry.pageIndex : undefined;
   }
-  // read() answers with the whole storage, so its length IS the count.
+  // A source without paging answers with the whole storage, so its length IS the count. A total or
+  // a hasMore that answer carries is ignored.
   public commitWholeStorage(): void {
     this.retry = undefined;
     this._total = undefined;

@@ -370,9 +370,10 @@ export class DynamicDataPagingController {
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
   }
-  /* Re-decides which records are shown. A source that pages decides the membership of the window
-     itself - the window IS the answer - so re-running a local filter the list never ran would say
-     nothing; the window is read again instead. Every in-memory source takes the local path. */
+  /* Re-decides which records are shown. The view of a source that pages travels in the read request
+     and the source decides the membership of the window itself - the window IS the answer - so
+     re-running a local filter the list never ran would say nothing; the window is read again
+     instead. Every source without paging takes the local path. */
   public refreshView(): void {
     const list = this.list;
     this.cancelPendingPageMove();

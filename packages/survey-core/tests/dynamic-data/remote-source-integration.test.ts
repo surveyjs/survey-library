@@ -11,7 +11,7 @@ import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
 import {
-  IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 
@@ -72,15 +72,17 @@ interface IServerCall {
   isSettled: boolean;
 }
 
-/* An in-memory table behind promises, with every capability switchable by leaving its method off the
-   instance - which is how IDynamicDataSource declares capabilities. Every call is recorded with its
-   arguments, and with auto = false a call stays pending until the test settles it by hand. */
+/* An in-memory table behind promises, with every capability switchable: "paging" declares the read
+   capabilities (paging, filtering and sorting together), a write capability is declared by leaving its
+   method off the instance - which is how IDynamicDataSource declares them. Every call is recorded with
+   its arguments - a read of the whole table as "read", a read of one page as "pagedRead" - and with
+   auto = false a call stays pending until the test settles it by hand. */
 class FakeServerSource implements IDynamicDataSource {
   public calls: Array<IServerCall> = [];
   public auto: boolean = true;
   // false -> the server cannot count the matching records cheaply and answers without a total.
   public reportTotal: boolean = true;
-  public readRange?: (request: IDynamicDataReadRequest) => Promise<IDynamicDataReadResult>;
+  public capabilities: IDynamicDataSourceCapabilities = undefined;
   /* Set -> the server names its records by this field instead of by their position, which is what a
      server whose table changes under the grid has to do. Every write below then looks the record up
      by its key, and insert assigns one. */
@@ -98,23 +100,10 @@ class FakeServerSource implements IDynamicDataSource {
 
   constructor(public records: Array<any>, capabilities?: Array<string>, keyField?: string) {
     this.keyField = keyField;
-    const caps = capabilities || ["readRange", "insert", "update", "remove", "move"];
+    const caps = capabilities || ["paging", "insert", "update", "remove", "move"];
     const has = (name: string): boolean => caps.indexOf(name) > -1;
-    if (has("readRange")) {
-      // One request per read: the range and the view are inside it and the source keeps nothing
-      // between the calls.
-      this.readRange = (request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> =>
-        this.call("readRange", [request], (): IDynamicDataReadResult => {
-          const view = this.getView(request);
-          const size = request.take > 0 ? request.take : view.length;
-          const res: IDynamicDataReadResult = {
-            records: view.slice(request.skip, request.skip + size).map(this.copy)
-          };
-          if (this.reportTotal) {
-            res.total = view.length;
-          }
-          return res;
-        });
+    if (has("paging")) {
+      this.capabilities = { paging: true, filtering: true, sorting: true };
     }
     if (has("insert")) {
       // The answer is the stored record: with a keyField it is what carries the key the server
@@ -166,8 +155,21 @@ class FakeServerSource implements IDynamicDataSource {
     this.records.splice(from, 1);
     this.records.splice(to, 0, record);
   }
-  public read(): Promise<Array<any>> {
-    return this.call("read", [], (): Array<any> => this.records.map(this.copy));
+  // One request per read: the range and the view are inside it and the source keeps nothing between
+  // the calls.
+  public read(request: IDynamicDataReadRequest): Promise<Array<any> | IDynamicDataReadResult> {
+    if (!this.capabilities) return this.call("read", [], (): Array<any> => this.records.map(this.copy));
+    return this.call("pagedRead", [request], (): IDynamicDataReadResult => {
+      const view = this.getView(request);
+      const size = request.take > 0 ? request.take : view.length;
+      const res: IDynamicDataReadResult = {
+        records: view.slice(request.skip, request.skip + size).map(this.copy)
+      };
+      if (this.reportTotal) {
+        res.total = view.length;
+      }
+      return res;
+    });
   }
   private copy = (record: any): any => Object.assign({}, record);
   // The server applies the filter and the sort of the request before it pages: that is what "the
@@ -217,7 +219,7 @@ class FakeServerSource implements IDynamicDataSource {
   }
   // The read requests, and the ranges alone for the tests that only care where the window was.
   public get requests(): Array<IDynamicDataReadRequest> {
-    return this.argsOf("readRange").map((args: Array<any>): IDynamicDataReadRequest => args[0]);
+    return this.argsOf("pagedRead").map((args: Array<any>): IDynamicDataReadRequest => args[0]);
   }
   public get ranges(): Array<Array<number>> {
     return this.requests.map((request: IDynamicDataReadRequest): Array<number> => [request.skip, request.take]);
@@ -357,7 +359,7 @@ describe("Remote data source: first load", () => {
   test("a source that returns everything in one read is still a source", async () => {
     const source = new FakeServerSource(serverRecords(4), ["update"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
-    expect(source.callsOf("read").length, "#1: read, not readRange").toBe(1);
+    expect(source.callsOf("read").length, "#1: a read of the whole table, not of a page").toBe(1);
     expect(question.rowCount, "#2").toBe(4);
     expect(question.visibleRows.length, "#3").toBe(4);
   });
@@ -431,12 +433,12 @@ describe("Remote data source: paging", () => {
     source.auto = false;
     question.visibleRows[0].getQuestionByName("col1").value = "edited";
     question.nextPage();
-    expect(source.callsOf("readRange").length, "#1: the read waits for the write").toBe(1);
+    expect(source.callsOf("pagedRead").length, "#1: the read waits for the write").toBe(1);
     source.settleAll();
     await flush();
     source.settleAll();
     await flush();
-    expect(source.callsOf("readRange").length, "#2: the read ran afterwards").toBe(2);
+    expect(source.callsOf("pagedRead").length, "#2: the read ran afterwards").toBe(2);
     expect(source.records[0].col1, "#3: the write was not lost").toBe("edited");
     expect(rowValues(question), "#4: the new page is shown").toEqual(["v5", "v6", "v7", "v8", "v9"]);
   });
@@ -683,7 +685,7 @@ describe("Remote data source: adding and removing", () => {
     expect(source.argsOf("update")[0].slice(0, 2), "#6: the edit goes to the record the row shows").toEqual([5, { id: 6, col1: "edited", col2: 6 }]);
     expect(source.records.slice(5, 8).map((r: any): any => r.id), "#7: no record was overwritten").toEqual([6, 7, 5]);
   });
-  test("matrix: moveRowByIndex with the rows built, a read() source the list pages", async () => {
+  test("matrix: moveRowByIndex with the rows built, a source without paging the list pages", async () => {
     const source = new FakeServerSource(serverRecords(8), ["insert", "update", "remove", "move"]);
     const { question } = await createMatrix(source, { rowsPerPage: 3 });
     question.goToPage(1);
@@ -748,7 +750,7 @@ describe("Remote data source: sorting and filtering", () => {
      a source that pages sorts itself and the list leaves the window as it came. The local sort of
      a window is gone with the "pages but does not sort" source it belonged to. */
   test("a source that pages sorts itself: the request carries the sort and the list does not sort the window", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     source.reset();
     question.sortOrder = [{ field: "col2", direction: "desc" }];
@@ -765,33 +767,33 @@ describe("Remote data source: sorting and filtering", () => {
     source.reset();
     question.refreshView();
     await flush();
-    expect(source.callsOf("readRange").length, "#1: the server decides, so the window is read again").toBe(1);
+    expect(source.callsOf("pagedRead").length, "#1: the server decides, so the window is read again").toBe(1);
     expect(source.ranges[0], "#2: the same page").toEqual([0, 5]);
   });
 });
 
 describe("Remote data source: capabilities", () => {
   test("no insert: the matrix cannot add rows", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update", "remove"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update", "remove"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     expect(question.canAddRow, "#1").toBe(false);
     expect(question.canRemoveRows, "#2: remove is there").toBe(true);
   });
   test("no remove: the matrix cannot delete rows", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update", "insert"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update", "insert"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     expect(question.canRemoveRows, "#1").toBe(false);
     expect(question.canAddRow, "#2: insert is there").toBe(true);
   });
   test("no update: the matrix is read-only for cells", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "insert", "remove"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     expect(question.isMatrixReadOnly(), "#1").toBe(true);
     expect(question.visibleRows[0].getQuestionByName("col1").isReadOnly, "#2: the cells follow").toBe(true);
     expect(question.canAddRow, "#3: adding is a different capability").toBe(true);
   });
   test("no move: the matrix cannot be reordered by dragging", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0, allowRowReorder: true });
     expect(question.isRowsDragAndDrop, "#1").toBe(false);
   });
@@ -801,19 +803,19 @@ describe("Remote data source: capabilities", () => {
     expect(question.isRowsDragAndDrop, "#1").toBe(true);
   });
   test("no insert / no remove: the panel cannot add or delete panels", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createPanel(source, { panelsPerPage: 0 });
     expect(question.canAddPanel, "#1").toBe(false);
     expect(question.canRemovePanel, "#2").toBe(false);
   });
   test("no update: the panels are read-only", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "insert", "remove"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
     const { question } = await createPanel(source, { panelsPerPage: 0 });
     expect(question.panels[0].getQuestionByName("col1").isReadOnly, "#1").toBe(true);
     expect(question.canAddPanel, "#2: adding is a different capability").toBe(true);
   });
   test("matrix: assigning a source refreshes the cells' read-only state, also for the same source", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "insert", "remove"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
     const { question } = await createMatrix(source, { rowsPerPage: 0 });
     const rows = question.visibleRows;
     const spies = rows.map(row => vi.spyOn(row, "onQuestionReadOnlyChanged"));
@@ -823,7 +825,7 @@ describe("Remote data source: capabilities", () => {
     spies.forEach(spy => spy.mockRestore());
   });
   test("panel: assigning a source refreshes the footer actions, also for the same source", async () => {
-    const source = new FakeServerSource(serverRecords(6), ["readRange", "update"]);
+    const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createPanel(source, { panelsPerPage: 0 });
     let footerUpdates = 0;
     (<any>question).updateFooterActionsCallback = (): void => { footerUpdates++; };
@@ -1308,8 +1310,6 @@ describe("Remote data source: an assigned source is read, not read through", () 
     // The developer's storage, read and replaced outside the list.
     getStorage: () => Array<any>;
     setStorage: (arr: Array<any>) => void;
-    // How often the source's count() callback ran; an ArrayDynamicDataSource only.
-    countCalls: () => number;
   }
   const questionTypes = ["matrix", "panel"];
   const sourceKinds = ["ArrayDynamicDataSource", "SurveyDataDynamicDataSource"];
@@ -1331,19 +1331,17 @@ describe("Remote data source: an assigned source is read, not read through", () 
     let res: IAssigned;
     if (kind === "ArrayDynamicDataSource") {
       let arr: Array<any> = records("a0", "a1", "a2");
-      let calls = 0;
-      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; },
-        (): number => { calls++; return arr.length; });
+      question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
       res = {
         survey: survey, question: question, getStorage: (): Array<any> => arr,
-        setStorage: (a: Array<any>): void => { arr = a; }, countCalls: (): number => calls
+        setStorage: (a: Array<any>): void => { arr = a; }
       };
     } else {
       survey.setValue("other", records("a0", "a1", "a2"));
       question.dataSource = new SurveyDataDynamicDataSource(survey, "other");
       res = {
         survey: survey, question: question, getStorage: (): Array<any> => survey.getValue("other"),
-        setStorage: (a: Array<any>): void => { survey.setValue("other", a); }, countCalls: (): number => 0
+        setStorage: (a: Array<any>): void => { survey.setValue("other", a); }
       };
     }
     await flush();
@@ -1444,8 +1442,8 @@ describe("Remote data source: an assigned source is read, not read through", () 
         expect(question.survey.data.q, "#9: nothing reached the hash").toBe(undefined);
       });
     });
-    test(type + ": count() is not asked of an assigned ArrayDynamicDataSource", async () => {
-      const { question, countCalls } = await createAssigned(type, "ArrayDynamicDataSource");
+    test(type + ": an assigned ArrayDynamicDataSource is counted from its window", async () => {
+      const { question, setStorage } = await createAssigned(type, "ArrayDynamicDataSource");
       const list = question.getDataList();
       expectAll(question, ["a0", "a1", "a2"], "#1");
       expect(list.count, "#2").toBe(3);
@@ -1454,7 +1452,8 @@ describe("Remote data source: an assigned source is read, not read through", () 
       getCell(question, 0).value = "edited";
       if (type === "matrix") question.addRow(); else question.addPanel();
       expect(list.count, "#5").toBe(4);
-      expect(countCalls(), "#6: the window answers the count").toBe(0);
+      setStorage(records("o0", "o1", "o2", "o3", "o4", "o5"));
+      expect(list.count, "#6: the window answers the count, not the storage").toBe(4);
     });
     /* assignSource sets isRemote before it swaps the source, and the hash is cleared in between: a
        handler that runs there still gets the question's own records from the list, not the window
@@ -1666,7 +1665,7 @@ describe("Remote data source: a page load is not an answer", () => {
 describe("Remote data source: limits, expressions and errors", () => {
   test("a total above settings.matrix.maxRowCount is accepted", async () => {
     const source = new FakeServerSource(serverRecords(3));
-    source.readRange = (skip: number, take: number): Promise<IDynamicDataReadResult> =>
+    source.read = (): Promise<IDynamicDataReadResult> =>
       Promise.resolve({ records: serverRecords(5), total: settings.matrix.maxRowCount + 500 });
     const { question } = await createMatrix(source);
     expect(question.rowCount, "#1: the server total, above the clamp").toBe(settings.matrix.maxRowCount + 500);
@@ -1820,7 +1819,7 @@ describe("Remote data source: the window is the page", () => {
     await flush();
     expect(question.pageIndex, "#1: the record went into this window, so the page does not move").toBe(1);
     expect(question.rowsOnPage.length, "#2: the new row is on it").toBe(6);
-    expect(source.callsOf("readRange").length, "#3: no page was re-read").toBe(0);
+    expect(source.callsOf("pagedRead").length, "#3: no page was re-read").toBe(0);
   });
   test("panel: addPanel keeps the page the panel was added to", async () => {
     const source = new FakeServerSource(serverRecords(12));
@@ -1832,7 +1831,7 @@ describe("Remote data source: the window is the page", () => {
     await flush();
     expect(question.pageIndex, "#1").toBe(1);
     expect(question.panelsOnPage.length, "#2").toBe(6);
-    expect(source.callsOf("readRange").length, "#3: no page was re-read").toBe(0);
+    expect(source.callsOf("pagedRead").length, "#3: no page was re-read").toBe(0);
   });
 });
 
@@ -1866,7 +1865,7 @@ describe("Remote data source: replacing a source", () => {
     question.dataSource = source;
     await flush();
     expect(source.requests[0].filter, "#1: the source owns it now and was told").toBe("{col1} = 'v3'");
-    expect(source.callsOf("readRange").length, "#2: one read, with the filter already in force").toBe(1);
+    expect(source.callsOf("pagedRead").length, "#2: one read, with the filter already in force").toBe(1);
     expect(question.rowCount, "#3").toBe(1);
     expect(rowValues(question), "#4").toEqual(["v3"]);
   });
@@ -1904,13 +1903,11 @@ describe("Remote data source: replacing a source", () => {
 // A source that pages itself and answers from memory: every read and every write completes inside
 // the call, so a refill happens inside the remove that caused it.
 class SyncPagingSource implements IDynamicDataSource {
-  public readRanges: Array<Array<number>> = [];
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public pagedReads: Array<Array<number>> = [];
   constructor(public records: Array<any>) { }
-  public read(): Array<any> {
-    return this.records.slice();
-  }
-  public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
-    this.readRanges.push([request.skip, request.take]);
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    this.pagedReads.push([request.skip, request.take]);
     const size = request.take > 0 ? request.take : this.records.length;
     return {
       records: this.records.slice(request.skip, request.skip + size).map(r => Object.assign({}, r)),
@@ -2278,7 +2275,7 @@ describe("Remote data source: a total the source does not know", () => {
 });
 
 describe("Remote data source: the operation of a failed read", () => {
-  test("a readRange that rejects a filter reports read, not filter", async () => {
+  test("a paged read that rejects a filter reports read, not filter", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { survey, question } = await createMatrix(source);
     const operations: Array<string> = [];
@@ -2675,7 +2672,7 @@ describe("Remote data source: the coordination between a question and its list",
   const asyncValidators = [{ type: "expression", expression: "asyncPageValidatorFunc() = 1" }];
   const asyncColumns = [{ name: "col1", cellType: "text", validators: asyncValidators }, { name: "col2", cellType: "text" }];
   const asyncTemplate = [{ type: "text", name: "col1", validators: asyncValidators }, { type: "text", name: "col2" }];
-  // A read() source: it hands over every record and the list cuts the page.
+  // A source without paging: it hands over every record and the list cuts the page.
   const readSource = (count: number, offset: number = 0): FakeServerSource =>
     new FakeServerSource(serverRecords(count, offset), ["insert", "update", "remove", "move"]);
   function recordValues(question: Question): Array<any> {
@@ -2812,21 +2809,21 @@ describe("Remote data source: the coordination between a question and its list",
   const expressionTemplate = [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
     { type: "expression", name: "col3", expression: "{panel.col2} + 1" }];
   test("T4 matrix: the order of a page change, of a remote edit and of a filter", async () => {
-    // (a) a page change of a readRange source: the rows are rebuilt when the read commits.
+    // (a) a page change of a paging source: the rows are rebuilt when the read commits.
     const ranged = await createMatrix(new FakeServerSource(serverRecords(12)));
     expect(ranged.question.visibleRows.length, "#a0").toBe(5);
     const rangedTrace = trace(ranged.question, (): any => ranged.question.visibleRows[0]);
     ranged.question.nextPage();
     await flush();
     expect(rangedTrace(), "#a").toEqual(["pageIndex=1 old", "isDataLoading=true old", "value=5:v5,5,undefined old", "isDataLoading=false new", "done new"]);
-    // (b) a page change of a read() source the list pages: the paging state, then the rebuild.
+    // (b) a page change of a source without paging, the list pages it: the paging state, then the rebuild.
     const paged = await createMatrix(readSource(12));
     expect(paged.question.visibleRows.length, "#b0").toBe(5);
     const pagedTrace = trace(paged.question, (): any => paged.question.visibleRows[0]);
     paged.question.nextPage();
     await flush();
     expect(pagedTrace(), "#b").toEqual(["pageIndex=1 old", "done new"]);
-    // (c) a cell edit on a readRange source: the window is stored before the conditions run.
+    // (c) a cell edit on a paging source: the window is stored before the conditions run.
     const edited = await createMatrix(new FakeServerSource(serverRecords(12)), { columns: expressionColumns });
     expect(edited.question.visibleRows.length, "#c0").toBe(5);
     const editedTrace = trace(edited.question, (): any => edited.question.visibleRows[0]);
@@ -2953,7 +2950,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.isDynamicDataRunning, "#4").toBe(true);
     source.settleAll();
     await flush(REFILL_TURNS);
-    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["readRange"]);
+    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["pagedRead"]);
     expect(question.isDynamicDataRunning, "#6").toBe(true);
     source.settleAll();
     await flush(REFILL_TURNS);
@@ -2972,7 +2969,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.isDynamicDataRunning, "#4").toBe(true);
     source.settleAll();
     await flush(REFILL_TURNS);
-    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["readRange"]);
+    expect(source.pending.map(call => call.op), "#5: the refill is in flight").toEqual(["pagedRead"]);
     expect(question.isDynamicDataRunning, "#6").toBe(true);
     source.settleAll();
     await flush(REFILL_TURNS);
@@ -3051,7 +3048,7 @@ describe("Remote data source: the coordination between a question and its list",
   });
 });
 
-// A read() source: it hands over every record and the list cuts the page.
+// A source without paging: it hands over every record and the list cuts the page.
 function readAllSource(count: number, keyField?: string): FakeServerSource {
   return new FakeServerSource(serverRecords(count), ["insert", "update", "remove", "move"], keyField);
 }
@@ -3060,7 +3057,7 @@ function insertBehindTheGrid(source: FakeServerSource, at: number, id: number): 
   source.records.splice(at, 0, { id: id, col1: "v" + id, col2: id });
 }
 
-/* refresh() reads a read() source again, and another writer may have inserted or moved records
+/* refresh() reads a source without paging again, and another writer may have inserted or moved records
    meanwhile. What the question keeps by record index follows its records into the new window; the
    rows the read replaces keep the records they were built for until the rebuild disposes them. */
 describe("Remote data source: a read that commits again", () => {

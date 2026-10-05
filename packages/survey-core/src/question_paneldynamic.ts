@@ -1309,9 +1309,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.runLightBuiltPanelsConditions();
     this.isAddingNewPanels = false;
     if (this.isNewPanelsValueChanged) {
-      this.isValueChangingInternally = true;
-      this.value = this.addingNewPanelsValue;
-      this.isValueChangingInternally = false;
+      this.runInternalValueChange((): void => { this.value = this.addingNewPanelsValue; });
+    }
+  }
+  /* A change the question makes to its own value or records: the panel count does not follow the
+     value meanwhile (setPanelCountBasedOnValue), and the on-value-change validation skips it unless
+     a respondent's input is part of it (validateElementCore). It is not writeRecords, which keeps the
+     existing panels from being refreshed from the records. The previous state comes back afterwards,
+     also when func throws or runs another such change from a callback. */
+  private runInternalValueChange<T>(func: () => T): T {
+    const prev = this.isValueChangingInternally;
+    this.isValueChangingInternally = true;
+    try {
+      return func();
+    } finally {
+      this.isValueChangingInternally = prev;
     }
   }
   protected getValueCore() {
@@ -1423,20 +1435,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.syncRecordCount(val);
     this.rebuildPanelsFromDataList();
   }
-  /* Grows or truncates the records to a count. Under paging most of the new records never get a
-     panel, so they are created with the defaults their panel would have written. */
-  private syncRecordCount(val: number): void {
+  /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
+     paging most of the new records never get a panel, so they are created with the defaults their
+     panel would have written. The callers keep a data source's records out: ensureCount refuses a
+     partial window only, and a read() source holds its whole storage. */
+  private syncRecordCount(val: number, createRecord?: (i: number) => any): void {
     const list = this.dataList;
-    const createRecord = this.isPagingActive ? (): any => this.createNewRecord() : undefined;
-    this.isValueChangingInternally = true;
-    try {
+    if (!createRecord && this.isPagingActive) {
+      createRecord = (): any => this.createNewRecord();
+    }
+    this.runInternalValueChange((): void => {
       list.batch((): void => {
         list.ensureCount(val, createRecord);
         list.truncate(val);
       });
-    } finally {
-      this.isValueChangingInternally = false;
-    }
+    });
   }
   private updateNewPanelsVisibleIndex(firstAddedIndex: number): void {
     if (!this.survey) return;
@@ -1532,23 +1545,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // The storage of a remote-backed question is the source's, and its window is one page: growing
     // it up to the count would pad the page with records the server does not have.
     if (this.isRemoteData) return;
-    const list = this.dataList;
     const panelCount = this.panelCount;
-    if (list.count === panelCount) return;
-    this.isValueChangingInternally = true;
-    try {
-      list.batch((): void => {
-        list.ensureCount(panelCount, (i: number): any => {
-          // A record past the page has no panel to take its value from.
-          const panel = this.panels[i];
-          const panelValue = !!panel ? panel.getValue() : this.createNewRecord();
-          return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
-        });
-        list.truncate(panelCount);
-      });
-    } finally {
-      this.isValueChangingInternally = false;
-    }
+    if (this.dataList.count === panelCount) return;
+    this.syncRecordCount(panelCount, (i: number): any => {
+      // A record past the page has no panel to take its value from.
+      const panel = this.panels[i];
+      const panelValue = !!panel ? panel.getValue() : this.createNewRecord();
+      return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+    });
   }
   /**
    * An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
@@ -2203,13 +2207,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.copyValue(record, list.getRecord(target.prevIndex));
     }
     this.updateBindings("panelCount", list.count + 1);
-    this.isValueChangingInternally = true;
     let at = -1;
-    try {
+    this.runInternalValueChange((): void => {
       list.batch((): void => { at = list.add(record, target.at); });
-    } finally {
-      this.isValueChangingInternally = false;
-    }
+    });
     this.markRecordEdited(at);
     /* A record templateVisibleIf hides is at visibleIndex -1, which is on page 0: the question goes
        there (the matrix stays on its page instead). The current panel is set aside before the page
@@ -2449,15 +2450,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateFooterActions();
     } else {
       // The list's callbacks and onDynamicPanelRemoved run in between: user code.
-      this.isValueChangingInternally = true;
-      try {
+      this.runInternalValueChange((): void => {
         list.remove(recordIndex);
         this.updateFooterActions();
         this.fireCallback(this.panelCountChangedCallback);
         this.notifyOnPanelAddedRemoved(false, index, panel);
-      } finally {
-        this.isValueChangingInternally = false;
-      }
+      });
     }
     this.refillPageAfterRemove(pageIndex);
     this.disposePanels([panel]);
@@ -2802,8 +2800,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.runCondition(this.getDataFilteredProperties());
   }
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
-    const prevIsValueChangingInternally = this.isValueChangingInternally;
-    this.isValueChangingInternally = true;
     /* Every paging sync and page render requested during the run - by the "visible" handler, which
        fires inside panel.runCondition(), by the call below, by anything a condition reaches - collapses
        into one after the loop. A re-entrant run leaves it to the outer one. */
@@ -2812,22 +2808,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const isPanelsCore = panels === this.panelsCore;
     let visibleIndex = 0;
     try {
-      for (var i = 0; i < panels.length; i++) {
-        const panel = panels[i];
-        const panelName = settings.expressionVariables.panel;
-        const newProps = Helpers.createCopy(properties);
-        newProps[panelName] = panel;
-        panel.runCondition(newProps);
-        // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
-        // "visible" property-changed handler, this only keeps the list flags in step with it.
-        this.setPanelRecordVisible(panel, isPanelsCore ? i : undefined);
-        if (panel.isVisible) {
-          visibleIndex++;
+      this.runInternalValueChange((): void => {
+        for (var i = 0; i < panels.length; i++) {
+          const panel = panels[i];
+          const panelName = settings.expressionVariables.panel;
+          const newProps = Helpers.createCopy(properties);
+          newProps[panelName] = panel;
+          panel.runCondition(newProps);
+          // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
+          // "visible" property-changed handler, this only keeps the list flags in step with it.
+          this.setPanelRecordVisible(panel, isPanelsCore ? i : undefined);
+          if (panel.isVisible) {
+            visibleIndex++;
+          }
         }
-      }
+      });
     } finally {
       this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-      this.isValueChangingInternally = prevIsValueChangingInternally;
     }
     if (!this.isPagingSyncSuspended) {
       this.runDeferredPagingSync();

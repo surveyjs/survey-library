@@ -11077,3 +11077,25 @@ describe("paneldynamic: one paging sync per condition run", () => {
     spy.mockRestore();
   });
 });
+
+describe("Dynamic panel: the question's own value changes", () => {
+  test("a value-changed handler that throws while panels are added leaves the panel count following the value", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "q", panelCount: 1, templateElements: [{ type: "text", name: "a", defaultValue: "x" }] }]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    let isThrowing = true;
+    survey.onValueChanged.add(() => {
+      if (isThrowing) {
+        isThrowing = false;
+        throw new Error("handler error");
+      }
+    });
+    // The new panel's default value is written back once the panel is created, and the handler throws there.
+    expect(() => question.addPanel(), "#1: the error reaches the caller").toThrow("handler error");
+    expect(question.panels.length, "#2: the panel is added").toBe(2);
+    survey.setValue("q", [{ a: "1" }, { a: "2" }, { a: "3" }, { a: "4" }]);
+    expect(question.panels.length, "#3: the panel count follows an assigned value").toBe(4);
+    expect(question.panels[3].getQuestionByName("a").value, "#4: the last panel shows its record").toBe("4");
+  });
+});

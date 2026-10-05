@@ -244,15 +244,16 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     expect((<any>survey.getQuestionByName("m")).visibleRows.length, "m is built").toBe(50);
     return survey;
   }
-  test("(1) one field of one record, three questions bound to the value: 4 whole-array copies, not 7", () => {
+  test("(1) one field of one record, three questions bound to the value: 3 whole-array copies, not 7", () => {
     const survey = createBoundSurvey();
     const pd1 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd1");
     const copies = vi.spyOn(Helpers, "getUnbindValue");
     pd1.panels[10].getQuestionByName("b").value = "changed";
     const wholeArray = copies.mock.calls.filter(call => Array.isArray(call[0]) && call[0].length === 50);
     // Kept: the survey hash gets its own copy (survey.setValue), each sibling gets its own copy
-    // (updateValueFromSurvey of pd2 and m), the matrix copies the value it receives (createNewValue).
-    expect(wholeArray.length, "#1").toBe(4);
+    // (updateValueFromSurvey of pd2 and m). The matrix hands its rows their records without copying
+    // the value it receives.
+    expect(wholeArray.length, "#1").toBe(3);
     expect(survey.data.rec[10].b, "#2").toBe("changed");
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[10].getQuestionByName("b").value, "#3").toBe("changed");
   });

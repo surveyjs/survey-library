@@ -1,6 +1,6 @@
 import { Question, IConditionObject } from "../src/question";
 import { PanelModel } from "../src/panel";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
@@ -1529,10 +1529,10 @@ describe("Survey_QuestionPanelDynamic", () => {
     const writer = options?.writer || "expression";
     const survey = new SurveyModel(sharedValueNameJson(nDynamic, writer, options?.withMatrix));
     survey.data = { rec: records };
-    // createNewPanel is protected and panelUpdateValueFromSurvey is private.
+    // createNewPanel is protected; a panel takes its record through its item.
     const proto = <any>QuestionPanelDynamicModel.prototype;
     const createSpy = vi.spyOn(proto, "createNewPanel");
-    const refreshSpy = vi.spyOn(proto, "panelUpdateValueFromSurvey");
+    const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicItem.prototype, "updateFromRecord");
     let valueChanged = 0;
     survey.onValueChanged.add(() => { valueChanged++; });
     return {
@@ -1737,7 +1737,8 @@ describe("Survey_QuestionPanelDynamic", () => {
     const measure = (count: number): Array<number> => {
       const survey = sharedValueNamePagedSurvey(3);
       for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
-      const spies = ["panelUpdateValueFromSurvey", "setQuestionValue", "updateItemValue"].map(name => vi.spyOn(proto, name));
+      const spies = [vi.spyOn(<any>QuestionPanelDynamicItem.prototype, "updateFromRecord")]
+        .concat(["setQuestionValue", "updateItemValue"].map(name => vi.spyOn(proto, name)));
       survey.data = { rec: sharedValueNameRecords(count) };
       const res = spies.map(spy => spy.mock.calls.length);
       spies.forEach(spy => spy.mockRestore());
@@ -1763,7 +1764,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
     survey.data = { rec: sharedValueNameRecords(30) };
     const pd = (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index);
-    const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "panelUpdateValueFromSurvey");
+    const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicItem.prototype, "updateFromRecord");
     pd(0).panels[7].getQuestionByName("q1").value = "x7";
     expect(refreshSpy.mock.calls.length, "#1: one panel in each of the two siblings").toBe(2);
     expect(pd(1).panels[7].getQuestionByName("q1").value, "#2").toBe("x7");

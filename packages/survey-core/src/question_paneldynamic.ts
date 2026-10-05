@@ -158,19 +158,13 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   public get questions(): Array<Question> {
     return this.panel.questions;
   }
-  public setValue(name: string, newValue: any): void {
-    if (this.isSettingValue || !this.isValueChanged(name, newValue)) return;
-    this.updateSharedQuestionsValue(name, newValue);
-    this.data.updateItemValue(this, name, Helpers.getUnbindValue(newValue), false);
-    this.runTriggersOnSetValue(name, newValue);
-    this.notifyRecordWritten();
-  }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
-  public setComment(name: string, newValue: string, locNotification: boolean | "text") {
-    this.setValue(name + settings.commentSuffix, newValue);
+  protected updateQuestionFromRecord(question: Question, record: any): void {
+    super.updateQuestionFromRecord(question, record);
+    question.initDataUI();
   }
 }
 
@@ -499,7 +493,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!!this.data) {
       this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
     }
-    if (!this.isSettingPanelItemData()) {
+    if (!this.isWritingRecords) {
       this.disposeLeftPanels(this._renderedPanels);
     }
     const currentRecord = isPageMove ? -1 : this.getCurrentPanelRecordIndex();
@@ -543,7 +537,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     /* A rebuild can run from inside a write one of the old panels' questions is making - the record
        it edits leaves the page when its visibility changes - and that question still finishes its
        own setter after the rebuild returns. Its panel is disposed at the next rebuild instead. */
-    const isWriting = this.isSettingPanelItemData();
+    const isWriting = this.isWritingRecords;
     panels.forEach((panel: PanelModel): void => {
       if (panel.isDisposed || this.panelsCore.indexOf(panel) > -1) return;
       if (isWriting || this._renderedPanels.indexOf(panel) > -1) {
@@ -2957,15 +2951,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     for (var i = 0; i < this.panelsCore.length; i++) {
       const panel = this.panelsCore[i];
       var questions = panel.questions;
-      this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
         if (q.visible && !panel.isVisible) continue;
         q.clearValueIfInvisible(reason);
-        this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
     }
-    this.isSetPanelItemData = {};
   }
   protected getIsRunningValidators(): boolean {
     return super.getIsRunningValidators() || this.isRunningValidatorsInPanels();
@@ -3232,45 +3223,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue);
   }
-  // oldRecords: a value that is not an array is kept as it is, and isPanelRecordChanged reads it as
-  // "every panel changed".
+  /* The panels take their records after the panel count follows the value. A write of a panel
+     question does not push them back (isWritingRecords): that would re-create a nested dynamic
+     question from the stored value and drop its state that is not in the answer, such as an added
+     trailing empty row. */
   protected onRecordsValueAssigned(oldRecords: any): void {
     this.setPanelCountBasedOnValue();
-    // Do not force-refresh nested panel questions while a child question updates panel data.
-    // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
-    // value and drop transient UI-only state, such as an added trailing empty row.
-    if (!this.isSettingPanelItemData()) {
-      for (var i = 0; i < this.panelsCore.length; i++) {
-        if (this.isPanelRecordChanged(i, oldRecords)) {
-          this.panelUpdateValueFromSurvey(i);
-        }
-      }
-    }
+    super.onRecordsValueAssigned(oldRecords);
     this.updateIsAnswered();
-  }
-  /* A question bound to the same value receives the whole array on every write one of its siblings
-     makes to a single record field - and the survey hands it its own copy (updateValueFromSurvey
-     unbinds the value), so the previous value is a snapshot nothing has written into. A panel whose
-     record is a different, strictly equal object is already showing it and is not refreshed: with
-     every write refreshing every panel of every sibling, loading N records cost O(N^2).
-     The same record object may have been changed in place, and a previous value that is not an
-     array says nothing about the panels: those panels are refreshed. index is a created position,
-     oldRecords a copy of the previous value array. */
-  private isPanelRecordChanged(index: number, oldRecords: any): boolean {
-    const newRecords = this.getPropertyValueWithoutDefault("value");
-    if (!Array.isArray(oldRecords) || !Array.isArray(newRecords) || this.isRemoteData) return true;
-    const recordIndex = this.getRecordIndexByPanelIndex(index);
-    const oldRecord = oldRecords[recordIndex];
-    const newRecord = newRecords[recordIndex];
-    if (oldRecord === newRecord && oldRecord !== undefined) return true;
-    return DynamicDataList.isValueChanged(newRecord, oldRecord);
-  }
-
-  private isSettingPanelItemData(): boolean {
-    for (const key in this.isSetPanelItemData) {
-      if (this.isSetPanelItemData[key] > 0) return true;
-    }
-    return false;
   }
   public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;
@@ -3290,20 +3250,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return true;
   }
-  /* index is a created position. The loops that call these two know it: getItemData(panel.data)
-     looks it up in a new items array - for every panel, on every write of the value. */
-  private panelUpdateValueFromSurvey(index: number) {
-    const questions = this.panelsCore[index].questions;
-    var values = this.getPanelItemDataByIndex(index);
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      q.updateValueFromSurvey(values[q.getValueName()]);
-      q.updateCommentFromSurvey(
-        values[q.getValueName() + settings.commentSuffix]
-      );
-      q.initDataUI();
-    }
-  }
+  /* index is a created position. The loop that calls it knows it: getItemData(panel.data) looks it
+     up in a new items array - for every panel, on every write of the value. */
   private panelSurveyValueChanged(index: number) {
     var questions = this.panelsCore[index].questions;
     var values = this.getPanelItemDataByIndex(index);
@@ -3381,26 +3329,20 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const record = this.dataList.getRecord(recordIndex);
     return record !== undefined ? record : {};
   }
-  private isSetPanelItemData: HashTable<number> = {};
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
     if (this.isValidatingExpressions || item === this.template.data) return;
-    if (this.isSetPanelItemData[name] > this.maxCheckCount)
-      return;
-    if (!this.isSetPanelItemData[name]) {
-      this.isSetPanelItemData[name] = 0;
-    }
-    this.isSetPanelItemData[name]++;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
     // index is a created position; the record it writes is the one that panel holds, or the next
     // record for a panel that does not exist yet.
     const recordIndex = this.getRecordIndexByPanelIndex(index);
-    if (recordIndex < 0) return;
-    if (index >= 0 && index < this.panelsCore.length) {
-      if (!Array.isArray(this.changingValueQuestions)) {
-        this.changingValueQuestions = [];
-      }
+    /* The questions the validation on value change checks: the one being written, and the ones of the
+       writes this one runs inside. A nested write adds its question to a copy, so the outer write
+       keeps its own list. */
+    const prevChangingValueQuestions = this.changingValueQuestions;
+    if (index < this.panelsCore.length) {
+      const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
       let qName = name;
       const suffix = settings.commentSuffix;
       if (qName.endsWith(suffix)) {
@@ -3408,25 +3350,27 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
       const q = this.panelsCore[index].getQuestionByValueName(qName);
       if (!!q) {
-        this.changingValueQuestions.push(q);
+        questions.push(q);
       }
+      this.changingValueQuestions = questions;
     }
     // The list deletes the key for an empty value; the emptiness rule (a whitespace-only string is
     // empty) is the question rule, so it is applied here.
     const newValue = this.isValueEmpty(val) ? undefined : val;
-    this.dataList.batch((): void => {
-      // The padding is a question rule as well: a write to a panel whose record does not exist yet
-      // grows the value up to the panel count. A remote window is never padded - the records it does
-      // not hold are on the server, and ensureCount would insert them there.
-      if (!this.isRemoteData) {
-        this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
-      }
-      this.dataList.setValue(recordIndex, name, newValue);
-    });
-    this.changingValueQuestions = null;
-    this.isSetPanelItemData[name]--;
-    if (this.isSetPanelItemData[name] - 1) {
-      delete this.isSetPanelItemData[name];
+    try {
+      this.writeRecords((): void => {
+        this.dataList.batch((): void => {
+          // The padding is a question rule as well: a write to a panel whose record does not exist yet
+          // grows the value up to the panel count. A remote window is never padded - the records it does
+          // not hold are on the server, and ensureCount would insert them there.
+          if (!this.isRemoteData) {
+            this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
+          }
+          this.dataList.setValue(recordIndex, name, newValue);
+        });
+      });
+    } finally {
+      this.changingValueQuestions = prevChangingValueQuestions;
     }
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {

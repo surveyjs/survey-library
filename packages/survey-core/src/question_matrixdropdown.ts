@@ -299,6 +299,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getListRecordCount(): number {
     return this.getRecordItems().length;
   }
+  // The keyed answer: a row's record is under its row name.
+  protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
+    return this.isObject(value) ? value[(<MatrixDropdownRowModelBase>item).rowName] : undefined;
+  }
   // One record without composing the array. Inside a list write the list answers: the write is not in
   // the value yet.
   protected getListRecordAt(index: number): any {
@@ -346,10 +350,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return record === undefined || record === null || this.isObject(record) && Object.keys(record).length === 0;
   }
   /* A cell write of one row reaches the other rows on the same key here: they show the record that was
-     just written. Any other write is an assignment that refreshes every row (onSetQuestionValue). */
+     just written. Any other write is an assignment that refreshes the rows whose record changed
+     (QuestionRecordsModel.onRecordsValueAssigned). */
   private refreshRowsOfSameKeys(changed: Array<number>): void {
     const cache = this.getRecordItemsCache();
-    if (!cache.hasDuplicates || !this.isRowChanging) return;
+    if (!cache.hasDuplicates || !this.isWritingRecords) return;
     const value = this.value;
     cache.keys.forEach((key: string, index: number): void => {
       if (changed.indexOf(index) > -1) return;

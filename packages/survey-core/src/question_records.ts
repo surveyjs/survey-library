@@ -36,6 +36,14 @@ export interface IDynamicDataRecordUniqueness {
 interface IDynamicDataValueAssignment {
   created: Array<number>;
 }
+// A write of one record field through an item, as the item prepared it (QuestionRecordItem.prepareRecordWrite).
+export interface IRecordItemWrite {
+  // The field as it is going to be stored: the write stops when it equals the stored one.
+  fieldValue: any;
+  // What the owner's updateItemValue receives.
+  ownerValue: any;
+  isDeleting: boolean;
+}
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
    that does not say how to compare is "any": the local sort then compares the raw values. "string" is
    also what a question that does not know its value type reports (an expression, a select question
@@ -964,7 +972,57 @@ export abstract class QuestionRecordsModel extends Question {
   // The value is stored and the list-side pair is still open.
   protected onRecordsValueStored(): void { }
   // The list-side pair is closed. oldRecords: a copy of the value the assignment replaced.
-  protected onRecordsValueAssigned(oldRecords: any): void { }
+  protected onRecordsValueAssigned(oldRecords: any): void {
+    this.updateItemsFromRecords(oldRecords);
+  }
+  /* The question is writing its records itself - a record on behalf of one of its objects, or what
+     its objects hold: the assignment that write makes does not push the records back into the objects
+     (updateItemsFromRecords). A depth: one write can run inside another, from a callback. */
+  private recordWriteDepth: number = 0;
+  protected get isWritingRecords(): boolean {
+    return this.recordWriteDepth > 0;
+  }
+  protected writeRecords<T>(func: () => T): T {
+    this.recordWriteDepth++;
+    try {
+      return func();
+    } finally {
+      this.recordWriteDepth--;
+    }
+  }
+  /* An assignment from outside the objects - the survey, a trigger, a bound question - pushes the
+     records into the objects that exist, and only into those whose record changed: a question bound
+     to the same value receives the whole value on every write a sibling makes to one record field, so
+     refreshing every object would make loading N records cost O(N^2). The objects are walked by
+     position and each position is mapped to its record through the list: an object never looks up its
+     own record here, which would be one more O(N) lookup per object.
+     A record that is the same object as before may have been changed in place, and a value that is
+     not a collection of records says nothing about them: those objects are refreshed. So is every
+     object of a data source - its window is replaced by a read. */
+  private updateItemsFromRecords(oldRecords: any): void {
+    if (this.isWritingRecords) return;
+    const newRecords = this.getStoredRecords();
+    const isEveryChanged = !Helpers.isValueObject(oldRecords) || !Helpers.isValueObject(newRecords) || this.isRemoteData;
+    const list = this.dataListValue;
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
+      const newRecord = this.getItemRecordInValue(newRecords, recordIndex, item);
+      if (isEveryChanged || QuestionRecordsModel.isRecordChanged(this.getItemRecordInValue(oldRecords, recordIndex, item), newRecord)) {
+        item.updateFromRecord(newRecord);
+      }
+    }
+  }
+  private static isRecordChanged(oldRecord: any, newRecord: any): boolean {
+    if (oldRecord === newRecord && oldRecord !== undefined) return true;
+    return DynamicDataList.isValueChanged(newRecord, oldRecord);
+  }
+  /* The record of an item in a value of the question: by record index in an array answer. The fixed
+     matrix keys its answer by row name. */
+  protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
+    return Array.isArray(value) && recordIndex > -1 ? value[recordIndex] : undefined;
+  }
   // The stored value, not the default: the records an assignment or a read replaces.
   protected getStoredRecords(): any {
     return this.getPropertyValueWithoutDefault("value");
@@ -1087,6 +1145,9 @@ export abstract class QuestionRecordsModel extends Question {
   public abstract getItemRecordIndex(item: ISurveyData): number;
   // The value an item's {matrix} / {panel} variable reads.
   public abstract getFilteredData(): any;
+  /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
+     matrix row (see QuestionRecordItem.prepareRecordWrite). */
+  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void;
   /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
@@ -1365,14 +1426,67 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   getValue(name: string): any {
     return this.getAllValues()[name];
   }
-  abstract setValue(name: string, newValue: any): void;
+  public setValue(name: string, newValue: any): void {
+    this.writeRecordValue(name, newValue, false);
+  }
 
   getAllValues(): any {
     return this.data.getItemData(this);
   }
 
   abstract getComment(name: string): string;
-  abstract setComment(name: string, newValue: string, locNotification: boolean): void;
+  public setComment(name: string, newValue: string, locNotification: any): void {
+    this.writeRecordValue(name, newValue, true);
+  }
+  /* One write of a question of the item into the item's record. A comment is the field
+     name + commentSuffix of the same record. The other questions on the same value name take the
+     value first: a matrix row composes the record it proposes from its questions, and a stale twin
+     would put the old value back. The item prepares the write and may refuse it; a field that would
+     not change stops the write before the owner, the triggers and the notification. */
+  private writeRecordValue(name: string, newValue: any, isComment: boolean): void {
+    if (this.isSettingValue) return;
+    if (!isComment) {
+      this.updateSharedQuestionsValue(name, newValue);
+    }
+    const write = this.prepareRecordWrite(name, newValue, isComment);
+    if (!write) return;
+    const fieldName = isComment ? name + settings.commentSuffix : name;
+    if (!this.isValueChanged(fieldName, write.fieldValue)) return;
+    this.data.updateItemValue(this, fieldName, write.ownerValue, write.isDeleting);
+    this.runTriggersOnSetValue(fieldName, newValue);
+    this.notifyRecordWritten();
+    this.onRecordWritten(name, isComment);
+  }
+  /* Returns undefined to refuse the write. The default hands the owner the field value, unbound: the
+     owner stores it, and the question keeps its own. */
+  protected prepareRecordWrite(name: string, newValue: any, isComment: boolean): IRecordItemWrite {
+    return { fieldValue: newValue, ownerValue: Helpers.getUnbindValue(newValue), isDeleting: false };
+  }
+  // After a write that reached the owner.
+  protected onRecordWritten(name: string, isComment: boolean): void { }
+  /* The owner's value was assigned from outside the item: the record is pushed into the questions,
+     which do not write it back. */
+  public updateFromRecord(record: any): void {
+    const questions = this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      this.updateQuestionFromRecord(questions[i], record);
+    }
+  }
+  protected updateQuestionFromRecord(question: Question, record: any): void {
+    const name = question.getValueName();
+    question.updateValueFromSurvey(!!record ? record[name] : undefined);
+    question.updateCommentFromSurvey(!!record ? record[name + settings.commentSuffix] : undefined);
+  }
+  // The questions receive values the item does not write back; the flag nests.
+  protected runSettingValue(func: () => void): void {
+    const prev = this.isSettingValue;
+    this.isSettingValue = true;
+    try {
+      func();
+    } finally {
+      this.isSettingValue = prev;
+    }
+  }
 
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), [this.getVariableName()]: this };
@@ -1445,9 +1559,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (questions.length > 1) {
       for (let i = 0; i < questions.length; i ++) {
         if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
-          this.isSettingValue = true;
-          questions[i].updateValueFromSurvey(value);
-          this.isSettingValue = false;
+          this.runSettingValue((): void => questions[i].updateValueFromSurvey(value));
         }
       }
     }

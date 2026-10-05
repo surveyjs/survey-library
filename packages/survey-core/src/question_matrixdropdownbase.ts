@@ -23,7 +23,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, QuestionRecordsModel } from "./question_records";
+import { QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
@@ -361,24 +361,27 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return this.getValueCore(false);
   }
   public set value(value: any) {
-    this.isSettingValue = true;
-    this.subscribeToChanges(value);
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      var val = this.getCellValue(value, question.getValueName());
-      var oldComment = question.comment;
-      var comment = !!value
-        ? value[question.getValueName() + Base.commentSuffix]
-        : "";
-      if (comment == undefined) comment = "";
-      question.updateValueFromSurvey(val);
-      if (!!comment || this.isTwoValueEquals(oldComment, question.comment)) {
-        question.updateCommentFromSurvey(comment);
-      }
-      question.onSurveyValueChanged(val);
+    this.updateFromRecord(value);
+  }
+  // A row edits a survey element in place when its value is one (see editingObj).
+  public updateFromRecord(record: any): void {
+    this.runSettingValue((): void => {
+      this.subscribeToChanges(record);
+      super.updateFromRecord(record);
+    });
+  }
+  /* The row notifies each question right after updating it, and it keeps a comment the question
+     typed while the record has none, unless the question's comment was the record's. */
+  protected updateQuestionFromRecord(question: Question, record: any): void {
+    const val = this.getCellValue(record, question.getValueName());
+    const oldComment = question.comment;
+    let comment = !!record ? record[question.getValueName() + Base.commentSuffix] : "";
+    if (comment == undefined) comment = "";
+    question.updateValueFromSurvey(val);
+    if (!!comment || this.isTwoValueEquals(oldComment, question.comment)) {
+      question.updateCommentFromSurvey(comment);
     }
-    this.isSettingValue = false;
+    question.onSurveyValueChanged(val);
   }
   public get filteredValue(): any {
     return this.getValueCore(true);
@@ -570,40 +573,32 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       return valuesHash[key];
     }
   }
-  public setValue(name: string, newColumnValue: any) {
-    this.setValueCore(name, newColumnValue, false);
-  }
   public getComment(name: string): string {
     var question = this.getQuestionByName(name);
     return !!question ? question.comment : "";
   }
-  public setComment(name: string, newValue: string, locNotification: any) {
-    this.setValueCore(name, newValue, true);
-  }
-  private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
-    if (this.isSettingValue || this.isCreatingDetailPanel) return;
-    if (!isComment) {
-      this.updateSharedQuestionsValue(name, newColumnValue);
-    }
+  /* The owner receives the whole proposed row, after the cell-changing callback had its say and,
+     when the matrix validates on value changing, after the cell passed. */
+  protected prepareRecordWrite(name: string, newValue: any, isComment: boolean): IRecordItemWrite {
+    if (this.isCreatingDetailPanel) return undefined;
     const changedQuestion = this.getQuestionByName(name);
-    const newValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
-    const changedName = isComment ? name + Base.commentSuffix : name;
-    if (!this.isValueChanged(changedName, newValue)) return;
-    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
-    const isDeleting = newColumnValue == null && !changedQuestion ||
-      isComment && !newColumnValue && !!changedQuestion;
-    this.data.updateItemValue(this, changedName, newValue, isDeleting);
-    if (changedName) {
-      this.runTriggersOnSetValue(changedName, newColumnValue);
-    }
-    this.notifyRecordWritten();
-    if (!isComment && changedQuestion) {
-      const survey = <any>this.getSurvey();
-      if (survey && survey.isValidateOnValueChanged) {
-        const col = this.data.columns.filter(c => c.name === name)[0];
-        if (col && col.isUnique) {
-          this.data.checkIfValueInRowDuplicated(this, changedQuestion);
-        }
+    const rowValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
+    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return undefined;
+    const fieldName = isComment ? name + Base.commentSuffix : name;
+    return {
+      fieldValue: rowValue[fieldName],
+      ownerValue: rowValue,
+      isDeleting: newValue == null && !changedQuestion || isComment && !newValue && !!changedQuestion
+    };
+  }
+  protected onRecordWritten(name: string, isComment: boolean): void {
+    if (isComment) return;
+    const changedQuestion = this.getQuestionByName(name);
+    const survey = <any>this.getSurvey();
+    if (changedQuestion && survey && survey.isValidateOnValueChanged) {
+      const col = this.data.columns.filter(c => c.name === name)[0];
+      if (col && col.isUnique) {
+        this.data.checkIfValueInRowDuplicated(this, changedQuestion);
       }
     }
   }
@@ -614,13 +609,13 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const changedName = isComment ? name + Base.commentSuffix : name;
     const changingValue = this.data.onRowChanging(this, changedName, newValue);
     if (!this.isTwoValueEquals(changingValue, question.value)) {
-      this.isSettingValue = true;
-      if (isComment) {
-        question.comment = changingValue;
-      } else {
-        question.value = changingValue;
-      }
-      this.isSettingValue = false;
+      this.runSettingValue((): void => {
+        if (isComment) {
+          question.comment = changingValue;
+        } else {
+          question.value = changingValue;
+        }
+      });
       return this.value;
     }
     return newValue;
@@ -895,22 +890,22 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     item[name] = newValue;
   }
   protected buildCells(value: any) {
-    this.isSettingValue = true;
-    var columns = this.data.columns;
-    for (var i = 0; i < columns.length; i++) {
-      var column = columns[i];
-      var cell = this.createCell(column);
-      this.cells.push(cell);
-      var cellValue = this.getCellValue(value, column.name);
-      if (!Helpers.isValueEmpty(cellValue)) {
-        cell.question.value = cellValue;
-        var commentKey = column.name + Base.commentSuffix;
-        if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
-          cell.question.comment = value[commentKey];
+    this.runSettingValue((): void => {
+      var columns = this.data.columns;
+      for (var i = 0; i < columns.length; i++) {
+        var column = columns[i];
+        var cell = this.createCell(column);
+        this.cells.push(cell);
+        var cellValue = this.getCellValue(value, column.name);
+        if (!Helpers.isValueEmpty(cellValue)) {
+          cell.question.value = cellValue;
+          var commentKey = column.name + Base.commentSuffix;
+          if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
+            cell.question.comment = value[commentKey];
+          }
         }
       }
-    }
-    this.isSettingValue = false;
+    });
   }
   protected isTwoValueEquals(val1: any, val2: any): boolean {
     return Helpers.isTwoValueEquals(val1, val2, false, true, false);
@@ -963,12 +958,12 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
   }
   private updateOnSetValue(name: string, newValue: any) {
-    this.isSettingValue = true;
-    let questions = this.getQuestionsByName(name);
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].value = newValue;
-    }
-    this.isSettingValue = false;
+    this.runSettingValue((): void => {
+      let questions = this.getQuestionsByName(name);
+      for (let i = 0; i < questions.length; i++) {
+        questions[i].value = newValue;
+      }
+    });
   }
 }
 
@@ -1041,7 +1036,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private detailPanelValue: PanelModel;
   private useCaseSensitiveComparisonValue: boolean;
-  protected isRowChanging = false;
+  // The matrix is writing its records itself (see QuestionRecordsModel.writeRecords).
+  protected get isRowChanging(): boolean {
+    return this.isWritingRecords;
+  }
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onCellCreatedCallback: (options: any) => void;
@@ -2304,9 +2302,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         .value;
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
-    this.isRowChanging = true;
-    this.setNewValue(newValue);
-    this.isRowChanging = false;
+    this.writeRecords((): void => this.setNewValue(newValue));
   }
   public get totalValue(): any {
     if (!this.hasTotal || !this.visibleTotalRow) return {};
@@ -2639,24 +2635,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
 
   protected onBeforeValueChanged(val: any) { }
-  private onSetQuestionValue() {
-    if (this.isRowChanging) return;
-    this.onBeforeValueChanged(this.value);
-    if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
-      return;
-    this.isRowChanging = true;
-    var val = this.createNewValue();
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var row = this.generatedVisibleRows[i];
-      this.generatedVisibleRows[i].value = this.getRowValueCore(row, val);
-    }
-    this.isRowChanging = false;
-  }
   /* Inside the list side of the assignment (see QuestionRecordsModel.setQuestionValue), before it
-     closes: an assignment from outside that leaves the rows on their records refreshes their values
-     by position, as it always has. */
+     closes. A write the matrix makes itself does not change the row count. The rows take their
+     records once the pair is closed (QuestionRecordsModel.onRecordsValueAssigned). */
   protected onRecordsValueStored(): void {
-    this.onSetQuestionValue();
+    if (!this.isWritingRecords) {
+      this.onBeforeValueChanged(this.value);
+    }
     this.updateIsAnswered();
   }
   // The QuestionRecordsModel hooks in matrix terms.
@@ -3226,9 +3211,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
       }
-      this.isRowChanging = true;
-      Serializer.setObjPropertyValue(rowObj, columnName, columnValue);
-      this.isRowChanging = false;
+      this.writeRecords((): void => Serializer.setObjPropertyValue(rowObj, columnName, columnValue));
       this.onCellValueChanged(row, columnName, rowObj, oldCellValue);
     } else {
       const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
@@ -3256,15 +3239,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // The merge is the base's; the record it works on is a copy of the one the list holds.
     const rowValue = Object.assign({}, oldRecord);
     this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
-    // The list's callbacks run in between: a flag a throw left set would make onSetQuestionValue
-    // return early for good.
-    let isChanged = false;
-    this.isRowChanging = true;
-    try {
-      isChanged = list.setRecord(index, rowValue);
-    } finally {
-      this.isRowChanging = false;
-    }
+    const isChanged = this.writeRecords((): boolean => list.setRecord(index, rowValue));
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
@@ -3282,9 +3257,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.createNewValue()
     );
     if (this.isTwoValueEquals(oldValue, combine.value)) return null;
-    this.isRowChanging = true;
-    this.setNewValue(combine.value);
-    this.isRowChanging = false;
+    this.writeRecords((): void => this.setNewValue(combine.value));
     return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
   }
   /* The per-row half of a cell change: which keys of a record belong to the row's questions is

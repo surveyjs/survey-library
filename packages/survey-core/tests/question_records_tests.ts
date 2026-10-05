@@ -4,6 +4,8 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { FunctionFactory } from "../src/functionsfactory";
+import { settings } from "../src/settings";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, on getDataList() and when it pages, sorts or filters - and on no other
@@ -207,17 +209,18 @@ describe("Records question: value assignment", () => {
     expect((<any>q).dataListValue, "the list exists").toBeDefined();
     return q;
   }
-  test("matrix: one list-side pair per assignment, and the rows get their values inside it", () => {
+  test("matrix: one list-side pair per assignment, and the rows whose record changed get it after the pair", () => {
     const q = createPagedMatrix();
+    q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
     const begin = vi.spyOn(<any>q, "beginValueAssignment");
     const end = vi.spyOn(<any>q, "endValueAssignment");
-    const onSet = vi.spyOn(<any>q, "onSetQuestionValue");
-    q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
+    const rowUpdates = q.visibleRows.map(row => vi.spyOn(row, "updateFromRecord"));
+    q.value = [{ a: "1" }, { a: "x" }, { a: "3" }];
     expect(begin, "#1").toHaveBeenCalledTimes(1);
-    expect(onSet, "#2").toHaveBeenCalledTimes(1);
-    expect(end, "#3").toHaveBeenCalledTimes(1);
-    const order = [begin.mock.invocationCallOrder[0], onSet.mock.invocationCallOrder[0], end.mock.invocationCallOrder[0]];
-    expect(order, "#4: begin, then the rows' values, then end").toEqual(order.slice().sort((x, y) => x - y));
+    expect(end, "#2").toHaveBeenCalledTimes(1);
+    expect(rowUpdates.map(spy => spy.mock.calls.length), "#3: only the row whose record changed").toEqual([0, 1]);
+    expect(end.mock.invocationCallOrder[0] < rowUpdates[1].mock.invocationCallOrder[0], "#4: after the pair").toBe(true);
+    expect(q.visibleRows[1].getQuestionByName("a").value, "#5").toBe("x");
   });
   test("panel: one list-side pair per assignment, and the panel count follows after it", () => {
     const survey = new SurveyModel({
@@ -463,6 +466,265 @@ describe("Records questions: value-change notifications", () => {
         q.visibleRows;
       }
       expect(q.value, "#3: the first build ran the triggers of the record whose a = 1").toEqual([{ a: 1, b: "set" }, { a: 2 }]);
+    });
+  });
+});
+
+describe("Records questions: writes through an item", () => {
+  interface IWriteKind {
+    type: string;
+    variable: string;
+    // elements: the cells or template questions, a text question by default.
+    create(elements: Array<any>, extra?: any): any;
+    items(q: any): Array<any>;
+    question(q: any, index: number, name: string): any;
+    record(q: any, index: number): any;
+    value(records: Array<any>): any;
+  }
+  const writeKinds: Array<IWriteKind> = [
+    {
+      type: "matrixdynamic", variable: "row",
+      create: (elements, extra) => Object.assign({ type: "matrixdynamic", rowCount: 2, columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }, extra),
+      items: q => q.visibleRows,
+      question: (q, index, name) => q.visibleRows[index].getQuestionByName(name),
+      record: (q, index) => Array.isArray(q.value) ? q.value[index] : undefined,
+      value: records => records
+    },
+    {
+      type: "matrixdropdown", variable: "row",
+      create: (elements, extra) => Object.assign({ type: "matrixdropdown", rows: ["r0", "r1"], columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }, extra),
+      items: q => q.visibleRows,
+      question: (q, index, name) => q.visibleRows[index].getQuestionByName(name),
+      record: (q, index) => !!q.value ? q.value["r" + index] : undefined,
+      value: records => {
+        const res: any = {};
+        records.forEach((record, index) => { res["r" + index] = record; });
+        return res;
+      }
+    },
+    {
+      type: "paneldynamic", variable: "panel",
+      create: (elements, extra) => Object.assign({ type: "paneldynamic", panelCount: 2, templateElements: elements.map(e => Object.assign({ type: "text" }, e)) }, extra),
+      items: q => q.panels.map((panel: any) => panel.data),
+      question: (q, index, name) => q.panels[index].getQuestionByName(name),
+      record: (q, index) => Array.isArray(q.value) ? q.value[index] : undefined,
+      value: records => records
+    }
+  ];
+  const createSurvey = (kind: IWriteKind, elements: Array<any>, surveyJson?: any, extra?: any): SurveyModel =>
+    new SurveyModel(Object.assign({ elements: [Object.assign({ name: "q" }, kind.create(elements, extra))] }, surveyJson));
+  // The trigger of b logs the value of a it ran with.
+  const withTrigger = (kind: IWriteKind): Array<any> => [{ name: "a" },
+    { name: "b", setValueIf: "{" + kind.variable + ".a} notempty", setValueExpression: "logRecordTrigger({" + kind.variable + ".a})" }];
+  function logEvents(survey: SurveyModel, transform?: (value: any) => any): Array<string> {
+    const log: Array<string> = [];
+    FunctionFactory.Instance.register("logRecordTrigger", (params: Array<any>): any => {
+      log.push("trigger:" + params[0]);
+      return "t:" + params[0];
+    });
+    survey.onValueChanging.add((_, options) => { log.push("changing:" + options.name); });
+    survey.onValueChanged.add((_, options) => { log.push("changed:" + options.name); });
+    survey.onMatrixCellValueChanging.add((_, options) => {
+      log.push("cellChanging:" + options.columnName + "=" + options.value);
+      if (!!transform) options.value = transform(options.value);
+    });
+    survey.onMatrixCellValueChanged.add((_, options) => { log.push("cellChanged:" + options.columnName + "=" + options.value); });
+    survey.onDynamicPanelValueChanged.add((_, options) => { log.push("panelChanged:" + options.name + "=" + options.value); });
+    return log;
+  }
+  const matrixEditLog = ["cellChanging:a=x", "changing:q", "changed:q", "cellChanged:a=x", "trigger:x",
+    "cellChanging:b=t:x", "changing:q", "changed:q", "cellChanged:b=t:x"];
+  const editLogs: { [type: string]: Array<string> } = {
+    matrixdynamic: matrixEditLog,
+    matrixdropdown: matrixEditLog,
+    paneldynamic: ["changing:q", "changed:q", "trigger:x", "changing:q", "changed:q", "panelChanged:b=t:x", "panelChanged:a=x"]
+  };
+  writeKinds.forEach(kind => {
+    test("a child edit stores the record and runs the callbacks and the trigger in their order, " + kind.type, () => {
+      const survey = createSurvey(kind, withTrigger(kind));
+      const q = survey.getQuestionByName("q");
+      const log = logEvents(survey);
+      try {
+        kind.question(q, 0, "a").value = "x";
+        expect(log, "#1").toEqual(editLogs[kind.type]);
+        expect(kind.record(q, 0), "#2").toEqual({ a: "x", b: "t:x" });
+        expect(kind.question(q, 0, "b").value, "#3").toBe("t:x");
+      } finally {
+        FunctionFactory.Instance.unregister("logRecordTrigger");
+      }
+    });
+    test("a write that does not change the stored field fires no value change and no trigger, " + kind.type, () => {
+      const survey = createSurvey(kind, withTrigger(kind));
+      const q = survey.getQuestionByName("q");
+      const log = logEvents(survey);
+      try {
+        kind.question(q, 0, "a").value = "x";
+        log.length = 0;
+        kind.items(q)[0].setValue("a", "x");
+        expect(log.filter(entry => entry.indexOf("cellChanging") !== 0), "#1").toEqual([]);
+        expect(kind.record(q, 0), "#2").toEqual({ a: "x", b: "t:x" });
+      } finally {
+        FunctionFactory.Instance.unregister("logRecordTrigger");
+      }
+    });
+    test("comments: a custom comment suffix, a value name, and record fields no question owns, " + kind.type, () => {
+      const prevSuffix = settings.commentSuffix;
+      settings.commentSuffix = "_note";
+      try {
+        // A template question stores under its value name; a matrix column under its name.
+        const element = kind.type === "paneldynamic" ? { name: "a", valueName: "va" } : { name: "va" };
+        const survey = createSurvey(kind, [Object.assign({ showCommentArea: true }, element), { name: "b" }]);
+        const q = survey.getQuestionByName("q");
+        survey.setValue("q", kind.value([{ va: "1", extra: "kept" }, { b: "2" }]));
+        const a = kind.question(q, 0, element.name);
+        a.comment = "c1";
+        expect(kind.record(q, 0), "#1: the comment field").toEqual({ va: "1", va_note: "c1", extra: "kept" });
+        a.value = "x";
+        expect(kind.record(q, 0), "#2: the value name").toEqual({ va: "x", va_note: "c1", extra: "kept" });
+        a.comment = "";
+        expect(kind.record(q, 0), "#3: an empty comment is removed").toEqual({ va: "x", extra: "kept" });
+        expect(kind.record(q, 1), "#4: the other record").toEqual({ b: "2" });
+      } finally {
+        settings.commentSuffix = prevSuffix;
+      }
+    });
+    test("survey.setValue on the question refreshes exactly the items whose record changed, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a" }]);
+      const q = survey.getQuestionByName("q");
+      survey.setValue("q", kind.value([{ a: "1" }, { a: "2" }]));
+      const spies = kind.items(q).map(item => vi.spyOn(item, "updateFromRecord"));
+      survey.setValue("q", kind.value([{ a: "1" }, { a: "y" }]));
+      expect(spies.map(spy => spy.mock.calls.length), "#1").toEqual([0, 1]);
+      expect([kind.question(q, 0, "a").value, kind.question(q, 1, "a").value], "#2").toEqual(["1", "y"]);
+    });
+    test("a callback that throws during a child write leaves later assignments refreshing the items, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a" }]);
+      const q = survey.getQuestionByName("q");
+      let isThrowing = true;
+      survey.onValueChanged.add(() => {
+        if (isThrowing) throw new Error("callback");
+      });
+      // A matrix cell write does not pass the exception on to the cell (as before); the panel's does.
+      try {
+        kind.question(q, 0, "a").value = "x";
+      } catch(e) {
+        expect((<any>e).message, "#1").toBe("callback");
+      }
+      isThrowing = false;
+      survey.setValue("q", kind.value([{ a: "1" }, { a: "2" }]));
+      expect([kind.question(q, 0, "a").value, kind.question(q, 1, "a").value], "#2").toEqual(["1", "2"]);
+    });
+  });
+  [writeKinds[0], writeKinds[1]].forEach(kind => {
+    test("an edit the cell-changing callback transforms is stored, triggered and reported transformed, " + kind.type, () => {
+      const survey = createSurvey(kind, withTrigger(kind));
+      const q = survey.getQuestionByName("q");
+      const log = logEvents(survey, (value: any): any => String(value).toUpperCase());
+      try {
+        kind.question(q, 0, "a").value = "x";
+        expect(log, "#1").toEqual(["cellChanging:a=x", "changing:q", "changed:q", "cellChanged:a=X", "trigger:X",
+          "cellChanging:b=t:X", "changing:q", "changed:q", "cellChanged:b=T:X"]);
+        expect(kind.record(q, 0), "#2").toEqual({ a: "X", b: "T:X" });
+        expect(kind.question(q, 0, "a").value, "#3").toBe("X");
+      } finally {
+        FunctionFactory.Instance.unregister("logRecordTrigger");
+      }
+    });
+    test("an edit the cell rejects when the survey validates on value changing is not stored, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a", validators: [{ type: "regex", regex: "^x" }] }], { checkErrorsMode: "onValueChanging" });
+      const q = survey.getQuestionByName("q");
+      const log = logEvents(survey);
+      const a = kind.question(q, 0, "a");
+      a.value = "bad";
+      expect(log, "#1: only the cell-changing callback").toEqual(["cellChanging:a=bad"]);
+      expect(q.value, "#2: nothing is stored").toBeUndefined();
+      expect([a.value, a.errors.length], "#3: the cell keeps the value and shows the error").toEqual(["bad", 1]);
+      a.value = "x1";
+      expect(kind.record(q, 0), "#4: a valid edit is stored").toEqual({ a: "x1" });
+    });
+    test("two questions on one value name in a row: either one writes the record and the other follows, " + kind.type, () => {
+      const survey = createSurvey(kind, [{ name: "a" }], undefined, {
+        detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d", valueName: "a" }]
+      });
+      const q = survey.getQuestionByName("q");
+      q.visibleRows[0].showDetailPanel();
+      const a = kind.question(q, 0, "a");
+      const d = kind.question(q, 0, "d");
+      a.value = "1";
+      expect([d.value, kind.record(q, 0)], "#1").toEqual(["1", { a: "1" }]);
+      d.value = "2";
+      expect([a.value, kind.record(q, 0)], "#2").toEqual(["2", { a: "2" }]);
+    });
+  });
+  test("two questions on one value name in a panel: either one writes the record and the other follows", () => {
+    const kind = writeKinds[2];
+    const survey = createSurvey(kind, [{ name: "a" }, { name: "a2", valueName: "a" }]);
+    const q = survey.getQuestionByName("q");
+    kind.question(q, 0, "a").value = "1";
+    expect([kind.question(q, 0, "a2").value, kind.record(q, 0)], "#1").toEqual(["1", { a: "1" }]);
+    kind.question(q, 0, "a2").value = "2";
+    expect([kind.question(q, 0, "a").value, kind.record(q, 0)], "#2").toEqual(["2", { a: "2" }]);
+  });
+  test("a write from a bound sibling refreshes the item of the same record under another sort and page, and runs its trigger once", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "pd", valueName: "rec", templateElements: [{ type: "text", name: "a" }] },
+        {
+          type: "matrixdynamic", name: "md", valueName: "rec", sortBy: "s-",
+          columns: [{ name: "a", cellType: "text" }, { name: "s", cellType: "text", inputType: "number" },
+            { name: "b", cellType: "text", setValueIf: "{row.a} = 'z'", setValueExpression: "logRecordTrigger({row.a})" }]
+        },
+        { type: "paneldynamic", name: "paged", valueName: "rec", panelsPerPage: 1, templateElements: [{ type: "text", name: "a" }] }
+      ]
+    });
+    const log: Array<string> = [];
+    FunctionFactory.Instance.register("logRecordTrigger", (params: Array<any>): any => {
+      log.push("trigger:" + params[0]);
+      return "t:" + params[0];
+    });
+    try {
+      survey.data = { rec: [{ a: "1", s: 1 }, { a: "2", s: 2 }, { a: "3", s: 3 }] };
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      const md = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+      const paged = <QuestionPanelDynamicModel>survey.getQuestionByName("paged");
+      paged.pageIndex = 1;
+      expect(md.visibleRows.map(row => row.getQuestionByName("a").value), "#1: sorted").toEqual(["3", "2", "1"]);
+      expect(paged.panels.map(panel => panel.getQuestionByName("a").value), "#1: the second page").toEqual(["2"]);
+      const mdSpies = md.visibleRows.map(row => vi.spyOn(row, "updateFromRecord"));
+      const pagedSpy = vi.spyOn(<any>paged.panels[0].data, "updateFromRecord");
+      pd.panels[0].getQuestionByName("a").value = "z";
+      expect(mdSpies.map(spy => spy.mock.calls.length > 0), "#2: the row of record 0 only").toEqual([false, false, true]);
+      expect(pagedSpy.mock.calls.length, "#3: the page shows another record").toBe(0);
+      expect(md.visibleRows[2].getQuestionByName("a").value, "#4").toBe("z");
+      expect(log, "#5: the trigger of the row of record 0, once").toEqual(["trigger:z"]);
+      expect(survey.data.rec, "#6").toEqual([{ a: "z", s: 1, b: "t:z" }, { a: "2", s: 2 }, { a: "3", s: 3 }]);
+    } finally {
+      FunctionFactory.Instance.unregister("logRecordTrigger");
+    }
+  });
+  writeKinds.forEach(kind => {
+    test("assigning a value of N records refreshes each item once, " + kind.type, () => {
+      const measure = (count: number): number => {
+        const records: Array<any> = [];
+        const rows: Array<string> = [];
+        for (let i = 0; i < count; i++) {
+          records.push({ a: "v" + i });
+          rows.push("r" + i);
+        }
+        const survey = createSurvey(kind, [{ name: "a" }], undefined, kind.type === "matrixdropdown" ? { rows: rows } : { rowCount: count, panelCount: count });
+        const q = survey.getQuestionByName("q");
+        const items = kind.items(q);
+        expect(items.length, "built: " + count).toBe(count);
+        const spy = vi.spyOn(Object.getPrototypeOf(items[0]), "updateFromRecord");
+        try {
+          survey.setValue("q", kind.value(records));
+          return spy.mock.calls.length;
+        } finally {
+          spy.mockRestore();
+        }
+      };
+      expect(measure(20), "#1").toBe(20);
+      expect(measure(40), "#2").toBe(40);
     });
   });
 });

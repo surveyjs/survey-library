@@ -157,20 +157,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   /* The values half of a move made through a data source. With the array source over question.value
-     the push assigns the value, and that assignment hands every row the record of its position
-     (onSetQuestionValue); a data source has no such assignment, so the rows are given theirs here. */
+     the push assigns the value, and that assignment hands the rows whose position now holds another
+     record that record (onRecordsValueAssigned); a data source has no such assignment, so the rows
+     are given theirs here. */
   private updateRowsFromRecords(): void {
     const rows = this.generatedVisibleRows;
     if (!Array.isArray(rows)) return;
     const indexes = this.getRecordIndexesForRows();
-    this.isRowChanging = true;
-    try {
+    this.writeRecords((): void => {
       for (let i = 0; i < rows.length && i < indexes.length; i++) {
-        rows[i].value = this.getNewRowValue(indexes[i]);
+        rows[i].updateFromRecord(this.getNewRowValue(indexes[i]));
       }
-    } finally {
-      this.isRowChanging = false;
-    }
+    });
   }
   /* False while the data source answers a read without a total: rowCount is then the number of rows
      known to exist - a lower bound (see isCountKnown). */
@@ -1178,8 +1176,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (isPaddingRecord) {
       this.syncDataListRecordCount();
     } else if (this.value) {
-      this.isRowChanging = true;
-      try {
+      this.writeRecords((): void => {
         if (this.isEditingObjectValue) {
           // The live array is spliced in place: that is what removes the row from the edited object.
           const val = this.createValueCopy();
@@ -1188,9 +1185,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         } else if (recordIndex > -1) {
           this.dataList.remove(recordIndex);
         }
-      } finally {
-        this.isRowChanging = false;
-      }
+      });
     }
     this.refillPageAfterRemove(pageIndex);
     this.onRowsChanged();

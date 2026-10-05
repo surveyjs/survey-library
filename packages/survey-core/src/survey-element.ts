@@ -527,6 +527,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.titleToolbarValue) {
       this.titleToolbarValue.locStrsChanged();
     }
+    // An error text can interpolate values ({calculatedValue}) the same way a title does.
+    // Read the property directly: the errors getter creates the array.
+    const errors: Array<SurveyError> = this.getPropertyValue("errors");
+    errors?.forEach(err => err.updateRenderedText());
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;

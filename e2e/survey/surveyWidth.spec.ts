@@ -32,7 +32,7 @@ frameworks.forEach((framework) => {
         window["survey"].getAllQuestions()[0].minWidth = "200px";
       });
 
-      await expect(questionDiv).toHaveCSS("min-width", "min(100%, 200px)");
+      await expect(page.locator(".sd-question")).toHaveCSS("min-width", "min(100%, 200px)");
     });
 
     test("Check question min-width, set it via the theme CSS variable", async ({ page }) => {

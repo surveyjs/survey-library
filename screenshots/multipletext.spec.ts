@@ -20,7 +20,7 @@ frameworks.forEach(framework => {
             name: "q1",
             minWidth: "768px",
             maxWidth: "768px",
-            width: "768px",
+            width: "792px",
             title: "Personal Information",
             items: [
               { name: "item1", title: "Full Name" },
@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
             name: "q1",
             minWidth: "1000px",
             maxWidth: "1000px",
-            width: "1000px",
+            width: "1024px",
             colCount: 2,
             title: "Personal Information",
             items: [

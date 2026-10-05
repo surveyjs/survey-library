@@ -163,6 +163,7 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     this.updateSharedQuestionsValue(name, newValue);
     this.data.updateItemValue(this, name, Helpers.getUnbindValue(newValue), false);
     this.runTriggersOnSetValue(name, newValue);
+    this.notifyRecordWritten();
   }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentSuffix);
@@ -2738,8 +2739,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPanelsSurveyImpl(panelsBefore);
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
-    if (this.data && this.isValueChangedWithoutPanels) {
-      this.isValueChangedWithoutPanels = false;
+    if (this.data && this.takeValueChangedBeforeBuild()) {
       this.runTriggersOnBuildPanelsFirstTime();
     }
     // The panels that were built: under paging the page's, as a remote first build has always done.
@@ -2863,17 +2863,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       return;
     }
     this.updateRenderedPanels();
-  }
-  private isValueChangedWithoutPanels: boolean;
-  onAnyValueChanged(name: string, questionName: string): void {
-    super.onAnyValueChanged(name, questionName);
-    if (!this.hasPanelBuildFirstTime && name === this.getValueName()) {
-      this.isValueChangedWithoutPanels = true;
-    }
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelsCore[i].onAnyValueChanged(name, questionName);
-      this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
-    }
   }
   // The on-value-change check: a key typed on this page that repeats the key of a record without a
   // panel - off the page, or filtered out - is a duplicate too.

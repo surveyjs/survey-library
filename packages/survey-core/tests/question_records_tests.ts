@@ -362,3 +362,107 @@ describe("Records questions: one API across the three types", () => {
     expect(m.toJSON(), "#4: the JSON").toEqual({ name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] });
   });
 });
+
+describe("Records questions: value-change notifications", () => {
+  const ownerJsons: Array<any> = [
+    { type: "matrixdynamic", rowCount: 1, columns: [{ name: "a", cellType: "text" }] },
+    { type: "matrixdropdown", rows: ["r1"], columns: [{ name: "a", cellType: "text" }] },
+    { type: "paneldynamic", panelCount: 1, templateElements: [{ type: "text", name: "a" }] }
+  ];
+  ownerJsons.forEach(json => {
+    test("the question's own validator that reads another question is checked again when that question changes, " + json.type, () => {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "t" },
+          Object.assign({ name: "q", validators: [{ type: "expression", expression: "{t} = 1" }] }, json)
+        ]
+      });
+      const q = survey.getQuestionByName("q");
+      expect(q.validate(true), "#1: t is empty").toBe(false);
+      expect(q.errors.length, "#1: the error is shown").toBe(1);
+      survey.setValue("t", 1);
+      expect(q.errors.length, "#2: t = 1 clears it").toBe(0);
+    });
+  });
+  test("dynamic panel: a write in a panel re-checks the {panel.x} validator of that panel only", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "q", panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", validators: [{ type: "expression", expression: "{panel.q1} + {panel.q2} <= 10" }] }
+        ]
+      }]
+    });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    const first = q.panels[0];
+    const second = q.panels[1];
+    first.getQuestionByName("q1").value = 5;
+    first.getQuestionByName("q2").value = 8;
+    const firstQ2 = first.getQuestionByName("q2");
+    expect(firstQ2.validate(true), "#1").toBe(false);
+    const spy = vi.spyOn(firstQ2, "onAnyValueChanged");
+    second.getQuestionByName("q1").value = 1;
+    expect(spy.mock.calls.filter(call => call[0] === "panel").length, "#2: another panel's write does not reach it").toBe(0);
+    expect(firstQ2.errors.length, "#2: the error stays").toBe(1);
+    first.getQuestionByName("q1").value = 1;
+    expect(spy.mock.calls.filter(call => call[0] === "panel").length, "#3: its own panel's write does, once").toBe(1);
+    expect(firstQ2.errors.length, "#3: 1 + 8 <= 10").toBe(0);
+  });
+  [
+    { type: "matrixdynamic", rowCount: 2 },
+    { type: "matrixdropdown", rows: ["r1", "r2"] }
+  ].forEach(json => {
+    test("a write in a row re-checks the {row.x} validators of that row only, detail panel included, " + json.type, () => {
+      const survey = new SurveyModel({
+        elements: [Object.assign({
+          name: "q", detailPanelMode: "underRow",
+          columns: [
+            { name: "a", cellType: "text" },
+            { name: "b", cellType: "text", validators: [{ type: "expression", expression: "{row.a} + {row.b} <= 10" }] }
+          ],
+          detailElements: [
+            { type: "text", name: "d", validators: [{ type: "expression", expression: "{row.a} + {row.d} <= 10" }] }
+          ]
+        }, json)]
+      });
+      const q = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q");
+      const first = q.visibleRows[0];
+      const second = q.visibleRows[1];
+      first.showDetailPanel();
+      first.getQuestionByName("a").value = 5;
+      first.getQuestionByName("b").value = 8;
+      first.getQuestionByName("d").value = 9;
+      const b = first.getQuestionByName("b");
+      const d = first.getQuestionByName("d");
+      expect(b.validate(true), "#1: b").toBe(false);
+      expect(d.validate(true), "#1: d").toBe(false);
+      const spy = vi.spyOn(d, "onAnyValueChanged");
+      second.getQuestionByName("a").value = 1;
+      expect(spy.mock.calls.filter(call => call[0] === "row").length, "#2: another row's write does not reach it").toBe(0);
+      expect([b.errors.length, d.errors.length], "#2: the errors stay").toEqual([1, 1]);
+      first.getQuestionByName("a").value = 1;
+      expect(spy.mock.calls.filter(call => call[0] === "row").length, "#3: its own row's write does, once").toBe(1);
+      expect([b.errors.length, d.errors.length], "#3: both are valid now").toEqual([0, 0]);
+    });
+  });
+  [
+    { type: "matrixdynamic", rowCount: 0, columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", setValueIf: "{row.a} = 1", setValueExpression: "'set'" }] },
+    { type: "paneldynamic", templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", setValueIf: "{panel.a} = 1", setValueExpression: "'set'" }] }
+  ].forEach(json => {
+    test("a value assigned before the objects are built runs their triggers on the first build, " + json.type, () => {
+      // On the second page: nothing renders the question before the value is assigned.
+      const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "t" }] }, { elements: [Object.assign({ name: "q" }, json)] }] });
+      const q: any = survey.getQuestionByName("q");
+      expect(!!q.areObjectsBuilt(), "#1: nothing is built yet").toBe(false);
+      survey.setValue("q", [{ a: 1 }, { a: 2 }]);
+      expect(!!q.areObjectsBuilt(), "#2: the assignment builds nothing").toBe(false);
+      if (json.type === "paneldynamic") {
+        q.onFirstRendering();
+      } else {
+        q.visibleRows;
+      }
+      expect(q.value, "#3: the first build ran the triggers of the record whose a = 1").toEqual([{ a: 1, b: "set" }, { a: 2 }]);
+    });
+  });
+});

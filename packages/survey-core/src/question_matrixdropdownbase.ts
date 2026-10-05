@@ -562,12 +562,6 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       questions[i].clearValue(keepComment, fromUI);
     }
   }
-  public onAnyValueChanged(name: string, questionName: string): void {
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name, questionName);
-    }
-  }
   public getDataValueCore(valuesHash: any, key: string): any {
     var survey = this.getSurvey();
     if (!!survey) {
@@ -599,11 +593,10 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.updateItemValue(this, changedName, newValue, isDeleting);
-    const rowName = settings.expressionVariables.row;
     if (changedName) {
       this.runTriggersOnSetValue(changedName, newColumnValue);
     }
-    this.onAnyValueChanged(rowName, "");
+    this.notifyRecordWritten();
     if (!isComment && changedQuestion) {
       const survey = <any>this.getSurvey();
       if (survey && survey.isValidateOnValueChanged) {
@@ -2268,8 +2261,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
       if (this.data) {
         this.runCellsCondition(this.data.getFilteredProperties());
-        if (this.isValueChangedWithoutRows) {
-          this.isValueChangedWithoutRows = false;
+        if (this.takeValueChangedBeforeBuild()) {
           this.runTriggersOnNewRows();
         }
       }
@@ -3106,25 +3098,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       : newValue;
   }
   private isDoingonAnyValueChanged: boolean;
-  private isValueChangedWithoutRows: boolean;
   onAnyValueChanged(name: string, questionName: string): void {
     if (this.isUpdateLocked || this.isDoingonAnyValueChanged) return;
-    if (!this.generatedVisibleRows) {
-      if (name === this.getValueName()) {
-        this.isValueChangedWithoutRows = true;
-      }
-      return;
-    }
     this.isDoingonAnyValueChanged = true;
-    var rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].onAnyValueChanged(name, questionName);
+    try {
+      super.onAnyValueChanged(name, questionName);
+      // The total row is outside the record walk. It is created with the rows: before them there is
+      // nothing for it to total.
+      const totalRow = this.areObjectsBuilt() ? this.visibleTotalRow : null;
+      if (!!totalRow) {
+        totalRow.onAnyValueChanged(name, questionName);
+      }
+    } finally {
+      this.isDoingonAnyValueChanged = false;
     }
-    var totalRow = this.visibleTotalRow;
-    if (!!totalRow) {
-      totalRow.onAnyValueChanged(name, questionName);
-    }
-    this.isDoingonAnyValueChanged = false;
   }
   protected isObject(value: any) {
     return value !== null && typeof value === "object";

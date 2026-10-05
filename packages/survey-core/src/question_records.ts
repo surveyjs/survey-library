@@ -969,6 +969,29 @@ export abstract class QuestionRecordsModel extends Question {
   protected getStoredRecords(): any {
     return this.getPropertyValueWithoutDefault("value");
   }
+  /* A change of the question's value made while its objects did not exist: the first build runs the
+     triggers the change would have run in them (takeValueChangedBeforeBuild). */
+  private isValueChangedBeforeBuild: boolean = false;
+  /* The question's own dependencies first, then every created object. What depends on the object's
+     own record ({row.x}, {panel.x}) is re-run by the object that wrote it (notifyRecordWritten), not
+     here: this runs on every survey change. */
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
+    if (!this.areObjectsBuilt() && name === this.getValueName()) {
+      this.isValueChangedBeforeBuild = true;
+    }
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      item.onAnyValueChanged(name, questionName);
+    }
+  }
+  // Read once, by the first build of the objects.
+  protected takeValueChangedBeforeBuild(): boolean {
+    const res = this.isValueChangedBeforeBuild;
+    this.isValueChangedBeforeBuild = false;
+    return res;
+  }
   /* A remove on a page the source reads again (the refill of a source that pages itself) is answered
      by a rebuild of every item on the page, which disposes the one the question has just focused.
      The position is kept here while that read is pending and taken back when the read commits
@@ -1369,6 +1392,19 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   public runTriggers(name: string, value: any, keys?: any): void {
     if (!name && !keys) return;
     this.questions.forEach(q => q.runTriggers(name, value, keys));
+  }
+  /* The questions of a panel item are the panel's, nested panels included, in the order
+     PanelModel.onAnyValueChanged reaches them through its elements. */
+  public onAnyValueChanged(name: string, questionName: string): void {
+    const questions = this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      questions[i].onAnyValueChanged(name, questionName);
+    }
+  }
+  /* After a write of this item reached the owner: its own questions re-run what reads the record
+     through the item variable ({row.x}, {panel.x}). The other items are not told. */
+  protected notifyRecordWritten(): void {
+    this.onAnyValueChanged(this.getVariableName(), "");
   }
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {

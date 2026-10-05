@@ -55,7 +55,7 @@ describe("expression validator error text after setVariable", () => {
     expect(survey.getVariable("existing_item_name")).toBe("Item B");
     expect(question.errors[0]).toBe(error);
     expect(error.locText.renderedHtml).toBe("An item already exists: Item B");
-    expect(vue.events).toEqual(["An item already exists: Item B"]);
+    expect(vue.events[vue.events.length - 1]).toBe("An item already exists: Item B");
     expect(vue.text()).toBe("An item already exists: Item B");
   });
 

@@ -6893,7 +6893,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateVisibleIndexAfterBindings = false;
     }
   }
-  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string, updateLocStrings: boolean = true) {
+  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
     if (this.isEndLoadingFromJson === "processing") return;
     if (this.isRunningConditions) {
       this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
@@ -6902,7 +6902,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
     }
-    if (updateLocStrings && !this.isEndLoadingFromJson) {
+    if (!this.isEndLoadingFromJson) {
       this.locStrsChanged();
     }
   }
@@ -7434,19 +7434,16 @@ export class SurveyModel extends SurveyElementCore
     if (!name || isProtoKey(name.toLowerCase())) return;
     const oldValue = this.getVariable(name);
     name = this.setVariableCore(name, newValue);
-    if (Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.notifyElementsOnAnyValueOrVariableChanged(name);
-      return;
+    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
+      const changed: HashTable<{ newValue: any, oldValue: any }> = {};
+      changed[name] = { newValue: newValue, oldValue: oldValue };
+      this.variablesChangedCore(changed, name);
     }
-    const changed: HashTable<{ newValue: any, oldValue: any }> = {};
-    changed[name] = { newValue: newValue, oldValue: oldValue };
-    this.variablesChangedCore(changed, name);
   }
   // What both setVariable and setVariables run once every variable is written: one conditions pass
-  // over all the changed names, then the survey triggers, then element notification, and only then
-  // the events, so a handler observes a settled model. Notification is after the conditions pass
-  // because a validator can stay invalid while its message interpolates a calculated value that
-  // this pass updates. Notifying first reuses the existing error and broadcasts the previous text.
+  // over all the changed names, then the survey triggers, and only then the events, so a handler
+  // always observes a settled model
   private variablesChangedCore(changed: HashTable<{ newValue: any, oldValue: any }>, name?: string): void {
     const values: HashTable<any> = {};
     for (const key in changed) {
@@ -7454,25 +7451,26 @@ export class SurveyModel extends SurveyElementCore
     }
     this.runConditionOnValuesChanged(values, name);
     this.checkTriggers(changed, false, false, false, name);
-    if (this.isRunningConditions) {
-      this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
-    } else {
-      this.notifyElementsAfterVariablesChanged(changed, name);
+    // Validation above can keep an existing error and broadcast its text before calculated
+    // values this pass updates. Refresh the error text once those values have settled.
+    if (!this.isRunningConditions) {
+      this.updateRenderedErrorTexts();
     }
     for (const key in changed) {
       this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
     }
   }
-  // A batch has no single name. Validate once per changed name so each dependent question runs,
-  // and refresh localized strings once, on the last pass.
-  private notifyElementsAfterVariablesChanged(changed: HashTable<{ newValue: any, oldValue: any }>, name?: string): void {
-    const names = !!name ? [name] : Object.keys(changed);
-    if (names.length === 0) {
-      this.notifyElementsOnAnyValueOrVariableChanged("");
-      return;
-    }
-    for (let i = 0; i < names.length; i++) {
-      this.notifyElementsOnAnyValueOrVariableChanged(names[i], undefined, i === names.length - 1);
+  private updateRenderedErrorTexts(): void {
+    const questions = this.getAllQuestions();
+    for (let i = 0; i < questions.length; i++) {
+      const nested = questions[i].getNestedQuestions(false, true, true);
+      for (let j = 0; j < nested.length; j++) {
+        const errors = nested[j].getPropertyValue("errors");
+        if (!Array.isArray(errors)) continue;
+        for (let k = 0; k < errors.length; k++) {
+          errors[k].updateText();
+        }
+      }
     }
   }
   // The only place that writes the variables hash. A variable shadows a data key with the same
@@ -7537,8 +7535,9 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (Object.keys(changed).length === 0) return;
-    // Recalculate once for the entire batch, then notify. Elements never see a state in which
-    // only part of the variables is set, and validation sees the settled expressions.
+    // One notification and one recalculation for the entire batch: elements and expressions never
+    // see a state in which a part of the variables is set
+    this.notifyElementsOnAnyValueOrVariableChanged("");
     this.variablesChangedCore(changed);
   }
   /**

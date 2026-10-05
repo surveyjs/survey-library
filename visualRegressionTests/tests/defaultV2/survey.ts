@@ -903,7 +903,6 @@
 //       await resetFocusToBody();
 //       await ClientFunction(() => {
 //         document.body.style.setProperty("--background-dim", "#fff");
-//         (<any>window).survey.isCompact = true;
 //       })();
 //       await takeElementScreenshot("survey-page-without-title-compact.png", Selector(".sd-root-modern"), t, comparer);
 //     });
@@ -950,7 +949,6 @@
 //       await resetFocusToBody();
 //       await ClientFunction(() => {
 //         document.body.style.setProperty("--background-dim", "#fff");
-//         (<any>window).survey.isCompact = true;
 //       })();
 //       await takeElementScreenshot("survey-compact.png", Selector(".sd-root-modern"), t, comparer);
 //     });
@@ -988,7 +986,6 @@
 //       await resetFocusToBody();
 //       await ClientFunction(() => {
 //         document.body.style.setProperty("--background-dim", "#f3f3f3");
-//         (<any>window).survey.isCompact = true;
 //       })();
 //       await takeElementScreenshot("survey-with-panel-compact.png", Selector(".sd-root-modern"), t, comparer);
 //     });
@@ -1309,14 +1306,12 @@
 //       await initSurvey(framework, json);
 //       await t.click("input[title='Complete']");
 //       await takeElementScreenshot("survey-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
-//       await ClientFunction(() => (window as any).survey.isCompact = true)();
 //       await takeElementScreenshot("survey-compact-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
 //       await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
 //       await t.click("input[title='Complete']");
 //       if (framework !== "vue" && framework !== "knockout") {
 //         await takeElementScreenshot("survey-compact-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
 //       }
-//       await ClientFunction(() => (window as any).survey.isCompact = false)();
 //       await takeElementScreenshot("survey-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
 //     });
 //   });
@@ -1344,12 +1339,10 @@
 //       await initSurvey(framework, json);
 //       await t.click("input[title='Complete']");
 //       await takeElementScreenshot("survey-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
-//       await ClientFunction(() => (window as any).survey.isCompact = true)();
 //       await takeElementScreenshot("survey-compact-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
 //       await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
 //       await t.click("input[title='Complete']");
 //       await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
-//       await ClientFunction(() => (window as any).survey.isCompact = false)();
 //       await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
 //     });
 //   });
@@ -1393,7 +1386,6 @@
 //       };
 
 //       await initSurvey(framework, json);
-//       await ClientFunction(() => (window as any).survey.isCompact = true)();
 //       await takeElementScreenshot("row-multiple-compact-mode.png", Selector(".sd-root-modern"), t, comparer);
 //     });
 //   });

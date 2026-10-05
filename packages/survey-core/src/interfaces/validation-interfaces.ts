@@ -48,6 +48,7 @@ export interface IDataVerificationOptions {
 }
 /**
  * Describes an issue reported by the [`SurveyModel.setData()`](/form-library/documentation/api-reference/survey-data-model#setData) method.
+ * @since 3.1.2
  */
 export interface IDataIssue {
   /**

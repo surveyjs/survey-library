@@ -4645,3 +4645,181 @@ describe("Remote data source: an added record starts from the defaults", () => {
     expect(question.value[2].col1, "#3").toBe("d");
   });
 });
+/* The refill after a remove keeps the records the respondent touched on the page - edited or added -
+   at their places, once each: the server's answer decides the rest of the window, and every other
+   read is the server's alone. The source filters on "flag"; page size 4. */
+describe("Remote data source: the refill after a remove keeps the touched records", () => {
+  interface IRefillKind {
+    name: string;
+    create(source: FakeServerSource, json?: any): Promise<{ survey: SurveyModel, question: any }>;
+    values(q: any, name?: string): Array<any>;
+    set(q: any, position: number, name: string, value: any): void;
+    add(q: any, front: boolean): void;
+    remove(q: any, position: number): void;
+  }
+  const refillKinds: Array<IRefillKind> = [
+    {
+      name: "panel",
+      create: (source, json) => createPanel(source, Object.assign({ panelsPerPage: 4,
+        templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "flag" }, { type: "text", name: "col2", inputType: "number" }] }, json)),
+      values: (q, name) => panelValues(q, name),
+      set: (q, position, name, value) => { q.panels[position].getQuestionByName(name).value = value; },
+      add: (q, front) => {
+        const panel = front ? q.addPanel(0) : q.addPanel();
+        panel.getQuestionByName("col1").value = "new";
+        panel.getQuestionByName("flag").value = "n";
+      },
+      remove: (q, position) => { q.removePanel(q.panels[position]); }
+    },
+    {
+      name: "matrix",
+      create: (source, json) => createMatrix(source, Object.assign({ rowsPerPage: 4,
+        columns: [{ name: "col1" }, { name: "flag" }, { name: "col2", cellType: "text", inputType: "number" }] }, json)),
+      values: (q, name) => rowValues(q, name),
+      set: (q, position, name, value) => { q.visibleRows[position].getQuestionByName(name).value = value; },
+      add: (q, front) => {
+        if (front) {
+          q.addRowByIndex({ col1: "new", flag: "n" }, 0);
+        } else {
+          q.addRow();
+          const rows = q.visibleRows;
+          rows[rows.length - 1].getQuestionByName("col1").value = "new";
+          rows[rows.length - 1].getQuestionByName("flag").value = "n";
+        }
+      },
+      remove: (q, position) => { q.removeRow(position); }
+    }
+  ];
+  const flagSource = (count: number): FakeServerSource =>
+    new FakeServerSource(serverRecords(count).map((r: any) => Object.assign(r, { flag: "y" })));
+  const filter = { filterExpression: "{flag} = 'y'" };
+  refillKinds.forEach(kind => {
+    test(kind.name + ": an edited and an added record the server's filter rejects survive the refill, at their places", async () => {
+      const source = flagSource(12);
+      const { question } = await kind.create(source, filter);
+      expect(kind.values(question), "#1").toEqual(["v0", "v1", "v2", "v3"]);
+      kind.set(question, 1, "flag", "n");
+      kind.add(question, false);
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#2: both are shown, the window outgrows the page").toEqual(["v0", "v1", "v2", "v3", "new"]);
+      source.reset();
+      kind.remove(question, 0);
+      await flush(REFILL_TURNS);
+      expect(source.requests.length, "#3: the page is full, no read").toBe(0);
+      expect(kind.values(question), "#4").toEqual(["v1", "v2", "v3", "new"]);
+      kind.remove(question, 1);
+      await flush(REFILL_TURNS);
+      expect(source.requests.length, "#5: one refill").toBe(1);
+      expect(kind.values(question), "#6: the server's records, and the touched ones where they were").toEqual(["v1", "v3", "new", "v4", "v5", "v6"]);
+      const list = (<any>question).dataListValue;
+      expect([list.count, list.hasMore], "#7: the total and hasMore are the server's").toEqual([9, true]);
+      question.refreshView();
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#8: the next read is the server's alone").toEqual(["v3", "v4", "v5", "v6"]);
+    });
+    test(kind.name + ": a touched record the answer also holds is shown once, at its old index, as the answer has it", async () => {
+      const source = flagSource(12);
+      const { question } = await kind.create(source, filter);
+      kind.set(question, 0, "col1", "x0");
+      await flush(REFILL_TURNS);
+      kind.remove(question, 1);
+      // The server computes a field while the refill is in flight.
+      source.records.forEach((r: any) => { r.computed = "c"; });
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#1: at the same index").toEqual(["x0", "v2", "v3", "v4"]);
+      expect(question.value[0].computed, "#2: the answer's record is shown").toBe("c");
+      const other = flagSource(12);
+      const created = await kind.create(other, filter);
+      const q = created.question;
+      kind.add(q, true);
+      await flush(REFILL_TURNS);
+      kind.set(q, 2, "col1", "x1");
+      await flush(REFILL_TURNS);
+      expect(kind.values(q), "#3").toEqual(["new", "v0", "x1", "v2", "v3"]);
+      kind.remove(q, 1);
+      await flush(REFILL_TURNS);
+      kind.remove(q, 2);
+      await flush(REFILL_TURNS);
+      expect(kind.values(q), "#4: the server has x1 first, it stays at its index").toEqual(["new", "x1", "v3", "v4", "v5"]);
+      expect(q.value.filter((r: any) => r.col1 === "x1").length, "#5: once").toBe(1);
+    });
+    test(kind.name + ": under a server sort an edited record stays at its place through the refill", async () => {
+      const source = flagSource(12);
+      const { question } = await kind.create(source, { sortBy: "col2" });
+      kind.set(question, 1, "col2", 100);
+      await flush(REFILL_TURNS);
+      kind.remove(question, 0);
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#1: the sort would put it last").toEqual(["v1", "v2", "v3", "v4", "v5"]);
+      expect(question.value[0].col2, "#2").toBe(100);
+    });
+    [{ name: "a page move away and back", read: async (q: any) => { q.nextPage(); await flush(REFILL_TURNS); q.prevPage(); } },
+      { name: "refreshView()", read: (q: any) => { q.refreshView(); } },
+      { name: "refreshDataSource()", read: (q: any) => { q.refreshDataSource(); } },
+      { name: "a filter change", read: (q: any) => { q.filterExpression = "{flag} = 'y' "; } },
+      { name: "a sort change", read: (q: any) => { q.sortBy = "col1"; } }].forEach(way => {
+      test(kind.name + ": " + way.name + " is the server's alone", async () => {
+        const source = flagSource(12);
+        const { question } = await kind.create(source, filter);
+        kind.set(question, 1, "flag", "n");
+        await flush(REFILL_TURNS);
+        await way.read(question);
+        await flush(REFILL_TURNS);
+        expect(kind.values(question).indexOf("v1"), "#1").toBe(-1);
+      });
+    });
+    test(kind.name + ": a read asked for while the refill waits, or in flight, makes it an ordinary read", async () => {
+      const source = flagSource(12);
+      const { question } = await kind.create(source, filter);
+      kind.set(question, 1, "flag", "n");
+      await flush(REFILL_TURNS);
+      source.auto = false;
+      kind.remove(question, 0);
+      expect(source.pending.map(call => call.op), "#1: the remove; the refill waits for it").toEqual(["remove"]);
+      question.refreshDataSource();
+      source.auto = true;
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(kind.values(question).indexOf("v1"), "#2: merged into the refill").toBe(-1);
+      kind.set(question, 0, "flag", "n");
+      await flush(REFILL_TURNS);
+      source.auto = false;
+      kind.remove(question, 1);
+      source.pending.forEach(call => { if (call.op === "remove") call.settle(); });
+      await flush(REFILL_TURNS);
+      expect(source.pending.map(call => call.op), "#3: the refill is in flight").toEqual(["pagedRead"]);
+      question.refreshDataSource();
+      source.auto = true;
+      source.settleAll();
+      await flush(REFILL_TURNS);
+      expect(kind.values(question).indexOf("v2"), "#4: superseded in flight").toBe(-1);
+    });
+    test(kind.name + ": a record whose insert the source refused is kept through the refill", async () => {
+      const source = flagSource(12);
+      const { question } = await kind.create(source, filter);
+      source.insert = (): Promise<any> => Promise.reject(new Error("refused"));
+      kind.add(question, false);
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#1").toEqual(["v0", "v1", "v2", "v3", "new"]);
+      kind.remove(question, 0);
+      await flush(REFILL_TURNS);
+      kind.remove(question, 0);
+      await flush(REFILL_TURNS);
+      expect(kind.values(question), "#2").toEqual(["v2", "v3", "new", "v4", "v5"]);
+    });
+  });
+  // Every committed read rebuilds the panels; the current panel is the kept record's again.
+  test("panel: the current panel stays on a kept record through the refill", async () => {
+    const source = flagSource(12);
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 4, displayMode: "carousel",
+      templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "flag" }] }, filter));
+    question.currentIndex = 2;
+    question.currentPanel.getQuestionByName("flag").value = "n";
+    await flush(REFILL_TURNS);
+    question.removePanel(0);
+    await flush(REFILL_TURNS);
+    expect(panelValues(question), "#1: the refill keeps v2 at its index").toEqual(["v1", "v2", "v3", "v4", "v5"]);
+    expect(question.currentPanel.getQuestionByName("col1").value, "#2").toBe("v2");
+    expect(question.currentIndex, "#3").toBe(1);
+  });
+});

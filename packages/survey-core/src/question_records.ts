@@ -45,6 +45,8 @@ export interface IDynamicDataRecordUniqueness {
 interface IDynamicDataValueAssignment {
   created: Array<number>;
   oldRecords?: any;
+  // An owed assignment only: one of the assignments it stands for drops the touched records.
+  isTouchedSetDropped?: boolean;
 }
 // A write of one record field through an item, as the item prepared it (QuestionRecordItem.prepareRecordWrite).
 export interface IRecordItemWrite {
@@ -416,8 +418,16 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    super.clearValue(keepComment, fromUI);
+    // The records the respondent touched go with the value (see isTouchedSetDropped).
+    const prev = this.isClearingValue;
+    this.isClearingValue = true;
+    try {
+      super.clearValue(keepComment, fromUI);
+    } finally {
+      this.isClearingValue = prev;
+    }
   }
+  private isClearingValue: boolean = false;
   /* An assignment of the value of a source-backed question is made only by the question itself,
      through setOwnRecordsValue. Any other - value =, a default, setValueExpression, a setvalue or
      copyvalue trigger, user code that runs inside one of the question's own writes - returns here,
@@ -1298,14 +1308,20 @@ export abstract class QuestionRecordsModel extends Question {
       this.syncPagingState();
       return;
     }
-    this.decideViewAgain(assignment.created, oldRecords);
+    this.decideViewAgain(assignment.created, oldRecords, this.isTouchedSetDropped());
   }
   /* The view is decided again over the records as they are now, and the objects follow: created and
      oldRecords are what the view and the value were before the assignment (see
-     IDynamicDataValueAssignment). */
-  private decideViewAgain(created: Array<number>, oldRecords: any): void {
+     IDynamicDataValueAssignment). The records the respondent touched keep their places: the list
+     gets the remap of the assignment, built once and only when there are touched records, and the
+     edited set follows the same remap. */
+  private decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean): void {
     const list = this._dataList;
-    list.invalidateViews();
+    let remap: (index: number) => number = undefined;
+    if (!isTouchedSetDropped && list.hasTouchedRecords) {
+      remap = this.createAssignmentRemap(oldRecords, this.getStoredRecords());
+    }
+    list.invalidateViews(remap, !!created ? created : undefined);
     this.syncPagingState();
     const isMembershipChanged = created === null
       ? list.hasView && this.isPageStale()
@@ -1314,7 +1330,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
     if (!this.isPagedByList) return;
-    this.onRecordsReplaced(oldRecords, this.getStoredRecords());
+    this.onRecordsReplaced(oldRecords, this.getStoredRecords(), remap);
     // The page is rebuilt when it names other records than its objects hold now.
     if (this.isPageStale()) {
       this.rebuildFromDataList(false);
@@ -1324,11 +1340,39 @@ export abstract class QuestionRecordsModel extends Question {
      set follows the records it names across the insert, remove or move the assignment made
      (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its validators is
      dropped. */
-  private onRecordsReplaced(oldRecords: any, newRecords: any): void {
+  private onRecordsReplaced(oldRecords: any, newRecords: any, remap?: (index: number) => number): void {
     const validation = this._pageValidation;
     if (!validation) return;
     validation.cancelPendingMove();
-    validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
+    validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], remap);
+  }
+  /* A reload - survey.data =, setData, mergeData, survey.clear(), each of which assigns under the
+     survey's data pass - and clearValue() start over: the records the respondent touched are decided
+     again like every other record. */
+  private isTouchedSetDropped(): boolean {
+    return this.isClearingValue || !!this.survey && this.survey.isSettingData();
+  }
+  /* Where each record of an assignment from outside went: the new index of an old record, -1 for a
+     removed one, undefined for one it cannot place. The records of an array answer are compared by
+     key, or by content (getReplacedRecordsRemap); the fixed matrix answers for its keyed answer. */
+  protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
+    const list = this._dataList;
+    return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [],
+      !!list ? list.keyField : undefined);
+  }
+  /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
+     the record - and so does code that assigns it, setValueExpression and a trigger included: the
+     write does not say where it came from. A value an expression computes does not, or every record
+     with an expression would be touched by its first recalculation. */
+  protected markRecordTouchedBy(recordIndex: number, question: Question): void {
+    if (!question || !question.hasInput) return;
+    this.dataList.markRecordTouched(recordIndex);
+  }
+  // The question's add: the records it inserts are touched as they enter the list. Nothing is created
+  // for it: without a list there is no view to keep them in.
+  protected runRecordAdd<T>(func: () => T): T {
+    const list = this.dataListValue;
+    return !!list ? list.runAddScope(func) : func();
   }
   /* The records were replaced by a change of what defines them - the rows of the fixed matrix - and
      the question knows where each one went: the remap gives the new index of an old record, -1 for
@@ -1406,10 +1450,16 @@ export abstract class QuestionRecordsModel extends Question {
   /* Owed before the value is stored: a handler that throws after storing it still leaves it owed. The
      view and the records before the first owed assignment are what the follow-up compares with. */
   private oweOutsideAssignment(newValue: any, oldRecords: any): void {
-    if (!!this.owedAssignment || Helpers.isTwoValueEquals(this.getStoredRecords(), newValue)) return;
+    if (Helpers.isTwoValueEquals(this.getStoredRecords(), newValue)) return;
+    const isTouchedSetDropped = this.isTouchedSetDropped();
+    if (!!this.owedAssignment) {
+      this.owedAssignment.isTouchedSetDropped = this.owedAssignment.isTouchedSetDropped || isTouchedSetDropped;
+      return;
+    }
     const list = this._dataList;
     const canReadView = !!list && !list.isWriting;
-    this.owedAssignment = { created: !canReadView ? null : list.hasView ? list.getCreatedIndexes() : undefined, oldRecords: oldRecords };
+    this.owedAssignment = { created: !canReadView ? null : list.hasView ? list.getCreatedIndexes() : undefined, oldRecords: oldRecords,
+      isTouchedSetDropped: isTouchedSetDropped };
   }
   // The outermost write of the list has ended (IDynamicDataOwner.onWriteEnded).
   private onListWriteEnded(): void {
@@ -1422,7 +1472,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.outsideAssignmentCountValue++;
     this.followOutsideAssignment((): void => {
       if (!!this._dataList) {
-        this.decideViewAgain(owed.created, owed.oldRecords);
+        this.decideViewAgain(owed.created, owed.oldRecords, owed.isTouchedSetDropped);
       }
     });
   }

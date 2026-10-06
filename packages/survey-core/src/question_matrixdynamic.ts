@@ -433,7 +433,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         // A position among the rows of the window.
         at = list.getInsertIndexAtMaterializedPosition(toIndex);
       }
-      this.followInsertedRecord(list.add(rowData, at), false);
+      this.followInsertedRecord(this.runRecordAdd((): number => list.add(rowData, at)), false);
       this.onRowsChanged();
       return;
     }
@@ -447,7 +447,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // rowCount++ creates the row object and, with it, the record at the end; the record then moves
     // into place and takes rowData, so that the value is written once. The move takes the new record
     // to the record of the row that stood at toIndex, and the new row with it.
-    this.rowCount++;
+    this.runRecordAdd((): void => { this.rowCount++; });
     const list = this.dataList;
     const index = this.getRecordIndex(toIndex);
     if (index < 0) return;
@@ -942,7 +942,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const record = this.isValueEmpty(defaultValue) ? {} : defaultValue;
     const list = this.dataList;
     // Appended to the storage, as the local path appends to question.value; the rows follow the record.
-    const newRow = <MatrixDropdownRowModelBase>this.followInsertedRecord(list.add(record, list.loadedCount), false);
+    const newRow = <MatrixDropdownRowModelBase>this.followInsertedRecord(this.runRecordAdd((): number => list.add(record, list.loadedCount)), false);
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
     }
@@ -967,7 +967,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     var prevRowCount = this.rowCount;
-    this.rowCount = this.rowCount + 1;
+    this.runRecordAdd((): void => { this.rowCount = this.rowCount + 1; });
     var defaultValue = this.getDefaultRowValue(true);
     if (!this.isValueEmpty(defaultValue)) {
       this.setLastRowRecord(defaultValue, true);

@@ -214,7 +214,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const list = this.dataListValue;
     if (!list || !list.hasView) return;
     const created = list.getCreatedIndexes();
-    list.invalidateViews();
+    // No record changes: the touched rows keep their places.
+    list.invalidateViews((index: number): number => index);
     this.syncPagingState();
     if (!Helpers.isTwoValueEquals(created, list.getCreatedIndexes()) || this.isPageStale()) {
       this.rebuildFromDataList(false);
@@ -262,8 +263,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const newKeys = this.getRecordItemsCache().keys;
     const list = this.dataListValue;
     if (!list) return;
-    this.followRemappedRecords((): ((index: number) => number) => createKeyRemap(oldKeys, newKeys));
-    list.invalidateViews();
+    let remap: (index: number) => number = undefined;
+    const getRemap = (): ((index: number) => number) => remap || (remap = createKeyRemap(oldKeys, newKeys));
+    this.followRemappedRecords(getRemap);
+    // A touched row follows its row name; a removed row leaves the touched set.
+    list.invalidateViews(list.hasTouchedRecords ? getRemap() : undefined);
     this.syncPagingState();
   }
   // The one method that composes the records; everything else reads the cache (getListRecords).
@@ -290,6 +294,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected isItemWithoutRecordRefreshed(): boolean {
     return true;
+  }
+  /* An answer assignment never adds, removes or moves a record: the rows define them. A row whose
+     answer changed or went is the same record, so every record keeps its index. Only a rows change
+     moves or removes one (onRecordItemsChanged). */
+  protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
+    return (index: number): number => index;
   }
   // One record without composing the array. Inside a list write the list answers: the write is not in
   // the value yet.

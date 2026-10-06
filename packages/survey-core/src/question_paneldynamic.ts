@@ -38,6 +38,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget
@@ -2251,7 +2252,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateBindings("panelCount", list.count + 1);
     let at = -1;
     this.runInternalValueChange((): void => {
-      list.batch((): void => { at = list.add(record, target.at); });
+      list.batch((): void => { at = this.runRecordAdd((): number => list.add(record, target.at)); });
     });
     const isSelected = !this.isRenderModeList;
     const item = <QuestionPanelDynamicItem>this.followInsertedRecord(at, isSelected);
@@ -2303,7 +2304,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.copyValue(record, list.getRecord(fromIndex));
       }
     }
-    return list.add(record, recordIndex);
+    return this.runRecordAdd((): number => list.add(record, recordIndex));
   }
   // QuestionRecordsModel hook: one panel at the end of the panels; the panels that exist keep their state.
   protected appendItemForRecord(recordIndex: number): void {
@@ -2329,7 +2330,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // The panel object exists before its record is moved into place: onPanelAdded must see the same
     // state it sees today.
     const outsideAssignmentCount = this.outsideAssignmentCount;
-    this.panelCount++;
+    this.runRecordAdd((): void => { this.panelCount++; });
     // A handler assigned the value meanwhile: the records are its own, and none of them is the new one.
     if (this.outsideAssignmentCount !== outsideAssignmentCount) return;
     const list = this.dataList;
@@ -3411,6 +3412,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        writes this one runs inside. A nested write adds its question to a copy, so the outer write
        keeps its own list. */
     const prevChangingValueQuestions = this.changingValueQuestions;
+    let changedQuestion: Question = undefined;
     if (index < this.panelsCore.length) {
       const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
       let qName = name;
@@ -3421,6 +3423,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const q = this.panelsCore[index].getQuestionByValueName(qName);
       if (!!q) {
         questions.push(q);
+        changedQuestion = q;
       }
       this.changingValueQuestions = questions;
     }
@@ -3435,6 +3438,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           // not hold are on the server, and ensureCount would insert them there.
           if (!this.isRemoteData) {
             this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
+          }
+          // The values new panels write - their defaults - are not the respondent's.
+          if (!this.isAddingNewPanels && DynamicDataList.isValueChanged(newValue, this.dataList.getValue(recordIndex, name))) {
+            this.markRecordTouchedBy(recordIndex, changedQuestion);
           }
           this.dataList.setValue(recordIndex, name, newValue);
         });

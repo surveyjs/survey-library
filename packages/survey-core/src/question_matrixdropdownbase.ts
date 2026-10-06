@@ -30,6 +30,7 @@ import {
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 
 export interface IMatrixDuplicationEntry {
   row: MatrixDropdownRowModelBase;
@@ -3255,8 +3256,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // The merge is the base's; the record it works on is a copy of the one the list holds.
     const rowValue = Object.assign({}, oldRecord);
     this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
+    if (DynamicDataList.isValueChanged(rowValue, oldRecord)) {
+      this.markRecordTouchedBy(index, this.getRowQuestionOfField(row, columnName));
+    }
     const isChanged = this.writeRecords((): boolean => list.setRecord(index, rowValue));
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+  }
+  // The question of a row - a cell or a detail panel question - that writes a record field.
+  private getRowQuestionOfField(row: MatrixDropdownRowModelBase, field: string): Question {
+    if (!field) return undefined;
+    const suffix = settings.commentSuffix;
+    const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
+    return row.getQuestionByName(name) || undefined;
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
      composed and assigned, and the list is not involved. */

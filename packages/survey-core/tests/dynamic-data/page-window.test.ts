@@ -12,6 +12,7 @@ import { settings } from "../../src/settings";
 import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
+import { ItemValue } from "../../src/itemvalue";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -2737,9 +2738,12 @@ describe("Page window: an assignment from outside made during the question's own
     matrix.addRow();
     expect(calls, "#1").toEqual({ p: 1, m: 1 });
     // The question's own store comes after the handler and is the last write; the view is decided
-    // again once the add has ended.
-    expect(panelAs(panel), "#2: panel: the new record has no {a}").toEqual([4]);
-    expect(rowAs(matrix), "#3: matrix").toEqual([4]);
+    // again once the add has ended, and the new record, which the add touched, keeps its place.
+    expect(panelAs(panel), "#2: panel").toEqual([4, undefined]);
+    expect(rowAs(matrix), "#3: matrix").toEqual([4, undefined]);
+    panel.refreshView();
+    matrix.refreshView();
+    expect([panelAs(panel), rowAs(matrix)], "#4: the new record has no {a}").toEqual([[4], [4]]);
   });
   /* survey.onValueChanging runs after the question has stored the value and before the survey has: a
      nested assignment that throws there was stored already, and it is an assignment from outside. */
@@ -2875,7 +2879,7 @@ describe("Page window: an assignment from outside made during the question's own
   [{ name: "survey.setValue", assign: (q: any, v: any) => { q.survey.setValue(q.name, v); }, isThrowing: false },
     { name: "question.value", assign: (q: any, v: any) => { q.value = v; }, isThrowing: false },
     { name: "survey.setValue, then throws", assign: (q: any, v: any) => { q.survey.setValue(q.name, v); }, isThrowing: true }].forEach(way => {
-    test("panel: an onDynamicPanelAdded handler that assigns through " + way.name + ": the assigned value wins and the view is decided over it", () => {
+    test("panel: an onDynamicPanelAdded handler that assigns through " + way.name + ": the assigned value wins and the new record stays", () => {
       const q = createStablePanel({ panelsPerPage: 2, filterExpression: "{a} >= 0" }, 4);
       q.survey.onDynamicPanelAdded.add(() => {
         const v = copyRecords(q.value);
@@ -2889,8 +2893,10 @@ describe("Page window: an assignment from outside made during the question's own
         q.addPanel();
       }
       expect(q.value[4], "#1").toEqual({ a: -1 });
-      expect(q.pageIndex, "#2").toBe(1);
-      expect(panelAs(q), "#3: the filter does not accept the new record").toEqual([2, 3]);
+      expect(q.pageIndex, "#2").toBe(2);
+      expect(panelAs(q), "#3: the filter does not accept the new record, the add touched it").toEqual([-1]);
+      q.refreshView();
+      expect([q.pageIndex, panelAs(q)], "#4: refreshView applies the filter to it").toEqual([1, [2, 3]]);
     });
   });
   test("two assignments made inside one write are followed by one decision of the view", () => {
@@ -2912,19 +2918,261 @@ describe("Page window: an assignment from outside made during the question's own
     q.pageIndex = 1;
     expect(panelAs(q), "#2").toEqual([4, 5]);
   });
-  test("an assignment from outside with no write open decides the view at once", () => {
+  test("an assignment from outside with no write open decides the view at once, the edited record keeps its place", () => {
     const panel = createStablePanel({ panelsPerPage: 2, filterExpression: "{a} >= 0" }, 6);
     panel.panels[0].getQuestionByName("a").value = -5;
     const v = copyRecords(panel.value);
-    v[3] = { a: 33 };
+    v[2] = { a: -1 };
     panel.survey.setValue("p", v);
-    expect(panelAs(panel), "#1: panel: the edited record is filtered out").toEqual([1, 2]);
+    expect(panelAs(panel), "#1: panel").toEqual([-5, 1]);
+    panel.nextPage();
+    expect(panelAs(panel), "#2: the untouched record is filtered out").toEqual([3, 4]);
     const matrix = createStableMatrix({ rowsPerPage: 2, filterExpression: "{a} >= 0" }, 6);
     matrix.visibleRows[0].getQuestionByColumnName("a").value = -5;
     const w = copyRecords(matrix.value);
-    w[3] = { a: 33 };
+    w[2] = { a: -1 };
     matrix.survey.setValue("m", w);
-    expect(rowAs(matrix), "#2: matrix").toEqual([1, 2]);
+    expect(rowAs(matrix), "#3: matrix").toEqual([-5, 1]);
+    matrix.nextPage();
+    expect(rowAs(matrix), "#4").toEqual([3, 4]);
+  });
+});
+/* The records the respondent touched since the view was last decided - added by the question's add,
+   or edited through a question that takes input - keep their places when an assignment from outside
+   decides the view again: the other records are filtered and sorted. A reload, clearValue(), a filter
+   or sort change and refreshView() drop them. */
+describe("Page window: the records the respondent touched stay shown", () => {
+  interface IStableKind {
+    name: string;
+    valueName: string;
+    create(json: any, count: number, expression?: string, surveyJson?: any): any;
+    shown(q: any): Array<any>;
+    edit(q: any, position: number, value: any): void;
+    sibling: any;
+    editSibling(survey: SurveyModel, index: number, value: any): void;
+  }
+  const kinds: Array<IStableKind> = [
+    {
+      name: "panel", valueName: "p", create: createStablePanel, shown: panelAs,
+      edit: (q, position, value) => { q.panels[position].getQuestionByName("a").value = value; },
+      sibling: { type: "paneldynamic", name: "sibling", valueName: "p", templateElements: [{ type: "text", name: "a", inputType: "number" }] },
+      editSibling: (survey, index, value) => { (<QuestionPanelDynamicModel>survey.getQuestionByName("sibling")).panels[index].getQuestionByName("a").value = value; }
+    },
+    {
+      name: "matrix", valueName: "m", create: createStableMatrix, shown: rowAs,
+      edit: (q, position, value) => { q.visibleRows[position].getQuestionByColumnName("a").value = value; },
+      sibling: { type: "matrixdynamic", name: "sibling", valueName: "m", rowCount: 0, columns: [{ name: "a", cellType: "text", inputType: "number" }] },
+      editSibling: (survey, index, value) => { (<QuestionMatrixDynamicModel>survey.getQuestionByName("sibling")).visibleRows[index].getQuestionByColumnName("a").value = value; }
+    }
+  ];
+  const assignRecord = (q: any, index: number, record: any): void => {
+    const v = copyRecords(q.value);
+    v[index] = record;
+    q.survey.setValue(q.getValueName(), v);
+  };
+  kinds.forEach(kind => {
+    [{ name: "survey.setValue", setRecordTwo: (q: any) => { assignRecord(q, 2, { a: -1 }); } },
+      { name: "a setvalue trigger", setRecordTwo: (q: any) => { q.survey.setValue("go", 1); } },
+      { name: "a sibling on the same valueName", setRecordTwo: (q: any) => { kind.editSibling(q.survey, 2, -1); } }].forEach(way => {
+      test(kind.name + ": an assignment through " + way.name + " filters the other records and keeps the edited one", () => {
+        const value = [{ a: -5 }, { a: 1 }, { a: -1 }, { a: 3 }, { a: 4 }, { a: 5 }];
+        const q = kind.create({ filterExpression: "{a} >= 0" }, 6, undefined, {
+          elements: [kind.sibling, { type: "text", name: "go" }],
+          triggers: [{ type: "setvalue", expression: "{go} = 1", setToName: kind.valueName, setValue: value }]
+        });
+        if (kind.name === "matrix") (<any>q.survey.getQuestionByName("sibling")).visibleRows;
+        kind.edit(q, 0, -5);
+        expect(kind.shown(q), "#1").toEqual([-5, 1, 2, 3, 4, 5]);
+        way.setRecordTwo(q);
+        expect(q.value.map((r: any) => r.a), "#2").toEqual([-5, 1, -1, 3, 4, 5]);
+        expect(kind.shown(q), "#3: record 2 is filtered out, the edited record stays").toEqual([-5, 1, 3, 4, 5]);
+      });
+    });
+    [0, 2].forEach(pageSize => {
+      const paging = pageSize > 0 ? (kind.name === "panel" ? { panelsPerPage: pageSize } : { rowsPerPage: pageSize }) : {};
+      test(kind.name + ": an assignment from outside sorts the other records and keeps the edited one, page size " + pageSize, () => {
+        const q = kind.create(Object.assign({ sortBy: "a" }, paging), 6);
+        kind.edit(q, 0, 100);
+        assignRecord(q, 5, { a: -1 });
+        expect(kind.shown(q), "#1").toEqual(pageSize > 0 ? [100, -1] : [100, -1, 1, 2, 3, 4]);
+        q.refreshView();
+        expect(kind.shown(q), "#2: refreshView sorts it").toEqual(pageSize > 0 ? [-1, 1] : [-1, 1, 2, 3, 4, 100]);
+      });
+      test(kind.name + ": an added record stays through an assignment from outside, page size " + pageSize, () => {
+        const q = kind.create(Object.assign({ filterExpression: "{a} >= 0" }, paging), 4);
+        if (kind.name === "panel") q.addPanel(); else { q.visibleRows; q.addRow(); }
+        q.pageIndex = 0;
+        kind.edit(q, 0, 10);
+        const all = (): Array<any> => {
+          if (pageSize === 0) return kind.shown(q);
+          const res: Array<any> = [];
+          for (let i = 0; i < q.pageCount; i++) {
+            q.pageIndex = i;
+            res.push(...kind.shown(q));
+          }
+          return res;
+        };
+        assignRecord(q, 4, { a: -3 });
+        expect(all(), "#1: the new record has -3 and stays").toEqual([10, 1, 2, 3, -3]);
+        assignRecord(q, 1, { a: -1 });
+        expect(all(), "#2: an untouched record is filtered out").toEqual([10, 2, 3, -3]);
+      });
+    });
+    test(kind.name + ": a touched record follows an assignment that inserts or removes a record in front of it", () => {
+      const q = kind.create({ filterExpression: "{a} >= 0" }, 6);
+      kind.edit(q, 2, -5);
+      const inserted = [{ a: -9 }].concat(copyRecords(q.value));
+      q.survey.setValue(kind.valueName, inserted);
+      expect(kind.shown(q), "#1: the inserted record is filtered out, the edited one stays").toEqual([0, 1, -5, 3, 4, 5]);
+      assignRecord(q, 2, { a: -1 });
+      // The touched record goes back to its position in the view: the record in front of it left.
+      expect(kind.shown(q), "#2: the record that took index 2 is not the touched one").toEqual([0, 3, -5, 4, 5]);
+      const removed = copyRecords(q.value);
+      removed.splice(3, 1);
+      q.survey.setValue(kind.valueName, removed);
+      expect(kind.shown(q), "#3: an assignment that removes the touched record drops it").toEqual([0, 3, 4, 5]);
+      assignRecord(q, 3, { a: -2 });
+      expect(kind.shown(q), "#4: the record now at its index is not touched").toEqual([0, 4, 5]);
+    });
+    test(kind.name + ": an assignment that changes only the touched record keeps it touched", () => {
+      const q = kind.create({ filterExpression: "{a} >= 0" }, 6);
+      kind.edit(q, 0, -5);
+      assignRecord(q, 0, { a: -7 });
+      expect(kind.shown(q), "#1").toEqual([-7, 1, 2, 3, 4, 5]);
+      assignRecord(q, 3, { a: -1 });
+      expect(kind.shown(q), "#2").toEqual([-7, 1, 2, 4, 5]);
+    });
+    test(kind.name + ": a computed value is not a touch", () => {
+      const expression = kind.name === "panel" ? "{k} - {panel.a}" : "{k} - {row.a}";
+      const q = kind.create({ filterExpression: "{e} >= 0" }, 0, expression, { elements: [{ type: "text", name: "k" }] });
+      q.survey.setValue("k", 10);
+      q.survey.setValue(kind.valueName, [0, 1, 2, 3, 4, 5].map((i: number) => ({ a: i, e: 10 - i })));
+      expect(kind.shown(q), "#1").toEqual([0, 1, 2, 3, 4, 5]);
+      q.survey.setValue("k", 2);
+      expect(kind.shown(q), "#2: the recalculation is the question's own write").toEqual([0, 1, 2, 3, 4, 5]);
+      const v = copyRecords(q.value);
+      v[0].a = 1;
+      q.survey.setValue(kind.valueName, v);
+      expect(kind.shown(q), "#3: the next assignment from outside filters the recalculated records").toEqual([1, 1, 2]);
+    });
+    test(kind.name + ": the records a count grows by are not touched", () => {
+      const q = kind.create({ filterExpression: "{a} >= 0" }, 3);
+      if (kind.name === "panel") q.panelCount = 5; else q.rowCount = 5;
+      expect(kind.shown(q), "#1: the padded records join the view").toEqual([0, 1, 2, undefined, undefined]);
+      kind.edit(q, 3, 7);
+      assignRecord(q, 0, { a: 10 });
+      expect(kind.shown(q), "#2: the edited one stays, the padding is filtered out").toEqual([10, 1, 2, 7]);
+    });
+    [{ name: "survey.data =", reload: (q: any, v: any) => { q.survey.data = { [q.getValueName()]: v }; } },
+      { name: "survey.mergeData", reload: (q: any, v: any) => { q.survey.mergeData({ [q.getValueName()]: v }); } },
+      { name: "survey.setDataCore with the records it holds", reload: (q: any) => { q.survey.setDataCore({ [q.getValueName()]: copyRecords(q.value) }); } },
+      { name: "survey.clear", reload: (q: any, v: any) => { q.survey.clear(); q.survey.setValue(q.getValueName(), v); } },
+      { name: "clearValue", reload: (q: any, v: any) => { q.clearValue(); q.survey.setValue(q.getValueName(), v); } }].forEach(way => {
+      test(kind.name + ": " + way.name + " decides the view again for the touched records too", () => {
+        const q = kind.create({ filterExpression: "{a} >= 0" }, 6);
+        kind.edit(q, 0, -5);
+        expect(kind.shown(q), "#1").toEqual([-5, 1, 2, 3, 4, 5]);
+        way.reload(q, copyRecords(q.value));
+        expect(kind.shown(q), "#2").toEqual([1, 2, 3, 4, 5]);
+      });
+    });
+    [{ name: "refreshView()", change: (q: any) => { q.refreshView(); } },
+      { name: "a filter change", change: (q: any) => { q.filterExpression = "{a} >= -100"; } },
+      { name: "a sort change", change: (q: any) => { q.sortBy = "a"; } }].forEach(way => {
+      test(kind.name + ": " + way.name + " drops the touched records", () => {
+        const q = kind.create({ filterExpression: "{a} >= 0" }, 6);
+        kind.edit(q, 0, 7);
+        way.change(q);
+        assignRecord(q, 0, { a: -500 });
+        expect(kind.shown(q).indexOf(-500), "#1: the formerly touched record is filtered out").toBe(-1);
+      });
+    });
+    test(kind.name + ": an add is touched before the handlers of its own write run", () => {
+      const isPanel = kind.name === "panel";
+      const q = kind.create(isPanel ? { filterExpression: "{a} >= 0" } : { filterExpression: "{a} >= 0", defaultRowValue: { a: -3 } }, 4);
+      if (!isPanel) q.visibleRows;
+      let calls = 0;
+      q.survey.onValueChanged.add((_, options) => {
+        if (options.name !== kind.valueName || calls > 0 || !Array.isArray(options.value) || options.value.length !== 5) return;
+        calls++;
+        const v = copyRecords(q.value);
+        v[1] = { a: -1 };
+        q.survey.setValue(kind.valueName, v);
+      });
+      if (isPanel) q.addPanel(); else q.addRow();
+      expect(calls, "#1").toBe(1);
+      expect(kind.shown(q), "#2: the new record stays, the untouched one is filtered out").toEqual([0, 2, 3, isPanel ? undefined : -3]);
+    });
+    test(kind.name + ": an add at a position is touched before the handlers of its own write run", () => {
+      const isPanel = kind.name === "panel";
+      const q = kind.create({ filterExpression: "{a} >= 0" }, 4);
+      if (!isPanel) q.visibleRows;
+      let calls = 0;
+      q.survey.onValueChanged.add((_, options) => {
+        if (options.name !== kind.valueName || calls > 0 || !Array.isArray(options.value) || options.value.length !== 5) return;
+        calls++;
+        const v = copyRecords(q.value);
+        const at = v.map((r: any) => r.a).indexOf(2);
+        v[at] = { a: -1 };
+        q.survey.setValue(kind.valueName, v);
+      });
+      if (isPanel) q.addPanel(1); else q.addRowByIndex({ a: -3 }, 1);
+      expect(calls, "#1").toBe(1);
+      const shown = kind.shown(q);
+      expect(shown.indexOf(-1), "#2: the untouched record is filtered out").toBe(-1);
+      expect(shown.indexOf(isPanel ? undefined : -3) > -1, "#3: the new record stays").toBe(true);
+    });
+  });
+  test("panels follow the view after an assignment from outside when nothing is touched", () => {
+    const q = createStablePanel({ filterExpression: "{a} >= 0" }, 6);
+    const v = copyRecords(q.value);
+    v[2] = { a: -1 };
+    q.survey.setValue("p", v);
+    expect(panelAs(q), "#1").toEqual([0, 1, 3, 4, 5]);
+  });
+});
+/* A row of the fixed matrix the respondent edited keeps its place through an answer assignment - its
+   own answer may change or go: the row is the record. A rows change keeps it by row name, and a
+   removed row leaves the set. */
+describe("Fixed matrix: the rows the respondent edited stay shown", () => {
+  const createSorted = (): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", sortBy: "a-",
+      rows: ["r1", "r2", "r3", "r4"], columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: { r1: { a: "b" }, r2: { a: "c" }, r3: { a: "d" }, r4: { a: "e" } } };
+    return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("m") };
+  };
+  const rowNames = (matrix: QuestionMatrixDropdownModel): Array<string> => matrix.visibleRows.map(row => row.rowName);
+  test("an edited row keeps its place through answer assignments that change other rows, its own answer, or drop it", () => {
+    const { survey, matrix } = createSorted();
+    expect(rowNames(matrix), "#1").toEqual(["r4", "r3", "r2", "r1"]);
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "a";
+    expect(rowNames(matrix), "#2: the edit keeps its place").toEqual(["r4", "r3", "r2", "r1"]);
+    survey.setValue("m", { r1: { a: "f" }, r2: { a: "c" }, r3: { a: "d" }, r4: { a: "a" } });
+    expect(rowNames(matrix), "#3: the others are sorted").toEqual(["r4", "r1", "r3", "r2"]);
+    survey.setValue("m", { r1: { a: "f" }, r2: { a: "g" }, r3: { a: "d" }, r4: { a: "0" } });
+    expect(rowNames(matrix), "#4: its own answer changed").toEqual(["r4", "r2", "r1", "r3"]);
+    survey.setValue("m", { r1: { a: "f" }, r2: { a: "g" }, r3: { a: "h" } });
+    expect(rowNames(matrix), "#5: its answer is gone").toEqual(["r4", "r3", "r2", "r1"]);
+    matrix.refreshView();
+    expect(rowNames(matrix)[0] === "r4", "#6: refreshView sorts it").toBe(false);
+  });
+  test("a rows change keeps an edited row by its name, and a removed row leaves the set", () => {
+    const { survey, matrix } = createSorted();
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "a";
+    matrix.rows.splice(0, 0, new ItemValue("r0"));
+    survey.setValue("m", Object.assign({}, survey.getValue("m"), { r0: { a: "z" } }));
+    expect(rowNames(matrix), "#1: r4 keeps its place").toEqual(["r4", "r0", "r3", "r2", "r1"]);
+    matrix.rows.splice(matrix.rows.map(row => row.value).indexOf("r4"), 1);
+    matrix.rows.push(new ItemValue("r4"));
+    survey.setValue("m", Object.assign({}, survey.getValue("m"), { r1: { a: "y" } }));
+    expect(rowNames(matrix), "#2: the row that came back is not touched").toEqual(["r0", "r1", "r3", "r2", "r4"]);
+  });
+  test("clearValue() drops the edited rows", () => {
+    const { survey, matrix } = createSorted();
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "a";
+    matrix.clearValue();
+    survey.setValue("m", { r1: { a: "b" }, r2: { a: "c" }, r3: { a: "d" }, r4: { a: "a" } });
+    expect(rowNames(matrix), "#1").toEqual(["r3", "r2", "r1", "r4"]);
   });
 });
 /* What a record contributes without an object. Page size 0 keeps every released result. With paging:

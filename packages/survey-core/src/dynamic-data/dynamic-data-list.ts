@@ -63,6 +63,17 @@ export class DynamicDataList {
      that changed without the list doing it means the membership no longer fits. */
   private frozenCreatedIndexes: Array<number> = undefined;
   private frozenRecordCount: number = -1;
+  /* The records the respondent touched since the view was last decided - added through the owner's
+     add (runAddScope) or edited through an input (markRecordTouched) - as sorted record indexes. A
+     decision of the view the owner hands a remap of its records to (invalidateViews) keeps them where
+     they were, and so does the refill after a remove (commitRead). Every other decision of the view,
+     every other committed read and a source swap drop them. The list's own inserts, removes and moves
+     renumber them, also while no membership is frozen: the window of a source that pages itself has
+     no local view, and its refill keeps them too. Nothing reports whether a given record is touched. */
+  private touchedIndexes: Array<number> = [];
+  private addScopeDepth: number = 0;
+  // Set by rebuildMembership for the one decision of the view that keeps the touched records.
+  private keptTouched: Array<{ index: number, position: number }> = undefined;
   /* > 0 while the list applies a write of its own. A write-through source assigns the owner's
      storage, and an owner that reports an assignment made meanwhile through invalidateViews() is
      ignored: the membership must not be re-evaluated by the very write that maintains it. */
@@ -388,6 +399,7 @@ export class DynamicDataList {
   // records it held. They are decided again over the new one, and the page index is clamped to it.
   private resetWindowState(): void {
     this.hiddenFlags = [];
+    this.clearTouched();
     this.resetMembership();
     this.resetViews();
     this.refreezeMembership();
@@ -483,15 +495,21 @@ export class DynamicDataList {
   }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
-    this.isLoadRequested = true;
-    this.storageCount.cancelRetry();
-    return this.channel.startRead(false);
+    return this.requestRead(false, false);
   }
   public refresh(): void | Promise<void> {
+    return this.requestRead(true, false);
+  }
+  /* isRefill: the read refillWindowAfterRemove asks for. Any other read asked for before it commits -
+     merged into it while it waits for the writes, or superseding it in flight - takes the mark away:
+     the read that commits then is an ordinary one. */
+  private requestRead(useWindowOffset: boolean, isRefill: boolean): void | Promise<void> {
     this.isLoadRequested = true;
     this.storageCount.cancelRetry();
-    return this.channel.startRead(true);
+    this.isRefillRead = isRefill;
+    return this.channel.startRead(useWindowOffset);
   }
+  private isRefillRead: boolean = false;
   // Set by the first load() or refresh(), and never cleared: see the source setter.
   private isLoadRequested: boolean = false;
   public get isLoading(): boolean {
@@ -664,6 +682,9 @@ export class DynamicDataList {
       this.hiddenFlags.splice(at, 0, false);
       this.storageCount.onRecordInserted(this._windowOffset, countAfter);
       this.insertIntoMembership(at, countAfter);
+      this.remapTouched(insertRemap(at));
+      // Touched before the push, which runs the survey handlers: an assignment one of them makes keeps it.
+      if (this.addScopeDepth > 0)this.addTouched(at);
       this.resetViews();
       const sourceIndex = this._windowOffset + at;
       /* An added record has no key yet: the source assigns it, and the answer of insert brings it back
@@ -691,6 +712,7 @@ export class DynamicDataList {
       this.hiddenFlags.splice(index, 1);
       this.storageCount.onRecordRemoved(this._windowOffset, countAfter);
       this.removeFromMembership(index, countAfter);
+      this.remapTouched(removeRemap(index));
       this.resetViews();
       this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
         { key: key, pendingInsert: pending });
@@ -707,15 +729,16 @@ export class DynamicDataList {
      The whole page and not only the one record that moved up (a read of offset + length, take 1): that
      read would keep the row objects, but it trusts that the server's order did not change between the
      two reads and it leaves the total unverified. The full read is authoritative for both, and it is
-     one request either way. refresh() and not load(): the window stays at its own offset, load()
-     recomputes it from pageIndex and the two agree only by coincidence. */
+     one request either way. A refresh and not a load: the window stays at its own offset, load()
+     recomputes it from pageIndex and the two agree only by coincidence. The records the respondent
+     touched on the page stay in it (commitRead). */
   private refillWindowAfterRemove(): void {
     if (!this.isPagedBySource || !this.isLoaded || this._pageSize <= 0) return;
     // hasMore and not "windowOffset + length < count": with an unknown total the count is the
     // records seen so far and would never say that the source has more. With a known total the two
     // are the same value - the count recomputed the flag when the remove decremented it.
     if (this.recordCount >= this._pageSize || !this.hasMore) return;
-    this.refresh();
+    this.requestRead(true, true);
   }
   public move(fromIndex: number, toIndex: number): void {
     this.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
@@ -740,6 +763,7 @@ export class DynamicDataList {
       this.hiddenFlags.splice(fromIndex, 1);
       this.hiddenFlags.splice(toIndex, 0, flag);
       this.moveInMembership(fromIndex, toIndex);
+      this.remapTouched(moveRemap(fromIndex, toIndex));
       this.resetViews();
       const toSourceIndex = this._windowOffset + toIndex;
       this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
@@ -766,20 +790,102 @@ export class DynamicDataList {
   /* Drops the cached views. The list detects a record array that changed outside it by its length;
      a content change of the same length - a cell written through survey.setValue - it cannot see,
      and with a local filter or sort active that change reorders or re-filters the view. The owner
-     calls this from the one point every value assignment passes through. */
-  public invalidateViews(): void {
+     calls this from the one point every value assignment passes through.
+     remap: the new record index of each old record (-1: removed, undefined: not known) - what the
+     owner knows about the change. The touched records it can place follow it and keep their places
+     in the view; without it they are decided again like every other record. previousCreated: the
+     created indexes before the change, when the owner took them - the views may have been read
+     over the new records since. */
+  public invalidateViews(remap?: (index: number) => number, previousCreated?: Array<number>): void {
     // A write of the list's own maintains the membership record by record; re-evaluating it here
     // would undo that from inside the very assignment that made it. refreshView() is the owner's
     // explicit request and runs during a write too, so the guard stays here and not in the helper.
     if (this.writeDepth > 0) return;
-    this.rebuildMembership();
+    this.rebuildMembership(remap, previousCreated);
   }
-  // Re-decides the membership over the records as they are now, and re-freezes it.
-  private rebuildMembership(): void {
+  /* Re-decides the membership over the records as they are now, and re-freezes it. The touched
+     records a remap places are put back where they were in the view: the untouched ones are filtered
+     and sorted, and each touched one goes back to its position in the previous view (ensureViews). */
+  private rebuildMembership(remap?: (index: number) => number, previousCreated?: Array<number>): void {
+    const kept = this.takeKeptTouched(remap, previousCreated || this.frozenCreatedIndexes);
     this.resetMembership();
     this.resetViews();
-    this.refreezeMembership();
+    this.keptTouched = kept;
+    try {
+      this.refreezeMembership();
+    } finally {
+      this.keptTouched = undefined;
+    }
     this.clampPageIndexAfterChange();
+  }
+  /* The touched records that follow a remap, with their positions in the view that is about to be
+     decided again - in ascending order of position. The set follows the remap; without one it is
+     dropped. */
+  private takeKeptTouched(remap: (index: number) => number, oldCreated: Array<number>): Array<{ index: number, position: number }> {
+    if (this.touchedIndexes.length === 0) return undefined;
+    if (!remap) {
+      this.clearTouched();
+      return undefined;
+    }
+    const res: Array<{ index: number, position: number }> = [];
+    this.touchedIndexes.forEach((index: number): void => {
+      const to = remap(index);
+      const position = !!oldCreated ? oldCreated.indexOf(index) : -1;
+      if (to === undefined || to < 0 || position < 0) return;
+      res.push({ index: to, position: position });
+    });
+    this.touchedIndexes = [];
+    res.forEach((item: { index: number, position: number }): void => this.addTouched(item.index));
+    return res.sort((a, b): number => a.position - b.position);
+  }
+  /* The view decided over every record, with the touched records put back: taken out of it, then
+     each one inserted at its old position, clamped to the end. */
+  private keepTouchedInView(created: Array<number>, kept: Array<{ index: number, position: number }>): Array<number> {
+    const indexes = kept.map((item: { index: number, position: number }): number => item.index);
+    const res = created.filter((index: number): boolean => indexes.indexOf(index) < 0);
+    kept.forEach((item: { index: number, position: number }): void => {
+      res.splice(Math.min(item.position, res.length), 0, item.index);
+    });
+    return res;
+  }
+  // internal: the owner's add. Every record the list inserts or appends inside it - also by a record
+  // count that grows (syncMembershipWithRecordCount) - is touched as it enters the list.
+  public runAddScope<T>(func: () => T): T {
+    this.addScopeDepth++;
+    try {
+      return func();
+    } finally {
+      this.addScopeDepth--;
+    }
+  }
+  // internal: a record the respondent edited through an input.
+  public markRecordTouched(index: number): void {
+    if (index < 0 || index >= this.recordCount) return;
+    this.addTouched(index);
+  }
+  // internal: the owner builds the remap of an assignment only when there is something to place.
+  public get hasTouchedRecords(): boolean {
+    return this.touchedIndexes.length > 0;
+  }
+  private addTouched(index: number): void {
+    const indexes = this.touchedIndexes;
+    let at = 0;
+    while(at < indexes.length && indexes[at] < index) at++;
+    if (indexes[at] === index) return;
+    indexes.splice(at, 0, index);
+  }
+  // Removed records (-1) and records the remap cannot place (undefined) leave the set.
+  private remapTouched(remap: (index: number) => number): void {
+    if (this.touchedIndexes.length === 0) return;
+    const old = this.touchedIndexes;
+    this.touchedIndexes = [];
+    old.forEach((index: number): void => {
+      const to = remap(index);
+      if (to !== undefined && to > -1)this.addTouched(to);
+    });
+  }
+  private clearTouched(): void {
+    this.touchedIndexes = [];
   }
   /* The owner changed how many records its storage holds without writing through the list - the
      matrix composes its window by padding question.value up to rowCount. The records that are new
@@ -787,6 +893,8 @@ export class DynamicDataList {
      membership of the rest is not re-evaluated. */
   public syncMembershipWithRecordCount(): void {
     this.resetViews();
+    const count = this.recordCount;
+    this.remapTouched((index: number): number => index < count ? index : -1);
     this.syncFrozenMembershipWithRecordCount();
     // After the membership follows the count: the clamp reads the views, and a view read before
     // would decide the membership again - a new record the filter does not accept would leave it.
@@ -806,6 +914,8 @@ export class DynamicDataList {
       created = created.slice();
       for (let i = this.frozenRecordCount; i < count; i++) {
         created.push(i);
+        // A record count the owner's add grew: the new record is the one added (see runAddScope).
+        if (this.addScopeDepth > 0)this.addTouched(i);
       }
     }
     this.frozenCreatedIndexes = created;
@@ -815,6 +925,7 @@ export class DynamicDataList {
      view. With isViewFrozenOnEdit off this is what every write does anyway, so it is only the reset
      notification. */
   public refreshView(): void {
+    this.clearTouched();
     this.rebuildMembership();
     this.raiseChanged({ type: "reset" });
   }
@@ -1047,6 +1158,7 @@ export class DynamicDataList {
      hands over on its first sync. */
   public setView(filter: string, sort: Array<IDynamicDataSort>): void {
     const newFilter = !!filter ? filter : "";
+    this.clearTouched();
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
        the filter it already has changes neither. */
@@ -1131,6 +1243,7 @@ export class DynamicDataList {
     this.storageCount.cancelRetry();
     this.filterRunner = undefined;
     this.recordVisibility = undefined;
+    this.clearTouched();
     this.resetMembership();
     this.resetViews();
   }
@@ -1314,6 +1427,9 @@ export class DynamicDataList {
       if (needSort) {
         created = applySort(records, this._sort, fields, created);
       }
+      if (!!this.keptTouched) {
+        created = this.keepTouchedInView(created, this.keptTouched);
+      }
       this.freezeCreatedIndexes(created, recordCount);
     }
     // The owner-hidden records keep the order the filter and the sort gave them; dropping them from
@@ -1392,6 +1508,7 @@ export class DynamicDataList {
   private resetWindow(): void {
     this.records = [];
     this.hiddenFlags = [];
+    this.clearTouched();
     // The inserts of the source that was replaced: their answers belong to a window that is gone.
     this.channel.clearPendingInserts();
     this.storageCount.reset();
@@ -1514,6 +1631,7 @@ export class DynamicDataList {
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.
   private onReadFailed(error: any): void {
+    this.isRefillRead = false;
     this.storageCount.cancelRetry();
     this.restoreCommittedPageIndex();
     this.setIsLoading(false);
@@ -1537,7 +1655,10 @@ export class DynamicDataList {
      Returns whether the window was committed - an empty page past the end is not. */
   private commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean {
     const result = toReadResult(data);
-    const records = result.records;
+    let records = result.records;
+    // A refill that stepped back to another page (a page past the end) is an ordinary read.
+    const isRefill = this.isRefillRead && isPagedRead && skip === this._windowOffset;
+    this.isRefillRead = false;
     if (isPagedRead) {
       /* A page past the end is not committed: the count records the retry and the list reads that
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
@@ -1547,6 +1668,9 @@ export class DynamicDataList {
       if (retryPageIndex !== undefined) {
         this._pageIndex = retryPageIndex;
         this.pageIndexes = undefined;
+      }
+      if (isRefill) {
+        records = this.keepTouchedRecords(records);
       }
       this.records = records;
       this._windowOffset = skip;
@@ -1560,7 +1684,12 @@ export class DynamicDataList {
     this.isWindowPagedBySource = isPagedRead;
     this.windowSourceView = isPagedRead && !!request ? { filter: request.filter, sort: request.sort || [] } : undefined;
     this.isLoaded = true;
+    // The touched records a refill kept are where keepTouchedRecords put them.
+    const touched = isRefill ? this.touchedIndexes : undefined;
     this.resetWindowState();
+    if (!!touched) {
+      this.touchedIndexes = touched;
+    }
     this.committedPageIndex = this._pageIndex;
     // The reset of a read stands for the one a write still owed (raisePendingReset).
     this.isResetPending = false;
@@ -1568,6 +1697,45 @@ export class DynamicDataList {
     return true;
   }
 
+  /* The refill after a remove (refillWindowAfterRemove) keeps the records the respondent touched on
+     the page. The count and the offset were committed from the server's answer: the total, hasMore
+     and the retry of a page past the end know the server's records only. Then every record of the
+     answer that has the key of a touched record is taken out of it, and each touched record goes
+     back to its old index, in ascending order, clamped to the end - whether or not the server
+     returned it, and wherever it did. The shown record is the answer's when the answer holds the
+     key: every write was acknowledged before the read started, so the answer has the client's
+     fields and what the server computed. A record without a key (an insert the source refused) is
+     not on the server and is kept as it is. The window may hold more records than the page size
+     then. Returns the window; touchedIndexes names the kept records in it. */
+  private keepTouchedRecords(answer: Array<any>): Array<any> {
+    const touched = this.touchedIndexes;
+    if (touched.length === 0) return answer;
+    const keyField = this.keyField;
+    const getKey = (record: any): any => !!keyField && !!record && typeof record === "object" ? record[keyField] : undefined;
+    const answerByKey = new Map<any, any>();
+    answer.forEach((record: any): void => {
+      const key = getKey(record);
+      if (key !== undefined && key !== null && !answerByKey.has(key)) answerByKey.set(key, record);
+    });
+    const kept = touched.map((index: number): { index: number, key: any, record: any } => {
+      const record = this.windowRecords[index];
+      const key = getKey(record);
+      const hasKey = key !== undefined && key !== null;
+      return { index: index, key: hasKey ? key : undefined, record: hasKey && answerByKey.has(key) ? answerByKey.get(key) : record };
+    }).filter((item: { index: number, key: any, record: any }): boolean => item.record !== undefined);
+    const keptKeys = kept.filter((item: { key: any }): boolean => item.key !== undefined).map((item: { key: any }): any => item.key);
+    const res = answer.filter((record: any): boolean => {
+      const key = getKey(record);
+      return key === undefined || key === null || keptKeys.indexOf(key) < 0;
+    });
+    this.touchedIndexes = [];
+    kept.forEach((item: { index: number, record: any }): void => {
+      const at = Math.min(item.index, res.length);
+      res.splice(at, 0, item.record);
+      this.addTouched(at);
+    });
+    return res;
+  }
   /* The window half of an insert answer: the merged record (mergeInsertAnswer) replaces the one in
      the window, so that every later write finds the key on it. */
   private applyInsertAnswer(entry: IPendingInsert): void {

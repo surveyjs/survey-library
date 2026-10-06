@@ -29,6 +29,7 @@ export var defaultCss = {
   bodyContainer: "sv-components-row",
   body: "sd-body",
   bodyWithTimer: "sd-body--with-timer",
+  bodySingleQuestion: "sd-body--single-question",
   clockTimerRoot: "sd-timer",
   clockTimerRootTop: "sd-timer--top",
   clockTimerRootBottom: "sd-timer--bottom",

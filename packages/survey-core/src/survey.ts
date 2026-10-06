@@ -1469,7 +1469,8 @@ export class SurveyModel extends SurveyElementCore
     return toCssClasses(
       this.css.body,
       this.showTimer && this.state === "running" && this.css.bodyWithTimer,
-      this.css.body + "--" + this.calculatedWidthMode
+      this.css.body + "--" + this.calculatedWidthMode,
+      this.isSingleVisibleQuestion && this.state === "running" && this.css.bodySingleQuestion
     );
   }
   public get bodyContainerCss(): string {

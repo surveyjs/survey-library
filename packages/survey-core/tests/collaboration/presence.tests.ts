@@ -231,6 +231,32 @@ describe("presence overlay", () => {
     expect((root.querySelector("[data-name=\"q1\"]") as HTMLElement).hasAttribute("data-collab-focus")).toBe(false);
     expect(document.body.querySelector(".collab-presence-layer")).toBeNull();
   });
+
+  // The layer lives in <body>, outside the themed root, so the survey's font never
+  // reaches the name badges by inheritance - they used to fall back to the page's font.
+  test("badges take the survey's font, not the page's", () => {
+    const survey = new SurveyModel(twoPages);
+    const root = attach(survey, ["q1"]);
+    root.style.fontFamily = "Lato, sans-serif";
+    const plugin = new CollaborationPlugin(survey);
+    plugin.apply({ type: "peer", peer: { clientId: "a", name: "Ann", state: { page: "p1", focus: "q1" } } });
+    const layer = document.body.querySelector(".collab-presence-layer") as HTMLElement;
+    expect(layer.style.fontFamily).toBe("Lato, sans-serif");
+    plugin.dispose();
+  });
+
+  test("a theme change reaches the badges on the next render", () => {
+    const survey = new SurveyModel(twoPages);
+    const root = attach(survey, ["q1", "q2"]);
+    root.style.fontFamily = "Lato, sans-serif";
+    const plugin = new CollaborationPlugin(survey);
+    plugin.apply({ type: "peer", peer: { clientId: "a", name: "Ann", state: { page: "p1", focus: "q1" } } });
+    root.style.fontFamily = "Roboto, sans-serif";
+    plugin.apply({ type: "peer", peer: { clientId: "a", name: "Ann", state: { page: "p1", focus: "q2" } } });
+    const layer = document.body.querySelector(".collab-presence-layer") as HTMLElement;
+    expect(layer.style.fontFamily).toBe("Roboto, sans-serif");
+    plugin.dispose();
+  });
 });
 
 describe("presence can be switched off", () => {

@@ -77,14 +77,18 @@ export class FilterToolbars {
   private advancedAction: Action;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: any;
+  // Where Save and Clear are now: in the fields row while there are no presets to show (see
+  // update()). Both rows build from this value, so they never disagree; undefined until a row is built.
+  private isEditInFields: boolean;
 
   constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer) {
   }
 
-  // The presets, then Save and Clear at the end of the row. In single mode there are no presets and
-  // the row is Save and Clear alone, shown when they apply.
+  // The presets, then Save and Clear at the end of the row. With no presets to show - none authored,
+  // or single mode - Save and Clear are in the fields row and this row is empty.
   public get itemsToolbar(): ActionContainer {
     if (!this.itemsToolbarValue) {
+      this.initEditPlacement();
       this.itemsToolbarValue = this.createContainer(true);
       this.itemsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
       this.rebuildItems();
@@ -92,10 +96,12 @@ export class FilterToolbars {
     }
     return this.itemsToolbarValue;
   }
-  // A badge per fast mode field (its condition's text, or the field's title), then Advanced at the
-  // end of the row. A field's condition is cleared from inside its badge's popup.
+  // A badge per fast mode field (its condition's text, or the field's title), then Save and Clear when
+  // there are no presets to show, then Advanced at the end of the row. A field's condition is cleared
+  // from inside its badge's popup.
   public get fieldsToolbar(): ActionContainer {
     if (!this.fieldsToolbarValue) {
+      this.initEditPlacement();
       this.fieldsToolbarValue = this.createContainer(true);
       this.fieldsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
       const states = this.getFieldStates();
@@ -104,21 +110,41 @@ export class FilterToolbars {
     }
     return this.fieldsToolbarValue;
   }
+  // Save and Clear move when the presets come or go. The row that gives them up is rebuilt first: a
+  // container that drops an action clears its owner, and the row that takes them sets it again.
   public update(): void {
-    if (!!this.itemsToolbarValue) {
-      if (!this.isSameList(this.itemNames, this.getItemNames())) {
-        this.rebuildItems();
-      }
-      this.updateItems();
+    const isEditInFields = !this.hasPresets;
+    const isMoved = this.isEditInFields !== undefined && this.isEditInFields !== isEditInFields;
+    this.isEditInFields = isEditInFields;
+    if (isEditInFields) {
+      this.updateItemsRow(isMoved);
+      this.updateFieldsRow(isMoved);
+    } else {
+      this.updateFieldsRow(isMoved);
+      this.updateItemsRow(isMoved);
     }
-    if (!!this.fieldsToolbarValue) {
-      const states = this.getFieldStates();
-      const keys = states.map((state: IFilterFieldState): string => state.key);
-      if (!this.isSameList(this.fieldKeys, keys)) {
-        this.rebuildFields(keys);
-      }
-      this.updateFields(states);
+  }
+  private get hasPresets(): boolean { return this.owner.visibleItems.length > 0; }
+  private initEditPlacement(): void {
+    if (this.isEditInFields === undefined) {
+      this.isEditInFields = !this.hasPresets;
     }
+  }
+  private updateItemsRow(isRebuildNeeded: boolean): void {
+    if (!this.itemsToolbarValue) return;
+    if (isRebuildNeeded || !this.isSameList(this.itemNames, this.getItemNames())) {
+      this.rebuildItems();
+    }
+    this.updateItems();
+  }
+  private updateFieldsRow(isRebuildNeeded: boolean): void {
+    if (!this.fieldsToolbarValue) return;
+    const states = this.getFieldStates();
+    const keys = states.map((state: IFilterFieldState): string => state.key);
+    if (isRebuildNeeded || !this.isSameList(this.fieldKeys, keys)) {
+      this.rebuildFields(keys);
+    }
+    this.updateFields(states);
   }
   // A locale change reaches the captions the library owns (Clear) through the containers; the badges'
   // texts are composed here, so they are composed again.
@@ -182,6 +208,7 @@ export class FilterToolbars {
     }
     this.saveAction = undefined;
     this.clearAction = undefined;
+    this.isEditInFields = undefined;
   }
 
   private getItemNames(): Array<string> {
@@ -210,30 +237,36 @@ export class FilterToolbars {
       a.locTitle = item.locTitle;
       return a;
     });
-    if (!this.owner.isDesignMode) {
-      if (!this.saveAction) {
-        this.saveAction = new Action({
-          id: "sv-filter-save",
-          title: filterUIStrings.save,
-          appearance: { style: "brand" },
-          disableHide: true,
-          visible: false,
-          action: (): void => { this.owner.saveActiveItem(); }
-        });
-        // The same caption and look as the Clear of a radiogroup.
-        this.clearAction = new Action({
-          id: "sv-filter-clear",
-          locTitleName: "clearCaption",
-          appearance: { style: "alert" },
-          disableHide: true,
-          visible: false,
-          action: (): void => { this.owner.clearActiveItem(); }
-        });
-      }
-      actions.push(this.saveAction, this.clearAction);
+    if (!this.isEditInFields) {
+      this.addEditActions(actions);
     }
     this.itemNames = this.getItemNames();
     toolbar.setItems(actions);
+  }
+  // Save and Clear are made once and kept: they are the same two buttons whichever row shows them and
+  // whatever stands before them. Design mode has neither.
+  private addEditActions(actions: Array<IAction>): void {
+    if (this.owner.isDesignMode) return;
+    if (!this.saveAction) {
+      this.saveAction = new Action({
+        id: "sv-filter-save",
+        title: filterUIStrings.save,
+        appearance: { style: "brand" },
+        disableHide: true,
+        visible: false,
+        action: (): void => { this.owner.saveActiveItem(); }
+      });
+      // The same caption and look as the Clear of a radiogroup.
+      this.clearAction = new Action({
+        id: "sv-filter-clear",
+        locTitleName: "clearCaption",
+        appearance: { style: "alert" },
+        disableHide: true,
+        visible: false,
+        action: (): void => { this.owner.clearActiveItem(); }
+      });
+    }
+    actions.push(this.saveAction, this.clearAction);
   }
   // One read of the fields per update: the control is asked on every change of its state, and a
   // bound control rebuilds its field list on every read.
@@ -252,7 +285,7 @@ export class FilterToolbars {
     this.fieldHolders = [];
     if (!this.fieldsToolbarValue) return;
     this.fieldsToolbarValue.actions.forEach((a: Action): void => {
-      if (a === this.advancedAction) return;
+      if (a === this.advancedAction || a === this.saveAction || a === this.clearAction) return;
       if (!!a.popupModel) a.popupModel.hide();
       a.dispose();
     });
@@ -261,6 +294,9 @@ export class FilterToolbars {
     this.disposeFieldActions();
     const actions: Array<IAction> = [];
     keys.forEach((key: string): void => { actions.push(this.createBadge(key)); });
+    if (this.isEditInFields) {
+      this.addEditActions(actions);
+    }
     if (!this.advancedAction) {
       this.advancedAction = new Action({
         id: "sv-filter-advanced",
@@ -347,6 +383,22 @@ export class FilterToolbars {
     if (!!this.advancedAction) {
       this.setState(this.advancedAction, "visible", this.owner.isAdvancedModeAvailable);
     }
+    this.updateRightGroup(this.isEditInFields ? [this.saveAction, this.clearAction, this.advancedAction] : [this.advancedAction]);
+  }
+  // The buttons at the right end of a row. Save and Clear follow the control, and the first button
+  // shown takes the space: the group keeps to the right, and a button that comes or goes moves none
+  // after it - Advanced stays where it is when Clear shows up before it.
+  private updateRightGroup(group: Array<Action>): void {
+    if (!!this.saveAction) {
+      this.setState(this.saveAction, "visible", this.owner.canSaveActiveItem);
+      this.setState(this.clearAction, "visible", this.owner.canClearActiveItem);
+    }
+    let isSpaceTaken = false;
+    group.forEach((a: Action): void => {
+      if (!a) return;
+      this.setState(a, "needSpace", !isSpaceTaken && a.visible);
+      if (a.visible) isSpaceTaken = true;
+    });
   }
   // An adaptive container's overflow menu makes its items anew from each hidden action's innerItem -
   // the options the action was created from - so whatever changes an action after it was made is
@@ -367,13 +419,8 @@ export class FilterToolbars {
         this.setState(a, "active", item === active);
       }
     });
-    if (!!this.saveAction) {
-      const canSave = this.owner.canSaveActiveItem;
-      this.setState(this.saveAction, "visible", canSave);
-      this.setState(this.clearAction, "visible", this.owner.canClearActiveItem);
-      // Whichever of the two comes first on screen takes the space, so the pair stays on the right.
-      this.setState(this.saveAction, "needSpace", canSave);
-      this.setState(this.clearAction, "needSpace", !canSave);
+    if (!this.isEditInFields) {
+      this.updateRightGroup([this.saveAction, this.clearAction]);
     }
   }
 }

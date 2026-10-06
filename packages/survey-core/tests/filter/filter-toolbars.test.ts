@@ -57,13 +57,16 @@ describe("FilterToolbars: the presets row", () => {
     q.setFieldCondition("age", "greater", 30);
     expect([save.needSpace, clear.needSpace], "#2: Save shown, it takes the space").toEqual([true, false]);
   });
-  test("single mode: no presets in the row, Save and Clear still come and go with the edits", () => {
+  test("single mode: no presets and no row, Save and Clear of the one preset sit in the fields row", () => {
     const q = createFilter({ allowMultipleItems: false });
-    expect(presets(q.itemsToolbar).length, "#1").toBe(0);
-    expect(q.itemsToolbar.hasVisibleActions, "#2").toBe(false);
+    expect(ids(q.itemsToolbar), "#1").toEqual([]);
     q.setFieldCondition("age", "greater", 30);
-    expect(action(q.itemsToolbar, "sv-filter-clear").visible, "#3").toBe(true);
-    expect(q.itemsToolbar.hasVisibleActions, "#4").toBe(true);
+    const save = action(q.fieldsToolbar, "sv-filter-save");
+    const clear = action(q.fieldsToolbar, "sv-filter-clear");
+    expect([save.visible, clear.visible], "#2: an edit over the preset").toEqual([true, true]);
+    expect(q.itemsToolbar.hasVisibleActions, "#3: the presets row stays empty").toBe(false);
+    save.action();
+    expect(q.activeItem.expression, "#4: saved into the preset").toBe("{age} > 30");
   });
   test("design mode has no Save or Clear", () => {
     const survey = new SurveyModel();
@@ -74,9 +77,61 @@ describe("FilterToolbars: the presets row", () => {
   });
 });
 
+const badgeIds = ["sv-filter-field-name", "sv-filter-field-country", "sv-filter-field-age"];
+describe("FilterToolbars: Save and Clear without presets", () => {
+  test("no presets: no presets row, Save and Clear sit in the fields row before Advanced", () => {
+    const q = createFilter({ items: [] });
+    expect(ids(q.itemsToolbar), "#1").toEqual([]);
+    expect(ids(q.fieldsToolbar), "#2").toEqual(badgeIds.concat(["sv-filter-save", "sv-filter-clear", "sv-filter-advanced"]));
+    const clear = action(q.fieldsToolbar, "sv-filter-clear");
+    expect(clear.visible, "#3: nothing to clear").toBe(false);
+    q.setFieldCondition("age", "greater", 18);
+    expect(clear.visible, "#4: a quick filter is set").toBe(true);
+    expect(q.itemsToolbar.hasVisibleActions, "#5: the presets row stays empty").toBe(false);
+    clear.action();
+    expect([clear.visible, !!action(q.fieldsToolbar, "sv-filter-field-age").active], "#6: cleared").toEqual([false, false]);
+  });
+  test("the first of Save, Clear and Advanced that is shown takes the space", () => {
+    const q = createFilter({ items: [] });
+    const clear = action(q.fieldsToolbar, "sv-filter-clear");
+    const advanced = action(q.fieldsToolbar, "sv-filter-advanced");
+    expect([clear.needSpace, advanced.needSpace], "#1: nothing to clear, Advanced takes it").toEqual([false, true]);
+    q.setFieldCondition("age", "greater", 18);
+    expect([clear.needSpace, advanced.needSpace], "#2: Clear comes before Advanced").toEqual([true, false]);
+    q.clearFieldCondition("age");
+    expect([clear.needSpace, advanced.needSpace], "#3").toEqual([false, true]);
+  });
+  test("Save and Clear move between the rows as presets come and go", () => {
+    const q = createFilter({ items: [] });
+    const clear = action(q.fieldsToolbar, "sv-filter-clear");
+    q.setFieldCondition("age", "greater", 18);
+    q.items.push(new FilterItem("teens"));
+    expect(ids(q.itemsToolbar), "#1").toEqual(["sv-filter-item-teens", "sv-filter-save", "sv-filter-clear"]);
+    expect(ids(q.fieldsToolbar), "#2").toEqual(badgeIds.concat(["sv-filter-advanced"]));
+    expect([action(q.itemsToolbar, "sv-filter-clear") === clear, clear.visible], "#3: the same Clear, still shown").toEqual([true, true]);
+    expect(clear.owner === q.itemsToolbar, "#4: the row that shows it owns it").toBe(true);
+    expect(action(q.fieldsToolbar, "sv-filter-advanced").needSpace, "#5").toBe(true);
+    q.items.splice(0, 1);
+    expect(ids(q.itemsToolbar), "#6").toEqual([]);
+    expect(ids(q.fieldsToolbar), "#7").toEqual(badgeIds.concat(["sv-filter-save", "sv-filter-clear", "sv-filter-advanced"]));
+    expect([action(q.fieldsToolbar, "sv-filter-clear") === clear, clear.visible], "#8").toEqual([true, true]);
+    expect(clear.owner === q.fieldsToolbar, "#9").toBe(true);
+    clear.action();
+    expect(!!action(q.fieldsToolbar, "sv-filter-field-age").active, "#10: it still clears").toBe(false);
+  });
+  test("design mode without presets has no Save or Clear in either row", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(ids(q.itemsToolbar), "#1").toEqual([]);
+    expect(ids(q.fieldsToolbar), "#2").toEqual(["sv-filter-field-age", "sv-filter-advanced"]);
+  });
+});
+
 describe("FilterToolbars: the fields row", () => {
   test("a badge per fast mode field, titled by its condition; Advanced last", () => {
-    const q = createFilter({ items: [] });
+    const q = createFilter();
     expect(ids(q.fieldsToolbar), "#1").toEqual(["sv-filter-field-name", "sv-filter-field-country", "sv-filter-field-age", "sv-filter-advanced"]);
     const badge = action(q.fieldsToolbar, "sv-filter-field-age");
     expect(badge.title, "#2").toBe("age");

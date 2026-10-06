@@ -133,7 +133,8 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   }
   protected renderElement(): React.JSX.Element {
     const q = this.question;
-    // With no presets and nothing to save or clear the row is empty: it is left out, gap and all.
+    // With no presets to show the row is empty - Save and Clear are in the fields row then - and it is
+    // left out, gap and all.
     const items = q.itemsToolbar.hasVisibleActions ? <SurveyActionBar model={q.itemsToolbar} /> : null;
     const note = !!q.noteText ? <div className={q.cssClasses.description}>{q.noteText}</div> : null;
     return <div style={rootStyle}>

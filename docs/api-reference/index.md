@@ -12,11 +12,12 @@ product: Form Library
 - [`QuestionPanelDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionpaneldynamicmodel.md) — A class that describes the Dynamic Panel question type.
 - [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase.md) — A base class for the `PanelModel` and `PageModel` classes.
 - [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) — A base class for multiple-choice question types (Checkboxes, Dropdown, Radio Button Group, etc.).
+- [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
 - [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/matrixdropdowncolumn.md) — An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic Matrix.
 - [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) — A base class for all survey elements.
 - [`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) — A base class for all SurveyJS objects.
 - [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdynamicmodel.md) — A class that describes the Dynamic Matrix question type.
-- [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
+- [`QuestionMatrixModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) — A class that describes the Single-Select Matrix question type.
 - [`QuestionFileModel`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodel.md) — A class that describes the File Upload question type.
 - [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md) — A class that describes an item in a Multiple Textboxes question.
 - [`QuestionSliderModel`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel.md) — A class that describes the Slider question type.
@@ -26,7 +27,6 @@ product: Form Library
 - [`QuestionSignaturePadModel`](https://surveyjs.io/form-library/documentation/api-reference/questionsignaturepadmodel.md) — A class that describes the Signature question type.
 - [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/pagemodel.md) — The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
 - [`PopupSurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/popupsurveymodel.md) — A class that renders a survey in a pop-up window.
-- [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) — A base class for all matrix question types.
 - [`QuestionImagePickerModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagepickermodel.md) — A class that describes the Image Picker question type.
 - [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) — A class that describes the Checkboxes question type.
 - [`QuestionTagboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontagboxmodel.md) — A class that describes the Multi-Select Dropdown (Tag Box) question type.
@@ -36,7 +36,6 @@ product: Form Library
 - [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/api-reference/choicesrestful.md) — Configures access to a RESTful service that returns choices for Checkbox, Dropdown, Radiogroup, and other multiple-choice question types.
 - [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric.md) — A class that describes an input mask of the `"numeric"` `maskType`.
 - [`QuestionImageModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagemodel.md) — A class that describes the Image question type.
-- [`QuestionMatrixModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) — A class that describes the Single-Select Matrix question type.
 - [`RegionalFormat`](https://surveyjs.io/form-library/documentation/api-reference/regionalformat.md) — Configures date, time, number, and currency formats for input masks throughout a survey.
 - [`QuestionMultipleTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmultipletextmodel.md) — A class that describes the Multiple Text question type.
 - [`QuestionRankingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrankingmodel.md) — A class that describes the Ranking question type.

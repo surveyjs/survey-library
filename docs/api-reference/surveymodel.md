@@ -2115,6 +2115,8 @@ This method applies the same survey logic as direct assignment to the [`data`](#
 
 This method does not run the validation rules defined in the JSON schema. To run them, call the [`validate()`](#validate) method separately.
 
+Available since: v3.1.2
+
 **Parameters:**
 
 | Name | Type | Description |

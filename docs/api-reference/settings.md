@@ -38,6 +38,22 @@ This property is an object whose keys are category names and whose values are ar
 
 Available since: v2.3.16
 
+### `allowExponentialNotation`
+
+**Type**: `boolean`
+
+Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+
+Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+
+- [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+- Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+- `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+
+Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+
+This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+
 ### `animationEnabled`
 
 **Type**: `boolean`
@@ -496,6 +512,9 @@ Specifies how to render the input field of [Comment](https://surveyjs.io/form-li
 
 - `textRenderMode`: `"input"` (default) | `"div"`\
 Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
+
+- `enableValidation`: `boolean`\
+Specifies whether to validate questions in read-only mode. Default value: `false`.
 
 ### `refuseItemValue`
 

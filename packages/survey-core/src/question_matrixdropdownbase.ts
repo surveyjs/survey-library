@@ -28,6 +28,7 @@ import {
   QuestionRecordsSingleInputBehavior
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 
@@ -2686,6 +2687,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         if (!res.some(f => f.name === name)) {
           res.push({ name: name, dataType: "string" });
         }
+      }
+    });
+    return res;
+  }
+  // A filterable column is one field, described by the column itself: its title and its opt-out are
+  // the column's, not the cell question's. A cell whose value is a record of its own - a composite
+  // question registered as a cell type - is not a field: its children are, and they are collected
+  // by the same rule a Dynamic Panel template is walked by. collectFilterFields starts from the
+  // cell question, so it names them under getValueName() - the key the cell writes, which is what
+  // column.sortField reports and is not the column name when the column is bound through valueName.
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    const res = new Array<IDynamicDataFilterField>();
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      const field = column.getFilterField();
+      if (!!field) {
+        res.push(field);
+        return;
+      }
+      if (column.allowFiltering) {
+        collectFilterFields(res, column.templateQuestion, "");
       }
     });
     return res;

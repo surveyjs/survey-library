@@ -4,6 +4,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { FunctionFactory } from "../../src/functionsfactory";
 
 // The keys live on the paging controller: the question's public surface for control filters is
@@ -414,6 +415,23 @@ describe("Filter control: the control filter entrance of the records questions",
     expect(panel.getControlFilter("control"), "#2: the control filter is still there").toBe("{q1} = 'a'");
     panel.setControlFilter("control", "");
     expect(panel.visiblePanels.length, "#3: back to the authored expression alone").toBe(2);
+  });
+  // Every records question shares the filtering API, the fixed matrix included: its rows are records
+  // the list filters, and its columns are the fields, as they are for the dynamic matrix.
+  test("a control bound to a fixed matrix offers its columns and filters its rows", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdropdown", name: "m", rows: ["r1", "r2", "r3"], columns: [{ name: "country" }, { name: "price" }] },
+      { type: "filter", name: "f1", source: "m", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    matrix.value = { r1: { country: "de", price: 50 }, r2: { country: "fr", price: 500 }, r3: { country: "gb", price: 5 } };
+    expect(control.getFilterFields().map((f: any) => f.name), "#1: the columns are the fields").toEqual(["country", "price"]);
+    control.toggleItem("de");
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: the rows the control lets through").toEqual(["r1"]);
+    expect(matrix.filterExpression, "#3: the authored expression is untouched").toBe("");
+    expect(matrix.toJSON().filterExpression, "#4: and nothing is serialized").toBeUndefined();
+    control.toggleItem("de");
+    expect(matrix.visibleRows.length, "#5: clearing the item gives every row back").toBe(3);
   });
   describe("a page move that waits for asynchronous validators", () => {
     const results: Array<(res: any) => void> = [];

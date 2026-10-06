@@ -11,9 +11,10 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
 import {
-  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
-  IDynamicDataSource
+  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataFilterSource, IDynamicDataListChange, IDynamicDataOwner,
+  IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import {
   DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap
 } from "./dynamic-data/dynamic-data-page-validation";
@@ -82,7 +83,7 @@ type RecordsHelperOwner = IDynamicDataOwner & IDynamicDataPageValidationOwner & 
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
    it does change is who owns them - see canSetValueToSurvey. */
-export abstract class QuestionRecordsModel extends Question {
+export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
   private _dataList: DynamicDataList;
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
@@ -818,6 +819,16 @@ export abstract class QuestionRecordsModel extends Question {
      layer. */
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
+     and never touches it: the authored expression is what this question serializes, and a control
+     must be able to filter without overwriting it. The key is the control's own, so two controls do
+     not overwrite each other, and "" removes the filter that control had set. Control filters are
+     runtime state and are not serialized. */
+  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
+  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  // The fields a Filter Control offers for the records: the matrix columns, the panel template's
+  // questions. A records question with no fields of its own offers none.
+  public getFilterFields(): Array<IDynamicDataFilterField> { return []; }
   public refreshView(): void { this.paging.refreshView(); }
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {

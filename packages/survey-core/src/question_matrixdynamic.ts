@@ -28,9 +28,7 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionRecordsValueGetterContext } from "./question_records";
-import { IDynamicDataFilterSource, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
-import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
+import { IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -83,7 +81,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
-  implements IMatrixDropdownData, IDynamicDataFilterSource {
+  implements IMatrixDropdownData {
   public onGetValueForNewRowCallBack: (
     sender: QuestionMatrixDynamicModel
   ) => any;
@@ -131,33 +129,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     (this.generatedVisibleRows || []).forEach(row => row.onQuestionReadOnlyChanged());
     this.resetRenderedTable();
   }
-  // A filterable column is one field, described by the column itself: its title and its opt-out are
-  // the column's, not the cell question's. A cell whose value is a record of its own - a composite
-  // question registered as a cell type - is not a field: its children are, and they are collected
-  // by the same rule a Dynamic Panel template is walked by. collectFilterFields starts from the
-  // cell question, so it names them under getValueName() - the key the cell writes, which is what
-  // column.sortField reports and is not the column name when the column is bound through valueName.
-  public getFilterFields(): Array<IDynamicDataFilterField> {
-    const res = new Array<IDynamicDataFilterField>();
-    this.columns.forEach((column: MatrixDropdownColumn): void => {
-      const field = column.getFilterField();
-      if (!!field) {
-        res.push(field);
-        return;
-      }
-      if (column.allowFiltering) {
-        collectFilterFields(res, column.templateQuestion, "");
-      }
-    });
-    return res;
-  }
-  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
-     and never touches it: the authored expression is what this question serializes, and a control
-     must be able to filter without overwriting it. The key is the control's own, so two controls do
-     not overwrite each other, and "" removes the filter that control had set. Control filters are
-     runtime state and are not serialized. */
-  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
-  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
   /* rowCount follows the loaded total here and not through its setter: the setter clamps to
      settings.matrix.maxRowCount, truncates the storage and creates one row object per counted
      record - none of which applies to a window of a larger table. With a source that answers

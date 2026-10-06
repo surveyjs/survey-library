@@ -37,7 +37,7 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IDynamicDataField, IDynamicDataFilterSource, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { getFilterFieldsForQuestions, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
@@ -194,7 +194,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends QuestionRecordsModel implements IDynamicDataFilterSource {
+export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -394,13 +394,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel implements I
   public getFilterFields(): Array<IDynamicDataFilterField> {
     return getFilterFieldsForQuestions(this.template.questions);
   }
-  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
-     and never touches it: the authored expression is what this question serializes, and a control
-     must be able to filter without overwriting it. The key is the control's own, so two controls do
-     not overwrite each other, and "" removes the filter that control had set. Control filters are
-     runtime state and are not serialized. */
-  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
-  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
   // QuestionRecordsModel hook: the panels' side of a list change, see
   // QuestionRecordsModel.onDataListChanged.
   protected rebuildFromDataList(isPageMove: boolean): void {

@@ -71,6 +71,27 @@ jobs:
       # -------------------------------------------------------------------
       - name: Validate inputs
         run: |
+          # ---- version gate -------------------------------------------------
+          # Minimum version (exclusive) required to run this workflow.
+          MIN_VERSION="3.0.0"
+
+          RAW="${RELEASED_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$RAW"
+          MINOR="${MINOR:-0}"; PATCH="${PATCH:-0}"
+
+          RAW_MIN="${MIN_VERSION#v}"
+          IFS='.' read -r MIN_MAJOR MIN_MINOR MIN_PATCH <<< "$RAW_MIN"
+          MIN_MINOR="${MIN_MINOR:-0}"; MIN_PATCH="${MIN_PATCH:-0}"
+
+          if ! { [ "$MAJOR" -gt "$MIN_MAJOR" ] \
+              || { [ "$MAJOR" -eq "$MIN_MAJOR" ] \
+                   && { [ "$MINOR" -gt "$MIN_MINOR" ] \
+                        || { [ "$MINOR" -eq "$MIN_MINOR" ] && [ "$PATCH" -gt "$MIN_PATCH" ]; }; }; }; }; then
+            echo "::error::Release $RELEASED_TAG is not greater than v${MIN_VERSION} — skipping."
+            exit 1
+          fi
+          # -------------------------------------------------------------------
+          
           if [ -z "$RELEASED_TAG" ]; then
             echo "::error::No release tag available. Provide 'tag_name' when running manually."
             exit 1

@@ -1,38 +1,40 @@
-import type { IDynamicDataFilterField } from "./dynamic-data-fields";
+import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
 
-// The data-source contract for DynamicDataList. Capabilities are declared by the presence of the
-// optional methods: a source that has "readRange" pages, filters and sorts itself, a source that
-// has "remove" can delete a record, and so on. The list falls back to a local implementation for
-// every absent capability.
+// The data-source contract for DynamicDataList. A source has one read, read(request), and declares
+// what it does with the request in two ways, on purpose:
+// - the read capabilities by flags (capabilities: { paging, filtering, sorting }): every source has
+//   a read, so the presence of a method cannot tell what the read does with the range and the view.
+//   The list takes the flags when the source is assigned to it; a source that changes them is
+//   assigned again;
+// - the write capabilities by the presence of the matching method: a source that has "remove" can
+//   delete a record, one without it cannot, and so on.
+// A missing flag means false. The list falls back to a local implementation for every capability
+// the source does not declare, except a sort a paging source leaves out (see below).
 //
 // How to write a source (the short version, for the documentation that follows this series):
 //
+//   // A source that does not page: one read of every record, in source order. The list pages,
+//   // filters and sorts the answer on its own side. The answer may be a bare array.
+//   const allOrders = {
+//     read: () => fetch("/api/orders").then(r => r.json())
+//   };
+//
+//   // A source that pages: every read is ONE request carrying the range and the view the list wants.
 //   const source = {
-//     // Required. Every record, in source order. The list calls it only when readRange is absent,
-//     // and then pages, filters and sorts what it returns on its own side.
-//     read: () => fetch("/api/orders").then(r => r.json()),
-//     // Optional. The number of records read() would return; only for a read() that composes them.
-//     count: () => state.rows.length,
-//     // Optional. Present -> the source pages, filters AND sorts itself: the list never calls
-//     // read() and every read is ONE request carrying the range and the view it wants.
+//     capabilities: { paging: true, filtering: true, sorting: true },
 //     //   request.skip   the first record to return, in the source's filtered and sorted order
 //     //   request.take   how many; 0 means "everything from skip"
-//     //   request.filter the expression text of the question's filter, "" for no filter. When a
+//     //   request.filter the expression text of question.filterExpression, "" for no filter. When a
 //     //                  Filter Control filters the question too, it is the authored expression
 //     //                  and the control's combined, each one bracketed:
-//     //                  "({country} = 'de') and ({price} > 10)". Parse it, never pattern-match
-//     //                  it - and expect more requests: every change a control commits is one.
-//     //                  Translate it with the library's own parser and re-render the tree in
-//     //                  your dialect:
-//     //                    const operand = new ConditionsParser().parseExpression(request.filter);
-//     //                    const where = operand.toString(op => op.getType() === "variable"
-//     //                      ? op.variable : undefined);
-//     //                  The callback answers for the nodes you know, undefined for the rest.
+//     //                  "({country} = 'de') and ({price} > 10)". Parse it (see below), never
+//     //                  pattern-match it - and expect more requests: every change a control
+//     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
 //     // "hasMore", or from a window that came back shorter than "take".
-//     readRange: (request) =>
+//     read: (request) =>
 //       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
 //         .then(r => r.json())
 //         .then(r => ({ records: r.items, total: r.total })),
@@ -58,11 +60,12 @@ import type { IDynamicDataFilterField } from "./dynamic-data-fields";
 // That is what the in-memory sources use, and it is exact for a source only this list writes to.
 // sourceIndex, where it is passed on its own, is always that position.
 //
-// Limitation of a keyed source: until the list knows the key of a new record it cannot address it.
-// Return the stored record from insert so that the key arrives as early as possible; an edit made
-// before that answer lands is still not delivered - it stays in the window, onDynamicDataError
-// reports it, and either a later edit of the same record carries it (an update sends the whole
-// record) or the next read reconciles.
+// A keyed source and a new record: the list addresses a record by the key the source assigned, so
+// return the stored record from insert. The edits, removes and moves made to the new record before
+// that answer lands are queued behind the insert and sent, in order, with the key once it arrives;
+// an update sent then carries the fields the source filled in as well. What is still lost is a write
+// to a record whose insert failed or answered without the key: it stays in the window,
+// onDynamicDataError reports it for its own operation, and the next read reconciles.
 //
 // keyField has nothing to do with question.keyName (the uniqueness validator of the matrix and the
 // dynamic panel): one names a record for the source, the other forbids duplicate answers.
@@ -74,9 +77,21 @@ import type { IDynamicDataFilterField } from "./dynamic-data-fields";
 //   const where = operand.toString(op => op.getType() === "variable" ? op.variable : undefined);
 // The callback answers for the nodes the source knows and returns undefined for the rest.
 //
-// Paging implies filtering and sorting: a source that pages on its side but leaves the filter to
-// the list cannot exist, because the list would filter one page. A source that cannot filter
-// server-side returns everything from read() and gets local paging, filtering and sorting for free.
+// filtering and sorting mean something only together with paging. A source that does not page
+// answers with every record, and the list filters and sorts that answer itself, whatever the two
+// flags say; its request is always { skip: 0, take: 0, filter: "", sort: [] }. A paging source
+// declares each of the two on its own: a source that pages and sorts but cannot filter declares
+// { paging: true, sorting: true }. The list never filters or sorts one page locally:
+// - a paging source that cannot filter is read whole while a filter is set - the authored one or a
+//   Filter Control's: the request is the one of
+//   a source that does not page, and the list filters, sorts and pages the answer itself. Once the
+//   filter is cleared, the source is paged again. Declare filtering to keep a filter from reading
+//   every record;
+// - a sort a paging source has not declared is refused on a paged read: no request is sent, the
+//   window in force stays, and the refusal is reported through survey.onDynamicDataError with the
+//   operation "read". question.canSortRecords says up front whether a sort is available.
+// The request of a paged read carries only the parts the source has declared: "" for no filter, []
+// for an undeclared sort.
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
 // survey.onDynamicDataError with the operation name; the records the question shows are kept as
@@ -112,17 +127,22 @@ export interface IDynamicDataReadResult {
   // inferred: a full window (records.length >= take, take > 0) may have more, a short one is the end.
   hasMore?: boolean;
 }
+// What the source does on its own side with a read request. A missing flag means false. See the
+// header for what each flag means with and without paging.
+export interface IDynamicDataSourceCapabilities {
+  paging?: boolean;
+  filtering?: boolean;
+  sorting?: boolean;
+}
 export interface IDynamicDataSource {
-  // Always required: every record, in source order. Synchronous for in-memory sources, a Promise
-  // for a remote one.
-  read(): Array<any> | Promise<Array<any>>;
-  // Present -> the number of records read() would return, without composing them. Only a source
-  // whose read() builds the array on the fly needs it; the list reads .length otherwise.
-  count?(): number;
-  // Present -> the source pages, filters AND sorts itself: the list never calls read() and every
-  // read is one request carrying the range and the view.
-  // Absent -> the list calls read() once and pages, filters and sorts what it returns.
-  readRange?(request: IDynamicDataReadRequest): IDynamicDataReadResult | Promise<IDynamicDataReadResult>;
+  // Taken by the list when the source is assigned to it. Absent -> the source does not page, and
+  // the list pages, filters and sorts the complete answer.
+  capabilities?: IDynamicDataSourceCapabilities;
+  // Always required. A source that does not page answers with every record, in source order; a
+  // paging one with the range and the view the request asks for. A bare array is taken as
+  // { records: array }. Synchronous for in-memory sources, a Promise for a remote one.
+  read(request: IDynamicDataReadRequest):
+    Array<any> | IDynamicDataReadResult | Promise<Array<any> | IDynamicDataReadResult>;
   // Present -> the record field that identifies a record in the source, and every write below
   // receives record[keyField] as its key. Absent -> the key IS the source index (the position in
   // the whole source, in the order the last read returned), as before.
@@ -130,8 +150,11 @@ export interface IDynamicDataSource {
   // Present -> edits are pushed to the source (write-through); absent -> the source is read-only
   // for that operation and the edit stays in the loaded window.
   // The position is where the record goes; the source assigns the key. Return the stored record (or
-  // a promise of it) so that the list learns the key: until it does, writes made to the new record
-  // cannot be delivered.
+  // a promise of it) so that the list learns the key: the writes made to the new record meanwhile
+  // wait for it, and without it they cannot be delivered. The record never carries the key field -
+  // the list takes out a key copied from another record or put on a default value - and the key of
+  // the answer is the one the list keeps. A source that wants client-generated keys generates them
+  // here, where it sees the record.
   insert?(record: any, sourceIndex: number): any | Promise<any>;
   update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(key: any): void | Promise<void>;
@@ -145,6 +168,10 @@ export interface IDynamicDataField {
   name: string;
   dataType?: DynamicDataFieldType;
   compare?(a: any, b: any): number;
+  // Present -> the field is read, never stored: its value comes from the record index, the record or
+  // both, and a key of the same name in the record is ignored for it. The sort reads it, and the
+  // filter expression gets it as a variable beside the record's own keys.
+  getValue?(record: any, index: number): any;
 }
 export type IDynamicDataListChange =
   { type: "reset" } |
@@ -160,9 +187,8 @@ export interface IDynamicDataOwner {
   onDataListChanged(change: IDynamicDataListChange): void;
 }
 
-// What a question that can be filtered by a Filter Control answers. Both dynamic questions implement
-// it; the control never imports either of them and asks by capability, the way the list asks a
-// source whether it has "readRange".
+// What a question that can be filtered by a Filter Control answers. The records questions implement
+// it; the control never imports them and asks by capability.
 export interface IDynamicDataFilterSource {
   getFilterFields(): Array<IDynamicDataFilterField>;
   setControlFilter(key: string, expression: string): void;

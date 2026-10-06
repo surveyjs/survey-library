@@ -141,7 +141,10 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  DataIssueType,
+  IDataVerificationOptions,
+  IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
@@ -152,7 +155,8 @@ export {
   OneAnswerRequiredError,
   RequreNumericError,
   ExceedSizeError,
-  ExceedFilesCountError
+  ExceedFilesCountError,
+  IncorrectValueError
 } from "../../src/error";
 export {
   ILocalizableOwner,
@@ -203,6 +207,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
+export { QuestionRecordsModel } from "../../src/question_records";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -226,7 +231,6 @@ export {
   MatrixColumn,
   IMatrixData
 } from "../../src/question_matrix";
-export { QuestionMatrixBaseModel } from "../../src/martixBase";
 export {
   MultipleTextItemModel,
   MultipleTextCell,
@@ -291,11 +295,11 @@ export { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
-  IDynamicDataSource, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataFilterSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
-export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-fields";
+export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";

@@ -55,6 +55,10 @@ export var welshSurveyStrings = {
   value: "gwerth",
   // "Response required."
   requiredError: "Atebwch y cwestiwn.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Mae'r gwerth yn anghywir.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Mae'r gwerth yn cynnwys allweddi anhysbys: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
   // "Response required: answer questions in all rows."

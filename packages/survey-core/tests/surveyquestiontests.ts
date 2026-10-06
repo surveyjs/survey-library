@@ -7592,6 +7592,29 @@ describe("Survey_Questions", () => {
 
     FunctionFactory.Instance.unregister("asyncFunc");
   });
+  test("SurveyModel.validate: onAsyncValidation is fail-fast and fires once", () => {
+    let returnResults = new Array<any>();
+    function asyncFunc(params: any): any {
+      returnResults.push(this.returnResult);
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFuncSurveyValidate", asyncFunc, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFuncSurveyValidate({q2})" }] }
+      ]
+    });
+    survey.getQuestionByName("q2").value = 2;
+    const callbackResults = new Array<any>();
+    const res = survey.validate(true, false, (hasErrors: boolean) => { callbackResults.push(hasErrors); });
+    expect(res, "a failure is already known").toBe(false);
+    expect(callbackResults, "fired on the synchronous failure").toEqual([true]);
+    returnResults[0](false);
+    expect(callbackResults, "not fired again when the pending validator answers").toEqual([true]);
+    expect(survey.getQuestionByName("q2").errors.length, "the async error is set").toBe(1);
+    FunctionFactory.Instance.unregister("asyncFuncSurveyValidate");
+  });
   test("Question.validate vs callback function and two different validates #10307", () => {
     let returnResults = new Array<any>();
     function asyncFunc(params: any): any {

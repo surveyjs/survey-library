@@ -2,7 +2,7 @@ import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
 import { ISurvey } from "../base-interfaces";
 import { IAction, Action, BaseAction, IActionAppearance } from "./action";
-import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
 import { debounce } from "../utils/taskmanager";
@@ -166,9 +166,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public getRootCss(): string {
     const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;
-    return new CssClassBuilder().append(this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : ""))
-      .append(this.cssClasses.root + "--empty", this.isEmpty)
-      .toString();
+    return toCssClasses(
+      this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : ""),
+      this.isEmpty && this.cssClasses.root + "--empty"
+    );
   }
   protected getDefaultCssClasses(): any {
     return defaultActionBarCss;

@@ -3,7 +3,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 import { Helpers } from "./helpers";
 
@@ -135,10 +135,7 @@ export class QuestionImageModel extends QuestionNonValue {
     const imageWidthProperty = this.getPropertyByName("imageWidth");
     const isDefaultSize = imageHeightProperty.isDefaultValue(this.imageHeight) && imageWidthProperty.isDefaultValue(this.imageWidth);
 
-    return new CssClassBuilder()
-      .append(this.cssClasses.image)
-      .append(this.cssClasses.adaptive, isDefaultSize)
-      .toString();
+    return toCssClasses(this.cssClasses.image, isDefaultSize && this.cssClasses.adaptive);
   }
 
   public onLoadHandler(): void {

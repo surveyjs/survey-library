@@ -55,6 +55,10 @@ export var frenchSurveyStrings = {
   value: "valeur",
   // "Response required."
   requiredError: "La réponse à cette question est obligatoire.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "La valeur est incorrecte.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "La valeur contient des clés inconnues : {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
   // "Response required: answer questions in all rows."

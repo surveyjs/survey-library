@@ -112,6 +112,32 @@ describe("patchLegacyCSSVariables", () => {
     expect(cssVariables["--sjs-base-unit"]).toBeUndefined();
   });
 
+  test("applies the default light panelless theme before the legacy variables", () => {
+    const cssVariables = {
+      "--sjs-general-backcolor-dim": "rgba(243, 243, 243, 1)",
+      "--sjs2-radius-component-panel-simple": "8px",
+    };
+    patchLegacyCSSVariables(cssVariables, true);
+
+    expect(cssVariables["--sjs2-is-panelless"]).toBe("true");
+    expect(cssVariables["--sjs2-color-component-panel-simple-default-bg"]).toBe("transparent");
+    expect(cssVariables["--sjs2-color-component-panel-simple-default-border"]).toBe("transparent");
+    expect(cssVariables["--sjs2-layout-component-panel-simple-content-area-padding-horizontal"]).toBe("var(--sjs2-spacing-x000)");
+    expect(cssVariables["--sjs2-color-utility-surface-survey"]).toBe("rgba(243, 243, 243, 1)");
+    expect(cssVariables["--sjs2-radius-component-panel-simple"]).toBe("8px");
+    expect(cssVariables["--sjs2-color-component-panel-default-bg"]).toBe("transparent");
+  });
+
+  test("does not apply the panelless theme when isPanelless is false", () => {
+    const cssVariables = {
+      "--sjs-general-backcolor": "rgba(255, 255, 255, 1)",
+    };
+    patchLegacyCSSVariables(cssVariables, false);
+
+    expect(cssVariables["--sjs2-is-panelless"]).toBeUndefined();
+    expect(cssVariables["--sjs2-color-component-panel-simple-default-bg"]).toBeUndefined();
+  });
+
   test("uses panelless action button backgrounds from dim colors", () => {
     const cssVariables = {
       "--sjs-general-backcolor-dim-light": "rgba(45, 235, 223, 1)",

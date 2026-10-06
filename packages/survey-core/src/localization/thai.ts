@@ -55,6 +55,10 @@ export var thaiStrings = {
   value: "ข้อมูล",
   // "Response required."
   requiredError: "กรุณาตอบคำถาม",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "ค่านั้นไม่ถูกต้อง",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "ค่านี้มีคีย์ที่ไม่รู้จัก: {0}",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "กรุณาตอบขั้นต่ำหนึ่งคำถาม",
   // "Response required: answer questions in all rows."

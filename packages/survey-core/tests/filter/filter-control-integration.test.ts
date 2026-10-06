@@ -1,9 +1,10 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { createBound } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { FunctionFactory } from "../../src/functionsfactory";
 
 // The keys live on the paging controller: the question's public surface for control filters is
 // setControlFilter/getControlFilter and nothing else, so the observation reaches past it.
@@ -371,5 +372,76 @@ describe("Filter control: bound mode", () => {
     control.searchString = "Germ";
     expect(control.filterExpression, "#1: the cells show the matrix choices").toBe("{country} anyof ['de']");
     expect(matrix.visibleRows.length, "#2").toBe(1);
+  });
+});
+
+/* The control filter entrance of the records questions, as a question exposes it. These tests lived
+   in the matrix, panel and page-window test files; they are kept here, next to the control that
+   writes through the entrance, so that the records questions' own test files stay upstream's. */
+describe("Filter control: the control filter entrance of the records questions", () => {
+  test("a control filter applies next to the authored one and is not serialized", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3,
+      columns: [{ name: "c1" }], filterExpression: "{c1} != 'z'" }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "z" }];
+    expect(matrix.visibleRows.length, "#1: the authored filter alone").toBe(2);
+    matrix.setControlFilter("control", "{c1} = 'a'");
+    expect(matrix.visibleRows.length, "#2: both").toBe(1);
+    expect(matrix.filterExpression, "#3: the authored expression is untouched").toBe("{c1} != 'z'");
+    expect(matrix.toJSON().filterExpression, "#4: and it is the only one emitted").toBe("{c1} != 'z'");
+  });
+  test("a broken control filter is reported and does not touch the authored one", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3,
+      columns: [{ name: "c1" }], filterExpression: "{c1} != 'z'" }] });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "z" }];
+    matrix.setControlFilter("control", "{c1} = ");
+    // "read": it is the read of the view that the filter made impossible.
+    expect(errors, "#1").toEqual(["read"]);
+    expect(matrix.filterExpression, "#2: the author is not punished for it").toBe("{c1} != 'z'");
+    expect(matrix.visibleRows.length, "#3: and the authored filter still runs").toBe(2);
+  });
+  test("a control filter survives a change of the authored filter", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 3,
+      templateElements: [{ type: "text", name: "q1" }] }] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.value = [{ q1: "a" }, { q1: "b" }, { q1: "c" }];
+    panel.setControlFilter("control", "{q1} = 'a'");
+    expect(panel.visiblePanels.length, "#1").toBe(1);
+    panel.filterExpression = "{q1} != 'c'";
+    expect(panel.getControlFilter("control"), "#2: the control filter is still there").toBe("{q1} = 'a'");
+    panel.setControlFilter("control", "");
+    expect(panel.visiblePanels.length, "#3: back to the authored expression alone").toBe(2);
+  });
+  describe("a page move that waits for asynchronous validators", () => {
+    const results: Array<(res: any) => void> = [];
+    function asyncPageFunc(params: any): any {
+      results.push(this.returnResult);
+      return false;
+    }
+    afterEach(() => {
+      FunctionFactory.Instance.unregister("asyncPageFunc");
+    });
+    test("a control filter drops the pending move as the authored one does", () => {
+      results.length = 0;
+      FunctionFactory.Instance.register("asyncPageFunc", asyncPageFunc, true);
+      const records = new Array<any>();
+      for (let i = 0; i < 20; i++) records.push({ id: i, name: "n" + i });
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", panelsPerPage: 5,
+        templateElements: [{ type: "text", name: "id" },
+          { type: "text", name: "name", validators: [{ type: "expression", expression: "asyncPageFunc({panel.id}) = 1" }] }] }] });
+      survey.data = { pd: records };
+      const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      question.nextPage();
+      expect(question.isPageMovePending, "#1").toBe(true);
+      question.setControlFilter("control", "{id} >= 5");
+      expect(question.isPageMovePending, "#2: a control filter drops it").toBe(false);
+      expect(question.pageIndex, "#3: the new view starts on its first page").toBe(0);
+      results.forEach(setResult => setResult(1));
+      expect(question.pageIndex, "#4: the dropped move did not happen").toBe(0);
+      expect(question.panels[0].getQuestionByName("id").value, "#5: and the page is the filtered one").toBe(5);
+    });
   });
 });

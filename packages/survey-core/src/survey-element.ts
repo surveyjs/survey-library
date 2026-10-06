@@ -25,7 +25,7 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer } from "./actions/container";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
@@ -970,9 +970,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !this.isDesignMode;
   }
 
-  protected get isCompact(): boolean {
-    return this.survey && (<SurveyModel>this.survey)["isCompact"];
-  }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
     if (<any>this.singleInput?.currentSingleElement === this) return true;
@@ -988,15 +985,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
-    return new CssClassBuilder()
-      .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
-      .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.expandableAnimating, isExpanadable && this.isAnimatingCollapseExpand)
-      .append(cssClasses.expanded, !!this.isExpanded && this.renderedIsExpanded)
-      .append(cssClasses.expandable, isExpanadable)
-      .append(cssClasses.nested, this.getIsNested())
-      .toString();
+    return toCssClasses(
+      this.getHasFrameV2() && cssClasses.withFrame,
+      !!this.isCollapsed && cssClasses.collapsed,
+      isExpanadable && this.isAnimatingCollapseExpand && cssClasses.expandableAnimating,
+      !!this.isExpanded && this.renderedIsExpanded && cssClasses.expanded,
+      isExpanadable && cssClasses.expandable,
+      this.getIsNested() && cssClasses.nested
+    );
   }
 
   /**
@@ -1109,11 +1105,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public getWrapperCss(): string {
     const css = this.survey?.getCss() || {};
-    return new CssClassBuilder()
-      .append(css.elementWrapper)
-      .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
-      .append(this.cssClasses.questionWrapper)
-      .toString();
+    return toCssClasses(css.elementWrapper, this.hasDefaultMinWidth && css.elementWrapperMinWidth, this.cssClasses.questionWrapper);
   }
   /**
    * Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
@@ -1218,24 +1210,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getCssHeader(cssClasses: any): string {
     const isExpandable = this.state !== "default";
-    return new CssClassBuilder()
-      .append(cssClasses.header)
-      .append(cssClasses.headerExpandable, isExpandable)
-      .toString();
+    return toCssClasses(cssClasses.header, isExpandable && cssClasses.headerExpandable);
   }
   protected getCssTitle(cssClasses: any): string {
     if (!cssClasses) return "";
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;
-    return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleNumInline, ((<any>this).no || "").length > numInlineLimit || isExpandable)
-      .append(cssClasses.titleExpandable, isExpandable)
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isDisabledStyle)
-      .append(cssClasses.titleReadOnly, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors).toString();
+    return toCssClasses(
+      cssClasses.title,
+      (((<any>this).no || "").length > numInlineLimit || isExpandable) && cssClasses.titleNumInline,
+      isExpandable && cssClasses.titleExpandable,
+      this.isExpanded && cssClasses.titleExpanded,
+      this.isCollapsed && cssClasses.titleCollapsed,
+      this.isDisabledStyle && cssClasses.titleDisabled,
+      this.isReadOnly && cssClasses.titleReadOnly,
+      this.containsErrors && cssClasses.titleOnError
+    );
   }
   public get isDisabledStyle(): boolean {
     return this.getIsDisableAndReadOnlyStyles(false)[1];
@@ -1384,6 +1374,35 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
+    this.disposeObjectsAwaitingRerender();
+  }
+  /* An object this element stopped rendering - a dynamic panel, a matrix row - can still be on screen:
+     a UI that renders asynchronously (Angular) checks its components once more before it drops them,
+     and the check throws on a disposed object (a disposed dropdown has no dropdownListModel). While a
+     UI renders this element, the object is disposed after the element's next rerender, or when the UI
+     stops rendering it (an isCancel notification); without a UI it is disposed at once. */
+  protected disposeAfterRerender(obj: { dispose(): void }, disposeFunc?: () => void): void {
+    const rerendered = this.isDisposed ? undefined : this.onElementRerendered;
+    const func = disposeFunc || ((): void => obj.dispose());
+    if (!rerendered) {
+      func();
+      return;
+    }
+    if (this.objectsAwaitingRerender.some(item => item.obj === obj)) return;
+    if (this.objectsAwaitingRerender.length === 0) {
+      rerendered.add(this.onRerenderedDisposeObjects);
+    }
+    this.objectsAwaitingRerender.push({ obj: obj, func: func });
+  }
+  private objectsAwaitingRerender: Array<{ obj: any, func: () => void }> = [];
+  private onRerenderedDisposeObjects = (): void => {
+    this.disposeObjectsAwaitingRerender();
+  };
+  private disposeObjectsAwaitingRerender(): void {
+    this._onElementRerendered.remove(this.onRerenderedDisposeObjects);
+    const items = this.objectsAwaitingRerender;
+    this.objectsAwaitingRerender = [];
+    items.forEach(item => item.func());
   }
   public get randomSeed(): number {
     let seed = this.getOwner()?.randomSeed || 0;

@@ -55,6 +55,10 @@ export var macedonianSurveyStrings = {
   value: "вредност",
   // "Response required."
   requiredError: "Ве молам, одговорете на прашањето.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Вредноста е неточна.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Вредноста содржи непознати клучеви: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
   // "Response required: answer questions in all rows."

@@ -14,7 +14,7 @@
         [(ngModel)]="model.booleanValue" [value]="model.booleanValue"
         [disabled]="model.isDisabledAttr" [readonly]="model.isReadOnlyAttr" [indeterminate]="model.isIndeterminate"
       />
-      <span [class]="model.cssClasses.checkboxMaterialDecorator">
+      <span [class]="model.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
         <svg *ngIf="!!model.svgIcon" [class]="model.cssClasses.checkboxItemDecorator">
           <use [attr.xlink:href]="model.svgIcon"></use>
         </svg>

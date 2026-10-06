@@ -55,6 +55,10 @@ export var vietnameseSurveyStrings = {
   value: "Giá trị",
   // "Response required."
   requiredError: "Vui lòng trả lời câu hỏi.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Giá trị không chính xác.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Giá trị chứa các khóa không xác định: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",
   // "Response required: answer questions in all rows."

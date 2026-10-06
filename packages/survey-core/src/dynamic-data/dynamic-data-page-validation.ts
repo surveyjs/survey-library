@@ -1,3 +1,4 @@
+import { Helpers } from "../helpers";
 import { ValidationContext } from "../question";
 import { DynamicDataList } from "./dynamic-data-list";
 
@@ -7,8 +8,32 @@ import { DynamicDataList } from "./dynamic-data-list";
    changed a single record changed in place keeps its index, removed records map to -1, and a record
    moved from one end of that part to the other follows it. Anything else maps to undefined: the
    caller treats every record of the changed part as its own (a superset is safe - it only costs a
-   validation more). */
-export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
+   validation more).
+   keyField: the records name themselves (a keyed data source). A record then maps to wherever its
+   key is now, whatever else moved, and to -1 when its key is gone; a record without a key maps to
+   undefined. When the new records cannot be looked up by key - one has none, or two share one - the
+   content comparison above decides instead. */
+export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Array<any>, keyField?: string): (index: number) => number {
+  const byKey = !!keyField ? getRecordsRemapByKey(oldRecords, newRecords, keyField) : undefined;
+  return byKey || getRecordsRemapByContent(oldRecords, newRecords);
+}
+function getRecordsRemapByKey(oldRecords: Array<any>, newRecords: Array<any>, keyField: string): (index: number) => number {
+  const getKey = (record: any): any => !!record && typeof record === "object" ? record[keyField] : undefined;
+  // A Map and not a plain object: the keys are data, and "__proto__" in an object is the prototype.
+  const positions = new Map<any, number>();
+  for (let i = 0; i < newRecords.length; i++) {
+    const key = getKey(newRecords[i]);
+    if (key === undefined || key === null || positions.has(key)) return undefined;
+    positions.set(key, i);
+  }
+  const res = oldRecords.map((record: any): number => {
+    const key = getKey(record);
+    if (key === undefined || key === null) return undefined;
+    return positions.has(key) ? positions.get(key) : -1;
+  });
+  return (index: number): number => index >= 0 && index < res.length ? res[index] : undefined;
+}
+function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
   const oldLen = oldRecords.length;
   const newLen = newRecords.length;
   const isSame = (a: any, b: any): boolean => !DynamicDataList.isValueChanged(a, b);
@@ -45,6 +70,57 @@ export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Arra
   };
 }
 
+/* The group key of a value the duplicate checks compare by: one String() key, so that 1 and "1" are
+   one key, with strings folded by toLocaleLowerCase when the comparison is not case-sensitive. What
+   is empty, and so takes no part, each check decides before it asks for the key. */
+export function getDuplicateKey(value: any, caseSensitive: boolean): string {
+  if (!caseSensitive && typeof value === "string") {
+    value = value.toLocaleLowerCase();
+  }
+  return String(value);
+}
+
+/* The off-page half of a duplicate check (layer 2): the records are scanned without an object
+   (O(records)) and grouped by String(value); a group of two or more gives the page of its latest
+   visible record, which is where the error goes. A group with no visible record gives no page: it
+   has no record to put the error on. Returns the pages, without repeats.
+   The questions differ in which records take part and how values compare, and each call site spells
+   its options out: includeHidden - owner-hidden records take part too (the matrix); includeFilteredOut -
+   the records the filter excludes take part too, otherwise only the visible ones are scanned; caseSensitive -
+   false folds strings with toLocaleLowerCase. Empty means what Base.isValueEmpty means: a
+   whitespace-only string is empty. The groups are a Map: the keys are respondent input, and
+   "__proto__" in a plain object is the prototype, not a group. */
+export function findDuplicatePages(list: DynamicDataList, readKey: (index: number) => any,
+  options: { caseSensitive: boolean, includeHidden: boolean, includeFilteredOut?: boolean }): Array<number> {
+  const visiblePos: { [index: number]: number } = {};
+  const visible = list.getVisibleIndexes();
+  visible.forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
+  const groups = new Map<string, { count: number, target: number }>();
+  const count = options.includeFilteredOut !== false ? list.loadedCount : visible.length;
+  for (let j = 0; j < count; j++) {
+    const i = options.includeFilteredOut !== false ? j : visible[j];
+    if (!options.includeHidden && !list.isRecordVisible(i)) continue;
+    const val = readKey(i);
+    if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) continue;
+    const key = getDuplicateKey(val, options.caseSensitive);
+    let group = groups.get(key);
+    if (!group) {
+      group = { count: 0, target: -1 };
+      groups.set(key, group);
+    }
+    group.count++;
+    const pos = visiblePos[i];
+    if (pos !== undefined && pos > group.target) group.target = pos;
+  }
+  const pages: Array<number> = [];
+  groups.forEach((group: { count: number, target: number }): void => {
+    if (group.count < 2 || group.target < 0) return;
+    const page = list.getPageOfVisibleIndex(group.target);
+    if (pages.indexOf(page) < 0) pages.push(page);
+  });
+  return pages;
+}
+
 /* What a paged question hands to the ancestor that rebuilds the object holding it, and gets back
    when that object is created again for the same outer record: the records edited and not validated
    yet, the page it was on, and - one level down - the same for the paged questions nested in its own
@@ -72,7 +148,7 @@ export interface IDynamicDataPageValidationOwner {
   isDisposed: boolean;
 }
 
-/* The page-level validation of a question that pages (Andrew's decision 2026-09-25, prompt 15).
+/* The page-level validation of a question that pages (Andrew's decision 2026-09-25).
    Validating every record is not an option - there can be thousands, and a record has no object
    until its page is shown - so it is done in two layers:
    1. A forward move the respondent makes (the pager, "add", a sort header, carousel/tab Next)
@@ -166,6 +242,10 @@ export class DynamicDataPageValidation {
   public get editedRecords(): Array<number> {
     return this.edited;
   }
+  // Holds anything a record index names: edited records or the states of nested paged questions.
+  public get hasRecords(): boolean {
+    return this.edited.length > 0 || Object.keys(this.nested).length > 0;
+  }
   public markEdited(index: number): void {
     if (index < 0 || !this.owner.canTrackEditedRecords()) return;
     const at = this.findPosition(index);
@@ -183,12 +263,20 @@ export class DynamicDataPageValidation {
     this.edited = [];
     this.nested = {};
   }
+  // The records are not tracked any more (canTrackEditedRecords): the indexes name nothing.
+  public clearEditedRecords(): void {
+    this.edited = [];
+  }
   /* The records were assigned from outside the list - a sibling on the same valueName wrote them.
      The edited set and the nested states follow the records they name (getReplacedRecordsRemap); a
      change the remap cannot place marks every record of the changed part as edited. */
-  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>): void {
-    if (this.edited.length === 0 && Object.keys(this.nested).length === 0) return;
-    const remap = getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
+  /* remap: the caller's own, when it has to move record indexes of its own with the same mapping (the
+     dynamic panel's builtRecordIndex). */
+  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap?: (index: number) => number): void {
+    if (!this.hasRecords) return;
+    if (!remap) {
+      remap = getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
+    }
     const edited: Array<number> = [];
     let isUnplaced = false;
     const add = (index: number): void => { if (index > -1 && edited.indexOf(index) < 0) edited.push(index); };
@@ -217,28 +305,16 @@ export class DynamicDataPageValidation {
       return to === undefined ? -1 : to;
     });
   }
-  // The same bookkeeping the frozen membership of the list does: a record index names a record only
-  // as long as nothing is inserted or removed in front of it.
-  public onRecordAdded(index: number): void {
-    this.edited = this.edited.map((i: number): number => i >= index ? i + 1 : i);
-    this.nested = this.remapNested((i: number): number => i >= index ? i + 1 : i);
-  }
-  public onRecordRemoved(index: number): void {
+  /* The list inserted, removed or moved one of its own records (getRecordRemap): the same bookkeeping
+     its frozen membership does. The removed record leaves the set; only a move can break the order,
+     the sort is harmless for the other two. */
+  public onRecordRemap(remap: (index: number) => number): void {
     const res: Array<number> = [];
     this.edited.forEach((i: number): void => {
-      if (i !== index) res.push(i > index ? i - 1 : i);
+      const to = remap(i);
+      if (to > -1) res.push(to);
     });
-    this.edited = res;
-    this.nested = this.remapNested((i: number): number => i === index ? -1 : (i > index ? i - 1 : i));
-  }
-  public onRecordMoved(from: number, to: number): void {
-    const remap = (i: number): number => {
-      if (i === from) return to;
-      if (from < i && i <= to) return i - 1;
-      if (to <= i && i < from) return i + 1;
-      return i;
-    };
-    this.edited = this.edited.map(remap).sort((a: number, b: number): number => a - b);
+    this.edited = res.sort((a: number, b: number): number => a - b);
     this.nested = this.remapNested(remap);
   }
   private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } {

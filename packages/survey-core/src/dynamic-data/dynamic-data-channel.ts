@@ -1,0 +1,471 @@
+import { Helpers } from "../helpers";
+import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
+
+/* The request channel of DynamicDataList: everything that orders the requests the list sends to its
+   source - the reads, the push chain of the writes, the inserts that have not answered yet, and the
+   epoch that detaches a replaced source.
+
+   The invariant of the read scheduling: a read is issued only when no write is pending, and its
+   result is committed only when no write that could change it was enqueued since it was issued. A
+   write addresses the source as windowOffset + index, so a window read from a server that has not
+   applied every write of the list shows records the respondent has removed (or values they have
+   overwritten), and the next write made against that window lands on the wrong record. It is
+   enforced in two places: in startRead, a read requested while writes are pending is not issued
+   until the chain has drained (onPushSettled) - chaining it on the chain as it is now would let a
+   later write overtake it - and in doRead, where the answer to a read that a write overtook while it
+   was in flight is discarded and the read is issued again.
+   Which writes overtake a read in flight (markInFlightReadOvertaken, isAnswerOvertaken): every
+   insert, remove and move, and every write to a read with a take of 0 - every read of the whole
+   storage, and a paged read of everything from skip. An update to a paged read with take > 0
+   overtakes it only when it can have changed the answer:
+   - without a keyField, an update inside the range the read asked for ([skip, skip + take)); one
+     outside it leaves the answer as it is;
+   - with a keyField, never on its own: its key is recorded, and the answer is discarded only when it
+     carries a record with one of those keys. An update that has no key yet - it is queued behind the
+     insert of its record - records nothing: that insert has already overtaken the read.
+   A literal "every write overtakes" would read pages again that no write has touched.
+   That is why the reads and the writes live in one class: the rule is shared by both. */
+
+/* The list side of the channel. The list implements it with its own private members, so that the
+   channel adds nothing to the list's public surface. */
+export interface IDynamicDataChannelHost {
+  // The source the list holds now. A write captures it when it is enqueued, a read when it is issued.
+  getSource(): IDynamicDataSource;
+  isDisposed(): boolean;
+  getKeyField(): string;
+  // The next read is a paged one: the source pages, and it filters too or there is no filter.
+  isReadPagedBySource(): boolean;
+  // The range of the next read. skip and take are 0 for a read of the whole storage.
+  getReadRange(useWindowOffset: boolean): { skip: number, take: number };
+  /* The request the source is sent: the range and the view. It copies the owner's sort, and it
+     throws for a sort that a paging source has not declared, so it is built inside the read's error
+     handling: a refused read takes the path of a source that throws. */
+  createReadRequest(skip: number, take: number): IDynamicDataReadRequest;
+  // The window commit. Returns whether the window was committed - an empty page past the end is not.
+  commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean;
+  // A read failed: the window in force stays, and so does the page it was read for.
+  onReadFailed(error: any): void;
+  setIsLoading(val: boolean): void;
+  raiseError(error: any, operation: DynamicDataOperation): void;
+  // The window half of an insert answer: the record in the window takes the key the source assigned.
+  applyInsertAnswer(entry: IPendingInsert): void;
+  // A synchronous write to an ArrayDynamicDataSource IS the storage: the window takes its array.
+  syncWindowAfterSyncPush(): void;
+}
+
+/* The one place an answer is read: a bare array is { records: array }, and an answer that is neither
+   an array nor an object with records holds no records. total and hasMore are passed on as they
+   are - whether they mean anything is the reader's to decide. */
+export function toReadResult(data: any): IDynamicDataReadResult {
+  if (Array.isArray(data)) return { records: data };
+  const res = !!data && typeof data === "object" ? data : {};
+  return { records: Array.isArray(res.records) ? res.records : [], total: res.total, hasMore: res.hasMore };
+}
+function isPromiseLike(value: any): boolean {
+  // Never instanceof Promise: a source may return any thenable.
+  return !!value && typeof value.then === "function";
+}
+/* Keyed source only: an insert that has not answered yet. record is the window object of the new
+   record - what the answer is matched by, re-pointed by every write (see repointPendingInsert).
+   clientFields are the fields the client owns: the ones the insert sent and every one a write
+   changed since, deleted fields included. The answer's other fields are the ones the server filled
+   in.
+   The entry is also the record's identity until the key is known: a write made to the record while
+   the insert is in flight is queued with the entry and reads key when it runs, which the chain
+   orders after the insert has settled (applyInsertAnswer). keyField is the field of the source the
+   insert was sent to - the list's own getter follows whatever source it holds by then. */
+export interface IPendingInsert {
+  record: any;
+  clientFields: Array<string>;
+  keyField: string;
+  key: any;
+  answer: any;
+  isSettled: boolean;
+}
+/* What a write tells pushToSource about the record it addresses, beyond the call itself: the key it
+   was enqueued with, the position an update was made at (which is what the range check of a read in
+   flight compares for a source without a key), for an insert the window object of the new record,
+   which its answer is matched by, and for a write to a record whose insert is in flight the pending
+   entry that stands for its key. */
+export interface IDynamicDataPushInfo {
+  sourceIndex?: number;
+  key?: any;
+  insertedRecord?: any;
+  pendingInsert?: IPendingInsert;
+}
+function createNoKeyError(): Error {
+  return new Error("DynamicDataList: the record has no key yet");
+}
+export function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
+  const res: Array<string> = [];
+  const add = (key: string): void => {
+    if (res.indexOf(key) < 0) res.push(key);
+  };
+  for (const key in oldRecord || {}) {
+    if (!Helpers.isTwoValueEquals((oldRecord || {})[key], (newRecord || {})[key])) add(key);
+  }
+  for (const key in newRecord || {}) {
+    if (!Helpers.isTwoValueEquals((oldRecord || {})[key], (newRecord || {})[key])) add(key);
+  }
+  return res;
+}
+/* The client owns the fields it sent or changed while the insert was in flight, the server owns
+   the rest, and the key belongs to the server. So the answer contributes only the fields outside
+   clientFields - a field the client cleared is missing from its record and must stay missing, not
+   come back as the value the insert sent - and its key is applied last, over anything the client
+   record holds in the key field: that is the one field the client never overrules. The window
+   merge and the payload of an update queued behind the insert are both made here, so that they
+   cannot drift apart. clientFields is the ownership the client record goes with: the window merge
+   takes everything the client has owned so far (the entry's), a queued update the fields owned
+   when it was made (getOwnedFields). Called only once the entry has the key (and the answer). */
+export function mergeInsertAnswer(entry: IPendingInsert, clientRecord: any, clientFields: Array<string> = entry.clientFields): any {
+  const res: any = {};
+  const answer = entry.answer;
+  Object.keys(answer).forEach((field: string): void => {
+    if (clientFields.indexOf(field) < 0) res[field] = answer[field];
+  });
+  Object.assign(res, clientRecord);
+  res[entry.keyField] = entry.key;
+  return res;
+}
+/* The fields the client owns as of the write being made, taken right after it reached the window.
+   A later write widens entry.clientFields, and must not change what an earlier queued update
+   sends: that update's snapshot does not hold the later field, so the wider set would drop the
+   server's value of it from the payload - blanking a server-filled field until the later update
+   lands, and for good when that one fails. */
+export function getOwnedFields(pending: IPendingInsert): Array<string> {
+  return !!pending ? pending.clientFields.slice() : undefined;
+}
+/* The record an update sends. A write that resolved its key normally sends the record as it is.
+   One queued behind the insert of its record sends it merged with the insert's answer: a
+   whole-record update of the snapshot alone would blank the fields the server filled in, and it
+   would carry no key. Called when the update runs, so the answer is known. */
+export function getUpdatePayload(pending: IPendingInsert, record: any, ownedFields: Array<string>): any {
+  return !!pending ? mergeInsertAnswer(pending, record, ownedFields) : record;
+}
+
+export class DynamicDataSourceChannel {
+  private readRequestId: number = 0;
+  // The push chain: one write in flight at a time, the next starts when the previous settles. It
+  // always fulfills - a rejected push is reported through onError and the chain continues.
+  private pushChain: Promise<void> = undefined;
+  private pendingPushes: number = 0;
+  /* Keyed source only: one entry per insert that has not answered yet, holding the window object of
+     the new record. The object is what the answer is matched by - a key the record does not have yet
+     cannot be - and every write replaces that object, so the list re-points the entry
+     (repointPendingInsert) instead of the entry holding the object add created, which one keystroke
+     would already have discarded. */
+  private pendingInserts: Array<IPendingInsert> = [];
+  /* The asynchronous read in flight: the range it asked for, and whether a write enqueued since it
+     was issued made its answer stale (see the header). */
+  private inFlightRead: {
+    skip: number, take: number, isPagedRead: boolean, isOvertaken: boolean,
+    /* Keyed source only: the keys of the records updated while this read was in flight. There a
+       position cannot decide it - another writer may move a record between the pages while the read
+       runs - so the answer is checked for those records instead (see isAnswerOvertaken). */
+    updatedKeys: Array<any>,
+  } = undefined;
+  /* A read requested while writes are pending waits for the chain to drain (see startRead). The
+     requests coalesce into one: queuedReadUseOffset stays true only while every one of them was a
+     refresh of the window - a load() recomputes the offset from pageIndex, which is what a page
+     change asked for. */
+  private queuedReadUseOffset: boolean = true;
+  private queuedReadWaiter: { promise: Promise<void>, resolve: (value?: any) => void } = undefined;
+  private get isReadQueued(): boolean {
+    return !!this.queuedReadWaiter;
+  }
+  // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
+  // running against a replaced source cannot report back into the list.
+  private sourceEpoch: number = 0;
+
+  constructor(private host: IDynamicDataChannelHost) { }
+
+  public get hasPendingWrites(): boolean {
+    return this.pendingPushes > 0;
+  }
+  // True from the moment a read is requested until its window is committed or it is rejected,
+  // including the time it waits for pending writes.
+  public get hasPendingRead(): boolean {
+    return this.isReadQueued || !!this.inFlightRead;
+  }
+  public get hasPendingInserts(): boolean {
+    return this.pendingInserts.length > 0;
+  }
+
+  /* The source was replaced. The push chain is detached, not drained: the queued edits belong to the
+     old source and keep running against it (they still report their failures through onError), but
+     they must not report back into the list - and the new source must not wait for them before its
+     first read. The pushes of a replaced source are therefore invisible to hasPendingWrites: a source
+     that is no longer the storage of this list no longer gates its reads. */
+  public detach(): void {
+    this.sourceEpoch++;
+    this.pushChain = undefined;
+    this.pendingPushes = 0;
+    // A read queued behind the detached chain dies with it: the new source is read by the list.
+    this.cancelReads();
+  }
+  // Drops a queued read and discards the result of a read that is still in flight.
+  public cancelReads(): void {
+    this.dropQueuedRead();
+    this.readRequestId++;
+    this.inFlightRead = undefined;
+  }
+  // The inserts of a source that was replaced: their answers belong to a window that is gone.
+  public clearPendingInserts(): void {
+    this.pendingInserts = [];
+  }
+
+  public startRead(useWindowOffset: boolean): void | Promise<void> {
+    if (this.hasPendingWrites) return this.queueRead(useWindowOffset);
+    return this.doRead(useWindowOffset);
+  }
+  private queueRead(useWindowOffset: boolean): Promise<void> {
+    this.queuedReadUseOffset = this.isReadQueued ? this.queuedReadUseOffset && useWindowOffset : useWindowOffset;
+    if (!this.queuedReadWaiter) {
+      let resolve: (value?: any) => void;
+      const promise = new Promise<void>((res: (value?: any) => void): void => { resolve = res; });
+      this.queuedReadWaiter = { promise: promise, resolve: resolve };
+    }
+    return this.queuedReadWaiter.promise;
+  }
+  private startQueuedRead(): void {
+    if (!this.isReadQueued) return;
+    const useWindowOffset = this.queuedReadUseOffset;
+    const waiter = this.queuedReadWaiter;
+    this.queuedReadWaiter = undefined;
+    const res = this.doRead(useWindowOffset);
+    if (!!waiter) waiter.resolve(res);
+  }
+  private dropQueuedRead(): void {
+    const waiter = this.queuedReadWaiter;
+    this.queuedReadWaiter = undefined;
+    if (!!waiter) waiter.resolve();
+  }
+  private doRead(useWindowOffset: boolean): void | Promise<void> {
+    const host = this.host;
+    const source = host.getSource();
+    if (host.isDisposed() || !source) return;
+    const requestId = ++this.readRequestId;
+    const isPagedRead = host.isReadPagedBySource();
+    const range = host.getReadRange(useWindowOffset);
+    const skip = range.skip;
+    const take = range.take;
+    let res: any;
+    try {
+      res = source.read(host.createReadRequest(skip, take));
+    } catch(e) {
+      // This read superseded whatever was in flight, so it also owns the loading state it inherited.
+      this.inFlightRead = undefined;
+      host.onReadFailed(e);
+      return;
+    }
+    if (isPromiseLike(res)) {
+      const inFlight = {
+        skip: skip, take: take, isPagedRead: isPagedRead, isOvertaken: false, updatedKeys: <Array<any>>[]
+      };
+      this.inFlightRead = inFlight;
+      host.setIsLoading(true);
+      return res.then((data: any): any => {
+        // A later read supersedes this one: its result is discarded when it arrives.
+        if (host.isDisposed() || requestId !== this.readRequestId) return;
+        this.inFlightRead = undefined;
+        if (inFlight.isOvertaken || this.isAnswerOvertaken(inFlight, data)) {
+          // A write overtook this read: the answer describes a server that did not have it yet. The
+          // read is issued again - behind the chain while writes are pending - and it inherits the
+          // loading state, as a superseding read does.
+          return this.startRead(useWindowOffset);
+        }
+        /* A page past the end: the read of the page it stepped back to (the retry) takes this one's
+           place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
+           that is committed and not for the answer that was discarded. It inherits the loading
+           state, as a superseding read does. */
+        if (!host.commitRead(data, skip, take, isPagedRead)) return this.startRead(false);
+        host.setIsLoading(false);
+      }, (error: any): void => {
+        if (host.isDisposed() || requestId !== this.readRequestId) return;
+        this.inFlightRead = undefined;
+        host.onReadFailed(error);
+      });
+    }
+    this.inFlightRead = undefined;
+    if (!host.commitRead(res, skip, take, isPagedRead)) return this.startRead(false);
+    // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
+    // read of the same source; the flag that read set is this one's to clear.
+    host.setIsLoading(false);
+  }
+
+  /* The source is captured here, when the write is enqueued, and never read again from the host:
+     a deferred push belongs to the source the edit was made against, not to whatever the list holds
+     when the push finally runs. The capability check follows the same rule - the operation names are
+     the source method names. */
+  public pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
+    info?: IDynamicDataPushInfo): void {
+    const host = this.host;
+    const source = host.getSource();
+    if (host.isDisposed() || !source || !(<any>source)[operation]) return;
+    const push = info || {};
+    const pending = push.pendingInsert;
+    /* A keyed source cannot be told about a record it has not named and never will: its insert
+       answered without the key, or the source has no insert. The write is kept: it is in the window,
+       so the respondent sees it, the error says why it was not delivered, and the next read
+       reconciles. A record whose insert is still in flight is not such a record - see the action. */
+    if (operation !== "insert" && !!host.getKeyField() && push.key === undefined && !pending) {
+      host.raiseError(createNoKeyError(), operation);
+      return;
+    }
+    this.markInFlightReadOvertaken(operation, push);
+    const epoch = this.sourceEpoch;
+    const entry = this.registerPendingInsert(operation, push);
+    const onAnswer = !!entry ? (answer: any): void => this.applyInsertAnswer(entry, answer, epoch) : undefined;
+    /* The key of a write queued behind the insert of its record is read when the write runs: the
+       chain runs it after that insert has settled, so the answer has brought the key by then - or
+       it never will (the insert failed or answered without it), and the write is reported for its
+       own operation instead of being sent, which is the keep-and-report rule above, only later. */
+    const action = (): any => {
+      if (!pending) return method(source, push.key);
+      if (!pending.isSettled || pending.key === undefined) {
+        host.raiseError(createNoKeyError(), operation);
+        return undefined;
+      }
+      return method(source, pending.key);
+    };
+    if (!this.pushChain) {
+      const res = this.runPush(operation, action, onAnswer);
+      if (!res) {
+        this.syncWindowAfterSyncPush(epoch);
+        return;
+      }
+      this.pendingPushes = 1;
+      this.pushChain = res.then((): void => this.onPushSettled(epoch, false));
+      return;
+    }
+    this.pendingPushes++;
+    this.pushChain = this.pushChain.then((): any => {
+      const res = this.runPush(operation, action, onAnswer);
+      return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
+    });
+  }
+  // The pending insert whose record is this window object; undefined unless an insert is in flight.
+  public findPendingInsert(record: any): IPendingInsert {
+    if (record === undefined) return undefined;
+    for (let i = 0; i < this.pendingInserts.length; i++) {
+      if (this.pendingInserts[i].record === record) return this.pendingInserts[i];
+    }
+    return undefined;
+  }
+  /* An insert that has not answered yet is matched by the window object of its record, and every
+     write replaces that object: the entry follows the record across the replacements. Every write
+     reaches the window through the list's replaceRecord, which calls this, so this is also where the
+     fields it changed become the client's. */
+  public repointPendingInsert(oldRecord: any, newRecord: any): void {
+    if (oldRecord === undefined || oldRecord === newRecord) return;
+    this.pendingInserts.forEach((entry: IPendingInsert): void => {
+      if (entry.record !== oldRecord) return;
+      entry.record = newRecord;
+      getChangedFields(oldRecord, newRecord).forEach((field: string): void => {
+        if (entry.clientFields.indexOf(field) < 0) entry.clientFields.push(field);
+      });
+    });
+  }
+  private registerPendingInsert(operation: DynamicDataOperation, push: IDynamicDataPushInfo): IPendingInsert {
+    const keyField = this.host.getKeyField();
+    if (operation !== "insert" || !keyField || push.insertedRecord === undefined) return undefined;
+    // The payload the insert sends, without the key (see add): the fields the client owns from the start.
+    const entry: IPendingInsert = {
+      record: push.insertedRecord, clientFields: Object.keys(push.insertedRecord || {}),
+      keyField: keyField, key: undefined, answer: undefined, isSettled: false
+    };
+    this.pendingInserts.push(entry);
+    return entry;
+  }
+  /* The answer of an insert is the stored record: it carries the key the source assigned, and
+     whatever else the source filled in. The merged record (mergeInsertAnswer) replaces the one in
+     the window, so that every later write finds the key on it; the host does that part. The record is
+     found through the pending entry and never by indexOf of the object add created: a write copies
+     the record, and that lookup would miss it.
+     The entry learns the key first, before the epoch check and the window: the writes queued behind
+     the insert read it when they run, and they still have to run with it when the source was
+     replaced meanwhile (the detached chain runs to its end against its own source) or the record
+     was removed while the insert was in flight (its queued remove needs the key). */
+  private applyInsertAnswer(entry: IPendingInsert, answer: any, epoch: number): void {
+    entry.isSettled = true;
+    const field = entry.keyField;
+    if (!!answer && typeof answer === "object" && !Helpers.isValueEmpty(answer[field])) {
+      entry.key = answer[field];
+      entry.answer = answer;
+    }
+    const at = this.pendingInserts.indexOf(entry);
+    if (at > -1)this.pendingInserts.splice(at, 1);
+    if (this.host.isDisposed() || epoch !== this.sourceEpoch || entry.key === undefined) return;
+    this.host.applyInsertAnswer(entry);
+  }
+  /* Does this write make the answer of the read in flight stale? An insert or a remove shifts the
+     records and changes the total, and a move shifts the records between its two ends, so each of
+     them does. An update changes one record in place: only a record inside the range that read asked
+     for - an edit on page 1 while page 2 is loading leaves the answer for page 2 as it is. */
+  private markInFlightReadOvertaken(operation: DynamicDataOperation, push: IDynamicDataPushInfo): void {
+    const read = this.inFlightRead;
+    if (!read || read.isOvertaken) return;
+    if (operation === "update" && read.isPagedRead && read.take > 0) {
+      /* A keyed source: where the record is by now is not the position it was edited at - another
+         writer may have moved it between the pages while the read was running - so the answer is
+         checked for that record when it arrives instead of the range being compared. */
+      if (!!this.host.getKeyField()) {
+        // No key yet (a write behind a pending insert): that insert has already overtaken the read.
+        if (push.key !== undefined) read.updatedKeys.push(push.key);
+        return;
+      }
+      if (push.sourceIndex < read.skip || push.sourceIndex >= read.skip + read.take) return;
+    }
+    read.isOvertaken = true;
+  }
+  /* The other half of the rule above: the answer of a read an update overtook is stale only when it
+     carries one of the updated records, because it then describes the value the respondent has just
+     replaced. An edit of a record the answer does not contain leaves it as it is, which is what the
+     positional check decides by range. */
+  private isAnswerOvertaken(read: { updatedKeys: Array<any> }, data: any): boolean {
+    const field = this.host.getKeyField();
+    if (!field || read.updatedKeys.length === 0) return false;
+    return toReadResult(data).records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
+  }
+  // Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
+  // is what the source answered - only an insert has an answer - and it runs for a failed push too,
+  // with undefined, so that the pending entry never outlives its push.
+  private runPush(operation: DynamicDataOperation, action: () => any,
+    onAnswer?: (answer: any) => void): Promise<void> {
+    let res: any;
+    try {
+      res = action();
+    } catch(e) {
+      this.host.raiseError(e, operation);
+      if (!!onAnswer) onAnswer(undefined);
+      return undefined;
+    }
+    if (!isPromiseLike(res)) {
+      if (!!onAnswer) onAnswer(res);
+      return undefined;
+    }
+    // A rejected push keeps the local change and reports the error; the chain continues.
+    return res.then((answer: any): void => { if (!!onAnswer) onAnswer(answer); },
+      (error: any): void => {
+        this.host.raiseError(error, operation);
+        if (!!onAnswer) onAnswer(undefined);
+      });
+  }
+  private onPushSettled(epoch: number, wasSync: boolean): void {
+    // A chain detached by a source change runs to its end against its own source, but the counters
+    // and the window it would touch belong to the source that replaced it.
+    if (epoch !== this.sourceEpoch) return;
+    this.pendingPushes--;
+    if (this.pendingPushes <= 0) {
+      this.pendingPushes = 0;
+      this.pushChain = undefined;
+      if (wasSync)this.syncWindowAfterSyncPush(epoch);
+      this.startQueuedRead();
+    }
+  }
+  private syncWindowAfterSyncPush(epoch: number): void {
+    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
+    this.host.syncWindowAfterSyncPush();
+  }
+}

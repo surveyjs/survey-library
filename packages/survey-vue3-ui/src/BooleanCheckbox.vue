@@ -19,7 +19,7 @@
           :aria-invalid="question.a11y_input_ariaInvalid"
           :aria-errormessage="question.a11y_input_ariaErrormessage"
         />
-        <span :class="question.cssClasses.checkboxMaterialDecorator">
+        <span :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
           <svg
             v-if="question.svgIcon"
             :class="question.cssClasses.checkboxItemDecorator"

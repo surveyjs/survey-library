@@ -55,6 +55,10 @@ export var estonianSurveyStrings = {
   value: "väärtus",
   // "Response required."
   requiredError: "Palun vasta küsimusele.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Väärtus on vale.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Väärtus sisaldab tundmatuid võtmeid: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",
   // "Response required: answer questions in all rows."

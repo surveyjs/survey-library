@@ -57,6 +57,10 @@ export var portugueseBrSurveyStrings = {
   value: "valor",
   // "Response required."
   requiredError: "Por favor, responda a pergunta.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "O valor está incorreto.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "O valor contém chaves desconhecidas: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
   // "Response required: answer questions in all rows."

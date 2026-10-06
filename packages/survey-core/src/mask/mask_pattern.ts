@@ -122,7 +122,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  * ```js
  * const surveyJson = {
  *   "elements": [{
- *     "name": "textquestion1"
+ *     "name": "textquestion1",
  *     "type": "text",
  *     "maskType": "pattern",
  *     "maskSettings": {

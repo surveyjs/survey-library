@@ -226,7 +226,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       : undefined;
     return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
       {this.renderInput(inputId, isChecked)}
-      <span className={this.question.cssMaterialDecorator}>
+      <span className={this.question.cssMaterialDecorator} aria-hidden="true">
         {itemSvgIcon ?
           <svg className={this.question.cssItemDecorator}>
             <use xlinkHref={itemSvgIcon}></use>

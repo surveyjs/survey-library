@@ -1,6 +1,7 @@
 // Filter control prototype (#11890) over a real server: the products of the public OData Northwind
-// service. The matrix reads them through a data source with readRange, so the filter, the sort and
-// the page all run on the server: the filter arrives as a survey expression and is translated into
+// service. The matrix reads them through a data source that declares paging, filtering and sorting,
+// so the filter, the sort and the page all run on the server: the filter arrives as a survey
+// expression (the authored one and the control's, bracketed and joined) and is translated into
 // $filter here, the way dynamic-data-interfaces.ts describes. The buttons at the top right keep
 // survey.uiState (the filter's preset, search and edits) in localStorage across reloads.
 var ODATA = "https://services.odata.org/V4/Northwind/Northwind.svc/";
@@ -79,11 +80,10 @@ function readJson(url) {
 }
 var productsSource = {
   keyField: "id",
-  // Required by the contract; with readRange the list never calls it.
-  read: function () {
-    return productsSource.readRange({ skip: 0, take: 0, filter: "", sort: [] }).then(function (r) { return r.records; });
-  },
-  readRange: function (request) {
+  // Without the three flags the list would read every product once and filter, sort and page them
+  // itself; with them every page, filter and sort is one request to the server.
+  capabilities: { paging: true, filtering: true, sorting: true },
+  read: function (request) {
     try {
       var params = ["$count=true", "$expand=Category($select=CategoryName)",
         "$select=ProductID,ProductName,QuantityPerUnit,UnitPrice,UnitsInStock,Discontinued"];

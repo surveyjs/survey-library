@@ -168,9 +168,11 @@ export interface IDynamicDataField {
   // filter expression gets it as a variable beside the record's own keys.
   getValue?(record: any, index: number): any;
 }
+/* isInsertAnswer: the change is the answer of an insert, which may bring fields the client did not
+   send (a server default, a computed column). */
 export type IDynamicDataListChange =
   { type: "reset" } |
-  { type: "recordChanged", index: number, field: string } |
+  { type: "recordChanged", index: number, field: string, isInsertAnswer?: boolean } |
   { type: "recordAdded", index: number } |
   { type: "recordRemoved", index: number } |
   { type: "recordMoved", from: number, to: number } |

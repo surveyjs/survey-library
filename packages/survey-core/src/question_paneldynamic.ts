@@ -2266,9 +2266,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* The remote add path. The local one grows the count first and writes the defaults afterwards,
      which over a data source is a throwing count setter followed by up to three server calls for one
-     gesture. Here the complete record is built first - the default panel value, then the copy from
-     the last entry IN THE WINDOW - and handed to the list once: one source.insert, no move, no
-     follow-up update. question.value follows the window through the recordAdded notification. */
+     gesture. Here the complete record is built first - the template defaults and the default panel
+     value, then the copy from the last entry IN THE WINDOW - and handed to the list once: one
+     source.insert, no move, no follow-up update. The template defaults are part of the record
+     because the new panel finds them there and writes nothing; without them each default would be
+     an update after the insert. question.value follows the window through the recordAdded
+     notification. */
   /* The record of the remote add. recordIndex: the record of the window the new one goes in front
      of, loadedCount to append. prevPosition: a position in panelsCore, the panel
      copyDefaultValueFromLastEntry copies from. Returns the record index list.add answered. */
@@ -2276,10 +2279,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const list = this.dataList;
     // Positions of panels: the materialized set, which for a source that pages itself is the window.
     const createdCount = list.getMaterializedIndexes().length;
-    const record: any = {};
-    if (!this.isValueEmpty(this.defaultPanelValue)) {
-      this.copyValue(record, this.defaultPanelValue);
-    }
+    const record = this.createNewRecord();
     if (this.copyDefaultValueFromLastEntry && createdCount > 0) {
       const fromPosition = prevPosition > -1 && prevPosition < createdCount ? prevPosition : createdCount - 1;
       const fromIndex = list.materializedIndexToIndex(fromPosition);

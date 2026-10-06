@@ -677,7 +677,7 @@ export class DynamicDataList {
     this.refresh();
   }
   public move(fromIndex: number, toIndex: number): void {
-    if (this.isMembershipFixed) return;
+    if (this.isMembershipFixed || !this.canMoveInSource) return;
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
@@ -1103,6 +1103,26 @@ export class DynamicDataList {
     return this.isLoaded ? this.isWindowPagedBySource : this.isReadPagedBySource;
   }
   private isWindowPagedBySource: boolean = false;
+  /* The filter and the sort the source ran for the window in force: those of the read request that
+     committed a page the source read, undefined for a whole storage, which the list views itself.
+     Taken from the request and not from the view assigned since: a filter cleared while its read is
+     pending, or after that read failed, leaves the filtered page in force. A superseded read never
+     commits, so it never sets it. */
+  private windowSourceView: { filter: string, sort: Array<IDynamicDataSort> };
+  /* Can a move name a position in the whole source now? Not while the window in force is a page the
+     source read with a filter or a sort: windowOffset + index is then a position in the source's
+     filtered or sorted order. A whole storage, the list's own view of it (a source without paging, the
+     local filter and sort fallback) and a page read with no view are positions in the whole source.
+     Not hasCapability, which answers whether the source can be told about a move at all. */
+  // A read of the source in use has committed a window.
+  public get isWindowCommitted(): boolean {
+    return this.isLoaded;
+  }
+  public get canMoveInSource(): boolean {
+    if (!this.isLoaded || !this.isWindowPagedBySource) return true;
+    const view = this.windowSourceView;
+    return !view || !view.filter && view.sort.length === 0;
+  }
   /* The next read asks the source for a page: the source pages, and it runs every part of the view
      the list has - it filters or there is no filter, it sorts or there is no sort. Otherwise the
      source is read whole and the list filters, sorts and pages the answer. It decides what a read
@@ -1394,8 +1414,8 @@ export class DynamicDataList {
       isReadPagedBySource: (): boolean => this.isReadPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
-      commitRead: (data: any, skip: number, take: number, isPagedRead: boolean): boolean =>
-        this.commitRead(data, skip, take, isPagedRead),
+      commitRead: (data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean =>
+        this.commitRead(data, skip, take, isPagedRead, request),
       onReadFailed: (error: any): void => this.onReadFailed(error),
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
       raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
@@ -1471,7 +1491,7 @@ export class DynamicDataList {
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
      Returns whether the window was committed - an empty page past the end is not. */
-  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
+  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean {
     const result = toReadResult(data);
     const records = result.records;
     if (isPagedRead) {
@@ -1494,6 +1514,7 @@ export class DynamicDataList {
     }
     // Before resetWindowState: the page clamp reads the window as the mode it was read in.
     this.isWindowPagedBySource = isPagedRead;
+    this.windowSourceView = isPagedRead && !!request ? { filter: request.filter, sort: request.sort || [] } : undefined;
     this.isLoaded = true;
     this.resetWindowState();
     this.committedPageIndex = this._pageIndex;
@@ -1511,7 +1532,7 @@ export class DynamicDataList {
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
     this.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
-    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
+    this.raiseChanged({ type: "recordChanged", index: index, field: undefined, isInsertAnswer: true });
   }
   private syncWindowAfterSyncPush(): void {
     if (!this.isWindowWholeStorage || this.useReadThrough) return;

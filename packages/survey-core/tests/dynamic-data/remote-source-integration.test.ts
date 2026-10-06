@@ -928,7 +928,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     });
     return { survey: survey, question: <QuestionPanelDynamicModel>survey.getQuestionByName("panel") };
   }
-  test("P1 matrix: an attach clears the hash once and the value never goes through an empty one", async () => {
+  test("P1 matrix: an attach clears the hash once and shows the empty window, then the source's records", async () => {
     const { survey, question } = createLocalMatrix({ rowCount: 2 });
     survey.data = { matrix: [{ col1: "local1" }, { col1: "local2" }] };
     expect(question.visibleRows.length, "#1: the rows and the list exist").toBe(2);
@@ -939,10 +939,10 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(changes, "#2: one survey change").toEqual(["matrix"]);
     expect(survey.data.matrix, "#3: the hash is cleared").toBe(undefined);
-    expect(values, "#4: the question's own value changes: the answer goes straight to the window").toEqual([["v0", "v1", "v2"]]);
+    expect(values, "#4: the question's own value changes: the empty window of the pending read, then the answer").toEqual([[], ["v0", "v1", "v2"]]);
     expect(rowValues(question), "#5: the window is shown").toEqual(["v0", "v1", "v2"]);
   });
-  test("P1 panel: an attach clears the hash once and the value never goes through an empty one", async () => {
+  test("P1 panel: an attach clears the hash once and shows the empty window, then the source's records", async () => {
     const { survey, question } = createLocalPanel({ panelCount: 2 });
     survey.data = { panel: [{ col1: "local1" }, { col1: "local2" }] };
     expect(question.panels.length, "#1: the panels and the list exist").toBe(2);
@@ -953,7 +953,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(changes, "#2: one survey change").toEqual(["panel"]);
     expect(survey.data.panel, "#3: the hash is cleared").toBe(undefined);
-    expect(values, "#4: the question's own value changes: the answer goes straight to the window").toEqual([["v0", "v1", "v2"]]);
+    expect(values, "#4: the question's own value changes: the empty window of the pending read, then the answer").toEqual([[], ["v0", "v1", "v2"]]);
     expect(panelValues(question), "#5: the window is shown").toEqual(["v0", "v1", "v2"]);
   });
   test("P3 matrix: attach, detach, attach another source, detach: question.value is read through after each detach", async () => {
@@ -1213,13 +1213,13 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(!!(<any>question).dataListValue, "#2: the attach created the list").toBe(true);
     expect(added, "#3: rows added during the attach").toBe(0);
     expect(!!(<any>question).generatedVisibleRows, "#4: rows built before the first read answers").toBe(false);
-    expect(values, "#5: value changes during the attach").toEqual([]);
+    expect(values, "#5: value changes during the attach: the empty window").toEqual([[]]);
     expect(survey.data.matrix, "#6").toBe(undefined);
     expect(question.isDataLoading, "#7").toBe(true);
     source.settleAll();
     await flush();
     expect(added, "#8").toBe(0);
-    expect(values, "#9: value changes after the read: the window").toEqual([["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]]);
+    expect(values, "#9: value changes after the read: the window").toEqual([[], ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]]);
     expect(rowValues(question), "#10").toEqual(["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]);
   });
   test("P9 panel: an attach to a question whose list does not exist yet", async () => {
@@ -1972,7 +1972,7 @@ describe("Remote data source: the objects an added record keeps", () => {
   /* The remote add builds its record from defaultPanelValue only, not from the template questions'
      default values, which the new panel then writes: a second call to the source. Kept as it is for
      now. */
-  test("panel: a template default value reaches the source as an update after the insert", async () => {
+  test("panel: a template default value is part of the one insert", async () => {
     const source = new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"]);
     const { question } = await createPanel(source, {
       panelsPerPage: 0, templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }]
@@ -1981,10 +1981,9 @@ describe("Remote data source: the objects an added record keeps", () => {
     source.reset();
     question.addPanel();
     await flush();
-    expect(source.calls.map(call => call.op), "#1").toEqual(["insert", "update"]);
-    expect(source.argsOf("insert")[0][0], "#2: the inserted record").toEqual({});
-    expect(source.argsOf("update")[0][2], "#3: the update writes the default").toEqual(["col1"]);
-    expect(question.value[3].col1, "#4").toBe("d");
+    expect(source.calls.map(call => call.op), "#1: no update follows").toEqual(["insert"]);
+    expect(source.argsOf("insert")[0][0], "#2: the inserted record carries the default").toEqual({ col1: "d" });
+    expect(question.value[3].col1, "#3").toBe("d");
   });
 });
 
@@ -4331,5 +4330,318 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
     expect(errors, "#3").toEqual(["update:handler", "remove:handler"]);
     expect(survey.getValue("store").map((r: any) => r.col1), "#4: the handler ran after the value was stored").toEqual(["B", "C"]);
     expect(rowValues(question), "#5: the window follows the storage after the remove").toEqual(["B", "C"]);
+  });
+});
+
+/* A move names a position in the whole source. While the page in force is one the source read with a
+   filter or a sort, windowOffset + index is a position in the source's filtered or sorted order, so
+   the move is refused and drag reorder is off. The decision follows the page that is committed, not
+   the view assigned since: clearing a filter while its read is pending, or after it failed, leaves the
+   filtered page in force. */
+describe("Remote data source: a move under a view the source runs is refused", () => {
+  function groupedRecords(count: number): Array<any> {
+    return serverRecords(count).map((r: any): any => Object.assign(r, { group: r.id % 2 === 0 ? "even" : "odd" }));
+  }
+  async function create(source: FakeServerSource): Promise<{ question: QuestionMatrixDynamicModel, errors: Array<string> }> {
+    const { survey, question } = await createMatrix(source, { allowRowReorder: true });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    source.reset();
+    return { question: question, errors: errors };
+  }
+  async function settle(source: FakeServerSource): Promise<void> {
+    for (let i = 0; i < 5; i++) {
+      source.settleAll();
+      await flush();
+    }
+  }
+  function expectRefused(question: QuestionMatrixDynamicModel, source: FakeServerSource, errors: Array<string>, label: string): void {
+    const before = rowValues(question);
+    const calls = source.calls.length;
+    question.moveRowByIndex(0, 1);
+    expect(question.isRowsDragAndDrop, label + ": drag is off").toBe(false);
+    expect(source.calls.length, label + ": nothing is sent").toBe(calls);
+    expect(rowValues(question), label + ": nothing changes").toEqual(before);
+    expect(errors[errors.length - 1], label + ": reported under move").toBe("move");
+  }
+  test("under a source filter: drag is off and a move from code sends nothing and is reported", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    const { question, errors } = await create(source);
+    expect(question.isRowsDragAndDrop, "#1: drag is on without a view").toBe(true);
+    question.filterExpression = "{group} = 'even'";
+    await flush();
+    expect(rowValues(question), "#2").toEqual(["v0", "v2", "v4", "v6", "v8"]);
+    source.reset();
+    expectRefused(question, source, errors, "#3");
+    expect(errors, "#4").toEqual(["move"]);
+  });
+  test("under a source sort: a move from code sends nothing and is reported", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    const { question, errors } = await create(source);
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    await flush();
+    source.reset();
+    expectRefused(question, source, errors, "#1");
+  });
+  test("under the local filter fallback a move sends the position in the whole source", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    source.capabilities = { paging: true };
+    const { question, errors } = await create(source);
+    question.filterExpression = "{group} = 'even'";
+    await flush();
+    expect(rowValues(question), "#1").toEqual(["v0", "v2", "v4", "v6", "v8"]);
+    source.reset();
+    question.moveRowByIndex(0, 1);
+    await flush();
+    expect(source.argsOf("move"), "#2: the record of row 1 is at 2 in the whole source").toEqual([[0, 2]]);
+    expect(errors, "#3").toEqual([]);
+  });
+  test("with paging and no view a move on page 2 sends offset + index", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    const { question } = await create(source);
+    question.goToPage(1);
+    await flush();
+    expect(question.isRowsDragAndDrop, "#1").toBe(true);
+    source.reset();
+    question.moveRowByIndex(0, 1);
+    await flush();
+    expect(source.argsOf("move"), "#2").toEqual([[5, 6]]);
+  });
+  const clearings: Array<{ name: string, set: (q: QuestionMatrixDynamicModel) => void, clear: (q: QuestionMatrixDynamicModel) => void }> = [
+    { name: "filter", set: (q): void => { q.filterExpression = "{group} = 'even'"; }, clear: (q): void => { q.filterExpression = ""; } },
+    { name: "sort", set: (q): void => { q.sortOrder = [{ field: "col2", direction: "desc" }]; }, clear: (q): void => { q.sortOrder = []; } }
+  ];
+  clearings.forEach((view): void => {
+    test("clearing a " + view.name + " while its read is pending: the move is refused until the page without it commits", async () => {
+      const source = new FakeServerSource(groupedRecords(12));
+      const { question, errors } = await create(source);
+      view.set(question);
+      await flush();
+      source.auto = false;
+      view.clear(question);
+      // The read is pending: its call stays in the record, to be settled below.
+      const calls = source.calls.length;
+      question.moveRowByIndex(0, 1);
+      expect(question.isRowsDragAndDrop, "#1: drag stays off").toBe(false);
+      expect(source.callsOf("move").length, "#2: nothing is sent").toBe(0);
+      expect(source.calls.length, "#3").toBe(calls);
+      expect(errors, "#4").toEqual(["move"]);
+      await settle(source);
+      expect(rowValues(question), "#5: the page without the view").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+      if (view.name === "filter") {
+        expect(question.isRowsDragAndDrop, "#6: drag is on again").toBe(true);
+      }
+      source.auto = true;
+      source.reset();
+      question.moveRowByIndex(0, 1);
+      await flush();
+      expect(source.argsOf("move"), "#7").toEqual([[0, 1]]);
+    });
+    test("clearing a " + view.name + " whose read fails: still refused, a successful refresh allows the move", async () => {
+      const source = new FakeServerSource(groupedRecords(12));
+      const { question, errors } = await create(source);
+      view.set(question);
+      await flush();
+      source.auto = false;
+      view.clear(question);
+      source.pending.forEach((call: IServerCall): void => call.fail(new Error("read failed")));
+      await flush();
+      source.reset();
+      expectRefused(question, source, errors, "#1");
+      source.auto = true;
+      question.refreshDataSource();
+      await flush();
+      source.reset();
+      question.moveRowByIndex(0, 1);
+      await flush();
+      expect(source.argsOf("move"), "#2").toEqual([[0, 1]]);
+    });
+  });
+  test("setting a filter while an unfiltered read is pending: a move before the commit sends the unfiltered position, then it is refused", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    const { question, errors } = await create(source);
+    source.auto = false;
+    question.filterExpression = "{group} = 'even'";
+    question.moveRowByIndex(0, 1);
+    expect(source.argsOf("move"), "#1: the page in force is unfiltered").toEqual([[0, 1]]);
+    expect(errors, "#2").toEqual([]);
+    await settle(source);
+    expect(rowValues(question), "#3: the filtered page").toEqual(["v0", "v2", "v4", "v6", "v8"]);
+    source.auto = true;
+    source.reset();
+    expectRefused(question, source, errors, "#4");
+  });
+  test("a superseded read does not set the view the page was read with", async () => {
+    const source = new FakeServerSource(groupedRecords(12));
+    const { question, errors } = await create(source);
+    source.auto = false;
+    question.filterExpression = "{group} = 'even'";
+    const filteredRead = source.pending[0];
+    question.filterExpression = "";
+    const unfilteredRead = source.pending[1];
+    unfilteredRead.settle();
+    await flush();
+    filteredRead.settle();
+    await flush();
+    expect(rowValues(question), "#1: the later read is in force").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+    source.auto = true;
+    source.reset();
+    question.moveRowByIndex(0, 1);
+    await flush();
+    expect(source.argsOf("move"), "#2").toEqual([[0, 1]]);
+    expect(errors, "#3").toEqual([]);
+  });
+});
+
+/* Attaching a source replaces what the question shows at once: the source's window, empty until the
+   first read commits. The local records the question held before are not shown, so no edit can be
+   made on them and dropped. */
+describe("Remote data source: an attached source replaces the shown records at once", () => {
+  async function createWithLocalRecords(kind: string): Promise<{ survey: SurveyModel, question: any, source: FakeServerSource, errors: Array<string> }> {
+    const survey = new SurveyModel({ elements: [ownedElement(kind)] });
+    survey.data = { [kind]: [{ col1: "local0" }, { col1: "local1" }] };
+    const question = <any>survey.getQuestionByName(kind);
+    expect(shown(question).length, "the local records are shown before the attach").toBe(2);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    const source = new FakeServerSource(ownedRecords(3));
+    source.auto = false;
+    question.dataSource = source;
+    return { survey: survey, question: question, source: source, errors: errors };
+  }
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": no rows or panels while the first read is pending", async () => {
+      const { question, source } = await createWithLocalRecords(kind);
+      expect(shown(question), "#1: nothing to edit").toEqual([]);
+      expect(question.value, "#2").toEqual([]);
+      expect(question.isDataLoading, "#3").toBe(true);
+      source.settleAll();
+      await flush();
+      expect(shown(question).map((s: Array<any>) => s[0]), "#4").toEqual(["v0", "v1", "v2"]);
+    });
+    test(kind + ": a first read that rejects leaves it empty and reported, and a refresh shows the records", async () => {
+      const { question, source, errors } = await createWithLocalRecords(kind);
+      source.pending.forEach((call: IServerCall): void => call.fail(new Error("down")));
+      await flush();
+      expect(shown(question), "#1").toEqual([]);
+      expect(question.value, "#2").toEqual([]);
+      expect(errors, "#3").toEqual(["read"]);
+      source.auto = true;
+      question.refreshDataSource();
+      await flush();
+      expect(shown(question).map((s: Array<any>) => s[0]), "#4").toEqual(["v0", "v1", "v2"]);
+    });
+    test(kind + ": without a source the local records stay, and a detach shows the survey value again", async () => {
+      const survey = new SurveyModel({ elements: [ownedElement(kind)] });
+      survey.data = { [kind]: [{ col1: "local0" }, { col1: "local1" }] };
+      const question = <any>survey.getQuestionByName(kind);
+      expect(shown(question).map((s: Array<any>) => s[0]), "#1").toEqual(["local0", "local1"]);
+      const source = new FakeServerSource(ownedRecords(3));
+      source.auto = false;
+      question.dataSource = source;
+      survey.setValue(kind, [{ col1: "again" }]);
+      question.dataSource = undefined;
+      expect(shown(question).map((s: Array<any>) => s[0]), "#2").toEqual(["again"]);
+    });
+  });
+});
+
+/* The answer of an insert is the record the source stored: the fields the server filled in reach the
+   new row or panel, and what the respondent typed before the answer arrived stays theirs. */
+describe("Remote data source: the server's fields in an insert answer are shown", () => {
+  const json = (kind: string): any => kind === "matrix" ?
+    { rowsPerPage: 0, columns: [{ name: "a" }, { name: "b" }] } :
+    { panelsPerPage: 0, templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] };
+  async function create(kind: string): Promise<{ question: any, source: FakeServerSource }> {
+    const survey = new SurveyModel({ elements: [ownedElement(kind, json(kind))] });
+    const question = <any>survey.getQuestionByName(kind);
+    const source = new FakeServerSource([{ id: 0, a: "a0", b: "b0" }, { id: 1, a: "a1", b: "b1" }], ["insert", "update", "remove", "move"]);
+    source.insertDefaults = { a: "server-default" };
+    await attach(question, source);
+    source.auto = false;
+    return { question: question, source: source };
+  }
+  const add = (question: any): void => { if (question instanceof QuestionMatrixDynamicModel) question.addRow(); else question.addPanel(); };
+  const lastObject = (question: any): any => question instanceof QuestionMatrixDynamicModel ?
+    question.visibleRows[question.visibleRows.length - 1] : question.panels[question.panels.length - 1];
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": the new object shows what the server filled in, and no update is sent", async () => {
+      const { question, source } = await create(kind);
+      add(question);
+      const object = lastObject(question);
+      expect(object.getQuestionByName("a").value, "#1: before the answer").toBeUndefined();
+      source.settleAll();
+      await flush();
+      expect(object.getQuestionByName("a").value, "#2").toBe("server-default");
+      expect(lastObject(question) === object, "#3: the object stays").toBe(true);
+      expect(source.calls.map(call => call.op), "#4").toEqual(["insert"]);
+    });
+    test(kind + ": a value typed into another field before the answer stays", async () => {
+      const { question, source } = await create(kind);
+      add(question);
+      const object = lastObject(question);
+      object.getQuestionByName("b").value = "typed";
+      for (let i = 0; i < 3; i++) {
+        source.settleAll();
+        await flush();
+      }
+      expect(object.getQuestionByName("a").value, "#1").toBe("server-default");
+      expect(object.getQuestionByName("b").value, "#2").toBe("typed");
+      expect(source.calls.map(call => call.op), "#3: the typed value is the only update").toEqual(["insert", "update"]);
+    });
+    test(kind + ": a value typed into the server's field before the answer wins", async () => {
+      const { question, source } = await create(kind);
+      add(question);
+      const object = lastObject(question);
+      object.getQuestionByName("a").value = "typed";
+      for (let i = 0; i < 3; i++) {
+        source.settleAll();
+        await flush();
+      }
+      expect(object.getQuestionByName("a").value, "#1").toBe("typed");
+      expect(source.records[2].a, "#2").toBe("typed");
+      expect(source.calls.map(call => call.op), "#3").toEqual(["insert", "update"]);
+    });
+  });
+});
+
+/* A remote add sends one insert, and the record starts from the defaults a local add writes: the
+   template or column defaults, then the default record value, then the copy from the last entry. */
+describe("Remote data source: an added record starts from the defaults", () => {
+  test("panel: defaultPanelValue and a template default for different fields are both in the insert", async () => {
+    const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
+    const { question } = await createPanel(source, { panelsPerPage: 0, defaultPanelValue: { col2: "p" },
+      templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }] });
+    source.reset();
+    question.addPanel();
+    await flush();
+    expect(source.calls.map(call => call.op), "#1").toEqual(["insert"]);
+    expect(source.argsOf("insert")[0][0], "#2").toEqual({ col1: "d", col2: "p" });
+  });
+  test("panel: defaultPanelValue wins over a template default for the same field, as in the local add", async () => {
+    const json = { panelsPerPage: 0, defaultPanelValue: { col1: "p" },
+      templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }] };
+    const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
+    const { question } = await createPanel(source, json);
+    source.reset();
+    question.addPanel();
+    await flush();
+    expect(source.calls.map(call => call.op), "#1").toEqual(["insert"]);
+    expect(source.argsOf("insert")[0][0], "#2").toEqual({ col1: "p" });
+    const local = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "panel", panelCount: 0 }, json)] });
+    (<QuestionPanelDynamicModel>local.getQuestionByName("panel")).addPanel();
+    expect(local.data.panel, "#3: the local add").toEqual([{ col1: "p" }]);
+  });
+  test("matrix: a column default value is part of the one insert", async () => {
+    const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
+    const { question } = await createMatrix(source, { rowsPerPage: 0,
+      columns: [{ name: "col1", defaultValue: "d" }, { name: "col2" }] });
+    question.visibleRows;
+    source.reset();
+    question.addRow();
+    await flush();
+    expect(source.calls.map(call => call.op), "#1").toEqual(["insert"]);
+    expect(source.argsOf("insert")[0][0], "#2").toEqual({ col1: "d" });
+    expect(question.value[2].col1, "#3").toBe("d");
   });
 });

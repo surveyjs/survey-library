@@ -383,6 +383,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
+    // Refused before anything changes: the list cannot name a position in the whole source.
+    if (this.isRemoteData && !this.dataList.canMoveInSource) {
+      this.reportOperationRefused("move", "The data source filtered or sorted the loaded page, so the position in the whole source is not known");
+      return;
+    }
     const maxIndex = Math.max(fromIndex, toIndex);
     const rows = this.generatedVisibleRows;
     // The row objects stay where they are and get the reordered records; the detail panel state is
@@ -685,8 +690,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public get isRowsDragAndDrop(): boolean {
     // Under a sort the row order is the sort's: dragging a row would say nothing about where the
-    // record goes. A data source without a move method cannot be told about a reorder either.
-    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.canWriteRecords("move");
+    // record goes. A data source without a move method cannot be told about a reorder either, nor
+    // one whose page in force it filtered or sorted itself (canMoveInSource).
+    return this.allowRowReorder && !this.isReadOnly && this.dataList.sort.length === 0 && this.canWriteRecords("move") &&
+      this.dataList.canMoveInSource;
   }
   // One hook for the whole matrix, not one per cell: the cell questions read it through
   // data.isMatrixReadOnly() (parentIsReadOnly).

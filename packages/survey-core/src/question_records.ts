@@ -266,6 +266,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (list.isRemote && change.type !== "reset") {
       this.storeLoadedRecords();
       this.prepareRemoteWrite(change);
+      if (change.type === "recordChanged" && change.isInsertAnswer) {
+        this.showInsertAnswer(change.index);
+      }
       this.runConditionsAfterRemoteWrite();
       return;
     }
@@ -279,6 +282,16 @@ export abstract class QuestionRecordsModel extends Question {
       this.commitLoadedRecords();
     } else {
       this.rebuildFromDataList(false);
+    }
+  }
+  /* An insert answer brought the record the source stored: the merged record reaches the object of
+     the new record, if it has one, and nothing else is rebuilt. The respondent's fields are the
+     client's in the merged record, so a value typed before the answer arrived is kept. The other
+     record writes never push the record back into the object being edited (see storeLoadedRecords). */
+  private showInsertAnswer(index: number): void {
+    const item = this.getItemByRecordIndex(index);
+    if (!!item) {
+      item.updateFromRecord(this.dataList.getRecord(index));
     }
   }
   /* A read committed: the loaded window becomes the question value. It is the inbound path - the
@@ -1090,7 +1103,11 @@ export abstract class QuestionRecordsModel extends Question {
      has not loaded, and acting on any record the window does hold would act on the wrong one. It is
      reported the way a source error is (onDynamicDataError), under the operation it refused. */
   protected reportRecordNotLoaded(operation: DynamicDataOperation): void {
-    this.onSourceError(new Error("The record is not in the loaded page of the data source; the " + operation + " was not made."), operation);
+    this.reportOperationRefused(operation, "The record is not in the loaded page of the data source");
+  }
+  // An operation the question refused before it changed anything, reported under that operation.
+  protected reportOperationRefused(operation: DynamicDataOperation, reason: string): void {
+    this.onSourceError(new Error(reason + "; the " + operation + " was not made."), operation);
   }
   // The assigned data source, read back from the list (assignedSource); nothing is created for it.
   protected getDataSource(): IDynamicDataSource {
@@ -1129,7 +1146,19 @@ export abstract class QuestionRecordsModel extends Question {
     list.assignSource(newValue, (): void => {
       if (!!newValue && !wasRemote)this.clearValueInSurveyData();
     });
-    if (!newValue)this.restoreValueFromSurveyData();
+    if (!newValue) {
+      this.restoreValueFromSurveyData();
+    } else if (!list.isWindowCommitted) {
+      this.showUnreadWindow();
+    }
+  }
+  /* The first read of an attached source is pending, or failed at once: the question shows the
+     source's window, which is empty until a read commits, and not the records it held before - they
+     belong to no storage any more, and an edit made on them would be dropped. A read that commits
+     inside assignSource (a synchronous source) has already done this. */
+  private showUnreadWindow(): void {
+    this.storeLoadedRecords();
+    this.rebuildFromDataList(false);
   }
   /* Attaching a source: the answer the question already holds leaves the survey hash before the
      first read. It is one ordinary value change - attaching is a developer action, not a page load -

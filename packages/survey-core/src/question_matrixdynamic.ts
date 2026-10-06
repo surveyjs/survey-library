@@ -1390,7 +1390,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const result = this.createRowsForRecords(indexes, (index: number): MatrixDynamicRowModel =>
       this.createMatrixRow(!!val ? this.getRowValueByIndex(val, index) : this.getNewRowValue(index)));
     if (isWritingDefaults) {
-      this.value = val;
+      this.setOwnRecordsValue(val);
     }
     return result;
   }
@@ -1549,11 +1549,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* The row count follows the assigned value as it does for any assignment from the survey
      (updateValueFromSurvey). The rows can be re-created inside a row add or remove, which locks out
      the reset of the rendered table (onStartRowAddingRemoving): its end resets the table instead. */
-  protected followOutsideAssignment(): void {
+  protected followOutsideAssignment(decideView: () => void): void {
     const prev = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
     try {
-      super.followOutsideAssignment();
+      super.followOutsideAssignment(decideView);
     } finally {
       this.setRowCountValueFromData = prev;
     }

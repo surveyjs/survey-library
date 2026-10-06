@@ -8,6 +8,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
 import { CustomError } from "../src/error";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
+import { ItemValue } from "../src/itemvalue";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, when the list is asked for and when it pages, sorts or filters - and on no other
@@ -198,6 +199,35 @@ describe("Records question: lazy list allocation", () => {
     matrix.addColumn("a");
     matrix.value = [{ a: 1 }, { a: 2 }];
     expect((<any>matrix).dataListValue, "#2: the dynamic matrix has not").toBeUndefined();
+  });
+});
+
+/* An assignment refreshes the objects whose record changed. A row of the fixed matrix whose record the
+   assigned answer does not hold is refreshed too: a row added at runtime has no record before or after
+   the assignment, and its expressions still have to write. */
+describe("Records question: the objects an assignment refreshes", () => {
+  test("fixed matrix: a row added at runtime writes its expression when the answer is assigned", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2", "r3"],
+        columns: [{ name: "a", cellType: "text" }, { name: "e", cellType: "expression", expression: "{row.n} + 1" }] }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.rows.push(new ItemValue("r4"));
+    matrix.value = { r3: { a: "z" } };
+    expect(survey.data.m.r4, "#1").toEqual({ e: 1 });
+    expect(survey.data.m.r3, "#2").toEqual({ a: "z", e: 1 });
+  });
+  test("fixed matrix: a row without a record is refreshed by an assignment, and nothing is written for it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    matrix.value = { r1: { a: "1" } };
+    const spies = matrix.visibleRows.map(row => vi.spyOn(row, "updateFromRecord"));
+    matrix.value = { r1: { a: "1" }, r2: { a: "2" } };
+    expect(spies.map(spy => spy.mock.calls.length), "#1: r2 changed, r3 has no record").toEqual([0, 1, 1]);
+    expect(matrix.value, "#2").toEqual({ r1: { a: "1" }, r2: { a: "2" } });
   });
 });
 

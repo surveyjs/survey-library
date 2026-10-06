@@ -1283,12 +1283,25 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.addingNewPanelsValue = this.value;
     this.isAddingNewPanels = true;
     this.isNewPanelsValueChanged = false;
+    this.isNewPanelsValueAssignedFromOutside = false;
   }
+  /* The values the new panels wrote - their defaults and expression results - are stored as one
+     assignment of the question's own: it keeps the view. An assignment from outside made while the
+     panels were built (a handler that set question.value) went into the same buffer, and then the
+     store is one from outside. */
+  private isNewPanelsValueAssignedFromOutside: boolean;
   private setValueAfterPanelsCreating() {
     this.runLightBuiltPanelsConditions();
     this.isAddingNewPanels = false;
     if (this.isNewPanelsValueChanged) {
-      this.runInternalValueChange((): void => { this.value = this.addingNewPanelsValue; });
+      const value = this.addingNewPanelsValue;
+      this.runInternalValueChange((): void => {
+        if (this.isNewPanelsValueAssignedFromOutside) {
+          this.value = value;
+        } else {
+          this.setOwnRecordsValue(value);
+        }
+      });
     }
   }
   /* A change the question makes to its own value or records: the panel count does not follow the
@@ -1317,6 +1330,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected setValueCore(newValue: any) {
     if (this.isAddingNewPanels) {
       this.isNewPanelsValueChanged = true;
+      if (!this.isAssigningOwnValue) {
+        this.isNewPanelsValueAssignedFromOutside = true;
+      }
       this.addingNewPanelsValue = newValue;
     } else {
       super.setValueCore(newValue);

@@ -182,4 +182,7 @@ export type IDynamicDataListChange =
 export interface IDynamicDataOwner {
   getFields(): Array<IDynamicDataField>;
   onDataListChanged(change: IDynamicDataListChange): void;
+  /* The outermost write of the list has ended: after its notifications, or when it unwound with an
+     exception. Raised once per outermost write (see DynamicDataList.isWriteOpen). */
+  onWriteEnded?(): void;
 }

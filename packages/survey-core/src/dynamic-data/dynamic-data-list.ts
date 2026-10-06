@@ -64,8 +64,8 @@ export class DynamicDataList {
   private frozenCreatedIndexes: Array<number> = undefined;
   private frozenRecordCount: number = -1;
   /* > 0 while the list applies a write of its own. A write-through source assigns the owner's
-     storage, and the owner reports that assignment back through invalidateViews(); the membership
-     must not be re-evaluated by the very write that maintains it. */
+     storage, and an owner that reports an assignment made meanwhile through invalidateViews() is
+     ignored: the membership must not be re-evaluated by the very write that maintains it. */
   private writeDepth: number = 0;
   // The record count the cached views were built for: the records can change outside the list
   // (survey.data = ..., a trigger, clearValue, a default value, a rowCount that grows the padding),
@@ -261,6 +261,9 @@ export class DynamicDataList {
      a change notification the owner never asked for. A source that can collect its writes (the
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
+    this.runOpenWrite((): void => { this.batchCore(func); });
+  }
+  private batchCore(func: () => void): void {
     const source: any = this._source;
     let changes: Array<IDynamicDataListChange>;
     try {
@@ -405,10 +408,30 @@ export class DynamicDataList {
     this.raiseChanged(change);
     this.raisePendingReset();
   }
-  // True while the list applies a write of its own: the owner uses it to tell an assignment it
-  // caused itself from one made outside (survey.data, a trigger, clearValue).
+  // True while the list applies a write of its own: the views it caches are its own to maintain then,
+  // and an owner that is assigned inside the write may not read them (invalidateViews is ignored).
   public get isWriting(): boolean {
     return this.writeDepth > 0;
+  }
+  /* True from the start of an outermost write - batch, ensureCount, truncate, setValue, setRecord,
+     add, remove, move, an insert answer - until its notifications have been raised, and until it
+     unwinds when it throws. isWriting is narrower: a write notifies after its own scope, and a write
+     whose push throws never notifies. The owner is told when it ends (onWriteEnded): a change it owes
+     a write - an assignment made from outside while the write was open - is followed then. */
+  public get isWriteOpen(): boolean {
+    return this.openWriteDepth > 0;
+  }
+  private openWriteDepth: number = 0;
+  private runOpenWrite<T>(func: () => T): T {
+    this.openWriteDepth++;
+    try {
+      return func();
+    } finally {
+      this.openWriteDepth--;
+      if (this.openWriteDepth === 0 && !this.isDisposed && !!this.owner && !!this.owner.onWriteEnded) {
+        this.owner.onWriteEnded();
+      }
+    }
   }
   /* Every write of the list runs here. The code inside runs user code - the owner's createRecord,
      the notifications of a nested write or a clamp, onError, a read-through source's setter and the
@@ -531,6 +554,9 @@ export class DynamicDataList {
     return res;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
+    this.runOpenWrite((): void => { this.ensureCountCore(n, createRecord); });
+  }
+  private ensureCountCore(n: number, createRecord: (i: number) => any): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("ensureCount");
     this.runWrite((): void => {
@@ -541,6 +567,9 @@ export class DynamicDataList {
     this.raisePendingReset();
   }
   public truncate(n: number): void {
+    this.runOpenWrite((): void => { this.truncateCore(n); });
+  }
+  private truncateCore(n: number): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("truncate");
     this.runWrite((): void => {
@@ -561,6 +590,9 @@ export class DynamicDataList {
     return !!record ? record[field] : undefined;
   }
   public setValue(index: number, field: string, value: any): boolean {
+    return this.runOpenWrite((): boolean => this.setValueCore(index, field, value));
+  }
+  private setValueCore(index: number, field: string, value: any): boolean {
     const record = this.getRecord(index);
     if (!record) return false;
     if (!DynamicDataList.isValueChanged(value, record[field])) return false;
@@ -591,6 +623,9 @@ export class DynamicDataList {
   // fly - the matrix pads question.value up to rowCount on read - uses it when the composed records
   // themselves have to reach the storage: the stored value changes although the record does not.
   public setRecord(index: number, record: any, force: boolean = false): boolean {
+    return this.runOpenWrite((): boolean => this.setRecordCore(index, record, force));
+  }
+  private setRecordCore(index: number, record: any, force: boolean): boolean {
     const oldRecord = this.getRecord(index);
     if (index < 0 || index >= this.recordCount) return false;
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
@@ -611,6 +646,9 @@ export class DynamicDataList {
   /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */
   public add(record?: any, index?: number): number {
+    return this.runOpenWrite((): number => this.addCore(record, index));
+  }
+  private addCore(record: any, index: number): number {
     if (this.isMembershipFixed) return -1;
     const newRecord = this.removeKeyField(record === undefined ? {} : record);
     // The count the write produces. It is taken before the write: with a read-through source the
@@ -638,6 +676,9 @@ export class DynamicDataList {
     return at;
   }
   public remove(index: number): void {
+    this.runOpenWrite((): void => { this.removeCore(index); });
+  }
+  private removeCore(index: number): void {
     if (this.isMembershipFixed || index < 0 || index >= this.recordCount) return;
     /* Before the splice: afterwards this slot holds the record that moved up into it, and the last
        record of the window has no slot at all. */
@@ -677,6 +718,9 @@ export class DynamicDataList {
     this.refresh();
   }
   public move(fromIndex: number, toIndex: number): void {
+    this.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
+  }
+  private moveCore(fromIndex: number, toIndex: number): void {
     if (this.isMembershipFixed || !this.canMoveInSource) return;
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
@@ -1531,8 +1575,10 @@ export class DynamicDataList {
     // the key itself.
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
-    this.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
-    this.raiseChanged({ type: "recordChanged", index: index, field: undefined, isInsertAnswer: true });
+    this.runOpenWrite((): void => {
+      this.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
+      this.raiseChanged({ type: "recordChanged", index: index, field: undefined, isInsertAnswer: true });
+    });
   }
   private syncWindowAfterSyncPush(): void {
     if (!this.isWindowWholeStorage || this.useReadThrough) return;

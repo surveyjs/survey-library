@@ -288,6 +288,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
     return this.isObject(value) ? value[(<MatrixDropdownRowModelBase>item).rowName] : undefined;
   }
+  protected isItemWithoutRecordRefreshed(): boolean {
+    return true;
+  }
   // One record without composing the array. Inside a list write the list answers: the write is not in
   // the value yet.
   protected getListRecordAt(index: number): any {
@@ -328,7 +331,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         newValue[key] = records[index];
       }
     });
-    this.setNewValue(Object.keys(newValue).length > 0 ? newValue : null);
+    this.setOwnRecordsValue(Object.keys(newValue).length > 0 ? newValue : null);
     this.refreshRowsOfSameKeys(changed);
   }
   private isEmptyRecord(record: any): boolean {

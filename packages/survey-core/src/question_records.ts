@@ -37,10 +37,14 @@ export interface IDynamicDataRecordUniqueness {
   // Records outside the view - the filter excludes them - take part too.
   includeFilteredOut: boolean;
 }
-// What a value assignment takes before the value is stored and hands back after it (see
-// QuestionRecordsModel.beginValueAssignment).
+/* What a value assignment from outside takes before the value is stored and hands back after it (see
+   QuestionRecordsModel.beginValueAssignment). created: the created indexes, undefined without a
+   view, null when they could not be read - inside a write of the list, whose views are its own until
+   it ends. oldRecords: kept by an assignment owed to the end of an open write only (see
+   runOwnRecordsChange); the pair hands them over itself. */
 interface IDynamicDataValueAssignment {
   created: Array<number>;
+  oldRecords?: any;
 }
 // A write of one record field through an item, as the item prepared it (QuestionRecordItem.prepareRecordWrite).
 export interface IRecordItemWrite {
@@ -113,6 +117,7 @@ export abstract class QuestionRecordsModel extends Question {
       // IDynamicDataOwner: the question chooses the questions its records are made of (getFieldsOfQuestions).
       getFields: (): Array<IDynamicDataField> => question.getFields(),
       onDataListChanged: (change: IDynamicDataListChange): void => { question.onDataListChanged(change); },
+      onWriteEnded: (): void => { question.onListWriteEnded(); },
       // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
@@ -418,8 +423,16 @@ export abstract class QuestionRecordsModel extends Question {
      copyvalue trigger, user code that runs inside one of the question's own writes - returns here,
      before survey.questionValueChanging: nothing is stored and no event fires, a parent's included.
      The mark is one-shot and taken at entry, so an assignment made later inside the same write is an
-     outside one. */
+     outside one.
+     The same mark tells the store whose assignment it is (isAssigningOwnValue): an invocation makes
+     its own kind the one in force for its whole extent and restores the outer one when it exits,
+     however it exits. An assignment nested in it - a handler of survey.onValueChanging, which runs
+     before the store - has its own kind while it runs and never changes the outer one's. */
   private isOwnValueAssignment: boolean = false;
+  private isOwnAssignmentInForce: boolean = false;
+  protected get isAssigningOwnValue(): boolean {
+    return this.isOwnAssignmentInForce;
+  }
   protected setNewValue(newValue: any): void {
     const isOwn = this.isOwnValueAssignment;
     this.isOwnValueAssignment = false;
@@ -427,7 +440,13 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    super.setNewValue(newValue);
+    const prev = this.isOwnAssignmentInForce;
+    this.isOwnAssignmentInForce = isOwn;
+    try {
+      super.setNewValue(newValue);
+    } finally {
+      this.isOwnAssignmentInForce = prev;
+    }
   }
   protected setOwnRecordsValue(newValue: any): void {
     this.isOwnValueAssignment = true;
@@ -1214,22 +1233,25 @@ export abstract class QuestionRecordsModel extends Question {
      the question goes through the value setter instead, and setNewValue skips it. */
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
-    // Owed before the value is stored: a handler that throws after storing it still leaves it owed.
-    if (this.ownRecordsChangeDepth > 0 && !Helpers.isTwoValueEquals(this.value, newValue)) {
-      this.isOutsideAssignmentOwed = true;
+    // Always an assignment from outside, also when it runs inside one of the question's own.
+    const prev = this.isOwnAssignmentInForce;
+    this.isOwnAssignmentInForce = false;
+    try {
+      super.updateValueFromSurvey(newValue, clearData);
+    } finally {
+      this.isOwnAssignmentInForce = prev;
     }
-    super.updateValueFromSurvey(newValue, clearData);
   }
   /* The list side of an assignment is the begin/end pair below: every assignment of the value passes
      through here. The subclasses do their own work in two hooks - inside the list-side pair
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    const assignment = this.beginValueAssignment();
     // A copy: an array value is updated in place (Base.setArrayPropertyDirectly). A value that is not
     // an array is kept as it is - a keyed answer is never turned into one.
     const oldValue = this.getStoredRecords();
     const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
+    const assignment = this.beginValueAssignment(newValue, oldRecords);
     super.setQuestionValue(newValue, false);
     this.onRecordsValueStored();
     this.endValueAssignment(assignment, oldRecords);
@@ -1239,17 +1261,28 @@ export abstract class QuestionRecordsModel extends Question {
      a trigger, a default value or one of its own objects - passes through its setQuestionValue, which
      calls beginValueAssignment before it stores the value and endValueAssignment after. The list
      reads the records through the value, so it sees them at once, but the views it cached over them
-     it cannot: they are dropped. An assignment made outside the list also re-decides the membership:
-     the created indexes are taken before it and compared after it, and the objects are rebuilt when
-     it changed which records have one. An assignment the list itself is making is not a change from
-     outside: begin answers nothing for it and nothing is allocated. The list is not created for any
+     it cannot: they are dropped. Three kinds of assignment:
+     - The question's own (isAssigningOwnValue: the list's writes, the values its new objects write
+       back): the view keeps its membership. Records that appeared join it and records that are gone
+       leave it; no other record is decided again.
+     - One from outside while one of the question's own writes is open (isOwnWriteOpen): owed. It is
+       followed once that write has ended (followOwedAssignment), which decides the view again then.
+     - Any other one from outside decides the view again at once: the created indexes are taken
+       before it and compared after it, and the objects are rebuilt when it changed which records
+       have one.
+     Begin answers nothing for the first two and allocates nothing. The list is not created for any
      of this.
      The state is handed back in by setQuestionValue, never kept in a field: an assignment made from
      inside another one - a valueChangedCallback that writes through the list - runs both halves of
      its own in between. */
-  private beginValueAssignment(): IDynamicDataValueAssignment {
+  private beginValueAssignment(newValue: any, oldRecords: any): IDynamicDataValueAssignment {
+    if (this.isAssigningOwnValue) return undefined;
+    if (this.isOwnWriteOpen) {
+      this.oweOutsideAssignment(newValue, oldRecords);
+      return undefined;
+    }
     const list = this._dataList;
-    if (!list || list.isWriting) return undefined;
+    if (!list) return undefined;
     return { created: list.hasView ? list.getCreatedIndexes() : undefined };
   }
   /* oldRecords: the question's copy of the value it replaced. The new records are read here and not
@@ -1257,10 +1290,27 @@ export abstract class QuestionRecordsModel extends Question {
   private endValueAssignment(assignment: IDynamicDataValueAssignment, oldRecords: any): void {
     const list = this._dataList;
     if (!list) return;
+    if (!assignment) {
+      // A write of the list maintains the membership itself, record by record.
+      if (!list.isWriting) {
+        list.syncMembershipWithRecordCount();
+      }
+      this.syncPagingState();
+      return;
+    }
+    this.decideViewAgain(assignment.created, oldRecords);
+  }
+  /* The view is decided again over the records as they are now, and the objects follow: created and
+     oldRecords are what the view and the value were before the assignment (see
+     IDynamicDataValueAssignment). */
+  private decideViewAgain(created: Array<number>, oldRecords: any): void {
+    const list = this._dataList;
     list.invalidateViews();
     this.syncPagingState();
-    if (!assignment) return;
-    if (!!assignment.created && !Helpers.isTwoValueEquals(assignment.created, list.getCreatedIndexes())) {
+    const isMembershipChanged = created === null
+      ? list.hasView && this.isPageStale()
+      : !!created && !Helpers.isTwoValueEquals(created, list.getCreatedIndexes());
+    if (isMembershipChanged) {
       this.rebuildFromDataList(false);
     }
     if (!this.isPagedByList) return;
@@ -1325,13 +1375,16 @@ export abstract class QuestionRecordsModel extends Question {
      internal value change - suppresses part of the follow-up of an assignment: the count or the
      objects do not follow the value meanwhile. User code runs inside such a change (onValueChanged
      of the question's own write, onDynamicPanelRemoved), and an assignment it makes from outside -
-     survey.setValue, a bound question, a trigger - is stored but would not be followed. It is
-     followed once the last open change ends, also when the change throws: the assignment is the
-     last write and wins. The steps of the operation that come after the change see the count and
-     the objects of the assigned value; one that would write its own record into it checks
+     survey.setValue, a bound question, a trigger - is stored but would not be followed. A write of the
+     list is such a write too, also one the question makes outside a change of its own (the matrix's
+     add, remove and move): the list's views are its own until the write ends. The assignment is owed
+     when it is stored, and it is followed once, when the last open change and the outermost write of
+     the list have both ended - also when they end with an exception: the assignment is the last
+     write and wins. The steps of the operation that come after the change see the count and the
+     objects of the assigned value; one that would write its own record into it checks
      outsideAssignmentCount. */
   private ownRecordsChangeDepth: number = 0;
-  private isOutsideAssignmentOwed: boolean = false;
+  private owedAssignment: IDynamicDataValueAssignment = undefined;
   private outsideAssignmentCountValue: number = 0;
   protected get outsideAssignmentCount(): number {
     return this.outsideAssignmentCountValue;
@@ -1342,18 +1395,44 @@ export abstract class QuestionRecordsModel extends Question {
       return func();
     } finally {
       this.ownRecordsChangeDepth--;
-      if (this.ownRecordsChangeDepth === 0 && this.isOutsideAssignmentOwed) {
-        this.isOutsideAssignmentOwed = false;
-        this.outsideAssignmentCountValue++;
-        this.followOutsideAssignment();
+      if (this.ownRecordsChangeDepth === 0 && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
+        this.followOwedAssignment();
       }
     }
   }
-  /* What an assignment does after the list-side pair, run again with every suppression gone: the
-     count follows the stored value, and every object is refreshed from its record - the records it
-     showed before are unknown, so the changed-record shortcut cannot be used. */
-  protected followOutsideAssignment(): void {
+  private get isOwnWriteOpen(): boolean {
+    return this.ownRecordsChangeDepth > 0 || !!this._dataList && this._dataList.isWriteOpen;
+  }
+  /* Owed before the value is stored: a handler that throws after storing it still leaves it owed. The
+     view and the records before the first owed assignment are what the follow-up compares with. */
+  private oweOutsideAssignment(newValue: any, oldRecords: any): void {
+    if (!!this.owedAssignment || Helpers.isTwoValueEquals(this.getStoredRecords(), newValue)) return;
+    const list = this._dataList;
+    const canReadView = !!list && !list.isWriting;
+    this.owedAssignment = { created: !canReadView ? null : list.hasView ? list.getCreatedIndexes() : undefined, oldRecords: oldRecords };
+  }
+  // The outermost write of the list has ended (IDynamicDataOwner.onWriteEnded).
+  private onListWriteEnded(): void {
+    if (this.ownRecordsChangeDepth > 0 || !this.owedAssignment) return;
+    this.followOwedAssignment();
+  }
+  private followOwedAssignment(): void {
+    const owed = this.owedAssignment;
+    this.owedAssignment = undefined;
+    this.outsideAssignmentCountValue++;
+    this.followOutsideAssignment((): void => {
+      if (!!this._dataList) {
+        this.decideViewAgain(owed.created, owed.oldRecords);
+      }
+    });
+  }
+  /* What an assignment does around the list-side pair, run again with every suppression gone: the
+     count follows the stored value, the view is decided again (decideView), and every object is
+     refreshed from its record - the records it showed before are unknown, so the changed-record
+     shortcut cannot be used. */
+  protected followOutsideAssignment(decideView: () => void): void {
     this.onRecordsValueStored();
+    decideView();
     this.onRecordsValueAssigned(undefined);
   }
   /* An assignment from outside the objects - the survey, a trigger, a bound question - pushes the
@@ -1377,7 +1456,8 @@ export abstract class QuestionRecordsModel extends Question {
       if (!item) return;
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
       const newRecord = this.getItemRecordInValue(newRecords, recordIndex, item);
-      if (isEveryChanged || QuestionRecordsModel.isRecordChanged(this.getItemRecordInValue(oldRecords, recordIndex, item), newRecord)) {
+      if (isEveryChanged || newRecord === undefined && this.isItemWithoutRecordRefreshed() ||
+        QuestionRecordsModel.isRecordChanged(this.getItemRecordInValue(oldRecords, recordIndex, item), newRecord)) {
         item.updateFromRecord(newRecord);
       }
     }
@@ -1390,6 +1470,14 @@ export abstract class QuestionRecordsModel extends Question {
      matrix keys its answer by row name. */
   protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
     return Array.isArray(value) && recordIndex > -1 ? value[recordIndex] : undefined;
+  }
+  /* An object whose record the assigned value does not hold is refreshed by every assignment from
+     outside, although it had no record before either: one updateFromRecord(undefined) per such object.
+     The fixed matrix answers true - a row exists whether or not the answer holds its record, and a row
+     added at runtime runs its expressions only when it is refreshed. The dynamic questions answer
+     false: their objects without a record are padding. */
+  protected isItemWithoutRecordRefreshed(): boolean {
+    return false;
   }
   // The stored value, not the default: the records an assignment or a read replaces.
   protected getStoredRecords(): any {
@@ -1486,6 +1574,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.cancelPendingPageMove();
     this.currentRecordIndex = -1;
     this.pendingVisibleIndex = undefined;
+    this.owedAssignment = undefined;
     super.dispose();
     this.disposeRecordObjects();
     if (!!this._dataList) {

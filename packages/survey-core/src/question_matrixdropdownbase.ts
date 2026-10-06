@@ -611,7 +611,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const name = question.getValueName();
     const changedName = isComment ? name + Base.commentSuffix : name;
     const changingValue = this.data.onRowChanging(this, changedName, newValue);
-    if (!this.isTwoValueEquals(changingValue, question.value)) {
+    /* The row value leaves an empty question out, so an empty changing value is what the question
+       holds already: written back, it would replace the question's own empty value - a dynamic
+       panel's empty records - with nothing. */
+    const isEmptyAlready = !isComment && question.isEmpty() && Helpers.isValueEmpty(changingValue);
+    if (!isEmptyAlready && !this.isTwoValueEquals(changingValue, question.value)) {
       this.runSettingValue((): void => {
         if (isComment) {
           question.comment = changingValue;

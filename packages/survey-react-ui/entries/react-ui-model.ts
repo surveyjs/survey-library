@@ -104,8 +104,6 @@ export { SurveyQuestionMatrixDynamicDragDropIcon } from "../src/components/matri
 export { SurveyQuestionPanelDynamicProgressText } from "../src/components/paneldynamic-actions/paneldynamic-progress-text";
 export { QuestionErrorComponent } from "../src/components/question-error";
 export { SliderLabelItem } from "../src/components/slider/slider-label-item";
-// Prototype component for the #11873 showcase; the shipping paging UI replaces it.
-export { SurveyQuestionDynamicDataPager } from "../src/components/dynamic-data/pager";
 
 export { MatrixRow } from "../src/components/matrix/row";
 export { Skeleton } from "../src/components/skeleton";

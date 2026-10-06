@@ -23,6 +23,14 @@ import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-act
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
+// Prototype (#11873): the pager is the question's own pagerActions in an action bar - the core has no
+// renderer and no theme for it yet. Inset the way the matrix's bottom toolbar ("Add row") is; the
+// theme scopes those variables to a matrix, so a Dynamic Panel falls back to the plain 8px.
+const pagerStyle: React.CSSProperties = {
+  paddingInline: "var(--sd-matrixdynamic-toolbar-padding-inline, 0)",
+  paddingBlock: "var(--sd-matrixdynamic-toolbar-padding-block-start, 8px) var(--sd-matrixdynamic-toolbar-padding-block-end, 8px)"
+};
+
 class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
   protected get question() {
     return this.props.question;
@@ -247,7 +255,14 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     this.question.onRenderedTableResetCallback = () => { };
   }
   protected renderElement(): React.JSX.Element {
-    return this.renderTableDiv();
+    const pager = this.renderPager();
+    // Without a pager the markup is the table alone, as it has always been.
+    return !pager ? this.renderTableDiv() : <>{this.renderTableDiv()}{pager}</>;
+  }
+  // Both dropdown matrices page: the pager sits under the table while there is more than one page.
+  protected renderPager(): React.JSX.Element | null {
+    if (!this.question.showPager) return null;
+    return <div style={pagerStyle}><SurveyActionBar model={this.question.pagerActions}></SurveyActionBar></div>;
   }
   renderTableDiv(): React.JSX.Element {
     return (

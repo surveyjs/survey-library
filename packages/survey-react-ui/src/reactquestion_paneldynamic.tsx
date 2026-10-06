@@ -8,6 +8,14 @@ import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 
+// Prototype (#11873): the pager is the question's own pagerActions in an action bar - the core has no
+// renderer and no theme for it yet. Inset the way the matrix's bottom toolbar ("Add row") is; the
+// theme scopes those variables to a matrix, so a Dynamic Panel falls back to the plain 8px.
+const pagerStyle: React.CSSProperties = {
+  paddingInline: "var(--sd-matrixdynamic-toolbar-padding-inline, 0)",
+  paddingBlock: "var(--sd-matrixdynamic-toolbar-padding-block-start, 8px) var(--sd-matrixdynamic-toolbar-padding-block-end, 8px)"
+};
+
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
@@ -73,11 +81,12 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
 
-  /* Prototype (#11873). Paging applies to displayMode: "list" only - in carousel and tab mode
-     renderedPanels holds the one current panel and the question has a navigator of its own. */
+  /* Prototype (#11873): the question's own pagerActions in an action bar. Shown in displayMode: "list"
+     only - a carousel's navigator moves from page to page by itself, and tab mode keeps the prototype's
+     choice of no pager. The panel has no showPager of its own, so the condition stays here. */
   protected renderPager(): React.JSX.Element | null {
-    if (!(this.question.pageSize > 0) || !this.question.isRenderModeList) return null;
-    return ReactElementFactory.Instance.createElement("sv-dynamic-data-pager", { question: this.question });
+    if (!this.question.isRenderModeList || this.question.pageCount <= 1) return null;
+    return <div style={pagerStyle}><SurveyActionBar model={this.question.pagerActions}></SurveyActionBar></div>;
   }
 
   protected renderRange(): React.JSX.Element {

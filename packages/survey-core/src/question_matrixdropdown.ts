@@ -19,6 +19,7 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { settings } from "./settings";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
@@ -249,6 +250,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     });
     const names = virtualFields.map((field: IDynamicDataField): string => field.name);
     return super.getFields().filter((field: IDynamicDataField): boolean => names.indexOf(field.name) < 0).concat(virtualFields);
+  }
+  // A column getFields leaves out for a row field of the same name is not a filter field either: a
+  // filter by it would read the row, not the cell. The row fields themselves are not offered.
+  public getFilterFields(): Array<IDynamicDataFilterField> {
+    const rowFields = this.getFields().filter((field: IDynamicDataField): boolean => !!field.getValue)
+      .map((field: IDynamicDataField): string => field.name);
+    return super.getFilterFields().filter((field: IDynamicDataFilterField): boolean => rowFields.indexOf(field.valueName.split(".")[0]) < 0);
   }
   // internal: the rows items of the records, in record order.
   public getRecordItems(): Array<ItemValue> {

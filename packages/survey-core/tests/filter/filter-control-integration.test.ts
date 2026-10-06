@@ -433,6 +433,16 @@ describe("Filter control: the control filter entrance of the records questions",
     control.toggleItem("de");
     expect(matrix.visibleRows.length, "#5: clearing the item gives every row back").toBe(3);
   });
+  /* The fixed matrix answers item, rowName, rowValue and rowTitle from the row itself, and a column of
+     the same value name loses to them (see its getFields): a filter by it would read the row, not the
+     cell. Such a column is not offered as a field. */
+  test("a fixed matrix does not offer a column named like one of its row fields", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: [{ name: "item" }, { name: "rowTitle" }, { name: "price" }] },
+      { type: "filter", name: "f1", source: "m" }] });
+    const control = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect(control.getFilterFields().map((f: any) => f.name)).toEqual(["price"]);
+  });
   describe("a page move that waits for asynchronous validators", () => {
     const results: Array<(res: any) => void> = [];
     function asyncPageFunc(params: any): any {

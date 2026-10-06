@@ -35,8 +35,6 @@ export interface IDynamicDataPagingOwner {
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
-  // isRowCountKnown / isPanelCountKnown: false while the source answers without a total.
-  isCountKnown: boolean;
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
   // sortBy is computed from sortOrder and nothing raises its change on its own (see
@@ -48,8 +46,6 @@ export interface IDynamicDataPagingOwner {
   leavePage?(isForward: boolean, move: () => void): boolean;
   // Drops a move that waits for its validators: every change that replaces the page from code.
   cancelPendingPageMove?(): void;
-  // True while a move waits for the asynchronous validators of the page: the pager is not usable.
-  isPageMovePending?: boolean;
   // False when the records cannot be sorted: a header click then does nothing. Absent -> true.
   canSort?: boolean;
 }
@@ -157,8 +153,10 @@ export class DynamicDataPagingController {
     const size = this.owner.listPageSize;
     return size !== undefined ? size : this.owner.pageSize;
   }
+  // True while a move waits for the asynchronous validators of the page: the pager is not usable.
+  // The page validation keeps it in the owner's property hash.
   private get isPageMovePending(): boolean {
-    return this.owner.isPageMovePending === true;
+    return this.owner.getPropertyValue("isPageMovePending") === true;
   }
   private cancelPendingPageMove(): void {
     if (typeof this.owner.cancelPendingPageMove === "function")this.owner.cancelPendingPageMove();
@@ -414,7 +412,7 @@ export class DynamicDataPagingController {
       title: <any>new ComputedUpdater(() => {
         const page = this.owner.pageIndex + 1;
         const text = this.owner.getLocalizationFormatString("indexText", page, this.owner.pageCount);
-        return this.owner.isCountKnown ? text : String(page);
+        return this.isCountKnown ? text : String(page);
       }),
       enabled: false,
       disableTabStop: true

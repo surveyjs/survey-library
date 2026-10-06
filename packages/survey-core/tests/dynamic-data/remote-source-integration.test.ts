@@ -1745,6 +1745,248 @@ describe("Remote data source: limits, expressions and errors", () => {
   });
 });
 
+/* Tab mode keeps showing one record. The window of a source that pages itself is read again after a
+   remove, and a refresh may bring the records back in another order: the current panel follows its
+   record by key, and when the window does not hold it the first visible panel takes over. */
+describe("Remote data source: the current panel stays on its record", () => {
+  const currentValue = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
+  test("a panel removed in front of the current one: the refilled window shows the same record", async () => {
+    const source = new FakeServerSource(serverRecords(6));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    question.currentIndex = 2;
+    question.removePanel(0);
+    await flush();
+    expect(source.callsOf("pagedRead").length > 1, "#1: the window was read again").toBe(true);
+    expect(panelValues(question), "#2").toEqual(["v1", "v2", "v3"]);
+    expect(currentValue(question), "#3: the same record").toBe("v2");
+    expect(question.currentIndex, "#4").toBe(1);
+  });
+  test("the server reorders the window: the current panel follows its record", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    question.currentIndex = 7;
+    await flush();
+    expect(currentValue(question), "#1").toBe("v7");
+    source.moveRecordBehindTheGrid(7, 6);
+    question.refreshDataSource();
+    await flush();
+    expect(panelValues(question), "#2").toEqual(["v7", "v6", "v8"]);
+    expect(currentValue(question), "#3: the same record").toBe("v7");
+    expect(question.currentIndex, "#4").toBe(6);
+  });
+  test("records inserted in front of the window: the current panel follows its record or starts over", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    question.currentIndex = 7;
+    await flush();
+    source.records.splice(0, 0, { id: 100, col1: "w100" });
+    question.refreshDataSource();
+    await flush();
+    expect(panelValues(question), "#1").toEqual(["v5", "v6", "v7"]);
+    expect(currentValue(question), "#2: the same record").toBe("v7");
+    source.records.splice(0, 0, { id: 101, col1: "w101" }, { id: 102, col1: "w102" }, { id: 103, col1: "w103" });
+    question.refreshDataSource();
+    await flush();
+    expect(panelValues(question), "#3").toEqual(["v2", "v3", "v4"]);
+    expect(currentValue(question), "#4: not in the window - the first panel").toBe("v2");
+    expect(question.currentIndex, "#5").toBe(6);
+  });
+  test("a replaced source starts with its first panel", async () => {
+    const source = new FakeServerSource(serverRecords(6));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    question.currentIndex = 2;
+    question.dataSource = new FakeServerSource(serverRecords(6, 100));
+    await flush();
+    expect(panelValues(question), "#1").toEqual(["v100", "v101", "v102"]);
+    expect(currentValue(question), "#2").toBe("v100");
+    expect(question.currentIndex, "#3").toBe(0);
+  });
+});
+
+/* A move from code to a record on another page - currentIndex, carousel and tab Next - selects the
+   record once its page exists: at once for a page that is answered at once, when the read commits
+   for a page that is read, never when the read fails, the source is replaced or another move came
+   first. */
+describe("Remote data source: where a move from code to another page ends", () => {
+  // A source that answers at once; failFrom: the first skip it throws for, synchronously.
+  const createSyncSource = (count: number, failFrom?: number): IDynamicDataSource => {
+    const stored = serverRecords(count);
+    return {
+      capabilities: { paging: true, filtering: true, sorting: true }, keyField: "id",
+      read: (request: IDynamicDataReadRequest): IDynamicDataReadResult => {
+        if (failFrom !== undefined && request.skip >= failFrom) throw new Error("read failed");
+        return { records: stored.slice(request.skip, request.skip + request.take).map(r => Object.assign({}, r)), total: stored.length };
+      }
+    };
+  };
+  const currentValue = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
+  test("a source that answers at once: carousel Next selects the next record before it returns", async () => {
+    const { question } = await createPanel(<any>createSyncSource(9), { displayMode: "carousel", panelsPerPage: 3 });
+    question.currentIndex = 2;
+    expect(question.goToNextPanel(), "#1").toBe(true);
+    expect(question.pageIndex, "#2").toBe(1);
+    expect(question.currentIndex, "#3").toBe(3);
+    expect(currentValue(question), "#4").toBe("v3");
+  });
+  test("a source replaced while the read of the page a move goes to is pending: the page shows its first panel", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    source.auto = false;
+    question.currentIndex = 7;
+    expect(source.pending.length, "#1: the page is being read").toBe(1);
+    question.dataSource = new FakeServerSource(serverRecords(12, 100));
+    await flush();
+    source.settleAll();
+    await flush();
+    expect(panelValues(question), "#2: the new source is read at the page in force").toEqual(["v106", "v107", "v108"]);
+    expect(currentValue(question), "#3: no position of the old source is taken").toBe("v106");
+    expect(question.currentIndex, "#4").toBe(6);
+  });
+  /* currentIndex and Next clamp a position to the records first, so only a caller inside the
+     question reaches a page the list has to clamp. */
+  test("a position on a page the list clamps to the page in force is selected at once, and a later rebuild keeps it", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 5 });
+    question.goToPage(2);
+    await flush();
+    expect(panelValues(question), "#1").toEqual(["v10", "v11"]);
+    const reads = source.callsOf("pagedRead").length;
+    question["moveToVisibleIndex"](17);
+    expect(source.callsOf("pagedRead").length, "#2: the page in force is not read again").toBe(reads);
+    expect(currentValue(question), "#3: the last panel of the page").toBe("v11");
+    question.refreshDataSource();
+    await flush();
+    expect(currentValue(question), "#4: a refresh keeps it").toBe("v11");
+    expect(question.currentIndex, "#5").toBe(11);
+  });
+  ["tab", "carousel"].forEach((mode: string): void => {
+    test(mode + ": a read that throws at once: the page and the current panel stay, the error is reported once", async () => {
+      const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: mode, panelsPerPage: 3 });
+      const errors: Array<string> = [];
+      survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+      const start = mode === "tab" ? 0 : 2;
+      question.currentIndex = start;
+      const panel = question.currentPanel;
+      if (mode === "tab") {
+        question.currentIndex = 7;
+      } else {
+        question.goToNextPanel();
+      }
+      expect(question.pageIndex, "#1").toBe(0);
+      expect(question.currentIndex, "#2").toBe(start);
+      expect(question.currentPanel === panel, "#3: the same panel").toBe(true);
+      expect(errors, "#4").toEqual(["read"]);
+    });
+  });
+  test("a move made while a failed move is reported wins: the failed one selects nothing over it", async () => {
+    const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: "tab", panelsPerPage: 3 });
+    survey.onDynamicDataError.add(() => { question.currentIndex = 2; });
+    question.currentIndex = 7;
+    expect(question.pageIndex, "#1").toBe(0);
+    expect(question.currentIndex, "#2: the handler's panel").toBe(2);
+    expect(currentValue(question), "#3").toBe("v2");
+  });
+});
+
+/* What an added record does to the objects of a window: the objects in front of an appended one are
+   kept, an insert in front of objects builds them again. One insert reaches the source either way. */
+describe("Remote data source: the objects an added record keeps", () => {
+  test("matrix, a source that pages itself: an append keeps the rows, an insert builds them again", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createMatrix(source);
+    let before = question.visibleRows.slice();
+    question.addRow();
+    expect(rowValues(question).length, "#1").toBe(6);
+    expect(before.every((row, i) => question.visibleRows[i] === row), "#2: the rows are kept").toBe(true);
+    before = question.visibleRows.slice();
+    question.addRowByIndex({ col1: "new" }, 2);
+    expect(rowValues(question), "#3").toEqual(["v0", "v1", "new", "v2", "v3", "v4", undefined]);
+    expect(before.some(row => question.visibleRows.indexOf(row) > -1), "#4: the rows are built again").toBe(false);
+    await flush();
+    expect(source.callsOf("insert").length, "#5").toBe(2);
+    expect(source.callsOf("update").length + source.callsOf("move").length, "#6").toBe(0);
+  });
+  test("panel, a source that pages itself: an append keeps the panels, an insert builds them again", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source);
+    let before = question.panels.slice();
+    question.addPanel();
+    expect(question.panels.length, "#1").toBe(6);
+    expect(before.every((panel, i) => question.panels[i] === panel), "#2: the panels are kept").toBe(true);
+    before = question.panels.slice();
+    question.addPanel(1);
+    expect(panelValues(question), "#3").toEqual(["v0", undefined, "v1", "v2", "v3", "v4", undefined]);
+    expect(before.some(panel => question.panels.indexOf(panel) > -1), "#4: the panels are built again").toBe(false);
+    await flush();
+    expect(source.callsOf("insert").length, "#5").toBe(2);
+    expect(source.callsOf("update").length + source.callsOf("move").length, "#6").toBe(0);
+  });
+  test("panel: an appended panel leaves a panel the respondent collapsed collapsed", async () => {
+    const source = new FakeServerSource(serverRecords(3));
+    const { question } = await createPanel(source, { panelsPerPage: 0, templateTitle: "Item {panelIndex}" });
+    question.panels[1].collapse();
+    question.addPanel();
+    expect(question.panels.length, "#1").toBe(4);
+    expect(question.panels[1].isCollapsed, "#2").toBe(true);
+    expect(question.panels[0].isCollapsed, "#3").toBe(false);
+  });
+  test("matrix, a source the list pages: an added record rowsVisibleIf hides raises no onMatrixRowAdded", async () => {
+    const source = new FakeServerSource(serverRecords(6), ["insert", "update", "remove", "move"]);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 2, rowsVisibleIf: "{row.col1} notempty" });
+    question.visibleRows;
+    question.pageIndex = 1;
+    const added: Array<any> = [];
+    survey.onMatrixRowAdded.add((_, options) => { added.push(options.row); });
+    question.addRow();
+    expect(source.callsOf("insert").length, "#1").toBe(1);
+    expect(rowValues(question), "#2: the page stays").toEqual(["v2", "v3"]);
+    expect(added.length, "#3: no row, no event").toBe(0);
+  });
+  test("matrix, a source that pages itself: an appended record rowsVisibleIf hides gets no row and raises no onMatrixRowAdded", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { survey, question } = await createMatrix(source, { rowsVisibleIf: "{row.col1} <> 'hidden'", defaultRowValue: { col1: "hidden" } });
+    const before = question.visibleRows.slice();
+    const added: Array<any> = [];
+    survey.onMatrixRowAdded.add((_, options) => { added.push(options.row); });
+    question.addRow();
+    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert at the end of the window").toEqual([5]);
+    expect(question.visibleRows.length, "#2: no row for it").toBe(5);
+    expect(before.every((row, i) => question.visibleRows[i] === row), "#3: the rows are kept").toBe(true);
+    expect(added.length, "#4: and no event").toBe(0);
+  });
+
+  /* The insert does not build the rows; the rows-changed notification that follows every add reads
+     the rows, and that builds them for the window. */
+  test("matrix with rows never built: addRowByIndex inserts once, the rows are built for the window afterwards", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createMatrix(source);
+    expect(question["generatedVisibleRows"], "#1: no rows").toBeNull();
+    question.addRowByIndex({ col1: "new" }, 1);
+    const rows = question["generatedVisibleRows"];
+    expect(rows.map((row: any) => row.builtRecordIndex), "#2").toEqual([0, 1, 2, 3, 4, 5]);
+    expect(rowValues(question), "#3").toEqual(["v0", "new", "v1", "v2", "v3", "v4"]);
+    await flush();
+    expect(source.argsOf("insert").map(args => args[1]), "#4: one insert").toEqual([1]);
+  });
+  /* The remote add builds its record from defaultPanelValue only, not from the template questions'
+     default values, which the new panel then writes: a second call to the source. Kept as it is for
+     now. */
+  test("panel: a template default value reaches the source as an update after the insert", async () => {
+    const source = new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"]);
+    const { question } = await createPanel(source, {
+      panelsPerPage: 0, templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }]
+    });
+    question.panels;
+    source.reset();
+    question.addPanel();
+    await flush();
+    expect(source.calls.map(call => call.op), "#1").toEqual(["insert", "update"]);
+    expect(source.argsOf("insert")[0][0], "#2: the inserted record").toEqual({});
+    expect(source.argsOf("update")[0][2], "#3: the update writes the default").toEqual(["col1"]);
+    expect(question.value[3].col1, "#4").toBe("d");
+  });
+});
+
 describe("Remote data source: currentPanel and dispose", () => {
   test("currentPanel is the first panel of the new page after a page change", async () => {
     const source = new FakeServerSource(serverRecords(12));
@@ -3502,5 +3744,91 @@ describe("Remote data source: recovery from failed reads and throwing handlers",
     expect(unhandled.errors.map(e => e.message), "#3: the exception is not swallowed").toEqual(["follow-up"]);
     expect(source.callsOf("read").length, "#4: the later read ran").toBe(2);
     expect(question.isDynamicDataRunning, "#5").toBe(false);
+  });
+});
+
+/* A number a caller passes, the panel the new one lands next to and the record it goes in front of
+   are three coordinates. A record the view hides sits between two panels and has a record index of
+   its own, so the panel position of the target is not its record index. */
+describe("Remote data source: an added panel lands in front of the record a number names", () => {
+  const hideOneAndFour = "{panel.id} <> 1 and {panel.id} <> 4";
+  const insertAt = async (page: number, index: number): Promise<{ question: QuestionPanelDynamicModel, source: FakeServerSource, res: any, added: Array<any> }> => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { survey, question } = await createPanel(source, { panelsPerPage: 3, templateVisibleIf: hideOneAndFour, defaultPanelValue: { col1: "new" } });
+    if (page > 0) {
+      question.goToPage(page);
+      await flush();
+    }
+    const added: Array<any> = [];
+    survey.onDynamicPanelAdded.add((_, options) => { added.push(options.panel); });
+    source.reset();
+    const res = question.addPanel(index);
+    return { question: question, source: source, res: res, added: added };
+  };
+  test("page 0: a hidden record in front of the target does not move the insert to the end", async () => {
+    const { question, source, res, added } = await insertAt(0, 1);
+    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of id 2").toEqual([2]);
+    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v0", "v1", "new", "v2"]);
+    expect(panelValues(question), "#3: the page shows the new record between ids 0 and 2").toEqual(["v0", "new", "v2"]);
+    expect(res.getQuestionByName("col1").value, "#4: the returned panel holds the new record").toBe("new");
+    expect(added.length, "#5").toBe(1);
+    expect(added[0] === res, "#6: onDynamicPanelAdded gets the same panel").toBe(true);
+    await flush();
+    expect(source.callsOf("pagedRead").length, "#7: no page was re-read").toBe(0);
+  });
+  test("page 1: the number counts from the start of the whole view", async () => {
+    const { question, source, res, added } = await insertAt(1, 4);
+    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of id 5").toEqual([5]);
+    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v3", "v4", "new", "v5"]);
+    expect(panelValues(question), "#3").toEqual(["v3", "new", "v5"]);
+    expect(res.getQuestionByName("col1").value, "#4").toBe("new");
+    expect(added.length, "#5").toBe(1);
+    expect(added[0] === res, "#6").toBe(true);
+  });
+  test("a sorted source without paging: Add in tab mode inserts after the current panel", async () => {
+    const source = new FakeServerSource(serverRecords(5), ["insert", "update", "remove", "move"]);
+    const { survey, question } = await createPanel(source, { panelsPerPage: 0, displayMode: "tab", defaultPanelValue: { col1: "new" } });
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    expect(panelValues(question), "#1").toEqual(["v4", "v3", "v2", "v1", "v0"]);
+    question.currentIndex = 1;
+    const added: Array<any> = [];
+    survey.onDynamicPanelAdded.add((_, options) => { added.push(options.panel); });
+    source.reset();
+    const res = question.addPanel();
+    expect(source.argsOf("insert").map(args => args[1]), "#2: one insert, in front of the record of the next panel").toEqual([2]);
+    expect(question.value.map((r: any) => r.col1), "#3").toEqual(["v0", "v1", "new", "v2", "v3", "v4"]);
+    expect(panelValues(question), "#4: the new record stays where it was added").toEqual(["v4", "v3", "new", "v2", "v1", "v0"]);
+    expect(res.getQuestionByName("col1").value, "#5").toBe("new");
+    expect(question.currentPanel === res, "#6: the new panel is current").toBe(true);
+    expect(question.currentIndex, "#7").toBe(2);
+    expect(added.length, "#8").toBe(1);
+    expect(added[0] === res, "#9").toBe(true);
+  });
+  /* As the in-memory add: a record the page does not show gets no panel, the page and the current
+     panel stay, and nothing is announced. */
+  ["list", "tab"].forEach((mode: string): void => {
+    test(mode + ": a record templateVisibleIf hides gets no panel, appended or inserted", async () => {
+      const source = new FakeServerSource(serverRecords(12));
+      const { survey, question } = await createPanel(source, { displayMode: mode, panelsPerPage: 3,
+        templateVisibleIf: "{panel.col1} <> 'hidden'", defaultPanelValue: { col1: "hidden" } });
+      const added: Array<any> = [];
+      survey.onDynamicPanelAdded.add((_, options) => { added.push(options.panel); });
+      if (mode === "tab") {
+        // Add inserts after the current panel: the last one appends.
+        question.currentIndex = 2;
+      }
+      const before = question.panels.slice();
+      const current = question.currentPanel;
+      source.reset();
+      expect(question.addPanel() === null, "#1: appended, no panel").toBe(true);
+      expect(question.addPanel(1) === null, "#2: inserted, no panel").toBe(true);
+      await flush();
+      expect(source.argsOf("insert").map(args => args[1]), "#3: two inserts").toEqual([3, 1]);
+      expect(question.value.map((r: any) => r.col1), "#4").toEqual(["v0", "hidden", "v1", "v2", "hidden"]);
+      expect(question.panels.length === 3 && before.every((panel, i) => question.panels[i] === panel), "#5: the panels stay").toBe(true);
+      expect(added.length, "#6: nothing is announced").toBe(0);
+      expect(question.pageIndex, "#7").toBe(0);
+      expect(question.currentPanel === current, "#8: the current panel stays").toBe(true);
+    });
   });
 });

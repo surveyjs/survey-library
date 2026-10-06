@@ -1189,6 +1189,71 @@ describe("Page window: carousel, tab and design mode", () => {
   });
 });
 
+/* Carousel and tab mode keep showing one record across rebuilds of the page: an insert, a remove or
+   a move in front of it renumbers it, and the panel of that record stays current. */
+describe("Page window: the current panel stays on its record", () => {
+  const currentId = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("id").value;
+  ["tab", "carousel"].forEach((mode: string): void => {
+    test(mode + ": a panel removed in front of the current one", () => {
+      const question = createPanel({ displayMode: mode, panelsPerPage: 3 }, records(6));
+      question.currentIndex = 2;
+      expect(currentId(question), "#1").toBe(2);
+      question.removePanel(0);
+      expect(currentId(question), "#2: the same record").toBe(2);
+      expect(question.currentIndex, "#3: one position earlier").toBe(1);
+      expect(panelIds(question), "#4: the page was refilled").toEqual([1, 2, 3]);
+    });
+  });
+  test("tab: removing the current panel in the middle of a page selects the next one", () => {
+    const question = createPanel({ displayMode: "tab", panelsPerPage: 3 }, records(6));
+    question.currentIndex = 1;
+    question.removePanel(1);
+    expect(currentId(question), "#1: the next record").toBe(2);
+    expect(question.currentIndex, "#2").toBe(1);
+    expect(panelIds(question), "#3").toEqual([0, 2, 3]);
+  });
+  test("tab: removing the current panel at the end of a page selects the previous one", () => {
+    const question = createPanel({ displayMode: "tab", panelsPerPage: 3 }, records(6));
+    question.currentIndex = 2;
+    question.removePanel(2);
+    expect(currentId(question), "#1: the previous record").toBe(1);
+    expect(question.currentIndex, "#2").toBe(1);
+    expect(panelIds(question), "#3").toEqual([0, 1, 3]);
+  });
+  test("tab without paging: a sort assigned after a remove keeps the current record", () => {
+    const removeAndSort = (current: number, removed: number): QuestionPanelDynamicModel => {
+      const question = createPanel({ displayMode: "tab" }, records(5));
+      question.currentIndex = current;
+      question.removePanel(removed);
+      question.sortOrder = [{ field: "id", direction: "desc" }];
+      return question;
+    };
+    let question = removeAndSort(2, 2);
+    expect(currentId(question), "#1: the current panel removed, the next one took over").toBe(3);
+    expect(question.currentIndex, "#2").toBe(1);
+    question = removeAndSort(3, 0);
+    expect(currentId(question), "#3: a panel removed in front of the current one").toBe(3);
+    expect(question.currentIndex, "#4").toBe(1);
+  });
+  test("tab: a value assigned from outside keeps the current position, as without paging", () => {
+    const survey = createPanelSurvey({ displayMode: "tab", panelsPerPage: 3 }, records(6));
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    question.currentIndex = 2;
+    const value = records(6);
+    value.splice(1, 0, { id: 99, name: "new" });
+    survey.setValue("pd", value);
+    expect(panelIds(question), "#1").toEqual([0, 99, 1]);
+    expect(question.currentIndex, "#2: the position").toBe(2);
+    expect(currentId(question), "#3: and the record now at it").toBe(1);
+    const unpaged = createPanelSurvey({ displayMode: "tab" }, records(6));
+    const unpagedQuestion = <QuestionPanelDynamicModel>unpaged.getQuestionByName("pd");
+    unpagedQuestion.currentIndex = 2;
+    unpaged.setValue("pd", value);
+    expect(unpagedQuestion.currentIndex, "#4: without paging").toBe(2);
+    expect(unpagedQuestion.currentPanel.getQuestionByName("id").value, "#5").toBe(1);
+  });
+});
+
 describe("Page window: a data source that pages itself", () => {
   test("(r) navigation counts the visible records: the server total", async () => {
     const question = createPanel({ displayMode: "tab", panelsPerPage: 5, panelCount: 0 });
@@ -1770,6 +1835,61 @@ describe("Page window: an added record the view does not show", () => {
     expect(question.pageIndex, "#2").toBe(1);
     expect(question.currentIndex, "#3").toBe(3);
     expect(question.currentPanel.getQuestionByName("id").value, "#4").toBe(3);
+  });
+});
+
+/* What an added record does to the objects that exist: the objects in front of an appended one are
+   kept; an insert in front of objects moves them onto other records, and they are rebuilt. */
+describe("Page window: the objects an added record keeps", () => {
+  test("matrix: an added record rowsVisibleIf hides gets no row and raises no onMatrixRowAdded", () => {
+    const survey = createMatrixSurvey({ rowsPerPage: 2, rowsVisibleIf: "{row.name} notempty" }, records(6));
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
+    matrix.visibleRows;
+    matrix.pageIndex = 1;
+    const added: Array<any> = [];
+    survey.onMatrixRowAdded.add((_, options) => { added.push(options.row); });
+    matrix.addRow();
+    expect(matrix.rowCount, "#1").toBe(7);
+    expect(rowIds(matrix), "#2: the page stays").toEqual([2, 3]);
+    expect(added.length, "#3: no row, no event").toBe(0);
+  });
+  test("panel: an append on the page in force keeps the panels, their state and their questions", () => {
+    const survey = createPanelSurvey({ panelsPerPage: 5, templateTitle: "Item {panelIndex}", defaultPanelValue: { name: "new" },
+      templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }] },
+    [{ id: 0, name: "n0" }, { id: 1 }]);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    const before = question.panels.slice();
+    before[0].collapse();
+    before[1].validate(true);
+    expect(before[1].getQuestionByName("name").errors.length, "#0").toBe(1);
+    const created: Array<string> = [];
+    survey.onQuestionCreated.add((_, options) => { created.push(options.question.name); });
+    const added: Array<any> = [];
+    survey.onDynamicPanelAdded.add((_, options) => { added.push(options.panel); });
+    const res = question.addPanel();
+    expect(question.panels.length, "#1").toBe(3);
+    expect(before.every((panel, i) => question.panels[i] === panel), "#2: the panels in front are kept").toBe(true);
+    expect(before[0].isCollapsed, "#3: the collapsed panel stays collapsed").toBe(true);
+    expect(before[1].getQuestionByName("name").errors.length, "#4: the error stays shown").toBe(1);
+    expect(before.every(panel => !panel.isDisposed), "#5: no panel is disposed").toBe(true);
+    expect(created, "#6: only the new panel's questions are created").toEqual(["id", "name"]);
+    expect(added.length === 1 && added[0] === res, "#7: one onDynamicPanelAdded with the new panel").toBe(true);
+    expect(res.getQuestionByName("name").value, "#8: the returned panel holds the new record").toBe("new");
+    expect(question.panels[2] === res, "#9").toBe(true);
+    expect(question.renderedPanels.indexOf(res) > -1, "#10: it is rendered").toBe(true);
+  });
+  ["tab", "carousel"].forEach((mode: string): void => {
+    test(mode + ": an append on the page in force keeps the panels and selects the new one", () => {
+      const question = createPanel({ displayMode: mode, panelsPerPage: 5, defaultPanelValue: { name: "new" } }, records(2));
+      question.currentIndex = 1;
+      const before = question.panels.slice();
+      const res = question.addPanel();
+      expect(before.every((panel, i) => question.panels[i] === panel), "#1: the panels are kept").toBe(true);
+      expect(question.currentPanel === res, "#2: the new panel is current").toBe(true);
+      expect(question.currentIndex, "#3").toBe(2);
+      expect(res.getQuestionByName("name").value, "#4").toBe("new");
+      expect(question.renderedPanels.length === 1 && question.renderedPanels[0] === res, "#5: and rendered").toBe(true);
+    });
   });
 });
 

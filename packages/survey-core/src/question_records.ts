@@ -49,6 +49,15 @@ export interface IRecordItemWrite {
   ownerValue: any;
   isDeleting: boolean;
 }
+/* What a number, a panel or a row names: the record, its position in the whole view, its object when
+   it has one, and the record object a target without one is found again by. */
+export interface IRecordTarget {
+  recordIndex: number;
+  visibleIndex: number;
+  item?: QuestionRecordItem;
+  record?: any;
+  isNotLoaded?: boolean;
+}
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
    that does not say how to compare is "any": the local sort then compares the raw values. "string" is
    also what a question that does not know its value type reports (an expression, a select question
@@ -121,15 +130,12 @@ export abstract class QuestionRecordsModel extends Question {
       get listPageSize(): number { return question.listPageSize; },
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
-      get isCountKnown(): boolean { return question.paging.isCountKnown; },
       get isDesignMode(): boolean { return question.isDesignMode; },
       get isLoadingFromJson(): boolean { return question.isLoadingFromJson; },
       raiseSortByChanged: (oldValue: string, newValue: string): void => { question.raiseSortByChanged(oldValue, newValue); },
       leavePage: (isForward: boolean, move: () => void): boolean => question.leavePage(isForward, move),
       cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); },
-      get canSort(): boolean { return question.canSortRecords; },
-      // True while a page move waits for the asynchronous validators of the page it leaves.
-      get isPageMovePending(): boolean { return question.getPropertyValue("isPageMovePending", false); }
+      get canSort(): boolean { return question.canSortRecords; }
     };
   }
   // A peek: it never creates the list.
@@ -250,6 +256,8 @@ export abstract class QuestionRecordsModel extends Question {
         } else {
           this.remapBuiltItems(remap);
         }
+        // The current record follows its record, also on a move: it is a record, not a position.
+        this.remapCurrentRecord(remap);
       });
     /* A write the list pushed to a data source: with the array source over question.value the push
        IS the value write, a remote source has no such setter, so the question follows the window
@@ -297,29 +305,56 @@ export abstract class QuestionRecordsModel extends Question {
      (getReplacedRecordsRemap), so that an edited record is still validated wherever it is now. The
      objects are renumbered only by a question that keeps state under their records (the panel's
      remapKeptRecordIndexes): the rows a read replaces keep the records they were built for until the
-     rebuild disposes them. Replacing the source starts over (see setDataSource). */
+     rebuild disposes them. Replacing the source starts over (see setDataSource). The current record
+     follows every committed read (followReloadedCurrentRecord). The remap is built once per commit,
+     and only when something asks for it. */
   private followReloadedRecords(oldRecords: any): void {
+    const list = this._dataList;
+    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
+    let remap: (index: number) => number = undefined;
+    const getRemap = (): ((index: number) => number) => {
+      if (!remap) {
+        const newRecords = this.getStoredRecords();
+        remap = getReplacedRecordsRemap(oldArray, Array.isArray(newRecords) ? newRecords : [], list.keyField);
+      }
+      return remap;
+    };
+    this.followReloadedCurrentRecord(getRemap);
     if (!this.isPagedByList) {
       /* A page of a paging source replaced the whole storage the list paged - a paging source that
          cannot filter is read whole only while a filter is set. The edited set named records by
          their index in that storage, which names nothing on a page, and a paging source never
          validates the records of other pages ahead of their page: they are on the server. Kept, the
          set would be remapped from the page into the next whole storage and name the wrong records. */
-      if (!!this._pageValidation && this._dataList.isPagedBySource)this._pageValidation.clearEditedRecords();
+      if (!!this._pageValidation && list.isPagedBySource)this._pageValidation.clearEditedRecords();
       return;
     }
     const validation = this._pageValidation;
     const hasRecords = !!validation && validation.hasRecords;
     if (!hasRecords && !this.hasKeptRecordIndexes()) return;
-    const newRecords = this.getStoredRecords();
-    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
-    const newArray = Array.isArray(newRecords) ? newRecords : [];
-    const remap = getReplacedRecordsRemap(oldArray, newArray, this._dataList.keyField);
     if (hasRecords) {
+      const newRecords = this.getStoredRecords();
       validation.cancelPendingMove();
-      validation.onRecordsReplaced(oldArray, newArray, remap);
+      validation.onRecordsReplaced(oldArray, Array.isArray(newRecords) ? newRecords : [], getRemap());
     }
-    this.remapKeptRecordIndexes(remap);
+    this.remapKeptRecordIndexes(getRemap());
+  }
+  /* A committed read renumbers the current record by the records it brought back. A window of a
+     source that pages itself at another offset has no record in common with the old one when there
+     is no key to find it by. The first read of a replaced source names nothing of the old one. */
+  private followReloadedCurrentRecord(getRemap: () => ((index: number) => number)): void {
+    const list = this._dataList;
+    if (this.isCurrentRecordOfOldSource) {
+      this.isCurrentRecordOfOldSource = false;
+      this.currentRecordIndex = -1;
+    } else if (this.currentRecordIndex > -1) {
+      if (list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset) {
+        this.currentRecordIndex = -1;
+      } else {
+        this.remapCurrentRecord(getRemap());
+      }
+    }
+    this.currentRecordWindowOffset = list.windowOffset;
   }
   /* With the array source over question.value a record write reaches the survey, and the survey then
      re-runs the conditions of every question - which is what recalculates an expression, a {row.x} or
@@ -751,10 +786,58 @@ export abstract class QuestionRecordsModel extends Question {
      page belongs on it now: the page is refilled, as a data source's remove refill does. A
      remove that emptied the last page moved the page back, and that page change rebuilt it already.
      pageIndexBefore: the page index the list had before the remove. */
-  protected refillPageAfterRemove(pageIndexBefore: number): void {
+  private refillPageAfterRemove(pageIndexBefore: number): void {
     if (this.isPagedByList && this._dataList.pageIndex === pageIndexBefore) {
       this.rebuildFromDataList(false);
     }
+  }
+  /* A remove the question makes: the page the list cuts is read before it and refilled after it when
+     the page index did not change (refillPageAfterRemove). remove runs the list write and whatever
+     the question does between the page read and the refill; what it does after the refill stays
+     after the call. */
+  protected removeRecordAndRefill<T>(remove: () => T): T {
+    const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
+    const res = remove();
+    this.refillPageAfterRemove(pageIndex);
+    return res;
+  }
+  /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
+     a record index of the loaded window. In order:
+     1. Under in-memory paging the record is marked edited and the page that holds it is shown; a
+        page change rebuilds the objects. With select, the position of the record is kept for that
+        rebuild, which selects it. A record the view does not show (rowsVisibleIf / templateVisibleIf
+        hides it) has no page: the page stays.
+     2. When the page did not change, the objects follow by the record's object position: an object
+        already at that position - the objects are rebuilt (the record went in front of them); none
+        there and the one before exists, or position 0 - one object is appended
+        (appendItemForRecord); no position - nothing.
+     Objects that were never built (areObjectsBuilt() is false) are not created or rebuilt for the
+     record: only step 1 runs. Returns the record's item once that is done, undefined when it has
+     none; with select the question selects it, the position kept for a rebuild is gone by then. */
+  protected followInsertedRecord(recordIndex: number, select: boolean): QuestionRecordItem {
+    const list = this.dataList;
+    if (this.isPagedByList) {
+      this.markRecordEdited(recordIndex);
+      const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
+      if (visibleIndex > -1) {
+        if (select) {
+          this.keepPendingVisibleIndex(visibleIndex);
+        }
+        if (this.showPageOfVisibleIndex(visibleIndex)) return this.getItemByRecordIndex(recordIndex);
+      }
+    }
+    if (this.areObjectsBuilt()) {
+      const position = list.indexToMaterializedIndex(recordIndex);
+      if (position > -1 && !!this.getItem(position)) {
+        this.rebuildFromDataList(false);
+      } else if (position === 0 || position > 0 && !!this.getItem(position - 1)) {
+        this.appendItemForRecord(recordIndex);
+      }
+    }
+    if (select) {
+      this.takePendingVisibleIndex();
+    }
+    return this.getItemByRecordIndex(recordIndex);
   }
   /* The authored page size, 0 = no paging, stored under the property getPageSizePropertyName() names
      - the one the JSON and the property grid know (rowsPerPage, panelsPerPage). The question reads
@@ -864,6 +947,96 @@ export abstract class QuestionRecordsModel extends Question {
   protected isRecordNotLoaded(recordIndex: number): boolean {
     return recordIndex < 0 && !!this.dataListValue && this.dataListValue.isPagedBySource;
   }
+  /* Under paging, the record a whole-view number names (getRecordIndexAtVisibleIndex), with its
+     object when it has one. undefined: there is none. isNotLoaded: a source that pages itself holds
+     another window. A record without an object is captured as the question reads it
+     (getListRecordAt), to be found again later. Range checks against the question's count stay with
+     the caller. */
+  protected getRecordTargetAtVisibleIndex(visibleIndex: number): IRecordTarget {
+    const recordIndex = this.getRecordIndexAtVisibleIndex(visibleIndex);
+    if (recordIndex < 0) return this.isRecordNotLoaded(recordIndex) ? { recordIndex: -1, visibleIndex: visibleIndex, isNotLoaded: true } : undefined;
+    const item = this.getItemByRecordIndex(recordIndex);
+    if (!!item) return { recordIndex: recordIndex, visibleIndex: visibleIndex, item: item };
+    return { recordIndex: recordIndex, visibleIndex: visibleIndex, record: this.getListRecordAt(recordIndex) };
+  }
+  /* A target without an object, found again after the records or the view changed - a confirmation
+     answers later - by its record object. undefined when a write replaced the object or the record
+     left the view. */
+  protected findRecordTargetAgain(target: IRecordTarget): IRecordTarget {
+    const list = this.dataList;
+    const recordIndex = list.indexOfRecord(target.record);
+    const visibleIndex = recordIndex < 0 ? -1 : list.getGlobalVisibleIndex(recordIndex);
+    return visibleIndex < 0 ? undefined : { recordIndex: recordIndex, visibleIndex: visibleIndex, record: target.record };
+  }
+  /* The record a question that shows one record at a time keeps shown (the dynamic panel's current
+     panel), held across rebuilds. It names its record for as long as the record exists: every
+     insert, remove and move of the list renumbers it, and so does every read that commits again (by
+     key, or by content for a source without a key). A record that is gone - removed, not found
+     again, or in a window of a source that pages itself that moved and has no key to follow it by -
+     makes it -1. Replacing the source and disposing clear it. An assignment of the value from outside
+     does not renumber it: without paging the current panel keeps its position then, and the held
+     index names a storage position the same way. */
+  private currentRecordIndex: number = -1;
+  // The window offset of the source the index was taken in, or last renumbered for.
+  private currentRecordWindowOffset: number = 0;
+  // The source was replaced: the index names a record of the old one until the new one commits.
+  private isCurrentRecordOfOldSource: boolean = false;
+  protected setCurrentRecordIndex(recordIndex: number): void {
+    this.currentRecordIndex = recordIndex;
+    this.currentRecordWindowOffset = !!this._dataList ? this._dataList.windowOffset : 0;
+  }
+  // -1 when there is none, or when it is stale: the window moved since it was taken.
+  protected getCurrentRecordIndex(): number {
+    const list = this._dataList;
+    if (!!list && list.windowOffset !== this.currentRecordWindowOffset) return -1;
+    return this.currentRecordIndex;
+  }
+  private remapCurrentRecord(remap: (index: number) => number): void {
+    if (this.currentRecordIndex < 0) return;
+    const to = remap(this.currentRecordIndex);
+    this.currentRecordIndex = to === undefined ? -1 : to;
+  }
+  /* The visible position a move from code goes to while the objects of its page do not exist yet,
+     and the move it belongs to: a move made from inside another one - an event handler - supersedes
+     it. */
+  private pendingVisibleIndex: number = undefined;
+  private visibleMoveId: number = 0;
+  /* Shows the page that holds visibleIndex (the list's getPageOfVisibleIndex; a move from code, as
+     showPageOfVisibleIndex is). Returns true only when this move completed and the caller has to
+     select now: the page could not change (clamped to the page in force), or it changed without a
+     rebuild that took the position. Returns false in every other case, and the caller then selects
+     nothing: the rebuild of the new page took the position and selected itself; a read of the page
+     is pending and the rebuild of its commit takes the position (takePendingVisibleIndex); the read
+     failed, synchronously too - the page in force stays and the selection with it; the source was
+     replaced or the question disposed during the move; or a newer move started during this one. */
+  protected showVisibleIndex(visibleIndex: number): boolean {
+    const id = ++this.visibleMoveId;
+    this.pendingVisibleIndex = visibleIndex;
+    const list = this.dataList;
+    this.paging.pageIndex = list.getPageOfVisibleIndex(visibleIndex);
+    if (id !== this.visibleMoveId) return false;
+    // Taken by the rebuild, dropped by a failed read, a replaced source or dispose.
+    if (this.pendingVisibleIndex === undefined) return false;
+    if (list.hasPendingRead) return false;
+    this.pendingVisibleIndex = undefined;
+    return true;
+  }
+  /* The position is kept for the rebuild the caller runs next, on the same page or on the page a
+     move it makes itself shows (the dynamic panel's add, and its rebuild that follows the current
+     record to another page). A move that is under way is superseded. */
+  protected keepPendingVisibleIndex(visibleIndex: number): void {
+    this.visibleMoveId++;
+    this.pendingVisibleIndex = visibleIndex;
+  }
+  protected hasPendingVisibleIndex(): boolean {
+    return this.pendingVisibleIndex !== undefined;
+  }
+  // The position a pending move went to, once; undefined when there is none.
+  protected takePendingVisibleIndex(): number {
+    const res = this.pendingVisibleIndex;
+    this.pendingVisibleIndex = undefined;
+    return res;
+  }
   /* An operation a number asked for is refused: the record is on a page a source that pages itself
      has not loaded, and acting on any record the window does hold would act on the wrong one. It is
      reported the way a source error is (onDynamicDataError), under the operation it refused. */
@@ -878,11 +1051,17 @@ export abstract class QuestionRecordsModel extends Question {
   // the same source.
   protected setDataSource(val: IDynamicDataSource): void {
     const newValue = val || undefined;
-    // Another storage: the records layer 2 tracks and the states kept for them name records of the
-    // old one. Dropped before the swap, whose first read may commit inside it.
-    if (!!this._pageValidation && newValue !== (!!this._dataList ? this._dataList.assignedSource : undefined)) {
-      this._pageValidation.cancelPendingMove();
-      this._pageValidation.clearRecords();
+    /* Another storage: the records layer 2 tracks and the states kept for them name records of the
+       old one, and so do the current record and the position a move is going to. Dropped before the
+       swap, whose first read may commit inside it. */
+    if (newValue !== (!!this._dataList ? this._dataList.assignedSource : undefined)) {
+      if (!!this._pageValidation) {
+        this._pageValidation.cancelPendingMove();
+        this._pageValidation.clearRecords();
+      }
+      this.currentRecordIndex = -1;
+      this.isCurrentRecordOfOldSource = true;
+      this.pendingVisibleIndex = undefined;
     }
     const list = this.dataList;
     if (list.assignedSource === newValue) return;
@@ -915,11 +1094,13 @@ export abstract class QuestionRecordsModel extends Question {
   private restoreValueFromSurveyData(): void {
     this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
   }
-  // A rejected read leaves the short window and its focused item in place: the kept position goes.
+  /* A rejected read leaves the short window and its focused item in place: the kept position goes,
+     and so does the position a move went to - the current object stays the one of the window in
+     force. */
   private onSourceError(error: any, operation: DynamicDataOperation): void {
     if (operation === "read") {
       this.forgetFocusIndex();
-      this.onPageReadRejected();
+      this.pendingVisibleIndex = undefined;
     }
     if (!!this.survey) {
       this.survey.dynamicDataError(this, operation, error);
@@ -1224,6 +1405,8 @@ export abstract class QuestionRecordsModel extends Question {
      push that is still in flight cannot write into a question that is gone. */
   public dispose(): void {
     this.cancelPendingPageMove();
+    this.currentRecordIndex = -1;
+    this.pendingVisibleIndex = undefined;
     super.dispose();
     this.disposeRecordObjects();
     if (!!this._dataList) {
@@ -1360,14 +1543,18 @@ export abstract class QuestionRecordsModel extends Question {
   // After a write to a data source was stored, before the conditions run; not guarded against
   // re-entrancy. The default: nothing to prepare.
   protected prepareRemoteWrite(change: IDynamicDataListChange): void { }
-  // A read of a page was rejected: the window in force stays. The default: nothing was set aside for it.
-  protected onPageReadRejected(): void { }
-  /* Record indexes the question keeps besides its objects and the edited set: a read that commits
-     again renumbers them with its remap. The default: the question keeps none. */
+  /* Record indexes the question keeps besides its objects, the edited set and the current record: a
+     read that commits again renumbers them with its remap. The default: the question keeps none. */
   protected hasKeptRecordIndexes(): boolean {
     return false;
   }
   protected remapKeptRecordIndexes(remap: (index: number) => number): void { }
+  /* One object for the record at the end of the objects (followInsertedRecord): the objects before
+     it keep their state. The default rebuilds them, which is correct for a question without an
+     incremental path. */
+  protected appendItemForRecord(recordIndex: number): void {
+    this.rebuildFromDataList(false);
+  }
   /* sortBy is computed from sortOrder and nothing raises its change on its own (see
      DynamicDataPagingController.setSortOrderValue). Base.propertyValueChanged is protected, so the
      question raises it. */

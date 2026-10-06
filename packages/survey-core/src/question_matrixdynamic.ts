@@ -27,16 +27,12 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { QuestionRecordsValueGetterContext } from "./question_records";
+import { IRecordTarget, QuestionRecordsValueGetterContext } from "./question_records";
 import { DynamicDataOperation, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
-// What a removal acts on (QuestionMatrixDynamicModel.resolveRowTarget).
-interface IRowTarget {
-  row: MatrixDropdownRowModelBase;
-  recordIndex: number;
-  visibleIndex: number;
-  isNotLoaded?: boolean;
-  record?: any;
+// What a removal acts on (QuestionMatrixDynamicModel.resolveRowTarget): a row, or a record without one.
+interface IRowTarget extends IRecordTarget {
+  row?: MatrixDropdownRowModelBase;
 }
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -420,11 +416,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public addRowByIndex(rowData: any, toIndex: number):void {
     if (this.isRemoteData) {
       // One source.insert at the position the caller named; no count setter and no move.
+      const list = this.dataList;
+      let at: number;
       if (this.isPagedByList) {
-        this.addRecordPagedByList(rowData, this.getRecordIndexAtPagePosition(toIndex));
+        /* toIndex is a row position on the page; past the last row of the page it is the first
+           record of the next page - the rule the dynamic panel's add follows - and past the last
+           visible record, the end of the storage. */
+        const pageLength = list.getMaterializedIndexes().length;
+        at = list.getInsertIndexAtVisibleIndex(this.pageStartVisibleIndex + Math.max(0, Math.min(toIndex, pageLength)));
       } else {
-        this.addRecordRemote(rowData, toIndex);
+        // A position among the rows of the window.
+        at = list.getInsertIndexAtMaterializedPosition(toIndex);
       }
+      this.followInsertedRecord(list.add(rowData, at), false);
       this.onRowsChanged();
       return;
     }
@@ -458,9 +462,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         rows.splice(position, 1);
       }
       // One source.remove; question.value and rowCount follow through the recordRemoved notification.
-      const pageIndex = list.pageIndex;
-      list.remove(index);
-      this.refillPageAfterRemove(pageIndex);
+      this.removeRecordAndRefill((): void => { list.remove(index); });
       this.onRowsChanged();
       return;
     }
@@ -931,78 +933,24 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private addRowCoreRemote(): void {
     const defaultValue = this.getDefaultRowValue(true);
     const record = this.isValueEmpty(defaultValue) ? {} : defaultValue;
-    let newRow: MatrixDropdownRowModelBase = undefined;
-    if (this.isPagedByList) {
-      // Appended to the storage, as the local path appends to question.value.
-      newRow = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(this.addRecordPagedByList(record, this.dataList.loadedCount));
-    } else {
-      this.addRecordRemote(record, this.dataList.getMaterializedIndexes().length);
-    }
+    const list = this.dataList;
+    // Appended to the storage, as the local path appends to question.value; the rows follow the record.
+    const newRow = <MatrixDropdownRowModelBase>this.followInsertedRecord(list.add(record, list.loadedCount), false);
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
     }
-    const rows = this.generatedVisibleRows;
-    if (!newRow && Array.isArray(rows) && rows.length > 0) {
-      newRow = rows[rows.length - 1];
-    }
+    // A record the page does not hold has no row, and no event.
     if (this.survey && !!newRow) {
       this.matrixCallbacks.matrixRowAdded(this, newRow);
     }
     this.onRowsChanged();
   }
-  /* A source without paging, the list pages it: every record is in the window, so a new record goes where the
-     local path would put it - at the record index, which is a storage position - and the question
-     shows its page, as showPageOfAddedRecord does for question.value; that page change rebuilds the
-     rows. A record that lands on the page in force gets a row of its own when it is the last one on
-     it; inserted in front of other rows it moves them onto other records, so the page is rebuilt.
-     Returns the record index. */
-  private addRecordPagedByList(record: any, recordIndex: number): number {
-    const list = this.dataList;
-    const at = list.add(record, recordIndex);
-    const pageIndex = list.pageIndex;
-    this.showPageOfRecord(at);
-    const rows = this.generatedVisibleRows;
-    if (list.pageIndex !== pageIndex || !Array.isArray(rows)) return at;
-    const position = list.indexToMaterializedIndex(at);
-    if (position < 0) return at;
-    if (position < rows.length) {
-      this.rebuildFromDataList(false);
-      return at;
-    }
-    const newRow = this.createMatrixRow(list.getRecord(at));
-    newRow.builtRecordIndex = at;
-    rows.push(newRow);
-    this.onMatrixRowCreated(newRow);
-    return at;
-  }
-  /* The record a row position on the page inserts before; past the last row of the page, the first
-     record of the next page - the rule the dynamic panel's getInsertTarget follows - and past the
-     last visible record, the end of the storage. */
-  private getRecordIndexAtPagePosition(position: number): number {
-    const list = this.dataList;
-    const visible = list.getVisibleIndexes();
-    const pageLength = list.getMaterializedIndexes().length;
-    const visibleIndex = this.pageStartVisibleIndex + Math.max(0, Math.min(position, pageLength));
-    return visibleIndex < visible.length ? visible[visibleIndex] : list.loadedCount;
-  }
-  /* One record into the loaded window at a created position. A record appended to the window gets a
-     row of its own and the rows that exist keep their state; a record inserted in front of them
-     moves every row after it onto another record, so those are rebuilt - the same rebuild a page
-     change runs. */
-  private addRecordRemote(record: any, position: number): void {
-    const list = this.dataList;
-    // Positions of rows: the materialized set, which for a source that pages itself is the window.
-    const createdCount = list.getMaterializedIndexes().length;
-    const at = Math.max(0, Math.min(position, createdCount));
-    list.add(record, at < createdCount ? list.materializedIndexToIndex(at) : list.loadedCount);
-    if (at < createdCount) {
-      this.rebuildFromDataList(false);
-      return;
-    }
+  // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
+  protected appendItemForRecord(recordIndex: number): void {
     const rows = this.generatedVisibleRows;
     if (!Array.isArray(rows)) return;
-    const newRow = this.createMatrixRow(list.getRecord(list.materializedIndexToIndex(at)));
-    newRow.builtRecordIndex = list.materializedIndexToIndex(at);
+    const newRow = this.createMatrixRow(this.dataList.getRecord(recordIndex));
+    newRow.builtRecordIndex = recordIndex;
     rows.push(newRow);
     this.onMatrixRowCreated(newRow);
   }
@@ -1036,8 +984,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.survey) {
       const rows = this.allRows;
       if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
-        const row = rows[rows.length - 1];
-        this.matrixCallbacks.matrixRowAdded(this, row);
+        // Under paging the page may not hold the new record (rowsVisibleIf hides it): no row, no event.
+        const row = this.isPagingActive ? this.getItemByRecordIndex(this.getLastRowRecordIndex()) : rows[rows.length - 1];
+        if (!!row) {
+          this.matrixCallbacks.matrixRowAdded(this, <MatrixDropdownRowModelBase>row);
+        }
         this.onRowsChanged();
       }
     }
@@ -1154,10 +1105,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const row = !!rows && index < rows.length ? rows[index] : null;
       return !row ? undefined : { row: row, recordIndex: this.getRecordIndexOf(row), visibleIndex: index };
     }
-    const recordIndex = this.getRecordIndexAtVisibleIndex(index);
-    if (recordIndex < 0) return this.isRecordNotLoaded(recordIndex) ? { row: null, recordIndex: -1, visibleIndex: index, isNotLoaded: true } : undefined;
-    const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(recordIndex);
-    return { row: row || null, recordIndex: recordIndex, visibleIndex: index, record: !row ? this.getListRecordAt(recordIndex) : undefined };
+    const target = this.getRecordTargetAtVisibleIndex(index);
+    return !target || !target.item ? target : { row: <MatrixDropdownRowModelBase>target.item, recordIndex: target.recordIndex, visibleIndex: index };
   }
   /* A confirmation answers later: by then the page, the sort or the records may have changed. A row
      still names its record - the remap layer keeps it in step - and a row that is gone names none. A
@@ -1169,14 +1118,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const pos = this.visibleRows.indexOf(target.row);
       return pos < 0 ? undefined : { row: target.row, recordIndex: this.getRecordIndexOf(target.row), visibleIndex: this.pageStartVisibleIndex + pos };
     }
-    const list = this.dataList;
-    for (let i = 0; i < list.loadedCount; i++) {
-      if (list.getRecord(i) === target.record) {
-        const visibleIndex = list.getGlobalVisibleIndex(i);
-        return visibleIndex < 0 ? undefined : { row: null, recordIndex: i, visibleIndex: visibleIndex, record: target.record };
-      }
-    }
-    return undefined;
+    return this.findRecordTargetAgain(target);
   }
   /**
    * Removes a matrix row with a specified index.
@@ -1235,32 +1177,32 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // index is a created position; the record the row holds is what leaves the storage.
     const recordIndex = !!row ? this.dataList.materializedIndexToIndex(index) : target.recordIndex;
     const viewIndex = this.getRecordViewIndex(recordIndex);
-    const pageIndex = this.dataList.pageIndex;
     if (index > -1) {
       rows.splice(index, 1);
     }
-    /* A record beyond question.value is padding: a row that was added and never filled, or every row
-       of a matrix with no value. There is nothing to write, and the list cannot remove it either -
-       the padded window has just lost it together with rowCount. The list learns the new count
-       instead, or a page index left past the last page would show an empty page. */
-    const val = this.value;
-    const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
-    this.rowCountValue--;
-    if (isPaddingRecord) {
-      this.syncDataListRecordCount();
-    } else if (this.value) {
-      this.writeRecords((): void => {
-        if (this.isEditingObjectValue) {
-          // The live array is spliced in place: that is what removes the row from the edited object.
-          const val = this.createValueCopy();
-          val.splice(index, 1);
-          this.value = val;
-        } else if (recordIndex > -1) {
-          this.dataList.remove(recordIndex);
-        }
-      });
-    }
-    this.refillPageAfterRemove(pageIndex);
+    this.removeRecordAndRefill((): void => {
+      /* A record beyond question.value is padding: a row that was added and never filled, or every
+         row of a matrix with no value. There is nothing to write, and the list cannot remove it
+         either - the padded window has just lost it together with rowCount. The list learns the new
+         count instead, or a page index left past the last page would show an empty page. */
+      const val = this.value;
+      const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
+      this.rowCountValue--;
+      if (isPaddingRecord) {
+        this.syncDataListRecordCount();
+      } else if (this.value) {
+        this.writeRecords((): void => {
+          if (this.isEditingObjectValue) {
+            // The live array is spliced in place: that is what removes the row from the edited object.
+            const val = this.createValueCopy();
+            val.splice(index, 1);
+            this.value = val;
+          } else if (recordIndex > -1) {
+            this.dataList.remove(recordIndex);
+          }
+        });
+      }
+    });
     this.onRowsChanged();
     if (this.survey && !!row) {
       this.matrixCallbacks.matrixRowRemoved(this, viewIndex, row);

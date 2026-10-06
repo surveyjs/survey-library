@@ -50,7 +50,6 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public get pageIndex(): number { return this.paging.pageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
   public get pageCount(): number { return this.paging.pageCount; }
-  public get isCountKnown(): boolean { return this.paging.isCountKnown; }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
   }

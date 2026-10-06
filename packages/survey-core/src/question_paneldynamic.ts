@@ -40,7 +40,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior
+  QuestionRecordsSingleInputBehavior, IRecordTarget
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -104,13 +104,9 @@ export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterCo
   }
 }
 
-// What a removal acts on (QuestionPanelDynamicModel.resolvePanelTarget).
-interface IPanelTarget {
-  panel: PanelModel;
-  recordIndex: number;
-  visibleIndex: number;
-  isNotLoaded?: boolean;
-  record?: any;
+// What a removal acts on (QuestionPanelDynamicModel.resolvePanelTarget): a panel, or a record without one.
+interface IPanelTarget extends IRecordTarget {
+  panel?: PanelModel;
 }
 interface IPanelDynamicTabbedMenuItem extends IAction {
   panelId: string;
@@ -327,10 +323,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
   }
   getItemVisibleIndex(item: ISurveyData): number {
-    if (item instanceof QuestionPanelDynamicItem) {
-      const pos = this.visiblePanelsCore.indexOf(item.panel);
-      return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
-    }
+    if (item instanceof QuestionPanelDynamicItem) return this.getPanelVisibleIndex(item.panel);
     return this.getRecordItemVisibleIndex(item);
   }
   getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
@@ -382,19 +375,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public refreshDataSource(): void | Promise<void> {
     return this.refreshSource();
   }
-  /* QuestionRecordsModel hook: what a read that commits again renumbers besides the edited set.
-     Carousel and tab mode keep showing the current record across a rebuild, and the paged questions
-     nested in the panels keep their states under the panels' records. */
+  /* QuestionRecordsModel hook: what a read that commits again renumbers besides the edited set and
+     the current record: the paged questions nested in the panels keep their states under the panels'
+     records. */
   protected hasKeptRecordIndexes(): boolean {
-    return !this.isRenderModeList && this.currentPanelRecordIndex > -1 || this.hasNestedPagedQuestions(this.panelsCore);
+    return this.hasNestedPagedQuestions(this.panelsCore);
   }
   // The panels' own record indexes move before the rebuild, which keeps the nested states under them.
   protected remapKeptRecordIndexes(remap: (index: number) => number): void {
     this.remapBuiltItems(remap);
-    if (!this.isRenderModeList && this.currentPanelRecordIndex > -1) {
-      const to = remap(this.currentPanelRecordIndex);
-      this.currentPanelRecordIndex = to === undefined ? -1 : to;
-    }
   }
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
@@ -406,10 +395,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
-  }
-  // The record a page move went to is not read: the current panel stays the one of the window in force.
-  protected onPageReadRejected(): void {
-    this.pendingCurrentVisibleIndex = undefined;
   }
   protected runRemoteWriteConditions(): void {
     this.reRunCondition();
@@ -512,14 +497,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!this.isWritingRecords) {
       this.disposeLeftPanels(this._renderedPanels);
     }
-    const currentRecord = isPageMove ? -1 : this.getCurrentPanelRecordIndex();
+    const currentRecord = isPageMove || !this.getPropertyValue("currentPanel", null) ? -1 : this.getCurrentRecordIndex();
     /* Carousel and tab mode show one record: a rebuild that is not a page move - records replaced, a
        record hidden or shown ahead of it, a sort - keeps showing it, on whatever page it is now. */
-    if (currentRecord > -1 && this.pendingCurrentVisibleIndex === undefined && !this.isRenderModeList && this.isPagedByList) {
+    if (currentRecord > -1 && !this.hasPendingVisibleIndex() && !this.isRenderModeList && this.isPagedByList) {
       const visibleIndex = list.getVisibleIndexes().indexOf(currentRecord);
       // Its pageChanged notification rebuilds the page that holds the record.
       if (visibleIndex > -1 && this.showPageOfVisibleIndex(visibleIndex,
-        (): void => { this.pendingCurrentVisibleIndex = visibleIndex; })) return;
+        (): void => { this.keepPendingVisibleIndex(visibleIndex); })) return;
     }
     const count = list.getMaterializedIndexes().length;
     const oldPanels = [].concat(this.panelsCore);
@@ -591,44 +576,27 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     delete this.removePanelActions[panel.uniqueId];
     panel.dispose();
   }
-  /* The record of the current panel, remembered when the panel is chosen: by the time the view has
-     been re-decided the old mapping is gone, so it cannot be looked up then. */
-  private currentPanelRecordIndex: number = -1;
-  /* A record index is window-relative, so it only names the same record while the window does not
-     move: index 1 of page 3 is another record than index 1 of page 2. The offset the index was taken
-     against is remembered with it, and a reset that committed another one starts from the first
-     visible panel. There is no stable record identity (a key) in this step, so a remote re-sort is
-     the same case as a page change. */
-  private currentPanelWindowOffset: number = 0;
-  private getCurrentPanelRecordIndex(): number {
-    if (!this.getPropertyValue("currentPanel", null)) return -1;
-    // The offset is compared here and not when the panel is restored: by then the panels have been
-    // spliced away, and losing one takes the current panel - and with it the offset it was
-    // remembered against - with it.
-    if (this.isRemoteData && this.currentPanelWindowOffset !== this.dataList.windowOffset) return -1;
-    return this.currentPanelRecordIndex;
-  }
-  /* The current panel follows its record; when that record left the view the first visible panel
-     takes over. A move that crossed a page (Next on the last panel of a page, a currentIndex on
-     another page, a Next that read the next window of a data source) names the visibleIndex it went
-     to instead; it is taken once, on the rebuild of the page that holds it. */
+  /* The current panel follows its record (QuestionRecordsModel keeps it renumbered); when that
+     record left the view the first visible panel takes over. A move that crossed a page (Next on the
+     last panel of a page, a currentIndex on another page, a Next that read the next window of a data
+     source) names the visibleIndex it went to instead; it is taken once, on the rebuild of the page
+     that holds it. */
   private restoreCurrentPanelByRecord(recordIndex: number): void {
-    const pending = this.pendingCurrentVisibleIndex;
-    this.pendingCurrentVisibleIndex = undefined;
+    this.restoreCurrentPanel(this.takePendingVisibleIndex(), recordIndex);
+  }
+  // visibleIndex: where a move went, clamped to the page; undefined: the panel of recordIndex.
+  private restoreCurrentPanel(visibleIndex: number, recordIndex: number): void {
     if (this.isRenderModeList || this.useTemplatePanel) return;
-    const visPanels = this.visiblePanelsCore;
     let panel: PanelModel = undefined;
-    if (pending !== undefined) {
-      const pos = Math.max(0, Math.min(pending - this.pageStartVisibleIndex, visPanels.length - 1));
-      panel = visPanels[pos];
+    if (visibleIndex !== undefined) {
+      panel = this.getVisiblePanelAt(visibleIndex);
     } else {
       const position = recordIndex < 0 ? -1 : this.dataList.indexToMaterializedIndex(recordIndex);
       panel = position > -1 ? this.panelsCore[position] : undefined;
     }
     this.setPropertyValue("currentPanel", null);
-    this.currentPanel = !!panel && panel.visible ? panel : visPanels[0];
+    this.currentPanel = !!panel && panel.visible ? panel : this.visiblePanelsCore[0];
   }
-  private pendingCurrentVisibleIndex: number;
   /* The state a paged question keeps for its records outlives its panels (see
      IDynamicDataPageState): before the panels are disposed, the state of every paged question nested
      in them is kept under the record the panel was built for, and it is handed back to the question
@@ -929,8 +897,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
     if (this.useTemplatePanel) return 0;
-    const pos = this.visiblePanelsCore.indexOf(this.currentPanel);
-    return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
+    return this.getPanelVisibleIndex(this.currentPanel);
   }
   /* A move from code: clamped by the visible record count, it moves to the page that holds the
      position and then selects the panel on it. It does not validate, and a move that waits for its
@@ -944,22 +911,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* Selects the panel at a visibleIndex: on the page when it is there, otherwise through a page move
      whose rebuild selects it (restoreCurrentPanelByRecord). A data source that pages itself selects
-     it when the read of that page commits. */
+     it when the read of that page commits; a page that could not change selects at once. */
   private moveToVisibleIndex(visibleIndex: number): void {
-    const list = this.dataListValue;
-    const pageSize = !!list && this.isPagingActive ? list.pageSize : 0;
-    const pos = visibleIndex - this.pageStartVisibleIndex;
-    const visPanels = this.visiblePanelsCore;
-    if (pageSize <= 0 || pos >= 0 && pos < visPanels.length) {
-      this.currentPanel = visPanels[Math.max(0, Math.min(pos, visPanels.length - 1))];
+    const panel = this.getVisiblePanelAt(visibleIndex);
+    if (!this.isPagingActive || !!panel && this.getPanelVisibleIndex(panel) === visibleIndex) {
+      this.currentPanel = panel;
       return;
     }
-    this.pendingCurrentVisibleIndex = visibleIndex;
-    this.paging.pageIndex = Math.floor(visibleIndex / pageSize);
-    // The page did not move - clamped to the page in force - so no rebuild takes the position. A
-    // page change the source answers takes it when the read of the page commits.
-    if (this.pendingCurrentVisibleIndex !== undefined && !list.readsSourceOnViewChange) {
-      this.restoreCurrentPanelByRecord(-1);
+    if (this.showVisibleIndex(visibleIndex)) {
+      this.restoreCurrentPanel(visibleIndex, -1);
     }
   }
   /**
@@ -985,8 +945,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public set currentPanel(val: PanelModel) {
     if (this.isRenderModeList || this.useTemplatePanel) return;
     const curPanel = this.getPropertyValue("currentPanel");
-    const index = !!val ? this.visiblePanelsCore.indexOf(val) : -1;
-    if (!!val && index < 0 || val === curPanel) return;
+    const visibleIndex = !!val ? this.getPanelVisibleIndex(val) : -1;
+    if (!!val && visibleIndex < 0 || val === curPanel) return;
     if (curPanel) {
       curPanel.onHidingContent();
     }
@@ -997,22 +957,30 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     /* The id is what the tab actions compute "active" from: two panels with the same values are equal
        for setPropertyValue, so a change of currentPanel between them raises nothing. */
     this.setPropertyValue("currentPanelId", !!val ? val.id : "");
-    this.currentPanelRecordIndex = !val ? -1 : this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(val));
-    this.currentPanelWindowOffset = !!this.dataListValue ? this.dataListValue.windowOffset : 0;
+    this.setCurrentRecordIndex(!val ? -1 : this.getPanelRecordIndex(val));
     if (!!val) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
-      this.currentVisibleIndexValue = this.pageStartVisibleIndex + index;
+      this.currentVisibleIndexValue = visibleIndex;
     }
     this.updateRenderedPanels();
     this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
-    if (index > -1 && this.survey) {
+    if (visibleIndex > -1 && this.survey) {
       const options = {
         panel: val,
-        visiblePanelIndex: this.pageStartVisibleIndex + index
+        visiblePanelIndex: visibleIndex
       };
       this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, options);
     }
+  }
+  /* The record a panel holds. Under a view it is the record the panel was built for, which
+     remapBuiltItems keeps current: a panel selected while another one is spliced out - before the
+     list knows about the remove - would name the removed record by its position. Without a view,
+     and for a panel built before its record exists, the position names it. */
+  private getPanelRecordIndex(panel: PanelModel): number {
+    const item = <QuestionPanelDynamicItem>panel.data;
+    if (this.hasDataListView && item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) return item.builtRecordIndex;
+    return this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(panel));
   }
   protected getUIState(): any {
     let result = super.getUIState();
@@ -1086,9 +1054,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const leavingPanel = this.renderedPanels.filter(el => el !== this.currentPanel)[0];
       // A panel that is still on the page answers for itself; one a page move took away is the one
       // the current panel replaced; one that was removed is neither.
-      const leavingPos = this.visiblePanels.indexOf(leavingPanel);
-      const isRemoving = leavingPos < 0 && (!leavingPanel || leavingPanel === this.removedPanel || this.leftVisibleIndex < 0);
-      let leavingPanelIndex = leavingPos > -1 ? this.pageStartVisibleIndex + leavingPos : this.leftVisibleIndex;
+      const leavingIndex = this.getPanelVisibleIndex(leavingPanel);
+      const isRemoving = leavingIndex < 0 && (!leavingPanel || leavingPanel === this.removedPanel || this.leftVisibleIndex < 0);
+      let leavingPanelIndex = leavingIndex > -1 ? leavingIndex : this.leftVisibleIndex;
       if (isRemoving) {
         leavingPanelIndex = this.removedPanelIndex;
       }
@@ -1485,14 +1453,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get visiblePanelCount(): number {
     const panels = this.visiblePanels;
     const list = this.dataListValue;
-    // A source without paging is counted like question.value: its hidden and filtered records are in memory.
-    if (!!list && list.isPagedBySource) return list.knownCount;
-    return this.isPagingActive ? list.visibleCount : panels.length;
+    /* Without paging the panels are the count: they exist before the list does. A source that pages
+       itself is counted by the list even without a page size: its window may hold hidden records. */
+    if (!list || !this.isPagingActive && !list.isPagedBySource) return panels.length;
+    return list.globalVisibleCount;
   }
   // Next is available on the last record the list knows of while the source says there are more.
   private get hasRecordBeyondKnown(): boolean {
     const list = this.dataListValue;
-    return this.isRemoteData && !!list && !list.isCountKnown && list.hasMore;
+    return !!list && list.hasRecordBeyondKnown;
   }
   private get canGoToNextRecord(): boolean {
     const index = this.currentIndex;
@@ -1542,18 +1511,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private setPanelsState() {
-    if (this.useTemplatePanel || this.displayMode != "list" || !this.templateTitle)
-      return;
     for (var i = 0; i < this.panelsCore.length; i++) {
-      var state = this.panelsState;
-      if (state === "firstExpanded") {
-        state = i === 0 ? "expanded" : "collapsed";
-      }
-      if (state === "expanded") {
-        this.panelsCore[i].expand(false);
-      } else {
-        this.panelsCore[i].state = state;
-      }
+      this.setPanelState(this.panelsCore[i], i);
+    }
+  }
+  // index: the panel's position in panelsCore.
+  private setPanelState(panel: PanelModel, index: number): void {
+    if (this.useTemplatePanel || this.displayMode != "list" || !this.templateTitle) return;
+    let state = this.panelsState;
+    if (state === "firstExpanded") {
+      state = index === 0 ? "expanded" : "collapsed";
+    }
+    if (state === "expanded") {
+      panel.expand(false);
+    } else {
+      panel.state = state;
     }
   }
   private setValueBasedOnPanelCount() {
@@ -2185,61 +2157,74 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private getInsertTarget(index: number): { at: number, visibleIndex: number, prevIndex: number } {
     const list = this.dataList;
     const visible = list.getVisibleIndexes();
-    const append = { at: list.count, visibleIndex: visible.length, prevIndex: visible.length > 0 ? visible[visible.length - 1] : -1 };
-    let visibleIndex: number;
+    let visibleIndex = visible.length;
     if (index === undefined) {
       const curIndex = this.currentIndex;
-      if (curIndex < 0) return append;
-      visibleIndex = curIndex + 1;
-    } else {
-      if (index < 0) return append;
+      if (curIndex > -1) visibleIndex = curIndex + 1;
+    } else if (index > -1) {
       visibleIndex = index;
     }
-    if (visibleIndex >= visible.length) return append;
-    return { at: visible[visibleIndex], visibleIndex: visibleIndex, prevIndex: visibleIndex > 0 ? visible[visibleIndex - 1] : -1 };
+    visibleIndex = Math.min(visibleIndex, visible.length);
+    return { at: list.getInsertIndexAtVisibleIndex(visibleIndex), visibleIndex: visibleIndex, prevIndex: visibleIndex > 0 ? visible[visibleIndex - 1] : -1 };
   }
   private addPanelCore(index: number): PanelModel {
     if (this.isPagedByList) return this.addPanelInPage(index);
     const curIndex = this.currentIndex;
     // A page-local position: the current panel's position in panelsCore.
     const curPos = curIndex < 0 ? -1 : curIndex - this.pageStartVisibleIndex;
-    /* Every index here is a created position - a position in panelsCore. With a data source that
-       pages, the panels exist for the loaded window only, so the positions end with it and not with
-       the server total that panelCount reports. */
+    /* position is a created position - a position in panelsCore. With a data source that pages, the
+       panels exist for the loaded window only, so the positions end with it and not with the server
+       total that panelCount reports. recordIndex is the record of the window the new one goes in
+       front of, loadedCount at the end of it. */
     const maxIndex = this.isRemoteData ? this.dataList.getMaterializedIndexes().length : this.panelCount;
+    let position = index;
+    let recordIndex = -1;
     if (index === undefined) {
-      index = curPos < 0 ? maxIndex : curPos + 1;
+      position = curPos < 0 ? maxIndex : curPos + 1;
     } else if (index > -1 && this.isPagingActive) {
       // A source that pages itself: a position in the whole view, inside the loaded window or refused.
-      const at = index - this.pageStartVisibleIndex;
-      if (index < this.visiblePanelCount && (at < 0 || at > maxIndex)) {
+      recordIndex = this.dataList.getInsertIndexAtVisibleIndex(index);
+      if (recordIndex < 0) {
         this.reportRecordNotLoaded("insert");
         return null;
       }
-      index = at;
+      position = index - this.pageStartVisibleIndex;
     }
-    if (index < 0 || index > maxIndex) {
-      index = maxIndex;
+    if (position < 0 || position > maxIndex) {
+      position = maxIndex;
     }
     if (this.isRemoteData) {
-      this.addPanelRemote(curPos < 0 ? maxIndex - 1 : curPos, index);
+      const list = this.dataList;
+      if (recordIndex < 0) {
+        recordIndex = list.getInsertIndexAtMaterializedPosition(position);
+      }
+      const at = this.addPanelRemote(curPos < 0 ? maxIndex - 1 : curPos, recordIndex);
+      this.followInsertedRecord(at, false);
+      const added = list.indexToMaterializedIndex(at);
+      // A record the view hides has no panel: the page and the current panel stay, as in the paged add.
+      if (added < 0) return null;
+      position = added;
     } else {
-      this.updateValueOnAddingPanel(curPos < 0 ? this.panelCount - 1 : curPos, index);
+      this.updateValueOnAddingPanel(curPos < 0 ? this.panelCount - 1 : curPos, position);
     }
     if (!this.isRenderModeList) {
-      this.currentIndex = this.pageStartVisibleIndex + index;
+      this.currentIndex = this.pageStartVisibleIndex + position;
     }
-    this.notifyOnPanelAddedRemoved(true, this.getPanelViewIndex(index), this.panelsCore[index]);
-    return this.panelsCore[index];
+    this.notifyOnPanelAddedRemoved(true, this.getPanelViewIndex(position), this.panelsCore[position]);
+    return this.panelsCore[position];
   }
   // The released meaning of a panel's reported index (getRecordViewIndex); position: in panelsCore.
   private getPanelViewIndex(position: number): number {
     return this.getRecordViewIndex(this.getRecordIndexByPanelIndex(position));
   }
   /* The in-memory paged add. The complete record - the default panel value,
-     then the copy from the previous entry - is inserted once, and the question moves to the page of
-     the inserted record, which is the last page only for an append; that move rebuilds the page and
-     the new record's panel is the one returned. */
+     then the copy from the previous entry - is inserted once, and the question shows the page of the
+     inserted record, which is the last page only for an append. The panels follow the record
+     (followInsertedRecord): a page change rebuilds them, a record last on the page in force gets a
+     panel of its own and the others keep their state, an insert in front of panels rebuilds the
+     page. A record templateVisibleIf hides has no page: the page stays, as the matrix's does, and
+     there is no panel. The new record's panel is the one returned, and carousel and tab mode select
+     it. */
   private addPanelInPage(index: number): PanelModel {
     const list = this.dataList;
     const target = this.getInsertTarget(index);
@@ -2252,20 +2237,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.runInternalValueChange((): void => {
       list.batch((): void => { at = list.add(record, target.at); });
     });
-    this.markRecordEdited(at);
-    /* The question shows the page of the new record. A record templateVisibleIf hides has no page: the
-       page stays, as the matrix's does. The current panel is set aside before the page change, whose
-       rebuild takes it; on the same page the panels are rebuilt here. */
-    const visibleIndex = list.getVisibleIndexes().indexOf(at);
-    if (!this.isRenderModeList && visibleIndex > -1) {
-      this.pendingCurrentVisibleIndex = visibleIndex;
-    }
-    if (visibleIndex < 0 || !this.showPageOfVisibleIndex(visibleIndex)) {
-      this.rebuildPanelsFromDataList();
+    const isSelected = !this.isRenderModeList;
+    const item = <QuestionPanelDynamicItem>this.followInsertedRecord(at, isSelected);
+    const newPanel = !!item ? item.panel : null;
+    // A rebuild selected it already; an appended panel is selected here.
+    if (isSelected && !!newPanel) {
+      this.currentPanel = newPanel;
     }
     this.updateFooterActions();
-    const position = list.indexToMaterializedIndex(at);
-    const newPanel = position > -1 ? this.panelsCore[position] : null;
     this.notifyOnPanelAddedRemoved(true, this.getRecordViewIndex(at), newPanel);
     return newPanel;
   }
@@ -2290,11 +2269,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      gesture. Here the complete record is built first - the default panel value, then the copy from
      the last entry IN THE WINDOW - and handed to the list once: one source.insert, no move, no
      follow-up update. question.value follows the window through the recordAdded notification. */
-  private addPanelRemote(prevPosition: number, position: number): void {
+  /* The record of the remote add. recordIndex: the record of the window the new one goes in front
+     of, loadedCount to append. prevPosition: a position in panelsCore, the panel
+     copyDefaultValueFromLastEntry copies from. Returns the record index list.add answered. */
+  private addPanelRemote(prevPosition: number, recordIndex: number): number {
     const list = this.dataList;
     // Positions of panels: the materialized set, which for a source that pages itself is the window.
     const createdCount = list.getMaterializedIndexes().length;
-    const at = Math.max(0, Math.min(position, createdCount));
     const record: any = {};
     if (!this.isValueEmpty(this.defaultPanelValue)) {
       this.copyValue(record, this.defaultPanelValue);
@@ -2306,19 +2287,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.copyValue(record, list.getRecord(fromIndex));
       }
     }
-    // Before the record the panel at that position holds, or at the end of the window.
-    list.add(record, at < createdCount ? list.materializedIndexToIndex(at) : list.loadedCount);
-    if (at < createdCount) {
-      // Inserted inside the window: every panel after it holds another record now, so the panels are
-      // rebuilt - the same rebuild a page change runs.
-      this.rebuildPanelsFromDataList();
-      return;
-    }
-    // Appended: one panel is created and the panels that exist keep their state.
+    return list.add(record, recordIndex);
+  }
+  // QuestionRecordsModel hook: one panel at the end of the panels; the panels that exist keep their state.
+  protected appendItemForRecord(recordIndex: number): void {
     this.prepareValueForPanelCreating();
-    this.panelsCore.push(this.createNewPanel());
+    const panel = this.createNewPanel();
+    this.panelsCore.push(panel);
     this.setValueAfterPanelsCreating();
-    this.setPanelsState();
+    // The new panel only: a panel the respondent collapsed or expanded keeps its state.
+    this.setPanelState(panel, this.panelsCore.length - 1);
     this.reRunCondition();
     this.updateFooterActions();
     this.updateNewPanelsVisibleIndex(this.panelsCore.length - 1);
@@ -2394,20 +2372,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const visPanels = this.visiblePanels;
     if (Helpers.isNumber(val) && this.isPagingActive) {
       if (val < 0 || val >= this.visiblePanelCount) return undefined;
-      const recordIndex = this.getRecordIndexAtVisibleIndex(val);
-      if (recordIndex < 0) return this.isRecordNotLoaded(recordIndex) ? { panel: undefined, recordIndex: -1, visibleIndex: val, isNotLoaded: true } : undefined;
-      const item = <QuestionPanelDynamicItem>this.getItemByRecordIndex(recordIndex);
-      if (!!item) return this.createPanelTarget(item.panel);
-      return { panel: undefined, recordIndex: recordIndex, visibleIndex: val, record: this.dataList.getRecord(recordIndex) };
+      const target = this.getRecordTargetAtVisibleIndex(val);
+      return !!target && !!target.item ? this.createPanelTarget((<QuestionPanelDynamicItem>target.item).panel) : target;
     }
     const pos = this.getVisualPanelIndex(val);
     if (pos < 0 || pos >= visPanels.length) return undefined;
     return this.createPanelTarget(visPanels[pos]);
   }
   private createPanelTarget(panel: PanelModel): IPanelTarget {
-    const pos = this.visiblePanelsCore.indexOf(panel);
-    if (pos < 0) return undefined;
-    return { panel: panel, recordIndex: this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(panel)), visibleIndex: this.pageStartVisibleIndex + pos };
+    const visibleIndex = this.getPanelVisibleIndex(panel);
+    if (visibleIndex < 0) return undefined;
+    return { panel: panel, recordIndex: this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(panel)), visibleIndex: visibleIndex };
   }
   /* A confirmation answers later: by then the page, the sort or the records may have changed. A panel
      still names its record - the remap layer keeps it in step - and a panel that is gone names none.
@@ -2417,14 +2392,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (target.panel.isDisposed || this.panelsCore.indexOf(target.panel) < 0) return undefined;
       return this.createPanelTarget(target.panel);
     }
-    const list = this.dataList;
-    for (let i = 0; i < list.loadedCount; i++) {
-      if (list.getRecord(i) === target.record) {
-        const visibleIndex = list.getGlobalVisibleIndex(i);
-        return visibleIndex < 0 ? undefined : { panel: undefined, recordIndex: i, visibleIndex: visibleIndex, record: target.record };
-      }
-    }
-    return undefined;
+    return this.findRecordTargetAgain(target);
   }
   /**
    * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `displayMode` is `"list"` or the current panel contains validation errors.
@@ -2443,8 +2411,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.currentIndex = index + 1;
       return true;
     }
-    const isLeavingPage = this.isPagingActive && this.canGoToNextRecord &&
-      index - this.pageStartVisibleIndex >= this.visiblePanelsCore.length - 1;
+    // The current panel is the last one of the page: the next record is on the next page.
+    const isLeavingPage = this.canGoToNextRecord && this.getPanelVisibleIndex(this.getVisiblePanelAt(index + 1)) !== index + 1;
     return this.leavePage(true, (): void => {
       if (this.canGoToNextRecord) {
         this.moveToVisibleIndex(index + 1);
@@ -2543,7 +2511,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const viewIndex = this.getRecordViewIndex(recordIndex);
     if (!!panel && this.survey && !this.dynamicPanelCallbacks.dynamicPanelRemoving(this, viewIndex, panel)) return -1;
     this.removedPanel = panel;
-    const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
     if (index > -1) {
       this.panelsCore.splice(index, 1);
     }
@@ -2552,18 +2519,25 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.singleInputOnRemoveItem(visIndex);
     }
     const list = this.dataList;
-    if (recordIndex < 0 || recordIndex >= list.count) {
-      this.updateFooterActions();
-    } else {
+    this.removeRecordAndRefill((): void => {
+      if (recordIndex < 0 || recordIndex >= list.count) {
+        this.updateFooterActions();
+        return;
+      }
       // The list's callbacks and onDynamicPanelRemoved run in between: user code.
       this.runInternalValueChange((): void => {
         list.remove(recordIndex);
+        /* Without a view the current panel names its record by position, and a panel that replaced
+           the removed current one was selected inside the splice, before the list knew about the
+           remove: its record is taken again. */
+        if (!this.hasDataListView && !this.isRenderModeList && !!this.getPropertyValue("currentPanel", null)) {
+          this.setCurrentRecordIndex(this.getPanelRecordIndex(this.getPropertyValue("currentPanel")));
+        }
         this.updateFooterActions();
         this.fireCallback(this.panelCountChangedCallback);
         this.notifyOnPanelAddedRemoved(false, viewIndex, panel);
       });
-    }
-    this.refillPageAfterRemove(pageIndex);
+    });
     if (!!panel) {
       this.disposePanels([panel]);
     }
@@ -2788,7 +2762,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     super.onSurveyLoad();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list
     // here, once, whatever order their keys came in.
-    this.paging.flushAuthoredView();
+    this.flushAuthoredView();
   }
   private adjustPanelCount(): number {
     const pnlCount = this.getPropertyValue("panelCount");
@@ -2945,8 +2919,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const render = this.isRenderedPanelsUpdatePending;
     this.isPagingSyncPending = false;
     this.isRenderedPanelsUpdatePending = false;
-    if (syncPaging && !!this.dataListValue) {
-      this.paging.syncState();
+    if (syncPaging) {
+      super.syncPagingState();
     }
     // One render for both requests: the paging sync renders the page only when paging is active.
     if ((render || syncPaging && !!this.dataListValue && this.isPagingActive) && !this.isUpdatingRenderedPanels) {
@@ -3108,8 +3082,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       let isPnlValid = panels[i].validateElement(context);
       isPnlValid = !this.isValueDuplicated(panels[i], keyValues, context) && isPnlValid;
       if (!this.isRenderModeList && !isPnlValid && res && context.focusOnFirstError) {
-        // i is a pageVisibleIndex; currentIndex is a visibleIndex.
-        this.moveToVisibleIndex(this.pageStartVisibleIndex + i);
+        this.moveToVisibleIndex(this.getPanelVisibleIndex(panels[i]));
       }
       res = isPnlValid && res;
     }
@@ -3686,18 +3659,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       locTitle: locTitle,
       disableHide: <any>new ComputedUpdater<boolean>(isActive),
       action: () => {
-        const pos = this.visiblePanelsCore.indexOf(panel);
-        if (pos > -1) {
-          this.currentIndex = this.pageStartVisibleIndex + pos;
+        const visibleIndex = this.getPanelVisibleIndex(panel);
+        if (visibleIndex > -1) {
+          this.currentIndex = visibleIndex;
         }
       }
     });
     return newItem;
   }
-  // The panel's visibleIndex: its position among the visible records of the whole list.
+  // The panel's visibleIndex: its position among the visible records of the whole list; -1 when it is not visible.
   private getPanelVisibleIndex(panel: PanelModel): number {
     const pos = this.visiblePanelsCore.indexOf(panel);
     return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
+  }
+  // The visible panel at a visibleIndex clamped to the page; undefined when the page has none.
+  private getVisiblePanelAt(visibleIndex: number): PanelModel {
+    const visPanels = this.visiblePanelsCore;
+    return visPanels[Math.max(0, Math.min(visibleIndex - this.pageStartVisibleIndex, visPanels.length - 1))];
   }
   private getTabbedMenuCss(cssClasses?: any): string {
     const css = cssClasses ?? this.cssClasses;

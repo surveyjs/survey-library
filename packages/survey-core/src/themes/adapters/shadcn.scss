@@ -542,13 +542,12 @@
   box-sizing: border-box;
 }
 
-.sd-text > .sd-formbox__input {
+.sd-formbox__input {
   height: var(--sjs2-shadcn-input-height);
 }
 .sd-comment__input {
   min-height: var(--sjs2-shadcn-textarea-min-height);
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
-  field-sizing: content;
 }
 
 .sd-formbox--error {

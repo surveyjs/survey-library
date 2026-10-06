@@ -15,6 +15,9 @@ name: Add release column to project board
 # ---------------------------------------------------------------------------
 
 on:
+  workflow_run:
+    workflows: ["Create Release"]
+    types: [completed]
   # Auto-run whenever a GitHub Release is published.
   release:
     types: [published]

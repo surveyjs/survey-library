@@ -425,6 +425,16 @@ export class DynamicDataList {
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
   }
+  /* The visible records of the whole view: for a source that pages itself the most records known to
+     exist (a lower bound while the total is unknown), otherwise the visible records the list holds. */
+  public get globalVisibleCount(): number {
+    return this.isPagedBySource ? this.knownCount : this.visibleCount;
+  }
+  // The source reported more records behind the window and no total: navigation may go past the last
+  // known record.
+  public get hasRecordBeyondKnown(): boolean {
+    return !this.isCountKnown && this.hasMore;
+  }
   public get loadedCount(): number {
     return this.recordCount;
   }
@@ -735,6 +745,38 @@ export class DynamicDataList {
     const at = globalVisibleIndex - this.getRecordNumberOffset();
     const visible = this.getVisibleIndexes();
     return at < 0 || at >= visible.length ? -1 : visible[at];
+  }
+  /* The record an insertion at a position of the whole view goes in front of, as a record index of
+     the loaded window: the record at that visible position, or loadedCount (append) past the last
+     visible record of the whole view. -1: a source that pages itself does not hold that position -
+     the caller refuses and reports it. globalVisibleIndex counts the visible records of the whole
+     view, as getGlobalVisibleIndex does. A negative position appends. */
+  public getInsertIndexAtVisibleIndex(globalVisibleIndex: number): number {
+    if (globalVisibleIndex < 0) return this.loadedCount;
+    const at = globalVisibleIndex - this.getRecordNumberOffset();
+    const visible = this.getVisibleIndexes();
+    if (at >= 0 && at < visible.length) return visible[at];
+    if (at === visible.length) return this.loadedCount;
+    // Outside the window: not loaded while the position is inside the whole view, an append past it.
+    const viewCount = this.isPagedBySource ? this.knownCount : visible.length;
+    return globalVisibleIndex < viewCount ? -1 : this.loadedCount;
+  }
+  /* The same for a position among the objects (the materialized records, which under paging is the
+     page): the record at that position, or loadedCount at or past the last one. A negative position
+     is the first one. */
+  public getInsertIndexAtMaterializedPosition(position: number): number {
+    const p = Math.max(0, position);
+    return p < this.getMaterializedIndexes().length ? this.materializedIndexToIndex(p) : this.loadedCount;
+  }
+  // The record index of a record object in the loaded window, -1 when no record is that object.
+  public indexOfRecord(record: any): number {
+    // The count is the guard, as in getRecord; the array is read once.
+    const count = this.recordCount;
+    const records = count > 0 ? this.records : [];
+    for (let i = 0; i < count; i++) {
+      if (records[i] === record) return i;
+    }
+    return -1;
   }
   /* The records an owner materializes an object for, in object order. The view answers every DATA
      question (which records are in it, their order, the totals, the neighbours); this answers every

@@ -2795,6 +2795,120 @@ describe("DynamicDataList: the owner's globalVisibleIndex", () => {
   });
 });
 
+/* An insertion names the record it goes in front of, as a record index of the loaded window, or
+   loadedCount for the end. A position of the whole view counts the visible records; a position
+   among the objects counts the materialized records (the page under paging). */
+describe("DynamicDataList: insert positions and record lookup over a view", () => {
+  // Records 0..7, record 3 filtered out, sorted descending, record 5 hidden by the owner:
+  // the visible records are 7, 6, 4, 2, 1, 0.
+  const createViewList = (): DynamicDataList => {
+    const list = createList(createRecords(8));
+    list.filter = "{id} <> 3";
+    list.sort = [{ field: "id", direction: "desc" }];
+    list.setRecordVisible(5, false);
+    return list;
+  };
+  test("a position of the whole view: the record at it, the end past the last visible record", () => {
+    const list = createViewList();
+    expect(list.getVisibleIndexes(), "#0").toEqual([7, 6, 4, 2, 1, 0]);
+    expect(list.getInsertIndexAtVisibleIndex(0), "#1: the first").toBe(7);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2: past the hidden record").toBe(4);
+    expect(list.getInsertIndexAtVisibleIndex(5), "#3: the last").toBe(0);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#4: right after the last").toBe(8);
+    expect(list.getInsertIndexAtVisibleIndex(20), "#5: far past the last").toBe(8);
+    expect(list.getInsertIndexAtVisibleIndex(-1), "#6: a negative position appends").toBe(8);
+  });
+  test("an empty view appends", () => {
+    const list = createList(createRecords(3));
+    list.filter = "{id} > 10";
+    expect(list.getVisibleIndexes(), "#0").toEqual([]);
+    expect(list.getInsertIndexAtVisibleIndex(0), "#1").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2").toBe(3);
+    expect(list.getInsertIndexAtMaterializedPosition(0), "#3").toBe(3);
+  });
+  test("in-memory paging: a position of the whole view does not depend on the page", () => {
+    const list = createViewList();
+    list.pageSize = 2;
+    list.pageIndex = 1;
+    expect(list.getPageIndexes(), "#0").toEqual([4, 2]);
+    expect(list.getInsertIndexAtVisibleIndex(1), "#1: the last record of page 0").toBe(6);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2: the first record of page 1").toBe(4);
+    expect(list.getInsertIndexAtVisibleIndex(4), "#3: the first record of page 2").toBe(1);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#4: the end").toBe(8);
+  });
+  test("a position among the objects: the record at it, the end at or past the last one", () => {
+    const list = createViewList();
+    list.pageSize = 2;
+    list.pageIndex = 1;
+    expect(list.getInsertIndexAtMaterializedPosition(0), "#1").toBe(4);
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#2").toBe(2);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#3: at the end of the page").toBe(8);
+    expect(list.getInsertIndexAtMaterializedPosition(5), "#4: past it").toBe(8);
+    expect(list.getInsertIndexAtMaterializedPosition(-1), "#5: before the first is the first").toBe(4);
+    list.pageSize = 0;
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#6: without paging the objects are the created records").toBe(6);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#7: a hidden record has an object").toBe(5);
+    expect(list.getInsertIndexAtMaterializedPosition(7), "#8").toBe(8);
+  });
+  test("a source that pages itself: inside the window, at its end, outside it and past the whole view", () => {
+    const list = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    list.pageSize = 3;
+    list.load();
+    list.pageIndex = 1;
+    list.setRecordVisible(1, false);
+    expect(list.windowOffset, "#0").toBe(3);
+    expect(list.getVisibleIndexes(), "#0a: the window holds ids 3, 4, 5; id 4 is hidden").toEqual([0, 2]);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#1: before the window").toBe(-1);
+    expect(list.getInsertIndexAtVisibleIndex(3), "#2: the first visible record of the window").toBe(0);
+    expect(list.getInsertIndexAtVisibleIndex(4), "#3: past the hidden record").toBe(2);
+    expect(list.getInsertIndexAtVisibleIndex(5), "#4: the end of the window").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#5: past the window, inside the whole view").toBe(-1);
+    expect(list.getInsertIndexAtVisibleIndex(10), "#6: past the whole view appends to the window").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(-1), "#7").toBe(3);
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#8: the objects are the visible records of the window").toBe(2);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#9").toBe(3);
+  });
+  test("the visible records of the whole view, and whether there are records beyond the known ones", () => {
+    const list = createViewList();
+    expect(list.globalVisibleCount, "#1: the visible records the list holds").toBe(6);
+    expect(list.hasRecordBeyondKnown, "#2: a local list knows its count").toBe(false);
+    const paged = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    paged.pageSize = 3;
+    paged.load();
+    paged.setRecordVisible(1, false);
+    expect(paged.visibleCount, "#3: the window").toBe(2);
+    expect(paged.globalVisibleCount, "#4: a source that pages itself: its total").toBe(10);
+    expect(paged.hasRecordBeyondKnown, "#5: the total is known").toBe(false);
+    const source = new FakeRangeSource(createRecords(10));
+    source.read = (request: IDynamicDataReadRequest): IDynamicDataReadResult =>
+      ({ records: source.records.slice(request.skip, request.skip + request.take) });
+    const unknown = new DynamicDataList(source);
+    unknown.pageSize = 3;
+    unknown.load();
+    expect(unknown.globalVisibleCount, "#6: the records known so far").toBe(3);
+    expect(unknown.hasRecordBeyondKnown, "#7: a full window without a total").toBe(true);
+    for (let i = 1; i <= 3; i++) unknown.pageIndex = i;
+    expect(unknown.globalVisibleCount, "#8: the end was read").toBe(10);
+    expect(unknown.hasRecordBeyondKnown, "#9").toBe(false);
+  });
+  test("indexOfRecord: a record of the window, one a write replaced, one outside the window", () => {
+    const list = createList(createRecords(4));
+    const record = list.getRecord(2);
+    expect(list.indexOfRecord(record), "#1").toBe(2);
+    list.setValue(2, "name", "changed");
+    expect(list.indexOfRecord(record), "#2: the write made a copy").toBe(-1);
+    expect(list.indexOfRecord(list.getRecord(2)), "#3: the copy is found").toBe(2);
+    expect(list.indexOfRecord({ id: 2, name: "changed" }), "#4: an equal object is not the record").toBe(-1);
+    const paged = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    paged.pageSize = 3;
+    paged.load();
+    const first = paged.getRecord(0);
+    paged.pageIndex = 1;
+    expect(paged.indexOfRecord(first), "#5: a record of another window").toBe(-1);
+    expect(paged.indexOfRecord(paged.getRecord(1)), "#6").toBe(1);
+  });
+});
+
 describe("DynamicDataList: the assigned source", () => {
   function createOwnerList(): { list: DynamicDataList, setArray: (arr: Array<any>) => void } {
     let arr: Array<any> = createRecords(3);

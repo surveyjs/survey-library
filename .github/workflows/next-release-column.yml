@@ -15,6 +15,7 @@ name: Add release column to project board
 # ---------------------------------------------------------------------------
 
 on:
+  # Run after Create Release completed.
   workflow_run:
     workflows: ["Create Release"]
     types: [completed]

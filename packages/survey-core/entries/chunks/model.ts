@@ -281,12 +281,11 @@ export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
-export { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
-  IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
+  DynamicDataSortDirection,
   DynamicDataFieldType, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";

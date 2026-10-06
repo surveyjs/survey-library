@@ -357,4 +357,4 @@ jobs:
       #       -f field="$FIELD_ID" \
       #       -f option="$OPTION_ID"
 
-          echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."
+      #     echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."

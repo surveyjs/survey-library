@@ -3304,7 +3304,7 @@ describe("DynamicDataList: the assigned source", () => {
     expect(list.getLoadedRecords().map((r: any): any => r.name), "#2: the list's own earlier write stays, the outside change is not taken").toEqual(["r0", "r1", "kept"]);
     expect(assigned.get().map((r: any): any => r.name), "#3").toEqual(["outside0", "outside1", "kept"]);
   });
-  test("a setter that throws after it stored the array: the window takes what was stored", () => {
+  test("an assigned source whose setter throws after it stored a batch of updates: reported once, the window keeps the writes", () => {
     let arr: Array<any> = createRecords(3);
     const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
       arr = a;
@@ -3312,11 +3312,15 @@ describe("DynamicDataList: the assigned source", () => {
     });
     const { list } = createOwnerList();
     list.assignSource(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
     expect((): void => {
-      list.batch((): void => { list.setValue(0, "name", "edited"); });
-    }, "#1").toThrow("after the assignment");
-    expect(arr[0].name, "#2: stored").toBe("edited");
-    expect(list.getRecord(0).name, "#3: the list has it").toBe("edited");
+      list.batch((): void => { list.setValue(0, "name", "edited"); list.setValue(1, "name", "edited1"); });
+    }, "#1: not thrown").not.toThrow();
+    expect(errors, "#2: reported once, under the first operation").toEqual(["update:after the assignment"]);
+    expect(arr[0].name, "#3: stored").toBe("edited");
+    expect(list.getRecord(0).name, "#4: the list has it").toBe("edited");
+    expect(list.getRecord(1).name, "#5").toBe("edited1");
   });
   test("an inner batch that throws inside an outer one that goes on: nothing is restored, the outer batch stores every write", () => {
     const { list } = createOwnerList();
@@ -4288,5 +4292,138 @@ describe("DynamicDataList: user code that throws in an answer of the source", ()
     expect(calls, "#2: the third ran after the second failed").toEqual(["update:0", "update:1", "update:2"]);
     expect(unhandled.errors.map(e => e.message), "#3: the listener's exception is not swallowed").toEqual(["listener"]);
     expect(list.hasPendingWrites, "#4").toBe(false);
+  });
+});
+
+/* A failed write to a source the owner assigned is that source's failure, whatever its class: it is
+   reported (onError) and does not throw. The window keeps the local change, except after a refused
+   insert, remove or move of an in-memory source, which is addressed by storage index: that window goes
+   back to what the source stores, so that no later write lands on another record. A failed write to
+   the owner's own storage is still the caller's exception. */
+describe("DynamicDataList: a failed write to an assigned source is reported", () => {
+  interface IFailingArray { source: ArrayDynamicDataSource, get: () => Array<any>, failures: { count: number } }
+  // The setter throws before it stores, as often as failures.count says.
+  function createFailingArray(names: Array<string>): IFailingArray {
+    let arr: Array<any> = names.map((name: string): any => ({ name: name }));
+    const failures = { count: 0 };
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+      if (failures.count > 0) {
+        failures.count--;
+        throw new Error("setter");
+      }
+      arr = a;
+    });
+    return { source: source, get: (): Array<any> => arr, failures: failures };
+  }
+  function createOwnList(): { list: DynamicDataList, failures: { count: number }, get: () => Array<any> } {
+    let own: Array<any> = createRecords(2);
+    const failures = { count: 0 };
+    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => own, (a: Array<any>): void => {
+      if (failures.count > 0) {
+        failures.count--;
+        throw new Error("own setter");
+      }
+      own = a;
+    });
+    return { list: list, failures: failures, get: (): Array<any> => own };
+  }
+  function attachFailing(names: Array<string> = ["A", "B", "C"]): { list: DynamicDataList, assigned: IFailingArray, errors: Array<string>, changes: Array<string> } {
+    const { list } = createOwnList();
+    const assigned = createFailingArray(names);
+    list.assignSource(assigned.source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    return { list: list, assigned: assigned, errors: errors, changes: recordChanges(list) };
+  }
+  const names = (records: Array<any>): Array<string> => records.map((r: any): string => r.name);
+
+  test("a failed update is reported and kept: the window has the edit, the array does not", () => {
+    const { list, assigned, errors, changes } = attachFailing();
+    assigned.failures.count = 1;
+    expect((): void => { list.setValue(0, "name", "edited"); }, "#1").not.toThrow();
+    expect(errors, "#2").toEqual(["update:setter"]);
+    expect(names(list.getLoadedRecords()), "#3: kept").toEqual(["edited", "B", "C"]);
+    expect(names(assigned.get()), "#4").toEqual(["A", "B", "C"]);
+    expect(changes, "#5: no reset").toEqual(["recordChanged:0:name"]);
+  });
+  const structuralWrites: Array<{ operation: string, run: (list: DynamicDataList) => void, notification: string }> = [
+    { operation: "insert", run: (list: DynamicDataList): void => { list.add({ name: "X" }, 0); }, notification: "recordAdded:0" },
+    { operation: "remove", run: (list: DynamicDataList): void => { list.remove(0); }, notification: "recordRemoved:0" },
+    { operation: "move", run: (list: DynamicDataList): void => { list.move(0, 2); }, notification: "recordMoved:0>2" }
+  ];
+  structuralWrites.forEach((write): void => {
+    test("a failed " + write.operation + " is reported and the window goes back to what the source stores", () => {
+      const { list, assigned, errors, changes } = attachFailing();
+      assigned.failures.count = 1;
+      expect((): void => { write.run(list); }, "#1").not.toThrow();
+      expect(errors, "#2").toEqual([write.operation + ":setter"]);
+      expect(names(list.getLoadedRecords()), "#3: the window is the storage").toEqual(["A", "B", "C"]);
+      expect(names(assigned.get()), "#4").toEqual(["A", "B", "C"]);
+      expect(changes, "#5: one reset, after the write's own notification").toEqual([write.notification, "reset"]);
+    });
+    test("an edit after a failed " + write.operation + " lands on the record it was made in", () => {
+      for (const failureCount of [1, 2]) {
+        const { list, assigned } = attachFailing();
+        assigned.failures.count = failureCount;
+        for (let i = 0; i < failureCount; i++) {
+          write.run(list);
+        }
+        list.setValue(1, "name", "B-edited");
+        expect(names(assigned.get()), "#1: " + failureCount + " failures").toEqual(["A", "B-edited", "C"]);
+        expect(names(list.getLoadedRecords()), "#2: " + failureCount + " failures").toEqual(["A", "B-edited", "C"]);
+      }
+    });
+  });
+  test("a batch with a remove and an update that fails at commit: reported once, the window goes back, the next edit lands right", () => {
+    const { list, assigned, errors, changes } = attachFailing();
+    assigned.failures.count = 1;
+    expect((): void => {
+      list.batch((): void => {
+        list.remove(0);
+        list.setValue(0, "name", "B-batch");
+      });
+    }, "#1").not.toThrow();
+    expect(errors, "#2: the first operation").toEqual(["remove:setter"]);
+    expect(names(list.getLoadedRecords()), "#3").toEqual(["A", "B", "C"]);
+    expect(changes, "#4").toEqual(["recordRemoved:0", "recordChanged:0:name", "reset"]);
+    list.setValue(1, "name", "B-edited");
+    expect(names(assigned.get()), "#5").toEqual(["A", "B-edited", "C"]);
+  });
+  test("the own storage: a setter that throws on a single write or at a batch commit still throws at the caller", () => {
+    const { list, failures, get } = createOwnList();
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    failures.count = 1;
+    expect((): void => { list.setValue(0, "name", "edited"); }, "#1").toThrow("own setter");
+    expect(list.getRecord(0).name, "#2: the window follows the storage").toBe("r0");
+    failures.count = 1;
+    expect((): void => { list.batch((): void => { list.setValue(0, "name", "edited"); }); }, "#3").toThrow("own setter");
+    expect(names(get()), "#4").toEqual(["r0", "r1"]);
+    expect(list.getRecord(0).name, "#5").toBe("r0");
+    expect(errors, "#6: nothing reported").toEqual([]);
+  });
+  test("after a detach the next write goes to a fresh own storage, and its failure throws again", () => {
+    let own: Array<any> = createRecords(2);
+    let ownFailures = 0;
+    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => own, (a: Array<any>): void => {
+      if (ownFailures > 0) {
+        ownFailures--;
+        throw new Error("own setter");
+      }
+      own = a;
+    });
+    const assigned = createFailingArray(["A", "B"]);
+    list.assignSource(assigned.source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    assigned.failures.count = 1;
+    list.setValue(0, "name", "edited");
+    expect(errors, "#1: reported").toEqual(["update"]);
+    list.assignSource(undefined);
+    list.setValue(0, "name", "own-edited");
+    expect(own[0].name, "#2: the own storage got it").toBe("own-edited");
+    ownFailures = 1;
+    expect((): void => { list.setValue(1, "name", "x"); }, "#3").toThrow("own setter");
+    expect(errors, "#4").toEqual(["update"]);
   });
 });

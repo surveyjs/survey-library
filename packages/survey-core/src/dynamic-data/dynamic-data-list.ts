@@ -6,7 +6,7 @@ import {
   IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "./dynamic-data-interfaces";
 import {
-  DynamicDataSourceChannel, IDynamicDataChannelHost, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
+  DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
   mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
@@ -97,8 +97,10 @@ export class DynamicDataList {
     setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void, getCount?: () => number,
     isMembershipFixed: boolean = false): DynamicDataList {
     const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, isMembershipFixed);
-    const list = new DynamicDataList(createSource(), owner);
+    const source = createSource();
+    const list = new DynamicDataList(source, owner);
     list.createDefaultSource = createSource;
+    list.defaultSource = source;
     list.getReadThroughCount = getCount;
     list.isMembershipFixed = isMembershipFixed;
     list.isReadThroughValue = true;
@@ -109,6 +111,8 @@ export class DynamicDataList {
     return list;
   }
   private createDefaultSource: () => IDynamicDataSource;
+  // The source createDefaultSource built last: the owner's own storage.
+  private defaultSource: IDynamicDataSource;
   private getReadThroughCount: () => number;
   private assignedSourceValue: IDynamicDataSource;
   /* The owner defines its records (isMembershipFixed): any other source would replace them. Refused
@@ -137,8 +141,18 @@ export class DynamicDataList {
     if (!!newValue) {
       this.source = newValue;
     } else if (!!this.createDefaultSource) {
-      this.source = this.createDefaultSource();
+      this.defaultSource = this.createDefaultSource();
+      this.source = this.defaultSource;
     }
+  }
+  /* A write to the owner's own storage - its default source, never the assigned one - fails only when
+     the code behind the owner's setter throws, and that exception is the caller's. Every other
+     source's failure is reported (onError). A role, not a class: a standalone list has no default
+     source, so all of its sources report. The class tests elsewhere in the list (hasCapability,
+     useReadThrough, getIsAssignedArrayInSync, restoreWindowToStorage, syncWindowAfterSyncPush) ask
+     another question - does the source answer synchronously and is it written by index - and stay. */
+  private isOwnStorage(source: IDynamicDataSource): boolean {
+    return !!source && source === this.defaultSource && source !== this.assignedSourceValue;
   }
 
   // An owner whose source reads and writes its storage directly - the questions, whose
@@ -256,15 +270,31 @@ export class DynamicDataList {
           return;
         }
         const before = this.windowRecords;
+        const isOutermost = this.batchDepth === 0;
+        if (isOutermost) {
+          this.batchPushes = { operation: undefined, isStructural: false };
+        }
         this.batchDepth++;
+        // A throw from func is the caller's own exception; any other is the commit's.
+        let isFuncError = false;
         try {
-          source.batch(func);
+          source.batch((): void => {
+            try {
+              func();
+            } catch(e) {
+              isFuncError = true;
+              throw e;
+            }
+          });
         } catch(e) {
           // The outermost one: a batch of the source nested in another neither stores nor drops.
-          if (this.batchDepth === 1)this.restoreWindowAfterFailedBatch(source, before);
-          throw e;
+          if (!isOutermost || !this.onBatchFailed(source, before, e, isFuncError)) throw e;
+          return;
         } finally {
           this.batchDepth--;
+          if (isOutermost) {
+            this.batchPushes = undefined;
+          }
         }
         changes = this.syncWindowAfterBatch(source);
       });
@@ -274,6 +304,48 @@ export class DynamicDataList {
     }
   }
   private batchDepth: number = 0;
+  // What the outermost batch pushed: the operation of its first write, and whether it inserted,
+  // removed or moved a record. Recorded by pushToSource.
+  private batchPushes: { operation: DynamicDataOperation, isStructural: boolean };
+  // Every write reaches the channel here.
+  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
+    info?: IDynamicDataPushInfo): void {
+    const pushes = this.batchPushes;
+    if (!!pushes) {
+      if (!pushes.operation) pushes.operation = operation;
+      if (operation !== "update") pushes.isStructural = true;
+    }
+    this.channel.pushToSource(operation, method, info);
+  }
+  /* The batch threw. An exception of the caller's own function, and a failed commit to the owner's
+     own storage, are the caller's: the window goes back to the storage and the exception is
+     rethrown. A failed commit to any other source is that source's failure: it is reported once,
+     under the operation of the first write the batch pushed, and the window keeps the batch's writes
+     and the owner its notifications - unless the batch inserted, removed or moved a record of a
+     source without keyField, which is addressed by storage index: that window goes back to the
+     storage too. Returns true when the failure was reported. */
+  private onBatchFailed(source: IDynamicDataSource, before: Array<any>, error: any, isFuncError: boolean): boolean {
+    const pushes = this.batchPushes;
+    if (isFuncError || this.isOwnStorage(source) || !pushes.operation) {
+      this.restoreWindowToStorage(source, before);
+      return false;
+    }
+    if (pushes.isStructural && !this.keyField) {
+      this.restoreWindowToStorage(source, before);
+    }
+    this.raiseError(error, pushes.operation);
+    return true;
+  }
+  /* A synchronous push failed and was reported. A refused insert, remove or move to a source without
+     keyField - an in-memory one, written by storage index - would leave the window misaddressing every
+     later write: removing A from [A, B, C] fails, the window is [B, C], and the next edit of B
+     overwrites A. That window goes back to what the source stores, and the owner is told to start over
+     once the write has notified. Any other failure keeps the local change. Inside a batch the commit
+     decides (onBatchFailed). */
+  private onSyncPushFailed(operation: DynamicDataOperation): void {
+    if (operation === "update" || !!this.keyField || this.batchDepth > 0) return;
+    this.restoreWindowToStorage(this._source, this.windowAtWriteStart || this.windowRecords);
+  }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
      the window with the array that was being built, so the window takes the stored one here. What
@@ -295,13 +367,13 @@ export class DynamicDataList {
     }
     return res;
   }
-  /* The batch threw. The array source has dropped the writes it collected - or its setter threw
-     after it stored them - so the window, which has every write of the batch, goes back to the
-     storage: the array the source holds now, or the window the batch started with when that array
-     is not the list's to take (syncWindowAfterSyncPush). Which writes survived is not known, so
-     everything derived is decided again as after a read, and the owner, which was notified of every
-     write inside the batch, is told to start over. A read-through list has no window to put back. */
-  private restoreWindowAfterFailedBatch(source: IDynamicDataSource, before: Array<any>): void {
+  /* A write of an array source failed: it dropped the writes it collected - or its setter threw after
+     it stored them - so the window, which has the writes, goes back to the storage: the array the
+     source holds now, or the window the write started with when that array is not the list's to
+     take (syncWindowAfterSyncPush). Which writes survived is not known, so everything derived is
+     decided again as after a read, and the owner, which was notified of the writes, is told to start
+     over. A read-through list has no window to put back. */
+  private restoreWindowToStorage(source: IDynamicDataSource, before: Array<any>): void {
     if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
     if (!(source instanceof ArrayDynamicDataSource)) return;
     const stored = this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
@@ -319,7 +391,7 @@ export class DynamicDataList {
     this.clampPageIndex();
   }
   /* A reset the list owes its owner for a window it replaced inside a write (takeStoredArray,
-     restoreWindowAfterFailedBatch). It is raised once the outermost write has notified: the owner
+     restoreWindowToStorage). It is raised once the outermost write has notified: the owner
      follows that notification by record index, and a reset in front of it would have it renumber
      the objects it has just rebuilt. */
   private isResetPending: boolean = false;
@@ -346,8 +418,12 @@ export class DynamicDataList {
      unchanged: each method notifies after its own scope, so a write nested in ensureCount, truncate
      or batch still notifies with the outer scope open. */
   private runWrite<T>(func: () => T): T {
-    // Before the write edits the window: see isAssignedArrayInSync.
-    if (this.writeDepth === 0)this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
+    // Before the write edits the window: see isAssignedArrayInSync. editWindow copies before it
+    // edits, so the window captured here is never mutated.
+    if (this.writeDepth === 0) {
+      this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
+      this.windowAtWriteStart = this.windowRecords;
+    }
     this.writeDepth++;
     try {
       return func();
@@ -357,8 +433,13 @@ export class DynamicDataList {
   }
   private endWrite(): void {
     if (this.writeDepth > 0)this.writeDepth--;
-    if (this.writeDepth === 0)this.isAssignedArrayInSync = false;
+    if (this.writeDepth === 0) {
+      this.isAssignedArrayInSync = false;
+      this.windowAtWriteStart = undefined;
+    }
   }
+  // The window when the outermost write started (runWrite).
+  private windowAtWriteStart: Array<any>;
   /* True for the span of the outermost write to an assigned ArrayDynamicDataSource whose array was,
      when the write started, the window record for record: nothing has replaced it outside the list
      since the list last read or wrote it. Only then does the window take the array the write stores
@@ -499,7 +580,7 @@ export class DynamicDataList {
       const ownedFields = getOwnedFields(pending);
       // The push comes before the notification: with a read-through source the push IS the local
       // write, so the owner must not be notified of a change it cannot read yet.
-      this.channel.pushToSource("update",
+      this.pushToSource("update",
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), [field]),
         { key: key, pendingInsert: pending });
     });
@@ -520,7 +601,7 @@ export class DynamicDataList {
     this.runWrite((): void => {
       this.replaceRecord(index, record);
       const ownedFields = getOwnedFields(pending);
-      this.channel.pushToSource("update",
+      this.pushToSource("update",
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, record, ownedFields), changedFields),
         { key: key, pendingInsert: pending });
     });
@@ -550,7 +631,7 @@ export class DynamicDataList {
       /* An added record has no key yet: the source assigns it, and the answer of insert brings it back
          (applyInsertAnswer). The position is where the respondent added the record; where it is kept
          is the source's to decide, and the next read shows it there. */
-      this.channel.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
+      this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
         { insertedRecord: newRecord });
     });
     this.notifyWrite({ type: "recordAdded", index: at });
@@ -570,7 +651,7 @@ export class DynamicDataList {
       this.storageCount.onRecordRemoved(this._windowOffset, countAfter);
       this.removeFromMembership(index, countAfter);
       this.resetViews();
-      this.channel.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
+      this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
         { key: key, pendingInsert: pending });
     });
     this.notifyWrite({ type: "recordRemoved", index: index });
@@ -617,7 +698,7 @@ export class DynamicDataList {
       this.moveInMembership(fromIndex, toIndex);
       this.resetViews();
       const toSourceIndex = this._windowOffset + toIndex;
-      this.channel.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
+      this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
         { key: key, pendingInsert: pending });
     });
     this.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
@@ -1319,7 +1400,9 @@ export class DynamicDataList {
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
       raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
-      syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush()
+      syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
+      isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
+      onSyncPushFailed: (operation: DynamicDataOperation): void => this.onSyncPushFailed(operation)
     };
   }
   // The page of a pending retry, else the window in force (a refresh) or the page (a load); a source

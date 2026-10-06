@@ -1,6 +1,5 @@
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
-import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 
 /* The request channel of DynamicDataList: everything that orders the requests the list sends to its
    source - the reads, the push chain of the writes, the inserts that have not answered yet, and the
@@ -52,7 +51,16 @@ export interface IDynamicDataChannelHost {
   applyInsertAnswer(entry: IPendingInsert): void;
   // A synchronous write to an ArrayDynamicDataSource IS the storage: the window takes its array.
   syncWindowAfterSyncPush(): void;
+  /* The write goes to the owner's own storage: its synchronous failure is the caller's exception and
+     is not reported. A role, decided by the list, never by the class of the source. */
+  isOwnStorage(source: IDynamicDataSource): boolean;
+  // A synchronous push failed and was reported: the window keeps the local change, unless the list
+  // decides otherwise for this operation.
+  onSyncPushFailed(operation: DynamicDataOperation): void;
 }
+/* What runPush answers: the promise of an asynchronous push, or how a synchronous one ended. Private
+   to the channel. */
+type PushResult = Promise<void> | "done" | "failed";
 
 /* The one place an answer is read: a bare array is { records: array }, and an answer that is neither
    an array nor an object with records holds no records. total and hasMore are passed on as they
@@ -344,37 +352,43 @@ export class DynamicDataSourceChannel {
       }
       return method(source, pending.key);
     };
-    /* An in-memory array is the owner's own storage: a write to it fails only when the code behind its
-       setter throws - a survey handler, a value-changed callback - and that exception is the caller's,
-       not a failure of a source. It reaches the caller, as it does without a list. */
-    const isOwnStorage = source instanceof ArrayDynamicDataSource;
+    /* The owner's own storage: a write to it fails only when the code behind its setter throws - a
+       survey handler, a value-changed callback - and that exception is the caller's, not a failure
+       of a source. It reaches the caller, as it does without a list. Every other source is reported,
+       an in-memory one the developer assigned included. */
+    const isOwnStorage = host.isOwnStorage(source);
     if (!this.pushChain) {
       const res = this.runPush(operation, action, onAnswer, isOwnStorage);
-      if (!res) {
-        this.syncWindowAfterSyncPush(epoch);
+      if (!isPromiseLike(res)) {
+        this.settleSyncPush(epoch, operation, res === "failed");
         return;
       }
       this.pendingPushes = 1;
-      this.pushChain = this.createFirstLink(res, epoch);
+      this.pushChain = this.createFirstLink(<Promise<void>>res, epoch);
       return;
     }
     this.pendingPushes++;
     const previous = this.pushChain;
     this.pushChain = new Promise<void>((resolve: () => void): void => {
       previous.then((): void => {
-        let res: Promise<void>;
+        let res: PushResult;
         try {
           res = this.runPush(operation, action, onAnswer, isOwnStorage);
         } catch(e) {
           // A synchronous failure whose report threw: the chain goes on, and the exception is the
-          // rejection of this continuation.
-          this.settleLink(epoch, true, resolve);
+          // rejection of this continuation. The window keeps the local change.
+          this.settleLink(epoch, false, resolve);
           throw e;
         }
-        if (!res) {
-          this.settleLink(epoch, true, resolve);
+        if (!isPromiseLike(res)) {
+          // A failed link does not sync the window: it keeps the local change.
+          const isFailed = res === "failed";
+          if (isFailed && epoch === this.sourceEpoch && !this.host.isDisposed()) {
+            this.host.onSyncPushFailed(operation);
+          }
+          this.settleLink(epoch, !isFailed, resolve);
         } else {
-          res.then((): void => { this.settleLink(epoch, false, resolve); });
+          (<Promise<void>>res).then((): void => { this.settleLink(epoch, false, resolve); });
         }
       });
     });
@@ -474,7 +488,8 @@ export class DynamicDataSourceChannel {
     if (!field || read.updatedKeys.length === 0) return false;
     return toReadResult(data).records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
   }
-  /* Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
+  /* Returns a promise that always fulfills, or how a synchronous push ended: "done", or "failed"
+     once the failure is reported. onAnswer
      is what the source answered - only an insert has an answer - and it runs for a failed push too,
      with undefined, so that the pending entry never outlives its push: it settles the entry before
      anything is reported. isOwnStorage: a synchronous failure is the caller's exception (see
@@ -484,7 +499,7 @@ export class DynamicDataSourceChannel {
      exception of that code is the rejection of the answer's own continuation, as an exception of any
      asynchronous callback is - a rejection of the chain would stop every later write and read. */
   private runPush(operation: DynamicDataOperation, action: () => any,
-    onAnswer: (answer: any) => void, isOwnStorage: boolean): Promise<void> {
+    onAnswer: (answer: any) => void, isOwnStorage: boolean): PushResult {
     let res: any;
     try {
       res = action();
@@ -492,11 +507,11 @@ export class DynamicDataSourceChannel {
       if (!!onAnswer) onAnswer(undefined);
       if (isOwnStorage) throw e;
       this.host.raiseError(e, operation);
-      return undefined;
+      return "failed";
     }
     if (!isPromiseLike(res)) {
       if (!!onAnswer) onAnswer(res);
-      return undefined;
+      return "done";
     }
     // A rejected push keeps the local change and reports the error; the chain continues.
     return new Promise<void>((resolve: () => void): void => {
@@ -531,5 +546,15 @@ export class DynamicDataSourceChannel {
   private syncWindowAfterSyncPush(epoch: number): void {
     if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
     this.host.syncWindowAfterSyncPush();
+  }
+  /* After a synchronous push: the window takes what the storage holds after a success, and keeps the
+     local change after a reported failure (the list may still put it back, see onSyncPushFailed). */
+  private settleSyncPush(epoch: number, operation: DynamicDataOperation, isFailed: boolean): void {
+    if (!isFailed) {
+      this.syncWindowAfterSyncPush(epoch);
+      return;
+    }
+    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
+    this.host.onSyncPushFailed(operation);
   }
 }

@@ -4249,3 +4249,87 @@ describe("Remote data source: an outside assignment of the value is not made", (
       [0, { id: 0, col1: "hide", hidden1: "keep" }, ["col2"]]]);
   });
 });
+
+/* An in-memory source the developer assigned is a source like any other: a write whose setter throws
+   is reported through onDynamicDataError and does not throw. A cell or panel edit keeps the local
+   change; an add, remove or move puts the rows and panels back to the stored records, since such a
+   source is addressed by storage index. */
+describe("Remote data source: a failed write to an assigned in-memory source is reported", () => {
+  function createFailing(): { source: ArrayDynamicDataSource, get: () => Array<any>, failures: { count: number } } {
+    let arr: Array<any> = [{ col1: "A" }, { col1: "B" }, { col1: "C" }];
+    const failures = { count: 0 };
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+      if (failures.count > 0) {
+        failures.count--;
+        throw new Error("setter");
+      }
+      arr = a;
+    });
+    return { source: source, get: (): Array<any> => arr, failures: failures };
+  }
+  const col1 = (records: Array<any>): Array<any> => records.map((r: any): any => r.col1);
+  async function create(kind: string): Promise<{ survey: SurveyModel, question: any, errors: Array<string>, failing: ReturnType<typeof createFailing> }> {
+    const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+    const question = <any>survey.getQuestionByName(kind);
+    const failing = createFailing();
+    await attach(question, failing.source);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation + ":" + options.error.message); });
+    return { survey: survey, question: question, errors: errors, failing: failing };
+  }
+  const shownCol1 = (question: any): Array<any> => question instanceof QuestionMatrixDynamicModel ?
+    question.visibleRows.map((row: any) => row.getQuestionByName("col1").value) :
+    question.panels.map((panel: any) => panel.getQuestionByName("col1").value);
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": a failed edit is reported and kept", async () => {
+      const { question, errors, failing } = await create(kind);
+      failing.failures.count = 1;
+      expect(() => editFirst(question, "col1", "edited"), "#1").not.toThrow();
+      expect(errors, "#2").toEqual(["update:setter"]);
+      expect(shownCol1(question), "#3: kept").toEqual(["edited", "B", "C"]);
+      expect(col1(failing.get()), "#4").toEqual(["A", "B", "C"]);
+    });
+    const writes: Array<{ operation: string, run: (question: any) => void }> = kind === "matrix" ? [
+      { operation: "insert", run: (question: any): void => { question.addRow(); } },
+      { operation: "remove", run: (question: any): void => { question.removeRow(0); } },
+      { operation: "move", run: (question: any): void => { question.moveRowByIndex(0, 2); } }
+    ] : [
+      { operation: "insert", run: (question: any): void => { question.addPanel(); } },
+      { operation: "remove", run: (question: any): void => { question.removePanel(0); } }
+    ];
+    writes.forEach((write): void => {
+      test(kind + ": a failed " + write.operation + " is reported and the objects show the stored records again", async () => {
+        const { question, errors, failing } = await create(kind);
+        failing.failures.count = 1;
+        expect(() => write.run(question), "#1").not.toThrow();
+        expect(errors, "#2").toEqual([write.operation + ":setter"]);
+        expect(shownCol1(question), "#3").toEqual(["A", "B", "C"]);
+        expect(col1(failing.get()), "#4").toEqual(["A", "B", "C"]);
+        // The next edit lands on the record it is made in.
+        const objects = question instanceof QuestionMatrixDynamicModel ? question.visibleRows : question.panels;
+        objects[1].getQuestionByName("col1").value = "B-edited";
+        expect(col1(failing.get()), "#5").toEqual(["A", "B-edited", "C"]);
+      });
+    });
+  });
+  test("matrix: an assigned SurveyDataDynamicDataSource whose write runs a throwing onValueChanged handler is reported", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { rowsPerPage: 0 })] });
+    survey.setValue("store", [{ col1: "A" }, { col1: "B" }, { col1: "C" }]);
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    await attach(question, new SurveyDataDynamicDataSource(survey, "store"));
+    let isThrowing = false;
+    // The survey handler the source's setValue reaches.
+    survey.onValueChanged.add((_, options) => {
+      if (isThrowing && options.name === "store") throw new Error("handler");
+    });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation + ":" + options.error.message); });
+    isThrowing = true;
+    expect(() => { question.visibleRows[0].getQuestionByName("col1").value = "edited"; }, "#1").not.toThrow();
+    expect(() => { question.removeRow(0); }, "#2").not.toThrow();
+    isThrowing = false;
+    expect(errors, "#3").toEqual(["update:handler", "remove:handler"]);
+    expect(survey.getValue("store").map((r: any) => r.col1), "#4: the handler ran after the value was stored").toEqual(["B", "C"]);
+    expect(rowValues(question), "#5: the window follows the storage after the remove").toEqual(["B", "C"]);
+  });
+});

@@ -18,18 +18,16 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public isLoadingFromJson: boolean = false;
   public sortByChanges: Array<string> = [];
   public resetCount: number = 0;
-  public errors: Array<string> = [];
   private listValue: DynamicDataList;
   private source: IDynamicDataSource;
   constructor(records: Array<any>) {
     this.source = ArrayDynamicDataSource.fromArray(records);
-    this.paging = new DynamicDataPagingController(this);
+    this.paging = new DynamicDataPagingController(this, (): DynamicDataList => this.getDataList());
   }
   public get hasList(): boolean { return !!this.listValue; }
   public getDataList(): DynamicDataList {
     if (!this.listValue) {
       this.listValue = new DynamicDataList(this.source, this);
-      this.listValue.onError = (e: any, op: string): void => { this.errors.push(op); };
       this.listValue.load();
       // The question pushes the authored page size from here too: the list is created on demand.
       this.paging.updatePageSize();
@@ -55,10 +53,6 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public get isCountKnown(): boolean { return this.paging.isCountKnown; }
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
-  }
-  public cancelPendingPageMoveCount: number = 0;
-  public cancelPendingPageMove(): void {
-    this.cancelPendingPageMoveCount++;
   }
   // No survey behind the fake: the string name and the arguments are enough to tell texts apart.
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
@@ -271,9 +265,9 @@ describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
   // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
     public requests: Array<IDynamicDataReadRequest> = [];
+    public capabilities = { paging: true, filtering: true, sorting: true };
     constructor(private records: Array<any>) { }
-    public read(): Array<any> { return this.records; }
-    public readRange(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
       this.requests.push(request);
       return { records: this.records.slice(), total: this.records.length };
     }
@@ -414,82 +408,48 @@ describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
   });
 });
 
-describe("DynamicDataPagingController: the control filter entrance", () => {
-  test("a control filter applies next to the authored one and does not touch it", () => {
+describe("a throwing callback does not leave a guard behind", () => {
+  test("an exception out of the authored-view push does not stop the next one", () => {
     const owner = new FakePagingOwner(abc());
-    owner.paging.filterExpression = "{c1} != 'z'";
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.view, "#1").toEqual(["a"]);
-    expect(owner.paging.filterExpression, "#2: the authored expression is untouched").toBe("{c1} != 'z'");
-    expect(owner.hash["filterExpression"], "#3: and so is its storage").toBe("{c1} != 'z'");
-    expect(owner.getDataList().filter, "#4: two slots, not one string").toBe("{c1} != 'z'");
-    expect(owner.getDataList().controlFilter, "#5").toBe("{c1} = 'a'");
-  });
-  test("two controls do not overwrite each other and clear with an empty string", () => {
-    const owner = new FakePagingOwner(abc());
-    owner.paging.setControlFilter("a", "{c1} != 'z'");
-    owner.paging.setControlFilter("b", "{c1} != 'b'");
-    expect(owner.view, "#1").toEqual(["c", "a"]);
-    expect(owner.getDataList().controlFilter, "#2: combined, each bracketed")
-      .toBe("({c1} != 'z') and ({c1} != 'b')");
-    owner.paging.setControlFilter("b", "");
-    expect(owner.getDataList().controlFilter, "#3: one left, unwrapped").toBe("{c1} != 'z'");
-    expect(owner.paging.getControlFilterKeys(), "#4").toEqual(["a"]);
-    owner.paging.setControlFilter("a", "");
-    expect(owner.getDataList().controlFilter, "#5").toBe("");
-    expect(owner.view, "#6").toEqual(["c", "a", "b"]);
-  });
-  test("a control filter written while loading reaches the list at the flush", () => {
-    const owner = new FakePagingOwner(abc());
+    const list = owner.getDataList();
+    let isThrown = false;
+    // The filter cannot be parsed: the list reports it through onError, and this onError throws.
+    list.onError = (): void => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
     owner.isLoadingFromJson = true;
-    owner.paging.filterExpression = "{c1} != 'z'";
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.hasList, "#1: neither writer created the list").toBe(false);
+    owner.paging.filterExpression = "{c1} = ";
+    owner.isLoadingFromJson = false;
+    expect(() => owner.paging.flushAuthoredView(), "#1").toThrow();
+    expect(list.filter, "#2: the list refused the filter").toBe("");
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} != 'a'";
     owner.isLoadingFromJson = false;
     owner.paging.flushAuthoredView();
-    expect(owner.getDataList().filter, "#2").toBe("{c1} != 'z'");
-    expect(owner.getDataList().controlFilter, "#3").toBe("{c1} = 'a'");
-    expect(owner.view, "#4").toEqual(["a"]);
+    expect(list.filter, "#3: the second authored flush reached the list").toBe("{c1} != 'a'");
+    expect(owner.view, "#4").toEqual(["c", "b"]);
+    expect(owner.paging.filterExpression, "#5: the hash mirrors the list").toBe("{c1} != 'a'");
   });
-  test("design mode holds neither slot and gives both back on the way out", () => {
+  test("an exception out of the design-mode clear does not stop the next push", () => {
     const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    const list = owner.getDataList();
+    let isThrown = false;
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (change.type !== "reset" || isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
     owner.isDesignMode = true;
-    owner.paging.filterExpression = "{c1} != 'z'";
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.getDataList().filter, "#1").toBe("");
-    expect(owner.getDataList().controlFilter, "#2").toBe("");
-    expect(owner.paging.getControlFilter("control"), "#3: the controller kept the text").toBe("{c1} = 'a'");
+    expect(() => owner.paging.syncState(), "#1: the clear raised reset").toThrow();
+    expect(list.sort, "#2: the list was cleared").toEqual([]);
+    // The design-mode sync the throw cut short, then the switch back.
+    owner.paging.syncState();
     owner.isDesignMode = false;
     owner.paging.syncState();
-    expect(owner.getDataList().controlFilter, "#4").toBe("{c1} = 'a'");
-  });
-  test("a broken control filter is reported once and not re-pushed on every sync", () => {
-    const owner = new FakePagingOwner(abc());
-    owner.paging.setControlFilter("control", "{c1} = ");
-    expect(owner.view, "#1: showing every record beats showing none").toEqual(["c", "a", "b"]);
-    expect(owner.errors.length, "#2").toBe(1);
-    owner.paging.syncState();
-    owner.paging.syncState();
-    expect(owner.errors.length, "#3: the list cleared its slot, the controller does not re-hand it")
-      .toBe(1);
-  });
-  // A control filter replaces the page from code, as filterExpression does: a move that waits for
-  // the validators of the page it leaves is dropped.
-  test("a control filter that changes the view drops a pending page move", () => {
-    const owner = new FakePagingOwner(abc());
-    owner.getDataList();
-    owner.cancelPendingPageMoveCount = 0;
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.cancelPendingPageMoveCount, "#1").toBe(1);
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.cancelPendingPageMoveCount, "#2: the same filter again changes nothing").toBe(1);
-    owner.paging.setControlFilter("control", "");
-    expect(owner.cancelPendingPageMoveCount, "#3: clearing it is a change too").toBe(2);
-  });
-  test("a control filter written while loading does not drop a pending page move", () => {
-    const owner = new FakePagingOwner(abc());
-    owner.isLoadingFromJson = true;
-    owner.paging.setControlFilter("control", "{c1} = 'a'");
-    expect(owner.cancelPendingPageMoveCount, "#1: nothing is on a page yet").toBe(0);
+    expect(list.sort, "#3: the authored sort reached the list").toEqual(asc);
+    expect(owner.view, "#4").toEqual(["a", "b", "c"]);
   });
 });

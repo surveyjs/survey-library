@@ -886,7 +886,7 @@ export interface CarryForwardSource {
   candidates?: Array<string>;
 }
 
-// Mirrors dynamicItemModelBase.findQuestionByName: inside a matrix row or a dynamic
+// Mirrors QuestionRecordItem.findQuestionByName: inside a matrix row or a dynamic
 // panel, "<variableName>.<name>" addresses a sibling within that row/panel and anything
 // else falls through to the survey. The runtime compares that prefix case-sensitively,
 // unlike an expression reference, so this does too.

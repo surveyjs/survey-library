@@ -5,7 +5,7 @@ import { JsonObject, JsonObjectProperty, Serializer } from "../jsonobject";
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Question, QuestionValueType } from "../question";
 import { QuestionFactory } from "../questionfactory";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 
 // What a Filter Control gives its fields: the locale chain for the template question's strings and
 // the survey the question needs to resolve choicesByUrl, text processing and the rest.

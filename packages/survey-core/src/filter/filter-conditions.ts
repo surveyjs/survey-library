@@ -2,7 +2,7 @@ import { getLocaleString } from "../surveyStrings";
 import { ItemValue } from "../itemvalue";
 import { Helpers } from "../helpers";
 import { QuestionValueType } from "../question";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import {
   getConditionDefaultOperator, getConditionOperatorNames, isConditionOperatorEnabled, isQuestionClassContains

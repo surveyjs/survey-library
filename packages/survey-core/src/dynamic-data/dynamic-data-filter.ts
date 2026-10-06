@@ -113,33 +113,55 @@ export function createFilterRunner(expression: string): ConditionRunner {
 function toRunner(filter: string | ConditionRunner): ConditionRunner {
   return typeof filter === "string" ? createFilterRunner(filter) : filter;
 }
-// Returns the indexes of the records the filter expression accepts, in record order. The list runs
-// through applyFilters() below; this one is kept as the single-runner convenience that also takes
-// the expression as text, which is what a caller holding one expression wants.
-export function applyFilter(records: Array<any>, filter: string | ConditionRunner): Array<number> {
+// The fields that are read and never stored (IDynamicDataField.getValue).
+function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataField> {
+  return Array.isArray(fields) ? fields.filter((field: IDynamicDataField): boolean => typeof field.getValue === "function") : [];
+}
+/* Returns the indexes of the records the filter expression accepts, in record order. A field that is
+   read and never stored is a variable too: each record is then run as a copy with the fields the
+   expression names put over its own keys, and the record itself is not modified. */
+export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>): Array<number> {
   const runner = toRunner(filter);
   if (!runner) return createIndexes(records.length);
+  const used = runner.getVariables().map((name: string): string => name.split(/[.[]/)[0].toLowerCase());
+  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => used.indexOf(field.name.toLowerCase()) > -1);
   const res: Array<number> = [];
   for (let i = 0; i < records.length; i++) {
-    if (runner.runValues(records[i] || {})) res.push(i);
+    let values = records[i] || {};
+    if (virtualFields.length > 0) {
+      values = Object.assign({}, values);
+      for (let j = 0; j < virtualFields.length; j++) {
+        values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
+      }
+    }
+    if (runner.runValues(values)) res.push(i);
   }
   return res;
 }
-// The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
-// was parsed on its own, so this never concatenates the two expressions - and therefore never has
-// to bracket them.
-export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>): Array<number> {
+/* The slots of a list are ANDed: a record is created only if every runner accepts it. Each runner
+   was parsed on its own, so this never concatenates the expressions - and therefore never has to
+   bracket them. A field that is read and never stored is put over the record's own keys when any
+   of the expressions names it, as applyFilter does. */
+export function applyFilters(records: Array<any>, runners: Array<ConditionRunner>, fields?: Array<IDynamicDataField>): Array<number> {
   const used = (runners || []).filter((runner: ConditionRunner): boolean => !!runner);
   if (used.length === 0) return createIndexes(records.length);
+  const names: Array<string> = [];
+  used.forEach((runner: ConditionRunner): void => {
+    runner.getVariables().forEach((name: string): void => { names.push(name.split(/[.[]/)[0].toLowerCase()); });
+  });
+  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => names.indexOf(field.name.toLowerCase()) > -1);
   const res: Array<number> = [];
   for (let i = 0; i < records.length; i++) {
-    const record = records[i] || {};
-    let passes = true;
-    for (let j = 0; j < used.length; j++) {
-      if (!used[j].runValues(record)) {
-        passes = false;
-        break;
+    let values = records[i] || {};
+    if (virtualFields.length > 0) {
+      values = Object.assign({}, values);
+      for (let j = 0; j < virtualFields.length; j++) {
+        values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
       }
+    }
+    let passes = true;
+    for (let j = 0; j < used.length && passes; j++) {
+      passes = used[j].runValues(values);
     }
     if (passes) res.push(i);
   }
@@ -151,13 +173,19 @@ export function applySort(records: Array<any>, sort: Array<IDynamicDataSort>,
   fields?: Array<IDynamicDataField>, indexes?: Array<number>): Array<number> {
   const source = !!indexes ? indexes : createIndexes(records.length);
   if (!Array.isArray(sort) || sort.length === 0) return source;
-  const order = source.map((recordIndex: number, position: number) => ({ recordIndex: recordIndex, position: position }));
+  const sortFields = sort.map((item: IDynamicDataSort): IDynamicDataField => findField(fields, item.field));
+  // Every sort key of a record is read once, before the comparisons: a field that is read and never
+  // stored may cost more than a key lookup.
+  const order = source.map((recordIndex: number, position: number) => ({
+    recordIndex: recordIndex, position: position,
+    values: sort.map((item: IDynamicDataSort, i: number): any => {
+      const field = sortFields[i];
+      return !!field && !!field.getValue ? field.getValue(records[recordIndex], recordIndex) : getFieldValue(records[recordIndex], item.field);
+    })
+  }));
   order.sort((a, b) => {
     for (let i = 0; i < sort.length; i++) {
-      const item = sort[i];
-      const field = findField(fields, item.field);
-      const res = compareFieldValues(getFieldValue(records[a.recordIndex], item.field),
-        getFieldValue(records[b.recordIndex], item.field), field, item.direction);
+      const res = compareFieldValues(a.values[i], b.values[i], sortFields[i], sort[i].direction);
       if (res !== 0) return res;
     }
     // Explicit stability: the original position breaks every tie, so the result does not depend on

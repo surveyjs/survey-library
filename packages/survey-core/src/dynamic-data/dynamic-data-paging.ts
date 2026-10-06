@@ -7,16 +7,18 @@ import { DynamicDataList } from "./dynamic-data-list";
 import { combineFilterExpressions } from "./dynamic-data-filter";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
 
-/* The question side of the list's paging, sorting and filtering. Both dynamic questions expose the
-   same members and neither of them descends from the other, so the behaviour lives here and the
-   questions keep the thin public accessors.
+/* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
+   questions keep the thin public accessors. Its owner is a private object of the question
+   (QuestionRecordsModel), which answers from the question's property hash and hooks, so the paging
+   owner members are not part of any question's public type.
 
    The division of labour is the one every helper of this library follows: the list computes, the
    question stores. pageIndex, pageCount, sortOrder and filterExpression are mirrored into the
    owner's property hash by syncState(), so that React/Vue/Angular re-render through the ordinary
    onPropertyChanged bridge; the accessors read the mirror and never the list. Every change the list
    makes on its own - a clamped page index, a filter it refused to run - reaches the mirror through
-   the owner's onDataListChanged, which calls syncState() for a "reset" and a "pageChanged".
+   QuestionRecordsModel.onDataListChanged, which calls syncState() for a
+   "reset" and a "pageChanged".
 
    The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and
@@ -28,7 +30,6 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    serialized, never mirrored and never mixed with filterExpression. The key is the control's, so
    several controls on one question do not overwrite each other. The list ANDs its two slots. */
 export interface IDynamicDataPagingOwner {
-  getDataList(): DynamicDataList;
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
@@ -56,24 +57,44 @@ export interface IDynamicDataPagingOwner {
   cancelPendingPageMove?(): void;
   // True while a move waits for the asynchronous validators of the page: the pager is not usable.
   isPageMovePending?: boolean;
+  // False when the records cannot be sorted: a header click then does nothing. Absent -> true.
+  canSort?: boolean;
 }
 
 export class DynamicDataPagingController {
-  constructor(private owner: IDynamicDataPagingOwner) { }
+  // getList: whoever holds the list hands it over; it may create the list when it is asked.
+  constructor(private owner: IDynamicDataPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
-    return this.owner.getDataList();
+    return this.getList();
   }
   /* In design mode nothing is paged: the authored rowsPerPage/panelsPerPage keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
-  private updateListPageSize(): void {
+  private get runtimePageSize(): number {
     const size = this.owner.isDesignMode ? 0 : this.listPageSize;
-    this.list.pageSize = size > 0 ? size : 0;
+    return size > 0 ? size : 0;
+  }
+  private updateListPageSize(): void {
+    this.list.pageSize = this.runtimePageSize;
   }
   public updatePageSize(): void {
     this.updateListPageSize();
     this.syncState();
+  }
+  /* The setter of the authored page size (propertyName: rowsPerPage / panelsPerPage). The clamp is
+     here and not in an onSettingValue hook: the hook is skipped while the question is loading from
+     JSON. */
+  public setPageSize(propertyName: string, val: any): void {
+    const num = Helpers.getNumber(val);
+    this.owner.setPropertyValue(propertyName, num > 0 ? num : 0);
+    this.updatePageSize();
+  }
+  // Returns true when the list pages by another size now: that resets the list.
+  public updatePageSizeIfChanged(): boolean {
+    if (this.list.pageSize === this.runtimePageSize) return false;
+    this.updatePageSize();
+    return true;
   }
   public get pageIndex(): number {
     return this.owner.getPropertyValue("pageIndex") || 0;
@@ -157,12 +178,6 @@ export class DynamicDataPagingController {
   private getClampedPage(index: number): number {
     return Math.max(0, Math.min(index, this.owner.pageCount - 1));
   }
-  // The page that holds a position among the visible records - a visibleIndex - of the whole list.
-  public getPageOfVisibleIndex(visibleIndex: number): number {
-    const pageSize = this.list.pageSize;
-    if (pageSize <= 0 || visibleIndex < 0) return 0;
-    return Math.floor(visibleIndex / pageSize);
-  }
   /* The list does not announce every change of the visible count: setRecordVisible and
      invalidateViews raise nothing unless the page index had to be clamped, yet both change
      pageCount. The owner calls this from every point that can change it. */
@@ -225,7 +240,6 @@ export class DynamicDataPagingController {
        takes what the list ended up with. In design mode the text is never parsed at all, so the
        Creator keeps a filter that does not run. */
     this.isViewPending = false;
-    this.isPushingView = true;
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.sortOrder;
@@ -237,11 +251,9 @@ export class DynamicDataPagingController {
     this.pushedControlFilter = controlFilter;
     // One setView and not the three setters: with a paging source each of them is a read of its
     // own, and the authored view has to cost one request.
-    if (list.filter !== filter || list.controlFilter !== newControlFilter
-      || !Helpers.isTwoValueEquals(list.sort, sort)) {
-      list.setView(filter, sort, newControlFilter);
+    if (list.filter !== filter || list.controlFilter !== newControlFilter || !Helpers.isTwoValueEquals(list.sort, sort)) {
+      this.runViewPush((): void => { list.setView(filter, sort, newControlFilter); });
     }
-    this.isPushingView = false;
     this.mirrorListView();
   }
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
@@ -249,9 +261,18 @@ export class DynamicDataPagingController {
     const list = this.list;
     this.pushedControlFilter = "";
     if (!list.filter && !list.controlFilter && list.sort.length === 0) return;
+    this.runViewPush((): void => { list.setView("", [], ""); });
+  }
+  /* setView runs user code - onError for a filter it cannot run, the owner's rebuild on the reset -
+     and a flag that a throw left set would make every later syncState skip the view: the hash would
+     stop mirroring the list for good. */
+  private runViewPush(func: () => void): void {
     this.isPushingView = true;
-    list.setView("", [], "");
-    this.isPushingView = false;
+    try {
+      func();
+    } finally {
+      this.isPushingView = false;
+    }
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
      nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty
@@ -307,7 +328,10 @@ export class DynamicDataPagingController {
      addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
      a modified header click does in a grid - and leaves the other fields where they are. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
-     validated first (layer 1). Returns false only for an error found synchronously. */
+     validated first (layer 1). Returns false when the records cannot be sorted - the click does
+     nothing: no validation, no sort, no error - and for an error found synchronously. Whether they
+     can be sorted is checked before the page is left, so that a refused click costs no validation.
+     A sort from code (sortOrder, sortBy) is not checked here: the list refuses it and reports it. */
   public toggleSort(field: string, addToSort?: boolean): boolean {
     if (!field) return false;
     const newSort = this.getToggledSort(field, addToSort);
@@ -315,6 +339,7 @@ export class DynamicDataPagingController {
       this.setSortOrderCore(newSort, true);
       return true;
     }
+    if (this.owner.canSort === false) return false;
     return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
   }
   private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {
@@ -419,23 +444,31 @@ export class DynamicDataPagingController {
     this.pushedControlFilter = combined;
     this.list.controlFilter = combined;
   }
-  /* Re-decides which records are shown. A source that pages decides the membership of the window
-     itself - the window IS the answer - so re-running a local filter the list never ran would say
-     nothing; the window is read again instead. Every in-memory source takes the local path. */
+  /* Re-decides which records are shown. The view of a source that pages travels in the read request
+     and the source decides the membership of the window itself - the window IS the answer - so
+     re-running a local filter the list never ran would say nothing; the window is read again
+     instead. So is the whole storage that a paging source which cannot filter owes while a filter
+     is set and its window is still a page. Everything else - a source without paging, and that whole
+     storage once it is in force - takes the local path. */
   public refreshView(): void {
     const list = this.list;
     this.cancelPendingPageMove();
-    if (list.isPagedBySource) {
+    if (list.readsSourceOnViewChange) {
       list.refresh();
     } else {
       list.refreshView();
     }
     this.syncState();
   }
-  // The pager the UI series renders: it computes nothing of its own.
+  /* The pager the renderers show through their action bar: it computes nothing of its own. The page
+     buttons are icons whose localized titles are their accessible names; the page info is a disabled
+     item without a tab stop, text the keyboard passes over. */
   public createPagerActions(container: ActionContainer): ActionContainer {
     const prevAction = new Action({
       id: "sv-pager-prev",
+      iconName: "icon-arrowleft",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pagePrevText")),
       enabled: <any>new ComputedUpdater(() => this.canGoPrevPage),
       action: () => { this.prevPage(); }
     });
@@ -451,10 +484,15 @@ export class DynamicDataPagingController {
         const page = this.owner.pageIndex + 1;
         const text = this.owner.getLocalizationFormatString("indexText", page, this.owner.pageCount);
         return this.owner.isCountKnown ? text : String(page);
-      })
+      }),
+      enabled: false,
+      disableTabStop: true
     });
     const nextAction = new Action({
       id: "sv-pager-next",
+      iconName: "icon-arrowright",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pageNextText")),
       enabled: <any>new ComputedUpdater(() => this.canGoNextPage),
       action: () => { this.nextPage(); }
     });

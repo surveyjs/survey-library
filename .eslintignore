@@ -12,4 +12,5 @@ examples_test/
 index.js
 filter.js
 packages/survey-core/tests/bundle/*
+packages/survey-core/prompts/
 packages/survey-core/promts/

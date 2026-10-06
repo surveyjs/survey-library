@@ -4,7 +4,7 @@ import { Question } from "../question";
 import { Serializer } from "../jsonobject";
 import { Helpers } from "../helpers";
 import { ItemValue } from "../itemvalue";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { getConditionOperatorTitle, getFilterFieldDefaultOperator, isFilterConditionValueRequired } from "./filter-conditions";

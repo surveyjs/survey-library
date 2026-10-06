@@ -11,7 +11,7 @@ import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
-import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -529,9 +529,11 @@ export class MatrixDropdownColumn extends Base
   /* Opts this column out of the header-click sort. Every cell type has a comparer, so no type is
      unsortable by construction: the opt-out is the author's. */
   @property({ defaultValue: true }) allowSort: boolean;
+  // The data source can make every column unsortable: one that pages and has not declared sorting
+  // (matrix.canSortRecords).
   public get isSortable(): boolean {
     const matrix: any = this.colOwner;
-    return !!matrix && matrix.allowSortRows === true && this.allowSort;
+    return !!matrix && matrix.allowSortRows === true && this.allowSort && matrix.canSortRecords !== false;
   }
   /* Opts this column out of the Filter Control, the way allowSort opts it out of the header-click
      sort. A cell type that stores no value a filter can compare - a file to upload - says so

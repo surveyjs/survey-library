@@ -124,7 +124,6 @@ describe("Datetime mask: locale rollout", () => {
       // CJK: a symbol would repeat per digit. RTL scripts: a strong right-to-left symbol makes the
       // field order unstable while the mask fills (the value changes bidi class as digits replace
       // letters), and the Latin fallback is the only symbol set that stays in logical order in every
-      // typing state; see the mask RTL design (promts/mask-rtl-00-phase1-design.md)
       "ja": "yyyy/mm/dd",
       "ko": "yyyy. mm. dd",
       "zh-cn": "yyyy/mm/dd",

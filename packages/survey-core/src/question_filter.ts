@@ -14,7 +14,7 @@ import {
   conditionsToExpression, getFieldsByValueName, getFilterConditionText, getFilterFieldOperators, getFilterValueEditorJson,
   normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
-import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
@@ -150,7 +150,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // would stay filtered forever with nothing left to clear it.
   private attachedSource: IDynamicDataFilterSource;
   // The question source names, if it can be filtered by a control. Asked by capability, the way the
-  // data list asks a source whether it has "readRange": the control imports neither dynamic question.
+  // data list asks a source whether it has "remove": the control imports none of the records questions.
   // A control taken off its page keeps its data, so without the parent check it would still find a
   // source - and filter it from outside the survey - the next time it re-resolves one.
   private get filterSource(): IDynamicDataFilterSource {

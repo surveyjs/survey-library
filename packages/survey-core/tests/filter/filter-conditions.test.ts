@@ -5,7 +5,7 @@ import {
 } from "../../src/filter/filter-conditions";
 import { FilterField } from "../../src/filter/filter-field";
 import { ItemValue } from "../../src/itemvalue";
-import { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../../src/interfaces/ui-interfaces";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import "../../src/question_text";

@@ -1,5 +1,5 @@
 import { settings } from "../settings";
-import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-fields";
+import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 
 // The grammar knows exactly two escapes, \' and \" (grammar.pegjs, AnyCharacters), and none for the
 // backslash itself. A bare " is not allowed inside a single-quoted string either - the character

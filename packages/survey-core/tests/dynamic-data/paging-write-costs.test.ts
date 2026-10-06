@@ -1,6 +1,8 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
@@ -9,9 +11,8 @@ import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
 import { Helpers } from "../../src/helpers";
 
-/* Step 16 (prompts/dynamic-data-list/16-paging-700-records.md): the per-write costs that remain once
-   only the page is built. These are performance items: the tests count calls, they do not measure
-   time. The item names in the test names are the ones the prompt gives. */
+/* The per-write costs that remain once only the page is built. These are performance items: the
+   tests count calls, they do not measure time. */
 
 function records(count: number, create: (i: number) => any): Array<any> {
   const res: Array<any> = [];
@@ -243,15 +244,16 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     expect((<any>survey.getQuestionByName("m")).visibleRows.length, "m is built").toBe(50);
     return survey;
   }
-  test("(1) one field of one record, three questions bound to the value: 4 whole-array copies, not 7", () => {
+  test("(1) one field of one record, three questions bound to the value: 3 whole-array copies, not 7", () => {
     const survey = createBoundSurvey();
     const pd1 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd1");
     const copies = vi.spyOn(Helpers, "getUnbindValue");
     pd1.panels[10].getQuestionByName("b").value = "changed";
     const wholeArray = copies.mock.calls.filter(call => Array.isArray(call[0]) && call[0].length === 50);
     // Kept: the survey hash gets its own copy (survey.setValue), each sibling gets its own copy
-    // (updateValueFromSurvey of pd2 and m), the matrix copies the value it receives (createNewValue).
-    expect(wholeArray.length, "#1").toBe(4);
+    // (updateValueFromSurvey of pd2 and m). The matrix hands its rows their records without copying
+    // the value it receives.
+    expect(wholeArray.length, "#1").toBe(3);
     expect(survey.data.rec[10].b, "#2").toBe("changed");
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[10].getQuestionByName("b").value, "#3").toBe("changed");
   });
@@ -319,5 +321,257 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     pd1.value[6].nested.x = "mutated";
     expect(pd2.value[6].nested.x, "#5: the other way round").toBe(6);
     expect(received[6].nested.x, "#6: the handler's value").toBe(6);
+  });
+});
+
+/* A read() source is paged by the list, and it is the kind of source whose storage may be large - the server hands over
+   everything once. A page visit, an edit and a validation must cost the page, not the record count.
+   The whole-list calculations (progress, display value) are correct at O(records) and are tested for
+   their result in question-source-contract.test.ts, not here. */
+describe("E: a read() source paged by the list costs the page", () => {
+  class BigReadSource {
+    public calls: number = 0;
+    constructor(public data: Array<any>) { }
+    public read(): Array<any> {
+      this.calls++;
+      return this.data.map(r => Object.assign({}, r));
+    }
+    public update(key: any, record: any): void {
+      this.calls++;
+      this.data[key] = Object.assign({}, record);
+    }
+  }
+  interface IBigQuestion {
+    survey: SurveyModel;
+    question: any;
+    source: BigReadSource;
+    items: () => Array<any>;
+    input: (position: number, name: string) => Question;
+    createSpy: () => { calls: Array<any> };
+  }
+  function createBig(type: string, count: number): IBigQuestion {
+    const json: any = type === "matrix"
+      ? { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 20,
+        columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", isRequired: true }] }
+      : { type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: 20,
+        templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", isRequired: true }] };
+    const survey = new SurveyModel({ elements: [json] });
+    const question: any = survey.getQuestionByName("q");
+    const source = new BigReadSource(records(count, i => ({ a: "a" + i, b: "b" + i })));
+    question.dataSource = source;
+    const items = (): Array<any> => type === "matrix" ? question.visibleRows : question.panels;
+    expect(items().length, "the first page is built").toBe(20);
+    return {
+      survey: survey, question: question, source: source, items: items,
+      input: (position: number, name: string): Question => items()[position].getQuestionByName(name),
+      createSpy: () => (type === "matrix"
+        ? vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow")
+        : vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel")).mock
+    };
+  }
+  // Records, not calls: one call on a whole array unbinds every record of it.
+  function countUnboundRecords(spy: { calls: Array<Array<any>> }): number {
+    let res = 0;
+    spy.calls.forEach((call: Array<any>): void => {
+      const value = call[0];
+      if (!!value && typeof value === "object" && !Array.isArray(value)) res++;
+    });
+    return res;
+  }
+  function measurePageVisit(type: string, count: number): { created: number, sourceCalls: number, unbound: number } {
+    const big = createBig(type, count);
+    const created = big.createSpy();
+    const copies = vi.spyOn(Helpers, "getUnbindValue");
+    const callsBefore = big.source.calls;
+    big.question.pageIndex = 3;
+    expect(big.input(0, "a").value, type + " " + count + ": the page holds records 60-79").toBe("a60");
+    const res = { created: created.calls.length, sourceCalls: big.source.calls - callsBefore, unbound: countUnboundRecords(copies.mock) };
+    vi.restoreAllMocks();
+    return res;
+  }
+  /* Review finding 3: a column default must not send a page visit through the whole-value copy.
+     The records are populated - every one holds the default already - so nothing is written back. */
+  function measureDefaultsPageVisit(count: number, hasSource: boolean): { created: number, unbound: number, writes: number } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: hasSource ? 0 : count, rowsPerPage: 20,
+      columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", defaultValue: "def" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    const data = records(count, i => ({ a: "a" + i, b: "b" + i }));
+    if (hasSource) {
+      question.dataSource = new BigReadSource(data);
+    } else {
+      survey.data = { q: data };
+    }
+    expect(question.visibleRows.length, "the first page is built").toBe(20);
+    const created = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow");
+    const copies = vi.spyOn(Helpers, "getUnbindValue");
+    const writes = vi.spyOn(SurveyModel.prototype, "setValue");
+    question.pageIndex = 3;
+    expect(question.visibleRows[0].getQuestionByName("b").value, count + ": the stored value, not the default").toBe("b60");
+    const res = { created: created.mock.calls.length, unbound: countUnboundRecords(copies.mock), writes: writes.mock.calls.length };
+    vi.restoreAllMocks();
+    return res;
+  }
+  [false, true].forEach((hasSource: boolean): void => {
+    test("(1a) matrix with a column default, " + (hasSource ? "a read() source" : "question.value") + ": a page visit copies what does not grow with the record count", () => {
+      const small = measureDefaultsPageVisit(1000, hasSource);
+      const large = measureDefaultsPageVisit(10000, hasSource);
+      expect(small.created, "#1").toBe(20);
+      expect(large.created, "#2").toBe(20);
+      expect(large.unbound, "#3: the copies of a visit: " + small.unbound + " at 1,000, " + large.unbound + " at 10,000").toBe(small.unbound);
+      expect(large.unbound <= 2 * 20, "#4: at most two copies per record on the page").toBe(true);
+      expect(large.writes, "#5: nothing is written back").toBe(0);
+    });
+  });
+  test("(1b) matrix with a column default: records the value does not hold yet still get the default", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 3,
+      columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", defaultValue: "def" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    survey.data = { q: [{ a: "x", b: "y" }] };
+    question.rowCount = 3;
+    expect(question.visibleRows.length, "#1").toBe(3);
+    expect(question.value, "#2: the padded records are written with the default").toEqual([{ a: "x", b: "y" }, { b: "def" }, { b: "def" }]);
+  });
+  ["matrix", "panel"].forEach((type: string): void => {
+    test("(1) " + type + ": one page visit builds the page, calls the source 0 times, copies what does not grow with the record count", () => {
+      const small = measurePageVisit(type, 1000);
+      const large = measurePageVisit(type, 10000);
+      expect(small.created, "#1: 1,000 records").toBe(20);
+      expect(large.created, "#2: 10,000 records").toBe(20);
+      expect(small.sourceCalls, "#3").toBe(0);
+      expect(large.sourceCalls, "#4").toBe(0);
+      expect(large.unbound, "#5: the copies of a visit: " + small.unbound + " at 1,000, " + large.unbound + " at 10,000").toBe(small.unbound);
+      expect(large.unbound <= 2 * 20, "#6: at most two copies per record on the page").toBe(true);
+    });
+    test("(2) " + type + ": one cell edit creates no object and reads nothing", () => {
+      [1000, 10000].forEach((count: number): void => {
+        const big = createBig(type, count);
+        big.question.pageIndex = 3;
+        const before = [].concat(big.items());
+        const created = big.createSpy();
+        const callsBefore = big.source.calls;
+        big.input(0, "a").value = "edited";
+        expect(created.calls.length, "#1: " + count + ", no object created").toBe(0);
+        expect(big.source.calls - callsBefore, "#2: " + count + ", the update and no read").toBe(1);
+        expect(big.source.data[60].a, "#3: " + count).toBe("edited");
+        expect(big.items().every((item: any, i: number): boolean => item === before[i]), "#4: " + count + ", the page keeps its objects").toBe(true);
+        vi.restoreAllMocks();
+      });
+    });
+    test("(3) " + type + ": tryComplete after one edit on page 0 and a move to page 3 visits one page", () => {
+      [1000, 10000].forEach((count: number): void => {
+        const big = createBig(type, count);
+        big.input(1, "a").value = "edited";
+        big.question.pageIndex = 3;
+        const visits = vi.spyOn(<any>(type === "matrix" ? QuestionMatrixDynamicModel.prototype : QuestionPanelDynamicModel.prototype), "validatePageObjects");
+        const callsBefore = big.source.calls;
+        expect(big.survey.tryComplete(), "#1: " + count + ", every record is valid").toBe(true);
+        expect(visits.mock.calls.length, "#2: " + count + ", the edited page only").toBe(1);
+        expect(big.source.calls, "#3: " + count + ", nothing is read").toBe(callsBefore);
+        vi.restoreAllMocks();
+      });
+    });
+  });
+});
+
+describe("Fixed matrix: the records are composed once per answer", () => {
+  function createFixedMatrix(rowCount: number): QuestionMatrixDropdownModel {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "m", columns: [{ name: "a", cellType: "text" }],
+        rows: records(rowCount, i => "r" + i)
+      }]
+    });
+    survey.data = { m: { r0: { a: "0" }, r150: { a: "150" } } };
+    return <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+  }
+  test("creating the list, a cell edit, reads and an assignment from outside", () => {
+    const matrix = createFixedMatrix(200);
+    const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+    const list = matrix.getDataList();
+    expect(list.loadedCount, "#1").toBe(200);
+    expect(composes.mock.calls.length, "#1: creating the list composes at most once").toBeLessThanOrEqual(1);
+    const afterCreate = composes.mock.calls.length;
+    matrix.visibleRows[3].cells[0].question.value = "x";
+    expect(list.getRecord(3), "#2: the edit is read back").toEqual({ a: "x" });
+    expect(composes.mock.calls.length - afterCreate, "#2: one cell edit composes at most once more").toBeLessThanOrEqual(1);
+    const afterEdit = composes.mock.calls.length;
+    for (let i = 0; i < 200; i++) {
+      list.getRecord(i);
+    }
+    expect(composes.mock.calls.length - afterEdit, "#3: reads without a write compose nothing").toBe(0);
+    (<SurveyModel>matrix.survey).setValue("m", { r1: { a: "1" } });
+    expect(composes.mock.calls.length - afterEdit, "#4: an assignment composes nothing by itself").toBe(0);
+    expect(list.getRecord(1), "#5: the next read").toEqual({ a: "1" });
+    list.getRecord(2);
+    expect(composes.mock.calls.length - afterEdit, "#5: composes exactly once").toBe(1);
+  });
+  test("a page visit builds the page and composes the records at most once; the value-level reads build no row", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: 10, columns: [{ name: "a", cellType: "text" }], rows: records(200, i => "r" + i) }]
+    });
+    survey.data = { m: { r0: { a: "0" }, r150: { a: "150" } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#0: the first page").toBe(10);
+    const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+    const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+    matrix.nextPage();
+    expect(matrix.visibleRows[0].rowName, "#1: page 1").toBe("r10");
+    expect(builds.mock.calls.length, "#2: a page of rows").toBe(10);
+    expect(composes.mock.calls.length, "#3: composed at most once").toBeLessThanOrEqual(1);
+    builds.mockClear();
+    expect(Object.keys(matrix.getFilteredData()), "#4: every answered record").toEqual(["r0", "r150"]);
+    expect(matrix.getProgressInfo().answeredQuestionCount, "#5").toBe(2);
+    expect(builds.mock.calls.length, "#6: no row is built for them").toBe(0);
+  });
+  test("a full validation visits every page and builds one page of rows at a time", () => {
+    const data: any = {};
+    records(30, i => "r" + i).forEach((name: string) => { data[name] = { a: name }; });
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: 5, columns: [{ name: "a", cellType: "text", isRequired: true }], rows: records(30, i => "r" + i) }]
+    });
+    survey.data = { m: data };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#0: the first page").toBe(5);
+    const rowBuilds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+    const generations = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "generateRows");
+    let maxRows = 0;
+    const originalGetVisibleRows = (<any>matrix).getVisibleRows.bind(matrix);
+    (<any>matrix).getVisibleRows = function (): any {
+      const res = originalGetVisibleRows();
+      maxRows = Math.max(maxRows, ((<any>matrix).generatedVisibleRows || []).length);
+      return res;
+    };
+    expect(survey.validate(), "#1").toBe(true);
+    expect(rowBuilds.mock.calls.length, "#2: the five other pages, then the first one again").toBe(30);
+    expect(generations.mock.calls.length, "#3: one build per page visit").toBe(6);
+    expect(maxRows, "#4: no more than one page of rows at a time").toBe(5);
+  });
+  [{ name: "a sort", apply: (m: any): void => { m.sortBy = "rowTitle-"; } }, { name: "a filter", apply: (m: any): void => { m.filterExpression = "{rowTitle} contains '1'"; } }].forEach(view => {
+    [0, 10].forEach(rowsPerPage => {
+      test("assigning " + view.name + " composes the records once and builds no more rows than the view, rowsPerPage " + rowsPerPage, () => {
+        const survey = new SurveyModel({
+          elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, columns: [{ name: "a", cellType: "text" }], rows: records(200, i => "r" + i) }]
+        });
+        survey.data = { m: { r0: { a: "0" } } };
+        const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+        matrix.visibleRows;
+        matrix.getDataList();
+        const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+        const getter = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getListRecords");
+        const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
+        let virtualReads = 0;
+        const getFields = (<any>QuestionMatrixDropdownModel.prototype).getFields;
+        vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getFields").mockImplementation(function (this: any) {
+          return getFields.call(this).map((field: any) => !field.getValue ? field :
+            Object.assign({}, field, { getValue: (record: any, index: number): any => { virtualReads++; return field.getValue(record, index); } }));
+        });
+        view.apply(matrix);
+        const viewCount = matrix.getDataList().getVisibleIndexes().length;
+        expect(composes.mock.calls.length, "#1: composed at most once").toBeLessThanOrEqual(1);
+        expect(getter.mock.calls.length, "#2: the getter is called at most twice").toBeLessThanOrEqual(2);
+        expect(builds.mock.calls.length, "#3: no more rows than the view").toBeLessThanOrEqual(rowsPerPage > 0 ? rowsPerPage : viewCount);
+        expect(virtualReads, "#4: one read per record for the one key").toBeLessThanOrEqual(200);
+      });
+    });
   });
 });

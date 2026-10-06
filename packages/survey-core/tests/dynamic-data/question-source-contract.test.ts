@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
+import { FunctionFactory } from "../../src/functionsfactory";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import {
@@ -647,10 +648,8 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
   });
 });
 
-/* A paging source declares what it does with the view. A sort it has not declared is refused: no
-   request, the rows or panels on display stay, and survey.onDynamicDataError reports a failed read.
-   A filter it has not declared is run by the list over the whole storage, which the source is read
-   for while the filter is set. */
+/* A paging source declares what it does with the view. A filter or a sort it has not declared is run
+   by the list over the whole storage, which the source is read for while that part is set. */
 describe.each(namedAdapters)("Question source contract, paging without a declared view - %s", (_name: string, adapter: IQuestionAdapter) => {
   function createPagingOnly(): { survey: SurveyModel, question: any, source: ContractSource, errors: Array<string> } {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
@@ -666,21 +665,51 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(source.skips, "#2").toEqual([0, 2]);
     expect(errors, "#3").toEqual([]);
   });
-  test("a sort set from code sends no request and keeps the page; removing it reads again", () => {
+  test("a sort set from code reads the whole storage once and the question pages the sorted records; clearing it shows the server page again", () => {
     const { question, source, errors } = createPagingOnly();
     question.pageIndex = 1;
-    const items = [].concat(adapter.items(question));
     const readsBefore = source.pagedReadCount;
-    question.sortBy = "name-";
-    expect(source.pagedReadCount, "#1: no request").toBe(readsBefore);
-    expect(errors, "#2").toEqual(["read"]);
-    expect(adapter.ids(question), "#3: the page on display").toEqual([102, 103]);
-    expect(question.pageIndex, "#4").toBe(1);
-    expect(adapter.items(question).every((item: any, i: number): boolean => item === items[i]), "#5: the same objects").toBe(true);
+    question.sortBy = "id-";
+    expect(source.pagedReadCount, "#1: one read").toBe(readsBefore + 1);
+    expect(question["dataList"].isPagedBySource, "#2: of the whole storage").toBe(false);
+    expect(question["dataList"].loadedCount, "#3").toBe(5);
+    expect(errors, "#4").toEqual([]);
+    expect(question.pageIndex, "#5: a sort keeps the page").toBe(1);
+    expect(adapter.ids(question), "#6: sorted, paged by the question").toEqual([102, 101]);
+    question.pageIndex = 2;
+    expect(source.pagedReadCount, "#7: the page is cut from the whole storage").toBe(readsBefore + 1);
+    expect(adapter.ids(question), "#8").toEqual([100]);
     question.sortBy = "";
-    expect(source.pagedReadCount, "#6: read again").toBe(readsBefore + 1);
-    expect(adapter.ids(question), "#7").toEqual([102, 103]);
-    expect(errors, "#8").toEqual(["read"]);
+    expect(source.pagedReadCount, "#9: the source pages again").toBe(readsBefore + 2);
+    expect(source.skips[source.skips.length - 1], "#10: the page the sort kept").toBe(4);
+    expect(question["dataList"].isPagedBySource, "#11").toBe(true);
+    expect(adapter.ids(question), "#12: the server page").toEqual([104]);
+    expect(errors, "#13").toEqual([]);
+  });
+  test("the records edited in the whole storage of a sort are not carried onto the page that replaces it", () => {
+    const { question, errors } = createPagingOnly();
+    const editedRecords = (): Array<number> => question._pageValidation.editedRecords;
+    question.sortBy = "id-";
+    question.pageIndex = 1;
+    adapter.edit(question, 0, "name", "");
+    question.pageIndex = 0;
+    expect(editedRecords(), "#1: record 102, off the page and not validated").toEqual([2]);
+    question.sortBy = "";
+    expect(adapter.ids(question), "#2: the server page").toEqual([100, 101]);
+    expect(editedRecords(), "#3: an index of the whole storage names nothing on a page").toEqual([]);
+    question.sortBy = "id-";
+    expect(editedRecords(), "#4: nothing is remapped into the next whole storage").toEqual([]);
+    expect(errors, "#5").toEqual([]);
+  });
+  test("a sort in the JSON: the first read is the whole storage", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = adapter.create(source, 2, { sortBy: "id-" });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    expect(source.pagedReadCount, "#1").toBe(1);
+    expect(question["dataList"].isPagedBySource, "#2").toBe(false);
+    expect(adapter.ids(question), "#3").toEqual([104, 103]);
+    expect(errors, "#4").toEqual([]);
   });
   test("a filter set from code reads the whole storage once and the question pages the matches; clearing it shows the server page again", () => {
     const { question, source, errors } = createPagingOnly();
@@ -718,26 +747,26 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(editedRecords(), "#4: nothing is remapped into the next whole storage").toEqual([]);
     expect(errors, "#5").toEqual([]);
   });
-  test("a source assigned while such a view is set shows no records; a capable source recovers", () => {
-    const { survey, question } = adapter.create(undefined, 2, { sortBy: "name-" });
+  test("a source assigned while a sort it cannot run is set is read whole; a source that sorts gets the sort", () => {
+    const { survey, question } = adapter.create(undefined, 2, { sortBy: "id-" });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
-    const refused = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    question.dataSource = refused;
-    expect(refused.pagedReadCount, "#1: no request").toBe(0);
-    expect(adapter.ids(question), "#2: no records").toEqual([]);
-    expect(errors, "#3").toEqual(["read"]);
-    const capable = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
-    question.dataSource = capable;
-    expect(capable.pagedReadCount, "#4").toBe(1);
-    expect(adapter.ids(question), "#5: the source sorts on its side").toEqual([100, 101]);
-    expect(errors, "#6").toEqual(["read"]);
+    const pagingOnly = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    question.dataSource = pagingOnly;
+    expect(pagingOnly.pagedReadCount, "#1: one read").toBe(1);
+    expect(adapter.ids(question), "#2: sorted here").toEqual([104, 103]);
+    const sorting = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
+    question.dataSource = sorting;
+    expect(sorting.pagedReadCount, "#3").toBe(1);
+    expect(adapter.ids(question), "#4: the source sorts on its side").toEqual([100, 101]);
+    expect(errors, "#5").toEqual([]);
   });
 });
 
-/* A header sort is offered only where it can run: the list sorts the records, or the paging source
-   declared sorting. A click that cannot sort does nothing - no validation, no request, no error. */
-describe("Question source contract: sort availability", () => {
+/* A header sort runs whatever the source declares: the list sorts the records it holds, a paging
+   source that sorts gets the sort in its page reads, and one that cannot sort is read whole while the
+   sort is set. A header click is a move the respondent makes, so the page is validated first. */
+describe("Question source contract: header sort", () => {
   function createSortableMatrix(source: ContractSource): { survey: SurveyModel, question: QuestionMatrixDynamicModel, errors: Array<string> } {
     const { survey, question } = matrixAdapter.create(source, 2, { allowSortRows: true });
     const errors: Array<string> = [];
@@ -747,18 +776,33 @@ describe("Question source contract: sort availability", () => {
   function sortableColumns(question: QuestionMatrixDynamicModel): Array<boolean> {
     return question.columns.map(column => column.isSortable);
   }
-  test("matrix, a paging source without sorting: no column is sortable and a header click does nothing", () => {
+  test("matrix, a paging source without sorting: every column is sortable and a header click sorts the whole storage", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, filtering: true } });
     const { question, errors } = createSortableMatrix(source);
-    expect(question.canSortRecords, "#1").toBe(false);
-    expect(sortableColumns(question), "#2").toEqual([false, false]);
-    const readsBefore = source.pagedReadCount;
-    // Record 100 has no name, and the name is required: validating the page would show an error.
-    expect(question.toggleSort("id"), "#3").toBe(false);
+    expect(sortableColumns(question), "#1").toEqual([true, true]);
+    // The page is shown: the click validates the rows on display.
+    expect(matrixAdapter.ids(question), "#2").toEqual([100, 101]);
+    let readsBefore = source.pagedReadCount;
+    // Record 100 has no name, and the name is required: the click validates the page and stops.
+    expect(question.toggleSort("id"), "#3: the page is validated first").toBe(false);
     expect(source.pagedReadCount, "#4: no request").toBe(readsBefore);
-    expect(question.sortBy, "#5").toBe("");
-    expect(errors, "#6: no error event").toEqual([]);
-    expect(question.visibleRows[0].getQuestionByName("name").errors.length, "#7: the page was not validated").toBe(0);
+    expect(question.visibleRows[0].getQuestionByName("name").errors.length, "#5").toBe(1);
+    question.pageIndex = 1;
+    readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#6").toBe(true);
+    expect(source.pagedReadCount, "#7: the whole storage is read").toBe(readsBefore + 1);
+    expect(question["dataList"].isPagedBySource, "#8").toBe(false);
+    expect(question.sortBy, "#9").toBe("id");
+    expect(matrixAdapter.ids(question), "#10").toEqual([102, 103]);
+    expect(question.toggleSort("id"), "#11").toBe(true);
+    expect(source.pagedReadCount, "#12: descending is sorted here").toBe(readsBefore + 1);
+    expect(matrixAdapter.ids(question), "#13").toEqual([102, 101]);
+    expect(question.toggleSort("id"), "#14").toBe(true);
+    expect(question.sortBy, "#15").toBe("");
+    expect(source.pagedReadCount, "#16: not sorted, the server page is read").toBe(readsBefore + 2);
+    expect(question["dataList"].isPagedBySource, "#17").toBe(true);
+    expect(matrixAdapter.ids(question), "#18").toEqual([102, 103]);
+    expect(errors, "#19").toEqual([]);
   });
   test("matrix, a paging source with sorting: the columns are sortable and a header click reads the sorted page", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
@@ -781,23 +825,50 @@ describe("Question source contract: sort availability", () => {
     expect(question.sortBy, "#4").toBe("id-");
     expect(matrixAdapter.ids(question), "#5: sorted here, descending").toEqual([102, 101]);
   });
-  test("matrix, a paging source without sorting: a filter, read over the whole storage, keeps the columns unsortable", () => {
+  test("matrix, a paging source that can neither filter nor sort: under a filter a header click sorts the whole storage in force", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    const { question } = createSortableMatrix(source);
+    const { question, errors } = createSortableMatrix(source);
     question.filterExpression = "{id} > 100";
     expect(question["dataList"].isPagedBySource, "#1: the whole storage is in force").toBe(false);
-    expect(question.canSortRecords, "#2").toBe(false);
-    expect(sortableColumns(question), "#3").toEqual([false, false]);
-    expect(question.toggleSort("id"), "#4").toBe(false);
+    const readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(question.toggleSort("id"), "#3").toBe(true);
+    expect(source.pagedReadCount, "#4: nothing is read").toBe(readsBefore);
+    expect(matrixAdapter.ids(question), "#5").toEqual([104, 103]);
+    question.filterExpression = "";
+    expect(source.pagedReadCount, "#6: the sort keeps the whole storage").toBe(readsBefore);
+    expect(matrixAdapter.ids(question), "#7").toEqual([104, 103]);
+    expect(errors, "#8").toEqual([]);
   });
-  test("matrix: assigning another source changes whether the columns are sortable", () => {
-    const sorting = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
-    const { question } = createSortableMatrix(sorting);
-    expect(sortableColumns(question), "#1").toEqual([true, true]);
-    question.dataSource = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    expect(sortableColumns(question), "#2").toEqual([false, false]);
-    question.dataSource = undefined;
-    expect(sortableColumns(question), "#3: the question's own value").toEqual([true, true]);
+  test("matrix, a source that filters but cannot sort, with a filter only the source can run", () => {
+    FunctionFactory.Instance.register("contractSortFallbackAsync", (): any => true, true);
+    try {
+      const asyncFilter = "contractSortFallbackAsync({id}) = true";
+      const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, filtering: true } });
+      const { question, errors } = createSortableMatrix(source);
+      question.filterExpression = asyncFilter;
+      expect(question.filterExpression, "#1: the source runs it").toBe(asyncFilter);
+      expect(errors, "#2").toEqual([]);
+      // Page 1 holds no record with an empty required name, so the click passes the page validation.
+      question.pageIndex = 1;
+      const readsBefore = source.pagedReadCount;
+      expect(question.toggleSort("id"), "#3: the click passes the page validation").toBe(true);
+      expect(source.pagedReadCount, "#4: the sorted read is refused, nothing is sent").toBe(readsBefore);
+      expect(errors, "#5").toEqual(["read"]);
+      expect(question.filterExpression, "#6: the filter is kept").toBe(asyncFilter);
+      expect(matrixAdapter.ids(question), "#7: the page in force").toEqual([102, 103]);
+      question.sortBy = "";
+      expect(source.pagedReadCount, "#8: clearing the sort reads the filtered page").toBe(readsBefore + 1);
+      question.filterExpression = "";
+      question.sortBy = "id-";
+      expect(question["dataList"].isPagedBySource, "#9: the whole storage is in force").toBe(false);
+      question.filterExpression = asyncFilter;
+      expect(question.filterExpression, "#10: the list has to run it and cannot, so it is dropped").toBe("");
+      expect(errors, "#11").toEqual(["read", "read"]);
+      expect(matrixAdapter.ids(question), "#12: sorted, unfiltered").toEqual([104, 103]);
+    } finally {
+      FunctionFactory.Instance.unregister("contractSortFallbackAsync");
+    }
   });
   test("matrix in design mode, or without a list, keeps the header click", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
@@ -809,21 +880,22 @@ describe("Question source contract: sort availability", () => {
     standalone.allowSortRows = true;
     standalone.addColumn("col1");
     expect((<any>standalone)._dataList, "#3: no list yet").toBeUndefined();
-    expect(standalone.canSortRecords, "#4").toBe(true);
-    expect((<any>standalone)._dataList, "#5: the answer did not create one").toBeUndefined();
-    expect(standalone.columns[0].isSortable, "#6").toBe(true);
-    expect(standalone.toggleSort("col1"), "#7").toBe(true);
-    expect(standalone.sortBy, "#8").toBe("col1");
+    expect(standalone.columns[0].isSortable, "#4").toBe(true);
+    expect(standalone.toggleSort("col1"), "#5").toBe(true);
+    expect(standalone.sortBy, "#6").toBe("col1");
   });
-  test("panel, a paging source without sorting: toggleSort returns false", () => {
+  test("panel, a paging source without sorting: toggleSort sorts the whole storage", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
     const { survey, question } = panelAdapter.create(source, 2);
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    question.pageIndex = 1;
     const readsBefore = source.pagedReadCount;
-    expect(question.toggleSort("id"), "#1").toBe(false);
-    expect(source.pagedReadCount, "#2").toBe(readsBefore);
-    expect(question.sortBy, "#3").toBe("");
-    expect(errors, "#4").toEqual([]);
+    expect(question.toggleSort("id"), "#1").toBe(true);
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(source.pagedReadCount, "#3: one read of the whole storage").toBe(readsBefore + 1);
+    expect(question.sortBy, "#4").toBe("id-");
+    expect(panelAdapter.ids(question), "#5").toEqual([102, 101]);
+    expect(errors, "#6").toEqual([]);
   });
 });

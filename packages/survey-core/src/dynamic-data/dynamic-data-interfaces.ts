@@ -78,16 +78,15 @@
 // answers with every record, and the list filters and sorts that answer itself, whatever the two
 // flags say; its request is always { skip: 0, take: 0, filter: "", sort: [] }. A paging source
 // declares each of the two on its own: a source that pages and sorts but cannot filter declares
-// { paging: true, sorting: true }. The list never filters or sorts one page locally:
-// - a paging source that cannot filter is read whole while a filter is set: the request is the one of
-//   a source that does not page, and the list filters, sorts and pages the answer itself. Once the
-//   filter is cleared, the source is paged again. Declare filtering to keep a filter from reading
-//   every record;
-// - a sort a paging source has not declared is refused on a paged read: no request is sent, the
-//   window in force stays, and the refusal is reported through survey.onDynamicDataError with the
-//   operation "read". question.canSortRecords says up front whether a sort is available.
-// The request of a paged read carries only the parts the source has declared: "" for no filter, []
-// for an undeclared sort.
+// { paging: true, sorting: true }. The list never filters or sorts one page locally. While the list
+// has a filter or a sort that a paging source has not declared, the source is read whole: the
+// request is the one of a source that does not page, and the list filters, sorts and pages the
+// answer itself. Once no undeclared part is set, the source is paged again. Declare filtering and
+// sorting to keep a filter or a sort from reading every record. A paged read therefore carries the
+// view as it is: "" for no filter, [] for no sort. One case is refused: a source that filters but
+// cannot sort, with a filter the list cannot run itself (an async function) - a sort would need the
+// list to run it, so the read is not sent, the window in force stays, and survey.onDynamicDataError
+// reports the operation "read".
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
 // survey.onDynamicDataError with the operation name; the records the question shows are kept as

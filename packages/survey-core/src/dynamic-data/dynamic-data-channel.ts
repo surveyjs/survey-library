@@ -34,13 +34,13 @@ export interface IDynamicDataChannelHost {
   getKeyField(): string;
   // The source may be sent this write (DynamicDataList.hasCapability).
   hasCapability(operation: DynamicDataOperation): boolean;
-  // The next read is a paged one: the source pages, and it filters too or there is no filter.
+  // The next read is a paged one: the source pages, and it runs every part of the view the list has.
   isReadPagedBySource(): boolean;
   // The range of the next read. skip and take are 0 for a read of the whole storage.
   getReadRange(useWindowOffset: boolean): { skip: number, take: number };
   /* The request the source is sent: the range and the view. It copies the owner's sort, and it
-     throws for a sort that a paging source has not declared, so it is built inside the read's error
-     handling: a refused read takes the path of a source that throws. */
+     throws when the list cannot run the filter over a whole storage it has to read, so it is built
+     inside the read's error handling: a refused read takes the path of a source that throws. */
   createReadRequest(skip: number, take: number): IDynamicDataReadRequest;
   // The window commit. Returns whether the window was committed - an empty page past the end is not.
   commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean;

@@ -46,8 +46,6 @@ export interface IDynamicDataPagingOwner {
   leavePage?(isForward: boolean, move: () => void): boolean;
   // Drops a move that waits for its validators: every change that replaces the page from code.
   cancelPendingPageMove?(): void;
-  // False when the records cannot be sorted: a header click then does nothing. Absent -> true.
-  canSort?: boolean;
 }
 
 export class DynamicDataPagingController {
@@ -312,10 +310,8 @@ export class DynamicDataPagingController {
      addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
      a modified header click does in a grid - and leaves the other fields where they are. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
-     validated first (layer 1). Returns false when the records cannot be sorted - the click does
-     nothing: no validation, no sort, no error - and for an error found synchronously. Whether they
-     can be sorted is checked before the page is left, so that a refused click costs no validation.
-     A sort from code (sortOrder, sortBy) is not checked here: the list refuses it and reports it. */
+     validated first (layer 1). Returns false only for an error found synchronously. Every list can
+     sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
   public toggleSort(field: string, addToSort?: boolean): boolean {
     if (!field) return false;
     const newSort = this.getToggledSort(field, addToSort);
@@ -323,7 +319,6 @@ export class DynamicDataPagingController {
       this.setSortOrderCore(newSort, true);
       return true;
     }
-    if (this.owner.canSort === false) return false;
     return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
   }
   private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {
@@ -376,8 +371,8 @@ export class DynamicDataPagingController {
   /* Re-decides which records are shown. The view of a source that pages travels in the read request
      and the source decides the membership of the window itself - the window IS the answer - so
      re-running a local filter the list never ran would say nothing; the window is read again
-     instead. So is the whole storage that a paging source which cannot filter owes while a filter
-     is set and its window is still a page. Everything else - a source without paging, and that whole
+     instead. So is the whole storage that a paging source owes while the list has a filter or a sort
+     it cannot run and its window is still a page. Everything else - a source without paging, and that whole
      storage once it is in force - takes the local path. */
   public refreshView(): void {
     const list = this.list;

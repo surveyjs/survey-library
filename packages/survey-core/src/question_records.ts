@@ -134,8 +134,7 @@ export abstract class QuestionRecordsModel extends Question {
       get isLoadingFromJson(): boolean { return question.isLoadingFromJson; },
       raiseSortByChanged: (oldValue: string, newValue: string): void => { question.raiseSortByChanged(oldValue, newValue); },
       leavePage: (isForward: boolean, move: () => void): boolean => question.leavePage(isForward, move),
-      cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); },
-      get canSort(): boolean { return question.canSortRecords; }
+      cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); }
     };
   }
   // A peek: it never creates the list.
@@ -321,8 +320,8 @@ export abstract class QuestionRecordsModel extends Question {
     };
     this.followReloadedCurrentRecord(getRemap);
     if (!this.isPagedByList) {
-      /* A page of a paging source replaced the whole storage the list paged - a paging source that
-         cannot filter is read whole only while a filter is set. The edited set named records by
+      /* A page of a paging source replaced the whole storage the list paged - a paging source is read
+         whole only while the list has a filter or a sort it cannot run. The edited set named records by
          their index in that storage, which names nothing on a page, and a paging source never
          validates the records of other pages ahead of their page: they are on the server. Kept, the
          set would be remapped from the page into the next whole storage and name the wrong records. */
@@ -386,9 +385,10 @@ export abstract class QuestionRecordsModel extends Question {
     return !this.isDesignMode && !!this._dataList && this._dataList.pageSize > 0;
   }
   /* The list cuts the page: over question.value, or over the whole storage a source without paging
-     answered with - or a paging source that cannot filter, read whole while a filter is set. Every
-     record is in memory, so the page is a slice and layer 2 can track the edited records. Its opposite is a paging source (list.isPagedBySource): the window IS the page
-     and the records of the other pages are on the server. */
+     answered with - or a paging source, read whole while the list has a filter or a sort it cannot
+     run. Every record is in memory, so the page is a slice and layer 2 can track the edited records.
+     Its opposite is a paging source (list.isPagedBySource): the window IS the page and the records
+     of the other pages are on the server. */
   protected get isPagedByList(): boolean {
     return this.isPagingActive && !this._dataList.isPagedBySource;
   }
@@ -892,14 +892,6 @@ export abstract class QuestionRecordsModel extends Question {
      addToSort the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes. */
   public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
-  /* Can the records be sorted: false only for a data source that pages and has not declared
-     sorting. The matrix columns (isSortable) and toggleSort read it. It never creates the list:
-     without one the answer is true - the stored sort is applied once a list exists, and a source
-     that cannot run it then refuses it as any read does. */
-  public get canSortRecords(): boolean {
-    const list = this._dataList;
-    return !list || list.canSort;
-  }
   public clearSort(): void { this.paging.clearSort(); }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value

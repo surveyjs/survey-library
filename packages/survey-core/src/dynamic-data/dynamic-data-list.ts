@@ -949,7 +949,8 @@ export class DynamicDataList {
     }
     this.applyLocalView();
   }
-  // A paging source that cannot filter answered with the whole storage, and that window is in force.
+  // A paging source answered with the whole storage, because it cannot run the view the list has, and
+  // that window is in force.
   private get isWholeStorageInForce(): boolean {
     return this.isLoaded && !this.isWindowPagedBySource && this.sourceCapabilities.paging;
   }
@@ -958,17 +959,24 @@ export class DynamicDataList {
     this.refreezeMembership();
     this.raiseChanged({ type: "reset" });
   }
-  /* The runner exists while the list may be the one filtering: only a source that pages and filters
-     gets the expression text inside every read request and has the list keep none. A paging source
-     that cannot filter has it run here, over the whole storage it is read for. Parsed as soon as the
-     filter - or the source - is set, so that a filter which cannot be run locally is reported then
-     and not on the first read of a view. */
+  /* The runner exists while the list may be the one filtering. A source that does not page, and a
+     paging source that cannot filter, have it run here, over the whole storage they are read for:
+     parsed as soon as the filter - or the source - is set, so that a filter which cannot be run
+     locally is reported then and not on the first read of a view. A source that pages and filters
+     gets the expression text inside its paged reads, and the list keeps no runner for it: a filter
+     only that source can run (an async function) stays valid. When such a source cannot sort, a sort
+     makes the list read it whole and run the filter itself, so the runner is built then - by the read
+     that needs it (createReadRequest), or here while the whole storage is in force: the list runs the
+     new view over it, also while a page read is pending or after one failed. A filter the list cannot
+     run is dropped only when no read follows; a page read that follows carries it to the source. */
   private updateFilterRunner(): void {
     this.filterRunner = undefined;
-    if (!this._filter || !this.mayFilterLocally) return;
+    if (!this._filter) return;
+    if (!this.mayFilterLocally && !this.isWholeStorageInForce) return;
     try {
       this.filterRunner = createFilterRunner(this._filter);
     } catch(e) {
+      if (!this.mayFilterLocally && this.readsSourceOnViewChange) return;
       // The list stays unfiltered: showing every record beats showing none. The operation is "read":
       // it is the read of the view that the filter made impossible.
       this._filter = "";
@@ -1005,23 +1013,25 @@ export class DynamicDataList {
   /* The loaded window is one page of the source: an owner that materializes one object per window
      record must not slice those objects by pageIndex again - they are the page - and "bring this
      object onto its page" is always already satisfied. It describes the window in force, so it is
-     the mode that window was read in: a paging source that cannot filter is read whole while a
-     filter is set (isReadPagedBySource), and the window it answered with stays the whole storage
-     until the next read commits - a read that is pending or failed changes nothing about it. Before
-     the first commit there is no window to describe, and the mode is the one the next read asks for. */
+     the mode that window was read in: a paging source is read whole while the list has a filter or a
+     sort the source has not declared (isReadPagedBySource), and the window it answered with stays
+     the whole storage until the next read commits - a read that is pending or failed changes nothing
+     about it. Before the first commit there is no window to describe, and the mode is the one the
+     next read asks for. */
   public get isPagedBySource(): boolean {
     return this.isLoaded ? this.isWindowPagedBySource : this.isReadPagedBySource;
   }
   private isWindowPagedBySource: boolean = false;
-  /* The next read asks the source for a page: the source pages, and it filters too or there is no
-     filter. Otherwise the source is read whole and the list filters, sorts and pages the answer. It
-     decides what a read requests; isPagedBySource decides how the window that is in force is read. */
+  /* The next read asks the source for a page: the source pages, and it runs every part of the view
+     the list has - it filters or there is no filter, it sorts or there is no sort. Otherwise the
+     source is read whole and the list filters, sorts and pages the answer. It decides what a read
+     requests; isPagedBySource decides how the window that is in force is read. */
   private get isReadPagedBySource(): boolean {
     const caps = this.sourceCapabilities;
-    return caps.paging && (caps.filtering || !this._filter);
+    return caps.paging && (caps.filtering || !this._filter) && (caps.sorting || this._sort.length === 0);
   }
   /* A change of the view or of the page is answered by a read of the source: the source pages it, or
-     a paging source that cannot filter owes the whole storage the filter is run over - the window in
+     a paging source owes the whole storage that a view part it cannot run is run over - the window in
      force is still a page, because the read of the whole storage is pending or failed, or nothing
      was committed yet. Once the whole storage is in force, the list answers those changes itself. */
   public get readsSourceOnViewChange(): boolean {
@@ -1032,9 +1042,9 @@ export class DynamicDataList {
   /* The read capabilities of the source, taken when it is assigned (takeCapabilities) and never read
      from the source again: a source that changes them is assigned again. Filtering and sorting mean
      something only together with paging: a source without paging is read whole and filtered and
-     sorted here. A paging source that cannot filter is read the same way while a filter is set. A
-     paging source that cannot sort is never sorted locally on a page: the sort is refused (see
-     createReadRequest). The decisions below follow the window in force (isPagedBySource). */
+     sorted here. A paging source is read the same way while the list has a filter or a sort it
+     cannot run; one page is never filtered or sorted locally. The decisions below follow the window
+     in force (isPagedBySource). */
   private sourceCapabilities: IDynamicDataSourceCapabilities = { paging: false, filtering: false, sorting: false };
   private takeCapabilities(): void {
     const caps = !!this._source ? this._source.capabilities : undefined;
@@ -1056,18 +1066,9 @@ export class DynamicDataList {
   private get isWindowWholeStorage(): boolean {
     return !this.isPagedBySource;
   }
-  // The list may have to run the filter: every source except one that pages and filters itself.
+  // The list runs any filter it is given: every source except one that pages and filters itself.
   private get mayFilterLocally(): boolean {
     return !this.sourceCapabilities.paging || !this.sourceCapabilities.filtering;
-  }
-  /* Can the records be sorted at all: the source does not page, so the list sorts what it holds, or
-     the paging source declared that it sorts. From the capabilities only, not from the filter: a
-     paging source that cannot filter is sorted locally while a filter is set, but offering that sort
-     would offer one the source refuses once the filter is cleared. A sort that is not available is
-     refused when it is read (createReadRequest); an owner asks this first, so that a respondent is
-     never offered one. */
-  public get canSort(): boolean {
-    return !this.sourceCapabilities.paging || this.sourceCapabilities.sorting;
   }
   /* A capability is declared by the presence of the matching method: the operation names are the
      source method names. A write names its record by key; only an in-memory array is written by
@@ -1322,8 +1323,8 @@ export class DynamicDataList {
     };
   }
   // The page of a pending retry, else the window in force (a refresh) or the page (a load); a source
-  // without paging - and a paging source that cannot filter, while a filter is set - is read whole:
-  // skip 0, take 0, whatever the page size is.
+  // without paging - and a paging source while the list has a filter or a sort it cannot run - is
+  // read whole: skip 0, take 0, whatever the page size is.
   private getReadRange(useWindowOffset: boolean): { skip: number, take: number } {
     if (!this.isReadPagedBySource) return { skip: 0, take: 0 };
     let skip: number;
@@ -1337,20 +1338,31 @@ export class DynamicDataList {
   }
   /* One read = one request: the range and the view the list wants. The source keeps no state between
      the calls, so nothing has to be pushed to it before a read and two questions may share it. A
-     source that is read whole - one without paging, or a paging source that cannot filter while a
-     filter is set - has the list run the view, so its request carries none. A paged read gets the
-     view: it carries a filter only when the source filters (isReadPagedBySource), and a sort the
-     source has not declared is refused here, before anything is sent - the list would otherwise
-     sort one page - so a part that reaches the request is either declared or empty. The throw
-     takes the read down the path of a source that throws (onReadFailed). */
+     source that is read whole - one without paging, or a paging source while the list has a filter or
+     a sort it cannot run - has the list run the view, so its request carries none. A paged read is
+     made only when the source runs the whole view (isReadPagedBySource), so its request carries the
+     view as it is. */
   private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
-    if (!this.isReadPagedBySource) return { skip: 0, take: 0, filter: "", sort: [] };
-    if (this._sort.length > 0 && !this.sourceCapabilities.sorting) throw this.createUndeclaredSortError();
+    if (!this.isReadPagedBySource) {
+      this.ensureWholeStorageFilterRunner();
+      return { skip: 0, take: 0, filter: "", sort: [] };
+    }
     return { skip: skip, take: take, filter: this._filter, sort: this._sort.slice() };
   }
-  private createUndeclaredSortError(): Error {
-    return new Error("DynamicDataList: the source pages but does not declare the \"sorting\" capability, " +
-      "so the sorted page cannot be read. The window in force is kept.");
+  /* A source that pages and filters but cannot sort is read whole for a sort, and the list runs the
+     filter over that answer: the filter it never had to parse is parsed now (see
+     updateFilterRunner). One the list cannot run refuses the read - the filter is the source's to run
+     and stays, the window in force stays, and clearing the sort reads the filtered page again. The
+     throw takes the read down the path of a source that throws (onReadFailed). */
+  private ensureWholeStorageFilterRunner(): void {
+    if (!this._filter || !!this.filterRunner || this.mayFilterLocally) return;
+    try {
+      this.filterRunner = createFilterRunner(this._filter);
+    } catch(e) {
+      throw new Error("DynamicDataList: the source pages but does not declare the \"sorting\" capability, " +
+        "so the sorted records are read whole and filtered here, and the filter cannot be run here (" +
+        String(e && e.message) + "). The window in force is kept.");
+    }
   }
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.

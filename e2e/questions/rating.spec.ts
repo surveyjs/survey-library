@@ -217,6 +217,9 @@ frameworks.forEach(framework => {
         ]
       });
 
+      // Wait for the star rating items to be fully rendered before keyboard navigation
+      await expect(page.locator(".sd-rating__item-star").first()).toBeVisible();
+
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("Tab");

@@ -196,7 +196,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.padRecords(Array.isArray(val) ? val.slice() : []);
   }
   protected setListRecords(records: Array<any>, operations?: Array<DynamicDataOperation>): void {
-    this.setNewValue(this.normalizeRecords(records, operations));
+    this.setOwnRecordsValue(this.normalizeRecords(records, operations));
   }
   // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
   protected getListRecordCount(): number {
@@ -1460,8 +1460,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   /* The incoming direction of the canSetValueToSurvey rule: while a data source is attached,
-     survey.data = ..., survey.setValue, mergeData and a setvalue trigger do not reach the question.
-     The survey hash may then hold a value the question does not show; that is the caller's doing. */
+     survey.data = ..., survey.setValue and mergeData do not reach the question. The survey hash may
+     then hold a value the question does not show; that is the caller's doing. A setvalue or copyvalue
+     trigger aimed at the question goes through the value setter, which skips it (setNewValue). */
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     // QuestionRecordsModel guards too, but the minRowCount padding below must not run for a source.
     if (this.isRemoteData) return;

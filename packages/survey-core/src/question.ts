@@ -311,6 +311,18 @@ export class ValidationContext extends AsyncElementsRunner {
   private clearIncorrectValuesValue: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
   public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
+  /* Validates a part of the elements without clearing their incorrect values, and in this context:
+     its async results, focus and callback stay the caller's. A question reads the flag when its
+     validation starts, so an async validator that settles later never clears either. */
+  public runWithoutClearingIncorrectValues<T>(func: () => T): T {
+    const prev = this.clearIncorrectValuesValue;
+    this.clearIncorrectValuesValue = false;
+    try {
+      return func();
+    } finally {
+      this.clearIncorrectValuesValue = prev;
+    }
+  }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }

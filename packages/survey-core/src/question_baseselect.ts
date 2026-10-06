@@ -501,6 +501,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
+    // Read when the validation starts: an async validator that settles later never clears.
     if (context.isOnValueChanged !== true && context.clearIncorrectValues && this.getClearIfInvisible() !== "none") {
       this.clearIncorrectValues();
     }

@@ -2591,17 +2591,20 @@ describe("Page window: record semantics without an object", () => {
       FunctionFactory.Instance.unregister("countedVisible");
     }
   });
-  test("matrix over a source that pages itself: clearInvisibleValues removes no record (a known limitation)", async () => {
+  test("matrix over a source that pages itself: clearing invisible values on complete sends nothing to the source", async () => {
     const source = new PagedSource(records(6, i => ({ id: i, name: i % 2 === 0 ? "hide" : "n" + i })));
     const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [
       { type: "matrixdynamic", name: "md", rowCount: 0, rowsPerPage: 3, rowsVisibleIf: "{row.name} != 'hide'", columns: matrixColumns }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
     matrix.dataSource = source;
     await flush();
+    const reads = source.reads.length;
     survey.completeLastPage();
     await flush();
     expect(source.removes, "#1: nothing is removed from the source").toEqual([]);
-    expect(source.data.length, "#2").toBe(6);
+    expect(source.updates, "#2: nothing is updated").toEqual([]);
+    expect(source.reads.length, "#3: nothing is read").toBe(reads);
+    expect(source.data.length, "#4").toBe(6);
   });
   test("matrix with a filter: displayValue formats every record, the ones the filter excludes included", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", filterExpression: "{c} = 2",

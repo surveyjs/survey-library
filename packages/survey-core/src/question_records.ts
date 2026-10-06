@@ -25,6 +25,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { Action } from "./actions/action";
 import { LocalizableString } from "./localizablestring";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -375,9 +376,65 @@ export abstract class QuestionRecordsModel extends Question {
      and the count setters ask it. It is deliberately not "the list pages itself": a source that
      returns everything in one read is still a source, and its records are still not the question's
      to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
-     isPagedByList. */
+     isPagedByList.
+     It also decides who owns the records. While it is set, the survey's clean-ups return before any
+     record or value work: clearValueIfInvisible (complete, a container hide, the question's own hide),
+     clearValueOnHidding, the matrix's rowsVisibleIf pass under onHidden (clearInvisibleValuesInRows)
+     and clearIncorrectValues. Record validation validates without clearing (validateRecordObjects),
+     and an assignment of the value from outside is not made (setNewValue, clearValue). The reactions
+     inside one record - a question hidden by an edit of its own record under onHidden, the
+     choice-driven clean-ups of a select question in a record (choicesVisibleIf, choicesFromQuestion,
+     a choicesByUrl answer) - are not survey-level: they follow a change of that record's data or
+     choices and write that record only, so they keep writing. */
   protected get isRemoteData(): boolean {
     return !!this.dataListValue && this.dataListValue.isRemote;
+  }
+  public clearValueIfInvisible(reason: string = "onHidden"): void {
+    if (this.isRemoteData) return;
+    super.clearValueIfInvisible(reason);
+  }
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
+    if (this.isRemoteData) {
+      this.warnOutsideAssignment();
+      return;
+    }
+    super.clearValue(keepComment, fromUI);
+  }
+  /* An assignment of the value of a source-backed question is made only by the question itself,
+     through setOwnRecordsValue. Any other - value =, a default, setValueExpression, a setvalue or
+     copyvalue trigger, user code that runs inside one of the question's own writes - returns here,
+     before survey.questionValueChanging: nothing is stored and no event fires, a parent's included.
+     The mark is one-shot and taken at entry, so an assignment made later inside the same write is an
+     outside one. */
+  private isOwnValueAssignment: boolean = false;
+  protected setNewValue(newValue: any): void {
+    const isOwn = this.isOwnValueAssignment;
+    this.isOwnValueAssignment = false;
+    if (!isOwn && this.isRemoteData) {
+      this.warnOutsideAssignment();
+      return;
+    }
+    super.setNewValue(newValue);
+  }
+  protected setOwnRecordsValue(newValue: any): void {
+    this.isOwnValueAssignment = true;
+    try {
+      this.setNewValue(newValue);
+    } finally {
+      this.isOwnValueAssignment = false;
+    }
+  }
+  // Once per question until its source changes.
+  private warnedSource: IDynamicDataSource;
+  private warnOutsideAssignment(): void {
+    const source = this.getDataSource();
+    if (this.warnedSource === source) return;
+    this.warnedSource = source;
+    ConsoleWarnings.warn("The value of the question \"" + this.name + "\" was not changed: a data source owns its records. Change them through the data source or the question's rows and panels.");
+  }
+  // The question's records are validated, but a source-backed question's are not cleared.
+  protected validateRecordObjects<T>(context: ValidationContext, func: () => T): T {
+    return this.isRemoteData ? context.runWithoutClearingIncorrectValues(func) : func();
   }
   /* Paging is on: the objects are built for the page, and an incremental update of the rendered
      table would work in page-local terms. Off in design mode and without a list. */
@@ -1123,8 +1180,9 @@ export abstract class QuestionRecordsModel extends Question {
     return !this.isRemoteData && super.canSetValueToSurvey();
   }
   /* The incoming direction of the same rule: while a source is attached, survey.data = ...,
-     survey.setValue, mergeData and a setvalue trigger do not reach the question. The survey hash may
-     then hold a value the question does not show; that is the caller's doing. */
+     survey.setValue and mergeData do not reach the question. The survey hash may then hold a value
+     the question does not show; that is the caller's doing. A setvalue or copyvalue trigger aimed at
+     the question goes through the value setter instead, and setNewValue skips it. */
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
     // Owed before the value is stored: a handler that throws after storing it still leaves it owed.

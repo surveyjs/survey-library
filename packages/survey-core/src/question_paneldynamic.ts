@@ -356,7 +356,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.value;
   }
   protected setListRecords(records: Array<any>): void {
-    this.value = records;
+    this.setOwnRecordsValue(records);
   }
   /* A data source that supplies the panel records (IDynamicDataSource): the question reads them from
      it, a page at a time when it pages, and pushes every edit, insertion and deletion to it. Not
@@ -2136,7 +2136,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private validateCurrentPanel(context: ValidationContext): boolean {
     const panel = this.currentPanel;
-    return !panel || panel.validateElement(context);
+    return !panel || this.validateRecordObjects(context, (): boolean => panel.validateElement(context));
   }
   // The check carousel and tab mode run before Next and Add when the question does not page. Design
   // mode shows the template and validates nothing.
@@ -2624,6 +2624,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   public clearIncorrectValues() {
+    if (this.isRemoteData) return;
     this.clearIncorrectValueInData();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
@@ -2964,8 +2965,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const qs = this.changingValueQuestions;
     if (Array.isArray(qs)) {
       let qRes = true;
-      qs.forEach(q => {
-        qRes = q.validateElement(context) && qRes;
+      this.validateRecordObjects(context, (): void => {
+        qs.forEach(q => {
+          qRes = q.validateElement(context) && qRes;
+        });
       });
       res = !this.hasKeysDuplicated(context) && qRes;
       this.updatePanelsContainsErrors();
@@ -3013,6 +3016,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return true;
   }
   protected clearValueOnHidding(isClearOnHidden: boolean): void {
+    if (this.isRemoteData) return;
     if (!isClearOnHidden) {
       if (!!this.survey && this.survey.getQuestionClearIfInvisible("onHidden") === "none") return;
       this.clearValueInPanelsIfInvisible("onHiddenContainer");
@@ -3020,6 +3024,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     super.clearValueOnHidding(isClearOnHidden);
   }
   public clearValueIfInvisible(reason: string = "onHidden"): void {
+    if (this.isRemoteData) return;
     const panelReason = reason === "onHidden" ? "onHiddenContainer" : reason;
     this.clearValueInPanelsIfInvisible(panelReason);
     super.clearValueIfInvisible(reason);
@@ -3079,7 +3084,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // nothing - it cannot be shown.
     const keyValues: Array<any> = this.getKeyValuesWithoutPanels();
     for (let i = 0; i < panels.length; i++) {
-      let isPnlValid = panels[i].validateElement(context);
+      let isPnlValid = this.validateRecordObjects(context, (): boolean => panels[i].validateElement(context));
       isPnlValid = !this.isValueDuplicated(panels[i], keyValues, context) && isPnlValid;
       if (!this.isRenderModeList && !isPnlValid && res && context.focusOnFirstError) {
         this.moveToVisibleIndex(this.getPanelVisibleIndex(panels[i]));

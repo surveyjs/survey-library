@@ -10,6 +10,7 @@ import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
+import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -3830,5 +3831,421 @@ describe("Remote data source: an added panel lands in front of the record a numb
       expect(question.pageIndex, "#7").toBe(0);
       expect(question.currentPanel === current, "#8: the current panel stays").toBe(true);
     });
+  });
+});
+
+// The records a data source owns, the way the two describes below set them up and read them back.
+function ownedRecords(count: number): Array<any> {
+  const res: Array<any> = [];
+  for (let i = 0; i < count; i++) {
+    res.push({ id: i, col1: "v" + i, col2: "s" + i, hidden1: "keep" });
+  }
+  return res;
+}
+const writes = (source: FakeServerSource): Array<string> =>
+  source.calls.filter(call => call.op !== "read" && call.op !== "pagedRead").map(call => call.op);
+const loaded = (question: Question): Array<any> => JSON.parse(JSON.stringify(question["dataList"].getLoadedRecords()));
+function shown(question: Question): Array<any> {
+  if (question instanceof QuestionMatrixDynamicModel) {
+    return question.visibleRows.map(row => [row.getQuestionByName("col1").value, row.getQuestionByName("col2").value]);
+  }
+  return (<QuestionPanelDynamicModel>question).panels.map(panel =>
+    [panel.getQuestionByName("col1").value, panel.getQuestionByName("col2").value]);
+}
+interface IOwnedState { loaded: Array<any>, shown: Array<any> }
+const takeState = (question: Question): IOwnedState => ({ loaded: loaded(question), shown: shown(question) });
+function expectUntouched(survey: SurveyModel, question: Question, source: FakeServerSource, before: IOwnedState): void {
+  expect(writes(source), "no source call other than reads").toEqual([]);
+  expect(loaded(question), "the loaded records").toEqual(before.loaded);
+  expect(shown(question), "what the objects show").toEqual(before.shown);
+  expect(survey.data[question.name], "no key in survey.data").toBeUndefined();
+}
+const ownedElement = (kind: string, json?: any, isPaged: boolean = true): any => kind === "matrix" ?
+  Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: isPaged ? 5 : 0,
+    columns: [{ name: "col1" }, { name: "col2" }] }, json) :
+  Object.assign({ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: isPaged ? 5 : 0,
+    templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }, json);
+async function attach(question: Question, source: IDynamicDataSource): Promise<void> {
+  (<any>question).dataSource = source;
+  await flush();
+  if (source instanceof FakeServerSource) {
+    source.reset();
+  }
+}
+async function createOwned(kind: string, records: Array<any>, json?: any, surveyJson?: any, capabilities?: Array<string>):
+  Promise<{ survey: SurveyModel, question: Question, source: FakeServerSource }> {
+  const source = new FakeServerSource(records, capabilities);
+  const element = ownedElement(kind, json);
+  const survey = new SurveyModel(Object.assign({ elements: [element] }, surveyJson));
+  const question = <Question>survey.getQuestionByName(element.name);
+  await attach(question, source);
+  return { survey: survey, question: question, source: source };
+}
+function createLocal(kind: string, records: Array<any>, json?: any, surveyJson?: any): { survey: SurveyModel, question: Question } {
+  const element = ownedElement(kind, json, false);
+  const survey = new SurveyModel(Object.assign({ elements: [element] }, surveyJson));
+  survey.data = { [element.name]: records };
+  return { survey: survey, question: <Question>survey.getQuestionByName(element.name) };
+}
+function editFirst(question: Question, name: string, value: any): void {
+  if (question instanceof QuestionMatrixDynamicModel) {
+    question.visibleRows[0].getQuestionByName(name).value = value;
+  } else {
+    (<QuestionPanelDynamicModel>question).panels[0].getQuestionByName(name).value = value;
+  }
+}
+const firstRecordEdited = { id: 0, col1: "edited", col2: "s0", hidden1: "keep" };
+/* A data source owns the records of its question. The survey's clean-ups - clearing invisible values on
+   complete, on hide and on a container hide, clearIncorrectValues, clearing values not in the choices
+   on validation - leave its records, its window and what its objects show as they are, and send
+   nothing. Each scenario is checked without a source too: there the released clean-up still happens. */
+describe("Remote data source: survey clean-ups and outside assignments leave the records to the source", () => {
+  const hiddenTemplateQuestion = (kind: string): any => kind === "matrix" ?
+    { columns: [{ name: "col1" }, { name: "col2" }, { name: "hidden1", visibleIf: "false" }] } :
+    { templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }, { type: "text", name: "hidden1", visibleIf: "false" }] };
+
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": completing with a hidden template question sends nothing, paged and unpaged", async () => {
+      const paged = await createOwned(kind, ownedRecords(20), hiddenTemplateQuestion(kind));
+      const before = takeState(paged.question);
+      expect(paged.survey.tryComplete(), "#1").toBe(true);
+      expectUntouched(paged.survey, paged.question, paged.source, before);
+      const unpaged = await createOwned(kind, ownedRecords(3), hiddenTemplateQuestion(kind), undefined, ["insert", "update", "remove", "move"]);
+      const unpagedBefore = takeState(unpaged.question);
+      expect(unpaged.survey.tryComplete(), "#2").toBe(true);
+      expectUntouched(unpaged.survey, unpaged.question, unpaged.source, unpagedBefore);
+      if (kind === "panel") {
+        const local = createLocal(kind, ownedRecords(2), hiddenTemplateQuestion(kind));
+        local.survey.tryComplete();
+        expect(local.survey.data.panel, "#3: without a source the hidden question is cleared")
+          .toEqual([{ id: 0, col1: "v0", col2: "s0" }, { id: 1, col1: "v1", col2: "s1" }]);
+      }
+    });
+    test(kind + ": hidden and shown again under onHidden, the records stay and an edit sends the edited field only", async () => {
+      const surveyJson = { clearInvisibleValues: "onHidden" };
+      const { survey, question, source } = await createOwned(kind, ownedRecords(5), { visibleIf: "{toggle} != 'hide'" }, surveyJson);
+      const before = takeState(question);
+      survey.setValue("toggle", "hide");
+      survey.setValue("toggle", "show");
+      expectUntouched(survey, question, source, before);
+      editFirst(question, "col1", "edited");
+      expect(source.argsOf("update"), "#1: the whole record, the edited field").toEqual([[0, firstRecordEdited, ["col1"]]]);
+      const local = createLocal(kind, ownedRecords(2), { visibleIf: "{toggle} != 'hide'" }, surveyJson);
+      local.survey.setValue("toggle", "hide");
+      expect(local.survey.data[local.question.name], "#2: without a source the value is cleared").toBeUndefined();
+    });
+    test(kind + ": a container hidden and shown under onHiddenContainer leaves the records", async () => {
+      const surveyJson = { clearInvisibleValues: "onHiddenContainer" };
+      const createSurvey = (isPaged: boolean): SurveyModel => new SurveyModel(Object.assign({ elements: [
+        { type: "panel", name: "box", visibleIf: "{toggle} != 'hide'", elements: [ownedElement(kind, {}, isPaged)] }] }, surveyJson));
+      const survey = createSurvey(true);
+      const question = <Question>survey.getQuestionByName(kind);
+      const source = new FakeServerSource(ownedRecords(5));
+      await attach(question, source);
+      const before = takeState(question);
+      survey.setValue("toggle", "hide");
+      survey.setValue("toggle", "show");
+      expectUntouched(survey, question, source, before);
+      editFirst(question, "col1", "edited");
+      expect(source.argsOf("update"), "#1").toEqual([[0, firstRecordEdited, ["col1"]]]);
+      const local = createSurvey(false);
+      local.data = { [kind]: ownedRecords(2) };
+      local.setValue("toggle", "hide");
+      expect(local.data[kind], "#2: without a source the value is cleared").toBeUndefined();
+    });
+    test(kind + ": survey.clearIncorrectValues keeps the key and the server-only fields", async () => {
+      const { survey, question, source } = await createOwned(kind, ownedRecords(5));
+      const before = takeState(question);
+      survey.clearIncorrectValues();
+      survey.clearIncorrectValues(true);
+      expectUntouched(survey, question, source, before);
+      editFirst(question, "col1", "edited");
+      expect(source.argsOf("update"), "#1: sent with its key").toEqual([[0, firstRecordEdited, ["col1"]]]);
+      const local = createLocal(kind, ownedRecords(2));
+      local.survey.clearIncorrectValues();
+      // Without a source the unknown keys go: the panel drops them, the matrix drops the whole value.
+      expect(local.survey.data[kind], "#2: without a source the unknown keys go")
+        .toEqual(kind === "matrix" ? undefined : [{ col1: "v0", col2: "s0" }, { col1: "v1", col2: "s1" }]);
+    });
+    test(kind + ": a value not in the choices is not cleared by the validation on complete", async () => {
+      const json = kind === "matrix" ?
+        { columns: [{ name: "col1", cellType: "dropdown", choices: ["v0", "v2"] }, { name: "col2" }] } :
+        { templateElements: [{ type: "dropdown", name: "col1", choices: ["v0", "v2"] }, { type: "text", name: "col2" }] };
+      const { survey, question, source } = await createOwned(kind, ownedRecords(4), json);
+      const before = takeState(question);
+      survey.tryComplete();
+      expectUntouched(survey, question, source, before);
+      const local = createLocal(kind, ownedRecords(2), json);
+      local.survey.tryComplete();
+      expect(local.survey.data[kind].map((r: any) => r.col1), "#1: without a source the value is cleared")
+        .toEqual(["v0", undefined]);
+    });
+  });
+  test("matrix: completing with rowsVisibleIf hiding a row and a hidden column sends nothing", async () => {
+    const json = { rowsVisibleIf: "{row.col1} != 'v1'", columns: [{ name: "col1" }, { name: "col2" }, { name: "hidden1", visibleIf: "false" }] };
+    const { survey, question, source } = await createOwned("matrix", ownedRecords(5), json);
+    const before = takeState(question);
+    expect(survey.tryComplete(), "#1").toBe(true);
+    expectUntouched(survey, question, source, before);
+    const local = createLocal("matrix", ownedRecords(3), json);
+    local.survey.tryComplete();
+    expect(local.survey.data.matrix.length, "#2: without a source the record of the hidden row is cleared").toBe(2);
+  });
+  test("matrix: a row rowsVisibleIf hides under onHidden after a condition run is not cleared", async () => {
+    const json = { rowsVisibleIf: "{row.col1} != {toggle}" };
+    const surveyJson = { clearInvisibleValues: "onHidden" };
+    for (const capabilities of [undefined, ["insert", "update", "remove", "move"]]) {
+      const { survey, question, source } = await createOwned("matrix", ownedRecords(5), json, surveyJson, capabilities);
+      const before = takeState(question);
+      survey.setValue("toggle", "v1");
+      expect(writes(source), "#1").toEqual([]);
+      expect(loaded(question), "#2").toEqual(before.loaded);
+      expect(survey.data.matrix, "#3").toBeUndefined();
+      survey.setValue("toggle", "none");
+      expect(shown(question), "#4: the row shows its record again").toEqual(before.shown);
+    }
+    const local = createLocal("matrix", ownedRecords(3), json, surveyJson);
+    (<QuestionMatrixDynamicModel>local.question).visibleRows;
+    local.survey.setValue("toggle", "v1");
+    expect(local.survey.data.matrix.map((r: any) => r.col1), "#5: without a source the hidden row is cleared").toEqual(["v0", "v2"]);
+  });
+});
+
+/* An assignment of a source-backed question's value from outside - value =, clearValue(), a question
+   default, a setvalue trigger aimed at the question, an assignment from a handler or a source setter
+   during a write - is not made: nothing is stored or sent, no event is raised and the console says so
+   once. The question's own writes and the edits of its records keep writing. */
+describe("Remote data source: an outside assignment of the value is not made", () => {
+  let warnings: Array<string>;
+  let warnSpy: any;
+  beforeEach(() => {
+    warnings = [];
+    warnSpy = vi.spyOn(ConsoleWarnings, "warn").mockImplementation((text: string): void => { warnings.push(text); });
+  });
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+  const warningsFor = (name: string): number => warnings.filter(text => text.indexOf("\"" + name + "\"") > -1).length;
+
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": value =, clearValue() and a setvalue trigger change nothing, raise nothing and warn once", async () => {
+      const survey = new SurveyModel({ elements: [ownedElement(kind), { type: "text", name: "toggle" }],
+        triggers: [{ type: "setvalue", expression: "{toggle} = 'go'", setToName: kind, setValue: [{ col1: "t" }] }] });
+      const question = <Question>survey.getQuestionByName(kind);
+      const source = new FakeServerSource(ownedRecords(5));
+      await attach(question, source);
+      const events: Array<string> = [];
+      survey.onValueChanging.add((_, options) => { if (options.name === kind) events.push("changing"); });
+      survey.onValueChanged.add((_, options) => { if (options.name === kind) events.push("changed"); });
+      const before = { loaded: loaded(question), shown: shown(question), state: getPageState(question) };
+      const isAnswered = question.isAnswered;
+      const expectUnchanged = (label: string): void => {
+        expect(writes(source), label + ": nothing is sent").toEqual([]);
+        expect(loaded(question), label + ": the records").toEqual(before.loaded);
+        expect(question.value, label + ": the value is the window").toEqual(before.loaded);
+        expect(shown(question), label + ": the objects").toEqual(before.shown);
+        expect(getPageState(question), label + ": the page state").toEqual(before.state);
+        expect(question.isAnswered, label + ": isAnswered").toBe(isAnswered);
+        expect(question.errors.length, label + ": no errors").toBe(0);
+        expect(survey.data[kind], label + ": not in survey.data").toBeUndefined();
+      };
+      question.value = [{ col1: "x" }];
+      expectUnchanged("value =");
+      question.clearValue();
+      expectUnchanged("clearValue()");
+      survey.setValue("toggle", "go");
+      expectUnchanged("trigger");
+      expect(events, "#1: no value event").toEqual([]);
+      expect(warningsFor(kind), "#2: one warning for the question").toBe(1);
+      editFirst(question, "col1", "edited");
+      expect(source.argsOf("update"), "#3: the next edit sends the whole record").toEqual([[0, firstRecordEdited, ["col1"]]]);
+    });
+    test(kind + ": a question default value is not assigned over a source that answers no records", async () => {
+      const survey = new SurveyModel({ elements: [ownedElement(kind)] });
+      const question = <Question>survey.getQuestionByName(kind);
+      const source = new FakeServerSource([]);
+      await attach(question, source);
+      question.defaultValue = [{ col1: "d" }];
+      expect(writes(source), "#1").toEqual([]);
+      expect(loaded(question), "#2").toEqual([]);
+      expect(shown(question), "#3").toEqual([]);
+      expect(warningsFor(kind), "#4").toBe(1);
+      const local = new SurveyModel({ elements: [ownedElement(kind)] });
+      local.getQuestionByName(kind).defaultValue = [{ col1: "d" }];
+      expect(local.data[kind], "#5: without a source the default is assigned").toEqual([{ col1: "d" }]);
+    });
+    test(kind + ": the warning comes again for another source", async () => {
+      const survey = new SurveyModel({ elements: [ownedElement(kind)] });
+      const question = <Question>survey.getQuestionByName(kind);
+      await attach(question, new FakeServerSource(ownedRecords(2)));
+      question.value = [{ col1: "x" }];
+      question.value = [{ col1: "y" }];
+      expect(warningsFor(kind), "#1").toBe(1);
+      await attach(question, new FakeServerSource(ownedRecords(3)));
+      question.value = [{ col1: "z" }];
+      expect(warningsFor(kind), "#2").toBe(2);
+    });
+    test(kind + ": an assigned array source whose setter assigns the value keeps the edit only", async () => {
+      let arr = ownedRecords(3);
+      let question: Question;
+      const source = new ArrayDynamicDataSource(() => arr, (newArray: Array<any>): void => {
+        arr = newArray;
+        question.value = [{ col1: "x" }];
+      });
+      const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+      question = <Question>survey.getQuestionByName(kind);
+      await attach(question, source);
+      editFirst(question, "col1", "edited");
+      expect(arr[0], "#1: the edit is stored").toEqual(firstRecordEdited);
+      expect(arr.length, "#2").toBe(3);
+      expect(loaded(question)[0], "#3").toEqual(firstRecordEdited);
+      expect(shown(question)[0], "#4").toEqual(["edited", "s0"]);
+      expect(warningsFor(kind), "#5").toBe(1);
+    });
+  });
+  test("matrix: a cell value-changed handler that assigns the value does not undo the edit", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("matrix")] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const source = new FakeServerSource(ownedRecords(3));
+    await attach(question, source);
+    survey.onMatrixCellValueChanged.add(() => { question.value = [{ col1: "x" }]; });
+    editFirst(question, "col1", "edited");
+    expect(source.argsOf("update"), "#1").toEqual([[0, firstRecordEdited, ["col1"]]]);
+    expect(loaded(question)[0], "#2").toEqual(firstRecordEdited);
+    expect(shown(question).length, "#3").toBe(3);
+    expect(warningsFor("matrix"), "#4").toBe(1);
+  });
+  test("panel: a panel value-changed handler that assigns the value does not undo the edit", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("panel")] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const source = new FakeServerSource(ownedRecords(3));
+    await attach(question, source);
+    survey.onDynamicPanelValueChanged.add(() => { question.value = [{ col1: "x" }]; });
+    editFirst(question, "col1", "edited");
+    expect(source.argsOf("update"), "#1").toEqual([[0, firstRecordEdited, ["col1"]]]);
+    expect(loaded(question)[0], "#2").toEqual(firstRecordEdited);
+    expect(shown(question).length, "#3").toBe(3);
+    expect(warningsFor("panel"), "#4").toBe(1);
+  });
+  test("matrix: an assignment made inside the write of the column defaults on row generation is skipped, the write lands", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { rowsPerPage: 0,
+      columns: [{ name: "col1" }, { name: "col2" }, { name: "col3", defaultValue: "d" }] })] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const attempts: Array<boolean> = [];
+    question.registerFunctionOnPropertyValueChanged("value", (): void => {
+      // Only the write the question makes itself, not the read that stores the window.
+      if (attempts.length > 0 || !question["isWritingRecords"]) return;
+      attempts.push(true);
+      question.value = [{ col1: "x" }];
+    });
+    const source = new FakeServerSource(ownedRecords(2), ["insert", "update", "remove", "move"]);
+    await attach(question, source);
+    question.visibleRows;
+    expect(attempts, "#1: the handler ran inside the write").toEqual([true]);
+    expect(question.value.map((r: any) => r.col1 + "/" + r.col3), "#2: the write landed").toEqual(["v0/d", "v1/d"]);
+    expect(warningsFor("matrix"), "#3").toBe(1);
+  });
+  test("a source-backed matrix inside a dynamic panel: an outside assignment raises no event of either question", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "outer", panelCount: 1,
+      templateElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, columns: [{ name: "col1" }, { name: "col2" }] }] }] });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const inner = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("inner");
+    const source = new FakeServerSource(ownedRecords(3));
+    await attach(inner, source);
+    const outerValue = JSON.stringify(outer.value);
+    const before = loaded(inner);
+    const events: Array<string> = [];
+    survey.onValueChanging.add((_, options) => { events.push("changing:" + options.name); });
+    survey.onValueChanged.add((_, options) => { events.push("changed:" + options.name); });
+    survey.onDynamicPanelValueChanged.add((_, options) => { events.push("panel:" + options.name); });
+    survey.onMatrixCellValueChanged.add((_, options) => { events.push("cell:" + options.columnName); });
+    inner.value = [{ col1: "x" }];
+    expect(events, "#1").toEqual([]);
+    expect(JSON.stringify(outer.value), "#2: the panel value is unchanged").toBe(outerValue);
+    expect(loaded(inner), "#3").toEqual(before);
+    expect(writes(source), "#4").toEqual([]);
+    expect(warningsFor("inner"), "#5").toBe(1);
+  });
+  test("matrix: edits, a detail panel edit, add, remove and move still write", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d" }] })] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const source = new FakeServerSource(ownedRecords(4));
+    await attach(question, source);
+    editFirst(question, "col1", "edited");
+    const row = question.visibleRows[1];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("d").value = "detail";
+    await flush();
+    expect(source.argsOf("update"), "#1: one update per edit, with the whole merged record").toEqual([
+      [0, firstRecordEdited, ["col1"]], [1, { id: 1, col1: "v1", col2: "s1", hidden1: "keep", d: "detail" }, ["d"]]]);
+    question.addRow();
+    await flush();
+    question.removeRow(0);
+    await flush();
+    question.moveRowByIndex(0, 1);
+    await flush();
+    expect(writes(source).filter(op => op !== "update"), "#2").toEqual(["insert", "remove", "move"]);
+    expect(warnings.length, "#3: no warning").toBe(0);
+  });
+  test("panel: an edit, add and remove still write", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("panel")] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const source = new FakeServerSource(ownedRecords(4));
+    await attach(question, source);
+    editFirst(question, "col1", "edited");
+    expect(source.argsOf("update"), "#1").toEqual([[0, firstRecordEdited, ["col1"]]]);
+    question.addPanel();
+    await flush();
+    question.removePanel(0);
+    await flush();
+    expect(writes(source).filter(op => op !== "update"), "#2").toEqual(["insert", "remove"]);
+    expect(warnings.length, "#3: no warning").toBe(0);
+  });
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": a refresh still follows the source, also with column defaults written on generation", async () => {
+      const json = kind === "matrix" ?
+        { columns: [{ name: "col1" }, { name: "col2" }, { name: "col3", defaultValue: "d" }] } :
+        { templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }, { type: "text", name: "col3", defaultValue: "d" }] };
+      const survey = new SurveyModel({ elements: [ownedElement(kind, json)] });
+      const question = <Question>survey.getQuestionByName(kind);
+      const source = new FakeServerSource(ownedRecords(3));
+      await attach(question, source);
+      source.records[0].col1 = "server";
+      (<any>question).refreshDataSource();
+      await flush();
+      expect(question.value[0].col1, "#1").toBe("server");
+      expect(shown(question)[0], "#2").toEqual(["server", "s0"]);
+      expect(warnings.length, "#3: no warning").toBe(0);
+    });
+  });
+  test("matrix: inside a record an expression column and a visibleIf follow an edit; a trigger sets another question", async () => {
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { columns: [{ name: "col1" }, { name: "col2", visibleIf: "{row.col1} != 'hide'" },
+      { name: "calc", cellType: "expression", expression: "{row.col1} + '!'" }] }), { type: "text", name: "toggle" }, { type: "text", name: "other" }],
+    triggers: [{ type: "setvalue", expression: "{toggle} = 'go'", setToName: "other", setValue: "set" }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const source = new FakeServerSource(ownedRecords(3));
+    await attach(question, source);
+    editFirst(question, "col1", "hide");
+    expect(question.visibleRows[0].getQuestionByName("calc").value, "#1").toBe("hide!");
+    expect(question.visibleRows[0].getQuestionByName("col2").isVisible, "#2").toBe(false);
+    survey.setValue("toggle", "go");
+    expect(survey.getValue("other"), "#3").toBe("set");
+    expect(warnings.length, "#4: no warning").toBe(0);
+  });
+  /* A question inside a record hidden by an edit of that record under onHidden clears its value in
+     that record: a reaction to the record's own data, which writes that record only. Kept. */
+  test("panel: a template question hidden by an edit of its own record under onHidden still clears it in that record", async () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [ownedElement("panel", {
+      templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2", visibleIf: "{panel.col1} != 'hide'" }] })] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const source = new FakeServerSource(ownedRecords(3));
+    await attach(question, source);
+    editFirst(question, "col1", "hide");
+    // The second write waits for the first one: a keyed source gets the writes of a record in order.
+    await flush();
+    expect(source.argsOf("update"), "#1").toEqual([
+      [0, { id: 0, col1: "hide", col2: "s0", hidden1: "keep" }, ["col1"]],
+      [0, { id: 0, col1: "hide", hidden1: "keep" }, ["col2"]]]);
   });
 });

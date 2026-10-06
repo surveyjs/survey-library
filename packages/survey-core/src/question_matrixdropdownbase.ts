@@ -1900,6 +1900,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
   }
   public clearIncorrectValues(): void {
+    if (this.isRemoteData) return;
     this.clearIncorrectValueInData();
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;
@@ -2320,7 +2321,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         .value;
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
-    this.writeRecords((): void => this.setNewValue(newValue));
+    this.writeRecords((): void => this.setOwnRecordsValue(newValue));
   }
   /* Would the row's value, merged into its record as a write merges it, change the record? A record
      may hold fields no column shows - the key of a data source - which the row neither holds nor
@@ -2884,11 +2885,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     var res = true;
     (<any>context).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].isVisible) {
-        res = rows[i].validate(context) && res;
+    this.validateRecordObjects(context, (): void => {
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].isVisible) {
+          res = rows[i].validate(context) && res;
+        }
       }
-    }
+    });
     return res;
   }
   private isValueDuplicated(context: ValidationContext): boolean {
@@ -3266,7 +3269,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.createNewValue()
     );
     if (this.isTwoValueEquals(oldValue, combine.value)) return null;
-    this.writeRecords((): void => this.setNewValue(combine.value));
+    this.writeRecords((): void => this.setOwnRecordsValue(combine.value));
     return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
   }
   /* The per-row half of a cell change: which keys of a record belong to the row's questions is
@@ -3511,6 +3514,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.clearInvisibleValuesInRows();
   }
   protected clearInvisibleValuesInRows(): void {
+    if (this.isRemoteData) return;
     if (this.isEmpty()) return;
     /* Under paging the records rowsVisibleIf hides have no row, on whatever page they are: their
        visibility is decided over the stored values, for every record (one expression run each), when

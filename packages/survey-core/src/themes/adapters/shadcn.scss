@@ -551,6 +551,11 @@
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
   field-sizing: content;
 }
+// content sizing drops the cols-based intrinsic width and resizes auto-layout matrix columns
+.sd-table .sd-comment__input {
+  field-sizing: fixed;
+  height: var(--sjs2-shadcn-input-height);
+}
 
 .sd-formbox--error {
   --shadcn-border-color: var(--destructive);

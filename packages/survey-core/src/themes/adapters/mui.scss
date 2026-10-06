@@ -511,13 +511,28 @@
     .sd-question__content--comment,
     .sd-question__content--dropdown
   ) {
+  /* The title is the floating label, so survey/question titleLocation must not move it. */
+  > .sd-question__container > .sd-question__header-and-content-container {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    column-gap: var(--sd-question-header-content-container-column-gap);
+    row-gap: var(--sd-question-header-content-container-row-gap);
+  }
+
+  .sd-question__content--left {
+    flex: initial;
+    max-width: none;
+  }
+
   .sd-question__header {
     position: absolute;
     top: 0;
     left: 0;
+    margin: 0;
     transition: all 0.2s ease-in-out;
     padding-bottom: 0px;
-    width: fit-content;
+    /* titleLocation "left" writes titleWidth as an inline width */
+    width: fit-content !important;
     padding-top: 0px;
     padding-left: 6px;
     padding-right: 10px;

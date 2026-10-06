@@ -765,7 +765,10 @@
 }
 
 /* checkbox / radio hover highlight (MUI-style circular overlay) */
-:root {
+/* :host covers a stylesheet loaded inside a shadow root (the marketing preview).
+   :root does not match there, and a missing duration makes the ripple animation invalid. */
+:root,
+:host {
   --mui-to-sjs-animation-speed-slow: 0.4s;
   --mui-to-sjs-animation-speed-fast: 0.15s;
 }

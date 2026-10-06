@@ -153,7 +153,7 @@ export abstract class QuestionRecordsModel extends Question {
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
         (): Array<any> => this.getListRecords(),
-        (records: Array<any>): void => { this.setListRecords(records); },
+        (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.setListRecords(records, operations); },
         (): number => this.getListRecordCount(), this.isRecordMembershipFixed());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
@@ -735,12 +735,13 @@ export abstract class QuestionRecordsModel extends Question {
   }
 
   /* The write capabilities of a data source are declared by the presence of its optional methods (its
-     read capabilities by flags, see dynamic-data-interfaces.ts): a source without insert gets no add button, one without remove no delete button, one without move no drag
-     handles, and one without update makes every object read-only - a silently unsaved edit is worse
-     than a disabled field, and an application that wants local-only edits over remote reads
-     implements a no-op update. A question without a data source has every capability, except the
-     membership operations of a question that defines its records itself (isRecordMembershipFixed).
-     The list is not created for the answer. */
+     read capabilities by flags, see dynamic-data-interfaces.ts), and need a keyField for any source
+     that is not an in-memory array (DynamicDataList.hasCapability): a source without insert gets no
+     add button, one without remove no delete button, one without move no drag handles, and one
+     without update makes every object read-only - a silently unsaved edit is worse than a disabled
+     field. A source without keyField is read-only as a whole. A question without a data source has
+     every capability, except the membership operations of a question that defines its records itself
+     (isRecordMembershipFixed). The list is not created for the answer. */
   protected canWriteRecords(operation: DynamicDataOperation): boolean {
     if (this.isRecordMembershipFixed() && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const list = this._dataList;
@@ -765,9 +766,15 @@ export abstract class QuestionRecordsModel extends Question {
     this.paging.setPageSize(this.getPageSizePropertyName(), val);
     this.onPageSizeAssigned();
   }
-  // internal, for tests and renderers
-  public getDataList(): DynamicDataList {
-    return this.dataList;
+  /* The data source is read again with the request in force - the page, the filter and the sort. A
+     source is read, not watched: a change made to it elsewhere (another user, an array changed in
+     place, a survey value behind a SurveyDataDynamicDataSource) shows after this read. It is not
+     refreshView(), which re-decides the view of the records in memory. Without a data source there is
+     nothing to read: question.value is read through on every access. */
+  protected refreshSource(): void | Promise<void> {
+    const list = this.dataListValue;
+    if (!list || !list.isRemote) return;
+    return list.refresh();
   }
   // internal: single-input mode reads every object, and nothing tells the list that it became active.
   public syncPageSizeWithMode(): void {
@@ -837,6 +844,32 @@ export abstract class QuestionRecordsModel extends Question {
     return this.isPagingActive ? this.paging.pageCount : 1;
   }
 
+  /* A reported index - an event's panelIndex or row index - keeps its released meaning: the record's
+     position in the whole view (the unpaged order of the filter and the sort, owner-hidden records
+     included), in the whole source for a source that pages itself. Without a view it is the record
+     index, which is the object's position when the question does not page. -1: not in the view. */
+  protected getRecordViewIndex(recordIndex: number): number {
+    const list = this.dataListValue;
+    if (!list || !this.hasDataListView || recordIndex < 0) return recordIndex;
+    const pos = list.indexToCreatedIndex(recordIndex);
+    return pos < 0 ? -1 : pos + list.getRecordNumberOffset();
+  }
+  /* The record a number a caller passes - removePanel(n), addPanel(n), removeRow(n) - names under
+     paging: a position among the visible records of the whole view, as currentIndex is, also on
+     another page. -1 when there is none; isRecordNotLoaded tells whether a source that pages itself
+     holds another window. */
+  protected getRecordIndexAtVisibleIndex(visibleIndex: number): number {
+    return this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
+  }
+  protected isRecordNotLoaded(recordIndex: number): boolean {
+    return recordIndex < 0 && !!this.dataListValue && this.dataListValue.isPagedBySource;
+  }
+  /* An operation a number asked for is refused: the record is on a page a source that pages itself
+     has not loaded, and acting on any record the window does hold would act on the wrong one. It is
+     reported the way a source error is (onDynamicDataError), under the operation it refused. */
+  protected reportRecordNotLoaded(operation: DynamicDataOperation): void {
+    this.onSourceError(new Error("The record is not in the loaded page of the data source; the " + operation + " was not made."), operation);
+  }
   // The assigned data source, read back from the list (assignedSource); nothing is created for it.
   protected getDataSource(): IDynamicDataSource {
     return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
@@ -860,7 +893,7 @@ export abstract class QuestionRecordsModel extends Question {
        a remote source unchanged, and isReadThrough stays on but covers the question's own storage
        only. An assigned source is read, not read through, whatever its class - an
        ArrayDynamicDataSource and a SurveyDataDynamicDataSource included: the question is not told
-       when the developer's array changes, so that change is seen after getDataList().refresh() and
+       when the developer's array changes, so that change is seen after refreshDataSource() and
        not at once. The list reads through again after a detach. Because of the frozen membership,
        refreshView() on a source that pages has to be a refresh(): the server decides which records
        are in the window, so re-deciding the view means re-reading it (see
@@ -884,7 +917,10 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // A rejected read leaves the short window and its focused item in place: the kept position goes.
   private onSourceError(error: any, operation: DynamicDataOperation): void {
-    if (operation === "read")this.forgetFocusIndex();
+    if (operation === "read") {
+      this.forgetFocusIndex();
+      this.onPageReadRejected();
+    }
     if (!!this.survey) {
       this.survey.dynamicDataError(this, operation, error);
     }
@@ -1068,12 +1104,14 @@ export abstract class QuestionRecordsModel extends Question {
      own record here, which would be one more O(N) lookup per object.
      A record that is the same object as before may have been changed in place, and a value that is
      not a collection of records says nothing about them: those objects are refreshed. So is every
-     object of a data source - its window is replaced by a read. */
+     object of a data source - its window is replaced by a read. Without a view the objects are built in
+     record order, so the position is the record index - also for an object whose record the value
+     does not hold (a panel count above the record count): it shows the record the value has there. */
   private updateItemsFromRecords(oldRecords: any): void {
     if (this.isWritingRecords) return;
     const newRecords = this.getStoredRecords();
     const isEveryChanged = !Helpers.isValueObject(oldRecords) || !Helpers.isValueObject(newRecords) || this.isRemoteData;
-    const list = this.dataListValue;
+    const list = this.hasDataListView ? this.dataListValue : undefined;
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
@@ -1105,6 +1143,10 @@ export abstract class QuestionRecordsModel extends Question {
      here: this runs on every survey change. */
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);
+    this.onAnyValueChangedInItems(name, questionName);
+  }
+  // The objects' half of onAnyValueChanged, without the question's own re-validation.
+  protected onAnyValueChangedInItems(name: string, questionName: string): void {
     if (!this.areObjectsBuilt() && name === this.getValueName()) {
       this.isValueChangedBeforeBuild = true;
     }
@@ -1120,6 +1162,9 @@ export abstract class QuestionRecordsModel extends Question {
      is never validated, so what it holds is stale. */
   public clearErrors(): void {
     super.clearErrors();
+    this.clearItemErrors();
+  }
+  protected clearItemErrors(): void {
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
@@ -1127,7 +1172,10 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
   public getAllErrors(): Array<SurveyError> {
-    let res = super.getAllErrors();
+    return super.getAllErrors().concat(this.getItemErrors());
+  }
+  protected getItemErrors(): Array<SurveyError> {
+    let res: Array<SurveyError> = [];
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return res;
@@ -1205,7 +1253,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* The records the list works with: the question's own storage, given to
      DynamicDataList.createReadThrough once. */
   protected abstract getListRecords(): Array<any>;
-  protected abstract setListRecords(records: Array<any>): void;
+  // operations: the writes the default source made (DynamicDataOperation names), in order.
+  protected abstract setListRecords(records: Array<any>, operations?: Array<DynamicDataOperation>): void;
   // The record fields the list knows (see getFieldsOfQuestions).
   protected abstract getFields(): Array<IDynamicDataField>;
   // The objects are re-created for the records the view - under paging, the page - holds now.
@@ -1230,9 +1279,8 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract getPageSizePropertyName(): string;
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
-  /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
-     a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
-     object. */
+  /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
+     its own paging and builds every object. */
   protected abstract get listPageSize(): number;
   // The objects, by created position (getItemByRecordIndex looks them up by record).
   public abstract getItem(index: number): QuestionRecordItem;
@@ -1312,6 +1360,8 @@ export abstract class QuestionRecordsModel extends Question {
   // After a write to a data source was stored, before the conditions run; not guarded against
   // re-entrancy. The default: nothing to prepare.
   protected prepareRemoteWrite(change: IDynamicDataListChange): void { }
+  // A read of a page was rejected: the window in force stays. The default: nothing was set aside for it.
+  protected onPageReadRejected(): void { }
   /* Record indexes the question keeps besides its objects and the edited set: a read that commits
      again renumbers them with its remap. The default: the question keeps none. */
   protected hasKeptRecordIndexes(): boolean {

@@ -51,9 +51,19 @@ function recordChanges(list: DynamicDataList): Array<string> {
   return res;
 }
 
+/* The position of the record whose id is key. The sources below that write are keyed by "id" (a
+   source without keyField is read-only) and look their records up by it; the records of
+   createRecords() and tableRecords() have the id of their first position. */
+function indexOfId(records: Array<any>, key: any): number {
+  for (let i = 0; i < records.length; i++) {
+    if (!!records[i] && records[i].id === key) return i;
+  }
+  return -1;
+}
 // A source that pages itself. It is synchronous, so the list stays synchronous with it.
 class FakeRangeSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
   constructor(public records: Array<any>) { }
@@ -64,28 +74,35 @@ class FakeRangeSource implements IDynamicDataSource {
     const count = request.take > 0 ? request.take : this.records.length;
     return { records: this.records.slice(request.skip, request.skip + count), total: this.records.length };
   }
-  public update(sourceIndex: number, record: any, changedFields: Array<string>): void {
-    this.ops.push("update:" + sourceIndex + ":" + changedFields.join(","));
-    this.records[sourceIndex] = record;
+  public update(key: any, record: any, changedFields: Array<string>): void {
+    this.ops.push("update:" + key + ":" + changedFields.join(","));
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records[at] = record;
   }
-  public insert(record: any, sourceIndex: number): void {
+  public insert(record: any, sourceIndex: number): any {
     this.ops.push("insert:" + sourceIndex);
-    this.records.splice(sourceIndex, 0, record);
+    const stored = Object.assign({ id: 1000 + this.ops.length }, record);
+    this.records.splice(sourceIndex, 0, stored);
+    return Object.assign({}, stored);
   }
-  public remove(sourceIndex: number): void {
-    this.ops.push("remove:" + sourceIndex);
-    this.records.splice(sourceIndex, 1);
+  public remove(key: any): void {
+    this.ops.push("remove:" + key);
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records.splice(at, 1);
   }
-  public move(fromSourceIndex: number, toSourceIndex: number): void {
-    this.ops.push("move:" + fromSourceIndex + ">" + toSourceIndex);
-    const record = this.records[fromSourceIndex];
-    this.records.splice(fromSourceIndex, 1);
+  public move(key: any, toSourceIndex: number): void {
+    this.ops.push("move:" + key + ">" + toSourceIndex);
+    const at = indexOfId(this.records, key);
+    if (at < 0) return;
+    const record = this.records[at];
+    this.records.splice(at, 1);
     this.records.splice(toSourceIndex, 0, record);
   }
 }
 // The same, reading on demand through deferreds.
 class FakeAsyncRangeSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public pendingReads: Array<Deferred> = [];
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
@@ -98,8 +115,8 @@ class FakeAsyncRangeSource implements IDynamicDataSource {
     this.pendingReads.push(deferred);
     return deferred.promise;
   }
-  public update(sourceIndex: number, record: any): void {
-    this.ops.push("update:" + sourceIndex);
+  public update(key: any, record: any): void {
+    this.ops.push("update:" + key);
   }
   public resolveRead(index: number): void {
     const call = this.rangeCalls[index];
@@ -112,6 +129,7 @@ class FakeAsyncRangeSource implements IDynamicDataSource {
 }
 // A source that reads synchronously and writes asynchronously.
 class FakeAsyncWriteSource implements IDynamicDataSource {
+  public keyField: string = "id";
   public readCalls: number = 0;
   public ops: Array<string> = [];
   public pendingWrites: Array<Deferred> = [];
@@ -120,12 +138,15 @@ class FakeAsyncWriteSource implements IDynamicDataSource {
     this.readCalls++;
     return this.records;
   }
-  public update(sourceIndex: number, record: any, changedFields: Array<string>): Promise<void> {
-    this.ops.push("update:" + sourceIndex + ":" + changedFields.join(","));
+  public update(key: any, record: any, changedFields: Array<string>): Promise<void> {
+    this.ops.push("update:" + key + ":" + changedFields.join(","));
     const deferred = new Deferred();
     this.pendingWrites.push(deferred);
     // The write reaches the storage when it is acknowledged, as a server write would.
-    return deferred.promise.then((): void => { this.records[sourceIndex] = record; });
+    return deferred.promise.then((): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = record;
+    });
   }
 }
 // A source that reads on demand.
@@ -669,7 +690,7 @@ describe("DynamicDataList: a source that pages itself", () => {
     expect(list.getVisibleIndexes()).toEqual([0, 1, 2]);
     expect(list.getPageIndexes()).toEqual([0, 1, 2]);
   });
-  test("the source index of an edit is the window offset plus the record index", () => {
+  test("an edit names its record by key; an insert passes the window offset plus the record index", () => {
     const source = new FakeRangeSource(createRecords(6));
     const list = new DynamicDataList(source);
     list.pageSize = 2;
@@ -681,8 +702,9 @@ describe("DynamicDataList: a source that pages itself", () => {
     expect(source.ops[1]).toBe("insert:3");
     list.remove(0);
     expect(source.ops[2]).toBe("remove:2");
+    // The new record took the key the source assigned it, and a move targets a position.
     list.move(0, 1);
-    expect(source.ops[3]).toBe("move:2>3");
+    expect(source.ops[3]).toBe("move:1002>3");
   });
   test("refresh re-reads the current window, load re-reads the requested page", () => {
     const source = new FakeRangeSource(createRecords(6));
@@ -757,7 +779,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     list.add({ id: 9 }, 1);
     list.remove(0);
     list.move(0, 1);
-    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0", "move:0>1"]);
+    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0", "move:1002>1"]);
   });
   test("a read-only source keeps the edit in the window", () => {
     const source = new FakeAsyncSource();
@@ -771,7 +793,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     });
   });
   test("two writes on one record reach the source in order", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     list.load();
     list.setValue(0, "a", 2);
@@ -785,10 +807,10 @@ describe("DynamicDataList: write-through and the push chain", () => {
     source.pendingWrites[1].resolve();
     await flush();
     expect(list.hasPendingWrites).toBe(false);
-    expect(source.records[0]).toEqual({ a: 2, b: 3 });
+    expect(source.records[0]).toEqual({ id: 0, a: 2, b: 3 });
   });
   test("a rejected push reports onError, keeps the local value and continues the chain", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     const errors: Array<string> = [];
     list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error); };
@@ -805,7 +827,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     expect(list.hasPendingWrites).toBe(false);
   });
   test("a read is deferred until the pending writes settle and does not overwrite the edit", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     list.load();
     expect(source.readCalls).toBe(1);
@@ -1004,14 +1026,14 @@ describe("DynamicDataList: read-through over an array source", () => {
       writes.push(arr);
     });
     const list = new DynamicDataList(source);
-    list.isReadThrough = true;
+    list["isReadThroughValue"] = true;
     list.load();
     return { list: list, get: (): Array<any> => stored, writes: writes };
   };
   test("reads the owner array on demand, without a load", () => {
     let stored: Array<any> = [{ a: 1 }];
     const list = new DynamicDataList(new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
-    list.isReadThrough = true;
+    list["isReadThroughValue"] = true;
     expect(list.count, "No load() was called").toBe(1);
     stored = [{ a: 1 }, { a: 2 }, { a: 3 }];
     expect(list.count, "An assignment made behind the back of the list is seen at once").toBe(3);
@@ -1070,7 +1092,7 @@ describe("DynamicDataList: read-through over an array source", () => {
   test("read-through is ignored for a source that is not an array source", () => {
     const source: IDynamicDataSource = { read: (): Array<any> => [{ a: 1 }, { a: 2 }] };
     const list = new DynamicDataList(source);
-    list.isReadThrough = true;
+    list["isReadThroughValue"] = true;
     expect(list.count, "Nothing is loaded yet").toBe(0);
     list.load();
     expect(list.count).toBe(2);
@@ -1082,17 +1104,21 @@ describe("DynamicDataList: read-through over an array source", () => {
 // A source that names itself in every write, so that a push can be attributed to the source it was
 // enqueued against.
 class FakeNamedAsyncWriteSource implements IDynamicDataSource {
+  public keyField: string = "id";
   public ops: Array<string> = [];
   public pendingWrites: Array<Deferred> = [];
   constructor(public name: string, public records: Array<any>) { }
   public read(): Array<any> {
     return this.records;
   }
-  public update(sourceIndex: number, record: any): Promise<void> {
-    this.ops.push(this.name + ":" + sourceIndex + ":" + JSON.stringify(record));
+  public update(key: any, record: any): Promise<void> {
+    this.ops.push(this.name + ":" + key + ":" + JSON.stringify(record));
     const deferred = new Deferred();
     this.pendingWrites.push(deferred);
-    return deferred.promise.then((): void => { this.records[sourceIndex] = record; });
+    return deferred.promise.then((): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = record;
+    });
   }
 }
 // A source whose read() never settles until it is switched to a synchronous or a throwing one.
@@ -1113,30 +1139,30 @@ function createReadThrough(records: Array<any>): { list: DynamicDataList, set: (
   let stored: Array<any> = records;
   const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; });
   const list = new DynamicDataList(source);
-  list.isReadThrough = true;
+  list["isReadThroughValue"] = true;
   list.load();
   return { list: list, set: (arr: Array<any>): void => { stored = arr; } };
 }
 
 describe("DynamicDataList: a replaced source", () => {
   test("a queued write is pushed to the source it was enqueued against", async () => {
-    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
-    const newSource = new FakeNamedAsyncWriteSource("new", [{ a: 1 }]);
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
+    const newSource = new FakeNamedAsyncWriteSource("new", [{ id: 0, a: 1 }]);
     const list = new DynamicDataList(oldSource);
     list.load();
     list.setValue(0, "a", 2);
     list.setValue(0, "a", 3);
-    expect(oldSource.ops, "#1: the second push is queued").toEqual(["old:0:{\"a\":2}"]);
+    expect(oldSource.ops, "#1: the second push is queued").toEqual(["old:0:{\"id\":0,\"a\":2}"]);
     list.source = newSource;
     oldSource.pendingWrites[0].resolve();
     await flush();
     expect(oldSource.ops, "#2: both edits belong to the old source")
-      .toEqual(["old:0:{\"a\":2}", "old:0:{\"a\":3}"]);
+      .toEqual(["old:0:{\"id\":0,\"a\":2}", "old:0:{\"id\":0,\"a\":3}"]);
     expect(newSource.ops, "#3: the new source got nothing").toEqual([]);
-    expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ a: 1 }]);
+    expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ id: 0, a: 1 }]);
   });
   test("the new source is read at once: the detached pushes are not waited for", async () => {
-    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
     const list = new DynamicDataList(oldSource);
     list.load();
     list.setValue(0, "a", 2);
@@ -1431,7 +1457,7 @@ describe("DynamicDataList: frozen membership", () => {
         writing = list.isWriting;
         list.invalidateViews();
       }));
-    list.isReadThrough = true;
+    list["isReadThroughValue"] = true;
     list.isViewFrozenOnEdit = true;
     list.load();
     list.filter = "{a} = 1";
@@ -1488,6 +1514,7 @@ interface ITableCall {
    table removed are kept, so that a test can tell WHICH record went, not only how many. */
 class FakeTableSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public calls: Array<ITableCall> = [];
   public removedIds: Array<any> = [];
   public auto: boolean = false;
@@ -1503,16 +1530,26 @@ class FakeTableSource implements IDynamicDataSource {
     };
     return this.call("read", [request.skip, request.take], (): IDynamicDataReadResult => snapshot);
   }
-  public update(sourceIndex: number, record: any): Promise<void> {
-    return this.call("update", [sourceIndex], (): void => { this.records[sourceIndex] = this.copy(record); });
+  private nextId: number = 1000;
+  public update(key: any, record: any): Promise<void> {
+    return this.call("update", [key], (): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = this.copy(record);
+    });
   }
-  public insert(record: any, sourceIndex: number): Promise<void> {
-    return this.call("insert", [sourceIndex], (): void => { this.records.splice(sourceIndex, 0, this.copy(record)); });
+  public insert(record: any, sourceIndex: number): Promise<any> {
+    return this.call("insert", [sourceIndex], (): any => {
+      const stored = Object.assign({ id: this.nextId++ }, this.copy(record));
+      this.records.splice(sourceIndex, 0, stored);
+      return this.copy(stored);
+    });
   }
-  public remove(sourceIndex: number): Promise<void> {
-    return this.call("remove", [sourceIndex], (): void => {
-      this.removedIds.push(this.records[sourceIndex].id);
-      this.records.splice(sourceIndex, 1);
+  public remove(key: any): Promise<void> {
+    return this.call("remove", [key], (): void => {
+      const at = indexOfId(this.records, key);
+      if (at < 0) return;
+      this.removedIds.push(this.records[at].id);
+      this.records.splice(at, 1);
     });
   }
   private copy = (record: any): any => Object.assign({}, record);
@@ -1984,6 +2021,7 @@ describe("DynamicDataList: one request per read", () => {
    overrides the flag the list would otherwise infer from the length of the window. */
 class NoTotalSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public requests: Array<IDynamicDataReadRequest> = [];
   public hasMoreAnswer: boolean = undefined;
   public failOnFilter: boolean = false;
@@ -2004,9 +2042,10 @@ class NoTotalSource implements IDynamicDataSource {
     if (this.delay < 0) return res;
     return new Promise((resolve: (value: any) => void): void => { setTimeout(() => resolve(res), this.delay); });
   }
-  public remove(sourceIndex: number): void {
-    this.ops.push("remove:" + sourceIndex);
-    this.records.splice(sourceIndex, 1);
+  public remove(key: any): void {
+    this.ops.push("remove:" + key);
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records.splice(at, 1);
   }
   public get skips(): Array<number> {
     return this.requests.map((request: IDynamicDataReadRequest): number => request.skip);
@@ -2528,6 +2567,7 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
 describe("DynamicDataList: the pending retry", () => {
   class HeldRangeSource implements IDynamicDataSource {
     public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+    public keyField: string = "id";
     public skips: Array<number> = [];
     public held: Array<() => void> = [];
     constructor(public records: Array<any>) { }
@@ -2539,8 +2579,9 @@ describe("DynamicDataList: the pending retry", () => {
         ({ records: this.records.slice(request.skip, request.skip + request.take), total: this.records.length }));
     }
     public insert(record: any, sourceIndex: number): any {
-      this.records.splice(sourceIndex, 0, record);
-      return record;
+      const stored = Object.assign({ id: 1000 + this.records.length }, record);
+      this.records.splice(sourceIndex, 0, stored);
+      return Object.assign({}, stored);
     }
     public async answerNext(): Promise<void> {
       this.held.shift()();
@@ -2692,6 +2733,7 @@ describe("a throwing callback does not leave a guard behind", () => {
   test("add: onError throws for a push the source rejected synchronously", () => {
     // Not an array source: that one re-reads its storage after a synchronous push.
     const source: IDynamicDataSource = {
+      keyField: "id",
       read: (): Array<any> => createRecords(1),
       insert: (): any => { throw new Error("rejected"); }
     };
@@ -2903,7 +2945,7 @@ describe("DynamicDataList: the assigned source", () => {
   test("a standalone list that reads through keeps doing so; one that was assigned a source does not", () => {
     const own = createAssignedArray(2);
     const list = new DynamicDataList(own.source);
-    list.isReadThrough = true;
+    list["isReadThroughValue"] = true;
     list.load();
     own.set(createRecords(4));
     expect(list.loadedCount, "#1: the source it was constructed with is its own").toBe(4);
@@ -3529,6 +3571,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     };
     const source: IDynamicDataSource = {
       capabilities: capabilities,
+      keyField: "id",
       read: (request: IDynamicDataReadRequest): any => {
         requests.push(request);
         if (!options.held) return answer(request);
@@ -3685,7 +3728,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     expect(other.isPagedBySource, "#5: the whole storage answered after the page is discarded").toBe(true);
     expect(other.loadedCount, "#6").toBe(2);
   });
-  test("a write in the whole storage addresses the unfiltered source index and overtakes a whole-storage read", async () => {
+  test("a write in the whole storage addresses its record by key and overtakes a whole-storage read", async () => {
     const sync = createSource(5, { paging: true });
     const list = new DynamicDataList(sync.source);
     list.pageSize = 2;
@@ -3693,7 +3736,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     list.filter = "{id} > 2";
     expect(list.getPageIndexes(), "#1").toEqual([3, 4]);
     list.remove(3);
-    expect(sync.removed, "#2: the position in the whole source").toEqual([3]);
+    expect(sync.removed, "#2: the record at position 3 of the whole source").toEqual([3]);
     const held = createSource(5, { paging: true }, { held: true });
     const other = new DynamicDataList(held.source);
     other.pageSize = 2;
@@ -3772,5 +3815,132 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     list.load();
     expect(requests, "#3").toEqual([wholeRequest]);
     expect(list.getPageIndexes(), "#4").toEqual([3, 4]);
+  });
+});
+/* A write names its record by key. Only an in-memory array is written by position: the list is its
+   only writer and writes it synchronously. Any other source without keyField is read-only, whatever
+   methods it has, so that no write ever names a record by a position the source resolves another way. */
+describe("DynamicDataList: a source without keyField is read-only", () => {
+  const createUnkeyed = (calls: Array<string>, records: Array<any>): IDynamicDataSource => ({
+    capabilities: { paging: true, sorting: true },
+    read: (request: IDynamicDataReadRequest): IDynamicDataReadResult => {
+      // The source sorts on its side: a position in its answer is not a position in its storage.
+      const sorted = records.slice().sort((a: any, b: any): number => b.id - a.id);
+      return { records: sorted.slice(request.skip, request.skip + (request.take || sorted.length)), total: sorted.length };
+    },
+    insert: (): void => { calls.push("insert"); },
+    update: (key: any): void => { calls.push("update:" + key); },
+    remove: (key: any): void => { calls.push("remove:" + key); },
+    move: (key: any): void => { calls.push("move:" + key); }
+  });
+  test("a custom source without keyField gets no insert, update, remove or move, whatever methods it has", () => {
+    const calls: Array<string> = [];
+    const list = new DynamicDataList(createUnkeyed(calls, createRecords(4)));
+    list.pageSize = 2;
+    list.load();
+    ["insert", "update", "remove", "move"].forEach((op: any): void => {
+      expect(list.hasCapability(op), "#1: " + op).toBe(false);
+    });
+    expect(list.hasCapability("read"), "#2").toBe(true);
+    list.setValue(0, "name", "edited");
+    list.move(0, 1);
+    list.add({ id: 9 });
+    list.remove(0);
+    expect(calls, "#3: nothing is sent").toEqual([]);
+  });
+  test("the same source with keyField receives every write by the key of the record it was made to", () => {
+    const calls: Array<string> = [];
+    const source = createUnkeyed(calls, createRecords(4));
+    source.keyField = "id";
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    expect(list.getRecord(0).id, "#1: the source sorts on its side").toBe(3);
+    list.setValue(0, "name", "edited");
+    expect(calls, "#2: the record the edit was made to, not position 0 of the storage").toEqual(["update:3"]);
+  });
+  test("an in-memory array is written by storage index without keyField", () => {
+    const list = createList(createRecords(3));
+    ["insert", "update", "remove", "move"].forEach((op: any): void => {
+      expect(list.hasCapability(op), "#1: " + op).toBe(true);
+    });
+    list.setValue(1, "name", "edited");
+    list.remove(0);
+    expect((<ArrayDynamicDataSource>list.source).array, "#2").toEqual([{ id: 1, name: "edited" }, { id: 2, name: "r2" }]);
+  });
+});
+/* User code the list calls from an answer of its source - the owner's follow-up of a committed read,
+   an error listener - may throw. The read is over and the chain goes on: the exception surfaces as
+   the rejection of that answer's continuation. */
+describe("DynamicDataList: user code that throws in an answer of the source", () => {
+  const catchUnhandled = (): { errors: Array<any>, restore: () => void } => {
+    const listeners = process.listeners("unhandledRejection");
+    process.removeAllListeners("unhandledRejection");
+    const errors: Array<any> = [];
+    const onRejection = (reason: any): void => { errors.push(reason); };
+    process.on("unhandledRejection", onRejection);
+    return {
+      errors: errors,
+      restore: (): void => {
+        process.removeListener("unhandledRejection", onRejection);
+        listeners.forEach((listener: any) => process.on("unhandledRejection", listener));
+      }
+    };
+  };
+  test("a commit whose notification throws ends the read: the caller awaiting it gets the exception, the list is not loading", async () => {
+    const source = new FakeAsyncRangeSource(createRecords(10));
+    const list = new DynamicDataList(source);
+    list.pageSize = 5;
+    let isThrowing = true;
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (isThrowing && change.type === "reset") {
+        isThrowing = false;
+        throw new Error("owner");
+      }
+    };
+    const loaded = list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    source.resolveRead(0);
+    let error: any = undefined;
+    await (<Promise<void>>loaded).catch((e: any): void => { error = e; });
+    expect(error && error.message, "#2: the exception reaches the caller").toBe("owner");
+    expect(list.isLoading, "#3: the read is over").toBe(false);
+    expect(list.loadedCount, "#4: and committed").toBe(5);
+  });
+  test("a queued write that fails synchronously while the error listener throws: a later write still runs", async () => {
+    const calls: Array<string> = [];
+    const first = new Deferred();
+    let updates = 0;
+    const source: IDynamicDataSource = {
+      keyField: "id",
+      read: (): Array<any> => createRecords(3),
+      update: (key: any): any => {
+        calls.push("update:" + key);
+        updates++;
+        if (updates === 1) return first.promise;
+        if (updates === 2) throw new Error("server");
+        return undefined;
+      }
+    };
+    const list = new DynamicDataList(source);
+    list.load();
+    list.onError = (): void => { throw new Error("listener"); };
+    const unhandled = catchUnhandled();
+    try {
+      list.setValue(0, "name", "a");
+      list.setValue(1, "name", "b");
+      list.setValue(2, "name", "c");
+      expect(calls, "#1: the second and third wait for the first").toEqual(["update:0"]);
+      first.resolve();
+      await flush();
+      // The rejection is reported once the microtasks drain.
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+      await flush();
+    } finally {
+      unhandled.restore();
+    }
+    expect(calls, "#2: the third ran after the second failed").toEqual(["update:0", "update:1", "update:2"]);
+    expect(unhandled.errors.map(e => e.message), "#3: the listener's exception is not swallowed").toEqual(["listener"]);
+    expect(list.hasPendingWrites, "#4").toBe(false);
   });
 });

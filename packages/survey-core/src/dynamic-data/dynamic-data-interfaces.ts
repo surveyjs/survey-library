@@ -31,15 +31,13 @@
 //       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
 //         .then(r => r.json())
 //         .then(r => ({ records: r.items, total: r.total })),
-//     // Optional. The record field that identifies a record: present -> every write below receives
-//     // record[keyField] as its key instead of a position. A source whose records change under the
-//     // grid - a second user, a background job, another tab - needs it: "the record at position 37"
-//     // is a different record by the time the request lands.
+//     // The record field that identifies a record: every write below receives record[keyField] as
+//     // its key. Required for writing: a source without it is read-only, whatever methods it has.
 //     keyField: "id",
 //     // Optional, one capability each. Missing insert -> no add button; missing remove -> no
 //     // delete button; missing move -> no drag reorder; missing update -> the question is
-//     // read-only. The position is where the record goes, the source assigns the key: return the
-//     // stored record (or a promise of it) so that the list learns it.
+//     // read-only. The source assigns the key and decides where the record is kept: return the
+//     // stored record (or a promise of it) so that the list learns the key.
 //     insert: (record, sourceIndex) => post("/api/orders", { at: sourceIndex, record }),
 //     update: (key, record, changedFields) => put(`/api/orders/${key}`, record),
 //     remove: (key) => del(`/api/orders/${key}`),
@@ -48,10 +46,16 @@
 //   };
 //   matrixQuestion.dataSource = source;   // or panelQuestion.dataSource = source
 //
-// A source WITHOUT keyField receives the source index as the key: the position in the WHOLE source,
-// not in the loaded page - the list has already added the offset of the page the edit was made on.
-// That is what the in-memory sources use, and it is exact for a source only this list writes to.
-// sourceIndex, where it is passed on its own, is always that position.
+// A source WITHOUT keyField is read-only: the list sends it no insert, update, remove or move, so no
+// write ever names a record by its position. It may still page, sort and filter on its side. The
+// in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
+// list is their only writer and writes them synchronously, so a write names a record by its storage
+// index. sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
+// has already added the offset of the page the edit was made on.
+//
+// Where an added record is kept is the source's to decide: insert receives the position the
+// respondent added it at, returns the stored record, and the next read shows the record where the
+// source put it. Until the next page, sort or filter change the record stays shown where it was added.
 //
 // A keyed source and a new record: the list addresses a record by the key the source assigned, so
 // return the stored record from insert. The edits, removes and moves made to the new record before
@@ -136,13 +140,13 @@ export interface IDynamicDataSource {
   read(request: IDynamicDataReadRequest):
     Array<any> | IDynamicDataReadResult | Promise<Array<any> | IDynamicDataReadResult>;
   // Present -> the record field that identifies a record in the source, and every write below
-  // receives record[keyField] as its key. Absent -> the key IS the source index (the position in
-  // the whole source, in the order the last read returned), as before.
+  // receives record[keyField] as its key. Absent -> the source is read-only (see the header), except
+  // for the in-memory sources, which are written by storage index.
   keyField?: string;
-  // Present -> edits are pushed to the source (write-through); absent -> the source is read-only
-  // for that operation and the edit stays in the loaded window.
-  // The position is where the record goes; the source assigns the key. Return the stored record (or
-  // a promise of it) so that the list learns the key: the writes made to the new record meanwhile
+  // Present, with keyField -> edits are pushed to the source (write-through); absent -> the source is
+  // read-only for that operation.
+  // sourceIndex is where the respondent added the record; the source assigns the key and decides where
+  // the record is kept. Return the stored record (or a promise of it) so that the list learns the key: the writes made to the new record meanwhile
   // wait for it, and without it they cannot be delivered. The record never carries the key field -
   // the list takes out a key copied from another record or put on a default value - and the key of
   // the answer is the one the list keeps. A source that wants client-generated keys generates them

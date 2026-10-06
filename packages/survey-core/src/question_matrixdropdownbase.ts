@@ -1085,7 +1085,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   constructor(name: string) {
     super(name);
     this.columns = this.createColumnValues();
+    this.rows = this.createItemValues("rows");
   }
+  // The records of the Multi-Select Matrix; the dynamic matrix keeps the empty array it has always had.
+  /**
+   * An array of matrix rows.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   */
+  @property() rows: Array<any>;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rowsVisibleIf" || name === "columnsVisibleIf") {
@@ -2296,7 +2308,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const changedRows: Array<MatrixDropdownRowModelBase> = [];
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (!row.editingObj && !this.isTwoValueEquals(this.getRowValue(i), row.value)) {
+      if (!row.editingObj && this.isRecordChangedByRow(row, this.getRowValue(i))) {
         changedRows.push(row);
       }
     }
@@ -2309,6 +2321,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
     this.writeRecords((): void => this.setNewValue(newValue));
+  }
+  /* Would the row's value, merged into its record as a write merges it, change the record? A record
+     may hold fields no column shows - the key of a data source - which the row neither holds nor
+     writes: comparing the row's value with the whole record would take every such row for changed. */
+  private isRecordChangedByRow(row: MatrixDropdownRowModelBase, record: any): boolean {
+    const merged = Object.assign({}, record);
+    this.mergeRowValue(merged, row, "", row.value, false);
+    return !this.isTwoValueEquals(record || {}, merged);
   }
   public get totalValue(): any {
     if (!this.hasTotal || !this.visibleTotalRow) return {};
@@ -2707,11 +2727,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
     return new MatrixRowGetterContext(<any>item);
   }
-  /* QuestionRecordsModel hook: every unique column, keyName included. Every record takes part,
-     owner-hidden and filtered-out ones included, as it does without paging, and strings compare as the
-     on-page check compares them; the error goes on the later visible record of a pair, on its page. */
+  /* QuestionRecordsModel hook: every unique column, keyName included. A record rowsVisibleIf hides does
+     not take part, as a hidden row does not on the page; a filtered-out one does. Strings compare as
+     the on-page check compares them; the error goes on the later visible record of a pair, on its page. */
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
-    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true, includeFilteredOut: true };
+    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: false, includeFilteredOut: true };
   }
   protected getRecordVisibleIfPropertyName(): string {
     return "rowsVisibleIf";
@@ -3070,11 +3090,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       : newValue;
   }
   private isDoingonAnyValueChanged: boolean;
+  /* The rows and the totals follow the change. A matrix does not re-validate its own validators when
+     another value changes (Question.onAnyValueChanged): it never has. */
   onAnyValueChanged(name: string, questionName: string): void {
     if (this.isUpdateLocked || this.isDoingonAnyValueChanged) return;
     this.isDoingonAnyValueChanged = true;
     try {
-      super.onAnyValueChanged(name, questionName);
+      this.onAnyValueChangedInItems(name, questionName);
       // The total row is outside the record walk. It is created with the rows: before them there is
       // nothing for it to total.
       const totalRow = this.areObjectsBuilt() ? this.visibleTotalRow : null;
@@ -3342,7 +3364,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getExpressionItem(index: number): QuestionRecordItem {
     // Reading allRows builds the rows, so that a record that has a row is answered by the row.
     const rows = this.allRows;
-    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
+    // A row past the record count is on its way out: a lower rowCount truncates the value before the
+    // rows follow, and the survey runs the expressions in between.
+    if (!this.hasDataListView) return index < rows.length && index < this.getRecordCountForRows() ? rows[index] : null;
     return this.getViewExpressionItem(index);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -3389,8 +3413,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
-      // A created position, as the event has always passed: rowIndex is record-based now.
-      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getItemIndex(row), row, val);
+      // The row's position in the whole view, as the event has always passed (getRecordViewIndex).
+      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getRecordViewIndex(this.getRecordIndexOf(row)), row, val);
     }
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
@@ -3458,12 +3482,43 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // announce it.
     this.syncPagingState();
   }
+  /* Without paging the error walks keep the scope they have always had: every row's cells report
+     their errors, a hidden row's included, and the cells of the visible rows are cleared; the detail
+     panels take part in neither. With paging they walk the objects of the page, as the validation
+     does. */
+  protected clearItemErrors(): void {
+    if (this.isPagingActive) {
+      super.clearItemErrors();
+      return;
+    }
+    this.runFuncForCellQuestions((q: Question): void => { q.clearErrors(); });
+  }
+  protected getItemErrors(): Array<SurveyError> {
+    if (this.isPagingActive) return super.getItemErrors();
+    let res: Array<SurveyError> = [];
+    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
+      row.cells.forEach((cell: MatrixDropdownCell): void => {
+        const errors = cell.question.getAllErrors();
+        if (errors && errors.length > 0) {
+          res = res.concat(errors);
+        }
+      });
+    });
+    return res;
+  }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
   protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty() || !this.isRowsFiltered()) return;
+    if (this.isEmpty()) return;
+    /* Under paging the records rowsVisibleIf hides have no row, on whatever page they are: their
+       visibility is decided over the stored values, for every record (one expression run each), when
+       the survey clears invisible values - never on an ordinary edit. */
+    if (this.isPagedByList && !!this.data) {
+      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
+    }
+    if (!this.isRowsFiltered()) return;
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
     if (sharedQuestions.length < 2) {
       this.value = this.getDataWithoutInvisibleRows();
@@ -3487,16 +3542,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     });
   }
-  // A record without a row keeps its answer when invisible values are cleared: the dynamic matrix
-  // keeps every such record.
+  /* A record without a row keeps its answer when invisible values are cleared - one the list filter
+     excludes is unrepresented, not invisible - except a record rowsVisibleIf hides in a list that
+     pages in memory: its row is never built, and its answer goes as a hidden row's does. A source that
+     pages itself holds one window, and its records are not removed. */
   protected isRecordKeptWithoutRow(index: number): boolean {
-    return true;
+    return !this.isPagedByList || this.dataList.isRecordVisible(index);
   }
   /* An identity test: getVisibleFromGenerated returns the very array it was given when no row is
      owner-hidden. A list filter alone therefore reads as "not filtered", which is what it has to be
-     - the rows that exist are all visible and there is nothing to clear. */
+     - the rows that exist are all visible and there is nothing to clear. Under paging in memory a
+     hidden record has no row, so the list's flags say it. */
   protected isRowsFiltered(): boolean {
-    return this.visibleRows !== this.generatedVisibleRows;
+    if (this.visibleRows !== this.generatedVisibleRows) return true;
+    const list = this.dataListValue;
+    return this.isPagedByList && list.getVisibleIndexes().length !== list.getCreatedIndexes().length;
   }
   // index is a VISIBLE position - what it has always been for this method.
   public getQuestionFromArray(name: string, index: number): IQuestion {

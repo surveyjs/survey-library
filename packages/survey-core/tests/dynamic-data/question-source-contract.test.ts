@@ -25,8 +25,8 @@ interface IContractSourceOptions {
   capabilities?: IDynamicDataSourceCapabilities;
 }
 /* One fake source for every scenario: synchronous answers, so the list and the questions stay
-   synchronous with it, and the storage is what the assertions read. With keyed the records are named
-   by "id" and insert assigns one; without it the key of every write is the position. */
+   synchronous with it, and the storage is what the assertions read. The records are named by "id"
+   and insert assigns one; with keyed: false the source has no keyField and is read-only. */
 class ContractSource implements IDynamicDataSource {
   // Reads of the whole storage (not paging) and reads of one page (paging).
   public readCount: number = 0;
@@ -43,7 +43,8 @@ class ContractSource implements IDynamicDataSource {
   private heldInserts: Array<() => void> = [];
   private nextKey: number = 1000;
   constructor(public records: Array<any>, private options: IContractSourceOptions) {
-    this.keyField = options.keyed ? "id" : undefined;
+    // Keyed unless stated: a source without keyField is read-only.
+    this.keyField = options.keyed === false ? undefined : "id";
     if (options.kind === "paging") {
       this.capabilities = options.capabilities || { paging: true, filtering: true, sorting: true };
     }
@@ -157,7 +158,8 @@ const matrixAdapter: IQuestionAdapter = {
   items: (question: QuestionMatrixDynamicModel) => question.visibleRows,
   ids: (question: QuestionMatrixDynamicModel) => question.visibleRows.map(row => row.getQuestionByName("id").value),
   add: (question: QuestionMatrixDynamicModel) => { question.addRow(); },
-  remove: (question: QuestionMatrixDynamicModel, position: number) => { question.removeRow(position, false); },
+  // position: on the page; removeRow takes a position in the whole view.
+  remove: (question: QuestionMatrixDynamicModel, position: number) => { question.removeRow(question.pageIndex * question.pageSize + position, false); },
   edit: (question: QuestionMatrixDynamicModel, position: number, field: string, value: any) => {
     question.visibleRows[position].getQuestionByName(field).value = value;
   },
@@ -178,7 +180,8 @@ const panelAdapter: IQuestionAdapter = {
   items: (question: QuestionPanelDynamicModel) => question.panels,
   ids: (question: QuestionPanelDynamicModel) => question.panels.map(panel => panel.getQuestionByName("id").value),
   add: (question: QuestionPanelDynamicModel) => { question.addPanel(); },
-  remove: (question: QuestionPanelDynamicModel, position: number) => { question.removePanel(position); },
+  // position: on the page; removePanel takes a position in the whole view.
+  remove: (question: QuestionPanelDynamicModel, position: number) => { question.removePanel(question.pageIndex * question.pageSize + position); },
   edit: (question: QuestionPanelDynamicModel, position: number, field: string, value: any) => {
     question.panels[position].getQuestionByName(field).value = value;
   },
@@ -199,7 +202,7 @@ afterEach(() => {
 
 describe.each(cases)("Question source contract, shared: %s over a %s source", (_name: string, kind: "not paging" | "paging", adapter: IQuestionAdapter) => {
   // 5 records, 2 per page, the question on page 1: records 2 and 3.
-  function createOnPage1(keyed: boolean = false): { survey: SurveyModel, question: any, source: ContractSource } {
+  function createOnPage1(keyed: boolean = true): { survey: SurveyModel, question: any, source: ContractSource } {
     const source = new ContractSource(contractRecords(5), { kind: kind, keyed: keyed });
     const { survey, question } = adapter.create(source, 2);
     question.pageIndex = 1;
@@ -226,13 +229,19 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
       ? "#4: the list pages what it holds - no source call" : "#4: the source is asked for the page").toBe(kind === "not paging" ? 0 : 1);
   });
   test("remove on page 1 removes the record the respondent sees", () => {
-    for (const keyed of [false, true]) {
-      const { question, source } = createOnPage1(keyed);
-      adapter.remove(question, 0);
-      expect(source.ids, "#1 keyed=" + keyed + ": record 102 left the storage").toEqual([100, 101, 103, 104]);
-      expect(source.ops, "#2 keyed=" + keyed).toEqual([keyed ? "remove@102" : "remove@2"]);
-      expect(adapter.ids(question), "#3 keyed=" + keyed + ": the page is refilled").toEqual([103, 104]);
-    }
+    const { question, source } = createOnPage1();
+    adapter.remove(question, 0);
+    expect(source.ids, "#1: record 102 left the storage").toEqual([100, 101, 103, 104]);
+    expect(source.ops, "#2: by its key").toEqual(["remove@102"]);
+    expect(adapter.ids(question), "#3: the page is refilled").toEqual([103, 104]);
+  });
+  test("a source without keyField is read-only: an add, a remove and an edit send nothing", () => {
+    const { question, source } = createOnPage1(false);
+    adapter.remove(question, 0);
+    adapter.add(question);
+    adapter.edit(question, 0, "name", "edited");
+    expect(source.ops, "#1: the source got no write").toEqual([]);
+    expect(source.ids, "#2: the storage is as it was").toEqual([100, 101, 102, 103, 104]);
   });
   test("add on page 1 shows the new record", () => {
     const { question, source } = createOnPage1();
@@ -240,8 +249,8 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
     expect(source.records.length, "#1: one insert").toBe(6);
     expect(source.ops.filter(op => op.indexOf("insert") === 0).length, "#2").toBe(1);
     const ids = adapter.ids(question);
-    expect(ids[ids.length - 1], "#3: the new record is the last object of the page shown").toBeUndefined();
-    expect(ids.filter(id => id === undefined).length, "#4: and the only new one").toBe(1);
+    expect(ids[ids.length - 1], "#3: the new record, with the key the source assigned, is the last object of the page shown").toBe(1000);
+    expect(ids.filter(id => id >= 1000).length, "#4: and the only new one").toBe(1);
   });
   test("getItemVisibleIndex counts the whole list, not the page", () => {
     const { question } = createOnPage1();
@@ -300,7 +309,7 @@ describe.each(namedAdapters)("Question source contract, not paging: the list pag
     adapter.add(question);
     expect(source.ops, "#1: at the end of the storage").toEqual(["insert@5"]);
     expect(question.pageIndex, "#2: the page of the new record").toBe(2);
-    expect(adapter.ids(question), "#3").toEqual([104, undefined]);
+    expect(adapter.ids(question), "#3: the new record has the key the source assigned").toEqual([104, 1000]);
   });
 });
 
@@ -309,18 +318,18 @@ describe("Question source contract: the last entry and the visible panel count",
     const readSource = new ContractSource(contractRecords(5), { kind: "not paging" });
     const read = matrixAdapter.create(readSource, 2, { copyDefaultValueFromLastEntry: true }).question;
     read.addRow();
-    expect(readSource.records[5], "#1: copied from record 4, on another page").toEqual({ id: 104, name: "n4" });
+    expect(readSource.records[5], "#1: copied from record 4, on another page; the source assigned the key").toEqual({ id: 1000, name: "n4" });
     const rangeSource = new ContractSource(contractRecords(5), { kind: "paging" });
     const ranged = matrixAdapter.create(rangeSource, 2, { copyDefaultValueFromLastEntry: true }).question;
     ranged.addRow();
-    expect(rangeSource.records[2], "#2: record 2 is on the server - the window's last record is copied").toEqual({ id: 101, name: "n1" });
+    expect(rangeSource.records[2], "#2: record 2 is on the server - the window's last record is copied").toEqual({ id: 1000, name: "n1" });
   });
   test("panel visiblePanelCount of a source without paging leaves out the filtered records", () => {
     const source = new ContractSource(contractRecords(5), { kind: "not paging" });
     const question = <QuestionPanelDynamicModel>panelAdapter.create(source, 2, { displayMode: "carousel" }).question;
     question.filterExpression = "{id} > 102";
     expect(question.visiblePanelCount, "#1: records 103 and 104").toBe(2);
-    expect(question.getDataList().visibleCount, "#2").toBe(2);
+    expect(question["dataList"].visibleCount, "#2").toBe(2);
   });
 });
 
@@ -368,7 +377,7 @@ describe.each(namedAdapters)("Question source contract, paging: the source pages
     adapter.add(question);
     expect(source.ops, "#1: behind the window").toEqual(["insert@4"]);
     expect(question.pageIndex, "#2: the page in force").toBe(1);
-    expect(adapter.ids(question), "#3").toEqual([102, 103, undefined]);
+    expect(adapter.ids(question), "#3: the new record has the key the source assigned").toEqual([102, 103, 1000]);
     expect(source.pagedReadCount, "#4").toBe(readsBefore);
   });
 });
@@ -476,7 +485,7 @@ describe.each(namedAdapters)("Question source contract, paging: a shrink whose r
     expect(skips, "#1: the empty page and the retry").toEqual([20, 10]);
     expect(errors, "#2").toEqual(["read"]);
     expect(question.pageIndex, "#3").toBe(2);
-    expect(question.getDataList().pageIndex, "#4: the list agrees with the pager").toBe(2);
+    expect(question["dataList"].pageIndex, "#4: the list agrees with the pager").toBe(2);
     expect(adapter.ids(question), "#5: the window in force").toEqual(range(120, 124));
     failAt.length = 0;
     skips.length = 0;
@@ -507,10 +516,10 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
     return { survey: survey, question: question, source: source };
   }
   test("a record moved by another writer: the edited record is validated where it is now", () => {
-    const { survey, question, source } = createEdited(false);
+    const { survey, question, source } = createEdited(true);
     const record = source.records.splice(0, 1)[0];
     source.records.splice(5, 0, record);
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(adapter.ids(question), "#1: the refreshed page").toEqual([103, 104]);
     expect(survey.tryComplete(), "#2: record 100 is invalid wherever it is").toBe(false);
     expect(question.pageIndex, "#3: its page is shown").toBe(2);
@@ -522,7 +531,7 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
     // the key does.
     source.records.reverse();
     source.records.unshift({ id: 200, name: "new" });
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(source.ids, "#1").toEqual([200, 105, 104, 103, 102, 101, 100]);
     expect(survey.tryComplete(), "#2").toBe(false);
     expect(question.pageIndex, "#3: the last page holds record 100").toBe(3);
@@ -531,17 +540,17 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
   test("a keyed source that deleted the edited record: nothing is left to validate", () => {
     const { survey, question, source } = createEdited(true);
     source.records.splice(0, 1);
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(survey.tryComplete(), "#1: the record is gone").toBe(true);
   });
   test("a refresh that changed nothing keeps the edited record where it was", () => {
-    const { survey, question } = createEdited(false);
-    question.getDataList().refresh();
+    const { survey, question } = createEdited(true);
+    question.refreshDataSource();
     expect(survey.tryComplete(), "#1").toBe(false);
     expect(question.pageIndex, "#2").toBe(0);
   });
   test("another source: the edited records of the old one are dropped", () => {
-    const { survey, question } = createEdited(false);
+    const { survey, question } = createEdited(true);
     question.dataSource = new ContractSource(namedRecords(6), { kind: "not paging" });
     expect(adapter.ids(question), "#1: the page index is kept, the records are the new source's").toEqual([102, 103]);
     expect(survey.tryComplete(), "#2: record 0 of the new source was never edited").toBe(true);
@@ -568,7 +577,7 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     expect("id" in source.insertPayloads[0], "#2: the payload has no key").toBe(false);
     expect(source.insertPayloads[0].name, "#3: the rest is copied").toBe("n2");
     expect(source.records[3].id, "#4: the stored record has the assigned key").toBe(1000);
-    expect(question.getDataList().getRecord(3).id, "#5: and so has the window").toBe(1000);
+    expect(question["dataList"].getRecord(3).id, "#5: and so has the window").toBe(1000);
     adapter.edit(question, 3, "name", "edited");
     expect(source.ops, "#6: the edit addresses the new record").toEqual(["insert@3", "update@1000"]);
     expect(source.records[2], "#7: the record whose key was copied is unchanged").toEqual({ id: 102, name: "n2" });
@@ -599,11 +608,11 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     const { question, source } = create({ copyDefaultValueFromLastEntry: true });
     source.holdInserts = true;
     adapter.add(question);
-    expect(question.getDataList().getRecord(3).name, "#1: copied").toBe("n2");
+    expect(question["dataList"].getRecord(3).name, "#1: copied").toBe("n2");
     adapter.edit(question, 3, "name", "");
     source.releaseInserts();
     await flush();
-    const record = question.getDataList().getRecord(3);
+    const record = question["dataList"].getRecord(3);
     expect(record.id, "#2: the key landed").toBe(1000);
     expect("name" in record, "#3: the cleared field did not come back").toBe(false);
     expect("name" in source.records[3], "#4: nor in the record the queued update stored").toBe(false);
@@ -679,8 +688,8 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     const readsBefore = source.pagedReadCount;
     question.filterExpression = "{id} > 100";
     expect(source.pagedReadCount, "#1: one read").toBe(readsBefore + 1);
-    expect(question.getDataList().isPagedBySource, "#2: of the whole storage").toBe(false);
-    expect(question.getDataList().loadedCount, "#3").toBe(5);
+    expect(question["dataList"].isPagedBySource, "#2: of the whole storage").toBe(false);
+    expect(question["dataList"].loadedCount, "#3").toBe(5);
     expect(errors, "#4").toEqual([]);
     expect(question.pageIndex, "#5: the filter resets the page").toBe(0);
     expect(adapter.ids(question), "#6: the matches, paged by the question").toEqual([101, 102]);
@@ -690,7 +699,7 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     question.filterExpression = "";
     expect(source.pagedReadCount, "#9: the source pages again").toBe(readsBefore + 2);
     expect(source.skips[source.skips.length - 1], "#10").toBe(0);
-    expect(question.getDataList().isPagedBySource, "#11").toBe(true);
+    expect(question["dataList"].isPagedBySource, "#11").toBe(true);
     expect(adapter.ids(question), "#12: the server page").toEqual([100, 101]);
     expect(errors, "#13").toEqual([]);
   });
@@ -776,7 +785,7 @@ describe("Question source contract: sort availability", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
     const { question } = createSortableMatrix(source);
     question.filterExpression = "{id} > 100";
-    expect(question.getDataList().isPagedBySource, "#1: the whole storage is in force").toBe(false);
+    expect(question["dataList"].isPagedBySource, "#1: the whole storage is in force").toBe(false);
     expect(question.canSortRecords, "#2").toBe(false);
     expect(sortableColumns(question), "#3").toEqual([false, false]);
     expect(question.toggleSort("id"), "#4").toBe(false);

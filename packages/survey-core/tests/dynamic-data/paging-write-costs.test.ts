@@ -244,20 +244,21 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     expect((<any>survey.getQuestionByName("m")).visibleRows.length, "m is built").toBe(50);
     return survey;
   }
-  test("(1) one field of one record, three questions bound to the value: 3 whole-array copies, not 7", () => {
+  test("(1) one field of one record, three questions bound to the value: 5 whole-array copies, not 7", () => {
     const survey = createBoundSurvey();
     const pd1 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd1");
     const copies = vi.spyOn(Helpers, "getUnbindValue");
     pd1.panels[10].getQuestionByName("b").value = "changed";
     const wholeArray = copies.mock.calls.filter(call => Array.isArray(call[0]) && call[0].length === 50);
     // Kept: the survey hash gets its own copy (survey.setValue), each sibling gets its own copy
-    // (updateValueFromSurvey of pd2 and m). The matrix hands its rows their records without copying
-    // the value it receives.
-    expect(wholeArray.length, "#1").toBe(3);
+    // (updateValueFromSurvey of pd2 and m), and the old value is copied for the value-change
+    // notifications (Question.setNewValue and survey.setValue). The matrix hands its rows their
+    // records without copying the value it receives.
+    expect(wholeArray.length, "#1").toBe(5);
     expect(survey.data.rec[10].b, "#2").toBe("changed");
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[10].getQuestionByName("b").value, "#3").toBe("changed");
   });
-  test("(2) removed copy 1 (Question.setNewValue): onDynamicPanelValueChanged still gets an oldValue snapshot", () => {
+  test("(2) onDynamicPanelValueChanged gets an oldValue snapshot", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
       { type: "checkbox", name: "c", choices: ["x", "y", "z"] }
     ] }] });
@@ -274,7 +275,7 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     oldValues[2].push("mutated");
     expect(checkbox.value, "#4: the snapshot is not the question's value").toEqual(["x", "y", "z"]);
   });
-  test("(3) removed copy 3 (survey.setValue oldValue): storage that updates the hash in place still reports the change", () => {
+  test("(3) storage that updates the hash in place still reports the change", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
     const store: any = {};
     survey.valueHashGetDataCallback = (_, key) => store[key];
@@ -322,6 +323,31 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
     expect(pd2.value[6].nested.x, "#5: the other way round").toBe(6);
     expect(received[6].nested.x, "#6: the handler's value").toBe(6);
   });
+  test("(6) survey.questionValueChanged gets a copy of the old value for every question, not only for one inside a dynamic panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "c", choices: ["x", "y"] }] });
+    const question = survey.getQuestionByName("c");
+    const oldValues: Array<any> = [];
+    const original = survey.questionValueChanged.bind(survey);
+    survey.questionValueChanged = (q: any, oldValue: any, isComment?: boolean): void => {
+      oldValues.push(oldValue);
+      original(q, oldValue, isComment);
+    };
+    question.value = ["x"];
+    question.value = ["x", "y"];
+    expect(oldValues, "#1").toEqual([[], ["x"]]);
+    expect(oldValues[1] === question.value, "#2: a copy").toBe(false);
+  });
+  test("(7) survey.setValue hands the triggers and the conditions a copy of the old value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
+    survey.setValue("rec", [{ a: 1 }]);
+    const stored = survey.getDataValueCore((<any>survey).valuesHash, "rec");
+    const spy = vi.spyOn(<any>survey, "checkTriggersAndRunConditions");
+    survey.setValue("rec", [{ a: 2 }]);
+    const oldValue = spy.mock.calls[0][2];
+    spy.mockRestore();
+    expect(oldValue, "#1").toEqual([{ a: 1 }]);
+    expect(oldValue === stored, "#2: not the stored entry").toBe(false);
+  });
 });
 
 /* A read() source is paged by the list, and it is the kind of source whose storage may be large - the server hands over
@@ -329,7 +355,9 @@ describe("Q5: a single-field write copies the whole array only where a caller ne
    The whole-list calculations (progress, display value) are correct at O(records) and are tested for
    their result in question-source-contract.test.ts, not here. */
 describe("E: a read() source paged by the list costs the page", () => {
+  // Keyed by "id", the record's position: a source without keyField is read-only.
   class BigReadSource {
+    public keyField = "id";
     public calls: number = 0;
     constructor(public data: Array<any>) { }
     public read(): Array<any> {
@@ -357,7 +385,7 @@ describe("E: a read() source paged by the list costs the page", () => {
         templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", isRequired: true }] };
     const survey = new SurveyModel({ elements: [json] });
     const question: any = survey.getQuestionByName("q");
-    const source = new BigReadSource(records(count, i => ({ a: "a" + i, b: "b" + i })));
+    const source = new BigReadSource(records(count, i => ({ id: i, a: "a" + i, b: "b" + i })));
     question.dataSource = source;
     const items = (): Array<any> => type === "matrix" ? question.visibleRows : question.panels;
     expect(items().length, "the first page is built").toBe(20);
@@ -487,7 +515,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
   test("creating the list, a cell edit, reads and an assignment from outside", () => {
     const matrix = createFixedMatrix(200);
     const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
-    const list = matrix.getDataList();
+    const list = matrix["dataList"];
     expect(list.loadedCount, "#1").toBe(200);
     expect(composes.mock.calls.length, "#1: creating the list composes at most once").toBeLessThanOrEqual(1);
     const afterCreate = composes.mock.calls.length;
@@ -555,7 +583,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
         survey.data = { m: { r0: { a: "0" } } };
         const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
         matrix.visibleRows;
-        matrix.getDataList();
+        matrix["dataList"];
         const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
         const getter = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getListRecords");
         const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
@@ -566,7 +594,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
             Object.assign({}, field, { getValue: (record: any, index: number): any => { virtualReads++; return field.getValue(record, index); } }));
         });
         view.apply(matrix);
-        const viewCount = matrix.getDataList().getVisibleIndexes().length;
+        const viewCount = matrix["dataList"].getVisibleIndexes().length;
         expect(composes.mock.calls.length, "#1: composed at most once").toBeLessThanOrEqual(1);
         expect(getter.mock.calls.length, "#2: the getter is called at most twice").toBeLessThanOrEqual(2);
         expect(builds.mock.calls.length, "#3: no more rows than the view").toBeLessThanOrEqual(rowsPerPage > 0 ? rowsPerPage : viewCount);

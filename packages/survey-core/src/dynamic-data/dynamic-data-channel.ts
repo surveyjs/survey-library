@@ -1,5 +1,6 @@
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { ArrayDynamicDataSource } from "./dynamic-data-sources";
 
 /* The request channel of DynamicDataList: everything that orders the requests the list sends to its
    source - the reads, the push chain of the writes, the inserts that have not answered yet, and the
@@ -16,13 +17,11 @@ import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, 
    was in flight is discarded and the read is issued again.
    Which writes overtake a read in flight (markInFlightReadOvertaken, isAnswerOvertaken): every
    insert, remove and move, and every write to a read with a take of 0 - every read of the whole
-   storage, and a paged read of everything from skip. An update to a paged read with take > 0
-   overtakes it only when it can have changed the answer:
-   - without a keyField, an update inside the range the read asked for ([skip, skip + take)); one
-     outside it leaves the answer as it is;
-   - with a keyField, never on its own: its key is recorded, and the answer is discarded only when it
-     carries a record with one of those keys. An update that has no key yet - it is queued behind the
-     insert of its record - records nothing: that insert has already overtaken the read.
+   storage, and a paged read of everything from skip. An update to a paged read with take > 0 - the
+   source is keyed, since a source written without keyField is an in-memory array, which does not
+   page - never overtakes it on its own: its key is recorded, and the answer is discarded only when
+   it carries a record with one of those keys. An update that has no key yet - it is queued behind
+   the insert of its record - records nothing: that insert has already overtaken the read.
    A literal "every write overtakes" would read pages again that no write has touched.
    That is why the reads and the writes live in one class: the rule is shared by both. */
 
@@ -33,6 +32,8 @@ export interface IDynamicDataChannelHost {
   getSource(): IDynamicDataSource;
   isDisposed(): boolean;
   getKeyField(): string;
+  // The source may be sent this write (DynamicDataList.hasCapability).
+  hasCapability(operation: DynamicDataOperation): boolean;
   // The next read is a paged one: the source pages, and it filters too or there is no filter.
   isReadPagedBySource(): boolean;
   // The range of the next read. skip and take are 0 for a read of the whole storage.
@@ -83,12 +84,10 @@ export interface IPendingInsert {
   isSettled: boolean;
 }
 /* What a write tells pushToSource about the record it addresses, beyond the call itself: the key it
-   was enqueued with, the position an update was made at (which is what the range check of a read in
-   flight compares for a source without a key), for an insert the window object of the new record,
-   which its answer is matched by, and for a write to a record whose insert is in flight the pending
-   entry that stands for its key. */
+   was enqueued with, for an insert the window object of the new record, which its answer is matched
+   by, and for a write to a record whose insert is in flight the pending entry that stands for its
+   key. */
 export interface IDynamicDataPushInfo {
-  sourceIndex?: number;
   key?: any;
   insertedRecord?: any;
   pendingInsert?: IPendingInsert;
@@ -233,8 +232,13 @@ export class DynamicDataSourceChannel {
     const useWindowOffset = this.queuedReadUseOffset;
     const waiter = this.queuedReadWaiter;
     this.queuedReadWaiter = undefined;
-    const res = this.doRead(useWindowOffset);
-    if (!!waiter) waiter.resolve(res);
+    let res: void | Promise<void>;
+    try {
+      res = this.doRead(useWindowOffset);
+    } finally {
+      // The callers awaiting load() and refresh() are released also when the commit's user code throws.
+      if (!!waiter) waiter.resolve(res);
+    }
   }
   private dropQueuedRead(): void {
     const waiter = this.queuedReadWaiter;
@@ -279,7 +283,7 @@ export class DynamicDataSourceChannel {
            place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
            that is committed and not for the answer that was discarded. It inherits the loading
            state, as a superseding read does. */
-        if (!host.commitRead(data, skip, take, isPagedRead)) return this.startRead(false);
+        if (!this.commitRead(data, skip, take, isPagedRead)) return this.startRead(false);
         host.setIsLoading(false);
       }, (error: any): void => {
         if (host.isDisposed() || requestId !== this.readRequestId) return;
@@ -288,21 +292,32 @@ export class DynamicDataSourceChannel {
       });
     }
     this.inFlightRead = undefined;
-    if (!host.commitRead(res, skip, take, isPagedRead)) return this.startRead(false);
+    if (!this.commitRead(res, skip, take, isPagedRead)) return this.startRead(false);
     // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
     // read of the same source; the flag that read set is this one's to clear.
     host.setIsLoading(false);
   }
+  /* The commit announces the window to the owner, which runs user code (a rebuild runs expressions and
+     survey events). An exception there reaches whoever awaits the read, and the read is over: it
+     does not leave the list loading. */
+  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
+    try {
+      return this.host.commitRead(data, skip, take, isPagedRead);
+    } catch(e) {
+      this.host.setIsLoading(false);
+      throw e;
+    }
+  }
 
   /* The source is captured here, when the write is enqueued, and never read again from the host:
      a deferred push belongs to the source the edit was made against, not to whatever the list holds
-     when the push finally runs. The capability check follows the same rule - the operation names are
-     the source method names. */
+     when the push finally runs. The capability check follows the same rule: a source that may not be
+     sent the write gets nothing, and the edit stays in the window. */
   public pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
     info?: IDynamicDataPushInfo): void {
     const host = this.host;
     const source = host.getSource();
-    if (host.isDisposed() || !source || !(<any>source)[operation]) return;
+    if (host.isDisposed() || !source || !host.hasCapability(operation)) return;
     const push = info || {};
     const pending = push.pendingInsert;
     /* A keyed source cannot be told about a record it has not named and never will: its insert
@@ -329,21 +344,55 @@ export class DynamicDataSourceChannel {
       }
       return method(source, pending.key);
     };
+    /* An in-memory array is the owner's own storage: a write to it fails only when the code behind its
+       setter throws - a survey handler, a value-changed callback - and that exception is the caller's,
+       not a failure of a source. It reaches the caller, as it does without a list. */
+    const isOwnStorage = source instanceof ArrayDynamicDataSource;
     if (!this.pushChain) {
-      const res = this.runPush(operation, action, onAnswer);
+      const res = this.runPush(operation, action, onAnswer, isOwnStorage);
       if (!res) {
         this.syncWindowAfterSyncPush(epoch);
         return;
       }
       this.pendingPushes = 1;
-      this.pushChain = res.then((): void => this.onPushSettled(epoch, false));
+      this.pushChain = this.createFirstLink(res, epoch);
       return;
     }
     this.pendingPushes++;
-    this.pushChain = this.pushChain.then((): any => {
-      const res = this.runPush(operation, action, onAnswer);
-      return !!res ? res.then((): void => this.onPushSettled(epoch, false)) : this.onPushSettled(epoch, true);
+    const previous = this.pushChain;
+    this.pushChain = new Promise<void>((resolve: () => void): void => {
+      previous.then((): void => {
+        let res: Promise<void>;
+        try {
+          res = this.runPush(operation, action, onAnswer, isOwnStorage);
+        } catch(e) {
+          // A synchronous failure whose report threw: the chain goes on, and the exception is the
+          // rejection of this continuation.
+          this.settleLink(epoch, true, resolve);
+          throw e;
+        }
+        if (!res) {
+          this.settleLink(epoch, true, resolve);
+        } else {
+          res.then((): void => { this.settleLink(epoch, false, resolve); });
+        }
+      });
     });
+  }
+  /* The link after the first, asynchronous push. Every link of the chain fulfills, so that a later
+     write always runs after an earlier one has settled - see runPush. */
+  private createFirstLink(res: Promise<void>, epoch: number): Promise<void> {
+    return new Promise<void>((resolve: () => void): void => {
+      res.then((): void => { this.settleLink(epoch, false, resolve); });
+    });
+  }
+  // onPushSettled may start the read the chain held, and its commit runs user code: the link settles whatever it does.
+  private settleLink(epoch: number, wasSync: boolean, resolve: () => void): void {
+    try {
+      this.onPushSettled(epoch, wasSync);
+    } finally {
+      resolve();
+    }
   }
   // The pending insert whose record is this window object; undefined unless an insert is in flight.
   public findPendingInsert(record: any): IPendingInsert {
@@ -401,21 +450,18 @@ export class DynamicDataSourceChannel {
   }
   /* Does this write make the answer of the read in flight stale? An insert or a remove shifts the
      records and changes the total, and a move shifts the records between its two ends, so each of
-     them does. An update changes one record in place: only a record inside the range that read asked
-     for - an edit on page 1 while page 2 is loading leaves the answer for page 2 as it is. */
+     them does. An update changes one record in place: the answer of a paged read is stale only when
+     it holds that record - an edit on page 1 while page 2 is loading leaves page 2 as it is. */
   private markInFlightReadOvertaken(operation: DynamicDataOperation, push: IDynamicDataPushInfo): void {
     const read = this.inFlightRead;
     if (!read || read.isOvertaken) return;
     if (operation === "update" && read.isPagedRead && read.take > 0) {
-      /* A keyed source: where the record is by now is not the position it was edited at - another
-         writer may have moved it between the pages while the read was running - so the answer is
-         checked for that record when it arrives instead of the range being compared. */
-      if (!!this.host.getKeyField()) {
-        // No key yet (a write behind a pending insert): that insert has already overtaken the read.
-        if (push.key !== undefined) read.updatedKeys.push(push.key);
-        return;
-      }
-      if (push.sourceIndex < read.skip || push.sourceIndex >= read.skip + read.take) return;
+      /* The source is keyed (see the header): where the record is by now is not the position it was
+         edited at - another writer may have moved it between the pages while the read was running -
+         so the answer is checked for that record when it arrives. No key yet (a write behind a
+         pending insert): that insert has already overtaken the read. */
+      if (push.key !== undefined) read.updatedKeys.push(push.key);
+      return;
     }
     read.isOvertaken = true;
   }
@@ -428,17 +474,24 @@ export class DynamicDataSourceChannel {
     if (!field || read.updatedKeys.length === 0) return false;
     return toReadResult(data).records.some((record: any): boolean => !!record && read.updatedKeys.indexOf(record[field]) > -1);
   }
-  // Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
-  // is what the source answered - only an insert has an answer - and it runs for a failed push too,
-  // with undefined, so that the pending entry never outlives its push.
+  /* Returns a promise that always fulfills, or undefined when the push stayed synchronous. onAnswer
+     is what the source answered - only an insert has an answer - and it runs for a failed push too,
+     with undefined, so that the pending entry never outlives its push: it settles the entry before
+     anything is reported. isOwnStorage: a synchronous failure is the caller's exception (see
+     pushToSource) and is not reported as a source error.
+     User code runs on the answer - the error listener, and the owner's follow-up of the insert answer.
+     The chain does not wait for it to succeed: the promise returned settles in any case, and an
+     exception of that code is the rejection of the answer's own continuation, as an exception of any
+     asynchronous callback is - a rejection of the chain would stop every later write and read. */
   private runPush(operation: DynamicDataOperation, action: () => any,
-    onAnswer?: (answer: any) => void): Promise<void> {
+    onAnswer: (answer: any) => void, isOwnStorage: boolean): Promise<void> {
     let res: any;
     try {
       res = action();
     } catch(e) {
-      this.host.raiseError(e, operation);
       if (!!onAnswer) onAnswer(undefined);
+      if (isOwnStorage) throw e;
+      this.host.raiseError(e, operation);
       return undefined;
     }
     if (!isPromiseLike(res)) {
@@ -446,11 +499,22 @@ export class DynamicDataSourceChannel {
       return undefined;
     }
     // A rejected push keeps the local change and reports the error; the chain continues.
-    return res.then((answer: any): void => { if (!!onAnswer) onAnswer(answer); },
-      (error: any): void => {
+    return new Promise<void>((resolve: () => void): void => {
+      res.then((answer: any): void => {
+        try {
+          if (!!onAnswer) onAnswer(answer);
+        } finally {
+          resolve();
+        }
+      }, (error: any): void => {
+        try {
+          if (!!onAnswer) onAnswer(undefined);
+        } finally {
+          resolve();
+        }
         this.host.raiseError(error, operation);
-        if (!!onAnswer) onAnswer(undefined);
       });
+    });
   }
   private onPushSettled(epoch: number, wasSync: boolean): void {
     // A chain detached by a source change runs to its end against its own source, but the counters

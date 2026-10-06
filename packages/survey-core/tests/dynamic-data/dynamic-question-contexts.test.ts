@@ -239,7 +239,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
           options.expression = "{" + v + ".x} != 'a'";
         });
         const question = getQuestion(survey);
-        expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+        expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["b", "c"]);
       });
@@ -248,7 +248,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
           options.allow = false;
         });
         const question = getQuestion(survey);
-        expect(question.getDataList().visibleCount, "#1").toBe(4);
+        expect(question["dataList"].visibleCount, "#1").toBe(4);
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["a", "b"]);
       });
@@ -259,12 +259,12 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         const before = counter;
         survey.setValue("hidden", "b");
         expect(counter, "#2").toBeGreaterThan(before);
-        expect(getQuestion(survey).getDataList().visibleCount, "#3").toBe(3);
+        expect(getQuestion(survey)["dataList"].visibleCount, "#3").toBe(3);
       });
       test("F2.4 no handler: the expression runs as authored", () => {
         const survey = createPaged("{" + v + ".x} != 'a'");
         const question = getQuestion(survey);
-        expect(question.getDataList().visibleCount, "#1").toBe(3);
+        expect(question["dataList"].visibleCount, "#1").toBe(3);
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["b", "c"]);
       });
@@ -272,7 +272,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         let counter = 0;
         const survey = createPaged("{" + v + ".x} != 'a'", () => { counter++; }, true);
         expect(counter, "#1").toBeGreaterThan(0);
-        expect(getQuestion(survey).getDataList().visibleCount, "#2: every record is shown").toBe(4);
+        expect(getQuestion(survey)["dataList"].visibleCount, "#2: every record is shown").toBe(4);
       });
     });
   });
@@ -407,7 +407,7 @@ describe("Dynamic questions: the item getter contexts", () => {
     await flush();
     remote.nextPage();
     await flush();
-    expect(remote.getDataList().windowOffset, "#3").toBe(10);
+    expect(remote["dataList"].windowOffset, "#3").toBe(10);
     expect(remote.visibleRows.map(row => row.getQuestionByName("id").value), "#4: record 11 is row 12 of the whole list").toEqual([10, 12, 13, 14]);
   });
   test("I6 paneldynamic: {panelIndex} is 0-based plus the window offset in the value, +1 in text", async () => {
@@ -438,7 +438,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.value = [{ x: "a" }, { x: "b" }];
     expect(matrix.rowCount, "#1").toBe(4);
-    expect(matrix.getDataList().visibleCount, "#2: records 2 and 3 are padded with x = 'd'").toBe(2);
+    expect(matrix["dataList"].visibleCount, "#2: records 2 and 3 are padded with x = 'd'").toBe(2);
     expect(matrix.pageCount, "#3").toBe(1);
   });
   test("R3 paneldynamic: a function the templateVisibleIf calls sees the record item as this.panel", () => {
@@ -448,7 +448,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     try {
       const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateVisibleIf: "step23RecordX() != 'a'" });
       const question = getQuestion(survey);
-      expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+      expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
       expect(readItem(question, 1, "x").value, "#2").toBe("b");
     } finally {
       FunctionFactory.Instance.unregister("step23RecordX");
@@ -461,7 +461,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     try {
       const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2, rowsVisibleIf: "recordRowX() != 'a'" });
       const question = getQuestion(survey);
-      expect(question.getDataList().visibleCount, "#1: record 0 is hidden").toBe(3);
+      expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
       expect((<QuestionMatrixDynamicModel>question).rowsOnPage.map(r => r.getValue("x")), "#2: the page starts at record 1").toEqual(["b", "c"]);
     } finally {
       FunctionFactory.Instance.unregister("recordRowX");
@@ -474,7 +474,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       extra[kind.visibleIf] = "{" + kind.variable + ".x} != 'a'";
       const survey = createSurvey(kind, records("a", "b", "c", "d"), extra);
       const question = getQuestion(survey);
-      const list = question.getDataList();
+      const list = question["dataList"];
       expect(list.visibleCount, "#1").toBe(3);
       survey.showInvisibleElements = true;
       expect(list.visibleCount, "#2: every record is visible").toBe(4);

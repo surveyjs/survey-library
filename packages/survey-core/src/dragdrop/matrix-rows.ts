@@ -231,8 +231,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       }
       this.parentElement.moveRowByIndex(this.fromIndex, this.toIndex);
     } else if (this.toMatrix) {
-      const row = { ...this.parentElement.value[this.fromIndex] };
-      this.parentElement.removeRowByIndex(this.fromIndex);
+      /* The dragged row names its record: under a sort, a filter or a page the position the row is
+         shown at is not the record's index in the value. */
+      const row = { ...this.parentElement.getItemData(this.draggedElement) };
+      this.parentElement.removeRowByIndex(this.parentElement.getItemIndex(this.draggedElement));
       this.toMatrix.addRowByIndex(row, this.toIndex);
     }
     return this.parentElement;

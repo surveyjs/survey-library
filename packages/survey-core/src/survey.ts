@@ -1059,12 +1059,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
 
-  /**
-   * An event that is raised when a data source attached to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) or a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) through its `dataSource` property reports an error: a page that could not be read, or an edit the server rejected.
-   *
-   * The survey does nothing on its own when a source fails - the records the question shows are kept as they are. Handle this event to show the error to the user or to retry the operation.
-   * @since 3.1.0
-   */
+  /* Raised when the data source of a dynamic matrix or panel (its dataSource property) reports an error:
+     a page that could not be read, an edit the server rejected, or a number naming a record the loaded
+     page does not hold. The survey does nothing on its own: the records the question shows are kept. */
   public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
@@ -7630,10 +7627,7 @@ export class SurveyModel extends SurveyElementCore
       this.isTwoValueEquals(newValue, newQuestionValue)
     )
       return;
-    /* The hash entry is replaced below, not updated, so the value it held stays as it is and is read
-       without a copy (a copy is of every record for an array question). Storage behind
-       valueHashSetDataCallback may update the entry in place: then it is copied. */
-    const oldValue = !name || !!this.valueHashSetDataCallback ? this.getValue(name) : this.getDataValueCore(this.valuesHash, name);
+    var oldValue = this.getValue(name);
     if (this.isValueEmpyOnSetValue(name, newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {

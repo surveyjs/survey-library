@@ -94,13 +94,14 @@ export class DynamicDataList {
      The list keeps it, not the source, so a default source built again after a detach has it too
      (see recordCount). */
   public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
-    setArray: (arr: Array<any>) => void, getCount?: () => number, isMembershipFixed: boolean = false): DynamicDataList {
+    setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void, getCount?: () => number,
+    isMembershipFixed: boolean = false): DynamicDataList {
     const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, isMembershipFixed);
     const list = new DynamicDataList(createSource(), owner);
     list.createDefaultSource = createSource;
     list.getReadThroughCount = getCount;
     list.isMembershipFixed = isMembershipFixed;
-    list.isReadThrough = true;
+    list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.
     list.isViewFrozenOnEdit = true;
@@ -110,6 +111,11 @@ export class DynamicDataList {
   private createDefaultSource: () => IDynamicDataSource;
   private getReadThroughCount: () => number;
   private assignedSourceValue: IDynamicDataSource;
+  /* The owner defines its records (isMembershipFixed): any other source would replace them. Refused
+     before anything changes. */
+  private checkSourceReplaceable(): void {
+    if (this.isMembershipFixed) throw new Error("DynamicDataList: the owner defines the records, the source cannot be replaced.");
+  }
   // The source the developer assigned (question.dataSource); undefined while the default one is used.
   public get assignedSource(): IDynamicDataSource {
     return this.assignedSourceValue;
@@ -125,6 +131,7 @@ export class DynamicDataList {
   public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
     const newValue = source || undefined;
     if (this.assignedSourceValue === newValue) return;
+    this.checkSourceReplaceable();
     this.assignedSourceValue = newValue;
     if (!!onAssigning) onAssigning();
     if (!!newValue) {
@@ -141,8 +148,12 @@ export class DynamicDataList {
   // outside the list (survey.data = ..., a trigger, clearValue, a default value) and would hand out
   // record objects the owner no longer holds. It stays off by default: a paged or asynchronous
   // source cannot be read on demand. The flag is about the owner's OWN storage: it stays set while a
-  // source is assigned and the list does not read through that source (useReadThrough).
-  public isReadThrough: boolean = false;
+  // source is assigned and the list does not read through that source (useReadThrough). It is set by
+  // the factory of the owner (createReadThrough), never from outside.
+  private isReadThroughValue: boolean = false;
+  public get isReadThrough(): boolean {
+    return this.isReadThroughValue;
+  }
   /* Owners that materialize an object per record - the two questions - set this flag: the view of a
      bare list re-evaluates itself on every write, which for them would dispose a row from inside its
      own cell's value-changed event and re-sort the table under the cursor on every keystroke. With
@@ -203,6 +214,7 @@ export class DynamicDataList {
   // through assignSource.
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
+    this.checkSourceReplaceable();
     /* A list that was asked to fill itself reads the source that replaces the one it had, whatever
        became of that read: an answer that is merely late, and a read that failed or was refused, do
        not make the list a standalone one that was never loaded. Without the in-flight half a source
@@ -468,7 +480,6 @@ export class DynamicDataList {
     } else {
       newRecord[field] = value;
     }
-    const sourceIndex = this._windowOffset + index;
     // The key of the record that is being replaced, resolved before the replacement: that record is
     // the one the respondent edited, and the copy made on write is not in the window yet.
     const key = this.getRecordKey(index);
@@ -480,7 +491,7 @@ export class DynamicDataList {
       // write, so the owner must not be notified of a change it cannot read yet.
       this.channel.pushToSource("update",
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), [field]),
-        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+        { key: key, pendingInsert: pending });
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: field });
     return true;
@@ -493,7 +504,6 @@ export class DynamicDataList {
     if (index < 0 || index >= this.recordCount) return false;
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
     const changedFields = getChangedFields(oldRecord, record);
-    const sourceIndex = this._windowOffset + index;
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
@@ -502,7 +512,7 @@ export class DynamicDataList {
       const ownedFields = getOwnedFields(pending);
       this.channel.pushToSource("update",
         (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, record, ownedFields), changedFields),
-        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+        { key: key, pendingInsert: pending });
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
@@ -527,8 +537,9 @@ export class DynamicDataList {
       this.insertIntoMembership(at, countAfter);
       this.resetViews();
       const sourceIndex = this._windowOffset + at;
-      /* An added record has no key yet: the position says where it goes and the source assigns the
-         key, which the answer of insert brings back (applyInsertAnswer). */
+      /* An added record has no key yet: the source assigns it, and the answer of insert brings it back
+         (applyInsertAnswer). The position is where the respondent added the record; where it is kept
+         is the source's to decide, and the next read shows it there. */
       this.channel.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
         { insertedRecord: newRecord });
     });
@@ -641,7 +652,12 @@ export class DynamicDataList {
      membership of the rest is not re-evaluated. */
   public syncMembershipWithRecordCount(): void {
     this.resetViews();
+    this.syncFrozenMembershipWithRecordCount();
+    // After the membership follows the count: the clamp reads the views, and a view read before
+    // would decide the membership again - a new record the filter does not accept would leave it.
     this.clampPageIndexAfterChange();
+  }
+  private syncFrozenMembershipWithRecordCount(): void {
     if (!this.frozenCreatedIndexes) {
       this.refreezeMembership();
       return;
@@ -1011,12 +1027,17 @@ export class DynamicDataList {
   public get canSort(): boolean {
     return !this.sourceCapabilities.paging || this.sourceCapabilities.sorting;
   }
-  // A capability is declared by the presence of the matching method: the operation names are the
-  // source method names.
+  /* A capability is declared by the presence of the matching method: the operation names are the
+     source method names. A write names its record by key; only an in-memory array is written by
+     position - the list is its only writer, it writes synchronously, and the remap layer renumbers
+     what holds an index. Any other source without keyField is read-only, whatever methods it has: a
+     position it resolves another way - it sorts or filters on its side, another writer changed it -
+     would name another record. */
   public hasCapability(operation: DynamicDataOperation): boolean {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
-    return !!source && typeof source[operation] === "function";
+    if (!source || typeof source[operation] !== "function") return false;
+    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource;
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
@@ -1034,8 +1055,8 @@ export class DynamicDataList {
     return res;
   }
   /* The name a write gives the record it addresses. A source that declares keyField is told WHICH
-     record changed, a source that does not is told WHERE it is - the source index, exactly as
-     before, and for such a source the key and the position are the same number. Every write resolves
+     record changed; an in-memory array, the only source that is written without one
+     (hasCapability), is told WHERE it is - its storage index. Every write resolves
      it at enqueue time and before its own splice: the window already reflects every earlier write,
      so the record at index is the record the respondent acted on. The one exception is a record whose
      insert is in flight: it has no key here, and its writes carry the pending entry instead, whose
@@ -1245,6 +1266,7 @@ export class DynamicDataList {
       getSource: (): IDynamicDataSource => this._source,
       isDisposed: (): boolean => this.isDisposed,
       getKeyField: (): string => this.keyField,
+      hasCapability: (operation: DynamicDataOperation): boolean => this.hasCapability(operation),
       isReadPagedBySource: (): boolean => this.isReadPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
@@ -1292,8 +1314,22 @@ export class DynamicDataList {
   // has changed nothing. The failed read owns the loading state it inherited.
   private onReadFailed(error: any): void {
     this.storageCount.cancelRetry();
+    this.restoreCommittedPageIndex();
     this.setIsLoading(false);
     this.raiseError(error, "read");
+  }
+  /* The page index a read asked for is set when the read is requested (pageIndex, setView), and the
+     page the window in force was read for is committed with it (commitRead). A read that fails leaves
+     that window in force, so the page index goes back to the committed page: the page reported, the
+     window and its offset agree, and the next forward move asks for the page that failed again. A
+     whole storage in force is paged by the list, so nothing was read for its page. */
+  private committedPageIndex: number = undefined;
+  private restoreCommittedPageIndex(): void {
+    if (!this.isLoaded || !this.isWindowPagedBySource || this.committedPageIndex === undefined) return;
+    if (this._pageIndex === this.committedPageIndex) return;
+    this._pageIndex = this.committedPageIndex;
+    this.pageIndexes = undefined;
+    this.raiseChanged({ type: "pageChanged" });
   }
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
@@ -1323,6 +1359,7 @@ export class DynamicDataList {
     this.isWindowPagedBySource = isPagedRead;
     this.isLoaded = true;
     this.resetWindowState();
+    this.committedPageIndex = this._pageIndex;
     // The reset of a read stands for the one a write still owed (raisePendingReset).
     this.isResetPending = false;
     this.raiseChanged({ type: "reset" });

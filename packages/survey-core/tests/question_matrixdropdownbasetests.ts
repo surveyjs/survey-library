@@ -3054,7 +3054,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
   test("a record is the row's object in the answer, and a row without an answer has none", () => {
     const survey = createSurvey({ rows: ["r1", { value: "", text: "no value" }, "r2", "r3"] }, { r1: { c1: "a" }, r3: { c2: "b" } });
     const matrix = getMatrix(survey);
-    const list = matrix.getDataList();
+    const list = matrix["dataList"];
     expect(list.loadedCount, "#1: one record per row with a value").toBe(3);
     expect(list.getRecord(0) === matrix.value.r1, "#2: the record is the answer's own row object").toBe(true);
     expect(list.getRecord(1), "#3: a row without an answer").toBeUndefined();
@@ -3090,7 +3090,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
       triggers: [{ type: "setvalue", expression: "{go} = 1", setToName: "matrix", setValue: { r2: { c1: "t" } } }]
     });
     const matrix = getMatrix(survey);
-    const list = matrix.getDataList();
+    const list = matrix["dataList"];
     const shown = (): Array<any> => matrix.visibleRows.map(row => row.cells[0].question.value);
     survey.setValue("matrix", { r1: { c1: "s" } });
     expect(shown(), "#1: survey.setValue").toEqual(["s", undefined]);
@@ -3116,27 +3116,27 @@ describe("Fixed matrix: the records are the rows' answers", () => {
       });
       survey.data = { shared: { r1: { c1: "1" }, r3: { c1: "3" }, s1: { c1: "s" } } };
       const matrix = getMatrix(survey);
-      matrix.getDataList();
+      matrix["dataList"];
       expect(matrix.visibleRows.length, "rows are built").toBe(4);
       return { survey: survey, matrix: matrix };
     };
     const getState = (matrix: QuestionMatrixDropdownModel): any => ({
       rows: matrix.visibleRows.map(row => row.rowName),
       built: matrix.visibleRows.map(row => row.builtRecordIndex),
-      count: matrix.getDataList().loadedCount
+      count: matrix["dataList"].loadedCount
     });
     test("a pushed row is a new record at the end", () => {
       const { matrix } = createShared();
       matrix.rows.push(new ItemValue("r5"));
       expect(getState(matrix), "#1").toEqual({ rows: ["r1", "r2", "r3", "r4", "r5"], built: [0, 1, 2, 3, 4], count: 5 });
-      expect(matrix.getDataList().getRecord(4), "#2: no answer for it").toBeUndefined();
+      expect(matrix["dataList"].getRecord(4), "#2: no answer for it").toBeUndefined();
       expect(matrix.value, "#3: the answer and the shared key").toEqual({ r1: { c1: "1" }, r3: { c1: "3" }, s1: { c1: "s" } });
     });
     test("a row spliced in and a row spliced out in the middle renumber the records after them", () => {
       const { matrix } = createShared();
       matrix.rows.splice(1, 0, new ItemValue("rx"));
       expect(getState(matrix), "#1: inserted").toEqual({ rows: ["r1", "rx", "r2", "r3", "r4"], built: [0, 1, 2, 3, 4], count: 5 });
-      expect(matrix.getDataList().getRecord(3), "#1: r3 is record 3 now").toEqual({ c1: "3" });
+      expect(matrix["dataList"].getRecord(3), "#1: r3 is record 3 now").toEqual({ c1: "3" });
       matrix.rows.splice(0, 1);
       expect(getState(matrix), "#2: removed").toEqual({ rows: ["rx", "r2", "r3", "r4"], built: [0, 1, 2, 3], count: 4 });
       expect(matrix.value, "#3: the removed row's answer is cleared, the shared key stays").toEqual({ r3: { c1: "3" }, s1: { c1: "s" } });
@@ -3147,14 +3147,14 @@ describe("Fixed matrix: the records are the rows' answers", () => {
       const { matrix } = createShared();
       matrix.rows = ["r3", "r1", "r9"];
       expect(getState(matrix), "#1").toEqual({ rows: ["r3", "r1", "r9"], built: [0, 1, 2], count: 3 });
-      expect([0, 1, 2].map(i => matrix.getDataList().getRecord(i)), "#2: the records follow the keys").toEqual([{ c1: "3" }, { c1: "1" }, undefined]);
+      expect([0, 1, 2].map(i => matrix["dataList"].getRecord(i)), "#2: the records follow the keys").toEqual([{ c1: "3" }, { c1: "1" }, undefined]);
       expect(matrix.value, "#3: the shared key stays").toEqual({ r1: { c1: "1" }, r3: { c1: "3" }, s1: { c1: "s" } });
     });
     test("a renamed row value names another record", () => {
       const { matrix } = createShared();
       matrix.rows[0].value = "r1x";
       expect(getState(matrix), "#1").toEqual({ rows: ["r1x", "r2", "r3", "r4"], built: [0, 1, 2, 3], count: 4 });
-      expect(matrix.getDataList().getRecord(0), "#2: the renamed row has no answer").toBeUndefined();
+      expect(matrix["dataList"].getRecord(0), "#2: the renamed row has no answer").toBeUndefined();
       expect(matrix.visibleRows[0].cells[0].question.value, "#3: and its row shows none").toBeUndefined();
       expect(matrix.value, "#4: the answer is not changed").toEqual({ r1: { c1: "1" }, r3: { c1: "3" }, s1: { c1: "s" } });
       matrix.visibleRows[0].cells[0].question.value = "n";
@@ -3163,7 +3163,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     test("rowOrder random: the records follow the randomized rows", () => {
       const survey = createSurvey({ rows: ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9"], rowOrder: "random" }, { r2: { c1: "2" } });
       const matrix = getMatrix(survey);
-      const list = matrix.getDataList();
+      const list = matrix["dataList"];
       survey.randomSeed = 12345;
       expect(matrix.visibleRows.map(row => row.rowName), "#1: the randomized order").toEqual(["r9", "r8", "r1", "r3", "r4", "r7", "r6", "r2", "r5"]);
       expect(matrix.visibleRows.map(row => row.builtRecordIndex), "#2").toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
@@ -3179,7 +3179,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     survey.onValueChanged.add(() => events.push("valueChanged"));
     survey.onMatrixRowAdded.add(() => events.push("rowAdded"));
     survey.onMatrixRowRemoved.add(() => events.push("rowRemoved"));
-    const list = matrix.getDataList();
+    const list = matrix["dataList"];
     list.onChanged = (change) => events.push("list:" + change.type);
     const rowsBefore = matrix.visibleRows;
     const renderedBefore = matrix.renderedTable.rows.length;
@@ -3390,7 +3390,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       const rowsBefore = names(matrix);
       let changes = 0;
       survey.onValueChanged.add(() => changes++);
-      const list = matrix.getDataList();
+      const list = matrix["dataList"];
       const before = JSON.stringify({ created: list.getCreatedIndexes(), visible: list.getVisibleIndexes(), count: list.loadedCount });
       expect(list.add({ a: 9 }), "#1").toBe(-1);
       list.remove(0);

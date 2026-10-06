@@ -311,11 +311,16 @@ function createDelayedSource(records: Array<any>, calls: Array<string>, delay: n
   const later = (run: () => any): Promise<any> => new Promise<any>(resolve => {
     setTimeout(() => resolve(run()), delay);
   });
+  // Keyed by "id": a source without keyField is read-only.
   return {
+    keyField: "id",
     read: (): Promise<any> => { calls.push("read"); return later(() => records.slice()); },
-    update: (sourceIndex: number, record: any): Promise<void> => {
+    update: (key: any, record: any): Promise<void> => {
       calls.push("update");
-      return later(() => { records[sourceIndex] = record; });
+      return later(() => {
+        const at = records.map(r => r.id).indexOf(key);
+        if (at > -1) records[at] = record;
+      });
     },
   };
 }
@@ -354,7 +359,7 @@ describe("Dynamic data source", () => {
   });
   test("A complete step after a cell edit waits for the pending update", async () => {
     const calls: Array<string> = [];
-    const records = [{ c1: "a" }, { c1: "b" }];
+    const records = [{ id: 0, c1: "a" }, { id: 1, c1: "b" }];
     let pushedWhenCompleted: string = undefined;
     const result = await run(remoteMatrixSurvey, {
       tests: [{

@@ -2894,11 +2894,7 @@ export class Question extends SurveyElement<Question>
     }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
-    /* The previous value has one reader: survey.questionValueChanged passes it to
-       onDynamicPanelValueChanged for a question inside a dynamic panel. The copy is taken before the
-       write because an array value is updated in place, and for an array question it is a copy of every
-       record - so it is made only for a question that can have that reader. */
-    const oldValue = this.isOldValueReadOnSetNewValue() ? this.getUnbindValue(this.value) : undefined;
+    const oldValue = this.getUnbindValue(this.value);
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
@@ -2912,10 +2908,7 @@ export class Question extends SurveyElement<Question>
       this.survey.questionValueChanged(this, oldValue);
     }
   }
-  private isOldValueReadOnSetNewValue(): boolean {
-    const parent = this.parentQuestion;
-    return !!parent && parent.isDescendantOf("paneldynamic");
-  }
+
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
     const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isDataValueCorrect(val);

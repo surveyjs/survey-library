@@ -83,23 +83,33 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
   const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "getDataList", "syncPageSizeWithMode", "pageSize"];
+    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "syncPageSizeWithMode", "pageSize"];
   res.push(ddApi);
-  // rows defines the records of the fixed matrix; the dynamic matrix and the matrix base have none.
+  // The record list is not public on any records question: refreshDataSource() reads a source again.
+  // @ts-expect-error the record list
+  const ddList: DeclaredKeys<QuestionMatrixDropdownModel> = "getDataList";
+  // @ts-expect-error the record list
+  const mdList: DeclaredKeys<QuestionMatrixDynamicModel> = "getDataList";
+  // @ts-expect-error the record list
+  const pdList: DeclaredKeys<QuestionPanelDynamicModel> = "getDataList";
+  // @ts-expect-error the fixed matrix has no data source
+  const ddRefresh: DeclaredKeys<QuestionMatrixDropdownModel> = "refreshDataSource";
+  res.push(ddList, mdList, pdList, ddRefresh);
+  // rows: the records of the fixed matrix; the dynamic matrix keeps the released (empty) property.
   const ddRows: DeclaredKeys<QuestionMatrixDropdownModel> = "rows";
-  // @ts-expect-error the dynamic matrix has no rows
   const mdRows: DeclaredKeys<QuestionMatrixDynamicModel> = "rows";
-  // @ts-expect-error the matrix base has no rows
   const dbRows: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rows";
   res.push(ddRows, mdRows, dbRows);
 
   // The feature's public API stays public on the dynamic questions.
   const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
     "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isRowCountKnown", "getRecordNumberOffset"];
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isRowCountKnown", "getRecordNumberOffset",
+    "refreshDataSource"];
   const pdApi: Array<DeclaredKeys<QuestionPanelDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
     "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isPanelCountKnown", "getRecordNumberOffset"];
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isPanelCountKnown", "getRecordNumberOffset",
+    "refreshDataSource"];
   res.push(mdApi, pdApi);
   // The paging state shared by the records questions is protected on every one of them.
   // @ts-expect-error protected

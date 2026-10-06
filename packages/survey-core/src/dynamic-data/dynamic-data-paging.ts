@@ -29,9 +29,8 @@ export interface IDynamicDataPagingOwner {
   getLocalizationFormatString(strName: string, ...args: any[]): string;
   // The authored page size: rowsPerPage / panelsPerPage.
   pageSize: number;
-  /* The page size the list gets at runtime. Usually the authored one; a carousel pages one panel at
-     a time whatever panelsPerPage says, and single-input mode is its own paging and builds every
-     object. Absent -> pageSize. */
+  /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
+     its own paging and builds every object. Absent -> pageSize. */
   listPageSize?: number;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;

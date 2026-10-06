@@ -145,20 +145,6 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  constructor(name: string) {
-    super(name);
-    this.rows = this.createItemValues("rows");
-  }
-  /**
-   * An array of matrix rows.
-   *
-   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
-   *
-   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
-   *
-   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
-   */
-  @property() rows: Array<any>;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rows") {
@@ -609,24 +595,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
   }
   // An owner-hidden record loses its answer when invisible values are cleared, as a hidden row does.
-  protected isRecordKeptWithoutRow(index: number): boolean {
-    return this.dataList.isRecordVisible(index);
-  }
-  // Under paging a hidden record has no row: its answer is cleared all the same.
-  protected isRowsFiltered(): boolean {
-    if (super.isRowsFiltered()) return true;
-    const list = this.dataListValue;
-    return this.isPagingActive && list.getVisibleIndexes().length !== list.getCreatedIndexes().length;
-  }
+
   // The rows are schema-defined: a row the respondent never opened can violate a required column, a
   // cell validator or a unique column, so a full validation visits every page of the view.
   protected isEveryPageValidated(): boolean {
     return true;
   }
-  // Only visible rows in the view take part, as only visible rows are checked without paging.
+  // Only rows in the view take part, as only they are checked without paging.
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     const res = super.getRecordUniqueness();
-    res.includeHidden = false;
     res.includeFilteredOut = false;
     return res;
   }

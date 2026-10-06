@@ -309,7 +309,7 @@ describe("SurveyTestContext: targets under a data-list filter", () => {
     try {
       const matrix: any = context.survey.getQuestionByName("matrix");
       context.survey.data = { matrix: [{ col1: "a" }, { col1: "b" }, { col1: "a" }] };
-      matrix.getDataList().filter = "{col1} = 'a'";
+      matrix["dataList"].filter = "{col1} = 'a'";
       expect(matrix.allRows.length, "the filter left two rows").toBe(2);
       const target = context.resolveTarget("matrix[1].col1");
       expect(target.kind, "a cell question").toEqual("question");

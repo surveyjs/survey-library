@@ -91,7 +91,7 @@ jobs:
             exit 1
           fi
           # -------------------------------------------------------------------
-          
+
           if [ -z "$RELEASED_TAG" ]; then
             echo "::error::No release tag available. Provide 'tag_name' when running manually."
             exit 1

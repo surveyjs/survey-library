@@ -1515,20 +1515,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      visiblePanels bounds itself by visiblePanels.length instead. */
   public get visiblePanelCount(): number {
     const panels = this.visiblePanels;
-    const list = this.dataListValue;
-    /* Without paging the panels are the count: they exist before the list does. A source that pages
-       itself is counted by the list even without a page size: its window may hold hidden records. */
-    if (!list || !this.isPagingActive && !list.isPagedBySource) return panels.length;
-    return list.globalVisibleCount;
+    const count = this.visibleRecordCount;
+    // Without paging the panels are the count: they exist before the list does.
+    return count !== undefined ? count : panels.length;
   }
   // Next is available on the last record the list knows of while the source says there are more.
-  private get hasRecordBeyondKnown(): boolean {
-    const list = this.dataListValue;
-    return !!list && list.hasRecordBeyondKnown;
-  }
   private get canGoToNextRecord(): boolean {
-    const index = this.currentIndex;
-    return index >= 0 && (index < this.visiblePanelCount - 1 || this.hasRecordBeyondKnown);
+    return this.hasRecordAfterVisibleIndex(this.currentIndex, this.visiblePanelCount);
   }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `displayMode` is `"list"` and the `templateTitle` property is specified.
@@ -2922,7 +2915,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
     this.isPagingSyncSuspended = true;
     try {
-      if (!this.rebuildStalePage(properties)) {
+      if (!this.rebuildStalePage(properties).isRebuilt) {
         this.runPanelsCondition(this.panelsCore, properties);
       }
     } finally {
@@ -3287,19 +3280,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // The list flag follows panel.visible - the same flag visiblePanels is built from - so that
   // dataList.visibleCount and visiblePanelCount can never disagree.
   // position: the panel's position in panelsCore when the caller knows it.
+  // A hidden panel takes no page slot: the page count follows panel visibility (setItemRecordVisible).
   private setPanelRecordVisible(panel: PanelModel, position?: number): void {
-    // Under paging the records decide the flags, and a panel is never hidden.
-    if (this.isPagingActive) return;
     if (position === undefined) {
       position = this.panelsCore.indexOf(panel);
     }
     if (position < 0) return;
-    const index = this.getRecordIndexByPanelIndex(position);
-    if (index < 0) return;
-    if (!this.dataList.setRecordVisible(index, panel.visible)) return;
-    // A hidden panel takes no page slot: the page count follows panel visibility, and the list does
-    // not announce it.
-    this.syncPagingState();
+    this.setItemRecordVisible(this.dataList, this.getRecordIndexByPanelIndex(position), panel.visible);
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -3704,7 +3691,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const isMobile = this.isMobile;
       const showNavigation = !isRenderModeList;
       prevTextBtn.visible = showNavigation && this.currentIndex > 0;
-      nextTextBtn.visible = showNavigation && this.currentIndex < this.visiblePanelCount - 1;
+      nextTextBtn.visible = showNavigation && this.canGoToNextRecord;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
       addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;

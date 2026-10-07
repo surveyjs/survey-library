@@ -27,7 +27,7 @@ import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordRemoval
 } from "./question_records";
-import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
@@ -1945,15 +1945,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private runCellsConditionCore(properties: HashTable<any>): boolean {
     if (this.isDesignMode) return false;
-    /* Under paging the records decide the page (rebuildStalePage, in two steps): a record that became
-       hidden or visible is a row visibility change even when it has no row, so the answers it hides are
+    /* Under paging the records decide the page (rebuildStalePage): a record that became hidden or
+       visible is a row visibility change even when it has no row, so the answers it hides are
        cleared. */
-    const isRecordVisibilityChanged = this.updatePagedRecordsVisibility(properties);
-    if (isRecordVisibilityChanged && this.isPageStale()) {
-      this.rebuildFromDataList(false);
-      return true;
-    }
-    let isRowVisiblilityChanged = isRecordVisibilityChanged;
+    const stalePage = this.rebuildStalePage(properties);
+    if (stalePage.isRebuilt) return true;
+    let isRowVisiblilityChanged = stalePage.isChanged;
     this.isRunningCellsCondition = true;
     // A matrix that pages builds rows for visible records only: the records decide their visibility, and
     // a row and its record cannot disagree.
@@ -1980,19 +1977,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      created for it. */
   private updateRecordsVisibility(): void {
     const rows = this.generatedVisibleRows;
-    const list = this.dataListValue;
-    if (!Array.isArray(rows) || !list || this.isPagingActive) return;
-    let isChanged = false;
-    for (let i = 0; i < rows.length; i++) {
-      const index = list.materializedIndexToIndex(i);
-      if (index > -1 && list.setRecordVisible(index, rows[i].isVisible)) {
-        isChanged = true;
-      }
-    }
-    // A run that changed no flag changed no page count.
-    if (isChanged) {
-      this.syncPagingState();
-    }
+    if (!Array.isArray(rows)) return;
+    this.setItemRecordsVisible(this.dataListValue, rows.length, (position: number): boolean => rows[position].isVisible);
   }
   // The rowsVisibleIf the rows run themselves. A matrix that pages decides it over the records
   // (updatePagedRecordsVisibility) and builds rows for visible records only, so its rows run none.
@@ -2661,15 +2647,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return [];
   }
   public getProgressInfo(): IProgressInfo {
+    const byRecords = (res: IProgressInfo, record: any): void => this.updateProgressInfoByRow(res, record);
     // When the list pages the progress is counted from the records (getProgressInfoByRecords): every
     // input column of every visible record.
-    if (this.isPagedByList) return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => this.updateProgressInfoByRow(res, record));
+    if (this.isPagedByList) return this.getProgressInfoByRecords(byRecords);
     this.getIsRequireToGenerateRows() && this.generateVisibleRowsIfNeeded();
+    // The built rows count first: each cell's own visibility is known there.
     if (!!this.generatedVisibleRows)
       return SurveyElement.getProgressInfoByElements(
         this.getCellQuestions(),
         this.isRequired
       );
+    // Before the rows exist a view counts the records it shows: what the rows would be built for.
+    const list = this.dataListValue;
+    if (!!list && list.hasView) return this.getProgressInfoByRecords(byRecords);
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
     if (res.requiredQuestionCount === 0 && this.isRequired) {
@@ -2756,7 +2747,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return [];
   }
   // No records, so nothing to write: the fixed membership keeps the count at 0.
-  protected setListRecords(records: Array<any>): void { }
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void { }
   // No records, so no record at any index.
   protected getStoredRecordAt(index: number, defaultRecord?: any): any {
     return undefined;
@@ -3166,11 +3157,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return false;
   }
-  // Under paging the records answer, whether or not the page's rows are built.
+  /* Under paging the records answer, whether or not the page's rows are built; without paging the
+     rows, and before they exist the records a view shows. */
   getFilteredData(): any {
     if (this.isEmpty() || this.isEditingSurveyElement) return this.value;
     if (this.isPagedByList) return this.getPagedFilteredData();
-    if (!this.generatedVisibleRows) return this.value;
+    if (!this.generatedVisibleRows) {
+      const list = this.dataListValue;
+      return !!list && list.hasView ? this.getPagedFilteredData() : this.value;
+    }
     return this.getFilteredDataCore();
   }
   protected getFilteredDataCore(): any { return this.value; }
@@ -3195,9 +3190,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected addRecordValue(values: any, index: number, value: any): void {
     values.push(value);
   }
-  /* Under paging the survey data and the totals are the view's records, not the page's rows: a
-     record with a row gives its filteredValue (the values of invisible cells dropped), a record
-     without one is taken as it is stored - it has no cells to be invisible. */
+  /* Under paging - and before the rows of a view exist - the survey data and the totals are the view's
+     records, not the page's rows: a record with a row gives its filteredValue (the values of invisible
+     cells dropped), a record without one is taken as it is stored - it has no cells to be invisible. */
   protected getPagedFilteredData(): any {
     return this.collectRecordValues(this.dataList.getVisibleIndexes(), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
       if (!!row) {
@@ -3534,15 +3529,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.clearVisibleRows();
     this.resetRenderedTable();
     this.resetSingleInput();
-    // Under paging the records decide the flags (updatePagedRecordsVisibility).
+    // A hidden row takes no page slot: the page count follows row visibility (setItemRecordVisible).
     const list = this.dataListValue;
-    const index = !list || this.isPagingActive ? -1 : this.getRecordIndexOf(row);
-    if (index > -1) {
-      list.setRecordVisible(index, row.isVisible);
-    }
-    // A hidden row takes no page slot: the page count follows row visibility, and the list does not
-    // announce it.
-    this.syncPagingState();
+    this.setItemRecordVisible(list, !!list ? this.getRecordIndexOf(row) : -1, row.isVisible);
   }
   /* Without paging the error walks keep the scope they have always had: every row's cells report
      their errors, a hidden row's included, and the cells of the visible rows are cleared; the detail

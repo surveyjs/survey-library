@@ -213,13 +213,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   private redecideViewOfRows(): void {
     const list = this.dataListValue;
     if (!list || !list.hasView) return;
-    const created = list.getCreatedIndexes();
-    // No record changes: the touched rows keep their places.
-    list.invalidateViews((index: number): number => index);
-    this.syncPagingState();
-    if (!Helpers.isTwoValueEquals(created, list.getCreatedIndexes()) || this.isPageStale()) {
-      this.rebuildFromDataList(false);
-    }
+    // No record changes: the touched rows keep their places (createAssignmentRemap), and the edited set stays.
+    this.decideViewAgain(list.getCreatedIndexes(), undefined, false, false);
   }
   /* The record fields: the columns', and the row itself, which the answer never stores - item, rowName
      and rowValue are the row value, rowTitle its text, under the names the row context answers in
@@ -261,14 +256,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const oldKeys = this.getRecordItemsCache().keys;
     this.rowsRevision++;
     const newKeys = this.getRecordItemsCache().keys;
-    const list = this.dataListValue;
-    if (!list) return;
-    let remap: (index: number) => number = undefined;
-    const getRemap = (): ((index: number) => number) => remap || (remap = createKeyRemap(oldKeys, newKeys));
-    this.followRemappedRecords(getRemap);
+    if (!this.dataListValue) return;
     // A touched row follows its row name; a removed row leaves the touched set.
-    list.invalidateViews(list.hasTouchedRecords ? getRemap() : undefined);
-    this.syncPagingState();
+    this.followRemappedRecords((): ((index: number) => number) => createKeyRemap(oldKeys, newKeys));
   }
   // The one method that composes the records; everything else reads the cache (getListRecords).
   protected composeRecords(): Array<any> {
@@ -679,12 +669,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return false;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void {
-    // A sort or a filter in force: the records in the view, which is what the rows would be built for.
-    const list = this.dataListValue;
-    if (!!list && list.hasView) {
-      list.getVisibleIndexes().forEach((index: number): void => { this.updateProgressInfoByRow(res, this.getListRecordAt(index) || {}); });
-      return;
-    }
     let val = this.value;
     if (!val) val = {};
     for (var i = 0; i < this.rows.length; i ++) {

@@ -526,13 +526,15 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The objects hold other records than the page names: a record became hidden or visible ahead of
      them, the page moved under them, or the records were replaced. The objects are read one by one:
-     nothing is allocated for the answer. */
-  protected isPageStale(): boolean {
+     nothing is allocated for the answer. isAppendAllowed: objects that hold the first records of the
+     page are not stale - the records after them are appended (the matrix's grown rowCount). */
+  protected isPageStale(isAppendAllowed: boolean = false): boolean {
     const list = this._dataList;
     if (!list || !this.areObjectsBuilt()) return false;
     const records = list.getMaterializedIndexes();
     for (let i = 0; i < records.length; i++) {
       const item = this.getItem(i);
+      if (!item && isAppendAllowed) return false;
       if (!(item instanceof QuestionRecordItem) || item.builtRecordIndex !== records[i]) return true;
     }
     return !!this.getItem(records.length);
@@ -779,12 +781,70 @@ export abstract class QuestionRecordsModel extends Question {
     this.value = newValue;
     return true;
   }
-  /* The records decide the page; when it is not the page the objects hold, the rebuild runs the
-     conditions of the new objects itself. Returns true when it rebuilt them. */
-  protected rebuildStalePage(properties: HashTable<any>): boolean {
-    if (!(this.updatePagedRecordsVisibility(properties) && this.isPageStale())) return false;
-    this.rebuildFromDataList(false);
+  /* The records decide the page: their visibility is decided over the records, and when a flag changed
+     and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
+     conditions of the new objects itself. Returns whether a flag changed and whether it rebuilt. */
+  protected rebuildStalePage(properties: HashTable<any>): { isChanged: boolean, isRebuilt: boolean } {
+    const isChanged = this.updatePagedRecordsVisibility(properties);
+    const isRebuilt = isChanged && this.isPageStale();
+    if (isRebuilt) {
+      this.rebuildFromDataList(false);
+    }
+    return { isChanged: isChanged, isRebuilt: isRebuilt };
+  }
+  /* An object's visibility reaches its record: the owner-visibility layer of the list, which the
+     visible count and the page count follow. Under paging the records decide the flags and nothing is
+     written. The page state is synced only when the flag changed. list: the caller's - the panel creates
+     it (dataList), the matrix writes only one that exists (dataListValue). Returns whether the flag
+     changed. */
+  protected setItemRecordVisible(list: DynamicDataList, recordIndex: number, visible: boolean): boolean {
+    if (!list || this.isPagingActive || recordIndex < 0) return false;
+    if (!list.setRecordVisible(recordIndex, visible)) return false;
+    this.syncPagingState();
     return true;
+  }
+  /* The same for the objects that exist at once (count of them, by position), with one sync for the
+     run. */
+  protected setItemRecordsVisible(list: DynamicDataList, count: number, isVisible: (position: number) => boolean): boolean {
+    if (!list || this.isPagingActive) return false;
+    let isChanged = false;
+    for (let i = 0; i < count; i++) {
+      const index = list.materializedIndexToIndex(i);
+      if (index > -1 && list.setRecordVisible(index, isVisible(i))) {
+        isChanged = true;
+      }
+    }
+    // A run that changed no flag changed no page count.
+    if (isChanged) {
+      this.syncPagingState();
+    }
+    return isChanged;
+  }
+  /* The record count changed outside a list write - the matrix pads its value up to rowCount, an
+     assignment the list did not make: the records that appeared join the view, the ones that are gone
+     leave it, and the page state follows. The list does not announce that page count. Nothing is
+     created for it. */
+  protected followRecordCountChange(): void {
+    const list = this.dataListValue;
+    if (!list) return;
+    list.syncMembershipWithRecordCount();
+    this.syncPagingState();
+  }
+  /* The visible records navigation counts when the list decides them - it pages, or its source pages
+     itself and its window may hold hidden records; undefined otherwise: the question counts its
+     objects. */
+  protected get visibleRecordCount(): number {
+    const list = this.dataListValue;
+    if (!list || !this.isPagingActive && !list.isPagedBySource) return undefined;
+    return list.globalVisibleCount;
+  }
+  /* A record follows the one at a visible index: the next index is below visibleCount (what the question
+     navigates by), or the source said there are more and the total is unknown. */
+  protected hasRecordAfterVisibleIndex(visibleIndex: number, visibleCount: number): boolean {
+    if (visibleIndex < 0) return false;
+    if (visibleIndex < visibleCount - 1) return true;
+    const list = this.dataListValue;
+    return !!list && list.hasRecordBeyondKnown;
   }
   /* When the list pages the progress is counted from the records - every visible record - as it is
      before the objects exist: the objects are one page. A source that pages itself counts its
@@ -1823,10 +1883,11 @@ export abstract class QuestionRecordsModel extends Question {
     if (!list) return;
     if (!assignment) {
       // A write of the list maintains the membership itself, record by record.
-      if (!list.isWriting) {
-        list.syncMembershipWithRecordCount();
+      if (list.isWriting) {
+        this.syncPagingState();
+      } else {
+        this.followRecordCountChange();
       }
-      this.syncPagingState();
       return;
     }
     this.decideViewAgain(assignment.created, oldRecords, this.isTouchedSetDropped());
@@ -1835,8 +1896,9 @@ export abstract class QuestionRecordsModel extends Question {
      oldRecords are what the view and the value were before the assignment (see
      IDynamicDataValueAssignment). The records the respondent touched keep their places: the list
      gets the remap of the assignment, built once and only when there are touched records, and the
-     edited set follows the same remap. */
-  private decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean): void {
+     edited set follows the same remap. areRecordsReplaced: false for a change that replaced no record
+     (the row titles of the fixed matrix) - the edited set stays and a pending page move is kept. */
+  protected decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean = true): void {
     const list = this._dataList;
     let remap: (index: number) => number = undefined;
     if (!isTouchedSetDropped && list.hasTouchedRecords) {
@@ -1851,7 +1913,9 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
     if (!this.isPagedByList) return;
-    this.onRecordsReplaced(oldRecords, this.getStoredRecords(), remap);
+    if (areRecordsReplaced) {
+      this.onRecordsReplaced(oldRecords, this.getStoredRecords(), remap);
+    }
     // The page is rebuilt when it names other records than its objects hold now.
     if (this.isPageStale()) {
       this.rebuildFromDataList(false);
@@ -1898,20 +1962,28 @@ export abstract class QuestionRecordsModel extends Question {
   /* The records were replaced by a change of what defines them - the rows of the fixed matrix - and
      the question knows where each one went: the remap gives the new index of an old record, -1 for
      one that is gone. The edited set, the states kept for nested paged questions and the record
-     indexes the question keeps besides them follow. Nothing is created for it, and the remap is asked
-     for only when something keeps record indexes. */
+     indexes the question keeps besides them follow, and the list decides its views again over the new
+     records - a touched record follows the remap, a removed one leaves the touched set - and the page
+     state follows. Nothing is created for it, and the remap is asked for once, only when something
+     keeps record indexes. */
   protected followRemappedRecords(createRemap: () => ((index: number) => number)): void {
+    let remap: (index: number) => number = undefined;
+    const getRemap = (): ((index: number) => number) => remap || (remap = createRemap());
     const validation = this._pageValidation;
     if (!!validation) {
       validation.cancelPendingMove();
     }
     const hasValidationRecords = !!validation && validation.hasRecords;
-    if (!hasValidationRecords && !this.hasKeptRecordIndexes()) return;
-    const remap = createRemap();
     if (hasValidationRecords) {
-      validation.onRecordRemap(remap);
+      validation.onRecordRemap(getRemap());
     }
-    this.remapKeptRecordIndexes(remap);
+    if (hasValidationRecords || this.hasKeptRecordIndexes()) {
+      this.remapKeptRecordIndexes(getRemap());
+    }
+    const list = this._dataList;
+    if (!list) return;
+    list.invalidateViews(list.hasTouchedRecords ? getRemap() : undefined);
+    this.syncPagingState();
   }
   // The value is stored and the list-side pair is still open.
   protected onRecordsValueStored(): void { }
@@ -2182,7 +2254,7 @@ export abstract class QuestionRecordsModel extends Question {
      DynamicDataList.createReadThrough once. */
   protected abstract getListRecords(): Array<any>;
   // operations: the writes the default source made (DynamicDataOperation names), in order.
-  protected abstract setListRecords(records: Array<any>, operations?: Array<DynamicDataOperation>): void;
+  protected abstract setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void;
   // The record fields the list knows (see getFieldsOfQuestions).
   protected abstract getFields(): Array<IDynamicDataField>;
   // The objects are re-created for the records the view - under paging, the page - holds now.

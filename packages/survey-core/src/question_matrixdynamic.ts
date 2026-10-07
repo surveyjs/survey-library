@@ -179,15 +179,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* False while the data source answers a read without a total: rowCount is then the number of rows
      known to exist - a lower bound (see isCountKnown). */
   public get isRowCountKnown(): boolean { return this.isCountKnown; }
-  /* rowCount, not a write, decides how many records the list reads: the window is question.value
-     padded up to it. The records that appear join the view - an added record always does - and the
-     ones that disappear leave it; the membership of the rest is not re-decided. */
-  private syncDataListRecordCount(): void {
-    if (!!this.dataListValue) {
-      this.dataListValue.syncMembershipWithRecordCount();
-      this.syncPagingState();
-    }
-  }
   /* The records the list works with: question.value padded up to rowCount, exactly as
      createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
      materializes it - and the array is never truncated here: the rowCount setter needs the records
@@ -197,7 +188,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (Array.isArray(val) && val.length >= this.rowCount) return val;
     return this.padRecords(Array.isArray(val) ? val.slice() : []);
   }
-  protected setListRecords(records: Array<any>, operations?: Array<DynamicDataOperation>): void {
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
     this.setOwnRecordsValue(this.normalizeRecords(records, operations));
   }
   // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
@@ -226,14 +217,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      truncated to rowCount. A cell edit - the writes are updates - drops a value whose records are all
      empty and keeps minRowCount empty records instead; a row the matrix removes itself drops such a
      value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
-     stored as they are. operations: the writes the source made, absent for a write of its own. */
-  private normalizeRecords(records: Array<any>, operations?: Array<DynamicDataOperation>): any {
+     stored as they are. operations: the writes the default source made, one or every write of a batch
+     (ArrayDynamicDataSource.write and batch, the only callers). */
+  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
     let res = Array.isArray(records) ? records : [];
     if (res.length > this.rowCount) {
       res = res.slice(0, this.rowCount);
     }
     const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
-    if (!operations || isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
+    if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
     if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
     return res;
   }
@@ -577,10 +569,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
-    /* Before the truncation, not after it: rowCount decides how many records the window holds, so
-       the ones the padding just created or dropped have to reach the view first - the removals that
-       follow are made against the record count the new rowCount produced. */
-    this.syncDataListRecordCount();
+    /* rowCount, not a write, decides how many records the list reads: the window is question.value
+       padded up to it. Before the truncation, not after it: the records the padding just created or
+       dropped have to reach the view first - the removals that follow are made against the record
+       count the new rowCount produced. */
+    this.followRecordCountChange();
     if (this.value && this.value.length > val) {
       if (this.isEditingObjectValue) {
         var qVal = this.value;
@@ -616,16 +609,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      do. A record that appeared gets a row appended (it is always in the view); records that
      disappeared can be anywhere in the view, so their rows are rebuilt rather than sliced off. */
   private updateRowsForCreatedIndexes(): void {
-    const created = this.dataList.getMaterializedIndexes();
-    const rows = this.generatedVisibleRows;
-    // Under paging the rows are the page: a record added in front of the page, or one the page
-    // gives up for it, is a different page, not an appended row.
-    const isPageChanged = this.isPagingActive && rows.some((row: MatrixDropdownRowModelBase, i: number): boolean =>
-      row.builtRecordIndex !== created[i]);
-    if (created.length < rows.length || isPageChanged) {
+    // The rows hold the first records of the page, or a record added in front of them, one the page
+    // gives up for it, or a record that left made it another page: then they are rebuilt.
+    if (this.isPageStale(true)) {
       this.rebuildFromDataList(false);
       return;
     }
+    const created = this.dataList.getMaterializedIndexes();
+    const rows = this.generatedVisibleRows;
     for (let i = rows.length; i < created.length; i++) {
       this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), created[i]);
     }
@@ -1171,7 +1162,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
     this.rowCountValue--;
     if (isPaddingRecord) {
-      this.syncDataListRecordCount();
+      this.followRecordCountChange();
     } else if (this.value) {
       this.writeRecords((): void => {
         if (this.isEditingObjectValue) {

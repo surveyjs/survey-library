@@ -1,7 +1,7 @@
 import { Helpers, createDate, normalizeTextForSearch } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
-import { findNameByPath, ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
+import { findNameByPath, parseValuePath, ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import { Base } from "../src/base";
 import { property } from "../src/decorators";
 import { settings } from "../src/settings";
@@ -114,6 +114,14 @@ describe("Helpers", () => {
     const indexed = [{ name: "a" }, { name: "b", index: 0 }, { name: "c" }];
     expect(findNameByPath(indexed, 0, true, known(["a.b", "a.b.c"])), "the indexed item ends the name").toBe(1);
     expect(findNameByPath(indexed, 0, true, known(["a.b.c"])), "a name never spans an index").toBe(-1);
+  });
+  test("parseValuePath splits a reference and, on request, locates each name in it", () => {
+    expect(parseValuePath("a.b[0].cc"), "no positions unless asked").toEqual(
+      [{ name: "a" }, { name: "b", index: 0 }, { name: "cc" }]);
+    expect(parseValuePath("a.b[0].cc", true), "the index is no part of the name").toEqual([
+      { name: "a", from: 0, to: 1 }, { name: "b", index: 0, from: 2, to: 3 }, { name: "cc", from: 7, to: 9 }]);
+    expect(parseValuePath("a[x]", true), "a bracket that is no index stays in the name").toEqual(
+      [{ name: "a[x]", from: 0, to: 4 }]);
   });
 
   test("isConvertibleToNumber", () => {

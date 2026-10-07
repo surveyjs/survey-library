@@ -5,6 +5,9 @@ import { settings } from "../settings";
 export interface IValueGetterItem {
   name: string;
   index?: number;
+  // where the name sits in the parsed text, set only when parseValuePath is asked for positions
+  from?: number;
+  to?: number;
 }
 export interface IValueGetterInfo {
   obj?: IObjectValueContext;
@@ -166,34 +169,48 @@ export class ValueGetter {
     return info?.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
-    const path: Array<IValueGetterItem> = [];
-    const names = name.split(".");
-    for (let i = 0; i < names.length; i++) {
-      path.push(this.getValueItem(names[i]));
-    }
-    return path;
+    return parseValuePath(name);
   }
-  private getValueItem(name: string): IValueGetterItem {
-    let index: number | undefined = undefined;
-    if (name.lastIndexOf("]") === name.length - 1) {
-      const ind = name.lastIndexOf("[");
-      if (ind > -1) {
-        const indexStr = name.substring(ind + 1, name.length - 1);
-        index = Helpers.getNumber(indexStr);
-        if (isNaN(index)) {
-          index = undefined;
-        }
-        if (index !== undefined) {
-          name = name.substring(0, ind);
-        }
+}
+function getValueItem(name: string): IValueGetterItem {
+  let index: number | undefined = undefined;
+  if (name.lastIndexOf("]") === name.length - 1) {
+    const ind = name.lastIndexOf("[");
+    if (ind > -1) {
+      const indexStr = name.substring(ind + 1, name.length - 1);
+      index = Helpers.getNumber(indexStr);
+      if (isNaN(index)) {
+        index = undefined;
+      }
+      if (index !== undefined) {
+        name = name.substring(0, ind);
       }
     }
-    const res: IValueGetterItem = { name: name };
-    if (index !== undefined) {
-      res.index = index;
-    }
-    return res;
   }
+  const res: IValueGetterItem = { name: name };
+  if (index !== undefined) {
+    res.index = index;
+  }
+  return res;
+}
+// The path a reference names: one item per dot-separated part, a trailing "[n]" being the item's
+// index. withPositions also records where each item's name sits in the text (from/to, the "[n]"
+// left out). Exported so that a tool editing the reference text locates its parts the way the
+// runtime splits them (survey-core/linter).
+export function parseValuePath(name: string, withPositions?: boolean): Array<IValueGetterItem> {
+  const path: Array<IValueGetterItem> = [];
+  const names = name.split(".");
+  let pos = 0;
+  for (let i = 0; i < names.length; i++) {
+    const item = getValueItem(names[i]);
+    if (withPositions) {
+      item.from = pos;
+      item.to = pos + item.name.length;
+    }
+    path.push(item);
+    pos += names[i].length + 1;
+  }
+  return path;
 }
 function getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
   let name = "";

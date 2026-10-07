@@ -56,6 +56,11 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   public set dropdownListModel(val: DropdownMultiSelectListModel) {
     this.dropdownListModelValue = val;
   }
+  public tryCommitAutoAdvanceOnEnter(event: any): boolean {
+    if (!this.canCommitAutoAdvanceOnEnter(event)) return false;
+    this.commitAutoAdvance(event);
+    return true;
+  }
   /**
    * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
    *

@@ -3167,6 +3167,25 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
+  // value change, so multi-value questions stay opted out until this flag is raised.
+  protected isAutoAdvanceRequested: boolean;
+  protected canCommitAutoAdvanceOnEnter(event: any): boolean {
+    if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.defaultPrevented) return false;
+    if (this.isDesignMode || this.isInputReadOnly || this.isEmpty()) return false;
+    const survey = this.survey as SurveyModel;
+    return !!survey && survey.autoAdvanceEnabled === true;
+  }
+  protected commitAutoAdvance(event?: any): void {
+    if (event?.preventDefault) event.preventDefault();
+    this.isAutoAdvanceRequested = true;
+    try {
+      (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName());
+    } finally {
+      this.isAutoAdvanceRequested = false;
+    }
+  }
   public supportGoNextPageError(): boolean {
     return true;
   }

@@ -55,6 +55,23 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getType(): string {
     return "checkbox";
   }
+  supportAutoAdvance(): boolean {
+    return this.isAutoAdvanceRequested === true;
+  }
+  public onKeyDown(event: any): void {
+    if (this.isAutoAdvanceTextInputTarget(event?.target)) return;
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
+  }
+  private isAutoAdvanceTextInputTarget(target: any): boolean {
+    if (!target) return false;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag === "textarea") return true;
+    if (tag !== "input") return false;
+    const type = (target.type || "text").toString().toLowerCase();
+    return type !== "checkbox" && type !== "radio";
+  }
   protected getItemValueType() {
     return "checkboxitem";
   }

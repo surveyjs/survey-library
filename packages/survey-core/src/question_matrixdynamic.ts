@@ -28,7 +28,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext } from "./question_records";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext } from "./question_records";
 import { DynamicDataOperation, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
@@ -72,6 +72,11 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
       "" + index
     );
   }
+}
+
+// A row removal (QuestionRecordsModel.removeResolvedRecord); isSourceWriteOnly: removeRowByIndex over a data source.
+interface IRowRemoval extends IRecordRemoval {
+  isSourceWriteOnly?: boolean;
 }
 
 /**
@@ -489,16 +494,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public removeRowByIndex(fromIndex: number):void {
     if (this.refuseOperationOfSource("remove")) return;
     if (this.isRemoteData) {
-      const list = this.dataList;
-      const index = this.getRecordIndexForOperation(fromIndex, "remove");
-      if (index < 0) return;
-      const position = list.indexToMaterializedIndex(index);
-      const rows = this.generatedVisibleRows;
-      if (position > -1 && Array.isArray(rows) && position < rows.length) {
-        rows.splice(position, 1);
-      }
-      // One source.remove; question.value and rowCount follow through the recordRemoved notification.
-      this.removeRecordAndRefill((): void => { list.remove(index); });
+      const target = this.getRecordTargetForOperation(fromIndex, "remove");
+      const removal: IRowRemoval = !!target ? this.resolveRecordRemoval(target) : undefined;
+      if (!removal) return;
+      removal.isSourceWriteOnly = true;
+      this.removeResolvedRecord(removal);
       this.onRowsChanged();
       return;
     }
@@ -1144,43 +1144,47 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   private removeRowCore(target: IRecordTarget) {
-    const row = <MatrixDropdownRowModelBase>target.item;
-    const rows = this.generatedVisibleRows;
-    const index = !!row && Array.isArray(rows) ? rows.indexOf(row) : -1;
-    if (!!row && index < 0) return;
-    // index is a created position; the record the row holds is what leaves the storage.
-    const recordIndex = !!row ? this.getRecordIndexAtRowPosition(index) : target.recordIndex;
-    const viewIndex = this.getRecordViewIndex(recordIndex);
-    if (index > -1) {
-      rows.splice(index, 1);
-    }
-    this.removeRecordAndRefill((): void => {
-      /* A record beyond question.value is padding: a row that was added and never filled, or every
-         row of a matrix with no value. There is nothing to write, and the list cannot remove it
-         either - the padded window has just lost it together with rowCount. The list learns the new
-         count instead, or a page index left past the last page would show an empty page. */
-      const val = this.value;
-      const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
-      this.rowCountValue--;
-      if (isPaddingRecord) {
-        this.syncDataListRecordCount();
-      } else if (this.value) {
-        this.writeRecords((): void => {
-          if (this.isEditingObjectValue) {
-            // The live array is spliced in place: that is what removes the row from the edited object.
-            const val = this.createValueCopy();
-            val.splice(index, 1);
-            this.value = val;
-          } else if (recordIndex > -1) {
-            this.dataList.remove(recordIndex);
-          }
-        });
-      }
-    });
+    const removal = this.resolveRecordRemoval(target);
+    if (!removal) return;
+    this.removeResolvedRecord(removal);
     this.onRowsChanged();
+    const row = <MatrixDropdownRowModelBase>removal.item;
     if (this.survey && !!row) {
-      this.matrixCallbacks.matrixRowRemoved(this, viewIndex, row);
+      this.matrixCallbacks.matrixRowRemoved(this, removal.viewIndex, row);
     }
+  }
+  /* QuestionRecordsModel hook: the storage write of a row removal. removeRowByIndex over a data source
+     makes one source.remove, and question.value and rowCount follow its notification; every other
+     removal counts the row down first and writes inside writeRecords. The refill follows the write's
+     scope. */
+  protected removeStoredRecord(removal: IRowRemoval, refill: () => void): void {
+    if (removal.isSourceWriteOnly) {
+      super.removeStoredRecord(removal, refill);
+      return;
+    }
+    /* A record beyond question.value is padding: a row that was added and never filled, or every
+       row of a matrix with no value. There is nothing to write, and the list cannot remove it
+       either - the padded window has just lost it together with rowCount. The list learns the new
+       count instead, or a page index left past the last page would show an empty page. */
+    const recordIndex = removal.recordIndex;
+    const val = this.value;
+    const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
+    this.rowCountValue--;
+    if (isPaddingRecord) {
+      this.syncDataListRecordCount();
+    } else if (this.value) {
+      this.writeRecords((): void => {
+        if (this.isEditingObjectValue) {
+          // The live array is spliced in place: that is what removes the row from the edited object.
+          const val = this.createValueCopy();
+          val.splice(removal.position, 1);
+          this.value = val;
+        } else if (recordIndex > -1) {
+          this.dataList.remove(recordIndex);
+        }
+      });
+    }
+    refill();
   }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDynamicSingleInputBehavior(this);

@@ -67,6 +67,15 @@ export interface IRecordTarget {
   record?: any;
   isNotLoaded?: boolean;
 }
+/* A removal resolved before anything changes (resolveRecordRemoval): the object and its created
+   position (-1 without one), the record that leaves the storage and the view index the removal
+   reports. A type adds what its own steps decided before the splice. */
+export interface IRecordRemoval {
+  item: QuestionRecordItem;
+  position: number;
+  recordIndex: number;
+  viewIndex: number;
+}
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
    that does not say how to compare is "any": the local sort then compares the raw values. "string" is
    also what a question that does not know its value type reports (an expression, a select question
@@ -1159,15 +1168,26 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
   }
-  /* A remove the question makes: the page the list cuts is read before it and refilled after it when
-     the page index did not change (refillPageAfterRemove). remove runs the list write and whatever
-     the question does between the page read and the refill; what it does after the refill stays
-     after the call. */
-  protected removeRecordAndRefill<T>(remove: () => T): T {
+  /* The start of a removal, with no change: everything that depends on the object being among the
+     objects is read now - after the splice a row has no position, and a panel that is not among the
+     panels is taken for one being appended. undefined: the target's object is no longer among them.
+     The caller's own steps that may cancel (a removing event) run between this and
+     removeResolvedRecord. */
+  protected resolveRecordRemoval(target: IRecordTarget): IRecordRemoval {
+    const item = target.item;
+    const position = !!item ? this.getItemPosition(item) : -1;
+    if (!!item && position < 0) return undefined;
+    const recordIndex = !!item ? this.getItemRecordIndex(item) : target.recordIndex;
+    return { item: item, position: position, recordIndex: recordIndex, viewIndex: this.getRecordViewIndex(recordIndex) };
+  }
+  /* The removal, in order: the page index is read (the splice and what the type does after it do not
+     move the page), the object leaves its array (detachItem), and the storage write runs
+     (removeStoredRecord), which calls the refill of the page the list cuts once, where the type
+     decides. The caller announces the removal afterwards, unless the type does inside its write. */
+  protected removeResolvedRecord(removal: IRecordRemoval): void {
     const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
-    const res = remove();
-    this.refillPageAfterRemove(pageIndex);
-    return res;
+    this.detachItem(removal);
+    this.removeStoredRecord(removal, (): void => { this.refillPageAfterRemove(pageIndex); });
   }
   /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
      a record index of the loaded window. In order:
@@ -1442,13 +1462,18 @@ export abstract class QuestionRecordsModel extends Question {
      none, and a record a source that pages itself has not loaded is refused and reported under the
      operation. */
   protected getRecordIndexForOperation(createdIndex: number, operation: DynamicDataOperation): number {
+    const target = this.getRecordTargetForOperation(createdIndex, operation);
+    return !!target ? target.recordIndex : -1;
+  }
+  // The same, with the record's object when it has one: undefined when there is no record to act on.
+  protected getRecordTargetForOperation(createdIndex: number, operation: DynamicDataOperation): IRecordTarget {
     const target = this.getRecordTargetAtCreatedIndex(createdIndex);
-    if (!target) return -1;
+    if (!target) return undefined;
     if (target.isNotLoaded) {
       this.reportRecordNotLoaded(operation);
-      return -1;
+      return undefined;
     }
-    return target.recordIndex;
+    return target;
   }
   /* The record index an insert at a created position of the whole view goes to: in front of the
      record at that position, an append at or past the last one (getInsertIndexAtCreatedIndex of the
@@ -2182,6 +2207,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* One record of the question's own storage (see getListRecordAt), without composing the array. The
      matrix pads question.value up to rowCount with defaultRecord, else the default row value. */
   protected abstract getStoredRecordAt(index: number, defaultRecord?: any): any;
+  // The removal hooks (removeResolvedRecord). The object's created position in its array: the rows, the panels.
+  protected abstract getItemPosition(item: QuestionRecordItem): number;
+  // The object leaves its array at removal.position, and the type does what it does right after its splice.
+  protected abstract detachItem(removal: IRecordRemoval): void;
+  // The storage write of a removal, in the type's wrapper; refill runs exactly once, where the type decides.
+  protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
   // The property the authored page size is stored under (see pageSize).

@@ -25,7 +25,7 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior
+  QuestionRecordsSingleInputBehavior, IRecordRemoval
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
@@ -3334,6 +3334,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   getItemIndex(item: ISurveyData): number {
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(<any>item);
+  }
+  // QuestionRecordsModel hooks of a removal: the rows are the objects, and a removal writes the list.
+  protected getItemPosition(item: QuestionRecordItem): number {
+    return this.getItemIndex(item);
+  }
+  protected detachItem(removal: IRecordRemoval): void {
+    const rows = this.generatedVisibleRows;
+    if (removal.position > -1 && Array.isArray(rows)) {
+      rows.splice(removal.position, 1);
+    }
+  }
+  protected removeStoredRecord(removal: IRecordRemoval, refill: () => void): void {
+    this.dataList.remove(removal.recordIndex);
+    refill();
   }
   /* The one seam between an object and its record. getItemIndex stays the row position - it is
      IMatrixDropdownData API and the rendered table addresses rows by position - and this is the

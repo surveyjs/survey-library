@@ -3770,10 +3770,10 @@ describe("Remote data source: an added panel lands in front of the record a numb
     const res = question.addPanel(index);
     return { question: question, source: source, res: res, added: added };
   };
-  test("page 0: a hidden record in front of the target does not move the insert to the end", async () => {
+  test("page 0: the number is a created position - a record templateVisibleIf hides is counted", async () => {
     const { question, source, res, added } = await insertAt(0, 1);
-    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of id 2").toEqual([2]);
-    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v0", "v1", "new", "v2"]);
+    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of the hidden id 1").toEqual([1]);
+    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v0", "new", "v1", "v2"]);
     expect(panelValues(question), "#3: the page shows the new record between ids 0 and 2").toEqual(["v0", "new", "v2"]);
     expect(res.getQuestionByName("col1").value, "#4: the returned panel holds the new record").toBe("new");
     expect(added.length, "#5").toBe(1);
@@ -3783,8 +3783,8 @@ describe("Remote data source: an added panel lands in front of the record a numb
   });
   test("page 1: the number counts from the start of the whole view", async () => {
     const { question, source, res, added } = await insertAt(1, 4);
-    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of id 5").toEqual([5]);
-    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v3", "v4", "new", "v5"]);
+    expect(source.argsOf("insert").map(args => args[1]), "#1: one insert, in front of the hidden id 4").toEqual([4]);
+    expect(question.value.map((r: any) => r.col1), "#2").toEqual(["v3", "new", "v4", "v5"]);
     expect(panelValues(question), "#3").toEqual(["v3", "new", "v5"]);
     expect(res.getQuestionByName("col1").value, "#4").toBe("new");
     expect(added.length, "#5").toBe(1);
@@ -5613,4 +5613,32 @@ describe("Remote data source: an add opens and focuses the row of the record it 
       focus.mockRestore();
     }
   };
+});
+
+describe("Remote data source: addRowByIndex with a negative number counts from the end of the whole view", () => {
+  const setUp = async (page: number): Promise<{ question: QuestionMatrixDynamicModel, source: FakeServerSource, errors: Array<string> }> => {
+    const source = new FakeServerSource(serverRecords(15));
+    const { survey, question } = await createMatrix(source);
+    question.goToPage(page);
+    await flush();
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    source.reset();
+    return { question: question, source: source, errors: errors };
+  };
+  test("the page that holds the last record: -1 inserts in front of it with one insert", async () => {
+    const { question, source, errors } = await setUp(2);
+    question.addRowByIndex({ col1: "N" }, -1);
+    await flush();
+    expect(source.argsOf("insert").map(args => args[1]), "#1: in front of record 14").toEqual([14]);
+    expect(errors, "#2").toEqual([]);
+  });
+  test("another page: -1 is refused and reported once, nothing is inserted", async () => {
+    const { question, source, errors } = await setUp(0);
+    question.addRowByIndex({ col1: "N" }, -1);
+    await flush();
+    expect(source.argsOf("insert"), "#1").toEqual([]);
+    expect(errors, "#2").toEqual(["insert"]);
+    expect(rowValues(question), "#3: the window is as it was").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+  });
 });

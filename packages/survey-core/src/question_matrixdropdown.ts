@@ -381,9 +381,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     if (insertIndex < 0) return false;
     const val = this.value || {};
     const newRow = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
-    this.generatedVisibleRows.splice(insertIndex, 0, newRow);
     newRow.visibleIndex = insertIndex;
-    this.onMatrixRowCreated(newRow);
+    // The records are the rows items with a value: the row's position is its record index.
+    this.addRowForRecord(newRow, insertIndex, insertIndex);
     this.finishIncrementalRowChange((table) => table.onAddedRow(newRow, insertIndex));
     return true;
   }

@@ -2208,22 +2208,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.dataList.getPageOfVisibleIndex(target.visibleIndex) !== this.dataList.pageIndex;
   }
   /* Where an in-memory paged add puts the new record: the record index it is inserted at and the
-     visibleIndex it will have. index is a position among the visible records of the whole view, as
-     currentIndex is: it inserts before the record at that position, on whatever page it is. undefined
-     inserts after the current panel in carousel and tab mode and appends in list mode; a negative
-     index, and one past the last visible record, append. */
-  private getInsertTarget(index: number): { at: number, visibleIndex: number, prevIndex: number } {
+     visibleIndex it will have. index is a created position of the whole view, as without paging - a
+     record templateVisibleIf hides is counted: it inserts before the record at that position, on
+     whatever page it is; one past the last record and a negative index append. undefined inserts
+     after the current panel in carousel and tab mode and appends in list mode. The visibleIndex of an
+     insert in front of a hidden record is taken as an append's: it only decides whether the add
+     leaves the page. */
+  private getInsertTarget(index: number): { at: number, visibleIndex: number } {
     const list = this.dataList;
-    const visible = list.getVisibleIndexes();
-    let visibleIndex = visible.length;
-    if (index === undefined) {
-      const curIndex = this.currentIndex;
-      if (curIndex > -1) visibleIndex = curIndex + 1;
-    } else if (index > -1) {
-      visibleIndex = index;
+    const visibleCount = list.getVisibleIndexes().length;
+    if (index > -1) {
+      const at = this.getInsertIndexForOperation(index);
+      const visibleIndex = at < list.loadedCount ? list.getGlobalVisibleIndex(at) : -1;
+      return { at: at, visibleIndex: visibleIndex > -1 ? visibleIndex : visibleCount };
     }
-    visibleIndex = Math.min(visibleIndex, visible.length);
-    return { at: list.getInsertIndexAtVisibleIndex(visibleIndex), visibleIndex: visibleIndex, prevIndex: visibleIndex > 0 ? visible[visibleIndex - 1] : -1 };
+    const curIndex = index === undefined ? this.currentIndex : -1;
+    const visibleIndex = curIndex > -1 ? Math.min(curIndex + 1, visibleCount) : visibleCount;
+    return { at: list.getInsertIndexAtVisibleIndex(visibleIndex), visibleIndex: visibleIndex };
   }
   private addPanelCore(index: number): PanelModel {
     if (this.isPagedByList) return this.addPanelInPage(index);
@@ -2240,13 +2241,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (index === undefined) {
       position = curPos < 0 ? maxIndex : curPos + 1;
     } else if (index > -1 && this.isPagingActive) {
-      // A source that pages itself: a position in the whole view, inside the loaded window or refused.
-      recordIndex = this.dataList.getInsertIndexAtVisibleIndex(index);
-      if (recordIndex < 0) {
-        this.reportRecordNotLoaded("insert");
-        return null;
-      }
-      position = index - this.pageStartVisibleIndex;
+      // A source that pages itself: a created position in the whole view, inside the loaded window or refused.
+      recordIndex = this.getInsertIndexForOperation(index);
+      if (recordIndex < 0) return null;
     }
     if (position < 0 || position > maxIndex) {
       position = maxIndex;
@@ -2256,7 +2253,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (recordIndex < 0) {
         recordIndex = list.getInsertIndexAtMaterializedPosition(position);
       }
-      const at = this.addPanelRemote(curPos < 0 ? maxIndex - 1 : curPos, recordIndex);
+      const at = this.addPanelRemote(recordIndex);
       this.followInsertedRecord(at, false);
       const added = list.indexToMaterializedIndex(at);
       // A record the view hides has no panel: the page and the current panel stay, as in the paged add.
@@ -2286,10 +2283,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private addPanelInPage(index: number): PanelModel {
     const list = this.dataList;
     const target = this.getInsertTarget(index);
-    const record = this.createNewRecord();
-    if (this.copyDefaultValueFromLastEntry && target.prevIndex > -1) {
-      this.copyValue(record, list.getRecord(target.prevIndex));
-    }
+    const record = this.createNewRecord(this.getCopySourceRecord());
     this.updateBindings("panelCount", list.count + 1);
     let at = -1;
     this.runInternalValueChange((): void => {
@@ -2307,20 +2301,27 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return newPanel;
   }
   /* A record for a panel that does not exist yet: the defaults its panel would write when it is
-     created - the template questions' default values and defaultPanelValue. Under paging a record
-     is created long before its panel, and the panel of an unvisited page is never created at all. */
-  private createNewRecord(): any {
-    const record: any = {};
-    this.template.questions.forEach((q: Question): void => {
-      const val = q.getDefaultValue();
-      if (!this.isValueEmpty(val)) {
-        record[q.getValueName()] = Helpers.getUnbindValue(val);
-      }
-    });
-    if (!this.isValueEmpty(this.defaultPanelValue)) {
-      this.copyValue(record, Helpers.getUnbindValue(this.defaultPanelValue));
+     created - the template questions' default values and defaultPanelValue - and then copyFrom. Under
+     paging a record is created long before its panel, and the panel of an unvisited page is never
+     created at all. */
+  private createNewRecord(copyFrom?: any): any {
+    return this.composeNewRecord(this.template.questions, (q: Question): Question => q, (q: Question): string => q.getValueName(),
+      this.defaultPanelValue, copyFrom);
+  }
+  /* The record copyDefaultValueFromLastEntry copies from in the record-first adds (the paged and the
+     remote one), read before the insert: the current panel's in carousel and tab mode, the last
+     panel's in list mode - the panels that exist, which under paging are the page and for a source
+     that pages itself the window. undefined: none, or the property is off. */
+  private getCopySourceRecord(): any {
+    if (!this.copyDefaultValueFromLastEntry) return undefined;
+    const list = this.dataList;
+    const current = this.isRenderModeList ? null : this.currentPanel;
+    let index = !!current ? this.getPanelRecordIndex(current) : -1;
+    if (index < 0 || index >= list.loadedCount) {
+      const created = list.getMaterializedIndexes();
+      index = created.length > 0 ? created[created.length - 1] : -1;
     }
-    return record;
+    return index > -1 ? list.getRecord(index) : undefined;
   }
   /* The remote add path. The local one grows the count first and writes the defaults afterwards,
      which over a data source is a throwing count setter followed by up to three server calls for one
@@ -2331,20 +2332,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      an update after the insert. question.value follows the window through the recordAdded
      notification. */
   /* The record of the remote add. recordIndex: the record of the window the new one goes in front
-     of, loadedCount to append. prevPosition: a position in panelsCore, the panel
-     copyDefaultValueFromLastEntry copies from. Returns the record index list.add answered. */
-  private addPanelRemote(prevPosition: number, recordIndex: number): number {
+     of, loadedCount to append. Returns the record index list.add answered. */
+  private addPanelRemote(recordIndex: number): number {
     const list = this.dataList;
-    // Positions of panels: the materialized set, which for a source that pages itself is the window.
-    const createdCount = list.getMaterializedIndexes().length;
-    const record = this.createNewRecord();
-    if (this.copyDefaultValueFromLastEntry && createdCount > 0) {
-      const fromPosition = prevPosition > -1 && prevPosition < createdCount ? prevPosition : createdCount - 1;
-      const fromIndex = list.materializedIndexToIndex(fromPosition);
-      if (fromIndex > -1) {
-        this.copyValue(record, list.getRecord(fromIndex));
-      }
-    }
+    const record = this.createNewRecord(this.getCopySourceRecord());
     return this.runRecordAdd((): number => list.add(record, recordIndex));
   }
   // QuestionRecordsModel hook: one panel at the end of the panels; the panels that exist keep their state.
@@ -2367,47 +2358,31 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.focusNewPanelCallback = undefined;
     }
   }
+  /* The unpaged add: panelCount++ creates the panel and appends its record, which then moves to the
+     created position index. The panel object exists before its record is moved into place:
+     onPanelAdded must see the same state it sees today. A handler that assigned the value meanwhile
+     keeps it: the records are its own, and none of them is the new one. */
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
-    // The panel object exists before its record is moved into place: onPanelAdded must see the same
-    // state it sees today.
-    const outsideAssignmentCount = this.outsideAssignmentCount;
-    this.runRecordAdd((): void => { this.panelCount++; });
-    // A handler assigned the value meanwhile: the records are its own, and none of them is the new one.
-    if (this.outsideAssignmentCount !== outsideAssignmentCount) return;
     const list = this.dataList;
-    if (list.count !== this.panelCount) return;
-    const lastIndex = this.panelCount - 1;
-    // index and prevIndex are created positions; the records they name are what the list moves.
-    const recordIndex = index < lastIndex ? this.getRecordIndexByPanelIndex(index) : lastIndex;
-    if (recordIndex < 0) return;
-    list.batch((): void => {
-      // panelCount++ appended the new record at the end; it belongs at index.
-      if (recordIndex !== lastIndex) {
-        list.move(lastIndex, recordIndex);
-      }
-      const record = Object.assign({}, list.getRecord(recordIndex));
-      let hasModified = false;
-      if (!this.isValueEmpty(this.defaultPanelValue)) {
-        hasModified = true;
-        this.copyValue(record, this.defaultPanelValue);
-      }
+    this.growAndMoveRecord((): void => { this.panelCount++; }, (): number => {
+      if (list.count !== this.panelCount) return -1;
+      const lastIndex = this.panelCount - 1;
+      // index is a created position; the record it names is where the list moves the new one.
+      return index < lastIndex ? this.getRecordIndexByPanelIndex(index) : lastIndex;
+    }, (recordIndex: number): any => {
+      /* The released copy source: prevIndex - the current panel in carousel and tab mode, the last one
+         in list mode - read after the move, so an insert in front of it reads the record that has
+         shifted into its position. The record-first adds read it before the insert
+         (getCopySourceRecord). */
+      let copyFrom: any = undefined;
       if (this.copyDefaultValueFromLastEntry && list.count > 1) {
-        const fromPosition = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
-        const fromIndex = this.getRecordIndexByPanelIndex(fromPosition);
-        if (fromIndex > -1) {
-          hasModified = true;
-          this.copyValue(record, list.getRecord(fromIndex));
-        }
+        const lastIndex = list.count - 1;
+        const fromIndex = this.getRecordIndexByPanelIndex(prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex);
+        copyFrom = fromIndex > -1 ? list.getRecord(fromIndex) || {} : undefined;
       }
-      if (hasModified) {
-        list.setRecord(recordIndex, record);
-      }
+      if (this.isValueEmpty(this.defaultPanelValue) && !copyFrom) return undefined;
+      return Object.assign({}, list.getRecord(recordIndex), this.composeNewRecord([], undefined, undefined, this.defaultPanelValue, copyFrom));
     });
-  }
-  private copyValue(dest: any, src: any) {
-    for (var key in src) {
-      dest[key] = src[key];
-    }
   }
   public getPanelRemoveButtonId(panel: PanelModel): string {
     return panel.id + "_remove_button";

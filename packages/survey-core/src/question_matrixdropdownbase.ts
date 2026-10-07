@@ -2452,6 +2452,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       return row;
     });
   }
+  /* One row for one record that appeared after the rows were built: numbered with its record, so that
+     what is kept under the record (a detail panel's paged question) finds it, put at position in the
+     rows - the end when it is undefined - and announced. The list is not created. */
+  protected addRowForRecord<T extends MatrixDropdownRowModelBase>(row: T, recordIndex: number, position?: number): T {
+    row.builtRecordIndex = recordIndex;
+    if (position === undefined) {
+      this.generatedVisibleRows.push(row);
+    } else {
+      this.generatedVisibleRows.splice(position, 0, row);
+    }
+    this.onMatrixRowCreated(row);
+    return row;
+  }
   protected generateTotalRow(): MatrixDropdownRowModelBase {
     return new MatrixDropdownTotalRowModel(this);
   }

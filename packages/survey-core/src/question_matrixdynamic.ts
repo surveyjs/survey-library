@@ -20,6 +20,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
+import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
 import { ActionContainer } from "./actions/container";
@@ -213,7 +214,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     if (Array.isArray(val) && index < val.length) return index < 0 ? undefined : val[index];
     if (index < 0 || index >= this.rowCount) return undefined;
-    return defaultRecord !== undefined ? defaultRecord : this.getUnbindValue(this.getDefaultRowValue(false) || {});
+    return defaultRecord !== undefined ? defaultRecord : this.getDefaultRowValue(false) || {};
   }
   // Appends default row values until the array holds rowCount records; the array is modified.
   private padRecords(records: Array<any>): Array<any> {
@@ -458,23 +459,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /* In front of the record at created position toIndex, at or past the last one an append. Under paging
      the position is one of the whole view and the page of the new record is shown; a source that pages
-     itself refuses a position its window does not hold, and reports it. */
+     itself refuses a position its window does not hold, and reports it. A negative number counts from
+     the end of the whole view, as the released splice did: -1 goes in front of the last record. */
   public addRowByIndex(rowData: any, toIndex: number):void {
     if (this.refuseOperationOfSource("insert")) return;
+    if (toIndex < 0) {
+      const count = this.isPagingActive || this.isRemoteData ? this.dataList.globalCreatedExtent : this.rowCount;
+      toIndex = Math.max(0, count + toIndex);
+    }
     if (this.isRemoteData) {
       // One source.insert at the position the caller named; no count setter and no move.
+      const at = this.getInsertIndexForOperation(toIndex);
+      if (at < 0) return;
       const list = this.dataList;
-      const at = this.isPagingActive ? list.getInsertIndexAtCreatedIndex(toIndex) : list.getInsertIndexAtMaterializedPosition(toIndex);
-      if (at < 0) {
-        this.reportRecordNotLoaded("insert");
-        return;
-      }
       this.followInsertedRecord(this.runRecordAdd((): number => list.add(rowData, at)), false);
       this.onRowsChanged();
-      return;
-    }
-    if (this.isNumberedByView) {
-      this.addRecordByViewIndex(rowData, toIndex);
       return;
     }
     if (this.isEditingObjectValue) {
@@ -484,32 +483,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.value = value;
       return;
     }
-    // rowCount++ creates the row object and, with it, the record at the end; the record then moves
-    // into place and takes rowData, so that the value is written once. The move takes the new record
-    // to the record of the row that stood at toIndex, and the new row with it.
-    this.runRecordAdd((): void => { this.rowCount++; });
-    const list = this.dataList;
-    const index = this.getRecordIndex(toIndex);
-    if (index < 0) return;
-    list.batch((): void => {
-      list.move(list.count - 1, index);
-      list.setRecord(index, rowData);
-    });
-  }
-  /* The local paged half of addRowByIndex: the record it goes in front of is taken before the add, by
-     the insert rule of the remote path (getInsertIndexAtCreatedIndex); loadedCount is an append. */
-  private addRecordByViewIndex(rowData: any, toIndex: number): void {
-    const list = this.dataList;
-    const oldCount = list.loadedCount;
-    const before = list.getInsertIndexAtCreatedIndex(toIndex);
-    this.runRecordAdd((): void => { this.rowCount++; });
-    if (list.loadedCount === oldCount) return;
-    const index = before < oldCount ? before : list.loadedCount - 1;
-    list.batch((): void => {
-      list.move(list.count - 1, index);
-      list.setRecord(index, rowData);
-    });
-    this.showPageOfRecord(index);
+    /* The record it goes in front of is taken before the add. rowCount++ creates the row object and,
+       with it, the record at the end; the record then moves into place and takes rowData, so that the
+       value is written once. The grow is a change of the matrix's own: a value a handler assigns while
+       the row is created (onMatrixCellCreated) is followed when it ends, and stops the add. */
+    const oldCount = this.getListRecordCount();
+    const before = this.getInsertIndexForOperation(toIndex);
+    const index = this.growAndMoveRecord((): void => { this.runOwnRecordsChange((): void => { this.rowCount++; }); },
+      (): number => before < oldCount ? before : this.dataList.loadedCount - 1, (): any => rowData);
+    if (index === -2) {
+      // The count did not grow - settings.matrix.maxRowCount without paging: the value takes the
+      // record and the count follows the value, as released.
+      const value = this.createNewValue();
+      value.splice(before, 0, rowData);
+      this.value = value;
+      return;
+    }
+    this.showPageOfInsertedRecord(index);
   }
   /* A created position; under paging of the whole view, and a record on another page is removed too.
      A source that pages itself refuses a record it has not loaded, and reports it. */
@@ -629,10 +619,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateRowsForCreatedIndexes();
       } else {
         this.generatedVisibleRows.splice(val);
+        // Without a view the rows are built in record order: a row's position is its record index.
         for (var i = prevValue; i < val; i++) {
-          var newRow = this.createMatrixRow(this.getValueForNewRow());
-          this.generatedVisibleRows.push(newRow);
-          this.onMatrixRowCreated(newRow);
+          this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), this.generatedVisibleRows.length);
         }
       }
       this.runCondition(this.getDataFilteredProperties());
@@ -654,10 +643,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     for (let i = rows.length; i < created.length; i++) {
-      const newRow = this.createMatrixRow(this.getValueForNewRow());
-      newRow.builtRecordIndex = created[i];
-      rows.push(newRow);
-      this.onMatrixRowCreated(newRow);
+      this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), created[i]);
     }
   }
   /**
@@ -915,20 +901,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const list = this.dataList;
     return list.getPageOfVisibleIndex(list.visibleCount) !== list.pageIndex;
   }
-  /* Under paging the added record's page is shown: it is where the respondent must see the row they
-     added. A move from code - the add itself was validated - and before onMatrixRowAdded, so that the
-     event gets the new row. */
-  private showPageOfAddedRecord(): void {
-    this.showPageOfRecord(this.getLastRowRecordIndex());
-  }
-  // A record the view does not show (rowsVisibleIf hides it) has no page: the page stays.
-  private showPageOfRecord(recordIndex: number): void {
-    if (recordIndex < 0) return;
-    this.markRecordEdited(recordIndex);
-    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
-    if (visibleIndex < 0) return;
-    this.showPageOfVisibleIndex(visibleIndex);
-  }
   private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
     if (!row.isVisible) return null;
     for (var i = 0; i < row.cells.length; i++) {
@@ -1015,12 +987,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
   protected appendItemForRecord(recordIndex: number): void {
-    const rows = this.generatedVisibleRows;
-    if (!Array.isArray(rows)) return;
-    const newRow = this.createMatrixRow(this.dataList.getRecord(recordIndex));
-    newRow.builtRecordIndex = recordIndex;
-    rows.push(newRow);
-    this.onMatrixRowCreated(newRow);
+    if (!Array.isArray(this.generatedVisibleRows)) return;
+    this.addRowForRecord(this.createMatrixRow(this.dataList.getRecord(recordIndex)), recordIndex);
   }
   /* Returns the row of the added record, null when it has none: under paging a record the page does not
      hold - rowsVisibleIf hides it - has no row. Without paging it is the last row (allRows), a hidden
@@ -1046,8 +1014,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         }
       }
     }
-    if (this.isPagedByList && prevRowCount + 1 == this.rowCount) {
-      this.showPageOfAddedRecord();
+    /* Under paging the added record's page is shown: it is where the respondent must see the row they
+       added. A move from code - the add itself was validated - and before onMatrixRowAdded, so that
+       the event gets the new row. */
+    if (prevRowCount + 1 == this.rowCount) {
+      this.showPageOfInsertedRecord(this.getLastRowRecordIndex());
     }
     const rows = this.allRows;
     if (prevRowCount + 1 != this.rowCount || rows.length === 0) return null;
@@ -1061,29 +1032,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return row;
   }
+  // The record a new row starts with, null when nothing applies.
   private getDefaultRowValue(isRowAdded: boolean): any {
-    var res = null;
-    for (var i = 0; i < this.columns.length; i++) {
-      var q = this.columns[i].templateQuestion;
-      if (!!q && !this.isValueEmpty(q.getDefaultValue())) {
-        res = res || {};
-        (<any>res)[this.columns[i].name] = q.getDefaultValue();
-      }
-    }
-    if (!this.isValueEmpty(this.defaultRowValue)) {
-      for (var key in this.defaultRowValue) {
-        res = res || {};
-        (<any>res)[key] = this.defaultRowValue[key];
-      }
-    }
-    if (isRowAdded && this.copyDefaultValueFromLastEntry) {
-      var rowValue = this.getLastEntryRecord();
-      for (var key in rowValue) {
-        res = res || {};
-        (<any>res)[key] = rowValue[key];
-      }
-    }
-    return res;
+    const copyFrom = isRowAdded && this.copyDefaultValueFromLastEntry ? this.getLastEntryRecord() : undefined;
+    const res = this.composeNewRecord(this.columns, (column: MatrixDropdownColumn): Question => column.templateQuestion,
+      (column: MatrixDropdownColumn): string => column.name, this.defaultRowValue, copyFrom);
+    return Object.keys(res).length > 0 ? res : null;
   }
   /* The record copyDefaultValueFromLastEntry copies from. The local path runs after rowCount was
      already grown, so the last entry is the record before the new one. The remote path builds the
@@ -1451,7 +1405,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (index < 0 || !isRemote && index >= this.rowCount) return null;
     const val = this.value;
     if (Array.isArray(val) && index < val.length) return this.getUnbindValue(val[index]);
-    return isRemote ? null : this.getUnbindValue(this.getDefaultRowValue(false) || {});
+    return isRemote ? null : this.getDefaultRowValue(false) || {};
   }
   // rowCount rows, whatever the value holds beyond them until it is normalized.
   protected getRecordCountForRows(): number {
@@ -1576,9 +1530,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (newRowCount == this.generatedVisibleRows.length + 1) {
       this.onStartRowAddingRemoving();
       const newValue = this.getRowValueByIndex(val, newRowCount - 1);
-      const newRow = this.createMatrixRow(newValue);
-      this.generatedVisibleRows.push(newRow);
-      this.onMatrixRowCreated(newRow);
+      this.addRowForRecord(this.createMatrixRow(newValue), newRowCount - 1);
       this.onEndRowAdding();
     } else {
       this.clearGeneratedRows();

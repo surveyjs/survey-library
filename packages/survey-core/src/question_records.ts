@@ -1133,16 +1133,7 @@ export abstract class QuestionRecordsModel extends Question {
      none; with select the question selects it, the position kept for a rebuild is gone by then. */
   protected followInsertedRecord(recordIndex: number, select: boolean): QuestionRecordItem {
     const list = this.dataList;
-    if (this.isPagedByList) {
-      this.markRecordEdited(recordIndex);
-      const visibleIndex = list.getVisibleIndexes().indexOf(recordIndex);
-      if (visibleIndex > -1) {
-        if (select) {
-          this.keepPendingVisibleIndex(visibleIndex);
-        }
-        if (this.showPageOfVisibleIndex(visibleIndex)) return this.getItemByRecordIndex(recordIndex);
-      }
-    }
+    if (this.showPageOfInsertedRecord(recordIndex, select)) return this.getItemByRecordIndex(recordIndex);
     if (this.areObjectsBuilt()) {
       const position = list.indexToMaterializedIndex(recordIndex);
       if (position > -1 && !!this.getItem(position)) {
@@ -1155,6 +1146,77 @@ export abstract class QuestionRecordsModel extends Question {
       this.takePendingVisibleIndex();
     }
     return this.getItemByRecordIndex(recordIndex);
+  }
+  /* Step 1 of followInsertedRecord, also for an add whose objects the count setter has built already:
+     under in-memory paging the inserted record is marked edited and the page that holds it is shown,
+     as a move from code. With select the record's position is kept for the rebuild a page change
+     makes. A record the view does not show has no page: the page stays. Returns whether the page
+     changed. */
+  protected showPageOfInsertedRecord(recordIndex: number, select: boolean = false): boolean {
+    if (!this.isPagedByList || recordIndex < 0) return false;
+    this.markRecordEdited(recordIndex);
+    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
+    if (visibleIndex < 0) return false;
+    if (select) {
+      this.keepPendingVisibleIndex(visibleIndex);
+    }
+    return this.showPageOfVisibleIndex(visibleIndex);
+  }
+  /* The add of a question whose count setter builds the objects (rowCount++, panelCount++ in grow):
+     the grow appends the new record at the end, and the record then moves to getIndex() and takes
+     getRecord(index) when that answers one - one write, in one list.batch. getIndex runs after the
+     grow. An assignment from outside that the grow defers and follows (see runOwnRecordsChange)
+     stops the add. Returns the record index the new record ended at, or:
+     -1: an outside assignment happened during the grow - the assigned value stays, none of its records
+         is the new one - or getIndex answered none;
+     -2: the count did not grow; the caller decides what the add does then. */
+  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any): number {
+    const outsideAssignmentCount = this.outsideAssignmentCount;
+    const oldCount = this.getListRecordCount();
+    this.runRecordAdd(grow);
+    if (this.outsideAssignmentCount !== outsideAssignmentCount) return -1;
+    const list = this.dataList;
+    if (list.count === oldCount) return -2;
+    const index = getIndex();
+    if (index < 0) return -1;
+    list.batch((): void => {
+      const lastIndex = list.count - 1;
+      if (index !== lastIndex) {
+        list.move(lastIndex, index);
+      }
+      const record = getRecord(index);
+      if (record !== undefined) {
+        list.setRecord(index, record);
+      }
+    });
+    return index;
+  }
+  /* A new record: the default values of the questions a record has (inputs: the columns, the template
+     questions; getKey names the key a value is stored under), then defaultRecord, then copyFrom - a
+     later one wins. Everything is unbound: the record shares no object with the defaults or with the
+     record it copies. */
+  protected composeNewRecord<T>(inputs: Array<T>, getQuestion: (input: T) => Question, getKey: (input: T) => string,
+    defaultRecord: any, copyFrom?: any): any {
+    const record: any = {};
+    for (let i = 0; i < inputs.length; i++) {
+      const question = getQuestion(inputs[i]);
+      const val = !!question ? question.getDefaultValue() : undefined;
+      if (!this.isValueEmpty(val)) {
+        record[getKey(inputs[i])] = Helpers.getUnbindValue(val);
+      }
+    }
+    if (!this.isValueEmpty(defaultRecord)) {
+      QuestionRecordsModel.copyRecordValues(record, defaultRecord);
+    }
+    if (!!copyFrom) {
+      QuestionRecordsModel.copyRecordValues(record, copyFrom);
+    }
+    return record;
+  }
+  private static copyRecordValues(dest: any, src: any): void {
+    for (const key in src) {
+      dest[key] = Helpers.getUnbindValue(src[key]);
+    }
   }
   /* The authored page size, 0 = no paging, stored under the property getPageSizePropertyName() names
      - the one the JSON and the property grid know (rowsPerPage, panelsPerPage). The question reads
@@ -1296,6 +1358,17 @@ export abstract class QuestionRecordsModel extends Question {
       return -1;
     }
     return target.recordIndex;
+  }
+  /* The record index an insert at a created position of the whole view goes to: in front of the
+     record at that position, an append at or past the last one (getInsertIndexAtCreatedIndex of the
+     list). -1: a source that pages itself does not hold the position - the insert is refused and
+     reported. */
+  protected getInsertIndexForOperation(createdIndex: number): number {
+    const at = this.dataList.getInsertIndexAtCreatedIndex(createdIndex);
+    if (at < 0) {
+      this.reportRecordNotLoaded("insert");
+    }
+    return at;
   }
   /* The two records a move between created positions of the whole view names, each end clamped to the
      records shown, as the numbers of a move are clamped without paging. undefined: there is nothing to
